@@ -4,13 +4,15 @@ use rand::prelude::*;
 pub struct Context {
     pub gene_size: usize,
     pub population_size: usize,
+    pub tournament_size: usize,
 }
 
 impl Context {
-    pub fn new(gene_size: usize, population_size: usize) -> Self {
+    pub fn new(gene_size: usize, population_size: usize, tournament_size: usize) -> Self {
         Self {
             gene_size: gene_size,
             population_size: population_size,
+            tournament_size: tournament_size,
         }
     }
 
@@ -26,5 +28,15 @@ impl Context {
 
     pub fn mutate_single_gene(&self, gene: &mut bool) {
         *gene = !*gene;
+    }
+}
+
+impl Default for Context {
+    fn default() -> Self {
+        Context {
+            gene_size: 10,
+            population_size: 100,
+            tournament_size: 4,
+        }
     }
 }

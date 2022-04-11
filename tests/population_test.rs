@@ -7,7 +7,7 @@ mod population_tests {
     fn test_random_factory() {
         let population_size = 100;
         let gene_size = 16;
-        let context = Context::new(gene_size, population_size);
+        let context = Context::new(gene_size, population_size, 4);
         let population = Population::random_factory(&context);
         println!("{:#?}", population);
 
