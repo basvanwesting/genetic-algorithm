@@ -1,10 +1,13 @@
-use crate::chromosome::Chromosome;
 use crate::context::Context;
+use crate::population::Population;
 use rand::distributions::{Distribution, Uniform};
 
-pub fn single_gene(context: &Context, chromosome: &mut Chromosome) {
+pub fn mutate_single_gene(context: &Context, population: &mut Population) {
     let gene_range = Uniform::from(0..context.gene_size);
     let mut rng = rand::thread_rng();
-    let index = gene_range.sample(&mut rng);
-    context.mutate_single_gene(&mut chromosome.genes[index])
+
+    for chromosome in &mut population.chromosomes {
+        let index = gene_range.sample(&mut rng);
+        context.mutate_single_gene(&mut chromosome.genes[index])
+    }
 }

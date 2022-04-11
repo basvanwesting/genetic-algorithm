@@ -2,19 +2,47 @@
 mod mutation_tests {
     use genetic_algorithm::chromosome::Chromosome;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::mutation::single_gene;
+    use genetic_algorithm::mutation::mutate_single_gene;
+    use genetic_algorithm::population::Population;
 
     #[test]
-    fn mutate_single_gene() {
-        let context = Context::new(3, 10);
-        let mut chromosome = Chromosome::new(vec![true, true, true]);
+    fn test_mutate_single_gene() {
+        let context = Context::new(3, 4);
+        let mut population = Population::new(vec![
+            Chromosome::new(vec![true, true, true]),
+            Chromosome::new(vec![true, true, true]),
+            Chromosome::new(vec![true, true, true]),
+            Chromosome::new(vec![true, true, true]),
+        ]);
 
-        assert_eq!(chromosome.genes.iter().filter(|&gene| *gene).count(), 3);
-        assert_eq!(chromosome.genes.iter().filter(|&gene| !*gene).count(), 0);
+        let number_of_true_values_pre: usize = population
+            .chromosomes
+            .iter()
+            .map(|c| c.genes.iter().filter(|&gene| *gene).count())
+            .sum();
+        let number_of_false_values_pre: usize = population
+            .chromosomes
+            .iter()
+            .map(|c| c.genes.iter().filter(|&gene| !*gene).count())
+            .sum();
 
-        single_gene(&context, &mut chromosome);
+        assert_eq!(number_of_true_values_pre, 12);
+        assert_eq!(number_of_false_values_pre, 0);
 
-        assert_eq!(chromosome.genes.iter().filter(|&gene| *gene).count(), 2);
-        assert_eq!(chromosome.genes.iter().filter(|&gene| !*gene).count(), 1);
+        mutate_single_gene(&context, &mut population);
+
+        let number_of_true_values_post: usize = population
+            .chromosomes
+            .iter()
+            .map(|c| c.genes.iter().filter(|&gene| *gene).count())
+            .sum();
+        let number_of_false_values_post: usize = population
+            .chromosomes
+            .iter()
+            .map(|c| c.genes.iter().filter(|&gene| !*gene).count())
+            .sum();
+
+        assert_eq!(number_of_true_values_post, 8);
+        assert_eq!(number_of_false_values_post, 4);
     }
 }
