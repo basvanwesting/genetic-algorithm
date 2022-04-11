@@ -23,4 +23,8 @@ impl Context {
 
         Chromosome::new(genes)
     }
+
+    pub fn mutate_single_gene(&self, gene: &mut bool) {
+        *gene = !*gene;
+    }
 }
