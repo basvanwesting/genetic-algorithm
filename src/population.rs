@@ -14,13 +14,6 @@ impl Population {
         }
     }
 
-    pub fn random_factory(context: &Context) -> Self {
-        let chromosomes = (0..context.population_size)
-            .map(|_| context.random_chromosome_factory())
-            .collect();
-        Self::new(chromosomes)
-    }
-
     pub fn merge(&mut self, other: &mut Self) {
         self.chromosomes.append(&mut other.chromosomes);
     }
@@ -33,5 +26,12 @@ impl Population {
         self.chromosomes
             .iter_mut()
             .for_each(|o| o.fitness = Some(fitness::simple_sum(o)));
+    }
+
+    pub fn random_factory(context: &Context) -> Self {
+        let chromosomes = (0..context.population_size)
+            .map(|_| context.random_chromosome_factory())
+            .collect();
+        Self::new(chromosomes)
     }
 }

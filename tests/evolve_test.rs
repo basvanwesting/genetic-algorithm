@@ -10,7 +10,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_tournament_size(4);
 
-        let best_chromosome = evolve::call(&context);
+        let best_chromosome = evolve::call(&context).unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness, Some(10));

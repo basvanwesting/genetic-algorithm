@@ -1,4 +1,6 @@
 use crate::chromosome::Chromosome;
+use crate::population::Population;
+use itertools::Itertools;
 use rand::prelude::*;
 
 pub struct Context {
@@ -42,6 +44,16 @@ impl Context {
             .collect();
 
         Chromosome::new(genes)
+    }
+
+    pub fn permutation_population_factory(&self) -> Population {
+        let chromosomes = (0..self.gene_size)
+            .map(|_| [true, false])
+            .multi_cartesian_product()
+            .map(|genes| Chromosome::new(genes))
+            .collect();
+
+        Population::new(chromosomes)
     }
 
     // defined here because needs to know gene type bool

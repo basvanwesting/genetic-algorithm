@@ -5,7 +5,7 @@ use crate::crossover;
 use crate::mutation;
 use crate::population::Population;
 
-pub fn call(context: &Context) -> Chromosome {
+pub fn call(context: &Context) -> Option<Chromosome> {
     let mut generation = 0;
     let mut best_generation = 0;
     let mut new_population = Population::random_factory(&context);
@@ -33,5 +33,5 @@ pub fn call(context: &Context) -> Chromosome {
             }
         }
     }
-    best_chromosome
+    Some(best_chromosome)
 }

@@ -5,4 +5,5 @@ pub mod crossover;
 pub mod evolve;
 pub mod fitness;
 pub mod mutation;
+pub mod permutate;
 pub mod population;

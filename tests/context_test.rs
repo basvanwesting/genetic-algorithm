@@ -13,4 +13,72 @@ mod context_tests {
         println!("{:#?}", chromosome);
         assert_eq!(chromosome.genes.len(), 10);
     }
+
+    #[test]
+    fn test_permutation_population_factory_1() {
+        let context = Context::new().with_gene_size(1);
+
+        let population = context.permutation_population_factory();
+        println!("{:#?}", population);
+
+        let data: Vec<Vec<bool>> = population
+            .chromosomes
+            .into_iter()
+            .map(|c| c.genes)
+            .collect();
+
+        assert_eq!(data, vec![vec![true], vec![false],])
+    }
+
+    #[test]
+    fn test_permutation_population_factory_2() {
+        let context = Context::new().with_gene_size(2);
+
+        let population = context.permutation_population_factory();
+        println!("{:#?}", population);
+
+        let data: Vec<Vec<bool>> = population
+            .chromosomes
+            .into_iter()
+            .map(|c| c.genes)
+            .collect();
+
+        assert_eq!(
+            data,
+            vec![
+                vec![true, true],
+                vec![true, false],
+                vec![false, true],
+                vec![false, false],
+            ]
+        )
+    }
+
+    #[test]
+    fn test_permutation_population_factory_3() {
+        let context = Context::new().with_gene_size(3);
+
+        let population = context.permutation_population_factory();
+        println!("{:#?}", population);
+
+        let data: Vec<Vec<bool>> = population
+            .chromosomes
+            .into_iter()
+            .map(|c| c.genes)
+            .collect();
+
+        assert_eq!(
+            data,
+            vec![
+                vec![true, true, true],
+                vec![true, true, false],
+                vec![true, false, true],
+                vec![true, false, false],
+                vec![false, true, true],
+                vec![false, true, false],
+                vec![false, false, true],
+                vec![false, false, false],
+            ]
+        )
+    }
 }
