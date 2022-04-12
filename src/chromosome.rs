@@ -1,7 +1,9 @@
+use std::cmp::Ordering;
+
 #[derive(Debug)]
 pub struct Chromosome {
     pub genes: Vec<bool>,
-    pub fitness: Option<f32>,
+    pub fitness: Option<usize>,
 }
 
 impl Chromosome {
@@ -10,5 +12,25 @@ impl Chromosome {
             genes: genes,
             fitness: None,
         }
+    }
+}
+
+impl PartialEq for Chromosome {
+    fn eq(&self, other: &Self) -> bool {
+        self.fitness == other.fitness
+    }
+}
+
+impl Eq for Chromosome {}
+
+impl PartialOrd for Chromosome {
+    fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
+        Some(self.fitness.cmp(&other.fitness))
+    }
+}
+
+impl Ord for Chromosome {
+    fn cmp(&self, other: &Self) -> Ordering {
+        self.partial_cmp(other).unwrap_or(Ordering::Equal)
     }
 }
