@@ -2,12 +2,12 @@ use crate::chromosome::Chromosome;
 use crate::context::Context;
 use crate::fitness;
 use crate::population::Population;
-use rand::rngs::ThreadRng;
+use rand::rngs::SmallRng;
 use rand::seq::IteratorRandom;
-use rand::thread_rng;
+use rand::SeedableRng;
 
 pub fn tournament(context: &Context, mut population: Population) -> Population {
-    let mut rng = thread_rng();
+    let mut rng = SmallRng::from_entropy();
 
     population
         .chromosomes
@@ -32,7 +32,7 @@ pub fn tournament(context: &Context, mut population: Population) -> Population {
 fn tournament_single_round(
     population: &Population,
     size: usize,
-    rng: &mut ThreadRng,
+    rng: &mut SmallRng,
 ) -> Option<usize> {
     let mut slice: Vec<(usize, &Chromosome)> = population
         .chromosomes
