@@ -8,6 +8,7 @@ pub struct Context {
     pub population_size: usize,
     pub tournament_size: usize,
     pub max_stale_generations: usize,
+    pub mutation_probability: f32,
 }
 
 impl Context {
@@ -32,6 +33,11 @@ impl Context {
 
     pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
         self.max_stale_generations = max_stale_generations;
+        self
+    }
+
+    pub fn with_mutation_probability(mut self, mutation_probability: f32) -> Self {
+        self.mutation_probability = mutation_probability;
         self
     }
 
@@ -69,6 +75,7 @@ impl Default for Context {
             population_size: 100,
             tournament_size: 4,
             max_stale_generations: 20,
+            mutation_probability: 0.1,
         }
     }
 }
