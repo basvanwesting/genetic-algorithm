@@ -4,7 +4,11 @@ mod context_tests {
 
     #[test]
     fn test_random_chromosome_factory() {
-        let context = Context::new(10, 100, 4);
+        let context = Context::new()
+            .with_gene_size(10)
+            .with_population_size(100)
+            .with_tournament_size(4);
+
         let chromosome = context.random_chromosome_factory();
         println!("{:#?}", chromosome);
         assert_eq!(chromosome.genes.len(), 10);

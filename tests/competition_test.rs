@@ -7,7 +7,11 @@ mod competition_tests {
 
     #[test]
     fn test_tournament() {
-        let context = Context::new(3, 4, 4);
+        let context = Context::new()
+            .with_gene_size(3)
+            .with_population_size(4)
+            .with_tournament_size(4);
+
         let population = Population::new(vec![
             Chromosome::new(vec![false, false, false]),
             Chromosome::new(vec![false, false, true]),
@@ -36,7 +40,11 @@ mod competition_tests {
 
     #[test]
     fn test_tournament_shortage() {
-        let context = Context::new(3, 4, 4);
+        let context = Context::new()
+            .with_gene_size(3)
+            .with_population_size(4)
+            .with_tournament_size(4);
+
         let population = Population::new(vec![
             Chromosome::new(vec![false, false, false]),
             Chromosome::new(vec![false, false, true]),

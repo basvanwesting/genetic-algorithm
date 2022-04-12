@@ -7,7 +7,8 @@ mod mutation_tests {
 
     #[test]
     fn test_single_gene() {
-        let context = Context::new(3, 4, 4);
+        let context = Context::new().with_gene_size(3);
+
         let mut population = Population::new(vec![
             Chromosome::new(vec![true, true, true]),
             Chromosome::new(vec![true, true, true]),

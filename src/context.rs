@@ -8,12 +8,23 @@ pub struct Context {
 }
 
 impl Context {
-    pub fn new(gene_size: usize, population_size: usize, tournament_size: usize) -> Self {
-        Self {
-            gene_size: gene_size,
-            population_size: population_size,
-            tournament_size: tournament_size,
-        }
+    pub fn new() -> Self {
+        Self::default()
+    }
+
+    pub fn with_gene_size(mut self, gene_size: usize) -> Self {
+        self.gene_size = gene_size;
+        self
+    }
+
+    pub fn with_population_size(mut self, population_size: usize) -> Self {
+        self.population_size = population_size;
+        self
+    }
+
+    pub fn with_tournament_size(mut self, tournament_size: usize) -> Self {
+        self.tournament_size = tournament_size;
+        self
     }
 
     // defined here because needs to know gene type bool

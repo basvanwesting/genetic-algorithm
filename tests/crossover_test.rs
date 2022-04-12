@@ -7,7 +7,8 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_even() {
-        let context = Context::new(3, 4, 4);
+        let context = Context::new().with_gene_size(3).with_population_size(4);
+
         let population = Population::new(vec![
             Chromosome::new(vec![true, true, true]),
             Chromosome::new(vec![false, false, false]),
@@ -31,7 +32,8 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_odd() {
-        let context = Context::new(3, 4, 4);
+        let context = Context::new().with_gene_size(3).with_population_size(4);
+
         let population = Population::new(vec![
             Chromosome::new(vec![true, true, true]),
             Chromosome::new(vec![false, false, false]),
