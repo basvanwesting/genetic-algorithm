@@ -14,7 +14,7 @@ pub fn tournament(context: &Context, mut population: Population) -> Population {
         .iter_mut()
         .for_each(|o| o.fitness = Some(fitness::simple_sum(o)));
 
-    let mut target_chromosomes: Vec<Chromosome> = vec![];
+    let mut target_chromosomes: Vec<Chromosome> = Vec::with_capacity(context.population_size);
 
     for _ in 0..context.population_size {
         if let Some(winning_index) =

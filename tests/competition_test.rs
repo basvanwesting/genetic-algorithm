@@ -33,4 +33,17 @@ mod competition_tests {
         assert!(number_of_true_values >= 8);
         println!("{:#?}", new_population);
     }
+
+    #[test]
+    fn test_tournament_shortage() {
+        let context = Context::new(3, 4, 4);
+        let population = Population::new(vec![
+            Chromosome::new(vec![false, false, false]),
+            Chromosome::new(vec![false, false, true]),
+        ]);
+
+        let new_population = tournament(&context, population);
+
+        assert_eq!(new_population.chromosomes.len(), 2);
+    }
 }

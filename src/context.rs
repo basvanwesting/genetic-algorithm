@@ -16,6 +16,7 @@ impl Context {
         }
     }
 
+    // defined here because needs to know gene type bool
     pub fn random_chromosome_factory(&self) -> Chromosome {
         //let mut genes: Vec<bool> = (0..self.gene_size).map(|_| rng.gen()).collect();
         let genes: Vec<bool> = rand::thread_rng()
@@ -26,6 +27,7 @@ impl Context {
         Chromosome::new(genes)
     }
 
+    // defined here because needs to know gene type bool
     pub fn mutate_single_gene(&self, gene: &mut bool) {
         *gene = !*gene;
     }
