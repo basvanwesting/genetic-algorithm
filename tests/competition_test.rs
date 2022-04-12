@@ -12,7 +12,7 @@ mod competition_tests {
             .with_population_size(4)
             .with_tournament_size(4);
 
-        let population = Population::new(vec![
+        let mut population = Population::new(vec![
             Chromosome::new(vec![false, false, false]),
             Chromosome::new(vec![false, false, true]),
             Chromosome::new(vec![false, true, false]),
@@ -23,6 +23,7 @@ mod competition_tests {
             Chromosome::new(vec![true, true, true]),
         ]);
 
+        population.calculate_fitness();
         let new_population = competition::tournament(&context, population);
 
         assert_eq!(new_population.chromosomes.len(), 4);
@@ -45,11 +46,12 @@ mod competition_tests {
             .with_population_size(4)
             .with_tournament_size(4);
 
-        let population = Population::new(vec![
+        let mut population = Population::new(vec![
             Chromosome::new(vec![false, false, false]),
             Chromosome::new(vec![false, false, true]),
         ]);
 
+        population.calculate_fitness();
         let new_population = competition::tournament(&context, population);
 
         assert_eq!(new_population.chromosomes.len(), 2);

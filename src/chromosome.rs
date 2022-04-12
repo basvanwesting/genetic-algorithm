@@ -1,6 +1,6 @@
 use std::cmp::Ordering;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Chromosome {
     pub genes: Vec<bool>,
     pub fitness: Option<usize>,

@@ -1,5 +1,6 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
+use crate::fitness;
 
 #[derive(Debug)]
 pub struct Population {
@@ -18,5 +19,19 @@ impl Population {
             .map(|_| context.random_chromosome_factory())
             .collect();
         Self::new(chromosomes)
+    }
+
+    pub fn merge(&mut self, other: &mut Self) {
+        self.chromosomes.append(&mut other.chromosomes);
+    }
+
+    pub fn sort(&mut self) {
+        self.chromosomes.sort_unstable_by_key(|c| c.fitness);
+    }
+
+    pub fn calculate_fitness(&mut self) {
+        self.chromosomes
+            .iter_mut()
+            .for_each(|o| o.fitness = Some(fitness::simple_sum(o)));
     }
 }

@@ -1,6 +1,5 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
-use crate::fitness;
 use crate::population::Population;
 use rand::rngs::SmallRng;
 use rand::seq::IteratorRandom;
@@ -8,12 +7,6 @@ use rand::SeedableRng;
 
 pub fn tournament(context: &Context, mut population: Population) -> Population {
     let mut rng = SmallRng::from_entropy();
-
-    population
-        .chromosomes
-        .iter_mut()
-        .for_each(|o| o.fitness = Some(fitness::simple_sum(o)));
-
     let mut target_chromosomes: Vec<Chromosome> = Vec::with_capacity(context.population_size);
 
     for _ in 0..context.population_size {
@@ -26,6 +19,7 @@ pub fn tournament(context: &Context, mut population: Population) -> Population {
             break;
         }
     }
+
     Population::new(target_chromosomes)
 }
 

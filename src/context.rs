@@ -5,6 +5,7 @@ pub struct Context {
     pub gene_size: usize,
     pub population_size: usize,
     pub tournament_size: usize,
+    pub max_stale_generations: usize,
 }
 
 impl Context {
@@ -24,6 +25,11 @@ impl Context {
 
     pub fn with_tournament_size(mut self, tournament_size: usize) -> Self {
         self.tournament_size = tournament_size;
+        self
+    }
+
+    pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
+        self.max_stale_generations = max_stale_generations;
         self
     }
 
@@ -50,6 +56,7 @@ impl Default for Context {
             gene_size: 10,
             population_size: 100,
             tournament_size: 4,
+            max_stale_generations: 20,
         }
     }
 }
