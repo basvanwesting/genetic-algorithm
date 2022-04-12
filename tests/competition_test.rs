@@ -1,7 +1,7 @@
 #[cfg(test)]
 mod competition_tests {
     use genetic_algorithm::chromosome::Chromosome;
-    use genetic_algorithm::competition::tournament;
+    use genetic_algorithm::competition;
     use genetic_algorithm::context::Context;
     use genetic_algorithm::population::Population;
 
@@ -19,7 +19,7 @@ mod competition_tests {
             Chromosome::new(vec![true, true, true]),
         ]);
 
-        let new_population = tournament(&context, population);
+        let new_population = competition::tournament(&context, population);
 
         assert_eq!(new_population.chromosomes.len(), 4);
 
@@ -42,7 +42,7 @@ mod competition_tests {
             Chromosome::new(vec![false, false, true]),
         ]);
 
-        let new_population = tournament(&context, population);
+        let new_population = competition::tournament(&context, population);
 
         assert_eq!(new_population.chromosomes.len(), 2);
     }

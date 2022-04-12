@@ -4,7 +4,7 @@ use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 
-pub fn mutate_single_gene(context: &Context, population: &mut Population) {
+pub fn single_gene(context: &Context, population: &mut Population) {
     let gene_range = Uniform::from(0..context.gene_size);
     let mut rng = SmallRng::from_entropy();
 
