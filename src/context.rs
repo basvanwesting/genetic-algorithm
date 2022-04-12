@@ -2,6 +2,7 @@ use crate::chromosome::Chromosome;
 use crate::population::Population;
 use itertools::Itertools;
 use rand::prelude::*;
+use std::fmt;
 
 pub struct Context {
     pub gene_size: usize,
@@ -77,5 +78,20 @@ impl Default for Context {
             max_stale_generations: 20,
             mutation_probability: 0.1,
         }
+    }
+}
+
+impl fmt::Display for Context {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "context:\n")?;
+        write!(f, "  gene_size: {}\n", self.gene_size)?;
+        write!(f, "  population_size: {}\n", self.population_size)?;
+        write!(f, "  tournament_size: {}\n", self.tournament_size)?;
+        write!(
+            f,
+            "  max_stale_generations: {}\n",
+            self.max_stale_generations
+        )?;
+        write!(f, "  mutation_probability: {}\n", self.mutation_probability)
     }
 }

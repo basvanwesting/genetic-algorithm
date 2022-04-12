@@ -9,6 +9,8 @@ fn main() {
         .with_max_stale_generations(20)
         .with_mutation_probability(0.1);
 
+    println!("{}", context);
+
     if let Some(best_chromosome) = evolve::call(&context) {
         println!("best chromosome: {}", best_chromosome);
     } else {
