@@ -21,8 +21,8 @@ pub fn call(context: &Context) -> Option<Chromosome> {
 
         generation += 1;
         println!(
-            "generation {:?}, best fitness {:?}",
-            generation, best_chromosome.fitness
+            "generation {:?}, best chromosome {}",
+            generation, best_chromosome
         );
 
         new_population.sort();

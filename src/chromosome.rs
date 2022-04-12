@@ -1,4 +1,5 @@
 use std::cmp::Ordering;
+use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct Chromosome {
@@ -32,5 +33,15 @@ impl PartialOrd for Chromosome {
 impl Ord for Chromosome {
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap_or(Ordering::Equal)
+    }
+}
+
+impl fmt::Display for Chromosome {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        if let Some(score) = self.fitness {
+            write!(f, "fitness score {}", score)
+        } else {
+            write!(f, "no fitness score")
+        }
     }
 }
