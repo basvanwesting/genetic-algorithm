@@ -1,5 +1,8 @@
+mod support;
+
 #[cfg(test)]
 mod context_tests {
+    use crate::support::builders::build_booleans_from_population;
     use genetic_algorithm::context::Context;
 
     #[test]
@@ -21,12 +24,7 @@ mod context_tests {
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
 
-        let data: Vec<Vec<bool>> = population
-            .chromosomes
-            .into_iter()
-            .map(|c| c.genes)
-            .collect();
-
+        let data = build_booleans_from_population(population);
         assert_eq!(data, vec![vec![true], vec![false],])
     }
 
@@ -37,12 +35,7 @@ mod context_tests {
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
 
-        let data: Vec<Vec<bool>> = population
-            .chromosomes
-            .into_iter()
-            .map(|c| c.genes)
-            .collect();
-
+        let data = build_booleans_from_population(population);
         assert_eq!(
             data,
             vec![
@@ -61,12 +54,7 @@ mod context_tests {
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
 
-        let data: Vec<Vec<bool>> = population
-            .chromosomes
-            .into_iter()
-            .map(|c| c.genes)
-            .collect();
-
+        let data = build_booleans_from_population(population);
         assert_eq!(
             data,
             vec![

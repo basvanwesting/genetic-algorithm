@@ -13,12 +13,12 @@ mod population_tests {
         let number_of_true_values: usize = population
             .chromosomes
             .iter()
-            .map(|c| c.genes.iter().filter(|&gene| *gene).count())
+            .map(|c| c.genes.iter().filter(|&gene| gene.value).count())
             .sum();
         let number_of_false_values: usize = population
             .chromosomes
             .iter()
-            .map(|c| c.genes.iter().filter(|&gene| !*gene).count())
+            .map(|c| c.genes.iter().filter(|&gene| !gene.value).count())
             .sum();
 
         assert_eq!(number_of_true_values + number_of_false_values, 16 * 100);

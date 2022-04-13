@@ -1,4 +1,5 @@
 use crate::chromosome::Chromosome;
+use crate::gene::Gene;
 use crate::population::Population;
 use itertools::Itertools;
 use rand::prelude::*;
@@ -45,9 +46,10 @@ impl Context {
     // defined here because needs to know gene type bool
     pub fn random_chromosome_factory(&self) -> Chromosome {
         //let mut genes: Vec<bool> = (0..self.gene_size).map(|_| rng.gen()).collect();
-        let genes: Vec<bool> = rand::thread_rng()
+        let genes: Vec<Gene> = rand::thread_rng()
             .sample_iter(rand::distributions::Standard)
             .take(self.gene_size)
+            .map(|v| Gene::new(v))
             .collect();
 
         Chromosome::new(genes)
@@ -55,17 +57,12 @@ impl Context {
 
     pub fn permutation_population_factory(&self) -> Population {
         let chromosomes = (0..self.gene_size)
-            .map(|_| [true, false])
+            .map(|_| [Gene::new(true), Gene::new(false)])
             .multi_cartesian_product()
             .map(|genes| Chromosome::new(genes))
             .collect();
 
         Population::new(chromosomes)
-    }
-
-    // defined here because needs to know gene type bool
-    pub fn mutate_single_gene(&self, gene: &mut bool) {
-        *gene = !*gene;
     }
 }
 

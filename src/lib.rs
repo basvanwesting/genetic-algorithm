@@ -4,6 +4,7 @@ pub mod context;
 pub mod crossover;
 pub mod evolve;
 pub mod fitness;
+pub mod gene;
 pub mod mutation;
 pub mod permutate;
 pub mod population;

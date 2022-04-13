@@ -1,14 +1,15 @@
+use crate::gene::Gene;
 use std::cmp::Ordering;
 use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct Chromosome {
-    pub genes: Vec<bool>,
+    pub genes: Vec<Gene>,
     pub fitness: Option<usize>,
 }
 
 impl Chromosome {
-    pub fn new(genes: Vec<bool>) -> Self {
+    pub fn new(genes: Vec<Gene>) -> Self {
         Self {
             genes: genes,
             fitness: None,
