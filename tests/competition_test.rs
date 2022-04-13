@@ -2,7 +2,7 @@ mod support;
 
 #[cfg(test)]
 mod competition_tests {
-    use crate::support::builders::build_population_from_booleans;
+    use crate::support::*;
     use genetic_algorithm::competition;
     use genetic_algorithm::context::Context;
 
@@ -13,7 +13,7 @@ mod competition_tests {
             .with_population_size(4)
             .with_tournament_size(4);
 
-        let mut population = build_population_from_booleans(vec![
+        let mut population = builders::population_from_booleans(vec![
             vec![false, false, false],
             vec![false, false, true],
             vec![false, true, false],
@@ -29,14 +29,8 @@ mod competition_tests {
 
         assert_eq!(new_population.chromosomes.len(), 4);
 
-        let number_of_true_values: usize = new_population
-            .chromosomes
-            .iter()
-            .map(|c| c.genes.iter().filter(|&gene| gene.value).count())
-            .sum();
-
         // safe enough value, although not by definition true
-        assert!(number_of_true_values >= 8);
+        assert!(helpers::number_of_true_values_in_population(&new_population) >= 8);
         println!("{:#?}", new_population);
     }
 
@@ -47,7 +41,7 @@ mod competition_tests {
             .with_population_size(4)
             .with_tournament_size(4);
 
-        let mut population = build_population_from_booleans(vec![
+        let mut population = builders::population_from_booleans(vec![
             vec![false, false, false],
             vec![false, false, true],
         ]);

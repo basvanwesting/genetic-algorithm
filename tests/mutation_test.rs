@@ -2,7 +2,7 @@ mod support;
 
 #[cfg(test)]
 mod mutation_tests {
-    use crate::support::builders::build_population_from_booleans;
+    use crate::support::*;
     use genetic_algorithm::context::Context;
     use genetic_algorithm::mutation;
 
@@ -12,7 +12,7 @@ mod mutation_tests {
             .with_gene_size(3)
             .with_mutation_probability(1.0);
 
-        let mut population = build_population_from_booleans(vec![
+        let mut population = builders::population_from_booleans(vec![
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
@@ -21,19 +21,11 @@ mod mutation_tests {
 
         mutation::single_gene(&context, &mut population);
 
-        let number_of_true_values_post: usize = population
-            .chromosomes
-            .iter()
-            .map(|c| c.genes.iter().filter(|&gene| gene.value).count())
-            .sum();
-        let number_of_false_values_post: usize = population
-            .chromosomes
-            .iter()
-            .map(|c| c.genes.iter().filter(|&gene| !gene.value).count())
-            .sum();
-
-        assert_eq!(number_of_true_values_post, 8);
-        assert_eq!(number_of_false_values_post, 4);
+        assert_eq!(helpers::number_of_true_values_in_population(&population), 8);
+        assert_eq!(
+            helpers::number_of_false_values_in_population(&population),
+            4
+        );
     }
 
     #[test]
@@ -42,7 +34,7 @@ mod mutation_tests {
             .with_gene_size(3)
             .with_mutation_probability(0.0);
 
-        let mut population = build_population_from_booleans(vec![
+        let mut population = builders::population_from_booleans(vec![
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
@@ -51,18 +43,13 @@ mod mutation_tests {
 
         mutation::single_gene(&context, &mut population);
 
-        let number_of_true_values_post: usize = population
-            .chromosomes
-            .iter()
-            .map(|c| c.genes.iter().filter(|&gene| gene.value).count())
-            .sum();
-        let number_of_false_values_post: usize = population
-            .chromosomes
-            .iter()
-            .map(|c| c.genes.iter().filter(|&gene| !gene.value).count())
-            .sum();
-
-        assert_eq!(number_of_true_values_post, 12);
-        assert_eq!(number_of_false_values_post, 0);
+        assert_eq!(
+            helpers::number_of_true_values_in_population(&population),
+            12
+        );
+        assert_eq!(
+            helpers::number_of_false_values_in_population(&population),
+            0
+        );
     }
 }

@@ -1,5 +1,8 @@
+mod support;
+
 #[cfg(test)]
 mod population_tests {
+    use crate::support::*;
     use genetic_algorithm::context::Context;
     use genetic_algorithm::population::Population;
 
@@ -10,17 +13,10 @@ mod population_tests {
         let population = Population::random_factory(&context);
         println!("{:#?}", population);
 
-        let number_of_true_values: usize = population
-            .chromosomes
-            .iter()
-            .map(|c| c.genes.iter().filter(|&gene| gene.value).count())
-            .sum();
-        let number_of_false_values: usize = population
-            .chromosomes
-            .iter()
-            .map(|c| c.genes.iter().filter(|&gene| !gene.value).count())
-            .sum();
-
-        assert_eq!(number_of_true_values + number_of_false_values, 16 * 100);
+        assert_eq!(
+            helpers::number_of_true_values_in_population(&population)
+                + helpers::number_of_false_values_in_population(&population),
+            16 * 100
+        );
     }
 }
