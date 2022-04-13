@@ -15,7 +15,7 @@ pub fn call(context: &Context) -> Option<Chromosome> {
         let mut parent_population = new_population;
         let mut child_population = crossover::individual(context, &parent_population);
         mutation::single_gene(context, &mut child_population);
-        child_population.calculate_fitness();
+        child_population.calculate_fitness(&context);
         child_population.merge(&mut parent_population);
         new_population = competition::tournament(context, child_population);
 

@@ -1,4 +1,5 @@
 use crate::chromosome::Chromosome;
+use crate::fitness;
 use crate::gene::Gene;
 use crate::population::Population;
 use itertools::Itertools;
@@ -7,10 +8,12 @@ use std::fmt;
 
 pub struct Context {
     pub gene_size: usize,
+    pub gene_values: Vec<Gene>,
     pub population_size: usize,
     pub tournament_size: usize,
     pub max_stale_generations: usize,
     pub mutation_probability: f32,
+    pub fitness_function: fn(&Chromosome) -> usize,
 }
 
 impl Context {
@@ -20,6 +23,11 @@ impl Context {
 
     pub fn with_gene_size(mut self, gene_size: usize) -> Self {
         self.gene_size = gene_size;
+        self
+    }
+
+    pub fn with_gene_values(mut self, gene_values: Vec<Gene>) -> Self {
+        self.gene_values = gene_values;
         self
     }
 
@@ -43,6 +51,11 @@ impl Context {
         self
     }
 
+    pub fn with_fitness_function(mut self, fitness_function: fn(&Chromosome) -> usize) -> Self {
+        self.fitness_function = fitness_function;
+        self
+    }
+
     // defined here because needs to know gene type bool
     pub fn random_chromosome_factory(&self) -> Chromosome {
         //let mut genes: Vec<bool> = (0..self.gene_size).map(|_| rng.gen()).collect();
@@ -57,7 +70,7 @@ impl Context {
 
     pub fn permutation_population_factory(&self) -> Population {
         let chromosomes = (0..self.gene_size)
-            .map(|_| [Gene::new(true), Gene::new(false)])
+            .map(|_| self.gene_values.clone())
             .multi_cartesian_product()
             .map(|genes| Chromosome::new(genes))
             .collect();
@@ -70,10 +83,12 @@ impl Default for Context {
     fn default() -> Self {
         Context {
             gene_size: 10,
+            gene_values: vec![Gene(true), Gene(false)],
             population_size: 100,
             tournament_size: 4,
             max_stale_generations: 20,
             mutation_probability: 0.1,
+            fitness_function: fitness::count_true_values,
         }
     }
 }

@@ -24,7 +24,7 @@ mod competition_tests {
             vec![true, true, true],
         ]);
 
-        population.calculate_fitness();
+        population.calculate_fitness(&context);
         let new_population = competition::tournament(&context, population);
 
         assert_eq!(new_population.chromosomes.len(), 4);
@@ -46,7 +46,7 @@ mod competition_tests {
             vec![false, false, true],
         ]);
 
-        population.calculate_fitness();
+        population.calculate_fitness(&context);
         let new_population = competition::tournament(&context, population);
 
         assert_eq!(new_population.chromosomes.len(), 2);

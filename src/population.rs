@@ -1,6 +1,5 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
-use crate::fitness;
 
 #[derive(Debug)]
 pub struct Population {
@@ -22,10 +21,10 @@ impl Population {
         self.chromosomes.sort_unstable_by_key(|c| c.fitness);
     }
 
-    pub fn calculate_fitness(&mut self) {
+    pub fn calculate_fitness(&mut self, context: &Context) {
         self.chromosomes
             .iter_mut()
-            .for_each(|o| o.fitness = Some(fitness::simple_sum(o)));
+            .for_each(|o| o.fitness = Some((context.fitness_function)(o)));
     }
 
     pub fn random_factory(context: &Context) -> Self {

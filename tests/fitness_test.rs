@@ -6,17 +6,17 @@ mod fitness_tests {
     use genetic_algorithm::fitness;
 
     #[test]
-    fn test_simple_sum() {
+    fn count_true_values() {
         let chromosome = builders::chromosome_from_booleans(vec![true, true, true]);
-        assert_eq!(fitness::simple_sum(&chromosome), 3);
+        assert_eq!(fitness::count_true_values(&chromosome), 3);
 
         let chromosome = builders::chromosome_from_booleans(vec![true, false, true]);
-        assert_eq!(fitness::simple_sum(&chromosome), 2);
+        assert_eq!(fitness::count_true_values(&chromosome), 2);
 
         let chromosome = builders::chromosome_from_booleans(vec![true, false, false]);
-        assert_eq!(fitness::simple_sum(&chromosome), 1);
+        assert_eq!(fitness::count_true_values(&chromosome), 1);
 
         let chromosome = builders::chromosome_from_booleans(vec![false, false, false]);
-        assert_eq!(fitness::simple_sum(&chromosome), 0);
+        assert_eq!(fitness::count_true_values(&chromosome), 0);
     }
 }
