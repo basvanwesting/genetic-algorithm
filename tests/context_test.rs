@@ -7,7 +7,7 @@ mod context_tests {
 
     #[test]
     fn test_random_chromosome_factory() {
-        let context = Context::new()
+        let context = Context::<bool>::new()
             .with_gene_size(10)
             .with_population_size(100)
             .with_tournament_size(4);
@@ -19,7 +19,7 @@ mod context_tests {
 
     #[test]
     fn test_permutation_population_factory_1() {
-        let context = Context::new().with_gene_size(1);
+        let context = Context::<bool>::new().with_gene_size(1);
 
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
@@ -30,7 +30,7 @@ mod context_tests {
 
     #[test]
     fn test_permutation_population_factory_2() {
-        let context = Context::new().with_gene_size(2);
+        let context = Context::<bool>::new().with_gene_size(2);
 
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
@@ -49,7 +49,7 @@ mod context_tests {
 
     #[test]
     fn test_permutation_population_factory_3() {
-        let context = Context::new().with_gene_size(3);
+        let context = Context::<bool>::new().with_gene_size(3);
 
         let population = context.permutation_population_factory();
         println!("{:#?}", population);

@@ -2,7 +2,7 @@ use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
-pub fn number_of_true_values_in_population(population: &Population) -> usize {
+pub fn number_of_true_values_in_population(population: &Population<bool>) -> usize {
     population
         .chromosomes
         .iter()
@@ -11,12 +11,12 @@ pub fn number_of_true_values_in_population(population: &Population) -> usize {
 }
 
 #[allow(dead_code)]
-pub fn number_of_true_values_in_chromosome(chromosome: &Chromosome) -> usize {
+pub fn number_of_true_values_in_chromosome(chromosome: &Chromosome<bool>) -> usize {
     chromosome.genes.iter().filter(|&gene| gene.0).count()
 }
 
 #[allow(dead_code)]
-pub fn number_of_false_values_in_population(population: &Population) -> usize {
+pub fn number_of_false_values_in_population(population: &Population<bool>) -> usize {
     population
         .chromosomes
         .iter()
@@ -25,6 +25,6 @@ pub fn number_of_false_values_in_population(population: &Population) -> usize {
 }
 
 #[allow(dead_code)]
-pub fn number_of_false_values_in_chromosome(chromosome: &Chromosome) -> usize {
+pub fn number_of_false_values_in_chromosome(chromosome: &Chromosome<bool>) -> usize {
     chromosome.genes.iter().filter(|&gene| !gene.0).count()
 }

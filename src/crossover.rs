@@ -1,15 +1,16 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
+use crate::gene::GeneTrait;
 use crate::population::Population;
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 
-pub fn individual(context: &Context, population: &Population) -> Population {
+pub fn individual<T: GeneTrait>(context: &Context<T>, population: &Population<T>) -> Population<T> {
     let gene_range = Uniform::from(0..context.gene_size);
     let mut rng = SmallRng::from_entropy();
 
-    let mut child_chromosomes: Vec<Chromosome> = Vec::with_capacity(context.population_size);
+    let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
 
     for chunk in population.chromosomes.chunks(2) {
         match &chunk[..] {

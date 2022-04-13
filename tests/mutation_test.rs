@@ -8,7 +8,7 @@ mod mutation_tests {
 
     #[test]
     fn test_single_gene_ensure_mutation() {
-        let context = Context::new()
+        let context = Context::<bool>::new()
             .with_gene_size(3)
             .with_mutation_probability(1.0);
 
@@ -30,7 +30,7 @@ mod mutation_tests {
 
     #[test]
     fn test_single_gene_ensure_no_mutation() {
-        let context = Context::new()
+        let context = Context::<bool>::new()
             .with_gene_size(3)
             .with_mutation_probability(0.0);
 

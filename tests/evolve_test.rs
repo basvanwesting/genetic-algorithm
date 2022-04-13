@@ -5,7 +5,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call() {
-        let context = Context::new()
+        let context = Context::<bool>::new()
             .with_gene_size(10)
             .with_population_size(100)
             .with_tournament_size(4);

@@ -1,13 +1,14 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
+use crate::gene::GeneTrait;
 
 #[derive(Debug)]
-pub struct Population {
-    pub chromosomes: Vec<Chromosome>,
+pub struct Population<T: GeneTrait> {
+    pub chromosomes: Vec<Chromosome<T>>,
 }
 
-impl Population {
-    pub fn new(chromosomes: Vec<Chromosome>) -> Self {
+impl<T: GeneTrait> Population<T> {
+    pub fn new(chromosomes: Vec<Chromosome<T>>) -> Self {
         Self {
             chromosomes: chromosomes,
         }
@@ -21,16 +22,9 @@ impl Population {
         self.chromosomes.sort_unstable_by_key(|c| c.fitness);
     }
 
-    pub fn calculate_fitness(&mut self, context: &Context) {
+    pub fn calculate_fitness(&mut self, context: &Context<T>) {
         self.chromosomes
             .iter_mut()
             .for_each(|o| o.fitness = Some((context.fitness_function)(o)));
-    }
-
-    pub fn random_factory(context: &Context) -> Self {
-        let chromosomes = (0..context.population_size)
-            .map(|_| context.random_chromosome_factory())
-            .collect();
-        Self::new(chromosomes)
     }
 }

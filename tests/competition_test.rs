@@ -8,7 +8,7 @@ mod competition_tests {
 
     #[test]
     fn test_tournament() {
-        let context = Context::new()
+        let context = Context::<bool>::new()
             .with_gene_size(3)
             .with_population_size(4)
             .with_tournament_size(4);
@@ -36,7 +36,7 @@ mod competition_tests {
 
     #[test]
     fn test_tournament_shortage() {
-        let context = Context::new()
+        let context = Context::<bool>::new()
             .with_gene_size(3)
             .with_population_size(4)
             .with_tournament_size(4);

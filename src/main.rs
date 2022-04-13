@@ -4,7 +4,7 @@ use genetic_algorithm::fitness;
 use genetic_algorithm::gene::Gene;
 
 fn main() {
-    let context = Context::new()
+    let context = Context::<bool>::new()
         .with_gene_size(100)
         .with_gene_values(vec![Gene(true), Gene(false)])
         .with_population_size(1000)

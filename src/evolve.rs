@@ -2,13 +2,13 @@ use crate::chromosome::Chromosome;
 use crate::competition;
 use crate::context::Context;
 use crate::crossover;
+use crate::gene::GeneTrait;
 use crate::mutation;
-use crate::population::Population;
 
-pub fn call(context: &Context) -> Option<Chromosome> {
+pub fn call<T: GeneTrait>(context: &Context<T>) -> Option<Chromosome<T>> {
     let mut generation = 0;
     let mut best_generation = 0;
-    let mut new_population = Population::random_factory(&context);
+    let mut new_population = context.random_population_factory();
     let mut best_chromosome = new_population.chromosomes.last().unwrap().clone();
 
     while generation - best_generation < context.max_stale_generations {

@@ -1,13 +1,17 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
+use crate::gene::GeneTrait;
 use crate::population::Population;
 use rand::rngs::SmallRng;
 use rand::seq::IteratorRandom;
 use rand::SeedableRng;
 
-pub fn tournament(context: &Context, mut population: Population) -> Population {
+pub fn tournament<T: GeneTrait>(
+    context: &Context<T>,
+    mut population: Population<T>,
+) -> Population<T> {
     let mut rng = SmallRng::from_entropy();
-    let mut target_chromosomes: Vec<Chromosome> = Vec::with_capacity(context.population_size);
+    let mut target_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
 
     for _ in 0..context.population_size {
         if let Some(winning_index) =
@@ -23,12 +27,12 @@ pub fn tournament(context: &Context, mut population: Population) -> Population {
     Population::new(target_chromosomes)
 }
 
-fn tournament_single_round(
-    population: &Population,
+fn tournament_single_round<T: GeneTrait>(
+    population: &Population<T>,
     size: usize,
     rng: &mut SmallRng,
 ) -> Option<usize> {
-    let mut slice: Vec<(usize, &Chromosome)> = population
+    let mut slice: Vec<(usize, &Chromosome<T>)> = population
         .chromosomes
         .iter()
         .enumerate()

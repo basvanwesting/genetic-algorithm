@@ -5,7 +5,7 @@ mod permutation_tests {
 
     #[test]
     fn test_call() {
-        let context = Context::new().with_gene_size(5);
+        let context = Context::<bool>::new().with_gene_size(5);
 
         let best_chromosome = permutate::call(&context).unwrap();
         println!("{:#?}", best_chromosome);

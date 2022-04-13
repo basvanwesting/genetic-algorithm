@@ -8,7 +8,9 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_even() {
-        let context = Context::new().with_gene_size(3).with_population_size(4);
+        let context = Context::<bool>::new()
+            .with_gene_size(3)
+            .with_population_size(4);
 
         let population = builders::population_from_booleans(vec![
             vec![true, true, true],
@@ -30,7 +32,9 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_odd() {
-        let context = Context::new().with_gene_size(3).with_population_size(4);
+        let context = Context::<bool>::new()
+            .with_gene_size(3)
+            .with_population_size(4);
 
         let population = builders::population_from_booleans(vec![
             vec![true, true, true],

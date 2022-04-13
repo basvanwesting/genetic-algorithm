@@ -4,13 +4,14 @@ mod support;
 mod population_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::population::Population;
 
     #[test]
     fn test_random_factory() {
-        let context = Context::new().with_gene_size(16).with_population_size(100);
+        let context = Context::<bool>::new()
+            .with_gene_size(16)
+            .with_population_size(100);
 
-        let population = Population::random_factory(&context);
+        let population = context.random_population_factory();
         println!("{:#?}", population);
 
         assert_eq!(
