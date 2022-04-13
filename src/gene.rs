@@ -1,14 +1,12 @@
 #[derive(Debug, Clone, Copy)]
-pub struct Gene {
-    pub value: bool,
-}
+pub struct Gene(pub bool);
 
 impl Gene {
     pub fn new(value: bool) -> Self {
-        Self { value: value }
+        Self(value)
     }
 
     pub fn mutate(&mut self) {
-        self.value = !self.value;
+        self.0 = !self.0;
     }
 }

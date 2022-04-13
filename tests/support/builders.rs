@@ -13,13 +13,13 @@ pub fn population_from_booleans(data: Vec<Vec<bool>>) -> Population {
 
 #[allow(dead_code)]
 pub fn chromosome_from_booleans(gene_values: Vec<bool>) -> Chromosome {
-    let genes = gene_values.into_iter().map(|v| Gene::new(v)).collect();
+    let genes = gene_values.into_iter().map(|v| Gene(v)).collect();
     Chromosome::new(genes)
 }
 
 #[allow(dead_code)]
 pub fn booleans_from_chromosome(chromosome: Chromosome) -> Vec<bool> {
-    chromosome.genes.into_iter().map(|g| g.value).collect()
+    chromosome.genes.into_iter().map(|g| g.0).collect()
 }
 
 #[allow(dead_code)]

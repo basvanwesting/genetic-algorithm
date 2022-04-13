@@ -49,7 +49,7 @@ impl Context {
         let genes: Vec<Gene> = rand::thread_rng()
             .sample_iter(rand::distributions::Standard)
             .take(self.gene_size)
-            .map(|v| Gene::new(v))
+            .map(|v| Gene(v))
             .collect();
 
         Chromosome::new(genes)

@@ -12,7 +12,7 @@ pub fn number_of_true_values_in_population(population: &Population) -> usize {
 
 #[allow(dead_code)]
 pub fn number_of_true_values_in_chromosome(chromosome: &Chromosome) -> usize {
-    chromosome.genes.iter().filter(|&gene| gene.value).count()
+    chromosome.genes.iter().filter(|&gene| gene.0).count()
 }
 
 #[allow(dead_code)]
@@ -26,5 +26,5 @@ pub fn number_of_false_values_in_population(population: &Population) -> usize {
 
 #[allow(dead_code)]
 pub fn number_of_false_values_in_chromosome(chromosome: &Chromosome) -> usize {
-    chromosome.genes.iter().filter(|&gene| !gene.value).count()
+    chromosome.genes.iter().filter(|&gene| !gene.0).count()
 }

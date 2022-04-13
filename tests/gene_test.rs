@@ -4,11 +4,11 @@ mod gene_tests {
 
     #[test]
     fn test_mutate() {
-        let mut gene = Gene::new(true);
-        assert_eq!(gene.value, true);
+        let mut gene = Gene(true);
+        assert_eq!(gene.0, true);
         gene.mutate();
-        assert_eq!(gene.value, false);
+        assert_eq!(gene.0, false);
         gene.mutate();
-        assert_eq!(gene.value, true);
+        assert_eq!(gene.0, true);
     }
 }
