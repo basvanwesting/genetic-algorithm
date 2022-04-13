@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod mutation_tests {
+mod gene_tests {
     use genetic_algorithm::gene::Gene;
 
     #[test]

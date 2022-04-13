@@ -1,5 +1,5 @@
 #[cfg(test)]
-mod evolve_tests {
+mod permutation_tests {
     use genetic_algorithm::context::Context;
     use genetic_algorithm::permutate;
 
