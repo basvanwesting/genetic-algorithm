@@ -4,11 +4,12 @@ mod support;
 mod mutation_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
+    use genetic_algorithm::gene::BinaryGene;
     use genetic_algorithm::mutation;
 
     #[test]
     fn test_single_gene_ensure_mutation() {
-        let context = Context::<bool>::new()
+        let context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_mutation_probability(1.0);
 
@@ -30,7 +31,7 @@ mod mutation_tests {
 
     #[test]
     fn test_single_gene_ensure_no_mutation() {
-        let context = Context::<bool>::new()
+        let context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_mutation_probability(0.0);
 

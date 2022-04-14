@@ -1,12 +1,12 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
-use crate::gene::GeneTrait;
+use crate::gene::Gene;
 use crate::population::Population;
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 
-pub fn individual<T: GeneTrait>(context: &Context<T>, population: &Population<T>) -> Population<T> {
+pub fn individual<T: Gene>(context: &Context<T>, population: &Population<T>) -> Population<T> {
     let gene_range = Uniform::from(0..context.gene_size);
     let mut rng = SmallRng::from_entropy();
 

@@ -2,10 +2,10 @@ use crate::chromosome::Chromosome;
 use crate::competition;
 use crate::context::Context;
 use crate::crossover;
-use crate::gene::GeneTrait;
+use crate::gene::Gene;
 use crate::mutation;
 
-pub fn call<T: GeneTrait>(context: &Context<T>) -> Option<Chromosome<T>> {
+pub fn call<T: Gene>(context: &Context<T>) -> Option<Chromosome<T>> {
     let mut generation = 0;
     let mut best_generation = 0;
     let mut new_population = context.random_population_factory();

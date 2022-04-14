@@ -2,10 +2,11 @@
 mod evolve_tests {
     use genetic_algorithm::context::Context;
     use genetic_algorithm::evolve;
+    use genetic_algorithm::gene::BinaryGene;
 
     #[test]
     fn test_call() {
-        let context = Context::<bool>::new()
+        let context = Context::<BinaryGene>::new()
             .with_gene_size(10)
             .with_population_size(100)
             .with_tournament_size(4);

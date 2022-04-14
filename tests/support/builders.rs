@@ -1,9 +1,9 @@
 use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::gene::Gene;
+use genetic_algorithm::gene::BinaryGene;
 use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
-pub fn population_from_booleans(data: Vec<Vec<bool>>) -> Population<bool> {
+pub fn population_from_booleans(data: Vec<Vec<BinaryGene>>) -> Population<BinaryGene> {
     let chromosomes = data
         .into_iter()
         .map(|gene_values| chromosome_from_booleans(gene_values))
@@ -12,18 +12,17 @@ pub fn population_from_booleans(data: Vec<Vec<bool>>) -> Population<bool> {
 }
 
 #[allow(dead_code)]
-pub fn chromosome_from_booleans(gene_values: Vec<bool>) -> Chromosome<bool> {
-    let genes = gene_values.into_iter().map(|v| Gene(v)).collect();
-    Chromosome::new(genes)
+pub fn chromosome_from_booleans(gene_values: Vec<BinaryGene>) -> Chromosome<BinaryGene> {
+    Chromosome::new(gene_values)
 }
 
 #[allow(dead_code)]
-pub fn booleans_from_chromosome(chromosome: Chromosome<bool>) -> Vec<bool> {
-    chromosome.genes.into_iter().map(|g| g.0).collect()
+pub fn booleans_from_chromosome(chromosome: Chromosome<BinaryGene>) -> Vec<BinaryGene> {
+    chromosome.genes
 }
 
 #[allow(dead_code)]
-pub fn booleans_from_population(population: Population<bool>) -> Vec<Vec<bool>> {
+pub fn booleans_from_population(population: Population<BinaryGene>) -> Vec<Vec<BinaryGene>> {
     population
         .chromosomes
         .into_iter()

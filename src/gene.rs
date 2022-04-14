@@ -1,33 +1,22 @@
-pub trait GeneTrait: Copy + Clone {}
+pub type BinaryGene = bool;
+pub type DiscreteGene = u8;
 
-impl GeneTrait for u8 {}
-impl GeneTrait for bool {}
+pub trait Gene: Copy + Clone {
+    fn mutate(&mut self) {}
+}
 
-#[derive(Debug, Clone, Copy)]
-pub struct Gene<T: GeneTrait>(pub T);
-
-//impl<T: GeneTrait> Gene<T> {
-//pub fn new(value: T) -> Self {
-//Self(value)
-//}
-//}
-
-impl Gene<bool> {
-    pub fn new(value: bool) -> Self {
-        Self(value)
-    }
-
-    pub fn mutate(&mut self) {
-        self.0 = !self.0;
+impl Gene for BinaryGene {
+    fn mutate(&mut self) {
+        if *self {
+            *self = false
+        } else {
+            *self = true
+        };
     }
 }
 
-impl Gene<u8> {
-    pub fn new(value: u8) -> Self {
-        Self(value)
-    }
-
-    pub fn mutate(&mut self) {
-        self.0 += 1;
+impl Gene for DiscreteGene {
+    fn mutate(&mut self) {
+        *self += 1;
     }
 }

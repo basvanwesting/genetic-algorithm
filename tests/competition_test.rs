@@ -5,10 +5,11 @@ mod competition_tests {
     use crate::support::*;
     use genetic_algorithm::competition;
     use genetic_algorithm::context::Context;
+    use genetic_algorithm::gene::BinaryGene;
 
     #[test]
     fn test_tournament() {
-        let context = Context::<bool>::new()
+        let context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_population_size(4)
             .with_tournament_size(4);
@@ -36,7 +37,7 @@ mod competition_tests {
 
     #[test]
     fn test_tournament_shortage() {
-        let context = Context::<bool>::new()
+        let context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_population_size(4)
             .with_tournament_size(4);

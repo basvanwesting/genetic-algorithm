@@ -1,15 +1,12 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
-use crate::gene::GeneTrait;
+use crate::gene::Gene;
 use crate::population::Population;
 use rand::rngs::SmallRng;
 use rand::seq::IteratorRandom;
 use rand::SeedableRng;
 
-pub fn tournament<T: GeneTrait>(
-    context: &Context<T>,
-    mut population: Population<T>,
-) -> Population<T> {
+pub fn tournament<T: Gene>(context: &Context<T>, mut population: Population<T>) -> Population<T> {
     let mut rng = SmallRng::from_entropy();
     let mut target_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
 
@@ -27,7 +24,7 @@ pub fn tournament<T: GeneTrait>(
     Population::new(target_chromosomes)
 }
 
-fn tournament_single_round<T: GeneTrait>(
+fn tournament_single_round<T: Gene>(
     population: &Population<T>,
     size: usize,
     rng: &mut SmallRng,

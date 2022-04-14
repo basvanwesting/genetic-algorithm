@@ -1,8 +1,9 @@
 use genetic_algorithm::chromosome::Chromosome;
+use genetic_algorithm::gene::BinaryGene;
 use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
-pub fn number_of_true_values_in_population(population: &Population<bool>) -> usize {
+pub fn number_of_true_values_in_population(population: &Population<BinaryGene>) -> usize {
     population
         .chromosomes
         .iter()
@@ -11,12 +12,12 @@ pub fn number_of_true_values_in_population(population: &Population<bool>) -> usi
 }
 
 #[allow(dead_code)]
-pub fn number_of_true_values_in_chromosome(chromosome: &Chromosome<bool>) -> usize {
-    chromosome.genes.iter().filter(|&gene| gene.0).count()
+pub fn number_of_true_values_in_chromosome(chromosome: &Chromosome<BinaryGene>) -> usize {
+    chromosome.genes.iter().filter(|&gene| *gene).count()
 }
 
 #[allow(dead_code)]
-pub fn number_of_false_values_in_population(population: &Population<bool>) -> usize {
+pub fn number_of_false_values_in_population(population: &Population<BinaryGene>) -> usize {
     population
         .chromosomes
         .iter()
@@ -25,6 +26,6 @@ pub fn number_of_false_values_in_population(population: &Population<bool>) -> us
 }
 
 #[allow(dead_code)]
-pub fn number_of_false_values_in_chromosome(chromosome: &Chromosome<bool>) -> usize {
-    chromosome.genes.iter().filter(|&gene| !gene.0).count()
+pub fn number_of_false_values_in_chromosome(chromosome: &Chromosome<BinaryGene>) -> usize {
+    chromosome.genes.iter().filter(|&gene| !*gene).count()
 }

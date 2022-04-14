@@ -1,12 +1,12 @@
 use genetic_algorithm::context::Context;
 use genetic_algorithm::evolve;
 use genetic_algorithm::fitness;
-use genetic_algorithm::gene::Gene;
+use genetic_algorithm::gene::{BinaryGene, DiscreteGene};
 
 fn main() {
-    let context = Context::<bool>::new()
+    let context = Context::<BinaryGene>::new()
         .with_gene_size(100)
-        .with_gene_values(vec![Gene(true), Gene(false)])
+        .with_gene_values(vec![true, false])
         .with_population_size(1000)
         .with_tournament_size(4)
         .with_max_stale_generations(20)
@@ -21,9 +21,9 @@ fn main() {
         println!("no best chromosome");
     }
 
-    let context = Context::<u8>::new()
+    let context = Context::<DiscreteGene>::new()
         .with_gene_size(100)
-        .with_gene_values(vec![Gene(1), Gene(2), Gene(3), Gene(4)])
+        .with_gene_values(vec![1, 2, 3, 4])
         .with_population_size(1000)
         .with_tournament_size(4)
         .with_max_stale_generations(20)

@@ -4,10 +4,11 @@ mod support;
 mod population_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
+    use genetic_algorithm::gene::BinaryGene;
 
     #[test]
     fn test_random_factory() {
-        let context = Context::<bool>::new()
+        let context = Context::<BinaryGene>::new()
             .with_gene_size(16)
             .with_population_size(100);
 

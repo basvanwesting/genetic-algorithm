@@ -1,13 +1,13 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
-use crate::gene::GeneTrait;
+use crate::gene::Gene;
 
 #[derive(Debug)]
-pub struct Population<T: GeneTrait> {
+pub struct Population<T: Gene> {
     pub chromosomes: Vec<Chromosome<T>>,
 }
 
-impl<T: GeneTrait> Population<T> {
+impl<T: Gene> Population<T> {
     pub fn new(chromosomes: Vec<Chromosome<T>>) -> Self {
         Self {
             chromosomes: chromosomes,
