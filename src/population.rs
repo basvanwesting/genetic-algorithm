@@ -47,7 +47,7 @@ impl<T: Gene> Population<T> {
     pub fn mass_extinction(&mut self, keep_population_size: usize) {
         if self.size() > keep_population_size {
             self.chromosomes
-                .drain(0..(self.size() - keep_population_size));
+                .drain(..(self.size() - keep_population_size));
         }
     }
 

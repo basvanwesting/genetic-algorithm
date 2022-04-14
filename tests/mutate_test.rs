@@ -1,13 +1,13 @@
 mod support;
 
 #[cfg(test)]
-mod mutation_tests {
+mod mutate_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::mutation;
+    use genetic_algorithm::mutate::{Mutate, MutateSingleGene};
 
     #[test]
-    fn test_single_gene_binary() {
+    fn test_mutate_single_gene_binary() {
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
@@ -22,7 +22,7 @@ mod mutation_tests {
             vec![true, true, true],
         ]);
 
-        mutation::single_gene(&mut context, &mut population);
+        MutateSingleGene::call(&mut context, &mut population);
 
         assert_eq!(
             inspect::population(&population),
@@ -36,7 +36,7 @@ mod mutation_tests {
     }
 
     #[test]
-    fn test_single_gene_discrete() {
+    fn test_mutate_single_gene_discrete() {
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
@@ -51,7 +51,7 @@ mod mutation_tests {
             vec![0, 0, 0],
         ]);
 
-        mutation::single_gene(&mut context, &mut population);
+        MutateSingleGene::call(&mut context, &mut population);
 
         assert_eq!(
             inspect::population(&population),

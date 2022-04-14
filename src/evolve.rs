@@ -3,7 +3,7 @@ use crate::competition;
 use crate::context::Context;
 use crate::crossover;
 use crate::gene::Gene;
-use crate::mutation;
+use crate::mutate::{Mutate, MutateSingleGene};
 
 pub struct Evolve<T: Gene> {
     pub context: Context<T>,
@@ -27,7 +27,7 @@ impl<T: Gene> Evolve<T> {
         while generation - best_generation < self.context.max_stale_generations {
             let mut parent_population = new_population;
             let mut child_population = crossover::individual(&mut self.context, &parent_population);
-            mutation::single_gene(&mut self.context, &mut child_population);
+            MutateSingleGene::call(&mut self.context, &mut child_population);
             child_population.calculate_fitness(&self.context);
             child_population.merge(&mut parent_population);
             new_population = competition::tournament(&mut self.context, child_population);
