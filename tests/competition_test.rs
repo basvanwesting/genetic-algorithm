@@ -9,7 +9,7 @@ mod competition_tests {
 
     #[test]
     fn test_tournament() {
-        let context = Context::<BinaryGene>::new()
+        let mut context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_population_size(4)
             .with_tournament_size(4);
@@ -26,7 +26,7 @@ mod competition_tests {
         ]);
 
         population.calculate_fitness(&context);
-        let new_population = competition::tournament(&context, population);
+        let new_population = competition::tournament(&mut context, population);
 
         assert_eq!(new_population.chromosomes.len(), 4);
 
@@ -37,7 +37,7 @@ mod competition_tests {
 
     #[test]
     fn test_tournament_shortage() {
-        let context = Context::<BinaryGene>::new()
+        let mut context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_population_size(4)
             .with_tournament_size(4);
@@ -48,7 +48,7 @@ mod competition_tests {
         ]);
 
         population.calculate_fitness(&context);
-        let new_population = competition::tournament(&context, population);
+        let new_population = competition::tournament(&mut context, population);
 
         assert_eq!(new_population.chromosomes.len(), 2);
     }

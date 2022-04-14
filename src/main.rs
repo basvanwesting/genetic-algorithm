@@ -4,7 +4,7 @@ use genetic_algorithm::fitness;
 use genetic_algorithm::gene::{BinaryGene, DiscreteGene};
 
 fn main() {
-    let context = Context::<BinaryGene>::new()
+    let mut context = Context::<BinaryGene>::new()
         .with_gene_size(100)
         .with_gene_values(vec![true, false])
         .with_population_size(1000)
@@ -15,13 +15,13 @@ fn main() {
 
     println!("{}", context);
 
-    if let Some(best_chromosome) = evolve::call(&context) {
+    if let Some(best_chromosome) = evolve::call(&mut context) {
         println!("best chromosome: {}", best_chromosome);
     } else {
         println!("no best chromosome");
     }
 
-    let context = Context::<DiscreteGene>::new()
+    let mut context = Context::<DiscreteGene>::new()
         .with_gene_size(100)
         .with_gene_values(vec![1, 2, 3, 4])
         .with_population_size(1000)
@@ -32,7 +32,7 @@ fn main() {
 
     println!("{}", context);
 
-    if let Some(best_chromosome) = evolve::call(&context) {
+    if let Some(best_chromosome) = evolve::call(&mut context) {
         println!("best chromosome: {}", best_chromosome);
     } else {
         println!("no best chromosome");

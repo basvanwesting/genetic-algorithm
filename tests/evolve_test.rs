@@ -6,12 +6,12 @@ mod evolve_tests {
 
     #[test]
     fn test_call() {
-        let context = Context::<BinaryGene>::new()
+        let mut context = Context::<BinaryGene>::new()
             .with_gene_size(10)
             .with_population_size(100)
             .with_tournament_size(4);
 
-        let best_chromosome = evolve::call(&context).unwrap();
+        let best_chromosome = evolve::call(&mut context).unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness, Some(10));

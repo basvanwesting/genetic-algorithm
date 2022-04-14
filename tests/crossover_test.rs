@@ -9,7 +9,7 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_even() {
-        let context = Context::<BinaryGene>::new()
+        let mut context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_population_size(4);
 
@@ -20,7 +20,7 @@ mod crossover_tests {
             vec![false, false, false],
         ]);
 
-        let child_population = crossover::individual(&context, &population);
+        let child_population = crossover::individual(&mut context, &population);
 
         assert_eq!(child_population.chromosomes.len(), 4);
         println!("{:#?}", child_population);
@@ -33,7 +33,7 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_odd() {
-        let context = Context::<BinaryGene>::new()
+        let mut context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_population_size(4);
 
@@ -45,7 +45,7 @@ mod crossover_tests {
             vec![true, true, true],
         ]);
 
-        let child_population = crossover::individual(&context, &population);
+        let child_population = crossover::individual(&mut context, &population);
         assert_eq!(child_population.chromosomes.len(), 4);
     }
 }

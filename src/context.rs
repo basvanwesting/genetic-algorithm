@@ -4,8 +4,8 @@ use crate::gene::{BinaryGene, DiscreteGene, Gene};
 use crate::population::Population;
 use itertools::Itertools;
 use rand::prelude::*;
+use rand::rngs::SmallRng;
 use rand::seq::SliceRandom;
-//use rand::seq::IteratorRandom;
 use std::fmt;
 
 pub struct Context<T: Gene> {
@@ -16,6 +16,7 @@ pub struct Context<T: Gene> {
     pub max_stale_generations: usize,
     pub mutation_probability: f32,
     pub fitness_function: fn(&Chromosome<T>) -> usize,
+    pub rng: SmallRng,
 }
 
 impl<T: Gene> Context<T> {
@@ -51,6 +52,10 @@ impl<T: Gene> Context<T> {
 
     pub fn with_fitness_function(mut self, fitness_function: fn(&Chromosome<T>) -> usize) -> Self {
         self.fitness_function = fitness_function;
+        self
+    }
+    pub fn with_rng(mut self, rng: SmallRng) -> Self {
+        self.rng = rng;
         self
     }
 
@@ -102,6 +107,7 @@ impl Default for Context<BinaryGene> {
             max_stale_generations: 20,
             mutation_probability: 0.1,
             fitness_function: fitness::count_true_values,
+            rng: SmallRng::from_entropy(),
         }
     }
 }
@@ -116,6 +122,7 @@ impl Default for Context<DiscreteGene> {
             max_stale_generations: 20,
             mutation_probability: 0.1,
             fitness_function: fitness::sum_values,
+            rng: SmallRng::from_entropy(),
         }
     }
 }

@@ -9,7 +9,7 @@ mod mutation_tests {
 
     #[test]
     fn test_single_gene_ensure_mutation() {
-        let context = Context::<BinaryGene>::new()
+        let mut context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_mutation_probability(1.0);
 
@@ -20,7 +20,7 @@ mod mutation_tests {
             vec![true, true, true],
         ]);
 
-        mutation::single_gene(&context, &mut population);
+        mutation::single_gene(&mut context, &mut population);
 
         assert_eq!(helpers::number_of_true_values_in_population(&population), 8);
         assert_eq!(
@@ -31,7 +31,7 @@ mod mutation_tests {
 
     #[test]
     fn test_single_gene_ensure_no_mutation() {
-        let context = Context::<BinaryGene>::new()
+        let mut context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_mutation_probability(0.0);
 
@@ -42,7 +42,7 @@ mod mutation_tests {
             vec![true, true, true],
         ]);
 
-        mutation::single_gene(&context, &mut population);
+        mutation::single_gene(&mut context, &mut population);
 
         assert_eq!(
             helpers::number_of_true_values_in_population(&population),
