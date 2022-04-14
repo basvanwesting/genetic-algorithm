@@ -27,7 +27,23 @@ fn main() {
         .with_tournament_size(4)
         .with_max_stale_generations(20)
         .with_mutation_probability(0.1)
-        .with_fitness_function(fitness::sum_values);
+        .with_fitness_function(fitness::sum_discrete_values);
+
+    println!("{}", context);
+
+    if let Some(best_chromosome) = evolve::call(&mut context) {
+        println!("best chromosome: {}", best_chromosome);
+    } else {
+        println!("no best chromosome");
+    }
+
+    let mut context = Context::new()
+        .with_gene_size(100)
+        .with_population_size(1000)
+        .with_tournament_size(4)
+        .with_max_stale_generations(20)
+        .with_mutation_probability(0.1)
+        .with_fitness_function(fitness::sum_continuous_values);
 
     println!("{}", context);
 

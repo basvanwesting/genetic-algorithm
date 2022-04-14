@@ -15,7 +15,7 @@ mod mutation_tests {
             .with_mutation_probability(1.0)
             .with_rng(rng);
 
-        let mut population = builders::population_from_booleans(vec![
+        let mut population = builders::population_binary(vec![
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
@@ -25,7 +25,7 @@ mod mutation_tests {
         mutation::single_gene(&mut context, &mut population);
 
         assert_eq!(
-            builders::booleans_from_population(population),
+            builders::inspect_population_binary(population),
             vec![
                 vec![true, false, true],
                 vec![true, false, true],
@@ -42,7 +42,7 @@ mod mutation_tests {
             .with_gene_values(vec![true, false])
             .with_mutation_probability(0.0);
 
-        let mut population = builders::population_from_booleans(vec![
+        let mut population = builders::population_binary(vec![
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
@@ -52,7 +52,7 @@ mod mutation_tests {
         mutation::single_gene(&mut context, &mut population);
 
         assert_eq!(
-            builders::booleans_from_population(population),
+            builders::inspect_population_binary(population),
             vec![
                 vec![true, true, true],
                 vec![true, true, true],

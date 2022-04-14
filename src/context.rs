@@ -5,7 +5,6 @@ use crate::population::Population;
 use itertools::Itertools;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use rand::seq::SliceRandom;
 use std::fmt;
 
 pub struct Context<T: Gene> {
@@ -74,9 +73,7 @@ impl<T: Gene> Context<T> {
     }
 
     pub fn random_chromosome_factory(&mut self) -> Chromosome<T> {
-        let genes: Vec<T> = (0..self.gene_size)
-            .map(|_| *self.gene_values.choose(&mut self.rng).unwrap())
-            .collect();
+        let genes: Vec<T> = (0..self.gene_size).map(|_| T::random(self)).collect();
         Chromosome::new(genes)
     }
 

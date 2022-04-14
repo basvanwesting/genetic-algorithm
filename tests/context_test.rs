@@ -18,9 +18,36 @@ mod context_tests {
         let chromosome = context.random_chromosome_factory();
 
         assert_eq!(
-            builders::booleans_from_chromosome(chromosome),
-            vec![false, true, false, true, true, true, false, false, true, true]
+            builders::inspect_chromosome_binary(chromosome),
+            vec![false, false, true, false, true, true, true, false, false, true]
         );
+    }
+
+    #[test]
+    fn test_random_population_factory() {
+        let rng = SmallRng::seed_from_u64(0);
+        let mut context = Context::new()
+            .with_gene_size(4)
+            .with_gene_values(vec![true, false])
+            .with_population_size(8)
+            .with_rng(rng);
+
+        let population = context.random_population_factory();
+        println!("{:#?}", population);
+
+        assert_eq!(
+            builders::inspect_population_binary(population),
+            vec![
+                vec![false, false, true, false],
+                vec![true, true, true, false],
+                vec![false, true, false, true],
+                vec![true, false, true, false],
+                vec![false, false, true, true],
+                vec![true, false, false, true],
+                vec![false, true, true, false],
+                vec![true, false, true, false],
+            ]
+        )
     }
 
     #[test]
@@ -33,7 +60,7 @@ mod context_tests {
         println!("{:#?}", population);
 
         assert_eq!(
-            builders::booleans_from_population(population),
+            builders::inspect_population_binary(population),
             vec![vec![true], vec![false],]
         )
     }
@@ -48,7 +75,7 @@ mod context_tests {
         println!("{:#?}", population);
 
         assert_eq!(
-            builders::booleans_from_population(population),
+            builders::inspect_population_binary(population),
             vec![
                 vec![true, true],
                 vec![true, false],
@@ -68,7 +95,7 @@ mod context_tests {
         println!("{:#?}", population);
 
         assert_eq!(
-            builders::booleans_from_population(population),
+            builders::inspect_population_binary(population),
             vec![
                 vec![true, true, true],
                 vec![true, true, false],
