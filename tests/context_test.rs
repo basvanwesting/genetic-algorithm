@@ -4,13 +4,13 @@ mod support;
 mod context_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::gene::BinaryGene;
 
     #[test]
     fn test_random_chromosome_factory() {
         let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::<BinaryGene>::new()
+        let mut context = Context::new()
             .with_gene_size(10)
+            .with_gene_values(vec![true, false])
             .with_population_size(100)
             .with_tournament_size(4)
             .with_rng(rng);
@@ -25,7 +25,9 @@ mod context_tests {
 
     #[test]
     fn test_permutation_population_factory_1() {
-        let context = Context::<BinaryGene>::new().with_gene_size(1);
+        let context = Context::new()
+            .with_gene_size(1)
+            .with_gene_values(vec![true, false]);
 
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
@@ -38,7 +40,9 @@ mod context_tests {
 
     #[test]
     fn test_permutation_population_factory_2() {
-        let context = Context::<BinaryGene>::new().with_gene_size(2);
+        let context = Context::new()
+            .with_gene_size(2)
+            .with_gene_values(vec![true, false]);
 
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
@@ -56,7 +60,9 @@ mod context_tests {
 
     #[test]
     fn test_permutation_population_factory_3() {
-        let context = Context::<BinaryGene>::new().with_gene_size(3);
+        let context = Context::new()
+            .with_gene_size(3)
+            .with_gene_values(vec![true, false]);
 
         let population = context.permutation_population_factory();
         println!("{:#?}", population);

@@ -5,14 +5,16 @@ mod competition_tests {
     use crate::support::*;
     use genetic_algorithm::competition;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::gene::BinaryGene;
+    use genetic_algorithm::fitness;
 
     #[test]
     fn test_tournament() {
         let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::<BinaryGene>::new()
+        let mut context = Context::new()
             .with_gene_size(3)
+            .with_gene_values(vec![true, false])
             .with_population_size(4)
+            .with_fitness_function(fitness::count_true_values)
             .with_tournament_size(4)
             .with_rng(rng);
 
@@ -43,9 +45,11 @@ mod competition_tests {
 
     #[test]
     fn test_tournament_shortage() {
-        let mut context = Context::<BinaryGene>::new()
+        let mut context = Context::new()
             .with_gene_size(3)
+            .with_gene_values(vec![true, false])
             .with_population_size(4)
+            .with_fitness_function(fitness::count_true_values)
             .with_tournament_size(4);
 
         let mut population = builders::population_from_booleans(vec![

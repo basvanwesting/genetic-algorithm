@@ -1,6 +1,6 @@
 use crate::chromosome::Chromosome;
 use crate::fitness;
-use crate::gene::{BinaryGene, DiscreteGene, Gene};
+use crate::gene::Gene;
 use crate::population::Population;
 use itertools::Itertools;
 use rand::prelude::*;
@@ -20,6 +20,10 @@ pub struct Context<T: Gene> {
 }
 
 impl<T: Gene> Context<T> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+
     pub fn with_gene_size(mut self, gene_size: usize) -> Self {
         self.gene_size = gene_size;
         self
@@ -84,43 +88,16 @@ impl<T: Gene> Context<T> {
     }
 }
 
-impl Context<BinaryGene> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-impl Context<DiscreteGene> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-
-impl Default for Context<BinaryGene> {
+impl<T: Gene> Default for Context<T> {
     fn default() -> Self {
         Context {
             gene_size: 10,
-            gene_values: vec![true, false],
+            gene_values: vec![],
             population_size: 100,
             tournament_size: 4,
             max_stale_generations: 20,
             mutation_probability: 0.1,
-            fitness_function: fitness::count_true_values,
-            rng: SmallRng::from_entropy(),
-        }
-    }
-}
-
-impl Default for Context<DiscreteGene> {
-    fn default() -> Self {
-        Context {
-            gene_size: 10,
-            gene_values: vec![1, 2, 3, 4],
-            population_size: 100,
-            tournament_size: 4,
-            max_stale_generations: 20,
-            mutation_probability: 0.1,
-            fitness_function: fitness::sum_values,
+            fitness_function: fitness::null,
             rng: SmallRng::from_entropy(),
         }
     }

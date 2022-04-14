@@ -1,10 +1,9 @@
 use genetic_algorithm::context::Context;
 use genetic_algorithm::evolve;
 use genetic_algorithm::fitness;
-use genetic_algorithm::gene::{BinaryGene, DiscreteGene};
 
 fn main() {
-    let mut context = Context::<BinaryGene>::new()
+    let mut context = Context::new()
         .with_gene_size(100)
         .with_gene_values(vec![true, false])
         .with_population_size(1000)
@@ -21,7 +20,7 @@ fn main() {
         println!("no best chromosome");
     }
 
-    let mut context = Context::<DiscreteGene>::new()
+    let mut context = Context::new()
         .with_gene_size(100)
         .with_gene_values(vec![1, 2, 3, 4])
         .with_population_size(1000)
