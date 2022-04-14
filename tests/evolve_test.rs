@@ -4,13 +4,13 @@ mod support;
 mod evolve_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::evolve;
+    use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
 
     #[test]
     fn test_call_binary() {
         let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
             .with_population_size(100)
@@ -18,7 +18,9 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let best_chromosome = evolve::call(&mut context).unwrap();
+        let mut evolve = Evolve::new(context);
+        evolve.call();
+        let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness, Some(10));
@@ -31,7 +33,7 @@ mod evolve_tests {
     #[test]
     fn test_call_discrete() {
         let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![0, 1, 2, 3])
             .with_population_size(100)
@@ -39,7 +41,9 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let best_chromosome = evolve::call(&mut context).unwrap();
+        let mut evolve = Evolve::new(context);
+        evolve.call();
+        let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness, Some(30));
@@ -52,14 +56,16 @@ mod evolve_tests {
     #[test]
     fn test_call_continuous() {
         let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(10)
             .with_population_size(100)
             .with_fitness_function(fitness::sum_continuous_values)
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let best_chromosome = evolve::call(&mut context).unwrap();
+        let mut evolve = Evolve::new(context);
+        evolve.call();
+        let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness, Some(9));

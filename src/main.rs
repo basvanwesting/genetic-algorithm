@@ -1,9 +1,9 @@
 use genetic_algorithm::context::Context;
-use genetic_algorithm::evolve;
+use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
 
 fn main() {
-    let mut context = Context::new()
+    let context = Context::new()
         .with_gene_size(100)
         .with_gene_values(vec![true, false])
         .with_population_size(1000)
@@ -14,13 +14,15 @@ fn main() {
 
     println!("{}", context);
 
-    if let Some(best_chromosome) = evolve::call(&mut context) {
+    let mut evolve = Evolve::new(context);
+    evolve.call();
+    if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
         println!("no best chromosome");
     }
 
-    let mut context = Context::new()
+    let context = Context::new()
         .with_gene_size(100)
         .with_gene_values(vec![1, 2, 3, 4])
         .with_population_size(1000)
@@ -31,13 +33,15 @@ fn main() {
 
     println!("{}", context);
 
-    if let Some(best_chromosome) = evolve::call(&mut context) {
+    let mut evolve = Evolve::new(context);
+    evolve.call();
+    if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
         println!("no best chromosome");
     }
 
-    let mut context = Context::new()
+    let context = Context::new()
         .with_gene_size(100)
         .with_population_size(1000)
         .with_tournament_size(4)
@@ -47,7 +51,9 @@ fn main() {
 
     println!("{}", context);
 
-    if let Some(best_chromosome) = evolve::call(&mut context) {
+    let mut evolve = Evolve::new(context);
+    evolve.call();
+    if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
         println!("no best chromosome");
