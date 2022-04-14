@@ -5,17 +5,17 @@ pub type BinaryGene = bool;
 pub type DiscreteGene = u8;
 
 pub trait Gene: Copy + Clone {
-    fn mutate<T: Gene>(&mut self, _context: &Context<T>) {}
+    fn mutate(&mut self, _context: &mut Context<Self>) {}
 }
 
 impl Gene for BinaryGene {
-    fn mutate<BinaryGene: Gene>(&mut self, _context: &Context<BinaryGene>) {
+    fn mutate(&mut self, _context: &mut Context<BinaryGene>) {
         *self = !*self;
     }
 }
 
 impl Gene for DiscreteGene {
-    fn mutate<DiscreteGene: Gene>(&mut self, context: &Context<DiscreteGene>) {
+    fn mutate(&mut self, context: &mut Context<DiscreteGene>) {
         *self = *context.gene_values.choose(&mut context.rng).unwrap();
     }
 }

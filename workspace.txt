@@ -1,0 +1,28 @@
+right so the issue here is that the contract the Gene trait expresses, is that a type implementing it must be able to be mutated by any caller-chosen type T: Gene
+You cannot choose which one
+so BinaryGene cannot satisfy that contract if it can only be mutated by BinaryGenes only
+You may want to change the definition of the gene trait instead, to express that mutate can only be called with a single type T chosen by the implementor instead, e.g.
+
+trait Gene<T: Gene> {
+    fn mutate(&mut self, _: &[T], …)
+}
+
+that way you can correctly express
+
+impl Gene<BinaryGene> for BinaryGene {
+    fn mutate(&mut self, _gene_values: &[BinaryGene], …) { … }
+}
+
+and depending on whether your gene types can be mutated by a single or  possibly multiple other gene types, then you may want T to be an "associated type" of Gene instead:
+
+trait Gene {
+    type T: Gene;
+    fn mutate(&mut self, _: &[Self::T], …);
+}
+
+or maybe even your gene types will only be able to be mutated by values of that same gene type, in which case you could get rid of T altogether:
+
+trait Gene {
+    fn mutate(&mut self, _: &[Self], …);
+}
+
