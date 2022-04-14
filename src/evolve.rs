@@ -9,7 +9,7 @@ pub fn call<T: Gene>(context: &mut Context<T>) -> Option<Chromosome<T>> {
     let mut generation = 0;
     let mut best_generation = 0;
     let mut new_population = context.random_population_factory();
-    let mut best_chromosome = new_population.chromosomes.last().unwrap().clone();
+    let mut best_chromosome = new_population.best_chromosome().unwrap().clone();
 
     while generation - best_generation < context.max_stale_generations {
         let mut parent_population = new_population;
@@ -26,7 +26,7 @@ pub fn call<T: Gene>(context: &mut Context<T>) -> Option<Chromosome<T>> {
         );
 
         new_population.sort();
-        if let Some(new_best_chromosome) = new_population.chromosomes.last() {
+        if let Some(new_best_chromosome) = new_population.best_chromosome() {
             if new_best_chromosome > &best_chromosome {
                 best_chromosome = new_best_chromosome.clone();
                 best_generation = generation;
