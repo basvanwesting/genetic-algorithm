@@ -18,7 +18,7 @@ mod competition_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let mut population = builders::population_binary(vec![
+        let mut population = build::population(vec![
             vec![false, false, false],
             vec![false, false, true],
             vec![false, true, false],
@@ -33,7 +33,7 @@ mod competition_tests {
         let new_population = competition::tournament(&mut context, population);
 
         assert_eq!(
-            builders::inspect_population_binary(new_population),
+            inspect::population(&new_population),
             vec![
                 vec![false, true, true],
                 vec![true, true, true],
@@ -53,13 +53,13 @@ mod competition_tests {
             .with_tournament_size(4);
 
         let mut population =
-            builders::population_binary(vec![vec![false, false, false], vec![false, false, true]]);
+            build::population(vec![vec![false, false, false], vec![false, false, true]]);
 
         population.calculate_fitness(&context);
         let new_population = competition::tournament(&mut context, population);
 
         assert_eq!(
-            builders::inspect_population_binary(new_population),
+            inspect::population(&new_population),
             vec![vec![false, false, true], vec![false, false, false],]
         );
     }

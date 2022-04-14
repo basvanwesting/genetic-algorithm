@@ -18,7 +18,7 @@ mod context_tests {
         let chromosome = context.random_chromosome_factory();
 
         assert_eq!(
-            builders::inspect_chromosome_binary(chromosome),
+            inspect::chromosome(&chromosome),
             vec![false, false, true, false, true, true, true, false, false, true]
         );
     }
@@ -36,7 +36,7 @@ mod context_tests {
         println!("{:#?}", population);
 
         assert_eq!(
-            builders::inspect_population_binary(population),
+            inspect::population(&population),
             vec![
                 vec![false, false, true, false],
                 vec![true, true, true, false],
@@ -60,7 +60,7 @@ mod context_tests {
         println!("{:#?}", population);
 
         assert_eq!(
-            builders::inspect_population_binary(population),
+            inspect::population(&population),
             vec![vec![true], vec![false],]
         )
     }
@@ -75,7 +75,7 @@ mod context_tests {
         println!("{:#?}", population);
 
         assert_eq!(
-            builders::inspect_population_binary(population),
+            inspect::population(&population),
             vec![
                 vec![true, true],
                 vec![true, false],
@@ -95,7 +95,7 @@ mod context_tests {
         println!("{:#?}", population);
 
         assert_eq!(
-            builders::inspect_population_binary(population),
+            inspect::population(&population),
             vec![
                 vec![true, true, true],
                 vec![true, true, false],

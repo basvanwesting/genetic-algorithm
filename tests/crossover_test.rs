@@ -15,7 +15,7 @@ mod crossover_tests {
             .with_population_size(4)
             .with_rng(rng);
 
-        let population = builders::population_binary(vec![
+        let population = build::population(vec![
             vec![true, true, true],
             vec![false, false, false],
             vec![true, true, true],
@@ -25,7 +25,7 @@ mod crossover_tests {
         let child_population = crossover::individual(&mut context, &population);
 
         assert_eq!(
-            builders::inspect_population_binary(child_population),
+            inspect::population(&child_population),
             vec![
                 vec![true, false, true],
                 vec![false, true, false],
@@ -44,7 +44,7 @@ mod crossover_tests {
             .with_population_size(4)
             .with_rng(rng);
 
-        let population = builders::population_binary(vec![
+        let population = build::population(vec![
             vec![true, true, true],
             vec![false, false, false],
             vec![true, true, true],
@@ -55,7 +55,7 @@ mod crossover_tests {
         let child_population = crossover::individual(&mut context, &population);
 
         assert_eq!(
-            builders::inspect_population_binary(child_population),
+            inspect::population(&child_population),
             vec![
                 vec![true, false, true],
                 vec![false, true, false],
