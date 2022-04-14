@@ -8,14 +8,19 @@ mod context_tests {
 
     #[test]
     fn test_random_chromosome_factory() {
-        let context = Context::<BinaryGene>::new()
+        let rng = SmallRng::seed_from_u64(0);
+        let mut context = Context::<BinaryGene>::new()
             .with_gene_size(10)
             .with_population_size(100)
-            .with_tournament_size(4);
+            .with_tournament_size(4)
+            .with_rng(rng);
 
         let chromosome = context.random_chromosome_factory();
-        println!("{:#?}", chromosome);
-        assert_eq!(chromosome.genes.len(), 10);
+
+        assert_eq!(
+            builders::booleans_from_chromosome(chromosome),
+            vec![false, true, false, true, true, true, false, false, true, true]
+        );
     }
 
     #[test]
@@ -25,8 +30,10 @@ mod context_tests {
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
 
-        let data = builders::booleans_from_population(population);
-        assert_eq!(data, vec![vec![true], vec![false],])
+        assert_eq!(
+            builders::booleans_from_population(population),
+            vec![vec![true], vec![false],]
+        )
     }
 
     #[test]
@@ -36,9 +43,8 @@ mod context_tests {
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
 
-        let data = builders::booleans_from_population(population);
         assert_eq!(
-            data,
+            builders::booleans_from_population(population),
             vec![
                 vec![true, true],
                 vec![true, false],
@@ -55,9 +61,8 @@ mod context_tests {
         let population = context.permutation_population_factory();
         println!("{:#?}", population);
 
-        let data = builders::booleans_from_population(population);
         assert_eq!(
-            data,
+            builders::booleans_from_population(population),
             vec![
                 vec![true, true, true],
                 vec![true, true, false],

@@ -9,9 +9,11 @@ mod mutation_tests {
 
     #[test]
     fn test_single_gene_ensure_mutation() {
+        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::<BinaryGene>::new()
             .with_gene_size(3)
-            .with_mutation_probability(1.0);
+            .with_mutation_probability(1.0)
+            .with_rng(rng);
 
         let mut population = builders::population_from_booleans(vec![
             vec![true, true, true],
@@ -22,10 +24,14 @@ mod mutation_tests {
 
         mutation::single_gene(&mut context, &mut population);
 
-        assert_eq!(helpers::number_of_true_values_in_population(&population), 8);
         assert_eq!(
-            helpers::number_of_false_values_in_population(&population),
-            4
+            builders::booleans_from_population(population),
+            vec![
+                vec![true, false, true],
+                vec![true, false, true],
+                vec![true, true, false],
+                vec![true, false, true],
+            ]
         );
     }
 
@@ -45,12 +51,13 @@ mod mutation_tests {
         mutation::single_gene(&mut context, &mut population);
 
         assert_eq!(
-            helpers::number_of_true_values_in_population(&population),
-            12
-        );
-        assert_eq!(
-            helpers::number_of_false_values_in_population(&population),
-            0
+            builders::booleans_from_population(population),
+            vec![
+                vec![true, true, true],
+                vec![true, true, true],
+                vec![true, true, true],
+                vec![true, true, true],
+            ]
         );
     }
 }

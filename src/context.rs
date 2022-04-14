@@ -69,15 +69,14 @@ impl<T: Gene> Context<T> {
         Population::new(chromosomes)
     }
 
-    pub fn random_chromosome_factory(&self) -> Chromosome<T> {
-        let mut rng = thread_rng();
+    pub fn random_chromosome_factory(&mut self) -> Chromosome<T> {
         let genes: Vec<T> = (0..self.gene_size)
-            .map(|_| *self.gene_values.choose(&mut rng).unwrap())
+            .map(|_| *self.gene_values.choose(&mut self.rng).unwrap())
             .collect();
         Chromosome::new(genes)
     }
 
-    pub fn random_population_factory(&self) -> Population<T> {
+    pub fn random_population_factory(&mut self) -> Population<T> {
         let chromosomes = (0..self.population_size)
             .map(|_| self.random_chromosome_factory())
             .collect();

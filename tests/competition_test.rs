@@ -9,10 +9,12 @@ mod competition_tests {
 
     #[test]
     fn test_tournament() {
+        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::<BinaryGene>::new()
             .with_gene_size(3)
             .with_population_size(4)
-            .with_tournament_size(4);
+            .with_tournament_size(4)
+            .with_rng(rng);
 
         let mut population = builders::population_from_booleans(vec![
             vec![false, false, false],
@@ -28,11 +30,15 @@ mod competition_tests {
         population.calculate_fitness(&context);
         let new_population = competition::tournament(&mut context, population);
 
-        assert_eq!(new_population.chromosomes.len(), 4);
-
-        // safe enough value, although not by definition true
-        assert!(helpers::number_of_true_values_in_population(&new_population) >= 8);
-        println!("{:#?}", new_population);
+        assert_eq!(
+            builders::booleans_from_population(new_population),
+            vec![
+                vec![false, true, true],
+                vec![true, true, true],
+                vec![true, true, false],
+                vec![true, false, true],
+            ]
+        );
     }
 
     #[test]
@@ -50,6 +56,9 @@ mod competition_tests {
         population.calculate_fitness(&context);
         let new_population = competition::tournament(&mut context, population);
 
-        assert_eq!(new_population.chromosomes.len(), 2);
+        assert_eq!(
+            builders::booleans_from_population(new_population),
+            vec![vec![false, false, true], vec![false, false, false],]
+        );
     }
 }

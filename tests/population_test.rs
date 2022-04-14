@@ -8,17 +8,27 @@ mod population_tests {
 
     #[test]
     fn test_random_factory() {
-        let context = Context::<BinaryGene>::new()
-            .with_gene_size(16)
-            .with_population_size(100);
+        let rng = SmallRng::seed_from_u64(0);
+        let mut context = Context::<BinaryGene>::new()
+            .with_gene_size(4)
+            .with_population_size(8)
+            .with_rng(rng);
 
         let population = context.random_population_factory();
         println!("{:#?}", population);
 
         assert_eq!(
-            helpers::number_of_true_values_in_population(&population)
-                + helpers::number_of_false_values_in_population(&population),
-            16 * 100
-        );
+            builders::booleans_from_population(population),
+            vec![
+                vec![false, true, false, true],
+                vec![true, true, false, false],
+                vec![true, true, true, false],
+                vec![true, false, true, false],
+                vec![false, true, true, true],
+                vec![true, false, false, true],
+                vec![true, true, false, false],
+                vec![false, true, true, false],
+            ]
+        )
     }
 }
