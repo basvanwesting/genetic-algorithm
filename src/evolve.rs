@@ -3,18 +3,20 @@ use crate::competition;
 use crate::context::Context;
 use crate::crossover;
 use crate::gene::Gene;
-use crate::mutate::{Mutate, MutateSingleGene};
+use crate::mutate::Mutate;
 
-pub struct Evolve<T: Gene> {
+pub struct Evolve<T: Gene, M: Mutate> {
     pub context: Context<T>,
     pub best_chromosome: Option<Chromosome<T>>,
+    pub mutator: M,
 }
 
-impl<T: Gene> Evolve<T> {
-    pub fn new(context: Context<T>) -> Self {
+impl<T: Gene, M: Mutate> Evolve<T, M> {
+    pub fn new(context: Context<T>, mutator: M) -> Self {
         Self {
             context: context,
             best_chromosome: None,
+            mutator: mutator,
         }
     }
 
@@ -27,7 +29,7 @@ impl<T: Gene> Evolve<T> {
         while generation - best_generation < self.context.max_stale_generations {
             let mut parent_population = new_population;
             let mut child_population = crossover::individual(&mut self.context, &parent_population);
-            MutateSingleGene::call(&mut self.context, &mut child_population);
+            self.mutator.call(&mut self.context, &mut child_population);
             child_population.calculate_fitness(&self.context);
             child_population.merge(&mut parent_population);
             new_population = competition::tournament(&mut self.context, child_population);

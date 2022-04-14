@@ -22,7 +22,7 @@ mod mutate_tests {
             vec![true, true, true],
         ]);
 
-        MutateSingleGene::call(&mut context, &mut population);
+        MutateSingleGene.call(&mut context, &mut population);
 
         assert_eq!(
             inspect::population(&population),
@@ -51,7 +51,7 @@ mod mutate_tests {
             vec![0, 0, 0],
         ]);
 
-        MutateSingleGene::call(&mut context, &mut population);
+        MutateSingleGene.call(&mut context, &mut population);
 
         assert_eq!(
             inspect::population(&population),

@@ -5,12 +5,12 @@ use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 
 pub trait Mutate {
-    fn call<T: Gene>(context: &mut Context<T>, population: &mut Population<T>);
+    fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>);
 }
 
 pub struct MutateSingleGene;
 impl Mutate for MutateSingleGene {
-    fn call<T: Gene>(context: &mut Context<T>, population: &mut Population<T>) {
+    fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>) {
         let gene_range = Uniform::from(0..context.gene_size);
 
         for chromosome in &mut population.chromosomes {

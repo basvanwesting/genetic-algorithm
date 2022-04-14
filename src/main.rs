@@ -1,6 +1,7 @@
 use genetic_algorithm::context::Context;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
+use genetic_algorithm::mutate::MutateSingleGene;
 
 fn main() {
     let context = Context::new()
@@ -14,7 +15,7 @@ fn main() {
 
     println!("{}", context);
 
-    let mut evolve = Evolve::new(context);
+    let mut evolve = Evolve::new(context, MutateSingleGene);
     evolve.call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
@@ -33,7 +34,7 @@ fn main() {
 
     println!("{}", context);
 
-    let mut evolve = Evolve::new(context);
+    let mut evolve = Evolve::new(context, MutateSingleGene);
     evolve.call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
@@ -51,7 +52,7 @@ fn main() {
 
     println!("{}", context);
 
-    let mut evolve = Evolve::new(context);
+    let mut evolve = Evolve::new(context, MutateSingleGene);
     evolve.call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
