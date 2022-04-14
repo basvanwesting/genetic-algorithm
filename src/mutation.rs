@@ -14,7 +14,7 @@ pub fn single_gene<T: Gene>(context: &Context<T>, population: &mut Population<T>
 
         if mutation_value <= context.mutation_probability {
             let index = gene_range.sample(&mut rng);
-            chromosome.genes[index].mutate();
+            chromosome.genes[index].mutate(&context);
         }
     }
 }

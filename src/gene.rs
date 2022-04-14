@@ -1,12 +1,14 @@
+use crate::context::Context;
+
 pub type BinaryGene = bool;
 pub type DiscreteGene = u8;
 
 pub trait Gene: Copy + Clone {
-    fn mutate(&mut self) {}
+    fn mutate<T: Gene>(&mut self, _context: &Context<T>) {}
 }
 
 impl Gene for BinaryGene {
-    fn mutate(&mut self) {
+    fn mutate<T: Gene>(&mut self, _context: &Context<T>) {
         if *self {
             *self = false
         } else {
@@ -16,7 +18,7 @@ impl Gene for BinaryGene {
 }
 
 impl Gene for DiscreteGene {
-    fn mutate(&mut self) {
+    fn mutate<T: Gene>(&mut self, _context: &Context<T>) {
         *self += 1;
     }
 }
