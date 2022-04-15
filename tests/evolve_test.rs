@@ -12,6 +12,25 @@ mod evolve_tests {
     use genetic_algorithm::mutate;
 
     #[test]
+    fn test_invalid() {
+        let rng = SmallRng::seed_from_u64(0);
+        let context = Context::new()
+            .with_gene_size(10)
+            .with_gene_values(vec![true, false])
+            .with_population_size(100)
+            .with_rng(rng);
+
+        let evolve = Evolve::new(context)
+            .with_mutate(mutate::SingleGene(0.1))
+            .with_fitness(fitness::SimpleSum)
+            .with_crossover(crossover::Individual)
+            .with_compete(compete::Tournament(4))
+            .call();
+
+        assert_eq!(evolve.best_chromosome, None);
+    }
+
+    #[test]
     fn test_call_binary() {
         let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()

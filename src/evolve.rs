@@ -10,6 +10,7 @@ use std::fmt;
 pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub context: Context<T>,
     pub max_stale_generations: Option<usize>,
+    pub target_fitness_score: Option<usize>,
     pub best_chromosome: Option<Chromosome<T>>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -22,6 +23,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         Self {
             context: context,
             max_stale_generations: None,
+            target_fitness_score: None,
             best_chromosome: None,
             mutate: None,
             fitness: None,
@@ -32,6 +34,11 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
 
     pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
         self.max_stale_generations = Some(max_stale_generations);
+        self
+    }
+
+    pub fn with_target_fitness_score(mut self, target_fitness_score: usize) -> Self {
+        self.target_fitness_score = Some(target_fitness_score);
         self
     }
     pub fn with_mutate(mut self, mutate: M) -> Self {
@@ -51,7 +58,20 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self
     }
 
+    pub fn valid(&self) -> bool {
+        //(self.max_stale_generations.is_some() || self.target_fitness_score.is_some())
+        self.max_stale_generations.is_some()
+            && self.mutate.is_some()
+            && self.fitness.is_some()
+            && self.crossover.is_some()
+            && self.compete.is_some()
+    }
+
     pub fn call(mut self) -> Self {
+        if !self.valid() {
+            return self;
+        }
+
         let max_stale_generations = self.max_stale_generations.unwrap();
 
         let mutate = self.mutate.as_ref().unwrap();
