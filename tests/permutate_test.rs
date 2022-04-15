@@ -1,11 +1,12 @@
 mod support;
 
 #[cfg(test)]
-mod permutation_tests {
+mod permutate_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::fitness;
-    use genetic_algorithm::permutate;
+    use genetic_algorithm::fitness::FitnessSimpleSum;
+    use genetic_algorithm::gene::ContinuousGene;
+    use genetic_algorithm::permutate::Permutate;
 
     #[test]
     fn test_call_binary() {
@@ -13,7 +14,8 @@ mod permutation_tests {
             .with_gene_size(5)
             .with_gene_values(vec![true, false]);
 
-        let best_chromosome = permutate::call(&context).unwrap();
+        let permutate = Permutate::new(context, FitnessSimpleSum).call();
+        let best_chromosome = permutate.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness, Some(5));
@@ -29,7 +31,8 @@ mod permutation_tests {
             .with_gene_size(5)
             .with_gene_values(vec![0, 1, 2, 3]);
 
-        let best_chromosome = permutate::call(&context).unwrap();
+        let permutate = Permutate::new(context, FitnessSimpleSum).call();
+        let best_chromosome = permutate.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness, Some(15));
@@ -40,7 +43,8 @@ mod permutation_tests {
     fn test_call_continuous() {
         let context = Context::<ContinuousGene>::new().with_gene_size(5);
 
-        let best_chromosome = permutate::call(&context);
+        let permutate = Permutate::new(context, FitnessSimpleSum).call();
+        let best_chromosome = permutate.best_chromosome;
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome, None);
