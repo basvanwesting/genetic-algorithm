@@ -33,11 +33,4 @@ impl<T: Gene> Population<T> {
     pub fn fitness_score_stddev(&self) -> f32 {
         stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
     }
-
-    pub fn mass_extinction(&mut self, keep_population_size: usize) {
-        if self.size() > keep_population_size {
-            self.chromosomes
-                .drain(..(self.size() - keep_population_size));
-        }
-    }
 }

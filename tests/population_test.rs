@@ -38,27 +38,4 @@ mod population_tests {
         fitness::SimpleSum.call_for_population(&mut population);
         assert_eq!(population.fitness_score_stddev(), 0.3307189);
     }
-
-    #[test]
-    fn test_mass_extinction() {
-        let mut population = build::population(vec![
-            vec![false, true, true],
-            vec![false, true, false],
-            vec![false, false, true],
-            vec![false, false, false],
-            vec![true, true, true],
-            vec![true, true, false],
-            vec![true, false, true],
-            vec![true, false, false],
-        ]);
-
-        fitness::SimpleSum.call_for_population(&mut population);
-        population.sort();
-        population.mass_extinction(2);
-
-        assert_eq!(
-            inspect::population(&population),
-            vec![vec![true, false, true], vec![true, true, true]]
-        )
-    }
 }
