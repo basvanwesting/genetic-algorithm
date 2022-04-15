@@ -7,6 +7,7 @@ pub trait Fitness<T: Gene>: Clone + std::fmt::Debug {
         population
             .chromosomes
             .iter_mut()
+            .filter(|c| c.fitness_score.is_none())
             .for_each(|c| c.fitness_score = Some(self.call_for_chromosome(c)));
     }
     fn call_for_chromosome(&self, chromosome: &Chromosome<T>) -> usize;

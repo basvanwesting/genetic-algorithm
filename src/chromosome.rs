@@ -15,6 +15,10 @@ impl<T: Gene> Chromosome<T> {
             fitness_score: None,
         }
     }
+
+    pub fn taint_fitness_score(&mut self) {
+        self.fitness_score = None;
+    }
 }
 
 impl<T: Gene> PartialEq for Chromosome<T> {

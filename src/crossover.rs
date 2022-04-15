@@ -26,6 +26,7 @@ impl Crossover for Individual {
                     child_father_genes[index] = mother.genes[index];
                     child_mother_genes[index] = father.genes[index];
 
+                    // no need to taint_fitness_score as it is initialized with None
                     child_chromosomes.push(Chromosome::new(child_father_genes));
                     child_chromosomes.push(Chromosome::new(child_mother_genes));
                 }

@@ -19,6 +19,7 @@ impl Mutate for SingleGene {
             if context.rng.gen::<f32>() <= self.0 {
                 let index = gene_range.sample(&mut context.rng);
                 chromosome.genes[index].mutate(context);
+                chromosome.taint_fitness_score();
             }
         }
     }
@@ -34,6 +35,7 @@ impl Mutate for MultipleGene {
                     gene.mutate(context);
                 }
             }
+            chromosome.taint_fitness_score();
         }
     }
 }
