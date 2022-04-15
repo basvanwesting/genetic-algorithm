@@ -5,6 +5,7 @@ use crate::crossover::Crossover;
 use crate::fitness::Fitness;
 use crate::gene::Gene;
 use crate::mutate::Mutate;
+use crate::population::Population;
 use std::fmt;
 
 pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
@@ -79,17 +80,20 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
     }
 
     pub fn execute(mut self) -> Self {
-        let mutate = self.mutate.as_ref().unwrap();
-        let fitness = self.fitness.as_ref().unwrap();
-        let crossover = self.crossover.as_ref().unwrap();
-        let compete = self.compete.as_ref().unwrap();
+        let mutate = self.mutate.as_ref().cloned().unwrap();
+        let fitness = self.fitness.as_ref().cloned().unwrap();
+        let crossover = self.crossover.as_ref().cloned().unwrap();
+        let compete = self.compete.as_ref().cloned().unwrap();
 
         self.current_generation = 0;
         self.best_generation = 0;
         let mut new_population = self.context.random_population_factory();
-        let mut best_chromosome = new_population.best_chromosome().unwrap().clone();
+        self.best_chromosome = new_population.best_chromosome().cloned();
 
         while !self.is_finished() {
+            self.current_generation += 1;
+            println!("current generation {}", self.current_generation);
+
             let mut parent_population = new_population;
             let mut child_population = crossover.call(&mut self.context, &parent_population);
             mutate.call(&mut self.context, &mut child_population);
@@ -97,25 +101,20 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             child_population.merge(&mut parent_population);
             new_population = compete.call(&mut self.context, child_population);
 
-            self.current_generation += 1;
-            println!(
-                "current generation {:?}, best chromosome {}",
-                self.current_generation, best_chromosome
-            );
-
             new_population.sort();
-            if let Some(new_best_chromosome) = new_population.best_chromosome() {
-                if new_best_chromosome > &best_chromosome {
-                    best_chromosome = new_best_chromosome.clone();
-                    self.best_generation = self.current_generation;
-                }
-            }
+            self.update_best_chromosome(&new_population);
         }
-        self.best_chromosome = Some(best_chromosome);
         self
     }
 
-    pub fn is_finished(&self) -> bool {
+    fn update_best_chromosome(&mut self, population: &Population<T>) {
+        if self.best_chromosome.as_ref() < population.best_chromosome() {
+            self.best_chromosome = population.best_chromosome().cloned();
+            self.best_generation = self.current_generation;
+        }
+    }
+
+    fn is_finished(&self) -> bool {
         let max_stale_generations = self.max_stale_generations.unwrap();
         self.current_generation - self.best_generation >= max_stale_generations
     }

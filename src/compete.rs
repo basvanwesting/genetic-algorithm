@@ -4,13 +4,13 @@ use crate::gene::Gene;
 use crate::population::Population;
 use rand::seq::IteratorRandom;
 
-pub trait Compete: std::fmt::Debug {
+pub trait Compete: Clone + std::fmt::Debug {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: Population<T>) -> Population<T>;
 }
 
 pub type TournamentSize = usize;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Tournament(pub TournamentSize);
 impl Tournament {
     fn tournament_single_round<T: Gene>(

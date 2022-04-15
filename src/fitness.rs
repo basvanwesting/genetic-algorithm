@@ -2,7 +2,7 @@ use crate::chromosome::Chromosome;
 use crate::gene::{BinaryGene, ContinuousGene, DiscreteGene, Gene};
 use crate::population::Population;
 
-pub trait Fitness<T: Gene>: std::fmt::Debug {
+pub trait Fitness<T: Gene>: Clone + std::fmt::Debug {
     fn call_for_population(&self, population: &mut Population<T>) {
         population
             .chromosomes
@@ -12,7 +12,7 @@ pub trait Fitness<T: Gene>: std::fmt::Debug {
     fn call_for_chromosome(&self, chromosome: &Chromosome<T>) -> usize;
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct SimpleSum;
 impl Fitness<BinaryGene> for SimpleSum {
     fn call_for_chromosome(&self, chromosome: &Chromosome<BinaryGene>) -> usize {
