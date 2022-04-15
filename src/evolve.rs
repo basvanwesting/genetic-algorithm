@@ -9,18 +9,18 @@ use crate::mutate::Mutate;
 pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub context: Context<T>,
     pub best_chromosome: Option<Chromosome<T>>,
-    pub mutator: M,
+    pub mutate: M,
     pub fitness: F,
     pub crossover: S,
     pub compete: C,
 }
 
 impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F, S, C> {
-    pub fn new(context: Context<T>, mutator: M, fitness: F, crossover: S, compete: C) -> Self {
+    pub fn new(context: Context<T>, mutate: M, fitness: F, crossover: S, compete: C) -> Self {
         Self {
             context: context,
             best_chromosome: None,
-            mutator: mutator,
+            mutate: mutate,
             fitness: fitness,
             crossover: crossover,
             compete: compete,
@@ -36,7 +36,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         while generation - best_generation < self.context.max_stale_generations {
             let mut parent_population = new_population;
             let mut child_population = self.crossover.call(&mut self.context, &parent_population);
-            self.mutator.call(&mut self.context, &mut child_population);
+            self.mutate.call(&mut self.context, &mut child_population);
             self.fitness.call_for_population(&mut child_population);
             child_population.merge(&mut parent_population);
             new_population = self.compete.call(&mut self.context, child_population);
