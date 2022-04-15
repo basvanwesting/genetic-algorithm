@@ -21,6 +21,7 @@ pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub current_generation: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<T>>,
+    pub population: Population<T>,
     pub degenerate: bool,
 }
 
@@ -38,6 +39,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             current_generation: 0,
             best_generation: 0,
             best_chromosome: None,
+            population: Population::new_empty(),
             degenerate: false,
         }
     }
@@ -95,42 +97,42 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
-        let mut new_population = self.context.random_population_factory();
-        self.best_chromosome = new_population.best_chromosome().cloned();
+        self.population = self.context.random_population_factory();
+        self.best_chromosome = self.population.best_chromosome().cloned();
 
         while !self.is_finished() {
-            self.toggle_degenerate(&new_population);
+            self.toggle_degenerate();
             if self.degenerate {
-                mutate.call(&mut self.context, &mut new_population);
-                fitness.call_for_population(&mut new_population);
+                mutate.call(&mut self.context, &mut self.population);
+                fitness.call_for_population(&mut self.population);
             } else {
-                let mut parent_population = new_population;
+                let mut parent_population = self.population;
                 let mut child_population = crossover.call(&mut self.context, &parent_population);
                 mutate.call(&mut self.context, &mut child_population);
                 fitness.call_for_population(&mut child_population);
                 child_population.merge(&mut parent_population);
-                new_population = compete.call(&mut self.context, child_population);
+                self.population = compete.call(&mut self.context, child_population);
             }
 
-            new_population.sort();
-            self.update_best_chromosome(&new_population);
-            self.report_round(&new_population);
+            self.update_best_chromosome();
+            self.report_round();
 
             self.current_generation += 1;
         }
         self
     }
 
-    fn update_best_chromosome(&mut self, population: &Population<T>) {
-        if self.best_chromosome.as_ref() < population.best_chromosome() {
-            self.best_chromosome = population.best_chromosome().cloned();
+    fn update_best_chromosome(&mut self) {
+        self.population.sort();
+        if self.best_chromosome.as_ref() < self.population.best_chromosome() {
+            self.best_chromosome = self.population.best_chromosome().cloned();
             self.best_generation = self.current_generation;
         }
     }
 
-    fn toggle_degenerate(&mut self, population: &Population<T>) {
+    fn toggle_degenerate(&mut self) {
         if let Some(degeneration_range) = self.degeneration_range.as_ref() {
-            let fitness_score_stddev = population.fitness_score_stddev();
+            let fitness_score_stddev = self.population.fitness_score_stddev();
             if self.degenerate && fitness_score_stddev > degeneration_range.end {
                 self.degenerate = false;
             } else if !self.degenerate && fitness_score_stddev < degeneration_range.start {
@@ -163,12 +165,12 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         }
     }
 
-    fn report_round(&self, population: &Population<T>) {
+    fn report_round(&self) {
         println!(
             "current generation: {}, best fitness score: {:?}, fitness score stddev: {}, degenerate: {}",
             self.current_generation,
             self.best_fitness_score(),
-            population.fitness_score_stddev(),
+            self.population.fitness_score_stddev(),
             self.degenerate,
         );
     }

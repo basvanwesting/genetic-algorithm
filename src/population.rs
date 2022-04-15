@@ -14,6 +14,12 @@ impl<T: Gene> Population<T> {
         }
     }
 
+    pub fn new_empty() -> Self {
+        Self {
+            chromosomes: vec![],
+        }
+    }
+
     pub fn merge(&mut self, other: &mut Self) {
         self.chromosomes.append(&mut other.chromosomes);
     }
