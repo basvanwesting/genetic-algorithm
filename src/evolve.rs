@@ -8,6 +8,7 @@ use crate::mutate::Mutate;
 
 pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub context: Context<T>,
+    pub max_stale_generations: usize,
     pub best_chromosome: Option<Chromosome<T>>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -19,6 +20,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
     pub fn new(context: Context<T>) -> Self {
         Self {
             context: context,
+            max_stale_generations: 0,
             best_chromosome: None,
             mutate: None,
             fitness: None,
@@ -27,6 +29,10 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         }
     }
 
+    pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
+        self.max_stale_generations = max_stale_generations;
+        self
+    }
     pub fn with_mutate(mut self, mutate: M) -> Self {
         self.mutate = Some(mutate);
         self
@@ -55,7 +61,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         let mut new_population = self.context.random_population_factory();
         let mut best_chromosome = new_population.best_chromosome().unwrap().clone();
 
-        while generation - best_generation < self.context.max_stale_generations {
+        while generation - best_generation < self.max_stale_generations {
             let mut parent_population = new_population;
             let mut child_population = crossover.call(&mut self.context, &parent_population);
             mutate.call(&mut self.context, &mut child_population);

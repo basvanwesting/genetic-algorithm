@@ -10,7 +10,6 @@ pub struct Context<T: Gene> {
     pub gene_size: usize,
     pub gene_values: Vec<T>,
     pub population_size: usize,
-    pub max_stale_generations: usize,
     pub rng: SmallRng,
 }
 
@@ -31,11 +30,6 @@ impl<T: Gene> Context<T> {
 
     pub fn with_population_size(mut self, population_size: usize) -> Self {
         self.population_size = population_size;
-        self
-    }
-
-    pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
-        self.max_stale_generations = max_stale_generations;
         self
     }
 
@@ -73,7 +67,6 @@ impl<T: Gene> Default for Context<T> {
             gene_size: 10,
             gene_values: vec![],
             population_size: 100,
-            max_stale_generations: 20,
             rng: SmallRng::from_entropy(),
         }
     }
@@ -84,11 +77,6 @@ impl<T: Gene> fmt::Display for Context<T> {
         write!(f, "context:\n")?;
         write!(f, "  gene_size: {}\n", self.gene_size)?;
         write!(f, "  gene_values: {}\n", self.gene_values.iter().join(","))?;
-        write!(f, "  population_size: {}\n", self.population_size)?;
-        write!(
-            f,
-            "  max_stale_generations: {}\n",
-            self.max_stale_generations
-        )
+        write!(f, "  population_size: {}\n", self.population_size)
     }
 }

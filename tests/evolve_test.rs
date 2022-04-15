@@ -21,6 +21,7 @@ mod evolve_tests {
             .with_rng(rng);
 
         let evolve = Evolve::new(context)
+            .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
             .with_crossover(crossover::Individual)
@@ -46,6 +47,7 @@ mod evolve_tests {
             .with_rng(rng);
 
         let evolve = Evolve::new(context)
+            .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
             .with_crossover(crossover::Individual)
@@ -70,6 +72,7 @@ mod evolve_tests {
             .with_rng(rng);
 
         let evolve = Evolve::new(context)
+            .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
             .with_crossover(crossover::Individual)

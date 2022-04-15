@@ -17,12 +17,12 @@ fn example_binary() {
     let context = Context::new()
         .with_gene_size(100)
         .with_gene_values(vec![true, false])
-        .with_population_size(1000)
-        .with_max_stale_generations(20);
+        .with_population_size(1000);
 
     println!("{}", context);
 
     let evolve = Evolve::new(context)
+        .with_max_stale_generations(20)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
         .with_crossover(crossover::Individual)
@@ -40,12 +40,12 @@ fn example_discrete() {
     let context = Context::new()
         .with_gene_size(100)
         .with_gene_values(vec![1, 2, 3, 4])
-        .with_population_size(1000)
-        .with_max_stale_generations(20);
+        .with_population_size(1000);
 
     println!("{}", context);
 
     let evolve = Evolve::new(context)
+        .with_max_stale_generations(20)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
         .with_crossover(crossover::Individual)
@@ -62,12 +62,12 @@ fn example_discrete() {
 fn example_continuous() {
     let context = Context::<ContinuousGene>::new()
         .with_gene_size(100)
-        .with_population_size(1000)
-        .with_max_stale_generations(20);
+        .with_population_size(1000);
 
     println!("{}", context);
 
     let evolve = Evolve::new(context)
+        .with_max_stale_generations(20)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
         .with_crossover(crossover::Individual)
