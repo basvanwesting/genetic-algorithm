@@ -7,10 +7,25 @@ use genetic_algorithm::gene::ContinuousGene;
 use genetic_algorithm::mutate;
 
 fn main() {
-    example_invalid();
-    example_binary();
-    example_discrete();
+    //example_invalid();
+    //example_binary();
+    //example_discrete();
     example_continuous();
+
+    if false {
+        let guard = pprof::ProfilerGuardBuilder::default()
+            .frequency(1000)
+            .blocklist(&["libc", "libgcc", "pthread", "vdso"])
+            .build()
+            .unwrap();
+
+        example_binary();
+
+        if let Ok(report) = guard.report().build() {
+            let file = std::fs::File::create("flamegraph.svg").unwrap();
+            report.flamegraph(file).unwrap();
+        };
+    }
 }
 
 #[allow(dead_code)]
@@ -47,7 +62,8 @@ fn example_binary() {
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
         .with_crossover(crossover::Individual)
-        .with_compete(compete::Tournament(4))
+        //.with_compete(compete::Tournament(4))
+        .with_compete(compete::Elite)
         .call();
 
     println!("{}", evolve);
@@ -68,7 +84,8 @@ fn example_discrete() {
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
         .with_crossover(crossover::Individual)
-        .with_compete(compete::Tournament(4))
+        //.with_compete(compete::Tournament(4))
+        .with_compete(compete::Elite)
         .call();
 
     println!("{}", evolve);
@@ -89,7 +106,8 @@ fn example_continuous() {
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
         .with_crossover(crossover::Individual)
-        .with_compete(compete::Tournament(4))
+        //.with_compete(compete::Tournament(4))
+        .with_compete(compete::Elite)
         .call();
 
     println!("{}", evolve);

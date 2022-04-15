@@ -11,6 +11,23 @@ pub trait Compete: Clone + std::fmt::Debug {
 pub type TournamentSize = usize;
 
 #[derive(Clone, Debug)]
+pub struct Elite;
+impl Compete for Elite {
+    fn call<T: Gene>(
+        &self,
+        context: &mut Context<T>,
+        mut population: Population<T>,
+    ) -> Population<T> {
+        let to_drain_from_first = population.size() - context.population_size;
+        if to_drain_from_first > 0 {
+            population.sort();
+            population.chromosomes.drain(..to_drain_from_first);
+        }
+        population
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct Tournament(pub TournamentSize);
 impl Tournament {
     fn tournament_single_round<T: Gene>(
