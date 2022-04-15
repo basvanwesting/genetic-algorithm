@@ -81,8 +81,9 @@ fn example_continuous() {
     println!("{}", context);
 
     let evolve = Evolve::new(context)
-        .with_max_stale_generations(200)
-        .with_target_fitness_score(93)
+        .with_max_stale_generations(1000)
+        .with_target_fitness_score(95)
+        .with_degeneration_range(0.0001..1.0000)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
         .with_crossover(crossover::Individual)

@@ -7,11 +7,13 @@ use crate::gene::Gene;
 use crate::mutate::Mutate;
 use crate::population::Population;
 use std::fmt;
+use std::ops::Range;
 
 pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub context: Context<T>,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<usize>,
+    pub degeneration_range: Option<Range<f32>>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
     pub crossover: Option<S>,
@@ -28,6 +30,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             context: context,
             max_stale_generations: None,
             target_fitness_score: None,
+            degeneration_range: None,
             mutate: None,
             fitness: None,
             crossover: None,
@@ -43,9 +46,12 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self.max_stale_generations = Some(max_stale_generations);
         self
     }
-
     pub fn with_target_fitness_score(mut self, target_fitness_score: usize) -> Self {
         self.target_fitness_score = Some(target_fitness_score);
+        self
+    }
+    pub fn with_degeneration_range(mut self, degeneration_range: Range<f32>) -> Self {
+        self.degeneration_range = Some(degeneration_range);
         self
     }
     pub fn with_mutate(mut self, mutate: M) -> Self {
@@ -93,7 +99,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self.best_chromosome = new_population.best_chromosome().cloned();
 
         while !self.is_finished() {
-            //self.toggle_degenerate(&new_population);
+            self.toggle_degenerate(&new_population);
             if self.degenerate {
                 mutate.call(&mut self.context, &mut new_population);
                 fitness.call_for_population(&mut new_population);
@@ -123,11 +129,13 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
     }
 
     fn toggle_degenerate(&mut self, population: &Population<T>) {
-        let fitness_score_stddev = population.fitness_score_stddev();
-        if fitness_score_stddev > 1.0 && self.degenerate {
-            self.degenerate = false;
-        } else if fitness_score_stddev < 0.0001 && !self.degenerate {
-            self.degenerate = true;
+        if let Some(degeneration_range) = self.degeneration_range.as_ref() {
+            let fitness_score_stddev = population.fitness_score_stddev();
+            if self.degenerate && fitness_score_stddev > degeneration_range.end {
+                self.degenerate = false;
+            } else if !self.degenerate && fitness_score_stddev < degeneration_range.start {
+                self.degenerate = true;
+            }
         }
     }
 
@@ -185,6 +193,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> fmt::Display
             "  target_fitness_score: {:?}\n",
             self.target_fitness_score
         )?;
+        write!(f, "  degeneration_range: {:?}\n", self.degeneration_range)?;
         write!(f, "  mutate: {:?}\n", self.mutate.as_ref())?;
         write!(f, "  fitness: {:?}\n", self.fitness.as_ref())?;
         write!(f, "  crossover: {:?}\n", self.crossover.as_ref())?;

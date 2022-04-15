@@ -83,6 +83,33 @@ mod evolve_tests {
     }
 
     #[test]
+    fn test_call_binary_degeneration_range() {
+        let rng = SmallRng::seed_from_u64(0);
+        let context = Context::new()
+            .with_gene_size(10)
+            .with_gene_values(vec![true, false])
+            .with_population_size(100)
+            .with_rng(rng);
+
+        let evolve = Evolve::new(context)
+            .with_target_fitness_score(8)
+            .with_degeneration_range(0.0001..1.0000)
+            .with_mutate(mutate::SingleGene(0.1))
+            .with_fitness(fitness::SimpleSum)
+            .with_crossover(crossover::Individual)
+            .with_compete(compete::Tournament(4))
+            .call();
+        let best_chromosome = evolve.best_chromosome.unwrap();
+        println!("{:#?}", best_chromosome);
+
+        assert_eq!(best_chromosome.fitness_score, Some(8));
+        assert_eq!(
+            inspect::chromosome(&best_chromosome),
+            vec![true, true, false, true, true, true, false, true, true, true]
+        );
+    }
+
+    #[test]
     fn test_call_discrete() {
         let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()

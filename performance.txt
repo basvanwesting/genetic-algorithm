@@ -1,0 +1,33 @@
+evolve:
+  max_stale_generations: Some(1000)
+  target_fitness_score: Some(95)
+  mutate: Some(SingleGene(0.2))
+  fitness: Some(SimpleSum)
+  crossover: Some(Individual)
+  compete: Some(Tournament(4))
+
+degeneration_range: None
+  current generation: 1884
+  best fitness score: Some(95)
+  cargo run --release  28.13s user 0.48s system 98% cpu 28.963 total
+
+  current generation: 1238
+  best fitness score: Some(95)
+  cargo run --release  19.56s user 0.36s system 98% cpu 20.143 total
+
+  current generation: 1648
+  best fitness score: Some(95)
+  cargo run --release  27.12s user 0.80s system 105% cpu 26.399 total
+
+degeneration_range: Some(0.0001..1.0)
+  current generation: 2203
+  best fitness score: Some(95)
+  cargo run --release  14.71s user 0.50s system 109% cpu 13.837 total
+
+  current generation: 2743
+  best fitness score: Some(95)
+  cargo run --release  14.67s user 0.30s system 98% cpu 15.143 total
+
+  current generation: 2697
+  best fitness score: Some(94)
+  cargo run --release  14.23s user 0.30s system 98% cpu 14.684 total
