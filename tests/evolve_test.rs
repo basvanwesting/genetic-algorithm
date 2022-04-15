@@ -21,14 +21,12 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(
-            context,
-            mutate::SingleGene(0.1),
-            fitness::SimpleSum,
-            crossover::Individual,
-            compete::Tournament,
-        )
-        .call();
+        let evolve = Evolve::new(context)
+            .with_mutate(mutate::SingleGene(0.1))
+            .with_fitness(fitness::SimpleSum)
+            .with_crossover(crossover::Individual)
+            .with_compete(compete::Tournament)
+            .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -49,14 +47,12 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(
-            context,
-            mutate::SingleGene(0.1),
-            fitness::SimpleSum,
-            crossover::Individual,
-            compete::Tournament,
-        )
-        .call();
+        let evolve = Evolve::new(context)
+            .with_mutate(mutate::SingleGene(0.1))
+            .with_fitness(fitness::SimpleSum)
+            .with_crossover(crossover::Individual)
+            .with_compete(compete::Tournament)
+            .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -76,14 +72,12 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(
-            context,
-            mutate::SingleGene(0.1),
-            fitness::SimpleSum,
-            crossover::Individual,
-            compete::Tournament,
-        )
-        .call();
+        let evolve = Evolve::new(context)
+            .with_mutate(mutate::SingleGene(0.1))
+            .with_fitness(fitness::SimpleSum)
+            .with_crossover(crossover::Individual)
+            .with_compete(compete::Tournament)
+            .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 

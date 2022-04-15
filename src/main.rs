@@ -23,14 +23,12 @@ fn example_binary() {
 
     println!("{}", context);
 
-    let evolve = Evolve::new(
-        context,
-        mutate::SingleGene(0.2),
-        fitness::SimpleSum,
-        crossover::Individual,
-        compete::Tournament,
-    )
-    .call();
+    let evolve = Evolve::new(context)
+        .with_mutate(mutate::SingleGene(0.2))
+        .with_fitness(fitness::SimpleSum)
+        .with_crossover(crossover::Individual)
+        .with_compete(compete::Tournament)
+        .call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
@@ -49,14 +47,12 @@ fn example_discrete() {
 
     println!("{}", context);
 
-    let evolve = Evolve::new(
-        context,
-        mutate::SingleGene(0.2),
-        fitness::SimpleSum,
-        crossover::Individual,
-        compete::Tournament,
-    )
-    .call();
+    let evolve = Evolve::new(context)
+        .with_mutate(mutate::SingleGene(0.2))
+        .with_fitness(fitness::SimpleSum)
+        .with_crossover(crossover::Individual)
+        .with_compete(compete::Tournament)
+        .call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
@@ -74,14 +70,12 @@ fn example_continuous() {
 
     println!("{}", context);
 
-    let evolve = Evolve::new(
-        context,
-        mutate::SingleGene(0.2),
-        fitness::SimpleSum,
-        crossover::Individual,
-        compete::Tournament,
-    )
-    .call();
+    let evolve = Evolve::new(context)
+        .with_mutate(mutate::SingleGene(0.2))
+        .with_fitness(fitness::SimpleSum)
+        .with_crossover(crossover::Individual)
+        .with_compete(compete::Tournament)
+        .call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
