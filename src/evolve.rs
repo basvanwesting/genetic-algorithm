@@ -5,6 +5,7 @@ use crate::crossover::Crossover;
 use crate::fitness::Fitness;
 use crate::gene::Gene;
 use crate::mutate::Mutate;
+use std::fmt;
 
 pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub context: Context<T>,
@@ -85,5 +86,23 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         }
         self.best_chromosome = Some(best_chromosome);
         self
+    }
+}
+
+impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> fmt::Display
+    for Evolve<T, M, F, S, C>
+{
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "evolve:\n")?;
+        write!(
+            f,
+            "  max_stale_generations: {}\n",
+            self.max_stale_generations
+        )?;
+        if let Some(best_chromosome) = self.best_chromosome.as_ref() {
+            write!(f, "  best chromosome: {}\n", best_chromosome)
+        } else {
+            write!(f, "  no best chromosome\n")
+        }
     }
 }

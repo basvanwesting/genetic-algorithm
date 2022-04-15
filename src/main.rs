@@ -28,11 +28,8 @@ fn example_binary() {
         .with_crossover(crossover::Individual)
         .with_compete(compete::Tournament(4))
         .call();
-    if let Some(best_chromosome) = evolve.best_chromosome {
-        println!("best chromosome: {}", best_chromosome);
-    } else {
-        println!("no best chromosome");
-    }
+
+    println!("{}", evolve);
 }
 
 #[allow(dead_code)]
@@ -51,11 +48,8 @@ fn example_discrete() {
         .with_crossover(crossover::Individual)
         .with_compete(compete::Tournament(4))
         .call();
-    if let Some(best_chromosome) = evolve.best_chromosome {
-        println!("best chromosome: {}", best_chromosome);
-    } else {
-        println!("no best chromosome");
-    }
+
+    println!("{}", evolve);
 }
 
 #[allow(dead_code)]
@@ -73,9 +67,6 @@ fn example_continuous() {
         .with_crossover(crossover::Individual)
         .with_compete(compete::Tournament(4))
         .call();
-    if let Some(best_chromosome) = evolve.best_chromosome {
-        println!("best chromosome: {}", best_chromosome);
-    } else {
-        println!("no best chromosome");
-    }
+
+    println!("{}", evolve);
 }
