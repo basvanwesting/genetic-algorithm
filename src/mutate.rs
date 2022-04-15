@@ -8,8 +8,8 @@ pub trait Mutate {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>);
 }
 
-pub struct MutateSingleGene;
-impl Mutate for MutateSingleGene {
+pub struct SingleGene;
+impl Mutate for SingleGene {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>) {
         let gene_range = Uniform::from(0..context.gene_size);
 

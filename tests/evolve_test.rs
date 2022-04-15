@@ -7,7 +7,7 @@ mod evolve_tests {
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
     use genetic_algorithm::gene::ContinuousGene;
-    use genetic_algorithm::mutate::MutateSingleGene;
+    use genetic_algorithm::mutate;
 
     #[test]
     fn test_call_binary() {
@@ -19,7 +19,7 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context, MutateSingleGene, fitness::SimpleSum).call();
+        let evolve = Evolve::new(context, mutate::SingleGene, fitness::SimpleSum).call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -40,7 +40,7 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context, MutateSingleGene, fitness::SimpleSum).call();
+        let evolve = Evolve::new(context, mutate::SingleGene, fitness::SimpleSum).call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -60,7 +60,7 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context, MutateSingleGene, fitness::SimpleSum).call();
+        let evolve = Evolve::new(context, mutate::SingleGene, fitness::SimpleSum).call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 

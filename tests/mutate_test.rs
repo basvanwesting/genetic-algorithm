@@ -4,7 +4,8 @@ mod support;
 mod mutate_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::mutate::{Mutate, MutateSingleGene};
+    use genetic_algorithm::mutate;
+    use genetic_algorithm::mutate::Mutate;
 
     #[test]
     fn test_mutate_single_gene_binary() {
@@ -22,7 +23,7 @@ mod mutate_tests {
             vec![true, true, true],
         ]);
 
-        MutateSingleGene.call(&mut context, &mut population);
+        mutate::SingleGene.call(&mut context, &mut population);
 
         assert_eq!(
             inspect::population(&population),
@@ -51,7 +52,7 @@ mod mutate_tests {
             vec![0, 0, 0],
         ]);
 
-        MutateSingleGene.call(&mut context, &mut population);
+        mutate::SingleGene.call(&mut context, &mut population);
 
         assert_eq!(
             inspect::population(&population),
