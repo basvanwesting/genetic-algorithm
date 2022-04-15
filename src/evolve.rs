@@ -99,7 +99,8 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             new_population.sort();
             self.update_best_chromosome(&new_population);
 
-            self.report_round();
+            self.report_round(&new_population);
+
             self.current_generation += 1;
         }
         self
@@ -136,11 +137,12 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         }
     }
 
-    fn report_round(&self) {
+    fn report_round(&self, population: &Population<T>) {
         println!(
-            "current generation {}, best fitness score {:?}",
+            "current generation {}, best fitness score {:?}, fitness score stddev {}",
             self.current_generation,
-            self.best_fitness_score()
+            self.best_fitness_score(),
+            population.fitness_score_stddev(),
         );
     }
 

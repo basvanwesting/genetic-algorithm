@@ -1,6 +1,6 @@
 use crate::chromosome::Chromosome;
-use crate::context::Context;
 use crate::gene::Gene;
+use stats::stddev;
 
 #[derive(Debug)]
 pub struct Population<T: Gene> {
@@ -30,18 +30,8 @@ impl<T: Gene> Population<T> {
         self.chromosomes.last()
     }
 
-    pub fn uniformity(&self, context: &Context<T>, best_chromosome: &Chromosome<T>) -> f32 {
-        if let Some(best_fitness_score) = best_chromosome.fitness_score {
-            let number_of_best_chromosomes = self
-                .chromosomes
-                .iter()
-                .filter(|c| c.fitness_score == Some(best_fitness_score))
-                .count();
-
-            number_of_best_chromosomes as f32 / context.population_size as f32
-        } else {
-            0.0
-        }
+    pub fn fitness_score_stddev(&self) -> f32 {
+        stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
     }
 
     pub fn mass_extinction(&mut self, keep_population_size: usize) {
