@@ -7,9 +7,29 @@ use genetic_algorithm::gene::ContinuousGene;
 use genetic_algorithm::mutate;
 
 fn main() {
+    //example_invalid();
     //example_binary();
     //example_discrete();
     example_continuous();
+}
+
+#[allow(dead_code)]
+fn example_invalid() {
+    let context = Context::new()
+        .with_gene_size(100)
+        .with_gene_values(vec![true, false])
+        .with_population_size(1000);
+
+    println!("{}", context);
+
+    let evolve = Evolve::new(context)
+        .with_mutate(mutate::SingleGene(0.2))
+        .with_fitness(fitness::SimpleSum)
+        .with_crossover(crossover::Individual)
+        .with_compete(compete::Tournament(4))
+        .call();
+
+    println!("{}", evolve);
 }
 
 #[allow(dead_code)]
