@@ -11,11 +11,13 @@ pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub context: Context<T>,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<usize>,
-    pub best_chromosome: Option<Chromosome<T>>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
     pub crossover: Option<S>,
     pub compete: Option<C>,
+    pub current_generation: usize,
+    pub best_generation: usize,
+    pub best_chromosome: Option<Chromosome<T>>,
 }
 
 impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F, S, C> {
@@ -24,11 +26,13 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             context: context,
             max_stale_generations: None,
             target_fitness_score: None,
-            best_chromosome: None,
             mutate: None,
             fitness: None,
             crossover: None,
             compete: None,
+            current_generation: 0,
+            best_generation: 0,
+            best_chromosome: None,
         }
     }
 
@@ -58,7 +62,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self
     }
 
-    pub fn valid(&self) -> bool {
+    pub fn is_valid(&self) -> bool {
         //(self.max_stale_generations.is_some() || self.target_fitness_score.is_some())
         self.max_stale_generations.is_some()
             && self.mutate.is_some()
@@ -67,24 +71,25 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             && self.compete.is_some()
     }
 
-    pub fn call(mut self) -> Self {
-        if !self.valid() {
+    pub fn call(self) -> Self {
+        if !self.is_valid() {
             return self;
         }
+        self.execute()
+    }
 
-        let max_stale_generations = self.max_stale_generations.unwrap();
-
+    pub fn execute(mut self) -> Self {
         let mutate = self.mutate.as_ref().unwrap();
         let fitness = self.fitness.as_ref().unwrap();
         let crossover = self.crossover.as_ref().unwrap();
         let compete = self.compete.as_ref().unwrap();
 
-        let mut generation = 0;
-        let mut best_generation = 0;
+        self.current_generation = 0;
+        self.best_generation = 0;
         let mut new_population = self.context.random_population_factory();
         let mut best_chromosome = new_population.best_chromosome().unwrap().clone();
 
-        while generation - best_generation < max_stale_generations {
+        while !self.is_finished() {
             let mut parent_population = new_population;
             let mut child_population = crossover.call(&mut self.context, &parent_population);
             mutate.call(&mut self.context, &mut child_population);
@@ -92,22 +97,27 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             child_population.merge(&mut parent_population);
             new_population = compete.call(&mut self.context, child_population);
 
-            generation += 1;
+            self.current_generation += 1;
             println!(
-                "generation {:?}, best chromosome {}",
-                generation, best_chromosome
+                "current generation {:?}, best chromosome {}",
+                self.current_generation, best_chromosome
             );
 
             new_population.sort();
             if let Some(new_best_chromosome) = new_population.best_chromosome() {
                 if new_best_chromosome > &best_chromosome {
                     best_chromosome = new_best_chromosome.clone();
-                    best_generation = generation;
+                    self.best_generation = self.current_generation;
                 }
             }
         }
         self.best_chromosome = Some(best_chromosome);
         self
+    }
+
+    pub fn is_finished(&self) -> bool {
+        let max_stale_generations = self.max_stale_generations.unwrap();
+        self.current_generation - self.best_generation >= max_stale_generations
     }
 }
 
