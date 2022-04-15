@@ -1,4 +1,5 @@
 use genetic_algorithm::context::Context;
+use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
 use genetic_algorithm::gene::ContinuousGene;
@@ -15,7 +16,13 @@ fn main() {
 
     println!("{}", context);
 
-    let evolve = Evolve::new(context, mutate::SingleGene, fitness::SimpleSum).call();
+    let evolve = Evolve::new(
+        context,
+        mutate::SingleGene,
+        fitness::SimpleSum,
+        crossover::Individual,
+    )
+    .call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
@@ -32,7 +39,13 @@ fn main() {
 
     println!("{}", context);
 
-    let evolve = Evolve::new(context, mutate::SingleGene, fitness::SimpleSum).call();
+    let evolve = Evolve::new(
+        context,
+        mutate::SingleGene,
+        fitness::SimpleSum,
+        crossover::Individual,
+    )
+    .call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
@@ -48,7 +61,13 @@ fn main() {
 
     println!("{}", context);
 
-    let evolve = Evolve::new(context, mutate::SingleGene, fitness::SimpleSum).call();
+    let evolve = Evolve::new(
+        context,
+        mutate::SingleGene,
+        fitness::SimpleSum,
+        crossover::Individual,
+    )
+    .call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {

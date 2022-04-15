@@ -4,6 +4,7 @@ mod support;
 mod evolve_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
+    use genetic_algorithm::crossover;
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
     use genetic_algorithm::gene::ContinuousGene;
@@ -19,7 +20,13 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context, mutate::SingleGene, fitness::SimpleSum).call();
+        let evolve = Evolve::new(
+            context,
+            mutate::SingleGene,
+            fitness::SimpleSum,
+            crossover::Individual,
+        )
+        .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -40,7 +47,13 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context, mutate::SingleGene, fitness::SimpleSum).call();
+        let evolve = Evolve::new(
+            context,
+            mutate::SingleGene,
+            fitness::SimpleSum,
+            crossover::Individual,
+        )
+        .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -60,7 +73,13 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context, mutate::SingleGene, fitness::SimpleSum).call();
+        let evolve = Evolve::new(
+            context,
+            mutate::SingleGene,
+            fitness::SimpleSum,
+            crossover::Individual,
+        )
+        .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 

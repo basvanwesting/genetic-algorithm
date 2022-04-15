@@ -5,6 +5,7 @@ mod crossover_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
     use genetic_algorithm::crossover;
+    use genetic_algorithm::crossover::Crossover;
 
     #[test]
     fn test_individual_even() {
@@ -22,7 +23,7 @@ mod crossover_tests {
             vec![false, false, false],
         ]);
 
-        let child_population = crossover::individual(&mut context, &population);
+        let child_population = crossover::Individual.call(&mut context, &population);
 
         assert_eq!(
             inspect::population(&child_population),
@@ -52,7 +53,7 @@ mod crossover_tests {
             vec![true, true, true],
         ]);
 
-        let child_population = crossover::individual(&mut context, &population);
+        let child_population = crossover::Individual.call(&mut context, &population);
 
         assert_eq!(
             inspect::population(&child_population),
