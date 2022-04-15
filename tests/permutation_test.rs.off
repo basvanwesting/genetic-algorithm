@@ -11,8 +11,7 @@ mod permutation_tests {
     fn test_call_binary() {
         let context = Context::new()
             .with_gene_size(5)
-            .with_gene_values(vec![true, false])
-            .with_fitness_function(fitness::count_true_values);
+            .with_gene_values(vec![true, false]);
 
         let best_chromosome = permutate::call(&context).unwrap();
         println!("{:#?}", best_chromosome);
@@ -28,8 +27,7 @@ mod permutation_tests {
     fn test_call_discrete() {
         let context = Context::new()
             .with_gene_size(5)
-            .with_gene_values(vec![0, 1, 2, 3])
-            .with_fitness_function(fitness::sum_discrete_values);
+            .with_gene_values(vec![0, 1, 2, 3]);
 
         let best_chromosome = permutate::call(&context).unwrap();
         println!("{:#?}", best_chromosome);
@@ -40,9 +38,7 @@ mod permutation_tests {
 
     #[test]
     fn test_call_continuous() {
-        let context = Context::new()
-            .with_gene_size(5)
-            .with_fitness_function(fitness::sum_continuous_values);
+        let context = Context::<ContinuousGene>::new().with_gene_size(5);
 
         let best_chromosome = permutate::call(&context);
         println!("{:#?}", best_chromosome);

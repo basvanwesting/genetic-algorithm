@@ -2,21 +2,24 @@ use crate::chromosome::Chromosome;
 use crate::competition;
 use crate::context::Context;
 use crate::crossover;
+use crate::fitness::Fitness;
 use crate::gene::Gene;
 use crate::mutate::Mutate;
 
-pub struct Evolve<T: Gene, M: Mutate> {
+pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>> {
     pub context: Context<T>,
     pub best_chromosome: Option<Chromosome<T>>,
     pub mutator: M,
+    pub fitness: F,
 }
 
-impl<T: Gene, M: Mutate> Evolve<T, M> {
-    pub fn new(context: Context<T>, mutator: M) -> Self {
+impl<T: Gene, M: Mutate, F: Fitness<T>> Evolve<T, M, F> {
+    pub fn new(context: Context<T>, mutator: M, fitness: F) -> Self {
         Self {
             context: context,
             best_chromosome: None,
             mutator: mutator,
+            fitness: fitness,
         }
     }
 
@@ -30,7 +33,7 @@ impl<T: Gene, M: Mutate> Evolve<T, M> {
             let mut parent_population = new_population;
             let mut child_population = crossover::individual(&mut self.context, &parent_population);
             self.mutator.call(&mut self.context, &mut child_population);
-            child_population.calculate_fitness(&self.context);
+            self.fitness.call_for_population(&mut child_population);
             child_population.merge(&mut parent_population);
             new_population = competition::tournament(&mut self.context, child_population);
 

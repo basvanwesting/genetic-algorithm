@@ -50,10 +50,4 @@ impl<T: Gene> Population<T> {
                 .drain(..(self.size() - keep_population_size));
         }
     }
-
-    pub fn calculate_fitness(&mut self, context: &Context<T>) {
-        self.chromosomes
-            .iter_mut()
-            .for_each(|o| o.fitness = Some((context.fitness_function)(o)));
-    }
 }

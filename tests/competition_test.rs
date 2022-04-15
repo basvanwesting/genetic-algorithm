@@ -5,7 +5,7 @@ mod competition_tests {
     use crate::support::*;
     use genetic_algorithm::competition;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::fitness;
+    use genetic_algorithm::fitness::{Fitness, FitnessSimpleSum};
 
     #[test]
     fn test_tournament() {
@@ -14,7 +14,6 @@ mod competition_tests {
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
             .with_population_size(4)
-            .with_fitness_function(fitness::count_true_values)
             .with_tournament_size(4)
             .with_rng(rng);
 
@@ -29,7 +28,7 @@ mod competition_tests {
             vec![true, true, true],
         ]);
 
-        population.calculate_fitness(&context);
+        FitnessSimpleSum.call_for_population(&mut population);
         let new_population = competition::tournament(&mut context, population);
 
         assert_eq!(
@@ -49,13 +48,12 @@ mod competition_tests {
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
             .with_population_size(4)
-            .with_fitness_function(fitness::count_true_values)
             .with_tournament_size(4);
 
         let mut population =
             build::population(vec![vec![false, false, false], vec![false, false, true]]);
 
-        population.calculate_fitness(&context);
+        FitnessSimpleSum.call_for_population(&mut population);
         let new_population = competition::tournament(&mut context, population);
 
         assert_eq!(

@@ -1,5 +1,4 @@
 use crate::chromosome::Chromosome;
-use crate::fitness;
 use crate::gene::Gene;
 use crate::population::Population;
 use itertools::Itertools;
@@ -14,7 +13,6 @@ pub struct Context<T: Gene> {
     pub tournament_size: usize,
     pub max_stale_generations: usize,
     pub mutation_probability: f32,
-    pub fitness_function: fn(&Chromosome<T>) -> usize,
     pub rng: SmallRng,
 }
 
@@ -53,10 +51,6 @@ impl<T: Gene> Context<T> {
         self
     }
 
-    pub fn with_fitness_function(mut self, fitness_function: fn(&Chromosome<T>) -> usize) -> Self {
-        self.fitness_function = fitness_function;
-        self
-    }
     pub fn with_rng(mut self, rng: SmallRng) -> Self {
         self.rng = rng;
         self
@@ -94,7 +88,6 @@ impl<T: Gene> Default for Context<T> {
             tournament_size: 4,
             max_stale_generations: 20,
             mutation_probability: 0.1,
-            fitness_function: fitness::null,
             rng: SmallRng::from_entropy(),
         }
     }
