@@ -91,8 +91,8 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self.best_chromosome = new_population.best_chromosome().cloned();
 
         while !self.is_finished() {
+            self.report_round();
             self.current_generation += 1;
-            println!("current generation {}", self.current_generation);
 
             let mut parent_population = new_population;
             let mut child_population = crossover.call(&mut self.context, &parent_population);
@@ -117,6 +117,14 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
     fn is_finished(&self) -> bool {
         let max_stale_generations = self.max_stale_generations.unwrap();
         self.current_generation - self.best_generation >= max_stale_generations
+    }
+
+    fn report_round(&self) {
+        let fitness_score = self.best_chromosome.as_ref().and_then(|c| c.fitness_score);
+        println!(
+            "current generation {}, best fitness score {:?}",
+            self.current_generation, fitness_score
+        );
     }
 }
 
