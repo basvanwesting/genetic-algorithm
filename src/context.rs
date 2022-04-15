@@ -12,7 +12,6 @@ pub struct Context<T: Gene> {
     pub population_size: usize,
     pub tournament_size: usize,
     pub max_stale_generations: usize,
-    pub mutation_probability: f32,
     pub rng: SmallRng,
 }
 
@@ -43,11 +42,6 @@ impl<T: Gene> Context<T> {
 
     pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
         self.max_stale_generations = max_stale_generations;
-        self
-    }
-
-    pub fn with_mutation_probability(mut self, mutation_probability: f32) -> Self {
-        self.mutation_probability = mutation_probability;
         self
     }
 
@@ -87,7 +81,6 @@ impl<T: Gene> Default for Context<T> {
             population_size: 100,
             tournament_size: 4,
             max_stale_generations: 20,
-            mutation_probability: 0.1,
             rng: SmallRng::from_entropy(),
         }
     }
@@ -104,7 +97,6 @@ impl<T: Gene> fmt::Display for Context<T> {
             f,
             "  max_stale_generations: {}\n",
             self.max_stale_generations
-        )?;
-        write!(f, "  mutation_probability: {}\n", self.mutation_probability)
+        )
     }
 }

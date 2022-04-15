@@ -13,7 +13,6 @@ mod mutate_tests {
         let mut context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
-            .with_mutation_probability(0.5)
             .with_rng(rng);
 
         let mut population = build::population(vec![
@@ -23,7 +22,7 @@ mod mutate_tests {
             vec![true, true, true],
         ]);
 
-        mutate::SingleGene.call(&mut context, &mut population);
+        mutate::SingleGene(0.5).call(&mut context, &mut population);
 
         assert_eq!(
             inspect::population(&population),
@@ -42,7 +41,6 @@ mod mutate_tests {
         let mut context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![0, 1, 2, 3])
-            .with_mutation_probability(0.5)
             .with_rng(rng);
 
         let mut population = build::population(vec![
@@ -52,7 +50,7 @@ mod mutate_tests {
             vec![0, 0, 0],
         ]);
 
-        mutate::SingleGene.call(&mut context, &mut population);
+        mutate::SingleGene(0.5).call(&mut context, &mut population);
 
         assert_eq!(
             inspect::population(&population),
@@ -66,7 +64,6 @@ mod mutate_tests {
         let mut context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![0, 1, 2, 3])
-            .with_mutation_probability(0.5)
             .with_rng(rng);
 
         let mut population = build::population(vec![
@@ -76,7 +73,7 @@ mod mutate_tests {
             vec![0, 0, 0],
         ]);
 
-        mutate::MultipleGene.call(&mut context, &mut population);
+        mutate::MultipleGene(0.5).call(&mut context, &mut population);
 
         assert_eq!(
             inspect::population(&population),

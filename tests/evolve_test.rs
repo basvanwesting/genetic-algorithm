@@ -23,7 +23,7 @@ mod evolve_tests {
 
         let evolve = Evolve::new(
             context,
-            mutate::SingleGene,
+            mutate::SingleGene(0.1),
             fitness::SimpleSum,
             crossover::Individual,
             compete::Tournament,
@@ -51,7 +51,7 @@ mod evolve_tests {
 
         let evolve = Evolve::new(
             context,
-            mutate::SingleGene,
+            mutate::SingleGene(0.1),
             fitness::SimpleSum,
             crossover::Individual,
             compete::Tournament,
@@ -78,7 +78,7 @@ mod evolve_tests {
 
         let evolve = Evolve::new(
             context,
-            mutate::SingleGene,
+            mutate::SingleGene(0.1),
             fitness::SimpleSum,
             crossover::Individual,
             compete::Tournament,
