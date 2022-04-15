@@ -19,6 +19,7 @@ pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub current_generation: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<T>>,
+    pub degenerate: bool,
 }
 
 impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F, S, C> {
@@ -34,6 +35,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             current_generation: 0,
             best_generation: 0,
             best_chromosome: None,
+            degenerate: false,
         }
     }
 
@@ -84,21 +86,28 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         let crossover = self.crossover.as_ref().cloned().unwrap();
         let compete = self.compete.as_ref().cloned().unwrap();
 
+        self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
         let mut new_population = self.context.random_population_factory();
         self.best_chromosome = new_population.best_chromosome().cloned();
 
         while !self.is_finished() {
-            let mut parent_population = new_population;
-            let mut child_population = crossover.call(&mut self.context, &parent_population);
-            mutate.call(&mut self.context, &mut child_population);
-            fitness.call_for_population(&mut child_population);
-            child_population.merge(&mut parent_population);
-            new_population = compete.call(&mut self.context, child_population);
+            //self.toggle_degenerate(&new_population);
+            if self.degenerate {
+                mutate.call(&mut self.context, &mut new_population);
+                fitness.call_for_population(&mut new_population);
+            } else {
+                let mut parent_population = new_population;
+                let mut child_population = crossover.call(&mut self.context, &parent_population);
+                mutate.call(&mut self.context, &mut child_population);
+                fitness.call_for_population(&mut child_population);
+                child_population.merge(&mut parent_population);
+                new_population = compete.call(&mut self.context, child_population);
+            }
+
             new_population.sort();
             self.update_best_chromosome(&new_population);
-
             self.report_round(&new_population);
 
             self.current_generation += 1;
@@ -110,6 +119,15 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         if self.best_chromosome.as_ref() < population.best_chromosome() {
             self.best_chromosome = population.best_chromosome().cloned();
             self.best_generation = self.current_generation;
+        }
+    }
+
+    fn toggle_degenerate(&mut self, population: &Population<T>) {
+        let fitness_score_stddev = population.fitness_score_stddev();
+        if fitness_score_stddev > 1.0 && self.degenerate {
+            self.degenerate = false;
+        } else if fitness_score_stddev < 0.0001 && !self.degenerate {
+            self.degenerate = true;
         }
     }
 
@@ -139,10 +157,11 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
 
     fn report_round(&self, population: &Population<T>) {
         println!(
-            "current generation {}, best fitness score {:?}, fitness score stddev {}",
+            "current generation: {}, best fitness score: {:?}, fitness score stddev: {}, degenerate: {}",
             self.current_generation,
             self.best_fitness_score(),
             population.fitness_score_stddev(),
+            self.degenerate,
         );
     }
 
