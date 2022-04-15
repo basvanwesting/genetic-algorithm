@@ -97,6 +97,7 @@ impl<T: Gene> fmt::Display for Context<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "context:\n")?;
         write!(f, "  gene_size: {}\n", self.gene_size)?;
+        write!(f, "  gene_values: {}\n", self.gene_values.iter().join(","))?;
         write!(f, "  population_size: {}\n", self.population_size)?;
         write!(f, "  tournament_size: {}\n", self.tournament_size)?;
         write!(
