@@ -5,7 +5,7 @@ mod evolve_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
     use genetic_algorithm::evolve::Evolve;
-    use genetic_algorithm::fitness::FitnessSimpleSum;
+    use genetic_algorithm::fitness;
     use genetic_algorithm::gene::ContinuousGene;
     use genetic_algorithm::mutate::MutateSingleGene;
 
@@ -19,7 +19,7 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context, MutateSingleGene, FitnessSimpleSum).call();
+        let evolve = Evolve::new(context, MutateSingleGene, fitness::SimpleSum).call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -40,7 +40,7 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context, MutateSingleGene, FitnessSimpleSum).call();
+        let evolve = Evolve::new(context, MutateSingleGene, fitness::SimpleSum).call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -60,7 +60,7 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context, MutateSingleGene, FitnessSimpleSum).call();
+        let evolve = Evolve::new(context, MutateSingleGene, fitness::SimpleSum).call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 

@@ -4,7 +4,8 @@ mod support;
 mod population_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::fitness::{Fitness, FitnessSimpleSum};
+    use genetic_algorithm::fitness;
+    use genetic_algorithm::fitness::Fitness;
 
     #[test]
     fn test_uniformity() {
@@ -25,7 +26,7 @@ mod population_tests {
         let best_chromosome = population.best_chromosome().unwrap();
         assert_eq!(population.uniformity(&context, best_chromosome), 0.0);
 
-        FitnessSimpleSum.call_for_population(&mut population);
+        fitness::SimpleSum.call_for_population(&mut population);
         population.sort();
 
         let best_chromosome = population.best_chromosome().unwrap();
@@ -45,7 +46,7 @@ mod population_tests {
             vec![true, false, false],
         ]);
 
-        FitnessSimpleSum.call_for_population(&mut population);
+        fitness::SimpleSum.call_for_population(&mut population);
         population.sort();
         population.mass_extinction(2);
 

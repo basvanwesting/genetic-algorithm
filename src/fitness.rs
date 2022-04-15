@@ -12,27 +12,27 @@ pub trait Fitness<T: Gene> {
     fn call_for_chromosome(&self, chromosome: &Chromosome<T>) -> usize;
 }
 
-//pub struct Null;
-//impl<T: Gene> Fitness<T> for Null {
-//fn call_for_chromosome(&self, _chromosome: &Chromosome<T>) -> usize {
-//0
-//}
-//}
+pub struct Null;
+impl<T: Gene> Fitness<T> for Null {
+    fn call_for_chromosome(&self, _chromosome: &Chromosome<T>) -> usize {
+        0
+    }
+}
 
-pub struct FitnessSimpleSum;
-impl Fitness<BinaryGene> for FitnessSimpleSum {
+pub struct SimpleSum;
+impl Fitness<BinaryGene> for SimpleSum {
     fn call_for_chromosome(&self, chromosome: &Chromosome<BinaryGene>) -> usize {
         chromosome.genes.iter().filter(|&value| *value).count()
     }
 }
 
-impl Fitness<DiscreteGene> for FitnessSimpleSum {
+impl Fitness<DiscreteGene> for SimpleSum {
     fn call_for_chromosome(&self, chromosome: &Chromosome<DiscreteGene>) -> usize {
         chromosome.genes.iter().map(|&value| value as usize).sum()
     }
 }
 
-impl Fitness<ContinuousGene> for FitnessSimpleSum {
+impl Fitness<ContinuousGene> for SimpleSum {
     fn call_for_chromosome(&self, chromosome: &Chromosome<ContinuousGene>) -> usize {
         chromosome.genes.iter().sum::<f32>() as usize
     }
