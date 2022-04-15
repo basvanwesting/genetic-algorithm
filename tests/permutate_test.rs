@@ -18,7 +18,7 @@ mod permutate_tests {
         let best_chromosome = permutate.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
-        assert_eq!(best_chromosome.fitness, Some(5));
+        assert_eq!(best_chromosome.fitness_score, Some(5));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![true, true, true, true, true]
@@ -35,7 +35,7 @@ mod permutate_tests {
         let best_chromosome = permutate.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
-        assert_eq!(best_chromosome.fitness, Some(15));
+        assert_eq!(best_chromosome.fitness_score, Some(15));
         assert_eq!(inspect::chromosome(&best_chromosome), vec![3, 3, 3, 3, 3]);
     }
 

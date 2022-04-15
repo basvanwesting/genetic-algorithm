@@ -19,7 +19,7 @@ impl<T: Gene> Population<T> {
     }
 
     pub fn sort(&mut self) {
-        self.chromosomes.sort_unstable_by_key(|c| c.fitness);
+        self.chromosomes.sort_unstable_by_key(|c| c.fitness_score);
     }
 
     pub fn size(&self) -> usize {
@@ -31,11 +31,11 @@ impl<T: Gene> Population<T> {
     }
 
     pub fn uniformity(&self, context: &Context<T>, best_chromosome: &Chromosome<T>) -> f32 {
-        if let Some(best_fitness) = best_chromosome.fitness {
+        if let Some(best_fitness_score) = best_chromosome.fitness_score {
             let number_of_best_chromosomes = self
                 .chromosomes
                 .iter()
-                .filter(|c| c.fitness == Some(best_fitness))
+                .filter(|c| c.fitness_score == Some(best_fitness_score))
                 .count();
 
             number_of_best_chromosomes as f32 / context.population_size as f32

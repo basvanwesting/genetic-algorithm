@@ -7,7 +7,7 @@ pub trait Fitness<T: Gene>: std::fmt::Debug {
         population
             .chromosomes
             .iter_mut()
-            .for_each(|c| c.fitness = Some(self.call_for_chromosome(c)));
+            .for_each(|c| c.fitness_score = Some(self.call_for_chromosome(c)));
     }
     fn call_for_chromosome(&self, chromosome: &Chromosome<T>) -> usize;
 }

@@ -30,7 +30,7 @@ mod evolve_tests {
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
-        assert_eq!(best_chromosome.fitness, Some(10));
+        assert_eq!(best_chromosome.fitness_score, Some(10));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![true, true, true, true, true, true, true, true, true, true]
@@ -56,7 +56,7 @@ mod evolve_tests {
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
-        assert_eq!(best_chromosome.fitness, Some(30));
+        assert_eq!(best_chromosome.fitness_score, Some(30));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
@@ -81,7 +81,7 @@ mod evolve_tests {
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
-        assert_eq!(best_chromosome.fitness, Some(9));
+        assert_eq!(best_chromosome.fitness_score, Some(9));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![
