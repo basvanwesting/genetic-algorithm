@@ -4,10 +4,11 @@ use crate::gene::Gene;
 use crate::population::Population;
 use rand::distributions::{Distribution, Uniform};
 
-pub trait Crossover {
+pub trait Crossover: std::fmt::Debug {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: &Population<T>) -> Population<T>;
 }
 
+#[derive(Debug)]
 pub struct Individual;
 impl Crossover for Individual {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: &Population<T>) -> Population<T> {

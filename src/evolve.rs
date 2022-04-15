@@ -99,10 +99,14 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> fmt::Display
             "  max_stale_generations: {}\n",
             self.max_stale_generations
         )?;
-        if let Some(best_chromosome) = self.best_chromosome.as_ref() {
-            write!(f, "  best chromosome: {}\n", best_chromosome)
-        } else {
-            write!(f, "  no best chromosome\n")
-        }
+        write!(f, "  mutate: {:?}\n", self.mutate.as_ref())?;
+        write!(f, "  fitness: {:?}\n", self.fitness.as_ref())?;
+        write!(f, "  crossover: {:?}\n", self.crossover.as_ref())?;
+        write!(f, "  compete: {:?}\n", self.compete.as_ref())?;
+        write!(
+            f,
+            "  best_chromosome: {:?}\n",
+            self.best_chromosome.as_ref()
+        )
     }
 }

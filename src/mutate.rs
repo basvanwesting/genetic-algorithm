@@ -4,12 +4,13 @@ use crate::population::Population;
 use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 
-pub trait Mutate {
+pub trait Mutate: std::fmt::Debug {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>);
 }
 
 pub type MutationProbability = f32;
 
+#[derive(Debug)]
 pub struct SingleGene(pub MutationProbability);
 impl Mutate for SingleGene {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>) {
@@ -23,6 +24,7 @@ impl Mutate for SingleGene {
     }
 }
 
+#[derive(Debug)]
 pub struct MultipleGene(pub MutationProbability);
 impl Mutate for MultipleGene {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>) {

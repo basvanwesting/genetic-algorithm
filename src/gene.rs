@@ -1,13 +1,12 @@
 use crate::context::Context;
 use rand::prelude::*;
 use rand::seq::SliceRandom;
-use std::fmt;
 
 pub type BinaryGene = bool;
 pub type DiscreteGene = u8;
 pub type ContinuousGene = f32;
 
-pub trait Gene: Copy + Clone + fmt::Display {
+pub trait Gene: Copy + Clone + std::fmt::Display + std::fmt::Debug {
     fn random(_context: &mut Context<Self>) -> Self;
     fn mutate(&mut self, _context: &mut Context<Self>);
 }
