@@ -90,18 +90,17 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self.best_chromosome = new_population.best_chromosome().cloned();
 
         while !self.is_finished() {
-            self.report_round();
-            self.current_generation += 1;
-
             let mut parent_population = new_population;
             let mut child_population = crossover.call(&mut self.context, &parent_population);
             mutate.call(&mut self.context, &mut child_population);
             fitness.call_for_population(&mut child_population);
             child_population.merge(&mut parent_population);
             new_population = compete.call(&mut self.context, child_population);
-
             new_population.sort();
             self.update_best_chromosome(&new_population);
+
+            self.report_round();
+            self.current_generation += 1;
         }
         self
     }
@@ -160,10 +159,17 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> fmt::Display
             "  max_stale_generations: {:?}\n",
             self.max_stale_generations
         )?;
+        write!(
+            f,
+            "  target_fitness_score: {:?}\n",
+            self.target_fitness_score
+        )?;
         write!(f, "  mutate: {:?}\n", self.mutate.as_ref())?;
         write!(f, "  fitness: {:?}\n", self.fitness.as_ref())?;
         write!(f, "  crossover: {:?}\n", self.crossover.as_ref())?;
         write!(f, "  compete: {:?}\n", self.compete.as_ref())?;
+        write!(f, "  current generation: {:?}\n", self.current_generation)?;
+        write!(f, "  best fitness score: {:?}\n", self.best_fitness_score())?;
         write!(
             f,
             "  best_chromosome: {:?}\n",
