@@ -59,4 +59,28 @@ mod mutate_tests {
             vec![vec![0, 2, 0], vec![0, 3, 0], vec![0, 0, 0], vec![0, 0, 0],]
         );
     }
+
+    #[test]
+    fn test_mutate_multiple_gene_discrete() {
+        let rng = SmallRng::seed_from_u64(0);
+        let mut context = Context::new()
+            .with_gene_size(3)
+            .with_gene_values(vec![0, 1, 2, 3])
+            .with_mutation_probability(0.5)
+            .with_rng(rng);
+
+        let mut population = build::population(vec![
+            vec![0, 0, 0],
+            vec![0, 0, 0],
+            vec![0, 0, 0],
+            vec![0, 0, 0],
+        ]);
+
+        mutate::MultipleGene.call(&mut context, &mut population);
+
+        assert_eq!(
+            inspect::population(&population),
+            vec![vec![2, 3, 0], vec![0, 1, 0], vec![0, 0, 1], vec![0, 0, 0],]
+        );
+    }
 }
