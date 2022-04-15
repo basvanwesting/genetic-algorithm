@@ -19,8 +19,7 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let mut evolve = Evolve::new(context, MutateSingleGene);
-        evolve.call();
+        let evolve = Evolve::new(context, MutateSingleGene).call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -42,8 +41,7 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let mut evolve = Evolve::new(context, MutateSingleGene);
-        evolve.call();
+        let evolve = Evolve::new(context, MutateSingleGene).call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
@@ -64,8 +62,7 @@ mod evolve_tests {
             .with_tournament_size(4)
             .with_rng(rng);
 
-        let mut evolve = Evolve::new(context, MutateSingleGene);
-        evolve.call();
+        let evolve = Evolve::new(context, MutateSingleGene).call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 

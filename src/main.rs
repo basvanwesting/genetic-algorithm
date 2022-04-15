@@ -15,8 +15,7 @@ fn main() {
 
     println!("{}", context);
 
-    let mut evolve = Evolve::new(context, MutateSingleGene);
-    evolve.call();
+    let evolve = Evolve::new(context, MutateSingleGene).call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
@@ -34,8 +33,7 @@ fn main() {
 
     println!("{}", context);
 
-    let mut evolve = Evolve::new(context, MutateSingleGene);
-    evolve.call();
+    let evolve = Evolve::new(context, MutateSingleGene).call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {
@@ -52,8 +50,7 @@ fn main() {
 
     println!("{}", context);
 
-    let mut evolve = Evolve::new(context, MutateSingleGene);
-    evolve.call();
+    let evolve = Evolve::new(context, MutateSingleGene).call();
     if let Some(best_chromosome) = evolve.best_chromosome {
         println!("best chromosome: {}", best_chromosome);
     } else {

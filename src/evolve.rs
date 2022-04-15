@@ -20,7 +20,7 @@ impl<T: Gene, M: Mutate> Evolve<T, M> {
         }
     }
 
-    pub fn call(&mut self) {
+    pub fn call(mut self) -> Self {
         let mut generation = 0;
         let mut best_generation = 0;
         let mut new_population = self.context.random_population_factory();
@@ -49,5 +49,6 @@ impl<T: Gene, M: Mutate> Evolve<T, M> {
             }
         }
         self.best_chromosome = Some(best_chromosome);
+        self
     }
 }
