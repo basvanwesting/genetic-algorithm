@@ -8,7 +8,9 @@ pub trait Compete {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: Population<T>) -> Population<T>;
 }
 
-pub struct Tournament;
+pub type TournamentSize = usize;
+
+pub struct Tournament(pub TournamentSize);
 impl Tournament {
     fn tournament_single_round<T: Gene>(
         &self,
@@ -19,7 +21,7 @@ impl Tournament {
             .chromosomes
             .iter()
             .enumerate()
-            .choose_multiple(&mut context.rng, context.tournament_size);
+            .choose_multiple(&mut context.rng, self.0);
 
         slice.sort_unstable_by_key(|a| a.1);
 

@@ -16,7 +16,6 @@ mod compete_tests {
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
             .with_population_size(4)
-            .with_tournament_size(4)
             .with_rng(rng);
 
         let mut population = build::population(vec![
@@ -31,7 +30,7 @@ mod compete_tests {
         ]);
 
         fitness::SimpleSum.call_for_population(&mut population);
-        let new_population = compete::Tournament.call(&mut context, population);
+        let new_population = compete::Tournament(4).call(&mut context, population);
 
         assert_eq!(
             inspect::population(&new_population),
@@ -49,14 +48,13 @@ mod compete_tests {
         let mut context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
-            .with_population_size(4)
-            .with_tournament_size(4);
+            .with_population_size(4);
 
         let mut population =
             build::population(vec![vec![false, false, false], vec![false, false, true]]);
 
         fitness::SimpleSum.call_for_population(&mut population);
-        let new_population = compete::Tournament.call(&mut context, population);
+        let new_population = compete::Tournament(4).call(&mut context, population);
 
         assert_eq!(
             inspect::population(&new_population),

@@ -18,14 +18,13 @@ mod evolve_tests {
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
             .with_population_size(100)
-            .with_tournament_size(4)
             .with_rng(rng);
 
         let evolve = Evolve::new(context)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
             .with_crossover(crossover::Individual)
-            .with_compete(compete::Tournament)
+            .with_compete(compete::Tournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -44,14 +43,13 @@ mod evolve_tests {
             .with_gene_size(10)
             .with_gene_values(vec![0, 1, 2, 3])
             .with_population_size(100)
-            .with_tournament_size(4)
             .with_rng(rng);
 
         let evolve = Evolve::new(context)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
             .with_crossover(crossover::Individual)
-            .with_compete(compete::Tournament)
+            .with_compete(compete::Tournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -69,14 +67,13 @@ mod evolve_tests {
         let context = Context::<ContinuousGene>::new()
             .with_gene_size(10)
             .with_population_size(100)
-            .with_tournament_size(4)
             .with_rng(rng);
 
         let evolve = Evolve::new(context)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
             .with_crossover(crossover::Individual)
-            .with_compete(compete::Tournament)
+            .with_compete(compete::Tournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);

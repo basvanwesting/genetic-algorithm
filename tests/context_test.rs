@@ -12,7 +12,6 @@ mod context_tests {
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
             .with_population_size(100)
-            .with_tournament_size(4)
             .with_rng(rng);
 
         let chromosome = context.random_chromosome_factory();
