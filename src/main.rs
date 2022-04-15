@@ -1,3 +1,4 @@
+use genetic_algorithm::compete;
 use genetic_algorithm::context::Context;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
@@ -21,6 +22,7 @@ fn main() {
         mutate::SingleGene,
         fitness::SimpleSum,
         crossover::Individual,
+        compete::Tournament,
     )
     .call();
     if let Some(best_chromosome) = evolve.best_chromosome {
@@ -44,6 +46,7 @@ fn main() {
         mutate::SingleGene,
         fitness::SimpleSum,
         crossover::Individual,
+        compete::Tournament,
     )
     .call();
     if let Some(best_chromosome) = evolve.best_chromosome {
@@ -66,6 +69,7 @@ fn main() {
         mutate::SingleGene,
         fitness::SimpleSum,
         crossover::Individual,
+        compete::Tournament,
     )
     .call();
     if let Some(best_chromosome) = evolve.best_chromosome {

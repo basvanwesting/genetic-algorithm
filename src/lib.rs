@@ -1,5 +1,5 @@
 pub mod chromosome;
-pub mod competition;
+pub mod compete;
 pub mod context;
 pub mod crossover;
 pub mod evolve;

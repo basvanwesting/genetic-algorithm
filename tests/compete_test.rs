@@ -1,9 +1,10 @@
 mod support;
 
 #[cfg(test)]
-mod competition_tests {
+mod compete_tests {
     use crate::support::*;
-    use genetic_algorithm::competition;
+    use genetic_algorithm::compete;
+    use genetic_algorithm::compete::Compete;
     use genetic_algorithm::context::Context;
     use genetic_algorithm::fitness;
     use genetic_algorithm::fitness::Fitness;
@@ -30,7 +31,7 @@ mod competition_tests {
         ]);
 
         fitness::SimpleSum.call_for_population(&mut population);
-        let new_population = competition::tournament(&mut context, population);
+        let new_population = compete::Tournament.call(&mut context, population);
 
         assert_eq!(
             inspect::population(&new_population),
@@ -55,7 +56,7 @@ mod competition_tests {
             build::population(vec![vec![false, false, false], vec![false, false, true]]);
 
         fitness::SimpleSum.call_for_population(&mut population);
-        let new_population = competition::tournament(&mut context, population);
+        let new_population = compete::Tournament.call(&mut context, population);
 
         assert_eq!(
             inspect::population(&new_population),

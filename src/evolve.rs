@@ -1,27 +1,29 @@
 use crate::chromosome::Chromosome;
-use crate::competition;
+use crate::compete::Compete;
 use crate::context::Context;
 use crate::crossover::Crossover;
 use crate::fitness::Fitness;
 use crate::gene::Gene;
 use crate::mutate::Mutate;
 
-pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, C: Crossover> {
+pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub context: Context<T>,
     pub best_chromosome: Option<Chromosome<T>>,
     pub mutator: M,
     pub fitness: F,
-    pub crossover: C,
+    pub crossover: S,
+    pub compete: C,
 }
 
-impl<T: Gene, M: Mutate, F: Fitness<T>, C: Crossover> Evolve<T, M, F, C> {
-    pub fn new(context: Context<T>, mutator: M, fitness: F, crossover: C) -> Self {
+impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F, S, C> {
+    pub fn new(context: Context<T>, mutator: M, fitness: F, crossover: S, compete: C) -> Self {
         Self {
             context: context,
             best_chromosome: None,
             mutator: mutator,
             fitness: fitness,
             crossover: crossover,
+            compete: compete,
         }
     }
 
@@ -37,7 +39,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, C: Crossover> Evolve<T, M, F, C> {
             self.mutator.call(&mut self.context, &mut child_population);
             self.fitness.call_for_population(&mut child_population);
             child_population.merge(&mut parent_population);
-            new_population = competition::tournament(&mut self.context, child_population);
+            new_population = self.compete.call(&mut self.context, child_population);
 
             generation += 1;
             println!(

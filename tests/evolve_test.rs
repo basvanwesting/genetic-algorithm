@@ -3,6 +3,7 @@ mod support;
 #[cfg(test)]
 mod evolve_tests {
     use crate::support::*;
+    use genetic_algorithm::compete;
     use genetic_algorithm::context::Context;
     use genetic_algorithm::crossover;
     use genetic_algorithm::evolve::Evolve;
@@ -25,6 +26,7 @@ mod evolve_tests {
             mutate::SingleGene,
             fitness::SimpleSum,
             crossover::Individual,
+            compete::Tournament,
         )
         .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -52,6 +54,7 @@ mod evolve_tests {
             mutate::SingleGene,
             fitness::SimpleSum,
             crossover::Individual,
+            compete::Tournament,
         )
         .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -78,6 +81,7 @@ mod evolve_tests {
             mutate::SingleGene,
             fitness::SimpleSum,
             crossover::Individual,
+            compete::Tournament,
         )
         .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
