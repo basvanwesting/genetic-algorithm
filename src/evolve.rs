@@ -64,8 +64,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
     }
 
     pub fn is_valid(&self) -> bool {
-        //(self.max_stale_generations.is_some() || self.target_fitness_score.is_some())
-        self.max_stale_generations.is_some()
+        (self.max_stale_generations.is_some() || self.target_fitness_score.is_some())
             && self.mutate.is_some()
             && self.fitness.is_some()
             && self.crossover.is_some()
@@ -79,7 +78,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self.execute()
     }
 
-    pub fn execute(mut self) -> Self {
+    fn execute(mut self) -> Self {
         let mutate = self.mutate.as_ref().cloned().unwrap();
         let fitness = self.fitness.as_ref().cloned().unwrap();
         let crossover = self.crossover.as_ref().cloned().unwrap();
@@ -115,16 +114,39 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
     }
 
     fn is_finished(&self) -> bool {
-        let max_stale_generations = self.max_stale_generations.unwrap();
-        self.current_generation - self.best_generation >= max_stale_generations
+        self.is_finished_by_max_stale_generations() || self.is_finished_by_target_fitness_score()
+    }
+
+    fn is_finished_by_max_stale_generations(&self) -> bool {
+        if let Some(max_stale_generations) = self.max_stale_generations {
+            self.current_generation - self.best_generation >= max_stale_generations
+        } else {
+            false
+        }
+    }
+
+    fn is_finished_by_target_fitness_score(&self) -> bool {
+        if let Some(target_fitness_score) = self.target_fitness_score {
+            if let Some(fitness_score) = self.best_fitness_score() {
+                fitness_score >= target_fitness_score
+            } else {
+                false
+            }
+        } else {
+            false
+        }
     }
 
     fn report_round(&self) {
-        let fitness_score = self.best_chromosome.as_ref().and_then(|c| c.fitness_score);
         println!(
             "current generation {}, best fitness score {:?}",
-            self.current_generation, fitness_score
+            self.current_generation,
+            self.best_fitness_score()
         );
+    }
+
+    fn best_fitness_score(&self) -> Option<usize> {
+        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 }
 
