@@ -1,14 +1,23 @@
 # genetic-algorithm
 A genetic algorithm implementation for Rust
 
-An example usage is implemented in src/main.rs, run with `cargo run --release`
+Run examples with e.g. `cargo run --example evolve_binary --release`
+
+## Tests
 
 Run tests with `cargo test`
 
+## Benchmarks
+
+Run benchmarks with `cargo bench`
+
 ## Profiling
 
-Currently a profiler is active in src/main.rs, run with `cargo run`
+`cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
+
+find the flamegraph in: ./target/criterion/profile_evolve_binary/profile/flamegraph.svg
 
 Findings:
 
 * compete::Tournament(4) was taking 98% of the time, implemented compete::Elite for a 30x speed increase
+* in non-release mode fitness::SimpleSum is the new bottleneck, but in release mode it is not

@@ -42,3 +42,7 @@ degeneration_range: Some(0.0001..1.0)
   current generation: 2408
   best fitness score: Some(95)
   cargo run --release  0.47s user 0.17s system 73% cpu 0.880 total
+
+  current generation: 3981
+  best fitness score: Some(95)
+  cargo run --release  0.60s user 0.17s system 70% cpu 1.102 total

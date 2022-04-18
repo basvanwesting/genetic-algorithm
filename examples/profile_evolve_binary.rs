@@ -28,7 +28,7 @@ fn run() {
         .with_gene_values(vec![true, false])
         .with_population_size(1000);
 
-    let _evolve = Evolve::new(context)
+    let evolve = Evolve::new(context)
         .with_max_stale_generations(20)
         .with_target_fitness_score(100)
         .with_mutate(mutate::SingleGene(0.2))
@@ -37,4 +37,6 @@ fn run() {
         //.with_compete(compete::Tournament(4))
         .with_compete(compete::Elite)
         .call();
+
+    println!("{}", evolve);
 }

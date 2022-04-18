@@ -6,8 +6,15 @@ edition = "2021"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-pprof = { version = "0.7", features = ["flamegraph"] }
 rand = { version = "0.8.5", features = ["small_rng"] }
 itertools = "0.10.3"
 streaming-stats = "0.2.3"
 #float-cmp = "0.9.0"
+
+[dev-dependencies]
+criterion = "0.3"
+pprof = { version = "0.7", features = ["criterion", "flamegraph"] }
+
+[[bench]]
+name = "fitness"
+harness = false

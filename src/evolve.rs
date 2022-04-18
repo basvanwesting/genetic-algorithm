@@ -115,7 +115,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             }
 
             self.update_best_chromosome();
-            self.report_round();
+            //self.report_round();
 
             self.current_generation += 1;
         }
@@ -165,6 +165,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         }
     }
 
+    #[allow(dead_code)]
     fn report_round(&self) {
         println!(
             "current generation: {}, best fitness score: {:?}, fitness score stddev: {}, degenerate: {}",

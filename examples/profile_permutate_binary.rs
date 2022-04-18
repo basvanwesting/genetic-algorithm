@@ -21,10 +21,12 @@ criterion_main!(benches);
 
 fn run() {
     let context = Context::new()
-        .with_gene_size(10)
+        .with_gene_size(16)
         .with_gene_values(vec![true, false]);
 
-    let _permutate = Permutate::new(context)
+    let permutate = Permutate::new(context)
         .with_fitness(fitness::SimpleSum)
         .call();
+
+    println!("{}", permutate);
 }
