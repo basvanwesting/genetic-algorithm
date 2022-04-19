@@ -50,3 +50,25 @@ impl Mutate for MultipleGene {
         population
     }
 }
+
+#[derive(Debug, Clone)]
+pub struct SwapSingleGene(pub MutationProbability);
+impl Mutate for SwapSingleGene {
+    fn call<T: Gene>(
+        &self,
+        context: &mut Context<T>,
+        mut population: Population<T>,
+    ) -> Population<T> {
+        let bool_sampler = Bernoulli::new(self.0 as f64).unwrap();
+        let gene_index_sampler = Uniform::from(0..context.gene_size);
+        for chromosome in &mut population.chromosomes {
+            if bool_sampler.sample(&mut context.rng) {
+                let index1 = gene_index_sampler.sample(&mut context.rng);
+                let index2 = gene_index_sampler.sample(&mut context.rng);
+                chromosome.genes.swap(index1, index2);
+                chromosome.taint_fitness_score();
+            }
+        }
+        population
+    }
+}
