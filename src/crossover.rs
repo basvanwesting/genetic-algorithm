@@ -84,3 +84,42 @@ impl Crossover for All {
         Population::new(child_chromosomes)
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct Range(pub KeepParent);
+impl Crossover for Range {
+    fn call<T: Gene>(
+        &self,
+        context: &mut Context<T>,
+        mut population: Population<T>,
+    ) -> Population<T> {
+        let gene_index_sampler = Uniform::from(0..context.gene_size);
+        let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
+
+        for chunk in population.chromosomes.chunks(2) {
+            match &chunk[..] {
+                [father, mother] => {
+                    let index = gene_index_sampler.sample(&mut context.rng);
+                    let mut child_father_genes = father.genes.clone();
+                    let mut child_mother_genes = mother.genes.clone();
+
+                    let mut child_father_genes_split = child_father_genes.split_off(index);
+                    let mut child_mother_genes_split = child_mother_genes.split_off(index);
+
+                    child_father_genes.append(&mut child_mother_genes_split);
+                    child_mother_genes.append(&mut child_father_genes_split);
+
+                    // no need to taint_fitness_score as it is initialized with None
+                    child_chromosomes.push(Chromosome::new(child_father_genes));
+                    child_chromosomes.push(Chromosome::new(child_mother_genes));
+                }
+                _ => {}
+            }
+        }
+
+        if self.0 {
+            child_chromosomes.append(&mut population.chromosomes);
+        }
+        Population::new(child_chromosomes)
+    }
+}

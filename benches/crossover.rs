@@ -29,6 +29,15 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             BatchSize::SmallInput,
         )
     });
+
+    c.bench_function("crossover_range", |b| {
+        let crossover = crossover::Range(false);
+        b.iter_batched(
+            || population.clone(),
+            |data| crossover.call(&mut context, data),
+            BatchSize::SmallInput,
+        )
+    });
 }
 
 criterion_group!(benches, criterion_benchmark);
