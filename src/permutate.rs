@@ -53,7 +53,7 @@ impl<T: Gene, F: Fitness<T>> Permutate<T, F> {
         }
     }
 
-    fn best_fitness_score(&self) -> Option<usize> {
+    fn best_fitness_score(&self) -> Option<isize> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 }

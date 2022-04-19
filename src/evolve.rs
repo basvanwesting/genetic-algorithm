@@ -12,7 +12,7 @@ use std::ops::Range;
 pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub context: Context<T>,
     pub max_stale_generations: Option<usize>,
-    pub target_fitness_score: Option<usize>,
+    pub target_fitness_score: Option<isize>,
     pub degeneration_range: Option<Range<f32>>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -48,7 +48,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self.max_stale_generations = Some(max_stale_generations);
         self
     }
-    pub fn with_target_fitness_score(mut self, target_fitness_score: usize) -> Self {
+    pub fn with_target_fitness_score(mut self, target_fitness_score: isize) -> Self {
         self.target_fitness_score = Some(target_fitness_score);
         self
     }
@@ -172,7 +172,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         );
     }
 
-    fn best_fitness_score(&self) -> Option<usize> {
+    fn best_fitness_score(&self) -> Option<isize> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 }

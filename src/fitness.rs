@@ -11,25 +11,25 @@ pub trait Fitness<T: Gene>: Clone + std::fmt::Debug {
             .for_each(|c| c.fitness_score = Some(self.call_for_chromosome(c)));
         population
     }
-    fn call_for_chromosome(&self, chromosome: &Chromosome<T>) -> usize;
+    fn call_for_chromosome(&self, chromosome: &Chromosome<T>) -> isize;
 }
 
 #[derive(Clone, Debug)]
 pub struct SimpleSum;
 impl Fitness<BinaryGene> for SimpleSum {
-    fn call_for_chromosome(&self, chromosome: &Chromosome<BinaryGene>) -> usize {
-        chromosome.genes.iter().filter(|&value| *value).count()
+    fn call_for_chromosome(&self, chromosome: &Chromosome<BinaryGene>) -> isize {
+        chromosome.genes.iter().filter(|&value| *value).count() as isize
     }
 }
 
 impl Fitness<DiscreteGene> for SimpleSum {
-    fn call_for_chromosome(&self, chromosome: &Chromosome<DiscreteGene>) -> usize {
-        chromosome.genes.iter().map(|&value| value as usize).sum()
+    fn call_for_chromosome(&self, chromosome: &Chromosome<DiscreteGene>) -> isize {
+        chromosome.genes.iter().map(|&value| value as isize).sum()
     }
 }
 
 impl Fitness<ContinuousGene> for SimpleSum {
-    fn call_for_chromosome(&self, chromosome: &Chromosome<ContinuousGene>) -> usize {
-        chromosome.genes.iter().sum::<f32>() as usize
+    fn call_for_chromosome(&self, chromosome: &Chromosome<ContinuousGene>) -> isize {
+        chromosome.genes.iter().sum::<f32>() as isize
     }
 }

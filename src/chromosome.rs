@@ -5,7 +5,7 @@ use std::fmt;
 #[derive(Debug, Clone)]
 pub struct Chromosome<T: Gene> {
     pub genes: Vec<T>,
-    pub fitness_score: Option<usize>,
+    pub fitness_score: Option<isize>,
 }
 
 impl<T: Gene> Chromosome<T> {

@@ -41,7 +41,7 @@ impl Compete for Tournament {
             std::cmp::min(context.population_size, working_population_size);
 
         let mut target_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(target_population_size);
-        let mut tournament_chromosomes: Vec<(usize, Option<usize>)> =
+        let mut tournament_chromosomes: Vec<(usize, Option<isize>)> =
             Vec::with_capacity(tournament_size);
 
         for _ in 0..target_population_size {
