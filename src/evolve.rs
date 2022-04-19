@@ -101,8 +101,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self.best_chromosome = self.population.best_chromosome().cloned();
 
         while !self.is_finished() {
-            self.toggle_degenerate();
-            if self.degenerate {
+            if self.toggle_degenerate() {
                 mutate.call(&mut self.context, &mut self.population);
                 fitness.call_for_population(&mut self.population);
             } else {
@@ -116,7 +115,6 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
 
             self.update_best_chromosome();
             //self.report_round();
-
             self.current_generation += 1;
         }
         self
@@ -130,7 +128,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         }
     }
 
-    fn toggle_degenerate(&mut self) {
+    fn toggle_degenerate(&mut self) -> bool {
         if let Some(degeneration_range) = self.degeneration_range.as_ref() {
             let fitness_score_stddev = self.population.fitness_score_stddev();
             if self.degenerate && fitness_score_stddev > degeneration_range.end {
@@ -139,6 +137,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
                 self.degenerate = true;
             }
         }
+        self.degenerate
     }
 
     fn is_finished(&self) -> bool {
