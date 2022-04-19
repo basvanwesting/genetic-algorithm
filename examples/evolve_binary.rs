@@ -19,7 +19,7 @@ fn main() {
         //.with_degeneration_range(0.001..0.995)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
-        .with_crossover(crossover::Individual(true))
+        .with_crossover(crossover::All(true))
         .with_compete(compete::Tournament(4))
         //.with_compete(compete::Elite)
         .call();

@@ -3,6 +3,7 @@ use crate::context::Context;
 use crate::gene::Gene;
 use crate::population::Population;
 use rand::distributions::{Distribution, Uniform};
+use rand::prelude::*;
 
 pub trait Crossover: Clone + std::fmt::Debug {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: Population<T>) -> Population<T>;
@@ -18,19 +19,57 @@ impl Crossover for Individual {
         context: &mut Context<T>,
         mut population: Population<T>,
     ) -> Population<T> {
-        let gene_range = Uniform::from(0..context.gene_size);
-
+        let gene_index_sampler = Uniform::from(0..context.gene_size);
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
 
         for chunk in population.chromosomes.chunks(2) {
             match &chunk[..] {
                 [father, mother] => {
-                    let index = gene_range.sample(&mut context.rng);
+                    let index = gene_index_sampler.sample(&mut context.rng);
                     let mut child_father_genes = father.genes.clone();
                     let mut child_mother_genes = mother.genes.clone();
 
                     child_father_genes[index] = mother.genes[index];
                     child_mother_genes[index] = father.genes[index];
+
+                    // no need to taint_fitness_score as it is initialized with None
+                    child_chromosomes.push(Chromosome::new(child_father_genes));
+                    child_chromosomes.push(Chromosome::new(child_mother_genes));
+                }
+                _ => {}
+            }
+        }
+
+        if self.0 {
+            child_chromosomes.append(&mut population.chromosomes);
+        }
+        Population::new(child_chromosomes)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct All(pub KeepParent);
+impl Crossover for All {
+    fn call<T: Gene>(
+        &self,
+        context: &mut Context<T>,
+        mut population: Population<T>,
+    ) -> Population<T> {
+        //let bool_sampler = Bernoulli::new(0.5).unwrap();
+        let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
+
+        for chunk in population.chromosomes.chunks(2) {
+            match &chunk[..] {
+                [father, mother] => {
+                    let mut child_father_genes = father.genes.clone();
+                    let mut child_mother_genes = mother.genes.clone();
+
+                    for index in 0..(context.gene_size) {
+                        if context.rng.gen_bool(0.5) {
+                            child_father_genes[index] = mother.genes[index];
+                            child_mother_genes[index] = father.genes[index];
+                        }
+                    }
 
                     // no need to taint_fitness_score as it is initialized with None
                     child_chromosomes.push(Chromosome::new(child_father_genes));
