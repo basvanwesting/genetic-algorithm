@@ -2,7 +2,7 @@ use crate::chromosome::Chromosome;
 use crate::context::Context;
 use crate::gene::Gene;
 use crate::population::Population;
-use rand::seq::IteratorRandom;
+use rand::prelude::*;
 
 pub trait Compete: Clone + std::fmt::Debug {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: Population<T>) -> Population<T>;
@@ -18,6 +18,10 @@ impl Compete for Elite {
         context: &mut Context<T>,
         mut population: Population<T>,
     ) -> Population<T> {
+        if population.size() <= context.population_size {
+            return population;
+        }
+
         let to_drain_from_first = population.size() - context.population_size;
         if to_drain_from_first > 0 {
             population.sort();
@@ -29,46 +33,42 @@ impl Compete for Elite {
 
 #[derive(Clone, Debug)]
 pub struct Tournament(pub TournamentSize);
-impl Tournament {
-    fn tournament_single_round<T: Gene>(
-        &self,
-        context: &mut Context<T>,
-        population: &Population<T>,
-    ) -> Option<usize> {
-        let mut slice: Vec<(usize, &Chromosome<T>)> = population
-            .chromosomes
-            .iter()
-            .enumerate()
-            .choose_multiple(&mut context.rng, self.0);
-
-        slice.sort_unstable_by_key(|a| a.1);
-
-        if let Some(&(index, _)) = slice.last() {
-            Some(index)
-        } else {
-            None
-        }
-    }
-}
-
 impl Compete for Tournament {
     fn call<T: Gene>(
         &self,
         context: &mut Context<T>,
         mut population: Population<T>,
     ) -> Population<T> {
+        if population.size() <= context.population_size {
+            return population;
+        }
+
+        let tournament_size = self.0;
+        let mut working_population_size = population.size();
         let mut target_chromosomes: Vec<Chromosome<T>> =
             Vec::with_capacity(context.population_size);
+        let mut tournament_chromosomes: Vec<(usize, Option<usize>)> =
+            Vec::with_capacity(tournament_size);
 
         for _ in 0..context.population_size {
-            if let Some(winning_index) = self.tournament_single_round(context, &population) {
+            for _ in 0..tournament_size {
+                let sample_index = context.rng.gen_range(0..working_population_size);
+                tournament_chromosomes.push((
+                    sample_index,
+                    population.chromosomes[sample_index].fitness_score,
+                ));
+            }
+
+            tournament_chromosomes.sort_unstable_by_key(|a| a.1);
+            if let Some(&(winning_index, _)) = tournament_chromosomes.last() {
                 let chromosome = population.chromosomes.swap_remove(winning_index);
                 target_chromosomes.push(chromosome);
+                working_population_size -= 1;
+                tournament_chromosomes.clear();
             } else {
                 break;
             }
         }
-
         Population::new(target_chromosomes)
     }
 }

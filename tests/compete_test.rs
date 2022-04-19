@@ -69,10 +69,10 @@ mod compete_tests {
         assert_eq!(
             inspect::population(&new_population),
             vec![
-                vec![false, true, true],
                 vec![true, true, true],
                 vec![true, true, false],
-                vec![true, false, true],
+                vec![false, true, true],
+                vec![true, false, false],
             ]
         );
     }
@@ -92,7 +92,7 @@ mod compete_tests {
 
         assert_eq!(
             inspect::population(&new_population),
-            vec![vec![false, false, true], vec![false, false, false],]
+            vec![vec![false, false, false], vec![false, false, true],]
         );
     }
 }
