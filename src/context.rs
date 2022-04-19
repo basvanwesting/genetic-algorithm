@@ -49,8 +49,7 @@ impl<T: Gene> Context<T> {
     }
 
     pub fn random_chromosome_factory(&mut self) -> Chromosome<T> {
-        let genes: Vec<T> = (0..self.gene_size).map(|_| T::random(self)).collect();
-        Chromosome::new(genes)
+        Chromosome::random_factory(self)
     }
 
     pub fn random_population_factory(&mut self) -> Population<T> {

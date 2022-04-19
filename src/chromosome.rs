@@ -1,3 +1,4 @@
+use crate::context::Context;
 use crate::gene::Gene;
 use std::cmp::Ordering;
 use std::fmt;
@@ -18,6 +19,11 @@ impl<T: Gene> Chromosome<T> {
 
     pub fn taint_fitness_score(&mut self) {
         self.fitness_score = None;
+    }
+
+    pub fn random_factory(context: &mut Context<T>) -> Self {
+        let genes: Vec<T> = (0..context.gene_size).map(|_| T::random(context)).collect();
+        Chromosome::new(genes)
     }
 }
 

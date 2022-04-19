@@ -186,4 +186,34 @@ mod crossover_tests {
             ]
         )
     }
+
+    #[test]
+    fn test_cloning_odd() {
+        let rng = SmallRng::seed_from_u64(0);
+        let mut context = Context::new()
+            .with_gene_size(3)
+            .with_gene_values(vec![true, false])
+            .with_population_size(4)
+            .with_rng(rng);
+
+        let population = build::population(vec![
+            vec![true, true, true],
+            vec![false, false, false],
+            vec![true, true, true],
+        ]);
+
+        let population = crossover::Cloning.call(&mut context, population);
+
+        assert_eq!(
+            inspect::population(&population),
+            vec![
+                vec![true, true, true],
+                vec![false, false, false],
+                vec![true, true, true],
+                vec![true, true, true],
+                vec![false, false, false],
+                vec![true, true, true],
+            ]
+        )
+    }
 }

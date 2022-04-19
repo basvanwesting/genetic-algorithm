@@ -123,3 +123,17 @@ impl Crossover for Range {
         Population::new(child_chromosomes)
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct Cloning;
+impl Crossover for Cloning {
+    fn call<T: Gene>(
+        &self,
+        _context: &mut Context<T>,
+        mut population: Population<T>,
+    ) -> Population<T> {
+        let mut clones = population.clone();
+        population.merge(&mut clones);
+        population
+    }
+}
