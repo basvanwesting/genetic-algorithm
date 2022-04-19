@@ -16,7 +16,7 @@ fn main() {
     let evolve = Evolve::new(context)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
-        .with_crossover(crossover::Individual)
+        .with_crossover(crossover::Individual(true))
         .with_compete(compete::Tournament(4))
         .call();
 

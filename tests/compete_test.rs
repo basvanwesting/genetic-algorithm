@@ -18,7 +18,7 @@ mod compete_tests {
             .with_population_size(4)
             .with_rng(rng);
 
-        let mut population = build::population(vec![
+        let population = build::population(vec![
             vec![false, false, false],
             vec![false, false, true],
             vec![false, true, false],
@@ -29,11 +29,11 @@ mod compete_tests {
             vec![true, true, true],
         ]);
 
-        fitness::SimpleSum.call_for_population(&mut population);
-        let new_population = compete::Elite.call(&mut context, population);
+        let population = fitness::SimpleSum.call_for_population(population);
+        let population = compete::Elite.call(&mut context, population);
 
         assert_eq!(
-            inspect::population(&new_population),
+            inspect::population(&population),
             vec![
                 vec![false, true, true],
                 vec![true, false, true],
@@ -52,7 +52,7 @@ mod compete_tests {
             .with_population_size(4)
             .with_rng(rng);
 
-        let mut population = build::population(vec![
+        let population = build::population(vec![
             vec![false, false, false],
             vec![false, false, true],
             vec![false, true, false],
@@ -63,11 +63,11 @@ mod compete_tests {
             vec![true, true, true],
         ]);
 
-        fitness::SimpleSum.call_for_population(&mut population);
-        let new_population = compete::Tournament(4).call(&mut context, population);
+        let population = fitness::SimpleSum.call_for_population(population);
+        let population = compete::Tournament(4).call(&mut context, population);
 
         assert_eq!(
-            inspect::population(&new_population),
+            inspect::population(&population),
             vec![
                 vec![true, true, true],
                 vec![true, true, false],
@@ -86,14 +86,14 @@ mod compete_tests {
             .with_population_size(4)
             .with_rng(rng);
 
-        let mut population =
+        let population =
             build::population(vec![vec![false, false, false], vec![false, false, true]]);
 
-        fitness::SimpleSum.call_for_population(&mut population);
-        let new_population = compete::Tournament(4).call(&mut context, population);
+        let population = fitness::SimpleSum.call_for_population(population);
+        let population = compete::Tournament(4).call(&mut context, population);
 
         assert_eq!(
-            inspect::population(&new_population),
+            inspect::population(&population),
             vec![vec![false, false, true], vec![false, false, false],]
         );
     }

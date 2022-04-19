@@ -23,10 +23,10 @@ mod crossover_tests {
             vec![false, false, false],
         ]);
 
-        let child_population = crossover::Individual.call(&mut context, &population);
+        let population = crossover::Individual(false).call(&mut context, population);
 
         assert_eq!(
-            inspect::population(&child_population),
+            inspect::population(&population),
             vec![
                 vec![true, false, true],
                 vec![false, true, false],
@@ -53,10 +53,10 @@ mod crossover_tests {
             vec![true, true, true],
         ]);
 
-        let child_population = crossover::Individual.call(&mut context, &population);
+        let population = crossover::Individual(false).call(&mut context, population);
 
         assert_eq!(
-            inspect::population(&child_population),
+            inspect::population(&population),
             vec![
                 vec![true, false, true],
                 vec![false, true, false],

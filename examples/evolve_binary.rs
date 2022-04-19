@@ -14,12 +14,12 @@ fn main() {
     println!("{}", context);
 
     let evolve = Evolve::new(context)
-        .with_max_stale_generations(20)
+        .with_max_stale_generations(100)
         .with_target_fitness_score(100)
         //.with_degeneration_range(0.001..0.995)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
-        .with_crossover(crossover::Individual)
+        .with_crossover(crossover::Individual(true))
         .with_compete(compete::Tournament(4))
         //.with_compete(compete::Elite)
         .call();

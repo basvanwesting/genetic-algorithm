@@ -102,16 +102,13 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
 
         while !self.is_finished() {
             if self.toggle_degenerate() {
-                mutate.call(&mut self.context, &mut self.population);
-                fitness.call_for_population(&mut self.population);
-                self.population.sort();
+                self.population = mutate.call(&mut self.context, self.population);
+                self.population = fitness.call_for_population(self.population);
             } else {
-                let mut parent_population = self.population;
-                let mut child_population = crossover.call(&mut self.context, &parent_population);
-                mutate.call(&mut self.context, &mut child_population);
-                fitness.call_for_population(&mut child_population);
-                child_population.merge(&mut parent_population);
-                self.population = compete.call(&mut self.context, child_population);
+                self.population = crossover.call(&mut self.context, self.population);
+                self.population = mutate.call(&mut self.context, self.population);
+                self.population = fitness.call_for_population(self.population);
+                self.population = compete.call(&mut self.context, self.population);
             }
 
             self.update_best_chromosome();

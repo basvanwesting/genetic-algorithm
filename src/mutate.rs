@@ -5,7 +5,7 @@ use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 
 pub trait Mutate: Clone + std::fmt::Debug {
-    fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>);
+    fn call<T: Gene>(&self, context: &mut Context<T>, population: Population<T>) -> Population<T>;
 }
 
 pub type MutationProbability = f32;
@@ -13,7 +13,11 @@ pub type MutationProbability = f32;
 #[derive(Debug, Clone)]
 pub struct SingleGene(pub MutationProbability);
 impl Mutate for SingleGene {
-    fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>) {
+    fn call<T: Gene>(
+        &self,
+        context: &mut Context<T>,
+        mut population: Population<T>,
+    ) -> Population<T> {
         let gene_range = Uniform::from(0..context.gene_size);
         for chromosome in &mut population.chromosomes {
             if context.rng.gen::<f32>() <= self.0 {
@@ -22,13 +26,18 @@ impl Mutate for SingleGene {
                 chromosome.taint_fitness_score();
             }
         }
+        population
     }
 }
 
 #[derive(Debug, Clone)]
 pub struct MultipleGene(pub MutationProbability);
 impl Mutate for MultipleGene {
-    fn call<T: Gene>(&self, context: &mut Context<T>, population: &mut Population<T>) {
+    fn call<T: Gene>(
+        &self,
+        context: &mut Context<T>,
+        mut population: Population<T>,
+    ) -> Population<T> {
         for chromosome in &mut population.chromosomes {
             for gene in &mut chromosome.genes {
                 if context.rng.gen::<f32>() <= self.0 {
@@ -37,5 +46,6 @@ impl Mutate for MultipleGene {
             }
             chromosome.taint_fitness_score();
         }
+        population
     }
 }

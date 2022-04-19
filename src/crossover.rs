@@ -5,13 +5,19 @@ use crate::population::Population;
 use rand::distributions::{Distribution, Uniform};
 
 pub trait Crossover: Clone + std::fmt::Debug {
-    fn call<T: Gene>(&self, context: &mut Context<T>, population: &Population<T>) -> Population<T>;
+    fn call<T: Gene>(&self, context: &mut Context<T>, population: Population<T>) -> Population<T>;
 }
 
+pub type KeepParent = bool;
+
 #[derive(Clone, Debug)]
-pub struct Individual;
+pub struct Individual(pub KeepParent);
 impl Crossover for Individual {
-    fn call<T: Gene>(&self, context: &mut Context<T>, population: &Population<T>) -> Population<T> {
+    fn call<T: Gene>(
+        &self,
+        context: &mut Context<T>,
+        mut population: Population<T>,
+    ) -> Population<T> {
         let gene_range = Uniform::from(0..context.gene_size);
 
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
@@ -34,6 +40,9 @@ impl Crossover for Individual {
             }
         }
 
+        if self.0 {
+            child_chromosomes.append(&mut population.chromosomes);
+        }
         Population::new(child_chromosomes)
     }
 }

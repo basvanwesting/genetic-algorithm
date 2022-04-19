@@ -8,7 +8,7 @@ mod population_tests {
 
     #[test]
     fn test_fitness_score_stddev() {
-        let mut population = build::population(vec![
+        let population = build::population(vec![
             vec![false, true, true],
             vec![false, true, false],
             vec![false, false, true],
@@ -20,10 +20,10 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        fitness::SimpleSum.call_for_population(&mut population);
+        let population = fitness::SimpleSum.call_for_population(population);
         assert_eq!(population.fitness_score_stddev(), 0.8660254);
 
-        let mut population = build::population(vec![
+        let population = build::population(vec![
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
@@ -35,7 +35,7 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        fitness::SimpleSum.call_for_population(&mut population);
+        let population = fitness::SimpleSum.call_for_population(population);
         assert_eq!(population.fitness_score_stddev(), 0.3307189);
     }
 }

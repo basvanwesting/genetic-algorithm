@@ -15,14 +15,14 @@ mod mutate_tests {
             .with_gene_values(vec![true, false])
             .with_rng(rng);
 
-        let mut population = build::population(vec![
+        let population = build::population(vec![
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
         ]);
 
-        mutate::SingleGene(0.5).call(&mut context, &mut population);
+        let population = mutate::SingleGene(0.5).call(&mut context, population);
 
         assert_eq!(
             inspect::population(&population),
@@ -43,14 +43,14 @@ mod mutate_tests {
             .with_gene_values(vec![0, 1, 2, 3])
             .with_rng(rng);
 
-        let mut population = build::population(vec![
+        let population = build::population(vec![
             vec![0, 0, 0],
             vec![0, 0, 0],
             vec![0, 0, 0],
             vec![0, 0, 0],
         ]);
 
-        mutate::SingleGene(0.5).call(&mut context, &mut population);
+        let population = mutate::SingleGene(0.5).call(&mut context, population);
 
         assert_eq!(
             inspect::population(&population),
@@ -66,14 +66,14 @@ mod mutate_tests {
             .with_gene_values(vec![0, 1, 2, 3])
             .with_rng(rng);
 
-        let mut population = build::population(vec![
+        let population = build::population(vec![
             vec![0, 0, 0],
             vec![0, 0, 0],
             vec![0, 0, 0],
             vec![0, 0, 0],
         ]);
 
-        mutate::MultipleGene(0.5).call(&mut context, &mut population);
+        let population = mutate::MultipleGene(0.5).call(&mut context, population);
 
         assert_eq!(
             inspect::population(&population),

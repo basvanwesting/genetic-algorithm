@@ -42,13 +42,12 @@ impl<T: Gene, F: Fitness<T>> Permutate<T, F> {
         let fitness = self.fitness.as_ref().cloned().unwrap();
 
         self.population = self.context.permutation_population_factory();
-        fitness.call_for_population(&mut self.population);
+        self.population = fitness.call_for_population(self.population);
         self.update_best_chromosome();
         self
     }
 
     fn update_best_chromosome(&mut self) {
-        self.population.sort();
         if self.best_chromosome.as_ref() < self.population.best_chromosome() {
             self.best_chromosome = self.population.best_chromosome().cloned();
         }

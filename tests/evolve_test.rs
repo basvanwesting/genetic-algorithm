@@ -23,7 +23,7 @@ mod evolve_tests {
         let evolve = Evolve::new(context)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
-            .with_crossover(crossover::Individual)
+            .with_crossover(crossover::Individual(true))
             .with_compete(compete::Tournament(4))
             .call();
 
@@ -43,7 +43,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
-            .with_crossover(crossover::Individual)
+            .with_crossover(crossover::Individual(true))
             .with_compete(compete::Tournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -69,7 +69,7 @@ mod evolve_tests {
             .with_target_fitness_score(8)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
-            .with_crossover(crossover::Individual)
+            .with_crossover(crossover::Individual(true))
             .with_compete(compete::Tournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -78,7 +78,7 @@ mod evolve_tests {
         assert_eq!(best_chromosome.fitness_score, Some(9));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
-            vec![true, true, true, true, true, true, true, true, false, true]
+            vec![true, true, true, true, true, true, false, true, true, true]
         );
     }
 
@@ -96,7 +96,7 @@ mod evolve_tests {
             .with_degeneration_range(0.0001..1.0000)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
-            .with_crossover(crossover::Individual)
+            .with_crossover(crossover::Individual(true))
             .with_compete(compete::Tournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -105,7 +105,7 @@ mod evolve_tests {
         assert_eq!(best_chromosome.fitness_score, Some(8));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
-            vec![true, true, false, true, true, true, false, true, true, true]
+            vec![false, true, true, false, true, true, true, true, true, true]
         );
     }
 
@@ -122,7 +122,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
-            .with_crossover(crossover::Individual)
+            .with_crossover(crossover::Individual(true))
             .with_compete(compete::Tournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -147,7 +147,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
-            .with_crossover(crossover::Individual)
+            .with_crossover(crossover::Individual(true))
             .with_compete(compete::Tournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -157,8 +157,8 @@ mod evolve_tests {
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![
-                0.94096637, 0.98179513, 0.8771556, 0.8283811, 0.7013112, 0.9091289, 0.973826,
-                0.9069808, 0.9505005, 0.9951865,
+                0.9651495, 0.98179513, 0.9798802, 0.8283811, 0.76474065, 0.9307497, 0.8706253,
+                0.9069808, 0.9505005, 0.9951865
             ]
         );
     }

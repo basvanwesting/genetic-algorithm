@@ -33,7 +33,7 @@ fn run() {
         .with_target_fitness_score(100)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
-        .with_crossover(crossover::Individual)
+        .with_crossover(crossover::Individual(true))
         //.with_compete(compete::Tournament(4))
         .with_compete(compete::Elite)
         .call();
