@@ -1,7 +1,7 @@
 use crate::context::Context;
 use crate::gene::Gene;
 use crate::population::Population;
-use rand::distributions::{Distribution, Uniform};
+use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 
 pub trait Mutate: Clone + std::fmt::Debug {
@@ -18,10 +18,10 @@ impl Mutate for SingleGene {
         context: &mut Context<T>,
         mut population: Population<T>,
     ) -> Population<T> {
-        let gene_range = Uniform::from(0..context.gene_size);
+        let gene_index_sampler = Uniform::from(0..context.gene_size);
         for chromosome in &mut population.chromosomes {
             if context.rng.gen::<f32>() <= self.0 {
-                let index = gene_range.sample(&mut context.rng);
+                let index = gene_index_sampler.sample(&mut context.rng);
                 chromosome.genes[index].mutate(context);
                 chromosome.taint_fitness_score();
             }
@@ -38,9 +38,10 @@ impl Mutate for MultipleGene {
         context: &mut Context<T>,
         mut population: Population<T>,
     ) -> Population<T> {
+        let bool_sampler = Bernoulli::new(self.0 as f64).unwrap();
         for chromosome in &mut population.chromosomes {
             for gene in &mut chromosome.genes {
-                if context.rng.gen::<f32>() <= self.0 {
+                if bool_sampler.sample(&mut context.rng) {
                     gene.mutate(context);
                 }
             }

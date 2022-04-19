@@ -2,8 +2,7 @@ use crate::chromosome::Chromosome;
 use crate::context::Context;
 use crate::gene::Gene;
 use crate::population::Population;
-use rand::distributions::{Distribution, Uniform};
-use rand::prelude::*;
+use rand::distributions::{Bernoulli, Distribution, Uniform};
 
 pub trait Crossover: Clone + std::fmt::Debug {
     fn call<T: Gene>(&self, context: &mut Context<T>, population: Population<T>) -> Population<T>;
@@ -55,7 +54,7 @@ impl Crossover for All {
         context: &mut Context<T>,
         mut population: Population<T>,
     ) -> Population<T> {
-        //let bool_sampler = Bernoulli::new(0.5).unwrap();
+        let bool_sampler = Bernoulli::new(0.5).unwrap();
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
 
         for chunk in population.chromosomes.chunks(2) {
@@ -65,7 +64,7 @@ impl Crossover for All {
                     let mut child_mother_genes = mother.genes.clone();
 
                     for index in 0..(context.gene_size) {
-                        if context.rng.gen_bool(0.5) {
+                        if bool_sampler.sample(&mut context.rng) {
                             child_father_genes[index] = mother.genes[index];
                             child_mother_genes[index] = father.genes[index];
                         }

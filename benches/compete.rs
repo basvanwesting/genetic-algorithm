@@ -7,29 +7,34 @@ use genetic_algorithm::fitness;
 use genetic_algorithm::fitness::Fitness;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut context = Context::new()
-        .with_gene_size(10)
+    let gen_context = Context::new()
+        .with_gene_size(11)
         .with_gene_values(vec![true, false]);
-    let mut population = context.permutation_population_factory();
-    let mut population_overshoot = context.permutation_population_factory();
-    population.merge(&mut population_overshoot);
-    fitness::SimpleSum.call_for_population(&mut population);
-    println!("population size: {}", population.size());
+    let population = gen_context.permutation_population_factory();
+    let population = fitness::SimpleSum.call_for_population(population);
+
+    let mut context = Context::new().with_population_size(1024);
+
+    println!(
+        "start population size: {}, target population size: {}",
+        population.size(),
+        context.population_size,
+    );
 
     c.bench_function("compete_tournament", |b| {
-        let tournament = compete::Tournament(4);
+        let compete = compete::Tournament(4);
         b.iter_batched(
             || population.clone(),
-            |data| tournament.call(&mut context, data),
+            |data| compete.call(&mut context, data),
             BatchSize::SmallInput,
         )
     });
 
     c.bench_function("compete_elite", |b| {
-        let elite = compete::Elite;
+        let compete = compete::Elite;
         b.iter_batched(
             || population.clone(),
-            |data| elite.call(&mut context, data),
+            |data| compete.call(&mut context, data),
             BatchSize::SmallInput,
         )
     });
