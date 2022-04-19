@@ -29,7 +29,8 @@ impl Fitness<DiscreteGene> for NQueensFitness {
         let mut temp_genes = chromosome.genes.clone();
         temp_genes.sort();
         temp_genes.dedup();
-        temp_genes.len() as isize - diagonal_clashes as isize
+        let invalid_gene_penalty = (chromosome.genes.len() - temp_genes.len()) * 100;
+        temp_genes.len() as isize - diagonal_clashes as isize - invalid_gene_penalty as isize
     }
 }
 
@@ -37,18 +38,17 @@ fn main() {
     let context = Context::new()
         .with_gene_size(8)
         .with_gene_values(vec![0, 1, 2, 3, 4, 5, 6, 7])
-        .with_population_size(10);
+        .with_population_size(1000);
 
     println!("{}", context);
 
     let evolve = Evolve::new(context)
-        .with_max_stale_generations(100)
+        .with_max_stale_generations(1000)
         .with_target_fitness_score(8)
         .with_mutate(mutate::SwapSingleGene(0.2))
         .with_fitness(NQueensFitness)
         .with_crossover(crossover::Cloning)
-        .with_compete(compete::Tournament(4))
-        //.with_compete(compete::Elite)
+        .with_compete(compete::Elite)
         .call();
 
     println!("{}", evolve);

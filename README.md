@@ -17,7 +17,14 @@ Run benchmarks with `cargo bench`
 
 find the flamegraph in: ./target/criterion/profile_evolve_binary/profile/flamegraph.svg
 
-Findings:
+## TODO
 
-* compete::Tournament(4) was taking 98% of the time, implemented compete::Elite for a 30x speed increase
-* in non-release mode fitness::SimpleSum is the new bottleneck, but in release mode it is not
+* current nqueens example bottleneck is generating valid chromosomes, which can be mutated towards the solution, need a large population_size to do this. With cloning and elite competition you can then weed out the invalid chromosomes.
+* need genotype concept, where a chromosome has more control over the internal structure of the genes.
+    * factories / permutations / how to mutate consistently / how to crossover consistently
+    * how to do this without losing the reuse of existing mutate/compete/crossover structure?
+    * it seems context is slowly becoming the genotype, maybe population_size and rng don't belong there?
+    * turn context into a Trait so we can specialize for nqueens, mainly the factory side of things need further specialization
+
+* seed best_chromosome back into population after degenerate?
+
