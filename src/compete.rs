@@ -18,13 +18,9 @@ impl Compete for Elite {
         context: &mut Context<T>,
         mut population: Population<T>,
     ) -> Population<T> {
-        if population.size() <= context.population_size {
-            return population;
-        }
-
+        population.sort();
         let to_drain_from_first = population.size() - context.population_size;
         if to_drain_from_first > 0 {
-            population.sort();
             population.chromosomes.drain(..to_drain_from_first);
         }
         population
@@ -39,18 +35,16 @@ impl Compete for Tournament {
         context: &mut Context<T>,
         mut population: Population<T>,
     ) -> Population<T> {
-        if population.size() <= context.population_size {
-            return population;
-        }
-
-        let tournament_size = self.0;
         let mut working_population_size = population.size();
-        let mut target_chromosomes: Vec<Chromosome<T>> =
-            Vec::with_capacity(context.population_size);
+        let tournament_size = std::cmp::min(self.0, working_population_size);
+        let target_population_size =
+            std::cmp::min(context.population_size, working_population_size);
+
+        let mut target_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(target_population_size);
         let mut tournament_chromosomes: Vec<(usize, Option<usize>)> =
             Vec::with_capacity(tournament_size);
 
-        for _ in 0..context.population_size {
+        for _ in 0..target_population_size {
             for _ in 0..tournament_size {
                 let sample_index = context.rng.gen_range(0..working_population_size);
                 tournament_chromosomes.push((

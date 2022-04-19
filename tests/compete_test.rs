@@ -79,10 +79,12 @@ mod compete_tests {
 
     #[test]
     fn test_tournament_shortage() {
+        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
-            .with_population_size(4);
+            .with_population_size(4)
+            .with_rng(rng);
 
         let mut population =
             build::population(vec![vec![false, false, false], vec![false, false, true]]);
@@ -92,7 +94,7 @@ mod compete_tests {
 
         assert_eq!(
             inspect::population(&new_population),
-            vec![vec![false, false, false], vec![false, false, true],]
+            vec![vec![false, false, true], vec![false, false, false],]
         );
     }
 }

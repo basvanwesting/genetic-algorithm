@@ -19,8 +19,8 @@ fn main() {
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
         .with_crossover(crossover::Individual)
-        //.with_compete(compete::Tournament(4))
-        .with_compete(compete::Elite)
+        .with_compete(compete::Tournament(4))
+        //.with_compete(compete::Elite)
         .call();
 
     println!("{}", evolve);

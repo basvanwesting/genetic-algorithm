@@ -33,7 +33,7 @@ impl<T: Gene> Population<T> {
     }
 
     pub fn best_chromosome(&self) -> Option<&Chromosome<T>> {
-        self.chromosomes.last()
+        self.chromosomes.iter().max()
     }
 
     pub fn fitness_score_stddev(&self) -> f32 {

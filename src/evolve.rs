@@ -104,6 +104,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
             if self.toggle_degenerate() {
                 mutate.call(&mut self.context, &mut self.population);
                 fitness.call_for_population(&mut self.population);
+                self.population.sort();
             } else {
                 let mut parent_population = self.population;
                 let mut child_population = crossover.call(&mut self.context, &parent_population);
@@ -121,7 +122,6 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
     }
 
     fn update_best_chromosome(&mut self) {
-        self.population.sort();
         if self.best_chromosome.as_ref() < self.population.best_chromosome() {
             self.best_chromosome = self.population.best_chromosome().cloned();
             self.best_generation = self.current_generation;

@@ -153,12 +153,12 @@ mod evolve_tests {
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
-        assert_eq!(best_chromosome.fitness_score, Some(8));
+        assert_eq!(best_chromosome.fitness_score, Some(9));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![
-                0.60245496, 0.98179513, 0.5239276, 0.8283811, 0.7013112, 0.9091289, 0.9379812,
-                0.9069808, 0.71820855, 0.9951865
+                0.94096637, 0.98179513, 0.8771556, 0.8283811, 0.7013112, 0.9091289, 0.973826,
+                0.9069808, 0.9505005, 0.9951865,
             ]
         );
     }
