@@ -2,7 +2,7 @@ use crate::chromosome::Chromosome;
 use crate::gene::Gene;
 use stats::stddev;
 
-#[derive(Debug)]
+#[derive(Debug, Clone)]
 pub struct Population<T: Gene> {
     pub chromosomes: Vec<Chromosome<T>>,
 }

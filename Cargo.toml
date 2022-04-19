@@ -18,3 +18,7 @@ pprof = { version = "0.7", features = ["criterion", "flamegraph"] }
 [[bench]]
 name = "fitness"
 harness = false
+
+[[bench]]
+name = "compete"
+harness = false
