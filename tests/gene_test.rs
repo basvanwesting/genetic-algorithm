@@ -5,9 +5,13 @@ mod gene_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
     use genetic_algorithm::gene::{BinaryGene, ContinuousGene, DiscreteGene, Gene};
+    use genetic_algorithm::global_rand;
 
     #[test]
     fn test_random_binary_gene() {
+        let rng = SmallRng::seed_from_u64(0);
+        global_rand::set_small_rng(rng);
+
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::<BinaryGene>::new().with_rng(rng);
 
@@ -18,6 +22,9 @@ mod gene_tests {
 
     #[test]
     fn test_random_discrete_gene() {
+        let rng = SmallRng::seed_from_u64(0);
+        global_rand::set_small_rng(rng);
+
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_values(vec![3, 4, 5, 6])
@@ -30,6 +37,9 @@ mod gene_tests {
 
     #[test]
     fn test_random_continuous_gene() {
+        let rng = SmallRng::seed_from_u64(0);
+        global_rand::set_small_rng(rng);
+
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::<ContinuousGene>::new().with_rng(rng);
 
@@ -52,6 +62,9 @@ mod gene_tests {
     #[test]
     fn test_mutate_discrete_gene() {
         let rng = SmallRng::seed_from_u64(0);
+        global_rand::set_small_rng(rng);
+
+        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_values(vec![3, 4, 5, 6])
             .with_rng(rng);
@@ -66,6 +79,9 @@ mod gene_tests {
 
     #[test]
     fn test_mutate_continuous_gene() {
+        let rng = SmallRng::seed_from_u64(0);
+        global_rand::set_small_rng(rng);
+
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::<ContinuousGene>::new().with_rng(rng);
 

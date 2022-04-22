@@ -1,5 +1,6 @@
 use crate::context::Context;
 use crate::gene::Gene;
+use crate::global_rand;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 
@@ -20,8 +21,10 @@ impl Mutate for SingleGene {
         let bool_sampler = Bernoulli::new(self.0 as f64).unwrap();
         let gene_index_sampler = Uniform::from(0..context.gene_size);
         for chromosome in &mut population.chromosomes {
-            if bool_sampler.sample(&mut context.rng) {
-                let index = gene_index_sampler.sample(&mut context.rng);
+            //if bool_sampler.sample(&mut context.rng) {
+            //let index = gene_index_sampler.sample(&mut context.rng);
+            if global_rand::sample_bernoulli(&bool_sampler) {
+                let index = global_rand::sample_uniform(&gene_index_sampler);
                 chromosome.genes[index].mutate(context);
                 chromosome.taint_fitness_score();
             }
@@ -41,7 +44,8 @@ impl Mutate for MultipleGene {
         let bool_sampler = Bernoulli::new(self.0 as f64).unwrap();
         for chromosome in &mut population.chromosomes {
             for gene in &mut chromosome.genes {
-                if bool_sampler.sample(&mut context.rng) {
+                if global_rand::sample_bernoulli(&bool_sampler) {
+                    //if bool_sampler.sample(&mut context.rng) {
                     gene.mutate(context);
                 }
             }
@@ -62,9 +66,12 @@ impl Mutate for SwapSingleGene {
         let bool_sampler = Bernoulli::new(self.0 as f64).unwrap();
         let gene_index_sampler = Uniform::from(0..context.gene_size);
         for chromosome in &mut population.chromosomes {
-            if bool_sampler.sample(&mut context.rng) {
-                let index1 = gene_index_sampler.sample(&mut context.rng);
-                let index2 = gene_index_sampler.sample(&mut context.rng);
+            //if bool_sampler.sample(&mut context.rng) {
+            //let index1 = gene_index_sampler.sample(&mut context.rng);
+            //let index2 = gene_index_sampler.sample(&mut context.rng);
+            if global_rand::sample_bernoulli(&bool_sampler) {
+                let index1 = global_rand::sample_uniform(&gene_index_sampler);
+                let index2 = global_rand::sample_uniform(&gene_index_sampler);
                 chromosome.genes.swap(index1, index2);
                 chromosome.taint_fitness_score();
             }

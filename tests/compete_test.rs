@@ -8,6 +8,7 @@ mod compete_tests {
     use genetic_algorithm::context::Context;
     use genetic_algorithm::fitness;
     use genetic_algorithm::fitness::Fitness;
+    use genetic_algorithm::global_rand;
 
     #[test]
     fn test_elite() {
@@ -17,6 +18,9 @@ mod compete_tests {
             .with_gene_values(vec![true, false])
             .with_population_size(4)
             .with_rng(rng);
+
+        let rng = SmallRng::seed_from_u64(0);
+        global_rand::set_small_rng(rng);
 
         let population = build::population(vec![
             vec![false, false, false],
@@ -52,6 +56,9 @@ mod compete_tests {
             .with_population_size(4)
             .with_rng(rng);
 
+        let rng = SmallRng::seed_from_u64(0);
+        global_rand::set_small_rng(rng);
+
         let population = build::population(vec![
             vec![false, false, false],
             vec![false, false, true],
@@ -85,6 +92,9 @@ mod compete_tests {
             .with_gene_values(vec![true, false])
             .with_population_size(4)
             .with_rng(rng);
+
+        let rng = SmallRng::seed_from_u64(0);
+        global_rand::set_small_rng(rng);
 
         let population =
             build::population(vec![vec![false, false, false], vec![false, false, true]]);

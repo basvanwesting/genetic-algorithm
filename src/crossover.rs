@@ -1,6 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
 use crate::gene::Gene;
+use crate::global_rand;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 
@@ -24,7 +25,8 @@ impl Crossover for Individual {
         for chunk in population.chromosomes.chunks(2) {
             match &chunk[..] {
                 [father, mother] => {
-                    let index = gene_index_sampler.sample(&mut context.rng);
+                    let index = global_rand::sample_uniform(&gene_index_sampler);
+                    //let index = gene_index_sampler.sample(&mut context.rng);
                     let mut child_father_genes = father.genes.clone();
                     let mut child_mother_genes = mother.genes.clone();
 
@@ -64,7 +66,8 @@ impl Crossover for All {
                     let mut child_mother_genes = mother.genes.clone();
 
                     for index in 0..(context.gene_size) {
-                        if bool_sampler.sample(&mut context.rng) {
+                        //if bool_sampler.sample(&mut context.rng) {
+                        if global_rand::sample_bernoulli(&bool_sampler) {
                             child_father_genes[index] = mother.genes[index];
                             child_mother_genes[index] = father.genes[index];
                         }
@@ -99,7 +102,8 @@ impl Crossover for Range {
         for chunk in population.chromosomes.chunks(2) {
             match &chunk[..] {
                 [father, mother] => {
-                    let index = gene_index_sampler.sample(&mut context.rng);
+                    let index = global_rand::sample_uniform(&gene_index_sampler);
+                    //let index = gene_index_sampler.sample(&mut context.rng);
                     let mut child_father_genes = father.genes.clone();
                     let mut child_mother_genes = mother.genes.clone();
 
