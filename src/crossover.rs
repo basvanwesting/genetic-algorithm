@@ -1,12 +1,18 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
 use crate::gene::Gene;
-use crate::global_rand;
+//use crate::global_rand;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
+use rand::Rng;
 
 pub trait Crossover: Clone + std::fmt::Debug {
-    fn call<T: Gene>(&self, context: &mut Context<T>, population: Population<T>) -> Population<T>;
+    fn call<T: Gene, R: Rng>(
+        &self,
+        context: &mut Context<T>,
+        population: Population<T>,
+        rng: &mut R,
+    ) -> Population<T>;
 }
 
 pub type KeepParent = bool;
@@ -14,10 +20,11 @@ pub type KeepParent = bool;
 #[derive(Clone, Debug)]
 pub struct Individual(pub KeepParent);
 impl Crossover for Individual {
-    fn call<T: Gene>(
+    fn call<T: Gene, R: Rng>(
         &self,
         context: &mut Context<T>,
         mut population: Population<T>,
+        rng: &mut R,
     ) -> Population<T> {
         let gene_index_sampler = Uniform::from(0..context.gene_size);
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
@@ -25,8 +32,8 @@ impl Crossover for Individual {
         for chunk in population.chromosomes.chunks(2) {
             match &chunk[..] {
                 [father, mother] => {
-                    let index = global_rand::sample_uniform(&gene_index_sampler);
-                    //let index = gene_index_sampler.sample(&mut context.rng);
+                    //let index = global_rand::sample_uniform(&gene_index_sampler);
+                    let index = gene_index_sampler.sample(rng);
                     let mut child_father_genes = father.genes.clone();
                     let mut child_mother_genes = mother.genes.clone();
 
@@ -51,10 +58,11 @@ impl Crossover for Individual {
 #[derive(Clone, Debug)]
 pub struct All(pub KeepParent);
 impl Crossover for All {
-    fn call<T: Gene>(
+    fn call<T: Gene, R: Rng>(
         &self,
         context: &mut Context<T>,
         mut population: Population<T>,
+        rng: &mut R,
     ) -> Population<T> {
         let bool_sampler = Bernoulli::new(0.5).unwrap();
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
@@ -66,8 +74,8 @@ impl Crossover for All {
                     let mut child_mother_genes = mother.genes.clone();
 
                     for index in 0..(context.gene_size) {
-                        //if bool_sampler.sample(&mut context.rng) {
-                        if global_rand::sample_bernoulli(&bool_sampler) {
+                        //if global_rand::sample_bernoulli(&bool_sampler) {
+                        if bool_sampler.sample(rng) {
                             child_father_genes[index] = mother.genes[index];
                             child_mother_genes[index] = father.genes[index];
                         }
@@ -91,10 +99,11 @@ impl Crossover for All {
 #[derive(Clone, Debug)]
 pub struct Range(pub KeepParent);
 impl Crossover for Range {
-    fn call<T: Gene>(
+    fn call<T: Gene, R: Rng>(
         &self,
         context: &mut Context<T>,
         mut population: Population<T>,
+        rng: &mut R,
     ) -> Population<T> {
         let gene_index_sampler = Uniform::from(0..context.gene_size);
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
@@ -102,8 +111,8 @@ impl Crossover for Range {
         for chunk in population.chromosomes.chunks(2) {
             match &chunk[..] {
                 [father, mother] => {
-                    let index = global_rand::sample_uniform(&gene_index_sampler);
-                    //let index = gene_index_sampler.sample(&mut context.rng);
+                    //let index = global_rand::sample_uniform(&gene_index_sampler);
+                    let index = gene_index_sampler.sample(rng);
                     let mut child_father_genes = father.genes.clone();
                     let mut child_mother_genes = mother.genes.clone();
 
@@ -131,10 +140,11 @@ impl Crossover for Range {
 #[derive(Clone, Debug)]
 pub struct Cloning;
 impl Crossover for Cloning {
-    fn call<T: Gene>(
+    fn call<T: Gene, R: Rng>(
         &self,
         _context: &mut Context<T>,
         mut population: Population<T>,
+        _rng: &mut R,
     ) -> Population<T> {
         let mut clones = population.clone();
         population.merge(&mut clones);

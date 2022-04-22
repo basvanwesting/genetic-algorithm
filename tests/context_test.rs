@@ -18,7 +18,8 @@ mod context_tests {
         let rng = SmallRng::seed_from_u64(0);
         global_rand::set_small_rng(rng);
 
-        let chromosome = context.random_chromosome_factory();
+        let mut rng = SmallRng::seed_from_u64(0);
+        let chromosome = context.random_chromosome_factory(&mut rng);
 
         assert_eq!(
             inspect::chromosome(&chromosome),
@@ -38,7 +39,8 @@ mod context_tests {
         let rng = SmallRng::seed_from_u64(0);
         global_rand::set_small_rng(rng);
 
-        let population = context.random_population_factory();
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = context.random_population_factory(&mut rng);
         println!("{:#?}", population);
 
         assert_eq!(

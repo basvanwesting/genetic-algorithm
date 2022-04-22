@@ -4,8 +4,11 @@ use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
 use genetic_algorithm::mutate;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
 
 fn main() {
+    let rng = SmallRng::from_entropy();
     let context = Context::new()
         .with_gene_size(100)
         .with_gene_values(vec![true, false])
@@ -13,7 +16,7 @@ fn main() {
 
     println!("{}", context);
 
-    let evolve = Evolve::new(context)
+    let evolve = Evolve::new(context, rng)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSum)
         .with_crossover(crossover::Individual(true))

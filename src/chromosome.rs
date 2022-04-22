@@ -1,5 +1,6 @@
 use crate::context::Context;
 use crate::gene::Gene;
+use rand::Rng;
 use std::cmp::Ordering;
 use std::fmt;
 
@@ -21,8 +22,10 @@ impl<T: Gene> Chromosome<T> {
         self.fitness_score = None;
     }
 
-    pub fn random_factory(context: &mut Context<T>) -> Self {
-        let genes: Vec<T> = (0..context.gene_size).map(|_| T::random(context)).collect();
+    pub fn random_factory<R: Rng>(context: &mut Context<T>, rng: &mut R) -> Self {
+        let genes: Vec<T> = (0..context.gene_size)
+            .map(|_| T::random(context, rng))
+            .collect();
         Chromosome::new(genes)
     }
 }

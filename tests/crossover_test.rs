@@ -27,7 +27,8 @@ mod crossover_tests {
             vec![false, false, false, false, false],
         ]);
 
-        let population = crossover::Individual(false).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = crossover::Individual(false).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -60,7 +61,8 @@ mod crossover_tests {
             vec![true, true, true, true, true],
         ]);
 
-        let population = crossover::Individual(false).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = crossover::Individual(false).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -92,7 +94,8 @@ mod crossover_tests {
             vec![false, false, false, false, false],
         ]);
 
-        let population = crossover::All(false).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = crossover::All(false).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -125,7 +128,8 @@ mod crossover_tests {
             vec![true, true, true, true, true],
         ]);
 
-        let population = crossover::All(false).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = crossover::All(false).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -157,7 +161,8 @@ mod crossover_tests {
             vec![false, false, false, false, false],
         ]);
 
-        let population = crossover::All(true).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = crossover::All(true).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -193,7 +198,8 @@ mod crossover_tests {
             vec![false, false, false, false, false],
         ]);
 
-        let population = crossover::Range(false).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = crossover::Range(false).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -224,7 +230,8 @@ mod crossover_tests {
             vec![true, true, true],
         ]);
 
-        let population = crossover::Cloning.call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = crossover::Cloning.call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

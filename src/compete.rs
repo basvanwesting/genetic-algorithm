@@ -6,7 +6,12 @@ use crate::population::Population;
 use rand::prelude::*;
 
 pub trait Compete: Clone + std::fmt::Debug {
-    fn call<T: Gene>(&self, context: &mut Context<T>, population: Population<T>) -> Population<T>;
+    fn call<T: Gene, R: Rng>(
+        &self,
+        context: &mut Context<T>,
+        population: Population<T>,
+        rng: &mut R,
+    ) -> Population<T>;
 }
 
 pub type TournamentSize = usize;
@@ -14,10 +19,11 @@ pub type TournamentSize = usize;
 #[derive(Clone, Debug)]
 pub struct Elite;
 impl Compete for Elite {
-    fn call<T: Gene>(
+    fn call<T: Gene, R: Rng>(
         &self,
         context: &mut Context<T>,
         mut population: Population<T>,
+        _rng: &mut R,
     ) -> Population<T> {
         population.sort();
         let to_drain_from_first = population.size() - context.population_size;
@@ -31,10 +37,11 @@ impl Compete for Elite {
 #[derive(Clone, Debug)]
 pub struct Tournament(pub TournamentSize);
 impl Compete for Tournament {
-    fn call<T: Gene>(
+    fn call<T: Gene, R: Rng>(
         &self,
         context: &mut Context<T>,
         mut population: Population<T>,
+        rng: &mut R,
     ) -> Population<T> {
         let mut working_population_size = population.size();
         let tournament_size = std::cmp::min(self.0, working_population_size);
@@ -47,8 +54,8 @@ impl Compete for Tournament {
 
         for _ in 0..target_population_size {
             for _ in 0..tournament_size {
-                let sample_index = global_rand::gen_range(0..working_population_size);
-                //let sample_index = context.rng.gen_range(0..working_population_size);
+                //let sample_index = global_rand::gen_range(0..working_population_size);
+                let sample_index = rng.gen_range(0..working_population_size);
                 tournament_chromosomes.push((
                     sample_index,
                     population.chromosomes[sample_index].fitness_score,

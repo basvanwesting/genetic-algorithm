@@ -6,11 +6,13 @@ use crate::fitness::Fitness;
 use crate::gene::Gene;
 use crate::mutate::Mutate;
 use crate::population::Population;
+use rand::Rng;
 use std::fmt;
 use std::ops::Range;
 
-pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
+pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> {
     pub context: Context<T>,
+    pub rng: R,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<isize>,
     pub degeneration_range: Option<Range<f32>>,
@@ -25,10 +27,11 @@ pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> {
     pub degenerate: bool,
 }
 
-impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F, S, C> {
-    pub fn new(context: Context<T>) -> Self {
+impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve<T, M, F, S, C, R> {
+    pub fn new(context: Context<T>, rng: R) -> Self {
         Self {
             context: context,
+            rng: rng,
             max_stale_generations: None,
             target_fitness_score: None,
             degeneration_range: None,
@@ -97,18 +100,18 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
         self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
-        self.population = self.context.random_population_factory();
+        self.population = self.context.random_population_factory(&mut self.rng);
         self.best_chromosome = self.population.best_chromosome().cloned();
 
         while !self.is_finished() {
             if self.toggle_degenerate() {
-                self.population = mutate.call(&mut self.context, self.population);
+                self.population = mutate.call(&mut self.context, self.population, &mut self.rng);
                 self.population = fitness.call_for_population(self.population);
             } else {
-                self.population = crossover.call(&mut self.context, self.population);
-                self.population = mutate.call(&mut self.context, self.population);
+                self.population = crossover.call(&mut self.context, self.population, &mut self.rng);
+                self.population = mutate.call(&mut self.context, self.population, &mut self.rng);
                 self.population = fitness.call_for_population(self.population);
-                self.population = compete.call(&mut self.context, self.population);
+                self.population = compete.call(&mut self.context, self.population, &mut self.rng);
             }
 
             self.update_best_chromosome();
@@ -177,8 +180,8 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> Evolve<T, M, F
     }
 }
 
-impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete> fmt::Display
-    for Evolve<T, M, F, S, C>
+impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> fmt::Display
+    for Evolve<T, M, F, S, C, R>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "evolve:\n")?;

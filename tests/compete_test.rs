@@ -33,8 +33,9 @@ mod compete_tests {
             vec![true, true, true],
         ]);
 
+        let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
-        let population = compete::Elite.call(&mut context, population);
+        let population = compete::Elite.call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -70,8 +71,9 @@ mod compete_tests {
             vec![true, true, true],
         ]);
 
+        let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
-        let population = compete::Tournament(4).call(&mut context, population);
+        let population = compete::Tournament(4).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -99,8 +101,9 @@ mod compete_tests {
         let population =
             build::population(vec![vec![false, false, false], vec![false, false, true]]);
 
+        let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
-        let population = compete::Tournament(4).call(&mut context, population);
+        let population = compete::Tournament(4).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

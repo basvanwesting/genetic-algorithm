@@ -24,7 +24,8 @@ mod evolve_tests {
             .with_population_size(100)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context)
+        let rng = SmallRng::seed_from_u64(0);
+        let evolve = Evolve::new(context, rng)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
             .with_crossover(crossover::Individual(true))
@@ -46,7 +47,8 @@ mod evolve_tests {
             .with_population_size(100)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context)
+        let rng = SmallRng::seed_from_u64(0);
+        let evolve = Evolve::new(context, rng)
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
@@ -75,7 +77,8 @@ mod evolve_tests {
             .with_population_size(100)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context)
+        let rng = SmallRng::seed_from_u64(0);
+        let evolve = Evolve::new(context, rng)
             .with_target_fitness_score(8)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
@@ -104,7 +107,8 @@ mod evolve_tests {
             .with_population_size(100)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context)
+        let rng = SmallRng::seed_from_u64(0);
+        let evolve = Evolve::new(context, rng)
             .with_target_fitness_score(8)
             .with_degeneration_range(0.0001..1.0000)
             .with_mutate(mutate::SingleGene(0.1))
@@ -134,7 +138,8 @@ mod evolve_tests {
             .with_population_size(100)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context)
+        let rng = SmallRng::seed_from_u64(0);
+        let evolve = Evolve::new(context, rng)
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
@@ -162,7 +167,8 @@ mod evolve_tests {
             .with_population_size(100)
             .with_rng(rng);
 
-        let evolve = Evolve::new(context)
+        let rng = SmallRng::seed_from_u64(0);
+        let evolve = Evolve::new(context, rng)
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)

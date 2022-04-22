@@ -26,7 +26,8 @@ mod mutate_tests {
             vec![true, true, true],
         ]);
 
-        let population = mutate::SingleGene(0.5).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = mutate::SingleGene(0.5).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -57,7 +58,8 @@ mod mutate_tests {
             vec![0, 0, 0],
         ]);
 
-        let population = mutate::SingleGene(0.5).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = mutate::SingleGene(0.5).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -83,7 +85,8 @@ mod mutate_tests {
             vec![0, 0, 0],
         ]);
 
-        let population = mutate::MultipleGene(0.5).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = mutate::MultipleGene(0.5).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -109,7 +112,8 @@ mod mutate_tests {
             vec![1, 2, 3, 4, 5],
         ]);
 
-        let population = mutate::SwapSingleGene(0.5).call(&mut context, population);
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = mutate::SwapSingleGene(0.5).call(&mut context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
