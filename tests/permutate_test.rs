@@ -6,7 +6,6 @@ mod permutate_tests {
     use genetic_algorithm::context::Context;
     use genetic_algorithm::fitness;
     use genetic_algorithm::gene::ContinuousGene;
-    use genetic_algorithm::global_rand;
     use genetic_algorithm::permutate::Permutate;
 
     #[test]

@@ -4,7 +4,6 @@ mod support;
 mod context_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::global_rand;
 
     #[test]
     fn test_random_chromosome_factory() {
@@ -14,9 +13,6 @@ mod context_tests {
             .with_gene_values(vec![true, false])
             .with_population_size(100)
             .with_rng(rng);
-
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
 
         let mut rng = SmallRng::seed_from_u64(0);
         let chromosome = context.random_chromosome_factory(&mut rng);
@@ -35,9 +31,6 @@ mod context_tests {
             .with_gene_values(vec![true, false])
             .with_population_size(8)
             .with_rng(rng);
-
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = context.random_population_factory(&mut rng);

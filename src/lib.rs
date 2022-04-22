@@ -5,7 +5,6 @@ pub mod crossover;
 pub mod evolve;
 pub mod fitness;
 pub mod gene;
-pub mod global_rand;
 pub mod mutate;
 pub mod permutate;
 pub mod population;

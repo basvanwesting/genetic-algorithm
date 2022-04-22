@@ -1,7 +1,6 @@
 use crate::chromosome::Chromosome;
 use crate::context::Context;
 use crate::gene::Gene;
-use crate::global_rand;
 use crate::population::Population;
 use rand::prelude::*;
 
@@ -54,7 +53,6 @@ impl Compete for Tournament {
 
         for _ in 0..target_population_size {
             for _ in 0..tournament_size {
-                //let sample_index = global_rand::gen_range(0..working_population_size);
                 let sample_index = rng.gen_range(0..working_population_size);
                 tournament_chromosomes.push((
                     sample_index,

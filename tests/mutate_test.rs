@@ -4,15 +4,11 @@ mod support;
 mod mutate_tests {
     use crate::support::*;
     use genetic_algorithm::context::Context;
-    use genetic_algorithm::global_rand;
     use genetic_algorithm::mutate;
     use genetic_algorithm::mutate::Mutate;
 
     #[test]
     fn test_single_gene_binary() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
@@ -43,9 +39,6 @@ mod mutate_tests {
     #[test]
     fn test_single_gene_discrete() {
         let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![0, 1, 2, 3])
@@ -70,9 +63,6 @@ mod mutate_tests {
     #[test]
     fn test_multiple_gene_discrete() {
         let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![0, 1, 2, 3])
@@ -96,9 +86,6 @@ mod mutate_tests {
 
     #[test]
     fn test_swap_single_gene_discrete() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(5)

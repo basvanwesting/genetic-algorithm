@@ -6,13 +6,9 @@ mod crossover_tests {
     use genetic_algorithm::context::Context;
     use genetic_algorithm::crossover;
     use genetic_algorithm::crossover::Crossover;
-    use genetic_algorithm::global_rand;
 
     #[test]
     fn test_individual_even() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(5)
@@ -43,9 +39,6 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_odd() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(5)
@@ -78,9 +71,6 @@ mod crossover_tests {
     #[test]
     fn test_all_even() {
         let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(6)
             .with_gene_values(vec![true, false])
@@ -110,9 +100,6 @@ mod crossover_tests {
 
     #[test]
     fn test_all_odd() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
@@ -144,9 +131,6 @@ mod crossover_tests {
 
     #[test]
     fn test_all_even_keep_parent() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(6)
@@ -182,9 +166,6 @@ mod crossover_tests {
     #[test]
     fn test_range_even() {
         let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(6)
             .with_gene_values(vec![true, false])
@@ -214,9 +195,6 @@ mod crossover_tests {
 
     #[test]
     fn test_cloning_odd() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)

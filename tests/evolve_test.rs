@@ -9,14 +9,10 @@ mod evolve_tests {
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
     use genetic_algorithm::gene::ContinuousGene;
-    use genetic_algorithm::global_rand;
     use genetic_algorithm::mutate;
 
     #[test]
     fn test_invalid() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
@@ -37,9 +33,6 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_max_stale_generations() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
@@ -68,9 +61,6 @@ mod evolve_tests {
     #[test]
     fn test_call_binary_target_fitness_score() {
         let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
-        let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
@@ -97,9 +87,6 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_degeneration_range() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
@@ -129,9 +116,6 @@ mod evolve_tests {
     #[test]
     fn test_call_discrete() {
         let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
-        let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![0, 1, 2, 3])
@@ -158,9 +142,6 @@ mod evolve_tests {
 
     #[test]
     fn test_call_continuous() {
-        let rng = SmallRng::seed_from_u64(0);
-        global_rand::set_small_rng(rng);
-
         let rng = SmallRng::seed_from_u64(0);
         let context = Context::<ContinuousGene>::new()
             .with_gene_size(10)
