@@ -1,9 +1,9 @@
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
-use crate::genotype::Genotype;
 use crate::crossover::Crossover;
 use crate::fitness::Fitness;
 use crate::gene::Gene;
+use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
 use rand::Rng;
@@ -116,14 +116,14 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
 
         while !self.is_finished() {
             if self.toggle_degenerate() {
-                self.population = mutate.call(&mut self.genotype, self.population, &mut self.rng);
+                self.population = mutate.call(&self.genotype, self.population, &mut self.rng);
                 self.population = fitness.call_for_population(self.population);
             } else {
-                self.population = crossover.call(&mut self.genotype, self.population, &mut self.rng);
-                self.population = mutate.call(&mut self.genotype, self.population, &mut self.rng);
+                self.population = crossover.call(&self.genotype, self.population, &mut self.rng);
+                self.population = mutate.call(&self.genotype, self.population, &mut self.rng);
                 self.population = fitness.call_for_population(self.population);
                 self.population = compete.call(
-                    &mut self.genotype,
+                    &self.genotype,
                     self.population,
                     self.population_size,
                     &mut self.rng,
