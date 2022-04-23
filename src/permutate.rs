@@ -1,20 +1,20 @@
 use crate::chromosome::Chromosome;
-use crate::genotype::Genotype;
 use crate::fitness::Fitness;
 use crate::gene::Gene;
+use crate::genotype::Genotype;
 use crate::population::Population;
 use itertools::Itertools;
 use std::fmt;
 
-pub struct Permutate<T: Gene, F: Fitness<T>> {
-    pub genotype: Genotype<T>,
+pub struct Permutate<T: Gene, G: Genotype<T>, F: Fitness<T>> {
+    pub genotype: G,
     pub best_chromosome: Option<Chromosome<T>>,
     pub fitness: Option<F>,
     pub population: Population<T>,
 }
 
-impl<T: Gene, F: Fitness<T>> Permutate<T, F> {
-    pub fn new(genotype: Genotype<T>) -> Self {
+impl<T: Gene, G: Genotype<T>, F: Fitness<T>> Permutate<T, G, F> {
+    pub fn new(genotype: G) -> Self {
         Self {
             genotype: genotype,
             fitness: None,
@@ -59,8 +59,8 @@ impl<T: Gene, F: Fitness<T>> Permutate<T, F> {
     }
 
     pub fn population_factory(&self) -> Population<T> {
-        let chromosomes = (0..self.genotype.gene_size)
-            .map(|_| self.genotype.gene_values.clone())
+        let chromosomes = (0..self.genotype.gene_size())
+            .map(|_| self.genotype.gene_values())
             .multi_cartesian_product()
             .map(|genes| Chromosome::new(genes))
             .collect();
@@ -69,7 +69,7 @@ impl<T: Gene, F: Fitness<T>> Permutate<T, F> {
     }
 }
 
-impl<T: Gene, F: Fitness<T>> fmt::Display for Permutate<T, F> {
+impl<T: Gene, G: Genotype<T>, F: Fitness<T>> fmt::Display for Permutate<T, G, F> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "permutate:\n")?;
         write!(f, "  fitness: {:?}\n", self.fitness.as_ref())?;

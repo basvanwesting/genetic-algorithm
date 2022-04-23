@@ -5,16 +5,11 @@ mod compete_tests {
     use crate::support::*;
     use genetic_algorithm::compete;
     use genetic_algorithm::compete::Compete;
-    use genetic_algorithm::genotype::Genotype;
     use genetic_algorithm::fitness;
     use genetic_algorithm::fitness::Fitness;
 
     #[test]
     fn test_elite() {
-        let genotype = Genotype::new()
-            .with_gene_size(3)
-            .with_gene_values(vec![true, false]);
-
         let population = build::population(vec![
             vec![false, false, false],
             vec![false, false, true],
@@ -28,7 +23,7 @@ mod compete_tests {
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
-        let population = compete::Elite.call(&genotype, population, 4, &mut rng);
+        let population = compete::Elite.call(population, 4, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -43,10 +38,6 @@ mod compete_tests {
 
     #[test]
     fn test_tournament() {
-        let genotype = Genotype::new()
-            .with_gene_size(3)
-            .with_gene_values(vec![true, false]);
-
         let population = build::population(vec![
             vec![false, false, false],
             vec![false, false, true],
@@ -60,7 +51,7 @@ mod compete_tests {
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
-        let population = compete::Tournament(4).call(&genotype, population, 4, &mut rng);
+        let population = compete::Tournament(4).call(population, 4, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -75,16 +66,12 @@ mod compete_tests {
 
     #[test]
     fn test_tournament_shortage() {
-        let genotype = Genotype::new()
-            .with_gene_size(3)
-            .with_gene_values(vec![true, false]);
-
         let population =
             build::population(vec![vec![false, false, false], vec![false, false, true]]);
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
-        let population = compete::Tournament(4).call(&genotype, population, 4, &mut rng);
+        let population = compete::Tournament(4).call(population, 4, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

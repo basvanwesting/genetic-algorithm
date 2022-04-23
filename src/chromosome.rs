@@ -1,6 +1,4 @@
-use crate::genotype::Genotype;
 use crate::gene::Gene;
-use rand::Rng;
 use std::cmp::Ordering;
 use std::fmt;
 
@@ -20,13 +18,6 @@ impl<T: Gene> Chromosome<T> {
 
     pub fn taint_fitness_score(&mut self) {
         self.fitness_score = None;
-    }
-
-    pub fn random_factory<R: Rng>(genotype: &Genotype<T>, rng: &mut R) -> Self {
-        let genes: Vec<T> = (0..genotype.gene_size)
-            .map(|_| T::random(genotype, rng))
-            .collect();
-        Chromosome::new(genes)
     }
 }
 

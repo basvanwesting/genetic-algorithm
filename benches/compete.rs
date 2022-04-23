@@ -4,7 +4,7 @@ use genetic_algorithm::compete;
 use genetic_algorithm::compete::Compete;
 use genetic_algorithm::fitness;
 use genetic_algorithm::fitness::Fitness;
-use genetic_algorithm::genotype::Genotype;
+use genetic_algorithm::genotype::{BinaryRandomGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -13,12 +13,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let source_population_size = 2000;
     let target_population_size = 1000;
     let mut rng = SmallRng::from_entropy();
-    let genotype = Genotype::new()
-        .with_gene_size(10)
-        .with_gene_values(vec![true, false]);
+    let genotype = BinaryRandomGenotype::new().with_gene_size(10);
 
     let chromosomes = (0..source_population_size)
-        .map(|_| genotype.random_chromosome_factory(&mut rng))
+        .map(|_| genotype.chromosome_factory(&mut rng))
         .collect();
 
     let population = Population::new(chromosomes);
@@ -34,7 +32,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let compete = compete::Tournament(4);
         b.iter_batched(
             || population.clone(),
-            |data| compete.call(&genotype, data, target_population_size, &mut rng),
+            |data| compete.call(data, target_population_size, &mut rng),
             BatchSize::SmallInput,
         )
     });
@@ -43,7 +41,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let compete = compete::Elite;
         b.iter_batched(
             || population.clone(),
-            |data| compete.call(&genotype, data, target_population_size, &mut rng),
+            |data| compete.call(data, target_population_size, &mut rng),
             BatchSize::SmallInput,
         )
     });

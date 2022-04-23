@@ -4,18 +4,17 @@ mod support;
 mod evolve_tests {
     use crate::support::*;
     use genetic_algorithm::compete;
-    use genetic_algorithm::genotype::Genotype;
     use genetic_algorithm::crossover;
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
-    use genetic_algorithm::gene::ContinuousGene;
+    use genetic_algorithm::genotype::{
+        BinaryRandomGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
+    };
     use genetic_algorithm::mutate;
 
     #[test]
     fn test_invalid() {
-        let genotype = Genotype::new()
-            .with_gene_size(10)
-            .with_gene_values(vec![true, false]);
+        let genotype = BinaryRandomGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
@@ -31,9 +30,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_max_stale_generations() {
-        let genotype = Genotype::new()
-            .with_gene_size(10)
-            .with_gene_values(vec![true, false]);
+        let genotype = BinaryRandomGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
@@ -56,9 +53,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_target_fitness_score() {
-        let genotype = Genotype::new()
-            .with_gene_size(10)
-            .with_gene_values(vec![true, false]);
+        let genotype = BinaryRandomGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
@@ -75,15 +70,13 @@ mod evolve_tests {
         assert_eq!(best_chromosome.fitness_score, Some(9));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
-            vec![true, true, true, true, true, true, false, true, true, true]
+            vec![true, true, true, false, true, true, true, true, true, true]
         );
     }
 
     #[test]
     fn test_call_binary_degeneration_range() {
-        let genotype = Genotype::new()
-            .with_gene_size(10)
-            .with_gene_values(vec![true, false]);
+        let genotype = BinaryRandomGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
@@ -107,7 +100,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call_discrete() {
-        let genotype = Genotype::new()
+        let genotype = DiscreteRandomGenotype::new()
             .with_gene_size(10)
             .with_gene_values(vec![0, 1, 2, 3]);
 
@@ -132,7 +125,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call_continuous() {
-        let genotype = Genotype::<ContinuousGene>::new().with_gene_size(10);
+        let genotype = ContinuousRandomGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
@@ -150,17 +143,15 @@ mod evolve_tests {
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![
-                0.9651495, 0.98179513, 0.9798802, 0.8283811, 0.76474065, 0.9307497, 0.8706253,
-                0.9069808, 0.9505005, 0.9951865
+                0.9989109, 0.98179513, 0.8697534, 0.8283811, 0.98283255, 0.9091289, 0.9864588,
+                0.83602554, 0.67914397, 0.9951865
             ]
         );
     }
 
     #[test]
     fn test_population_factory() {
-        let genotype = Genotype::new()
-            .with_gene_size(4)
-            .with_gene_values(vec![true, false]);
+        let genotype = BinaryRandomGenotype::new().with_gene_size(4);
 
         let rng = SmallRng::seed_from_u64(0);
         let mut evolve = Evolve::new(genotype, rng)

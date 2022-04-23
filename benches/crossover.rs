@@ -2,19 +2,17 @@ use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
 use genetic_algorithm::crossover;
 use genetic_algorithm::crossover::Crossover;
-use genetic_algorithm::genotype::Genotype;
+use genetic_algorithm::genotype::{BinaryRandomGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    let genotype = Genotype::new()
-        .with_gene_size(100)
-        .with_gene_values(vec![true, false]);
+    let genotype = BinaryRandomGenotype::new().with_gene_size(100);
 
     let chromosomes = (0..1000)
-        .map(|_| genotype.random_chromosome_factory(&mut rng))
+        .map(|_| genotype.chromosome_factory(&mut rng))
         .collect();
 
     let population = Population::new(chromosomes);

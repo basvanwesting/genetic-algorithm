@@ -5,10 +5,10 @@ extern crate pprof;
 use pprof::criterion::{Output, PProfProfiler};
 
 use genetic_algorithm::compete;
-use genetic_algorithm::genotype::Genotype;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
+use genetic_algorithm::genotype::BinaryRandomGenotype;
 use genetic_algorithm::mutate;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -26,9 +26,7 @@ criterion_main!(benches);
 
 fn run() {
     let rng = SmallRng::from_entropy();
-    let genotype = Genotype::new()
-        .with_gene_size(100)
-        .with_gene_values(vec![true, false]);
+    let genotype = BinaryRandomGenotype::new().with_gene_size(100);
 
     let evolve = Evolve::new(genotype, rng)
         .with_population_size(1000)

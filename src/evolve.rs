@@ -10,8 +10,16 @@ use rand::Rng;
 use std::fmt;
 use std::ops::Range;
 
-pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> {
-    pub genotype: Genotype<T>,
+pub struct Evolve<
+    T: Gene,
+    G: Genotype<T>,
+    M: Mutate,
+    F: Fitness<T>,
+    S: Crossover,
+    C: Compete,
+    R: Rng,
+> {
+    pub genotype: G,
     pub rng: R,
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
@@ -28,8 +36,10 @@ pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R
     pub degenerate: bool,
 }
 
-impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve<T, M, F, S, C, R> {
-    pub fn new(genotype: Genotype<T>, rng: R) -> Self {
+impl<T: Gene, G: Genotype<T>, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng>
+    Evolve<T, G, M, F, S, C, R>
+{
+    pub fn new(genotype: G, rng: R) -> Self {
         Self {
             genotype: genotype,
             rng: rng,
@@ -122,12 +132,8 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
                 self.population = crossover.call(&self.genotype, self.population, &mut self.rng);
                 self.population = mutate.call(&self.genotype, self.population, &mut self.rng);
                 self.population = fitness.call_for_population(self.population);
-                self.population = compete.call(
-                    &self.genotype,
-                    self.population,
-                    self.population_size,
-                    &mut self.rng,
-                );
+                self.population =
+                    compete.call(self.population, self.population_size, &mut self.rng);
             }
 
             self.update_best_chromosome();
@@ -197,14 +203,14 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
 
     pub fn population_factory(&mut self) -> Population<T> {
         let chromosomes = (0..self.population_size)
-            .map(|_| self.genotype.random_chromosome_factory(&mut self.rng))
+            .map(|_| self.genotype.chromosome_factory(&mut self.rng))
             .collect();
         Population::new(chromosomes)
     }
 }
 
-impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> fmt::Display
-    for Evolve<T, M, F, S, C, R>
+impl<T: Gene, G: Genotype<T>, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng>
+    fmt::Display for Evolve<T, G, M, F, S, C, R>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "evolve:\n")?;
