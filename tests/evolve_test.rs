@@ -156,4 +156,36 @@ mod evolve_tests {
             ]
         );
     }
+
+    #[test]
+    fn test_population_factory() {
+        let context = Context::new()
+            .with_gene_size(4)
+            .with_gene_values(vec![true, false])
+            .with_population_size(8);
+
+        let rng = SmallRng::seed_from_u64(0);
+        let mut evolve = Evolve::new(context, rng)
+            .with_max_stale_generations(20)
+            .with_mutate(mutate::SingleGene(0.1))
+            .with_fitness(fitness::SimpleSum)
+            .with_crossover(crossover::Individual(true))
+            .with_compete(compete::Tournament(4));
+        let population = evolve.population_factory();
+        println!("{:#?}", population);
+
+        assert_eq!(
+            inspect::population(&population),
+            vec![
+                vec![false, false, true, false],
+                vec![true, true, true, false],
+                vec![false, true, false, true],
+                vec![true, false, true, false],
+                vec![false, false, true, true],
+                vec![true, false, false, true],
+                vec![false, true, true, false],
+                vec![true, false, true, false],
+            ]
+        )
+    }
 }

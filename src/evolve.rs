@@ -105,7 +105,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
         self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
-        self.population = self.context.random_population_factory(&mut self.rng);
+        self.population = self.population_factory();
         self.best_chromosome = self.population.best_chromosome().cloned();
 
         while !self.is_finished() {
@@ -182,6 +182,13 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
 
     fn best_fitness_score(&self) -> Option<isize> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+    }
+
+    pub fn population_factory(&mut self) -> Population<T> {
+        let chromosomes = (0..self.context.population_size)
+            .map(|_| self.context.random_chromosome_factory(&mut self.rng))
+            .collect();
+        Population::new(chromosomes)
     }
 }
 

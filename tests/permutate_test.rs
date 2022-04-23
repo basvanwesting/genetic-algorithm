@@ -58,4 +58,66 @@ mod permutate_tests {
 
         assert_eq!(best_chromosome, None);
     }
+
+    #[test]
+    fn test_population_factory_1() {
+        let context = Context::new()
+            .with_gene_size(1)
+            .with_gene_values(vec![true, false]);
+
+        let permutate = Permutate::new(context).with_fitness(fitness::SimpleSum);
+        let population = permutate.population_factory();
+        println!("{:#?}", population);
+
+        assert_eq!(
+            inspect::population(&population),
+            vec![vec![true], vec![false],]
+        )
+    }
+
+    #[test]
+    fn test_population_factory_2() {
+        let context = Context::new()
+            .with_gene_size(2)
+            .with_gene_values(vec![true, false]);
+
+        let permutate = Permutate::new(context).with_fitness(fitness::SimpleSum);
+        let population = permutate.population_factory();
+        println!("{:#?}", population);
+
+        assert_eq!(
+            inspect::population(&population),
+            vec![
+                vec![true, true],
+                vec![true, false],
+                vec![false, true],
+                vec![false, false],
+            ]
+        )
+    }
+
+    #[test]
+    fn test_population_factory_3() {
+        let context = Context::new()
+            .with_gene_size(3)
+            .with_gene_values(vec![true, false]);
+
+        let permutate = Permutate::new(context).with_fitness(fitness::SimpleSum);
+        let population = permutate.population_factory();
+        println!("{:#?}", population);
+
+        assert_eq!(
+            inspect::population(&population),
+            vec![
+                vec![true, true, true],
+                vec![true, true, false],
+                vec![true, false, true],
+                vec![true, false, false],
+                vec![false, true, true],
+                vec![false, true, false],
+                vec![false, false, true],
+                vec![false, false, false],
+            ]
+        )
+    }
 }

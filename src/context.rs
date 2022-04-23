@@ -1,6 +1,5 @@
 use crate::chromosome::Chromosome;
 use crate::gene::Gene;
-use crate::population::Population;
 use itertools::Itertools;
 use rand::prelude::*;
 use std::fmt;
@@ -31,25 +30,8 @@ impl<T: Gene> Context<T> {
         self
     }
 
-    pub fn permutation_population_factory(&self) -> Population<T> {
-        let chromosomes = (0..self.gene_size)
-            .map(|_| self.gene_values.clone())
-            .multi_cartesian_product()
-            .map(|genes| Chromosome::new(genes))
-            .collect();
-
-        Population::new(chromosomes)
-    }
-
     pub fn random_chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<T> {
         Chromosome::random_factory(self, rng)
-    }
-
-    pub fn random_population_factory<R: Rng>(&self, rng: &mut R) -> Population<T> {
-        let chromosomes = (0..self.population_size)
-            .map(|_| self.random_chromosome_factory(rng))
-            .collect();
-        Population::new(chromosomes)
     }
 }
 

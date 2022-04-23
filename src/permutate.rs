@@ -3,6 +3,7 @@ use crate::context::Context;
 use crate::fitness::Fitness;
 use crate::gene::Gene;
 use crate::population::Population;
+use itertools::Itertools;
 use std::fmt;
 
 pub struct Permutate<T: Gene, F: Fitness<T>> {
@@ -41,7 +42,7 @@ impl<T: Gene, F: Fitness<T>> Permutate<T, F> {
     fn execute(mut self) -> Self {
         let fitness = self.fitness.as_ref().cloned().unwrap();
 
-        self.population = self.context.permutation_population_factory();
+        self.population = self.population_factory();
         self.population = fitness.call_for_population(self.population);
         self.update_best_chromosome();
         self
@@ -55,6 +56,16 @@ impl<T: Gene, F: Fitness<T>> Permutate<T, F> {
 
     fn best_fitness_score(&self) -> Option<isize> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+    }
+
+    pub fn population_factory(&self) -> Population<T> {
+        let chromosomes = (0..self.context.gene_size)
+            .map(|_| self.context.gene_values.clone())
+            .multi_cartesian_product()
+            .map(|genes| Chromosome::new(genes))
+            .collect();
+
+        Population::new(chromosomes)
     }
 }
 
