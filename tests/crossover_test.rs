@@ -174,7 +174,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::Cloning.call(&genotype, population, &mut rng);
+        let population = crossover::Cloning(true).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

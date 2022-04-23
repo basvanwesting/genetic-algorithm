@@ -18,3 +18,6 @@ pub use self::discrete_random::DiscreteRandom as DiscreteRandomGenotype;
 
 mod continuous_random;
 pub use self::continuous_random::ContinuousRandom as ContinuousRandomGenotype;
+
+mod discrete_unique;
+pub use self::discrete_unique::DiscreteUnique as DiscreteUniqueGenotype;

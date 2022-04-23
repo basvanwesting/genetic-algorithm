@@ -2,9 +2,11 @@ mod support;
 
 #[cfg(test)]
 mod genotype_tests {
+
     use crate::support::*;
     use genetic_algorithm::genotype::{
-        BinaryRandomGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype, Genotype,
+        BinaryRandomGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
+        DiscreteUniqueGenotype, Genotype,
     };
 
     #[test]
@@ -68,5 +70,17 @@ mod genotype_tests {
                 0.45637196, 0.39514416, 0.81885093
             ]
         );
+    }
+
+    #[test]
+    fn test_discrete_unique_genotype() {
+        let mut rng = SmallRng::seed_from_u64(0);
+        let genotype = DiscreteUniqueGenotype::new().with_gene_values(vec![2, 3, 4, 5, 6]);
+
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        assert_eq!(inspect::chromosome(&chromosome), vec![5, 2, 3, 6, 4]);
+
+        genotype.mutate_chromosome(&mut chromosome, &mut rng);
+        assert_eq!(inspect::chromosome(&chromosome), vec![6, 2, 3, 5, 4]);
     }
 }

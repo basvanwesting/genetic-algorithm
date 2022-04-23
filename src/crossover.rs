@@ -134,7 +134,7 @@ impl Crossover for Range {
 }
 
 #[derive(Clone, Debug)]
-pub struct Cloning;
+pub struct Cloning(pub KeepParent);
 impl Crossover for Cloning {
     fn call<T: Gene, G: Genotype<T>, R: Rng>(
         &self,
@@ -142,8 +142,12 @@ impl Crossover for Cloning {
         mut population: Population<T>,
         _rng: &mut R,
     ) -> Population<T> {
-        let mut clones = population.clone();
-        population.merge(&mut clones);
-        population
+        if self.0 {
+            let mut clones = population.clone();
+            population.merge(&mut clones);
+            population
+        } else {
+            population
+        }
     }
 }

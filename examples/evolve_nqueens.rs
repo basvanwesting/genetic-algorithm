@@ -4,7 +4,7 @@ use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::gene::DiscreteGene;
-use genetic_algorithm::genotype::DiscreteRandomGenotype;
+use genetic_algorithm::genotype::DiscreteUniqueGenotype;
 use genetic_algorithm::mutate;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -38,19 +38,17 @@ impl Fitness<DiscreteGene> for NQueensFitness {
 
 fn main() {
     let rng = SmallRng::from_entropy();
-    let genotype = DiscreteRandomGenotype::new()
-        .with_gene_size(8)
-        .with_gene_values(vec![0, 1, 2, 3, 4, 5, 6, 7]);
+    let genotype = DiscreteUniqueGenotype::new().with_gene_values(vec![0, 1, 2, 3, 4, 5, 6, 7]);
 
     println!("{}", genotype);
 
     let evolve = Evolve::new(genotype, rng)
-        .with_population_size(1000)
-        .with_max_stale_generations(1000)
+        .with_population_size(20)
+        .with_max_stale_generations(100)
         .with_target_fitness_score(8)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(NQueensFitness)
-        .with_crossover(crossover::Cloning)
+        .with_crossover(crossover::Cloning(true))
         .with_compete(compete::Elite)
         .call();
 
