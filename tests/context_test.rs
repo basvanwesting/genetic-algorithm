@@ -7,12 +7,10 @@ mod context_tests {
 
     #[test]
     fn test_random_chromosome_factory() {
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
-            .with_population_size(100)
-            .with_rng(rng);
+            .with_population_size(100);
 
         let mut rng = SmallRng::seed_from_u64(0);
         let chromosome = context.random_chromosome_factory(&mut rng);
@@ -25,12 +23,10 @@ mod context_tests {
 
     #[test]
     fn test_random_population_factory() {
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(4)
             .with_gene_values(vec![true, false])
-            .with_population_size(8)
-            .with_rng(rng);
+            .with_population_size(8);
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = context.random_population_factory(&mut rng);

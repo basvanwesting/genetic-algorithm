@@ -8,8 +8,7 @@ mod gene_tests {
 
     #[test]
     fn test_random_binary_gene() {
-        let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::<BinaryGene>::new().with_rng(rng);
+        let mut context = Context::<BinaryGene>::new();
 
         let mut rng = SmallRng::seed_from_u64(0);
         assert_eq!(BinaryGene::random(&mut context, &mut rng), false);
@@ -19,10 +18,7 @@ mod gene_tests {
 
     #[test]
     fn test_random_discrete_gene() {
-        let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::new()
-            .with_gene_values(vec![3, 4, 5, 6])
-            .with_rng(rng);
+        let mut context = Context::new().with_gene_values(vec![3, 4, 5, 6]);
 
         let mut rng = SmallRng::seed_from_u64(0);
         assert_eq!(DiscreteGene::random(&mut context, &mut rng), 5);
@@ -32,8 +28,7 @@ mod gene_tests {
 
     #[test]
     fn test_random_continuous_gene() {
-        let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::<ContinuousGene>::new().with_rng(rng);
+        let mut context = Context::<ContinuousGene>::new();
 
         let mut rng = SmallRng::seed_from_u64(0);
         assert_eq!(ContinuousGene::random(&mut context, &mut rng), 0.447325);
@@ -55,10 +50,7 @@ mod gene_tests {
 
     #[test]
     fn test_mutate_discrete_gene() {
-        let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::new()
-            .with_gene_values(vec![3, 4, 5, 6])
-            .with_rng(rng);
+        let mut context = Context::new().with_gene_values(vec![3, 4, 5, 6]);
 
         let mut rng = SmallRng::seed_from_u64(0);
         let mut gene: DiscreteGene = 3;
@@ -71,8 +63,7 @@ mod gene_tests {
 
     #[test]
     fn test_mutate_continuous_gene() {
-        let rng = SmallRng::seed_from_u64(0);
-        let mut context = Context::<ContinuousGene>::new().with_rng(rng);
+        let mut context = Context::<ContinuousGene>::new();
 
         let mut rng = SmallRng::seed_from_u64(0);
         let mut gene: ContinuousGene = 0.0;

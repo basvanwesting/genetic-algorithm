@@ -13,12 +13,10 @@ mod evolve_tests {
 
     #[test]
     fn test_invalid() {
-        let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
-            .with_population_size(100)
-            .with_rng(rng);
+            .with_population_size(100);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(context, rng)
@@ -33,12 +31,10 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_max_stale_generations() {
-        let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
-            .with_population_size(100)
-            .with_rng(rng);
+            .with_population_size(100);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(context, rng)
@@ -60,12 +56,10 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_target_fitness_score() {
-        let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
-            .with_population_size(100)
-            .with_rng(rng);
+            .with_population_size(100);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(context, rng)
@@ -87,12 +81,10 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_degeneration_range() {
-        let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
-            .with_population_size(100)
-            .with_rng(rng);
+            .with_population_size(100);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(context, rng)
@@ -115,12 +107,10 @@ mod evolve_tests {
 
     #[test]
     fn test_call_discrete() {
-        let rng = SmallRng::seed_from_u64(0);
         let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![0, 1, 2, 3])
-            .with_population_size(100)
-            .with_rng(rng);
+            .with_population_size(100);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(context, rng)
@@ -142,11 +132,9 @@ mod evolve_tests {
 
     #[test]
     fn test_call_continuous() {
-        let rng = SmallRng::seed_from_u64(0);
         let context = Context::<ContinuousGene>::new()
             .with_gene_size(10)
-            .with_population_size(100)
-            .with_rng(rng);
+            .with_population_size(100);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(context, rng)

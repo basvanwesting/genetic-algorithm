@@ -3,14 +3,12 @@ use crate::gene::Gene;
 use crate::population::Population;
 use itertools::Itertools;
 use rand::prelude::*;
-use rand::rngs::SmallRng;
 use std::fmt;
 
 pub struct Context<T: Gene> {
     pub gene_size: usize,
     pub gene_values: Vec<T>,
     pub population_size: usize,
-    pub rng: SmallRng,
 }
 
 impl<T: Gene> Context<T> {
@@ -30,11 +28,6 @@ impl<T: Gene> Context<T> {
 
     pub fn with_population_size(mut self, population_size: usize) -> Self {
         self.population_size = population_size;
-        self
-    }
-
-    pub fn with_rng(mut self, rng: SmallRng) -> Self {
-        self.rng = rng;
         self
     }
 
@@ -66,7 +59,6 @@ impl<T: Gene> Default for Context<T> {
             gene_size: 10,
             gene_values: vec![],
             population_size: 100,
-            rng: SmallRng::from_entropy(),
         }
     }
 }

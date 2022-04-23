@@ -76,6 +76,11 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
         self
     }
 
+    pub fn with_rng(mut self, rng: R) -> Self {
+        self.rng = rng;
+        self
+    }
+
     pub fn is_valid(&self) -> bool {
         (self.max_stale_generations.is_some() || self.target_fitness_score.is_some())
             && self.mutate.is_some()

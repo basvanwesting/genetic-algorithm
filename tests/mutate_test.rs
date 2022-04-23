@@ -9,11 +9,9 @@ mod mutate_tests {
 
     #[test]
     fn test_single_gene_binary() {
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
-            .with_gene_values(vec![true, false])
-            .with_rng(rng);
+            .with_gene_values(vec![true, false]);
 
         let population = build::population(vec![
             vec![true, true, true],
@@ -38,11 +36,9 @@ mod mutate_tests {
 
     #[test]
     fn test_single_gene_discrete() {
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
-            .with_gene_values(vec![0, 1, 2, 3])
-            .with_rng(rng);
+            .with_gene_values(vec![0, 1, 2, 3]);
 
         let population = build::population(vec![
             vec![0, 0, 0],
@@ -62,11 +58,9 @@ mod mutate_tests {
 
     #[test]
     fn test_multiple_gene_discrete() {
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(3)
-            .with_gene_values(vec![0, 1, 2, 3])
-            .with_rng(rng);
+            .with_gene_values(vec![0, 1, 2, 3]);
 
         let population = build::population(vec![
             vec![0, 0, 0],
@@ -86,11 +80,9 @@ mod mutate_tests {
 
     #[test]
     fn test_swap_single_gene_discrete() {
-        let rng = SmallRng::seed_from_u64(0);
         let mut context = Context::new()
             .with_gene_size(5)
-            .with_gene_values(vec![1, 2, 3, 4, 5])
-            .with_rng(rng);
+            .with_gene_values(vec![1, 2, 3, 4, 5]);
 
         let population = build::population(vec![
             vec![1, 2, 3, 4, 5],
