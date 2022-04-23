@@ -15,7 +15,7 @@ use rand::rngs::SmallRng;
 struct NQueensFitness;
 impl Fitness<DiscreteGene> for NQueensFitness {
     fn call_for_chromosome(&self, chromosome: &Chromosome<DiscreteGene>) -> isize {
-        let mut diagonal_clashes = 0;
+        let mut score = chromosome.genes.len() as isize;
         let max_index = chromosome.genes.len() - 1;
         for i in 0..max_index {
             for j in 0..max_index {
@@ -23,16 +23,13 @@ impl Fitness<DiscreteGene> for NQueensFitness {
                     let dx = i.abs_diff(j);
                     let dy = chromosome.genes[i].abs_diff(chromosome.genes[j]) as usize;
                     if dx == dy {
-                        diagonal_clashes += 1;
+                        //diagonal clash
+                        score -= 1;
                     }
                 }
             }
         }
-        let mut temp_genes = chromosome.genes.clone();
-        temp_genes.sort();
-        temp_genes.dedup();
-        let invalid_gene_penalty = (chromosome.genes.len() - temp_genes.len()) * 100;
-        temp_genes.len() as isize - diagonal_clashes as isize - invalid_gene_penalty as isize
+        score
     }
 }
 
