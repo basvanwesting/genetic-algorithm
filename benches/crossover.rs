@@ -1,22 +1,31 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
-use genetic_algorithm::genotype::Genotype;
 use genetic_algorithm::crossover;
 use genetic_algorithm::crossover::Crossover;
+use genetic_algorithm::genotype::Genotype;
+use genetic_algorithm::population::Population;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
+    let mut rng = SmallRng::from_entropy();
     let genotype = Genotype::new()
         .with_gene_size(100)
-        .with_population_size(1000)
         .with_gene_values(vec![true, false]);
-    let population = genotype.random_population_factory();
+
+    let chromosomes = (0..1000)
+        .map(|_| genotype.random_chromosome_factory(&mut rng))
+        .collect();
+
+    let population = Population::new(chromosomes);
+
     println!("population size: {}", population.size());
 
     c.bench_function("crossover_individual", |b| {
         let crossover = crossover::Individual(false);
         b.iter_batched(
             || population.clone(),
-            |data| crossover.call(&genotype, data),
+            |data| crossover.call(&genotype, data, &mut rng),
             BatchSize::SmallInput,
         )
     });
@@ -25,7 +34,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let crossover = crossover::All(false);
         b.iter_batched(
             || population.clone(),
-            |data| crossover.call(&genotype, data),
+            |data| crossover.call(&genotype, data, &mut rng),
             BatchSize::SmallInput,
         )
     });
@@ -34,7 +43,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let crossover = crossover::Range(false);
         b.iter_batched(
             || population.clone(),
-            |data| crossover.call(&genotype, data),
+            |data| crossover.call(&genotype, data, &mut rng),
             BatchSize::SmallInput,
         )
     });
