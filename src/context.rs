@@ -7,7 +7,6 @@ use std::fmt;
 pub struct Context<T: Gene> {
     pub gene_size: usize,
     pub gene_values: Vec<T>,
-    pub population_size: usize,
 }
 
 impl<T: Gene> Context<T> {
@@ -25,11 +24,6 @@ impl<T: Gene> Context<T> {
         self
     }
 
-    pub fn with_population_size(mut self, population_size: usize) -> Self {
-        self.population_size = population_size;
-        self
-    }
-
     pub fn random_chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<T> {
         Chromosome::random_factory(self, rng)
     }
@@ -40,7 +34,6 @@ impl<T: Gene> Default for Context<T> {
         Context {
             gene_size: 10,
             gene_values: vec![],
-            population_size: 100,
         }
     }
 }
@@ -49,7 +42,6 @@ impl<T: Gene> fmt::Display for Context<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "context:\n")?;
         write!(f, "  gene_size: {}\n", self.gene_size)?;
-        write!(f, "  gene_values: {}\n", self.gene_values.iter().join(","))?;
-        write!(f, "  population_size: {}\n", self.population_size)
+        write!(f, "  gene_values: {}\n", self.gene_values.iter().join(","))
     }
 }

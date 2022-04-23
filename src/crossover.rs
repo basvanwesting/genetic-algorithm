@@ -26,7 +26,7 @@ impl Crossover for Individual {
         rng: &mut R,
     ) -> Population<T> {
         let gene_index_sampler = Uniform::from(0..context.gene_size);
-        let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
+        let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
         for chunk in population.chromosomes.chunks(2) {
             match &chunk[..] {
@@ -63,7 +63,7 @@ impl Crossover for All {
         rng: &mut R,
     ) -> Population<T> {
         let bool_sampler = Bernoulli::new(0.5).unwrap();
-        let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
+        let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
         for chunk in population.chromosomes.chunks(2) {
             match &chunk[..] {
@@ -103,7 +103,7 @@ impl Crossover for Range {
         rng: &mut R,
     ) -> Population<T> {
         let gene_index_sampler = Uniform::from(0..context.gene_size);
-        let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(context.population_size);
+        let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
         for chunk in population.chromosomes.chunks(2) {
             match &chunk[..] {

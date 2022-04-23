@@ -7,8 +7,9 @@ use rand::prelude::*;
 pub trait Compete: Clone + std::fmt::Debug {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &Context<T>,
+        _context: &Context<T>,
         population: Population<T>,
+        target_population_size: usize,
         rng: &mut R,
     ) -> Population<T>;
 }
@@ -20,12 +21,13 @@ pub struct Elite;
 impl Compete for Elite {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &Context<T>,
+        _context: &Context<T>,
         mut population: Population<T>,
+        target_population_size: usize,
         _rng: &mut R,
     ) -> Population<T> {
         population.sort();
-        let to_drain_from_first = population.size() - context.population_size;
+        let to_drain_from_first = population.size() - target_population_size;
         if to_drain_from_first > 0 {
             population.chromosomes.drain(..to_drain_from_first);
         }
@@ -38,14 +40,14 @@ pub struct Tournament(pub TournamentSize);
 impl Compete for Tournament {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &Context<T>,
+        _context: &Context<T>,
         mut population: Population<T>,
+        target_population_size: usize,
         rng: &mut R,
     ) -> Population<T> {
         let mut working_population_size = population.size();
         let tournament_size = std::cmp::min(self.0, working_population_size);
-        let target_population_size =
-            std::cmp::min(context.population_size, working_population_size);
+        let target_population_size = std::cmp::min(target_population_size, working_population_size);
 
         let mut target_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(target_population_size);
         let mut tournament_chromosomes: Vec<(usize, Option<isize>)> =

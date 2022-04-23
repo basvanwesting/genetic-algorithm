@@ -13,6 +13,7 @@ use std::ops::Range;
 pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> {
     pub context: Context<T>,
     pub rng: R,
+    pub population_size: usize,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<isize>,
     pub degeneration_range: Option<Range<f32>>,
@@ -32,6 +33,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
         Self {
             context: context,
             rng: rng,
+            population_size: 0,
             max_stale_generations: None,
             target_fitness_score: None,
             degeneration_range: None,
@@ -47,6 +49,10 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
         }
     }
 
+    pub fn with_population_size(mut self, population_size: usize) -> Self {
+        self.population_size = population_size;
+        self
+    }
     pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
         self.max_stale_generations = Some(max_stale_generations);
         self
@@ -116,7 +122,12 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
                 self.population = crossover.call(&mut self.context, self.population, &mut self.rng);
                 self.population = mutate.call(&mut self.context, self.population, &mut self.rng);
                 self.population = fitness.call_for_population(self.population);
-                self.population = compete.call(&mut self.context, self.population, &mut self.rng);
+                self.population = compete.call(
+                    &mut self.context,
+                    self.population,
+                    self.population_size,
+                    &mut self.rng,
+                );
             }
 
             self.update_best_chromosome();
@@ -185,7 +196,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
     }
 
     pub fn population_factory(&mut self) -> Population<T> {
-        let chromosomes = (0..self.context.population_size)
+        let chromosomes = (0..self.population_size)
             .map(|_| self.context.random_chromosome_factory(&mut self.rng))
             .collect();
         Population::new(chromosomes)
@@ -197,6 +208,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> fmt::D
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "evolve:\n")?;
+        write!(f, "  population_size: {}\n", self.population_size)?;
         write!(
             f,
             "  max_stale_generations: {:?}\n",

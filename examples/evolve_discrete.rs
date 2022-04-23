@@ -11,12 +11,12 @@ fn main() {
     let rng = SmallRng::from_entropy();
     let context = Context::new()
         .with_gene_size(100)
-        .with_gene_values(vec![1, 2, 3, 4])
-        .with_population_size(1000);
+        .with_gene_values(vec![1, 2, 3, 4]);
 
     println!("{}", context);
 
     let evolve = Evolve::new(context, rng)
+        .with_population_size(1000)
         .with_max_stale_generations(20)
         .with_target_fitness_score(400)
         .with_mutate(mutate::SingleGene(0.2))
