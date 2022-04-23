@@ -1,5 +1,5 @@
 use genetic_algorithm::compete;
-use genetic_algorithm::context::Context;
+use genetic_algorithm::genotype::Genotype;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
@@ -9,13 +9,13 @@ use rand::rngs::SmallRng;
 
 fn main() {
     let rng = SmallRng::from_entropy();
-    let context = Context::new()
+    let genotype = Genotype::new()
         .with_gene_size(100)
         .with_gene_values(vec![true, false]);
 
-    println!("{}", context);
+    println!("{}", genotype);
 
-    let evolve = Evolve::new(context, rng)
+    let evolve = Evolve::new(genotype, rng)
         .with_population_size(1000)
         .with_max_stale_generations(100)
         .with_target_fitness_score(100)

@@ -3,18 +3,18 @@ mod support;
 #[cfg(test)]
 mod permutate_tests {
     use crate::support::*;
-    use genetic_algorithm::context::Context;
+    use genetic_algorithm::genotype::Genotype;
     use genetic_algorithm::fitness;
     use genetic_algorithm::gene::ContinuousGene;
     use genetic_algorithm::permutate::Permutate;
 
     #[test]
     fn test_call_binary() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(5)
             .with_gene_values(vec![true, false]);
 
-        let permutate = Permutate::new(context)
+        let permutate = Permutate::new(genotype)
             .with_fitness(fitness::SimpleSum)
             .call();
 
@@ -30,11 +30,11 @@ mod permutate_tests {
 
     #[test]
     fn test_call_discrete() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(5)
             .with_gene_values(vec![0, 1, 2, 3]);
 
-        let permutate = Permutate::new(context)
+        let permutate = Permutate::new(genotype)
             .with_fitness(fitness::SimpleSum)
             .call();
 
@@ -47,9 +47,9 @@ mod permutate_tests {
 
     #[test]
     fn test_call_continuous() {
-        let context = Context::<ContinuousGene>::new().with_gene_size(5);
+        let genotype = Genotype::<ContinuousGene>::new().with_gene_size(5);
 
-        let permutate = Permutate::new(context)
+        let permutate = Permutate::new(genotype)
             .with_fitness(fitness::SimpleSum)
             .call();
 
@@ -61,11 +61,11 @@ mod permutate_tests {
 
     #[test]
     fn test_population_factory_1() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(1)
             .with_gene_values(vec![true, false]);
 
-        let permutate = Permutate::new(context).with_fitness(fitness::SimpleSum);
+        let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSum);
         let population = permutate.population_factory();
         println!("{:#?}", population);
 
@@ -77,11 +77,11 @@ mod permutate_tests {
 
     #[test]
     fn test_population_factory_2() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(2)
             .with_gene_values(vec![true, false]);
 
-        let permutate = Permutate::new(context).with_fitness(fitness::SimpleSum);
+        let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSum);
         let population = permutate.population_factory();
         println!("{:#?}", population);
 
@@ -98,11 +98,11 @@ mod permutate_tests {
 
     #[test]
     fn test_population_factory_3() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(3)
             .with_gene_values(vec![true, false]);
 
-        let permutate = Permutate::new(context).with_fitness(fitness::SimpleSum);
+        let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSum);
         let population = permutate.population_factory();
         println!("{:#?}", population);
 

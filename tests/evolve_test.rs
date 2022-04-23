@@ -4,7 +4,7 @@ mod support;
 mod evolve_tests {
     use crate::support::*;
     use genetic_algorithm::compete;
-    use genetic_algorithm::context::Context;
+    use genetic_algorithm::genotype::Genotype;
     use genetic_algorithm::crossover;
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
@@ -13,12 +13,12 @@ mod evolve_tests {
 
     #[test]
     fn test_invalid() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false]);
 
         let rng = SmallRng::seed_from_u64(0);
-        let evolve = Evolve::new(context, rng)
+        let evolve = Evolve::new(genotype, rng)
             .with_population_size(100)
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSum)
@@ -31,12 +31,12 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_max_stale_generations() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false]);
 
         let rng = SmallRng::seed_from_u64(0);
-        let evolve = Evolve::new(context, rng)
+        let evolve = Evolve::new(genotype, rng)
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
@@ -56,12 +56,12 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_target_fitness_score() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false]);
 
         let rng = SmallRng::seed_from_u64(0);
-        let evolve = Evolve::new(context, rng)
+        let evolve = Evolve::new(genotype, rng)
             .with_population_size(100)
             .with_target_fitness_score(8)
             .with_mutate(mutate::SingleGene(0.1))
@@ -81,12 +81,12 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_degeneration_range() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false]);
 
         let rng = SmallRng::seed_from_u64(0);
-        let evolve = Evolve::new(context, rng)
+        let evolve = Evolve::new(genotype, rng)
             .with_population_size(100)
             .with_target_fitness_score(8)
             .with_degeneration_range(0.0001..1.0000)
@@ -107,12 +107,12 @@ mod evolve_tests {
 
     #[test]
     fn test_call_discrete() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(10)
             .with_gene_values(vec![0, 1, 2, 3]);
 
         let rng = SmallRng::seed_from_u64(0);
-        let evolve = Evolve::new(context, rng)
+        let evolve = Evolve::new(genotype, rng)
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
@@ -132,10 +132,10 @@ mod evolve_tests {
 
     #[test]
     fn test_call_continuous() {
-        let context = Context::<ContinuousGene>::new().with_gene_size(10);
+        let genotype = Genotype::<ContinuousGene>::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
-        let evolve = Evolve::new(context, rng)
+        let evolve = Evolve::new(genotype, rng)
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
@@ -158,12 +158,12 @@ mod evolve_tests {
 
     #[test]
     fn test_population_factory() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(4)
             .with_gene_values(vec![true, false]);
 
         let rng = SmallRng::seed_from_u64(0);
-        let mut evolve = Evolve::new(context, rng)
+        let mut evolve = Evolve::new(genotype, rng)
             .with_population_size(8)
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))

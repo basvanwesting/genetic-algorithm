@@ -1,6 +1,6 @@
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
-use crate::context::Context;
+use crate::genotype::Genotype;
 use crate::crossover::Crossover;
 use crate::fitness::Fitness;
 use crate::gene::Gene;
@@ -11,7 +11,7 @@ use std::fmt;
 use std::ops::Range;
 
 pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> {
-    pub context: Context<T>,
+    pub genotype: Genotype<T>,
     pub rng: R,
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
@@ -29,9 +29,9 @@ pub struct Evolve<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R
 }
 
 impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve<T, M, F, S, C, R> {
-    pub fn new(context: Context<T>, rng: R) -> Self {
+    pub fn new(genotype: Genotype<T>, rng: R) -> Self {
         Self {
-            context: context,
+            genotype: genotype,
             rng: rng,
             population_size: 0,
             max_stale_generations: None,
@@ -116,14 +116,14 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
 
         while !self.is_finished() {
             if self.toggle_degenerate() {
-                self.population = mutate.call(&mut self.context, self.population, &mut self.rng);
+                self.population = mutate.call(&mut self.genotype, self.population, &mut self.rng);
                 self.population = fitness.call_for_population(self.population);
             } else {
-                self.population = crossover.call(&mut self.context, self.population, &mut self.rng);
-                self.population = mutate.call(&mut self.context, self.population, &mut self.rng);
+                self.population = crossover.call(&mut self.genotype, self.population, &mut self.rng);
+                self.population = mutate.call(&mut self.genotype, self.population, &mut self.rng);
                 self.population = fitness.call_for_population(self.population);
                 self.population = compete.call(
-                    &mut self.context,
+                    &mut self.genotype,
                     self.population,
                     self.population_size,
                     &mut self.rng,
@@ -197,7 +197,7 @@ impl<T: Gene, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng> Evolve
 
     pub fn population_factory(&mut self) -> Population<T> {
         let chromosomes = (0..self.population_size)
-            .map(|_| self.context.random_chromosome_factory(&mut self.rng))
+            .map(|_| self.genotype.random_chromosome_factory(&mut self.rng))
             .collect();
         Population::new(chromosomes)
     }

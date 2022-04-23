@@ -4,12 +4,12 @@ use itertools::Itertools;
 use rand::prelude::*;
 use std::fmt;
 
-pub struct Context<T: Gene> {
+pub struct Genotype<T: Gene> {
     pub gene_size: usize,
     pub gene_values: Vec<T>,
 }
 
-impl<T: Gene> Context<T> {
+impl<T: Gene> Genotype<T> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -29,18 +29,18 @@ impl<T: Gene> Context<T> {
     }
 }
 
-impl<T: Gene> Default for Context<T> {
+impl<T: Gene> Default for Genotype<T> {
     fn default() -> Self {
-        Context {
+        Genotype {
             gene_size: 10,
             gene_values: vec![],
         }
     }
 }
 
-impl<T: Gene> fmt::Display for Context<T> {
+impl<T: Gene> fmt::Display for Genotype<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "context:\n")?;
+        write!(f, "genotype:\n")?;
         write!(f, "  gene_size: {}\n", self.gene_size)?;
         write!(f, "  gene_values: {}\n", self.gene_values.iter().join(","))
     }

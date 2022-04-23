@@ -1,5 +1,5 @@
 use crate::chromosome::Chromosome;
-use crate::context::Context;
+use crate::genotype::Genotype;
 use crate::gene::Gene;
 use crate::population::Population;
 use rand::prelude::*;
@@ -7,7 +7,7 @@ use rand::prelude::*;
 pub trait Compete: Clone + std::fmt::Debug {
     fn call<T: Gene, R: Rng>(
         &self,
-        _context: &Context<T>,
+        _genotype: &Genotype<T>,
         population: Population<T>,
         target_population_size: usize,
         rng: &mut R,
@@ -21,7 +21,7 @@ pub struct Elite;
 impl Compete for Elite {
     fn call<T: Gene, R: Rng>(
         &self,
-        _context: &Context<T>,
+        _genotype: &Genotype<T>,
         mut population: Population<T>,
         target_population_size: usize,
         _rng: &mut R,
@@ -40,7 +40,7 @@ pub struct Tournament(pub TournamentSize);
 impl Compete for Tournament {
     fn call<T: Gene, R: Rng>(
         &self,
-        _context: &Context<T>,
+        _genotype: &Genotype<T>,
         mut population: Population<T>,
         target_population_size: usize,
         rng: &mut R,

@@ -1,18 +1,18 @@
 mod support;
 
 #[cfg(test)]
-mod context_tests {
+mod genotype_tests {
     use crate::support::*;
-    use genetic_algorithm::context::Context;
+    use genetic_algorithm::genotype::Genotype;
 
     #[test]
     fn test_random_chromosome_factory() {
-        let context = Context::new()
+        let genotype = Genotype::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let chromosome = context.random_chromosome_factory(&mut rng);
+        let chromosome = genotype.random_chromosome_factory(&mut rng);
 
         assert_eq!(
             inspect::chromosome(&chromosome),

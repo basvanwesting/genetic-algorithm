@@ -1,4 +1,4 @@
-use crate::context::Context;
+use crate::genotype::Genotype;
 use crate::gene::Gene;
 use rand::Rng;
 use std::cmp::Ordering;
@@ -22,9 +22,9 @@ impl<T: Gene> Chromosome<T> {
         self.fitness_score = None;
     }
 
-    pub fn random_factory<R: Rng>(context: &Context<T>, rng: &mut R) -> Self {
-        let genes: Vec<T> = (0..context.gene_size)
-            .map(|_| T::random(context, rng))
+    pub fn random_factory<R: Rng>(genotype: &Genotype<T>, rng: &mut R) -> Self {
+        let genes: Vec<T> = (0..genotype.gene_size)
+            .map(|_| T::random(genotype, rng))
             .collect();
         Chromosome::new(genes)
     }

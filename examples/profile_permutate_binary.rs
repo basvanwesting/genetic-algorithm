@@ -4,7 +4,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 extern crate pprof;
 use pprof::criterion::{Output, PProfProfiler};
 
-use genetic_algorithm::context::Context;
+use genetic_algorithm::genotype::Genotype;
 use genetic_algorithm::fitness;
 use genetic_algorithm::permutate::Permutate;
 
@@ -20,11 +20,11 @@ criterion_group! {
 criterion_main!(benches);
 
 fn run() {
-    let context = Context::new()
+    let genotype = Genotype::new()
         .with_gene_size(16)
         .with_gene_values(vec![true, false]);
 
-    let permutate = Permutate::new(context)
+    let permutate = Permutate::new(genotype)
         .with_fitness(fitness::SimpleSum)
         .call();
 

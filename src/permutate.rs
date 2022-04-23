@@ -1,5 +1,5 @@
 use crate::chromosome::Chromosome;
-use crate::context::Context;
+use crate::genotype::Genotype;
 use crate::fitness::Fitness;
 use crate::gene::Gene;
 use crate::population::Population;
@@ -7,16 +7,16 @@ use itertools::Itertools;
 use std::fmt;
 
 pub struct Permutate<T: Gene, F: Fitness<T>> {
-    pub context: Context<T>,
+    pub genotype: Genotype<T>,
     pub best_chromosome: Option<Chromosome<T>>,
     pub fitness: Option<F>,
     pub population: Population<T>,
 }
 
 impl<T: Gene, F: Fitness<T>> Permutate<T, F> {
-    pub fn new(context: Context<T>) -> Self {
+    pub fn new(genotype: Genotype<T>) -> Self {
         Self {
-            context: context,
+            genotype: genotype,
             fitness: None,
             best_chromosome: None,
             population: Population::new_empty(),
@@ -59,8 +59,8 @@ impl<T: Gene, F: Fitness<T>> Permutate<T, F> {
     }
 
     pub fn population_factory(&self) -> Population<T> {
-        let chromosomes = (0..self.context.gene_size)
-            .map(|_| self.context.gene_values.clone())
+        let chromosomes = (0..self.genotype.gene_size)
+            .map(|_| self.genotype.gene_values.clone())
             .multi_cartesian_product()
             .map(|genes| Chromosome::new(genes))
             .collect();
