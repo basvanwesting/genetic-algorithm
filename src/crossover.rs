@@ -8,7 +8,7 @@ use rand::Rng;
 pub trait Crossover: Clone + std::fmt::Debug {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         population: Population<T>,
         rng: &mut R,
     ) -> Population<T>;
@@ -21,7 +21,7 @@ pub struct Individual(pub KeepParent);
 impl Crossover for Individual {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
@@ -58,7 +58,7 @@ pub struct All(pub KeepParent);
 impl Crossover for All {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
@@ -98,7 +98,7 @@ pub struct Range(pub KeepParent);
 impl Crossover for Range {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
@@ -138,7 +138,7 @@ pub struct Cloning;
 impl Crossover for Cloning {
     fn call<T: Gene, R: Rng>(
         &self,
-        _context: &mut Context<T>,
+        _context: &Context<T>,
         mut population: Population<T>,
         _rng: &mut R,
     ) -> Population<T> {

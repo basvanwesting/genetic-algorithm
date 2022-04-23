@@ -41,11 +41,11 @@ impl<T: Gene> Context<T> {
         Population::new(chromosomes)
     }
 
-    pub fn random_chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<T> {
+    pub fn random_chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<T> {
         Chromosome::random_factory(self, rng)
     }
 
-    pub fn random_population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<T> {
+    pub fn random_population_factory<R: Rng>(&self, rng: &mut R) -> Population<T> {
         let chromosomes = (0..self.population_size)
             .map(|_| self.random_chromosome_factory(rng))
             .collect();

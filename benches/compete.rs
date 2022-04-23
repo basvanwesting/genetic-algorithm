@@ -13,7 +13,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let population = gen_context.permutation_population_factory();
     let population = fitness::SimpleSum.call_for_population(population);
 
-    let mut context = Context::new().with_population_size(1024);
+    let context = Context::new().with_population_size(1024);
 
     println!(
         "start population size: {}, target population size: {}",
@@ -25,7 +25,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let compete = compete::Tournament(4);
         b.iter_batched(
             || population.clone(),
-            |data| compete.call(&mut context, data),
+            |data| compete.call(&context, data),
             BatchSize::SmallInput,
         )
     });
@@ -34,7 +34,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let compete = compete::Elite;
         b.iter_batched(
             || population.clone(),
-            |data| compete.call(&mut context, data),
+            |data| compete.call(&context, data),
             BatchSize::SmallInput,
         )
     });

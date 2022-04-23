@@ -7,7 +7,7 @@ use rand::prelude::*;
 pub trait Compete: Clone + std::fmt::Debug {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         population: Population<T>,
         rng: &mut R,
     ) -> Population<T>;
@@ -20,7 +20,7 @@ pub struct Elite;
 impl Compete for Elite {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         mut population: Population<T>,
         _rng: &mut R,
     ) -> Population<T> {
@@ -38,7 +38,7 @@ pub struct Tournament(pub TournamentSize);
 impl Compete for Tournament {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {

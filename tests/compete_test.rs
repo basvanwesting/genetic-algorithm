@@ -11,7 +11,7 @@ mod compete_tests {
 
     #[test]
     fn test_elite() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -29,7 +29,7 @@ mod compete_tests {
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
-        let population = compete::Elite.call(&mut context, population, &mut rng);
+        let population = compete::Elite.call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -44,7 +44,7 @@ mod compete_tests {
 
     #[test]
     fn test_tournament() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -62,7 +62,7 @@ mod compete_tests {
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
-        let population = compete::Tournament(4).call(&mut context, population, &mut rng);
+        let population = compete::Tournament(4).call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -77,7 +77,7 @@ mod compete_tests {
 
     #[test]
     fn test_tournament_shortage() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -87,7 +87,7 @@ mod compete_tests {
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
-        let population = compete::Tournament(4).call(&mut context, population, &mut rng);
+        let population = compete::Tournament(4).call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

@@ -5,7 +5,7 @@ use genetic_algorithm::crossover;
 use genetic_algorithm::crossover::Crossover;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut context = Context::new()
+    let context = Context::new()
         .with_gene_size(100)
         .with_population_size(1000)
         .with_gene_values(vec![true, false]);
@@ -16,7 +16,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let crossover = crossover::Individual(false);
         b.iter_batched(
             || population.clone(),
-            |data| crossover.call(&mut context, data),
+            |data| crossover.call(&context, data),
             BatchSize::SmallInput,
         )
     });
@@ -25,7 +25,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let crossover = crossover::All(false);
         b.iter_batched(
             || population.clone(),
-            |data| crossover.call(&mut context, data),
+            |data| crossover.call(&context, data),
             BatchSize::SmallInput,
         )
     });
@@ -34,7 +34,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let crossover = crossover::Range(false);
         b.iter_batched(
             || population.clone(),
-            |data| crossover.call(&mut context, data),
+            |data| crossover.call(&context, data),
             BatchSize::SmallInput,
         )
     });

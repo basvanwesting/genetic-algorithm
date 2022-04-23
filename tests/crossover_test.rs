@@ -9,7 +9,7 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_even() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(5)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -22,7 +22,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::Individual(false).call(&mut context, population, &mut rng);
+        let population = crossover::Individual(false).call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -37,7 +37,7 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_odd() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(5)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -51,7 +51,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::Individual(false).call(&mut context, population, &mut rng);
+        let population = crossover::Individual(false).call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -66,7 +66,7 @@ mod crossover_tests {
 
     #[test]
     fn test_all_even() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(6)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -79,7 +79,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::All(false).call(&mut context, population, &mut rng);
+        let population = crossover::All(false).call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -94,7 +94,7 @@ mod crossover_tests {
 
     #[test]
     fn test_all_odd() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -108,7 +108,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::All(false).call(&mut context, population, &mut rng);
+        let population = crossover::All(false).call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -123,7 +123,7 @@ mod crossover_tests {
 
     #[test]
     fn test_all_even_keep_parent() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(6)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -136,7 +136,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::All(true).call(&mut context, population, &mut rng);
+        let population = crossover::All(true).call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -155,7 +155,7 @@ mod crossover_tests {
 
     #[test]
     fn test_range_even() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(6)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -168,7 +168,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::Range(false).call(&mut context, population, &mut rng);
+        let population = crossover::Range(false).call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -183,7 +183,7 @@ mod crossover_tests {
 
     #[test]
     fn test_cloning_odd() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(3)
             .with_gene_values(vec![true, false])
             .with_population_size(4);
@@ -195,7 +195,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::Cloning.call(&mut context, population, &mut rng);
+        let population = crossover::Cloning.call(&context, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

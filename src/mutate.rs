@@ -7,7 +7,7 @@ use rand::Rng;
 pub trait Mutate: Clone + std::fmt::Debug {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         population: Population<T>,
         rng: &mut R,
     ) -> Population<T>;
@@ -20,7 +20,7 @@ pub struct SingleGene(pub MutationProbability);
 impl Mutate for SingleGene {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
@@ -42,7 +42,7 @@ pub struct MultipleGene(pub MutationProbability);
 impl Mutate for MultipleGene {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
@@ -64,7 +64,7 @@ pub struct SwapSingleGene(pub MutationProbability);
 impl Mutate for SwapSingleGene {
     fn call<T: Gene, R: Rng>(
         &self,
-        context: &mut Context<T>,
+        context: &Context<T>,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {

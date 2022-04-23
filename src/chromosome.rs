@@ -22,7 +22,7 @@ impl<T: Gene> Chromosome<T> {
         self.fitness_score = None;
     }
 
-    pub fn random_factory<R: Rng>(context: &mut Context<T>, rng: &mut R) -> Self {
+    pub fn random_factory<R: Rng>(context: &Context<T>, rng: &mut R) -> Self {
         let genes: Vec<T> = (0..context.gene_size)
             .map(|_| T::random(context, rng))
             .collect();

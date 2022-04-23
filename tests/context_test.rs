@@ -7,7 +7,7 @@ mod context_tests {
 
     #[test]
     fn test_random_chromosome_factory() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(10)
             .with_gene_values(vec![true, false])
             .with_population_size(100);
@@ -23,7 +23,7 @@ mod context_tests {
 
     #[test]
     fn test_random_population_factory() {
-        let mut context = Context::new()
+        let context = Context::new()
             .with_gene_size(4)
             .with_gene_values(vec![true, false])
             .with_population_size(8);
