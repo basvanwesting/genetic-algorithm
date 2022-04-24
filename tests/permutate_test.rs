@@ -5,13 +5,13 @@ mod permutate_tests {
     use crate::support::*;
     use genetic_algorithm::fitness;
     use genetic_algorithm::genotype::{
-        BinaryRandomGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
+        BinaryGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
     };
     use genetic_algorithm::permutate::Permutate;
 
     #[test]
     fn test_call_binary() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(5);
+        let genotype = BinaryGenotype::new().with_gene_size(5);
 
         let permutate = Permutate::new(genotype)
             .with_fitness(fitness::SimpleSum)
@@ -60,7 +60,7 @@ mod permutate_tests {
 
     #[test]
     fn test_population_factory_1() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(1);
+        let genotype = BinaryGenotype::new().with_gene_size(1);
 
         let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSum);
         let population = permutate.population_factory();
@@ -74,7 +74,7 @@ mod permutate_tests {
 
     #[test]
     fn test_population_factory_2() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(2);
+        let genotype = BinaryGenotype::new().with_gene_size(2);
 
         let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSum);
         let population = permutate.population_factory();
@@ -93,7 +93,7 @@ mod permutate_tests {
 
     #[test]
     fn test_population_factory_3() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(3);
+        let genotype = BinaryGenotype::new().with_gene_size(3);
 
         let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSum);
         let population = permutate.population_factory();

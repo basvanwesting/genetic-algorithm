@@ -10,8 +10,8 @@ pub trait Genotype<T: Gene>: fmt::Display {
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R);
 }
 
-mod binary_random;
-pub use self::binary_random::BinaryRandom as BinaryRandomGenotype;
+mod binary;
+pub use self::binary::Binary as BinaryGenotype;
 
 mod discrete_random;
 pub use self::discrete_random::DiscreteRandom as DiscreteRandomGenotype;

@@ -4,7 +4,7 @@ use genetic_algorithm::compete;
 use genetic_algorithm::compete::Compete;
 use genetic_algorithm::fitness;
 use genetic_algorithm::fitness::Fitness;
-use genetic_algorithm::genotype::{BinaryRandomGenotype, Genotype};
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -13,7 +13,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let source_population_size = 2000;
     let target_population_size = 1000;
     let mut rng = SmallRng::from_entropy();
-    let genotype = BinaryRandomGenotype::new().with_gene_size(10);
+    let genotype = BinaryGenotype::new().with_gene_size(10);
 
     let chromosomes = (0..source_population_size)
         .map(|_| genotype.chromosome_factory(&mut rng))

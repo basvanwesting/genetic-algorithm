@@ -8,7 +8,7 @@ use genetic_algorithm::compete;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
-use genetic_algorithm::genotype::BinaryRandomGenotype;
+use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::mutate;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -26,7 +26,7 @@ criterion_main!(benches);
 
 fn run() {
     let rng = SmallRng::from_entropy();
-    let genotype = BinaryRandomGenotype::new().with_gene_size(100);
+    let genotype = BinaryGenotype::new().with_gene_size(100);
 
     let evolve = Evolve::new(genotype, rng)
         .with_population_size(1000)

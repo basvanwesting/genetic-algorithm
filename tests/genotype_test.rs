@@ -5,14 +5,14 @@ mod genotype_tests {
 
     use crate::support::*;
     use genetic_algorithm::genotype::{
-        BinaryRandomGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
+        BinaryGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
         DiscreteUniqueGenotype, Genotype,
     };
 
     #[test]
-    fn test_binary_random_genotype() {
+    fn test_binary_genotype() {
         let mut rng = SmallRng::seed_from_u64(0);
-        let genotype = BinaryRandomGenotype::new().with_gene_size(10);
+        let genotype = BinaryGenotype::new().with_gene_size(10);
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(

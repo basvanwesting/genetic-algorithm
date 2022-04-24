@@ -10,11 +10,11 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /context/ => 'genotype',
+  /binary_random/ => 'binary',
 }
 
 other_translations = {
-  /Context/  => 'Genotype',
+  /BinaryRandom/  => 'Binary',
 }
 
 #check:

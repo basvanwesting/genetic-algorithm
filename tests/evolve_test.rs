@@ -8,13 +8,13 @@ mod evolve_tests {
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
     use genetic_algorithm::genotype::{
-        BinaryRandomGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
+        BinaryGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
     };
     use genetic_algorithm::mutate;
 
     #[test]
     fn test_invalid() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(10);
+        let genotype = BinaryGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
@@ -30,7 +30,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_max_stale_generations() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(10);
+        let genotype = BinaryGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
@@ -53,7 +53,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_target_fitness_score() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(10);
+        let genotype = BinaryGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
@@ -76,7 +76,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call_binary_degeneration_range() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(10);
+        let genotype = BinaryGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
@@ -151,7 +151,7 @@ mod evolve_tests {
 
     #[test]
     fn test_population_factory() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(4);
+        let genotype = BinaryGenotype::new().with_gene_size(4);
 
         let rng = SmallRng::seed_from_u64(0);
         let mut evolve = Evolve::new(genotype, rng)

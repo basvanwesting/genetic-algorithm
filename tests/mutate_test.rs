@@ -3,13 +3,13 @@ mod support;
 #[cfg(test)]
 mod mutate_tests {
     use crate::support::*;
-    use genetic_algorithm::genotype::{BinaryRandomGenotype, DiscreteRandomGenotype};
+    use genetic_algorithm::genotype::{BinaryGenotype, DiscreteRandomGenotype};
     use genetic_algorithm::mutate;
     use genetic_algorithm::mutate::Mutate;
 
     #[test]
     fn test_single_gene_binary() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(3);
+        let genotype = BinaryGenotype::new().with_gene_size(3);
 
         let population = build::population(vec![
             vec![true, true, true],

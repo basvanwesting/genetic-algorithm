@@ -5,11 +5,11 @@ mod crossover_tests {
     use crate::support::*;
     use genetic_algorithm::crossover;
     use genetic_algorithm::crossover::Crossover;
-    use genetic_algorithm::genotype::BinaryRandomGenotype;
+    use genetic_algorithm::genotype::BinaryGenotype;
 
     #[test]
     fn test_individual_even() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(5);
+        let genotype = BinaryGenotype::new().with_gene_size(5);
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -34,7 +34,7 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_odd() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(5);
+        let genotype = BinaryGenotype::new().with_gene_size(5);
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -60,7 +60,7 @@ mod crossover_tests {
 
     #[test]
     fn test_all_even() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(6);
+        let genotype = BinaryGenotype::new().with_gene_size(6);
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -85,7 +85,7 @@ mod crossover_tests {
 
     #[test]
     fn test_all_odd() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(3);
+        let genotype = BinaryGenotype::new().with_gene_size(3);
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -111,7 +111,7 @@ mod crossover_tests {
 
     #[test]
     fn test_all_even_keep_parent() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(6);
+        let genotype = BinaryGenotype::new().with_gene_size(6);
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -140,7 +140,7 @@ mod crossover_tests {
 
     #[test]
     fn test_range_even() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(6);
+        let genotype = BinaryGenotype::new().with_gene_size(6);
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -165,7 +165,7 @@ mod crossover_tests {
 
     #[test]
     fn test_cloning_odd() {
-        let genotype = BinaryRandomGenotype::new().with_gene_size(3);
+        let genotype = BinaryGenotype::new().with_gene_size(3);
 
         let population = build::population(vec![
             vec![true, true, true],
