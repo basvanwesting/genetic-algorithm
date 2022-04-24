@@ -2,14 +2,14 @@ use genetic_algorithm::compete;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
-use genetic_algorithm::genotype::ContinuousRandomGenotype;
+use genetic_algorithm::genotype::ContinuousGenotype;
 use genetic_algorithm::mutate;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 fn main() {
     let rng = SmallRng::from_entropy();
-    let genotype = ContinuousRandomGenotype::new().with_gene_size(100);
+    let genotype = ContinuousGenotype::new().with_gene_size(100);
 
     println!("{}", genotype);
 

@@ -16,8 +16,8 @@ pub use self::binary::Binary as BinaryGenotype;
 mod discrete_random;
 pub use self::discrete_random::DiscreteRandom as DiscreteRandomGenotype;
 
-mod continuous_random;
-pub use self::continuous_random::ContinuousRandom as ContinuousRandomGenotype;
+mod continuous;
+pub use self::continuous::Continuous as ContinuousGenotype;
 
 mod discrete_unique;
 pub use self::discrete_unique::DiscreteUnique as DiscreteUniqueGenotype;

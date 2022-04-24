@@ -5,7 +5,7 @@ mod permutate_tests {
     use crate::support::*;
     use genetic_algorithm::fitness;
     use genetic_algorithm::genotype::{
-        BinaryGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
+        BinaryGenotype, ContinuousGenotype, DiscreteRandomGenotype,
     };
     use genetic_algorithm::permutate::Permutate;
 
@@ -46,7 +46,7 @@ mod permutate_tests {
 
     #[test]
     fn test_call_continuous() {
-        let genotype = ContinuousRandomGenotype::new().with_gene_size(5);
+        let genotype = ContinuousGenotype::new().with_gene_size(5);
 
         let permutate = Permutate::new(genotype)
             .with_fitness(fitness::SimpleSum)

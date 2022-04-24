@@ -4,11 +4,11 @@ use crate::gene::ContinuousGene;
 use rand::prelude::*;
 use std::fmt;
 
-pub struct ContinuousRandom {
+pub struct Continuous {
     pub gene_size: usize,
 }
 
-impl ContinuousRandom {
+impl Continuous {
     pub fn new() -> Self {
         Self { gene_size: 0 }
     }
@@ -19,7 +19,7 @@ impl ContinuousRandom {
     }
 }
 
-impl Genotype<ContinuousGene> for ContinuousRandom {
+impl Genotype<ContinuousGene> for Continuous {
     fn gene_size(&self) -> usize {
         self.gene_size
     }
@@ -39,7 +39,7 @@ impl Genotype<ContinuousGene> for ContinuousRandom {
     }
 }
 
-impl fmt::Display for ContinuousRandom {
+impl fmt::Display for Continuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "genotype:\n")?;
         write!(f, "  gene_size: {}\n", self.gene_size)

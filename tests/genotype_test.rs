@@ -5,7 +5,7 @@ mod genotype_tests {
 
     use crate::support::*;
     use genetic_algorithm::genotype::{
-        BinaryGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
+        BinaryGenotype, ContinuousGenotype, DiscreteRandomGenotype,
         DiscreteUniqueGenotype, Genotype,
     };
 
@@ -49,9 +49,9 @@ mod genotype_tests {
     }
 
     #[test]
-    fn test_continuous_random_genotype() {
+    fn test_continuous_genotype() {
         let mut rng = SmallRng::seed_from_u64(0);
-        let genotype = ContinuousRandomGenotype::new().with_gene_size(10);
+        let genotype = ContinuousGenotype::new().with_gene_size(10);
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(

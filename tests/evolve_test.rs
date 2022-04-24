@@ -8,7 +8,7 @@ mod evolve_tests {
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
     use genetic_algorithm::genotype::{
-        BinaryGenotype, ContinuousRandomGenotype, DiscreteRandomGenotype,
+        BinaryGenotype, ContinuousGenotype, DiscreteRandomGenotype,
     };
     use genetic_algorithm::mutate;
 
@@ -125,7 +125,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call_continuous() {
-        let genotype = ContinuousRandomGenotype::new().with_gene_size(10);
+        let genotype = ContinuousGenotype::new().with_gene_size(10);
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
