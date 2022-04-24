@@ -22,5 +22,8 @@ find the flamegraph in: ./target/criterion/profile_evolve_binary/profile/flamegr
 ## TODO
 * seed best_chromosome back into population after degenerate?
 * maybe make crossover and compete optional as nqueens doesn't really need it
-* add DiscreteRangeUnique, and DiscreteRangeRandom for easier initialization of genotype for large ranges
+* add Range and RangeUnique for easier initialization of genotype for large ranges
+* add sampler on Genotype for efficient rand reuse
+
+
 
