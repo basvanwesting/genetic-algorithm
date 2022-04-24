@@ -6,7 +6,7 @@ mod genotype_tests {
     use crate::support::*;
     use genetic_algorithm::genotype::{
         BinaryGenotype, ContinuousGenotype, DiscreteGenotype, DiscreteUniqueGenotype, Genotype,
-        RangeGenotype,
+        RangeGenotype, RangeUniqueGenotype,
     };
 
     #[test]
@@ -129,5 +129,17 @@ mod genotype_tests {
                 2.8254879, 2.5805767, 4.275404
             ]
         );
+    }
+
+    #[test]
+    fn test_range_unique_genotype() {
+        let mut rng = SmallRng::seed_from_u64(0);
+        let genotype = RangeUniqueGenotype::new().with_gene_range(2..=6);
+
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        assert_eq!(inspect::chromosome(&chromosome), vec![5, 2, 3, 6, 4]);
+
+        genotype.mutate_chromosome(&mut chromosome, &mut rng);
+        assert_eq!(inspect::chromosome(&chromosome), vec![6, 2, 3, 5, 4]);
     }
 }

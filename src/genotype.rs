@@ -24,3 +24,6 @@ pub use self::continuous::Continuous as ContinuousGenotype;
 
 mod range;
 pub use self::range::Range as RangeGenotype;
+
+mod range_unique;
+pub use self::range_unique::RangeUnique as RangeUniqueGenotype;

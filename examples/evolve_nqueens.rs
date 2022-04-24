@@ -4,7 +4,7 @@ use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::gene::DiscreteGene;
-use genetic_algorithm::genotype::DiscreteUniqueGenotype;
+use genetic_algorithm::genotype::RangeUniqueGenotype;
 use genetic_algorithm::mutate;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -15,7 +15,7 @@ use rand::rngs::SmallRng;
 struct NQueensFitness;
 impl Fitness<DiscreteGene> for NQueensFitness {
     fn call_for_chromosome(&self, chromosome: &Chromosome<DiscreteGene>) -> isize {
-        let mut score = chromosome.genes.len() as isize;
+        let mut score = 0;
         let max_index = chromosome.genes.len() - 1;
         for i in 0..max_index {
             for j in 0..max_index {
@@ -35,18 +35,18 @@ impl Fitness<DiscreteGene> for NQueensFitness {
 
 fn main() {
     let rng = SmallRng::from_entropy();
-    let genotype = DiscreteUniqueGenotype::new().with_gene_values(vec![0, 1, 2, 3, 4, 5, 6, 7]);
+    let genotype = RangeUniqueGenotype::new().with_gene_range(1..=16);
 
     println!("{}", genotype);
 
     let evolve = Evolve::new(genotype, rng)
-        .with_population_size(20)
-        .with_max_stale_generations(100)
-        .with_target_fitness_score(8)
+        .with_population_size(100)
+        .with_max_stale_generations(1000)
+        .with_target_fitness_score(0)
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(NQueensFitness)
         .with_crossover(crossover::Cloning(true))
-        .with_compete(compete::Elite)
+        .with_compete(compete::Tournament(4))
         .call();
 
     println!("{}", evolve);
