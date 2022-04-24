@@ -8,7 +8,7 @@ mod evolve_tests {
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
     use genetic_algorithm::genotype::{
-        BinaryGenotype, ContinuousGenotype, DiscreteRandomGenotype,
+        BinaryGenotype, ContinuousGenotype, DiscreteGenotype,
     };
     use genetic_algorithm::mutate;
 
@@ -100,7 +100,7 @@ mod evolve_tests {
 
     #[test]
     fn test_call_discrete() {
-        let genotype = DiscreteRandomGenotype::new()
+        let genotype = DiscreteGenotype::new()
             .with_gene_size(10)
             .with_gene_values(vec![0, 1, 2, 3]);
 

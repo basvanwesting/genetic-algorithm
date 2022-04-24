@@ -2,14 +2,14 @@ use genetic_algorithm::compete;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
-use genetic_algorithm::genotype::DiscreteRandomGenotype;
+use genetic_algorithm::genotype::DiscreteGenotype;
 use genetic_algorithm::mutate;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 fn main() {
     let rng = SmallRng::from_entropy();
-    let genotype = DiscreteRandomGenotype::new()
+    let genotype = DiscreteGenotype::new()
         .with_gene_size(100)
         .with_gene_values(vec![1, 2, 3, 4]);
 

@@ -5,7 +5,7 @@ mod genotype_tests {
 
     use crate::support::*;
     use genetic_algorithm::genotype::{
-        BinaryGenotype, ContinuousGenotype, DiscreteRandomGenotype,
+        BinaryGenotype, ContinuousGenotype, DiscreteGenotype,
         DiscreteUniqueGenotype, Genotype,
     };
 
@@ -28,9 +28,9 @@ mod genotype_tests {
     }
 
     #[test]
-    fn test_discrete_random_genotype() {
+    fn test_discrete_genotype() {
         let mut rng = SmallRng::seed_from_u64(0);
-        let genotype = DiscreteRandomGenotype::new()
+        let genotype = DiscreteGenotype::new()
             .with_gene_size(10)
             .with_gene_values(vec![3, 4, 5, 6]);
 

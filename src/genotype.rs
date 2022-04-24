@@ -13,8 +13,8 @@ pub trait Genotype<T: Gene>: fmt::Display {
 mod binary;
 pub use self::binary::Binary as BinaryGenotype;
 
-mod discrete_random;
-pub use self::discrete_random::DiscreteRandom as DiscreteRandomGenotype;
+mod discrete;
+pub use self::discrete::Discrete as DiscreteGenotype;
 
 mod continuous;
 pub use self::continuous::Continuous as ContinuousGenotype;

@@ -5,12 +5,12 @@ use itertools::Itertools;
 use rand::prelude::*;
 use std::fmt;
 
-pub struct DiscreteRandom {
+pub struct Discrete {
     pub gene_size: usize,
     pub gene_values: Vec<DiscreteGene>,
 }
 
-impl DiscreteRandom {
+impl Discrete {
     pub fn new() -> Self {
         Self {
             gene_size: 0,
@@ -29,7 +29,7 @@ impl DiscreteRandom {
     }
 }
 
-impl Genotype<DiscreteGene> for DiscreteRandom {
+impl Genotype<DiscreteGene> for Discrete {
     fn gene_size(&self) -> usize {
         self.gene_size
     }
@@ -51,7 +51,7 @@ impl Genotype<DiscreteGene> for DiscreteRandom {
     }
 }
 
-impl fmt::Display for DiscreteRandom {
+impl fmt::Display for Discrete {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "genotype:\n")?;
         write!(f, "  gene_size: {}\n", self.gene_size)?;

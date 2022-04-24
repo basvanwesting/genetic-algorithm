@@ -10,11 +10,11 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /continuous_random/ => 'continuous',
+  /discrete_random/ => 'discrete',
 }
 
 other_translations = {
-  /ContinuousRandom/  => 'Continuous',
+  /DiscreteRandom/  => 'Discrete',
 }
 
 #check:

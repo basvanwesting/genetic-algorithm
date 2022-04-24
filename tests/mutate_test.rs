@@ -3,7 +3,7 @@ mod support;
 #[cfg(test)]
 mod mutate_tests {
     use crate::support::*;
-    use genetic_algorithm::genotype::{BinaryGenotype, DiscreteRandomGenotype};
+    use genetic_algorithm::genotype::{BinaryGenotype, DiscreteGenotype};
     use genetic_algorithm::mutate;
     use genetic_algorithm::mutate::Mutate;
 
@@ -34,7 +34,7 @@ mod mutate_tests {
 
     #[test]
     fn test_single_gene_discrete() {
-        let genotype = DiscreteRandomGenotype::new()
+        let genotype = DiscreteGenotype::new()
             .with_gene_size(3)
             .with_gene_values(vec![0, 1, 2, 3]);
 
@@ -56,7 +56,7 @@ mod mutate_tests {
 
     //#[test]
     //fn test_multiple_gene_discrete() {
-    //let genotype = DiscreteRandomGenotype::new()
+    //let genotype = DiscreteGenotype::new()
     //.with_gene_size(3)
     //.with_gene_values(vec![0, 1, 2, 3]);
 
@@ -78,7 +78,7 @@ mod mutate_tests {
 
     //#[test]
     //fn test_swap_single_gene_discrete() {
-    //let genotype = DiscreteRandomGenotype::new()
+    //let genotype = DiscreteGenotype::new()
     //.with_gene_size(5)
     //.with_gene_values(vec![1, 2, 3, 4, 5]);
 
