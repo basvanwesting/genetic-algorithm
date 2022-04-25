@@ -1,14 +1,10 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::Fitness;
 use crate::gene::Gene;
-use crate::genotype::Genotype;
+use crate::genotype::PermutableGenotype;
 use crate::population::Population;
 use itertools::Itertools;
 use std::fmt;
-
-pub trait PermutableGenotype<T: Gene>: Genotype<T> {
-    fn gene_values_to_permutate(&self) -> Vec<T>;
-}
 
 pub struct Permutate<T: Gene, G: PermutableGenotype<T>, F: Fitness<T>> {
     pub genotype: G,
@@ -64,7 +60,7 @@ impl<T: Gene, G: PermutableGenotype<T>, F: Fitness<T>> Permutate<T, G, F> {
 
     pub fn population_factory(&self) -> Population<T> {
         let chromosomes = (0..self.genotype.gene_size())
-            .map(|_| self.genotype.gene_values_to_permutate())
+            .map(|_| self.genotype.gene_values())
             .multi_cartesian_product()
             .map(|genes| Chromosome::new(genes))
             .collect();

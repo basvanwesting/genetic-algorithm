@@ -1,7 +1,6 @@
-use super::Genotype;
+use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::{ContinuousGene, DiscreteGene, Gene};
-use crate::permutate::PermutableGenotype;
 use rand::prelude::*;
 use std::fmt;
 
@@ -48,7 +47,7 @@ impl Genotype<DiscreteGene> for Range<DiscreteGene> {
 }
 
 impl PermutableGenotype<DiscreteGene> for Range<DiscreteGene> {
-    fn gene_values_to_permutate(&self) -> Vec<DiscreteGene> {
+    fn gene_values(&self) -> Vec<DiscreteGene> {
         self.gene_range.clone().collect()
     }
 }

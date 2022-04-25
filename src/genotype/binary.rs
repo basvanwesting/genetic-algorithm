@@ -1,7 +1,6 @@
-use super::Genotype;
+use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::BinaryGene;
-use crate::permutate::PermutableGenotype;
 use rand::prelude::*;
 use std::fmt;
 
@@ -37,7 +36,7 @@ impl Genotype<BinaryGene> for Binary {
 }
 
 impl PermutableGenotype<BinaryGene> for Binary {
-    fn gene_values_to_permutate(&self) -> Vec<BinaryGene> {
+    fn gene_values(&self) -> Vec<BinaryGene> {
         vec![true, false]
     }
 }

@@ -9,6 +9,10 @@ pub trait Genotype<T: Gene>: fmt::Display {
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R);
 }
 
+pub trait PermutableGenotype<T: Gene>: Genotype<T> {
+    fn gene_values(&self) -> Vec<T>;
+}
+
 mod binary;
 pub use self::binary::Binary as BinaryGenotype;
 
