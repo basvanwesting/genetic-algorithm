@@ -26,6 +26,10 @@ impl<T: Gene> Range<T> {
         self.gene_range = gene_range;
         self
     }
+
+    pub fn build(self) -> Self {
+        self
+    }
 }
 
 impl Genotype<DiscreteGene> for Range<DiscreteGene> {

@@ -9,7 +9,7 @@ use rand::rngs::SmallRng;
 
 fn main() {
     let rng = SmallRng::from_entropy();
-    let genotype = BinaryGenotype::new().with_gene_size(100);
+    let genotype = BinaryGenotype::new().with_gene_size(100).build();
 
     println!("{}", genotype);
 

@@ -13,7 +13,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let source_population_size = 2000;
     let target_population_size = 1000;
     let mut rng = SmallRng::from_entropy();
-    let genotype = BinaryGenotype::new().with_gene_size(10);
+    let genotype = BinaryGenotype::new().with_gene_size(10).build();
 
     let chromosomes = (0..source_population_size)
         .map(|_| genotype.chromosome_factory(&mut rng))

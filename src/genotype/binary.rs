@@ -17,6 +17,10 @@ impl Binary {
         self.gene_size = gene_size;
         self
     }
+
+    pub fn build(self) -> Self {
+        self
+    }
 }
 
 impl Genotype<BinaryGene> for Binary {

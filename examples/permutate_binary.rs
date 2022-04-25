@@ -3,7 +3,7 @@ use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::permutate::Permutate;
 
 fn main() {
-    let genotype = BinaryGenotype::new().with_gene_size(16);
+    let genotype = BinaryGenotype::new().with_gene_size(16).build();
 
     println!("{}", genotype);
 

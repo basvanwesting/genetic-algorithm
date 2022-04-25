@@ -11,7 +11,8 @@ fn main() {
     let rng = SmallRng::from_entropy();
     let genotype = DiscreteGenotype::new()
         .with_gene_size(100)
-        .with_gene_values(vec![1, 2, 3, 4]);
+        .with_gene_values(vec![1, 2, 3, 4])
+        .build();
 
     println!("{}", genotype);
 

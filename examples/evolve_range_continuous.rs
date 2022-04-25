@@ -11,7 +11,8 @@ fn main() {
     let rng = SmallRng::from_entropy();
     let genotype = RangeGenotype::new()
         .with_gene_size(100)
-        .with_gene_range(0.0..9.0);
+        .with_gene_range(0.0..9.0)
+        .build();
 
     println!("{}", genotype);
 

@@ -35,7 +35,7 @@ impl Fitness<DiscreteGene> for NQueensFitness {
 
 fn main() {
     let rng = SmallRng::from_entropy();
-    let genotype = RangeUniqueGenotype::new().with_gene_range(0..32);
+    let genotype = RangeUniqueGenotype::new().with_gene_range(0..32).build();
 
     println!("{}", genotype);
 

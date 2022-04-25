@@ -12,7 +12,7 @@ mod genotype_tests {
     #[test]
     fn test_binary_genotype() {
         let mut rng = SmallRng::seed_from_u64(0);
-        let genotype = BinaryGenotype::new().with_gene_size(10);
+        let genotype = BinaryGenotype::new().with_gene_size(10).build();
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(
@@ -32,7 +32,8 @@ mod genotype_tests {
         let mut rng = SmallRng::seed_from_u64(0);
         let genotype = DiscreteGenotype::new()
             .with_gene_size(10)
-            .with_gene_values(vec![3, 4, 5, 6]);
+            .with_gene_values(vec![3, 4, 5, 6])
+            .build();
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(
@@ -51,7 +52,7 @@ mod genotype_tests {
     #[test]
     fn test_continuous_genotype() {
         let mut rng = SmallRng::seed_from_u64(0);
-        let genotype = ContinuousGenotype::new().with_gene_size(10);
+        let genotype = ContinuousGenotype::new().with_gene_size(10).build();
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(
@@ -75,7 +76,9 @@ mod genotype_tests {
     #[test]
     fn test_discrete_unique_genotype() {
         let mut rng = SmallRng::seed_from_u64(0);
-        let genotype = DiscreteUniqueGenotype::new().with_gene_values(vec![2, 3, 4, 5, 6]);
+        let genotype = DiscreteUniqueGenotype::new()
+            .with_gene_values(vec![2, 3, 4, 5, 6])
+            .build();
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(inspect::chromosome(&chromosome), vec![5, 2, 3, 6, 4]);
@@ -89,7 +92,8 @@ mod genotype_tests {
         let mut rng = SmallRng::seed_from_u64(0);
         let genotype = RangeGenotype::new()
             .with_gene_size(10)
-            .with_gene_range(0..5);
+            .with_gene_range(0..5)
+            .build();
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(
@@ -109,7 +113,8 @@ mod genotype_tests {
         let mut rng = SmallRng::seed_from_u64(0);
         let genotype = RangeGenotype::new()
             .with_gene_size(10)
-            .with_gene_range(0.0..5.0);
+            .with_gene_range(0.0..5.0)
+            .build();
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(
@@ -133,7 +138,7 @@ mod genotype_tests {
     #[test]
     fn test_range_unique_genotype() {
         let mut rng = SmallRng::seed_from_u64(0);
-        let genotype = RangeUniqueGenotype::new().with_gene_range(2..7);
+        let genotype = RangeUniqueGenotype::new().with_gene_range(2..7).build();
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(inspect::chromosome(&chromosome), vec![5, 2, 3, 6, 4]);

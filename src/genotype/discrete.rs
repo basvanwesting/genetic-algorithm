@@ -27,6 +27,10 @@ impl Discrete {
         self.gene_values = gene_values;
         self
     }
+
+    pub fn build(self) -> Self {
+        self
+    }
 }
 
 impl Genotype<DiscreteGene> for Discrete {

@@ -20,7 +20,7 @@ criterion_group! {
 criterion_main!(benches);
 
 fn run() {
-    let genotype = BinaryGenotype::new().with_gene_size(16);
+    let genotype = BinaryGenotype::new().with_gene_size(16).build();
 
     let permutate = Permutate::new(genotype)
         .with_fitness(fitness::SimpleSum)

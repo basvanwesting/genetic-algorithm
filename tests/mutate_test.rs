@@ -9,7 +9,7 @@ mod mutate_tests {
 
     #[test]
     fn test_single_gene_binary() {
-        let genotype = BinaryGenotype::new().with_gene_size(3);
+        let genotype = BinaryGenotype::new().with_gene_size(3).build();
 
         let population = build::population(vec![
             vec![true, true, true],
@@ -36,7 +36,8 @@ mod mutate_tests {
     fn test_single_gene_discrete() {
         let genotype = DiscreteGenotype::new()
             .with_gene_size(3)
-            .with_gene_values(vec![0, 1, 2, 3]);
+            .with_gene_values(vec![0, 1, 2, 3])
+            .build();
 
         let population = build::population(vec![
             vec![0, 0, 0],
@@ -58,7 +59,8 @@ mod mutate_tests {
     //fn test_multiple_gene_discrete() {
     //let genotype = DiscreteGenotype::new()
     //.with_gene_size(3)
-    //.with_gene_values(vec![0, 1, 2, 3]);
+    //.with_gene_values(vec![0, 1, 2, 3])
+    //.build();
 
     //let population = build::population(vec![
     //vec![0, 0, 0],
@@ -80,7 +82,8 @@ mod mutate_tests {
     //fn test_swap_single_gene_discrete() {
     //let genotype = DiscreteGenotype::new()
     //.with_gene_size(5)
-    //.with_gene_values(vec![1, 2, 3, 4, 5]);
+    //.with_gene_values(vec![1, 2, 3, 4, 5])
+    //.build();
 
     //let population = build::population(vec![
     //vec![1, 2, 3, 4, 5],

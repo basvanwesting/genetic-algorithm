@@ -9,7 +9,7 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_even() {
-        let genotype = BinaryGenotype::new().with_gene_size(5);
+        let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -34,7 +34,7 @@ mod crossover_tests {
 
     #[test]
     fn test_individual_odd() {
-        let genotype = BinaryGenotype::new().with_gene_size(5);
+        let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -60,7 +60,7 @@ mod crossover_tests {
 
     #[test]
     fn test_all_even() {
-        let genotype = BinaryGenotype::new().with_gene_size(6);
+        let genotype = BinaryGenotype::new().with_gene_size(6).build();
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -85,7 +85,7 @@ mod crossover_tests {
 
     #[test]
     fn test_all_odd() {
-        let genotype = BinaryGenotype::new().with_gene_size(3);
+        let genotype = BinaryGenotype::new().with_gene_size(3).build();
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -111,7 +111,7 @@ mod crossover_tests {
 
     #[test]
     fn test_all_even_keep_parent() {
-        let genotype = BinaryGenotype::new().with_gene_size(6);
+        let genotype = BinaryGenotype::new().with_gene_size(6).build();
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -140,7 +140,7 @@ mod crossover_tests {
 
     #[test]
     fn test_range_even() {
-        let genotype = BinaryGenotype::new().with_gene_size(6);
+        let genotype = BinaryGenotype::new().with_gene_size(6).build();
 
         let population = build::population(vec![
             vec![true, true, true, true, true],
@@ -165,7 +165,7 @@ mod crossover_tests {
 
     #[test]
     fn test_cloning_odd() {
-        let genotype = BinaryGenotype::new().with_gene_size(3);
+        let genotype = BinaryGenotype::new().with_gene_size(3).build();
 
         let population = build::population(vec![
             vec![true, true, true],

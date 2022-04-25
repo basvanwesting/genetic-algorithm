@@ -19,6 +19,10 @@ impl RangeUnique {
         self.gene_range = gene_range;
         self
     }
+
+    pub fn build(self) -> Self {
+        self
+    }
 }
 
 impl Genotype<DiscreteGene> for RangeUnique {

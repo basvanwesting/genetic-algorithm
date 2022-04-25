@@ -26,7 +26,7 @@ criterion_main!(benches);
 
 fn run() {
     let rng = SmallRng::from_entropy();
-    let genotype = BinaryGenotype::new().with_gene_size(100);
+    let genotype = BinaryGenotype::new().with_gene_size(100).build();
 
     let evolve = Evolve::new(genotype, rng)
         .with_population_size(1000)
