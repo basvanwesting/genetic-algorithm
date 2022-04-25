@@ -27,3 +27,7 @@ harness = false
 [[bench]]
 name = "crossover"
 harness = false
+
+[[bench]]
+name = "genotype"
+harness = false

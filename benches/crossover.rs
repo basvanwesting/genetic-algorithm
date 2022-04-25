@@ -45,6 +45,15 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             BatchSize::SmallInput,
         )
     });
+
+    c.bench_function("crossover_cloning", |b| {
+        let crossover = crossover::Cloning(false);
+        b.iter_batched(
+            || population.clone(),
+            |data| crossover.call(&genotype, data, &mut rng),
+            BatchSize::SmallInput,
+        )
+    });
 }
 
 criterion_group!(benches, criterion_benchmark);
