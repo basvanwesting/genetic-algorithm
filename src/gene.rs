@@ -1,5 +1,5 @@
 pub type BinaryGene = bool;
-pub type DiscreteGene = u8;
+pub type DiscreteGene = u32;
 pub type ContinuousGene = f32;
 
 pub trait Gene: Default + Copy + Clone + std::fmt::Debug {}
