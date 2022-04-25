@@ -38,14 +38,14 @@ mod genotype_tests {
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(
             inspect::chromosome(&chromosome),
-            vec![5, 6, 3, 4, 6, 5, 4, 6, 3, 6]
+            vec![4, 4, 6, 4, 6, 6, 5, 4, 4, 6]
         );
 
         genotype.mutate_chromosome(&mut chromosome, &mut rng);
         genotype.mutate_chromosome(&mut chromosome, &mut rng);
         assert_eq!(
             inspect::chromosome(&chromosome),
-            vec![4, 6, 3, 4, 6, 5, 4, 6, 3, 6]
+            vec![4, 4, 6, 4, 6, 6, 3, 4, 4, 6]
         );
     }
 

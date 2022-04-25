@@ -7,7 +7,7 @@ use std::fmt;
 
 pub struct Binary {
     pub gene_size: usize,
-    pub gene_index_sampler: Uniform<usize>,
+    gene_index_sampler: Uniform<usize>,
     gene_value_sampler: Bernoulli,
 }
 

@@ -51,7 +51,7 @@ mod mutate_tests {
 
         assert_eq!(
             inspect::population(&population),
-            vec![vec![0, 2, 0], vec![0, 3, 0], vec![1, 0, 0], vec![0, 0, 0],]
+            vec![vec![0, 3, 0], vec![0, 0, 3], vec![0, 0, 0], vec![0, 3, 0],]
         );
     }
 
