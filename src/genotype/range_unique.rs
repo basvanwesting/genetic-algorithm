@@ -1,17 +1,20 @@
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::DiscreteGene;
+use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
 pub struct RangeUnique {
     pub gene_range: std::ops::Range<DiscreteGene>,
+    gene_index_sampler: Uniform<usize>,
 }
 
 impl RangeUnique {
     pub fn new() -> Self {
         Self {
             gene_range: std::ops::Range::default(),
+            gene_index_sampler: Uniform::from(0..=0),
         }
     }
 
@@ -20,7 +23,8 @@ impl RangeUnique {
         self
     }
 
-    pub fn build(self) -> Self {
+    pub fn build(mut self) -> Self {
+        self.gene_index_sampler = Uniform::from(0..self.gene_range.len());
         self
     }
 }
@@ -36,8 +40,8 @@ impl Genotype<DiscreteGene> for RangeUnique {
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<DiscreteGene>, rng: &mut R) {
-        let index1 = rng.gen_range(0..self.gene_size());
-        let index2 = rng.gen_range(0..self.gene_size());
+        let index1 = self.gene_index_sampler.sample(rng);
+        let index2 = self.gene_index_sampler.sample(rng);
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }

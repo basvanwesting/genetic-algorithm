@@ -145,6 +145,6 @@ mod genotype_tests {
         assert_eq!(inspect::chromosome(&chromosome), vec![5, 2, 3, 6, 4]);
 
         genotype.mutate_chromosome(&mut chromosome, &mut rng);
-        assert_eq!(inspect::chromosome(&chromosome), vec![6, 2, 3, 5, 4]);
+        assert_eq!(inspect::chromosome(&chromosome), vec![5, 2, 3, 4, 6]);
     }
 }
