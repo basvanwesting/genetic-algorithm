@@ -22,6 +22,5 @@ find the flamegraph in: ./target/criterion/profile_evolve_binary/profile/flamegr
 ## TODO
 * generalize over Range and RangeInclusive for RangeGenotype if possible. rand has a SampleRange<T> Trait, which is only implemented for Range and RangeInclusive, so that might be nice
 * remove builder duplication in Genotype implementations
-* try nested trait bound: e.g. `G: Genotype<T: Gene>` and then use G and T. Maybe make type alias for it if possible
 * maybe seed best_chromosome back into population after degenerate?
 
