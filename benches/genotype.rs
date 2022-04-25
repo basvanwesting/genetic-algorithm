@@ -5,14 +5,14 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("mutate_chromosome binary", |b| {
+    c.bench_function("mutate_chromosome_binary", |b| {
         let mut rng = SmallRng::from_entropy();
         let genotype = BinaryGenotype::new().with_gene_size(100).build();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });
 
-    c.bench_function("mutate_chromosome discrete", |b| {
+    c.bench_function("mutate_chromosome_discrete", |b| {
         let mut rng = SmallRng::from_entropy();
         let genotype = DiscreteGenotype::new()
             .with_gene_size(100)
@@ -22,7 +22,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });
 
-    c.bench_function("mutate_chromosome discrete_unique", |b| {
+    c.bench_function("mutate_chromosome_discrete_unique", |b| {
         let mut rng = SmallRng::from_entropy();
         let genotype = DiscreteUniqueGenotype::new()
             .with_gene_values(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9])
@@ -31,7 +31,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });
 
-    c.bench_function("mutate_chromosome range", |b| {
+    c.bench_function("mutate_chromosome_range", |b| {
         let mut rng = SmallRng::from_entropy();
         let genotype = RangeGenotype::new()
             .with_gene_size(100)
@@ -41,14 +41,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });
 
-    c.bench_function("mutate_chromosome range_unique", |b| {
+    c.bench_function("mutate_chromosome_range_unique", |b| {
         let mut rng = SmallRng::from_entropy();
         let genotype = RangeUniqueGenotype::new().with_gene_range(0..100).build();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });
 
-    c.bench_function("mutate_chromosome continuous", |b| {
+    c.bench_function("mutate_chromosome_continuous", |b| {
         let mut rng = SmallRng::from_entropy();
         let genotype = ContinuousGenotype::new().with_gene_size(100).build();
         let mut chromosome = genotype.chromosome_factory(&mut rng);

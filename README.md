@@ -26,6 +26,7 @@ find the flamegraph in: ./target/criterion/profile_evolve_binary/profile/flamegr
 * maybe seed best_chromosome back into population after degenerate?
 * maybe make crossover and compete optional as nqueens doesn't really need it, or use Noop types
 * try nested trait bound: e.g. `G: Genotype<T: Gene>` and then use G and T. Maybe make type alias for it if possible
+* fitness u32 doesn't need to cast in sum
 
 
 

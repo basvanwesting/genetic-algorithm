@@ -1,16 +1,21 @@
 use super::Genotype;
 use crate::chromosome::Chromosome;
 use crate::gene::ContinuousGene;
+use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
 pub struct Continuous {
     pub gene_size: usize,
+    gene_index_sampler: Uniform<usize>,
 }
 
 impl Continuous {
     pub fn new() -> Self {
-        Self { gene_size: 0 }
+        Self {
+            gene_size: 0,
+            gene_index_sampler: Uniform::from(0..=0),
+        }
     }
 
     pub fn with_gene_size(mut self, gene_size: usize) -> Self {
@@ -18,7 +23,8 @@ impl Continuous {
         self
     }
 
-    pub fn build(self) -> Self {
+    pub fn build(mut self) -> Self {
+        self.gene_index_sampler = Uniform::from(0..self.gene_size);
         self
     }
 }
@@ -33,7 +39,7 @@ impl Genotype<ContinuousGene> for Continuous {
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<ContinuousGene>, rng: &mut R) {
-        let index = rng.gen_range(0..self.gene_size);
+        let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = rng.gen();
         chromosome.taint_fitness_score();
     }
