@@ -1,6 +1,7 @@
 use super::Genotype;
 use crate::chromosome::Chromosome;
 use crate::gene::BinaryGene;
+use crate::permutate::PermutableGenotype;
 use rand::prelude::*;
 use std::fmt;
 
@@ -23,9 +24,6 @@ impl Genotype<BinaryGene> for Binary {
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn gene_values(&self) -> Vec<BinaryGene> {
-        vec![true, false]
-    }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<BinaryGene> {
         let genes: Vec<BinaryGene> = (0..self.gene_size).map(|_| rng.gen()).collect();
         Chromosome::new(genes)
@@ -35,6 +33,12 @@ impl Genotype<BinaryGene> for Binary {
         let index = rng.gen_range(0..self.gene_size);
         chromosome.genes[index] = !chromosome.genes[index];
         chromosome.taint_fitness_score();
+    }
+}
+
+impl PermutableGenotype<BinaryGene> for Binary {
+    fn gene_values_to_permutate(&self) -> Vec<BinaryGene> {
+        vec![true, false]
     }
 }
 

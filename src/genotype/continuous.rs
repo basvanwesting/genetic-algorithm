@@ -23,10 +23,6 @@ impl Genotype<ContinuousGene> for Continuous {
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn gene_values(&self) -> Vec<ContinuousGene> {
-        vec![]
-    }
-
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<ContinuousGene> {
         let genes: Vec<ContinuousGene> = (0..self.gene_size).map(|_| rng.gen()).collect();
         Chromosome::new(genes)

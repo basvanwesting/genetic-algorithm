@@ -5,7 +5,6 @@ use std::fmt;
 
 pub trait Genotype<T: Gene>: fmt::Display {
     fn gene_size(&self) -> usize;
-    fn gene_values(&self) -> Vec<T>;
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<T>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R);
 }

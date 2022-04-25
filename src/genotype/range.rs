@@ -1,6 +1,7 @@
 use super::Genotype;
 use crate::chromosome::Chromosome;
 use crate::gene::{ContinuousGene, DiscreteGene, Gene};
+use crate::permutate::PermutableGenotype;
 use rand::prelude::*;
 use std::fmt;
 
@@ -32,10 +33,6 @@ impl Genotype<DiscreteGene> for Range<DiscreteGene> {
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn gene_values(&self) -> Vec<DiscreteGene> {
-        self.gene_range.clone().collect()
-    }
-
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<DiscreteGene> {
         let genes: Vec<DiscreteGene> = (0..self.gene_size)
             .map(|_| rng.gen_range(self.gene_range.clone()))
@@ -50,12 +47,15 @@ impl Genotype<DiscreteGene> for Range<DiscreteGene> {
     }
 }
 
+impl PermutableGenotype<DiscreteGene> for Range<DiscreteGene> {
+    fn gene_values_to_permutate(&self) -> Vec<DiscreteGene> {
+        self.gene_range.clone().collect()
+    }
+}
+
 impl Genotype<ContinuousGene> for Range<ContinuousGene> {
     fn gene_size(&self) -> usize {
         self.gene_size
-    }
-    fn gene_values(&self) -> Vec<ContinuousGene> {
-        vec![]
     }
 
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<ContinuousGene> {

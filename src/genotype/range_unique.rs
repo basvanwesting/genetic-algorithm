@@ -1,6 +1,7 @@
 use super::Genotype;
 use crate::chromosome::Chromosome;
 use crate::gene::DiscreteGene;
+use crate::permutate::PermutableGenotype;
 use rand::prelude::*;
 use std::fmt;
 
@@ -25,12 +26,8 @@ impl Genotype<DiscreteGene> for RangeUnique {
     fn gene_size(&self) -> usize {
         self.gene_range.len()
     }
-    fn gene_values(&self) -> Vec<DiscreteGene> {
-        self.gene_range.clone().collect()
-    }
-
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<DiscreteGene> {
-        let mut genes = self.gene_values();
+        let mut genes: Vec<DiscreteGene> = self.gene_range.clone().collect();
         genes.shuffle(rng);
         Chromosome::new(genes)
     }
@@ -40,6 +37,12 @@ impl Genotype<DiscreteGene> for RangeUnique {
         let index2 = rng.gen_range(0..self.gene_size());
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
+    }
+}
+
+impl PermutableGenotype<DiscreteGene> for RangeUnique {
+    fn gene_values_to_permutate(&self) -> Vec<DiscreteGene> {
+        self.gene_range.clone().collect()
     }
 }
 
