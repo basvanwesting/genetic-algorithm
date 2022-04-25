@@ -68,7 +68,7 @@ mod evolve_tests {
         assert_eq!(best_chromosome.fitness_score, Some(9));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
-            vec![true, true, true, false, true, true, true, true, true, true]
+            vec![true, true, true, true, true, true, true, true, true, false]
         );
     }
 
@@ -89,10 +89,10 @@ mod evolve_tests {
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
-        assert_eq!(best_chromosome.fitness_score, Some(8));
+        assert_eq!(best_chromosome.fitness_score, Some(9));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
-            vec![false, true, true, false, true, true, true, true, true, true]
+            vec![true, true, true, true, true, true, true, false, true, true]
         );
     }
 
@@ -166,14 +166,14 @@ mod evolve_tests {
         assert_eq!(
             inspect::population(&population),
             vec![
-                vec![false, false, true, false],
-                vec![true, true, true, false],
+                vec![true, true, false, true],
+                vec![false, false, false, true],
+                vec![true, false, true, false],
                 vec![false, true, false, true],
-                vec![true, false, true, false],
-                vec![false, false, true, true],
-                vec![true, false, false, true],
+                vec![true, true, false, false],
                 vec![false, true, true, false],
-                vec![true, false, true, false],
+                vec![true, false, false, true],
+                vec![false, true, false, true],
             ]
         )
     }

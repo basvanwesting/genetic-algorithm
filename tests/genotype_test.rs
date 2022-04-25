@@ -17,13 +17,13 @@ mod genotype_tests {
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(
             inspect::chromosome(&chromosome),
-            vec![false, false, true, false, true, true, true, false, false, true]
+            vec![true, true, false, true, false, false, false, true, true, false]
         );
 
         genotype.mutate_chromosome(&mut chromosome, &mut rng);
         assert_eq!(
             inspect::chromosome(&chromosome),
-            vec![false, false, false, false, true, true, true, false, false, true]
+            vec![true, true, true, true, false, false, false, true, true, false]
         );
     }
 
