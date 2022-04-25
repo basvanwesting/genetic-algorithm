@@ -24,12 +24,12 @@ impl Fitness<BinaryGene> for SimpleSum {
 
 impl Fitness<DiscreteGene> for SimpleSum {
     fn call_for_chromosome(&self, chromosome: &Chromosome<DiscreteGene>) -> isize {
-        chromosome.genes.iter().map(|&value| value as isize).sum()
+        chromosome.genes.iter().sum::<DiscreteGene>() as isize
     }
 }
 
 impl Fitness<ContinuousGene> for SimpleSum {
     fn call_for_chromosome(&self, chromosome: &Chromosome<ContinuousGene>) -> isize {
-        chromosome.genes.iter().sum::<f32>() as isize
+        chromosome.genes.iter().sum::<ContinuousGene>() as isize
     }
 }
