@@ -6,14 +6,14 @@ use std::fmt;
 
 pub struct Range<T: Gene> {
     pub gene_size: usize,
-    pub gene_range: std::ops::RangeInclusive<T>,
+    pub gene_range: std::ops::Range<T>,
 }
 
 impl<T: Gene> Range<T> {
     pub fn new() -> Self {
         Self {
             gene_size: 0,
-            gene_range: std::ops::RangeInclusive::<T>::new(T::default(), T::default()),
+            gene_range: std::ops::Range::<T>::default(),
         }
     }
 
@@ -22,7 +22,7 @@ impl<T: Gene> Range<T> {
         self
     }
 
-    pub fn with_gene_range(mut self, gene_range: std::ops::RangeInclusive<T>) -> Self {
+    pub fn with_gene_range(mut self, gene_range: std::ops::Range<T>) -> Self {
         self.gene_range = gene_range;
         self
     }

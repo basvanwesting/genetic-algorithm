@@ -46,7 +46,7 @@ mod permutate_tests {
     fn test_call_range() {
         let genotype = RangeGenotype::new()
             .with_gene_size(5)
-            .with_gene_range(0..=10);
+            .with_gene_range(0..10);
 
         let permutate = Permutate::new(genotype)
             .with_fitness(fitness::SimpleSum)
@@ -55,11 +55,8 @@ mod permutate_tests {
         let best_chromosome = permutate.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
-        assert_eq!(best_chromosome.fitness_score, Some(50));
-        assert_eq!(
-            inspect::chromosome(&best_chromosome),
-            vec![10, 10, 10, 10, 10]
-        );
+        assert_eq!(best_chromosome.fitness_score, Some(45));
+        assert_eq!(inspect::chromosome(&best_chromosome), vec![9, 9, 9, 9, 9]);
     }
 
     #[test]

@@ -5,17 +5,17 @@ use rand::prelude::*;
 use std::fmt;
 
 pub struct RangeUnique {
-    pub gene_range: std::ops::RangeInclusive<DiscreteGene>,
+    pub gene_range: std::ops::Range<DiscreteGene>,
 }
 
 impl RangeUnique {
     pub fn new() -> Self {
         Self {
-            gene_range: std::ops::RangeInclusive::new(0, 0),
+            gene_range: std::ops::Range::default(),
         }
     }
 
-    pub fn with_gene_range(mut self, gene_range: std::ops::RangeInclusive<DiscreteGene>) -> Self {
+    pub fn with_gene_range(mut self, gene_range: std::ops::Range<DiscreteGene>) -> Self {
         self.gene_range = gene_range;
         self
     }
