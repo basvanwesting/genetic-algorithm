@@ -197,7 +197,7 @@ impl<T: Gene, G: Genotype<T>, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete
         );
     }
 
-    fn best_fitness_score(&self) -> Option<isize> {
+    pub fn best_fitness_score(&self) -> Option<isize> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 

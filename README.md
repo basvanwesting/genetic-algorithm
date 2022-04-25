@@ -21,12 +21,7 @@ find the flamegraph in: ./target/criterion/profile_evolve_binary/profile/flamegr
 
 ## TODO
 * generalize over Range and RangeInclusive for RangeGenotype if possible. rand has a SampleRange<T> Trait, which is only implemented for Range and RangeInclusive, so that might be nice
-* add gene_index_sampler on Genotype for efficient rand reuse, use builder to initialize. Benchmark
-* maybe add gene_value_sampler on Genotype for efficient rand reuse, use builder to initialize. Benchmark
-* maybe seed best_chromosome back into population after degenerate?
-* maybe make crossover and compete optional as nqueens doesn't really need it, or use Noop types
+* remove builder duplication in Genotype implementations
 * try nested trait bound: e.g. `G: Genotype<T: Gene>` and then use G and T. Maybe make type alias for it if possible
-* fitness u32 doesn't need to cast in sum
-
-
+* maybe seed best_chromosome back into population after degenerate?
 

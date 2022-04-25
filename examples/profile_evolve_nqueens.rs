@@ -64,5 +64,5 @@ fn run() {
         .with_compete(compete::Tournament(4))
         .call();
 
-    //println!("{}", evolve);
+    println!("{}", evolve);
 }
