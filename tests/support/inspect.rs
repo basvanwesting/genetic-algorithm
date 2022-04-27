@@ -3,7 +3,7 @@ use genetic_algorithm::genotype::Genotype;
 //use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
-pub fn chromosome<T: Genotype>(chromosome: &Chromosome<T>) -> Vec<<T as Genotype>::Gene> {
+pub fn chromosome<T: Genotype>(chromosome: &Chromosome<T>) -> Vec<T::Gene> {
     chromosome.genes.clone()
 }
 

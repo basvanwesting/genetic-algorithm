@@ -4,12 +4,12 @@ use std::fmt;
 
 #[derive(Debug, Clone)]
 pub struct Chromosome<T: Genotype> {
-    pub genes: Vec<<T as Genotype>::Gene>,
+    pub genes: Vec<T::Gene>,
     pub fitness_score: Option<isize>,
 }
 
 impl<T: Genotype> Chromosome<T> {
-    pub fn new(genes: Vec<<T as Genotype>::Gene>) -> Self {
+    pub fn new(genes: Vec<T::Gene>) -> Self {
         Self {
             genes: genes,
             fitness_score: None,
