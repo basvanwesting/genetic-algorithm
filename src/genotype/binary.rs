@@ -1,9 +1,11 @@
-use super::{Genotype, PermutableGenotype};
+//use super::{Genotype, PermutableGenotype};
+use super::Genotype;
 use crate::chromosome::Chromosome;
-use crate::gene::BinaryGene;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use std::fmt;
+
+type BinaryGene = bool;
 
 pub struct Binary {
     pub gene_size: usize,
@@ -32,29 +34,30 @@ impl Binary {
     }
 }
 
-impl Genotype<BinaryGene> for Binary {
+impl Genotype for Binary {
+    type Gene = BinaryGene;
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<BinaryGene> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Binary> {
         let genes: Vec<BinaryGene> = (0..self.gene_size)
             .map(|_| self.gene_value_sampler.sample(rng))
             .collect();
         Chromosome::new(genes)
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<BinaryGene>, rng: &mut R) {
+    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Binary>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = !chromosome.genes[index];
         chromosome.taint_fitness_score();
     }
 }
 
-impl PermutableGenotype<BinaryGene> for Binary {
-    fn gene_values(&self) -> Vec<BinaryGene> {
-        vec![true, false]
-    }
-}
+//impl PermutableGenotype<BinaryGene> for Binary {
+//fn gene_values(&self) -> Vec<BinaryGene> {
+//vec![true, false]
+//}
+//}
 
 impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

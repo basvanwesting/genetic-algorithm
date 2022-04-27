@@ -1,10 +1,12 @@
-use super::{Genotype, PermutableGenotype};
+//use super::{Genotype, PermutableGenotype};
+use super::Genotype;
 use crate::chromosome::Chromosome;
-use crate::gene::DiscreteGene;
 use itertools::Itertools;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
+
+type DiscreteGene = u32;
 
 pub struct Discrete {
     pub gene_size: usize,
@@ -40,29 +42,30 @@ impl Discrete {
     }
 }
 
-impl Genotype<DiscreteGene> for Discrete {
+impl Genotype for Discrete {
+    type Gene = DiscreteGene;
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<DiscreteGene> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Discrete> {
         let genes: Vec<DiscreteGene> = (0..self.gene_size)
             .map(|_| self.gene_values[self.gene_value_index_sampler.sample(rng)])
             .collect();
         Chromosome::new(genes)
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<DiscreteGene>, rng: &mut R) {
+    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Discrete>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = self.gene_values[self.gene_value_index_sampler.sample(rng)];
         chromosome.taint_fitness_score();
     }
 }
 
-impl PermutableGenotype<DiscreteGene> for Discrete {
-    fn gene_values(&self) -> Vec<DiscreteGene> {
-        self.gene_values.clone()
-    }
-}
+//impl PermutableGenotype<DiscreteGene> for Discrete {
+//fn gene_values(&self) -> Vec<DiscreteGene> {
+//self.gene_values.clone()
+//}
+//}
 
 impl fmt::Display for Discrete {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

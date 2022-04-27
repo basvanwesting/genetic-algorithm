@@ -1,19 +1,19 @@
 use crate::chromosome::Chromosome;
-use crate::gene::Gene;
 use rand::prelude::*;
 use std::fmt;
 
-pub trait Genotype<T: Gene>: fmt::Display {
+pub trait Genotype: Sized + fmt::Display {
+    type Gene: Default + Copy + Clone + std::fmt::Debug;
     fn gene_size(&self) -> usize;
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<T>;
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R);
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
+    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
 }
 
 // Evolvable is implicit, until proven otherwise
 //pub trait EvolvableGenotype<T: Gene>: Genotype<T> {}
-pub trait PermutableGenotype<T: Gene>: Genotype<T> {
-    fn gene_values(&self) -> Vec<T>;
-}
+//pub trait PermutableGenotype<T: Gene>: Genotype<T> {
+//fn gene_values(&self) -> Vec<T>;
+//}
 
 mod binary;
 pub use self::binary::Binary as BinaryGenotype;
@@ -21,14 +21,14 @@ pub use self::binary::Binary as BinaryGenotype;
 mod discrete;
 pub use self::discrete::Discrete as DiscreteGenotype;
 
-mod discrete_unique;
-pub use self::discrete_unique::DiscreteUnique as DiscreteUniqueGenotype;
+//mod discrete_unique;
+//pub use self::discrete_unique::DiscreteUnique as DiscreteUniqueGenotype;
 
-mod continuous;
-pub use self::continuous::Continuous as ContinuousGenotype;
+//mod continuous;
+//pub use self::continuous::Continuous as ContinuousGenotype;
 
-mod range;
-pub use self::range::Range as RangeGenotype;
+//mod range;
+//pub use self::range::Range as RangeGenotype;
 
-mod range_unique;
-pub use self::range_unique::RangeUnique as RangeUniqueGenotype;
+//mod range_unique;
+//pub use self::range_unique::RangeUnique as RangeUniqueGenotype;
