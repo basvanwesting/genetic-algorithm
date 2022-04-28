@@ -29,16 +29,17 @@ impl Continuous {
     }
 }
 
-impl Genotype<ContinuousGene> for Continuous {
+impl Genotype for Continuous {
+    type Gene = ContinuousGene;
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<ContinuousGene> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Continuous> {
         let genes: Vec<ContinuousGene> = (0..self.gene_size).map(|_| rng.gen()).collect();
         Chromosome::new(genes)
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<ContinuousGene>, rng: &mut R) {
+    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Continuous>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = rng.gen();
         chromosome.taint_fitness_score();

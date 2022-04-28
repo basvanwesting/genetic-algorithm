@@ -22,11 +22,11 @@ pub use self::binary::Binary as BinaryGenotype;
 mod discrete;
 pub use self::discrete::Discrete as DiscreteGenotype;
 
-//mod discrete_unique;
-//pub use self::discrete_unique::DiscreteUnique as DiscreteUniqueGenotype;
+mod discrete_unique;
+pub use self::discrete_unique::DiscreteUnique as DiscreteUniqueGenotype;
 
-//mod continuous;
-//pub use self::continuous::Continuous as ContinuousGenotype;
+mod continuous;
+pub use self::continuous::Continuous as ContinuousGenotype;
 
 //mod range;
 //pub use self::range::Range as RangeGenotype;

@@ -1,18 +1,17 @@
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
-use crate::gene::DiscreteGene;
-use itertools::Itertools;
+use crate::gene::Gene;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use rand::seq::SliceRandom;
 use std::fmt;
 
-pub struct DiscreteUnique {
-    pub gene_values: Vec<DiscreteGene>,
+pub struct DiscreteUnique<T: Gene> {
+    pub gene_values: Vec<T>,
     gene_index_sampler: Uniform<usize>,
 }
 
-impl DiscreteUnique {
+impl<T: Gene> DiscreteUnique<T> {
     pub fn new() -> Self {
         Self {
             gene_values: vec![],
@@ -20,7 +19,7 @@ impl DiscreteUnique {
         }
     }
 
-    pub fn with_gene_values(mut self, gene_values: Vec<DiscreteGene>) -> Self {
+    pub fn with_gene_values(mut self, gene_values: Vec<T>) -> Self {
         self.gene_values = gene_values;
         self
     }
@@ -31,17 +30,22 @@ impl DiscreteUnique {
     }
 }
 
-impl Genotype<DiscreteGene> for DiscreteUnique {
+impl<T: Gene> Genotype for DiscreteUnique<T> {
+    type Gene = T;
     fn gene_size(&self) -> usize {
         self.gene_values.len()
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<DiscreteGene> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<DiscreteUnique<T>> {
         let mut genes = self.gene_values.clone();
         genes.shuffle(rng);
         Chromosome::new(genes)
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<DiscreteGene>, rng: &mut R) {
+    fn mutate_chromosome<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<DiscreteUnique<T>>,
+        rng: &mut R,
+    ) {
         let index1 = self.gene_index_sampler.sample(rng);
         let index2 = self.gene_index_sampler.sample(rng);
         chromosome.genes.swap(index1, index2);
@@ -49,16 +53,16 @@ impl Genotype<DiscreteGene> for DiscreteUnique {
     }
 }
 
-impl PermutableGenotype<DiscreteGene> for DiscreteUnique {
-    fn gene_values(&self) -> Vec<DiscreteGene> {
+impl<T: Gene> PermutableGenotype for DiscreteUnique<T> {
+    fn gene_values(&self) -> Vec<T> {
         self.gene_values.clone()
     }
 }
 
-impl fmt::Display for DiscreteUnique {
+impl<T: Gene> fmt::Display for DiscreteUnique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "genotype:\n")?;
         write!(f, "  gene_size: {}\n", self.gene_size())?;
-        write!(f, "  gene_values: {}\n", self.gene_values.iter().join(","))
+        write!(f, "  gene_values: {:?}\n", self.gene_values)
     }
 }
