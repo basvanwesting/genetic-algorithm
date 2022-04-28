@@ -1,5 +1,4 @@
-//use super::{Genotype, PermutableGenotype};
-use super::Genotype;
+use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::BinaryGene;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
@@ -52,11 +51,11 @@ impl Genotype for Binary {
     }
 }
 
-//impl PermutableGenotype<BinaryGene> for Binary {
-//fn gene_values(&self) -> Vec<BinaryGene> {
-//vec![true, false]
-//}
-//}
+impl PermutableGenotype for Binary {
+    fn gene_values(&self) -> Vec<BinaryGene> {
+        vec![true, false]
+    }
+}
 
 impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

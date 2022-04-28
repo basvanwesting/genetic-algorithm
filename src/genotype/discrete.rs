@@ -1,5 +1,4 @@
-//use super::{Genotype, PermutableGenotype};
-use super::Genotype;
+use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::Gene;
 use rand::distributions::{Distribution, Uniform};
@@ -59,11 +58,11 @@ impl<T: Gene> Genotype for Discrete<T> {
     }
 }
 
-//impl PermutableGenotype<DiscreteGene> for Discrete {
-//fn gene_values(&self) -> Vec<DiscreteGene> {
-//self.gene_values.clone()
-//}
-//}
+impl<T: Gene> PermutableGenotype for Discrete<T> {
+    fn gene_values(&self) -> Vec<T> {
+        self.gene_values.clone()
+    }
+}
 
 impl<T: Gene> fmt::Display for Discrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

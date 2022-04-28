@@ -10,11 +10,11 @@ pub trait Genotype: Sized + fmt::Display {
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
 }
 
-// Evolvable is implicit, until proven otherwise
-//pub trait EvolvableGenotype<T: Gene>: Genotype<T> {}
-//pub trait PermutableGenotype<T: Gene>: Genotype<T> {
-//fn gene_values(&self) -> Vec<T>;
-//}
+//Evolvable is implicit, until proven otherwise
+//pub trait EvolvableGenotype: Genotype {}
+pub trait PermutableGenotype: Genotype {
+    fn gene_values(&self) -> Vec<Self::Gene>;
+}
 
 mod binary;
 pub use self::binary::Binary as BinaryGenotype;

@@ -4,7 +4,9 @@ mod support;
 mod genotype_tests {
 
     use crate::support::*;
-    use genetic_algorithm::genotype::{BinaryGenotype, DiscreteGenotype, Genotype};
+    use genetic_algorithm::genotype::{
+        BinaryGenotype, DiscreteGenotype, Genotype, PermutableGenotype,
+    };
     //use genetic_algorithm::genotype::{
     //BinaryGenotype, ContinuousGenotype, DiscreteGenotype, DiscreteUniqueGenotype, Genotype,
     //RangeGenotype, RangeUniqueGenotype,
@@ -26,6 +28,8 @@ mod genotype_tests {
             inspect::chromosome(&chromosome),
             vec![true, true, true, true, false, false, false, true, true, false]
         );
+
+        assert_eq!(genotype.gene_values(), vec![true, false]);
     }
 
     #[test]
@@ -48,6 +52,8 @@ mod genotype_tests {
             inspect::chromosome(&chromosome),
             vec![4, 4, 6, 4, 6, 6, 3, 4, 4, 6]
         );
+
+        assert_eq!(genotype.gene_values(), vec![3, 4, 5, 6]);
     }
 
     #[test]
@@ -70,6 +76,8 @@ mod genotype_tests {
             inspect::chromosome(&chromosome),
             vec![0.4, 0.4, 0.6, 0.4, 0.6, 0.6, 0.3, 0.4, 0.4, 0.6]
         );
+
+        assert_eq!(genotype.gene_values(), vec![0.3, 0.4, 0.5, 0.6]);
     }
 
     //#[test]
