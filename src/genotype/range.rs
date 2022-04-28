@@ -1,6 +1,6 @@
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
-use crate::gene::{ContinuousGene, DiscreteGene, Gene};
+use crate::gene::{DiscreteGene, Gene};
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
@@ -40,46 +40,28 @@ impl<T: Gene + SampleUniform> Range<T> {
     }
 }
 
-impl Genotype<DiscreteGene> for Range<DiscreteGene> {
+impl<T: Gene + SampleUniform> Genotype for Range<T> {
+    type Gene = T;
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<DiscreteGene> {
-        let genes: Vec<DiscreteGene> = (0..self.gene_size)
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Range<T>> {
+        let genes: Vec<T> = (0..self.gene_size)
             .map(|_| self.gene_value_sampler.sample(rng))
             .collect();
         Chromosome::new(genes)
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<DiscreteGene>, rng: &mut R) {
+    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Range<T>>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = self.gene_value_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
 }
 
-impl PermutableGenotype<DiscreteGene> for Range<DiscreteGene> {
+impl PermutableGenotype for Range<DiscreteGene> {
     fn gene_values(&self) -> Vec<DiscreteGene> {
         self.gene_range.clone().collect()
-    }
-}
-
-impl Genotype<ContinuousGene> for Range<ContinuousGene> {
-    fn gene_size(&self) -> usize {
-        self.gene_size
-    }
-
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<ContinuousGene> {
-        let genes: Vec<ContinuousGene> = (0..self.gene_size)
-            .map(|_| self.gene_value_sampler.sample(rng))
-            .collect();
-        Chromosome::new(genes)
-    }
-
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<ContinuousGene>, rng: &mut R) {
-        let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.gene_value_sampler.sample(rng);
-        chromosome.taint_fitness_score();
     }
 }
 

@@ -28,8 +28,8 @@ pub use self::discrete_unique::DiscreteUnique as DiscreteUniqueGenotype;
 mod continuous;
 pub use self::continuous::Continuous as ContinuousGenotype;
 
-//mod range;
-//pub use self::range::Range as RangeGenotype;
+mod range;
+pub use self::range::Range as RangeGenotype;
 
-//mod range_unique;
-//pub use self::range_unique::RangeUnique as RangeUniqueGenotype;
+mod range_unique;
+pub use self::range_unique::RangeUnique as RangeUniqueGenotype;

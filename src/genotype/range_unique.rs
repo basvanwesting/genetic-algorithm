@@ -29,17 +29,18 @@ impl RangeUnique {
     }
 }
 
-impl Genotype<DiscreteGene> for RangeUnique {
+impl Genotype for RangeUnique {
+    type Gene = DiscreteGene;
     fn gene_size(&self) -> usize {
         self.gene_range.len()
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<DiscreteGene> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<RangeUnique> {
         let mut genes: Vec<DiscreteGene> = self.gene_range.clone().collect();
         genes.shuffle(rng);
         Chromosome::new(genes)
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<DiscreteGene>, rng: &mut R) {
+    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<RangeUnique>, rng: &mut R) {
         let index1 = self.gene_index_sampler.sample(rng);
         let index2 = self.gene_index_sampler.sample(rng);
         chromosome.genes.swap(index1, index2);
@@ -47,7 +48,7 @@ impl Genotype<DiscreteGene> for RangeUnique {
     }
 }
 
-impl PermutableGenotype<DiscreteGene> for RangeUnique {
+impl PermutableGenotype for RangeUnique {
     fn gene_values(&self) -> Vec<DiscreteGene> {
         self.gene_range.clone().collect()
     }
