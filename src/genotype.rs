@@ -1,9 +1,10 @@
 use crate::chromosome::Chromosome;
+use crate::gene::Gene;
 use rand::prelude::*;
 use std::fmt;
 
 pub trait Genotype: Sized + fmt::Display {
-    type Gene: Default + Copy + Clone + std::fmt::Debug;
+    type Gene: Gene;
     fn gene_size(&self) -> usize;
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);

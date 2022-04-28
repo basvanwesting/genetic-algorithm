@@ -1,11 +1,10 @@
 //use super::{Genotype, PermutableGenotype};
 use super::Genotype;
 use crate::chromosome::Chromosome;
+use crate::gene::BinaryGene;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use std::fmt;
-
-type BinaryGene = bool;
 
 pub struct Binary {
     pub gene_size: usize,

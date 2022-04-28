@@ -29,7 +29,7 @@ mod genotype_tests {
     }
 
     #[test]
-    fn test_discrete_genotype() {
+    fn test_discrete_genotype_integer() {
         let mut rng = SmallRng::seed_from_u64(0);
         let genotype = DiscreteGenotype::new()
             .with_gene_size(10)
@@ -47,6 +47,28 @@ mod genotype_tests {
         assert_eq!(
             inspect::chromosome(&chromosome),
             vec![4, 4, 6, 4, 6, 6, 3, 4, 4, 6]
+        );
+    }
+
+    #[test]
+    fn test_discrete_genotype_float() {
+        let mut rng = SmallRng::seed_from_u64(0);
+        let genotype = DiscreteGenotype::new()
+            .with_gene_size(10)
+            .with_gene_values(vec![0.3, 0.4, 0.5, 0.6])
+            .build();
+
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        assert_eq!(
+            inspect::chromosome(&chromosome),
+            vec![0.4, 0.4, 0.6, 0.4, 0.6, 0.6, 0.5, 0.4, 0.4, 0.6]
+        );
+
+        genotype.mutate_chromosome(&mut chromosome, &mut rng);
+        genotype.mutate_chromosome(&mut chromosome, &mut rng);
+        assert_eq!(
+            inspect::chromosome(&chromosome),
+            vec![0.4, 0.4, 0.6, 0.4, 0.6, 0.6, 0.3, 0.4, 0.4, 0.6]
         );
     }
 
