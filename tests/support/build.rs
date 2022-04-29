@@ -1,9 +1,9 @@
 use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::gene::Gene;
+use genetic_algorithm::genotype::Genotype;
 use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
-pub fn population<T: Gene>(data: Vec<Vec<T>>) -> Population<T> {
+pub fn population<T: Genotype>(data: Vec<Vec<T::Gene>>) -> Population<T> {
     let chromosomes = data
         .into_iter()
         .map(|gene_values| chromosome(gene_values))
@@ -13,6 +13,6 @@ pub fn population<T: Gene>(data: Vec<Vec<T>>) -> Population<T> {
 }
 
 #[allow(dead_code)]
-pub fn chromosome<T: Gene>(gene_values: Vec<T>) -> Chromosome<T> {
+pub fn chromosome<T: Genotype>(gene_values: Vec<T::Gene>) -> Chromosome<T> {
     Chromosome::new(gene_values)
 }

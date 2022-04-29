@@ -1,13 +1,13 @@
 use crate::chromosome::Chromosome;
-use crate::gene::Gene;
+use crate::genotype::Genotype;
 use stats::stddev;
 
 #[derive(Debug, Clone)]
-pub struct Population<T: Gene> {
+pub struct Population<T: Genotype> {
     pub chromosomes: Vec<Chromosome<T>>,
 }
 
-impl<T: Gene> Population<T> {
+impl<T: Genotype> Population<T> {
     pub fn new(chromosomes: Vec<Chromosome<T>>) -> Self {
         Self {
             chromosomes: chromosomes,
