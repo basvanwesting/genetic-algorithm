@@ -3,9 +3,9 @@ mod support;
 #[cfg(test)]
 mod population_tests {
     use crate::support::*;
+    use genetic_algorithm::fitness;
+    use genetic_algorithm::fitness::Fitness;
     use genetic_algorithm::genotype::BinaryGenotype;
-    //use genetic_algorithm::fitness;
-    //use genetic_algorithm::fitness::Fitness;
 
     #[test]
     fn test_fitness_score_stddev() {
@@ -21,22 +21,22 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        //let population = fitness::SimpleSum.call_for_population(population);
-        //assert_eq!(population.fitness_score_stddev(), 0.8660254);
+        let population = fitness::SimpleSum.call_for_population(population);
+        assert_eq!(population.fitness_score_stddev(), 0.8660254);
 
-        //let population = build::population(vec![
-        //vec![true, true, true],
-        //vec![true, true, true],
-        //vec![true, true, true],
-        //vec![true, true, true],
-        //vec![true, true, true],
-        //vec![true, true, true],
-        //vec![true, true, true],
-        //vec![true, true, false],
-        //]);
+        let population = build::population::<BinaryGenotype>(vec![
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, false],
+        ]);
 
-        //assert_eq!(population.fitness_score_stddev(), 0.0);
-        //let population = fitness::SimpleSum.call_for_population(population);
-        //assert_eq!(population.fitness_score_stddev(), 0.3307189);
+        assert_eq!(population.fitness_score_stddev(), 0.0);
+        let population = fitness::SimpleSum.call_for_population(population);
+        assert_eq!(population.fitness_score_stddev(), 0.3307189);
     }
 }
