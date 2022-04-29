@@ -1,13 +1,12 @@
-use crate::gene::Gene;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
 pub trait Mutate: Clone + std::fmt::Debug {
-    fn call<T: Gene, G: Genotype<T>, R: Rng>(
+    fn call<T: Genotype, R: Rng>(
         &self,
-        genotype: &G,
+        genotype: &T,
         population: Population<T>,
         rng: &mut R,
     ) -> Population<T>;
@@ -18,9 +17,9 @@ pub type MutationProbability = f32;
 #[derive(Debug, Clone)]
 pub struct SingleGene(pub MutationProbability);
 impl Mutate for SingleGene {
-    fn call<T: Gene, G: Genotype<T>, R: Rng>(
+    fn call<T: Genotype, R: Rng>(
         &self,
-        genotype: &G,
+        genotype: &T,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
