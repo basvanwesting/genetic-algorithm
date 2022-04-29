@@ -2,7 +2,7 @@ use crate::genotype::Genotype;
 use std::cmp::Ordering;
 use std::fmt;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Chromosome<T: Genotype> {
     pub genes: Vec<T::Gene>,
     pub fitness_score: Option<isize>,
@@ -18,6 +18,16 @@ impl<T: Genotype> Chromosome<T> {
 
     pub fn taint_fitness_score(&mut self) {
         self.fitness_score = None;
+    }
+}
+
+// manually implement Clone, because derive requires Genotype to be Clone as well
+impl<T: Genotype> Clone for Chromosome<T> {
+    fn clone(&self) -> Chromosome<T> {
+        Self {
+            genes: self.genes.clone(),
+            fitness_score: self.fitness_score.clone(),
+        }
     }
 }
 

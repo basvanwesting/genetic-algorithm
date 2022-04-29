@@ -1,7 +1,7 @@
 pub mod chromosome;
 pub mod compete;
+pub mod crossover;
 pub mod genotype;
-//pub mod crossover;
 //pub mod evolve;
 pub mod fitness;
 pub mod gene;

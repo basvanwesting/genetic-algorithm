@@ -2,7 +2,7 @@ use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use stats::stddev;
 
-#[derive(Debug, Clone)]
+#[derive(Debug)]
 pub struct Population<T: Genotype> {
     pub chromosomes: Vec<Chromosome<T>>,
 }
@@ -38,5 +38,14 @@ impl<T: Genotype> Population<T> {
 
     pub fn fitness_score_stddev(&self) -> f32 {
         stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
+    }
+}
+
+// manually implement Clone, because derive requires Genotype to be Clone as well
+impl<T: Genotype> Clone for Population<T> {
+    fn clone(&self) -> Population<T> {
+        Self {
+            chromosomes: self.chromosomes.clone(),
+        }
     }
 }

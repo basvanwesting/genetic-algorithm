@@ -1,14 +1,13 @@
 use crate::chromosome::Chromosome;
-use crate::gene::Gene;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 
 pub trait Crossover: Clone + std::fmt::Debug {
-    fn call<T: Gene, G: Genotype<T>, R: Rng>(
+    fn call<T: Genotype, R: Rng>(
         &self,
-        genotype: &G,
+        genotype: &T,
         population: Population<T>,
         rng: &mut R,
     ) -> Population<T>;
@@ -19,9 +18,9 @@ pub type KeepParent = bool;
 #[derive(Clone, Debug)]
 pub struct Individual(pub KeepParent);
 impl Crossover for Individual {
-    fn call<T: Gene, G: Genotype<T>, R: Rng>(
+    fn call<T: Genotype, R: Rng>(
         &self,
-        genotype: &G,
+        genotype: &T,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
@@ -56,9 +55,9 @@ impl Crossover for Individual {
 #[derive(Clone, Debug)]
 pub struct All(pub KeepParent);
 impl Crossover for All {
-    fn call<T: Gene, G: Genotype<T>, R: Rng>(
+    fn call<T: Genotype, R: Rng>(
         &self,
-        genotype: &G,
+        genotype: &T,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
@@ -96,9 +95,9 @@ impl Crossover for All {
 #[derive(Clone, Debug)]
 pub struct Range(pub KeepParent);
 impl Crossover for Range {
-    fn call<T: Gene, G: Genotype<T>, R: Rng>(
+    fn call<T: Genotype, R: Rng>(
         &self,
-        genotype: &G,
+        genotype: &T,
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
@@ -136,9 +135,9 @@ impl Crossover for Range {
 #[derive(Clone, Debug)]
 pub struct Cloning(pub KeepParent);
 impl Crossover for Cloning {
-    fn call<T: Gene, G: Genotype<T>, R: Rng>(
+    fn call<T: Genotype, R: Rng>(
         &self,
-        _genotype: &G,
+        _genotype: &T,
         mut population: Population<T>,
         _rng: &mut R,
     ) -> Population<T> {
