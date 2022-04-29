@@ -7,10 +7,11 @@ mod compete_tests {
     use genetic_algorithm::compete::Compete;
     use genetic_algorithm::fitness;
     use genetic_algorithm::fitness::Fitness;
+    use genetic_algorithm::genotype::BinaryGenotype;
 
     #[test]
     fn test_elite() {
-        let population = build::population(vec![
+        let population = build::population::<BinaryGenotype>(vec![
             vec![false, false, false],
             vec![false, false, true],
             vec![false, true, false],
@@ -38,7 +39,7 @@ mod compete_tests {
 
     #[test]
     fn test_tournament() {
-        let population = build::population(vec![
+        let population = build::population::<BinaryGenotype>(vec![
             vec![false, false, false],
             vec![false, false, true],
             vec![false, true, false],
@@ -66,8 +67,10 @@ mod compete_tests {
 
     #[test]
     fn test_tournament_shortage() {
-        let population =
-            build::population(vec![vec![false, false, false], vec![false, false, true]]);
+        let population = build::population::<BinaryGenotype>(vec![
+            vec![false, false, false],
+            vec![false, false, true],
+        ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = fitness::SimpleSum.call_for_population(population);
