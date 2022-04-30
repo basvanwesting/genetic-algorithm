@@ -15,10 +15,14 @@ fn main() {
 
     let evolve = Evolve::new(genotype, rng)
         .with_population_size(1000)
+        .with_max_stale_generations(100)
+        .with_target_fitness_score(100)
+        //.with_degeneration_range(0.001..0.995)
         .with_mutate(mutate::SingleGene(0.2))
-        .with_fitness(fitness::SimpleSum)
-        .with_crossover(crossover::Individual(true))
+        .with_fitness(fitness::SimpleSumBinaryGenotype)
+        .with_crossover(crossover::All(true))
         .with_compete(compete::Tournament(4))
+        //.with_compete(compete::Elite)
         .call();
 
     println!("{}", evolve);

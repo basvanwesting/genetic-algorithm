@@ -71,3 +71,12 @@ impl Fitness for SimpleSumRangeGenotypeDiscreteGene {
         chromosome.genes.iter().sum::<DiscreteGene>() as isize
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct SimpleSumRangeGenotypeContinuousGene;
+impl Fitness for SimpleSumRangeGenotypeContinuousGene {
+    type Genotype = RangeGenotype<ContinuousGene>;
+    fn call_for_chromosome(&self, chromosome: &Chromosome<RangeGenotype<ContinuousGene>>) -> isize {
+        chromosome.genes.iter().sum::<ContinuousGene>() as isize
+    }
+}
