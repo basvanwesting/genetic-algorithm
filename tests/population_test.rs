@@ -3,8 +3,7 @@ mod support;
 #[cfg(test)]
 mod population_tests {
     use crate::support::*;
-    use genetic_algorithm::fitness;
-    use genetic_algorithm::fitness::Fitness;
+    use genetic_algorithm::fitness::{Fitness, SimpleSumBinaryGenotype};
     use genetic_algorithm::genotype::BinaryGenotype;
 
     #[test]
@@ -21,7 +20,7 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        let population = fitness::SimpleSum.call_for_population(population);
+        let population = SimpleSumBinaryGenotype.call_for_population(population);
         assert_eq!(population.fitness_score_stddev(), 0.8660254);
 
         let population = build::population::<BinaryGenotype>(vec![
@@ -36,7 +35,7 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        let population = fitness::SimpleSum.call_for_population(population);
+        let population = SimpleSumBinaryGenotype.call_for_population(population);
         assert_eq!(population.fitness_score_stddev(), 0.3307189);
     }
 }
