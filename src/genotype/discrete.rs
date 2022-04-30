@@ -5,6 +5,7 @@ use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
+#[derive(Debug)]
 pub struct Discrete<T: Gene> {
     pub gene_size: usize,
     pub gene_values: Vec<T>,

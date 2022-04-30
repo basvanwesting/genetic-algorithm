@@ -1,6 +1,8 @@
 use crate::chromosome::Chromosome;
 use crate::gene::{ContinuousGene, DiscreteGene};
-use crate::genotype::{BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype};
+use crate::genotype::{
+    BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, RangeGenotype,
+};
 use crate::population::Population;
 
 pub trait Fitness: Clone + std::fmt::Debug {
@@ -39,6 +41,7 @@ impl Fitness for SimpleSumDiscreteGenotypeDiscreteGene {
         chromosome.genes.iter().sum::<DiscreteGene>() as isize
     }
 }
+
 #[derive(Clone, Debug)]
 pub struct SimpleSumDiscreteGenotypeContinuousGene;
 impl Fitness for SimpleSumDiscreteGenotypeContinuousGene {
@@ -57,5 +60,14 @@ impl Fitness for SimpleSumContinuousGenotype {
     type Genotype = ContinuousGenotype;
     fn call_for_chromosome(&self, chromosome: &Chromosome<ContinuousGenotype>) -> isize {
         chromosome.genes.iter().sum::<ContinuousGene>() as isize
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct SimpleSumRangeGenotypeDiscreteGene;
+impl Fitness for SimpleSumRangeGenotypeDiscreteGene {
+    type Genotype = RangeGenotype<DiscreteGene>;
+    fn call_for_chromosome(&self, chromosome: &Chromosome<RangeGenotype<DiscreteGene>>) -> isize {
+        chromosome.genes.iter().sum::<DiscreteGene>() as isize
     }
 }

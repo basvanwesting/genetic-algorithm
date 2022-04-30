@@ -3,7 +3,7 @@ use crate::gene::Gene;
 use rand::prelude::*;
 use std::fmt;
 
-pub trait Genotype: Sized + fmt::Display {
+pub trait Genotype: Sized + fmt::Debug + fmt::Display {
     type Gene: Gene;
     fn gene_size(&self) -> usize;
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;

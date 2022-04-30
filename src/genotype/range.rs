@@ -72,3 +72,12 @@ impl<T: Gene + SampleUniform> fmt::Display for Range<T> {
         write!(f, "  gene_range: {:?}\n", self.gene_range)
     }
 }
+
+// cannot derive debug for Uniform<T>
+impl<T: Gene + SampleUniform> fmt::Debug for Range<T> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "genotype:\n")?;
+        write!(f, "  gene_size: {}\n", self.gene_size)?;
+        write!(f, "  gene_range: {:?}\n", self.gene_range)
+    }
+}

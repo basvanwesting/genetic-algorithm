@@ -5,6 +5,7 @@ use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
+#[derive(Debug)]
 pub struct RangeUnique {
     pub gene_range: std::ops::Range<DiscreteGene>,
     gene_index_sampler: Uniform<usize>,

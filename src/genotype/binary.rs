@@ -5,6 +5,7 @@ use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use std::fmt;
 
+#[derive(Debug)]
 pub struct Binary {
     pub gene_size: usize,
     gene_index_sampler: Uniform<usize>,

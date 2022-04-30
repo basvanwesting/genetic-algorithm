@@ -1,10 +1,10 @@
 pub mod chromosome;
 pub mod compete;
 pub mod crossover;
-pub mod genotype;
-//pub mod evolve;
+pub mod evolve;
 pub mod fitness;
 pub mod gene;
+pub mod genotype;
 pub mod mutate;
-//pub mod permutate;
+pub mod permutate;
 pub mod population;

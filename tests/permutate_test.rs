@@ -12,7 +12,7 @@ mod permutate_tests {
         let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
         let permutate = Permutate::new(genotype)
-            .with_fitness(fitness::SimpleSum)
+            .with_fitness(fitness::SimpleSumBinaryGenotype)
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
@@ -33,7 +33,7 @@ mod permutate_tests {
             .build();
 
         let permutate = Permutate::new(genotype)
-            .with_fitness(fitness::SimpleSum)
+            .with_fitness(fitness::SimpleSumDiscreteGenotypeDiscreteGene)
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
@@ -51,7 +51,7 @@ mod permutate_tests {
             .build();
 
         let permutate = Permutate::new(genotype)
-            .with_fitness(fitness::SimpleSum)
+            .with_fitness(fitness::SimpleSumRangeGenotypeDiscreteGene)
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
@@ -65,7 +65,7 @@ mod permutate_tests {
     fn test_population_factory_1() {
         let genotype = BinaryGenotype::new().with_gene_size(1).build();
 
-        let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSum);
+        let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSumBinaryGenotype);
         let population = permutate.population_factory();
         println!("{:#?}", population);
 
@@ -79,7 +79,7 @@ mod permutate_tests {
     fn test_population_factory_2() {
         let genotype = BinaryGenotype::new().with_gene_size(2).build();
 
-        let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSum);
+        let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSumBinaryGenotype);
         let population = permutate.population_factory();
         println!("{:#?}", population);
 
@@ -98,7 +98,7 @@ mod permutate_tests {
     fn test_population_factory_3() {
         let genotype = BinaryGenotype::new().with_gene_size(3).build();
 
-        let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSum);
+        let permutate = Permutate::new(genotype).with_fitness(fitness::SimpleSumBinaryGenotype);
         let population = permutate.population_factory();
         println!("{:#?}", population);
 

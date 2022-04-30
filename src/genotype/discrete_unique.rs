@@ -6,6 +6,7 @@ use rand::prelude::*;
 use rand::seq::SliceRandom;
 use std::fmt;
 
+#[derive(Debug)]
 pub struct DiscreteUnique<T: Gene> {
     pub gene_values: Vec<T>,
     gene_index_sampler: Uniform<usize>,

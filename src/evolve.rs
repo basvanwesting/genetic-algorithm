@@ -2,7 +2,6 @@ use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
 use crate::fitness::Fitness;
-use crate::gene::Gene;
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
@@ -11,10 +10,9 @@ use std::fmt;
 use std::ops::Range;
 
 pub struct Evolve<
-    T: Gene,
-    G: Genotype<T>,
+    G: Genotype,
     M: Mutate,
-    F: Fitness<T>,
+    F: Fitness<Genotype = G>,
     S: Crossover,
     C: Compete,
     R: Rng,
@@ -31,13 +29,13 @@ pub struct Evolve<
     pub compete: Option<C>,
     pub current_generation: usize,
     pub best_generation: usize,
-    pub best_chromosome: Option<Chromosome<T>>,
-    pub population: Population<T>,
+    pub best_chromosome: Option<Chromosome<G>>,
+    pub population: Population<G>,
     pub degenerate: bool,
 }
 
-impl<T: Gene, G: Genotype<T>, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng>
-    Evolve<T, G, M, F, S, C, R>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng>
+    Evolve<G, M, F, S, C, R>
 {
     pub fn new(genotype: G, rng: R) -> Self {
         Self {
@@ -201,7 +199,7 @@ impl<T: Gene, G: Genotype<T>, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 
-    pub fn population_factory(&mut self) -> Population<T> {
+    pub fn population_factory(&mut self) -> Population<G> {
         let chromosomes = (0..self.population_size)
             .map(|_| self.genotype.chromosome_factory(&mut self.rng))
             .collect();
@@ -209,8 +207,8 @@ impl<T: Gene, G: Genotype<T>, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete
     }
 }
 
-impl<T: Gene, G: Genotype<T>, M: Mutate, F: Fitness<T>, S: Crossover, C: Compete, R: Rng>
-    fmt::Display for Evolve<T, G, M, F, S, C, R>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng>
+    fmt::Display for Evolve<G, M, F, S, C, R>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(f, "evolve:\n")?;
