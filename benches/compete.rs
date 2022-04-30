@@ -20,7 +20,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .collect();
 
     let population = Population::new(chromosomes);
-    let population = fitness::SimpleSum.call_for_population(population);
+    let population = fitness::SimpleSumBinaryGenotype.call_for_population(population);
 
     println!(
         "start population size: {}, target population size: {}",
