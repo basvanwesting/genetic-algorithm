@@ -8,7 +8,7 @@ fn main() {
     println!("{}", genotype);
 
     let permutate = Permutate::new(genotype)
-        .with_fitness(fitness::SimpleSum)
+        .with_fitness(fitness::SimpleSumBinaryGenotype)
         .call();
 
     println!("{}", permutate);
