@@ -3,7 +3,6 @@ use genetic_algorithm::compete;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::Fitness;
-use genetic_algorithm::gene::DiscreteGene;
 use genetic_algorithm::genotype::RangeUniqueGenotype;
 use genetic_algorithm::mutate;
 use rand::prelude::*;
@@ -15,8 +14,9 @@ use std::time::{Duration, Instant};
 
 #[derive(Clone, Debug)]
 struct NQueensFitness;
-impl Fitness<DiscreteGene> for NQueensFitness {
-    fn call_for_chromosome(&self, chromosome: &Chromosome<DiscreteGene>) -> isize {
+impl Fitness for NQueensFitness {
+    type Genotype = RangeUniqueGenotype;
+    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         let mut score = 0;
         let max_index = chromosome.genes.len() - 1;
         for i in 0..max_index {

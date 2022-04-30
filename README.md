@@ -25,5 +25,5 @@ find the flamegraph in: ./target/criterion/profile_evolve_binary/profile/flamegr
 * generalize over Range and RangeInclusive for RangeGenotype if possible. rand has a SampleRange<T> Trait, which is only implemented for Range and RangeInclusive, so that might be nice
 * remove builder duplication in Genotype implementations
 * maybe seed best_chromosome back into population after degenerate?
-* DiscreteGenotype with float values?
 * RangeGenotype with steps? (makes it permutable for floats as well)
+* use dyn Trait for Evolve and Permutate, as there is almost no performance overhead for single dynamic lookup and it cleans up the Evolve generics quite a lot
