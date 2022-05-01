@@ -1,5 +1,6 @@
 pub mod chromosome;
 pub mod compete;
+pub mod composite_genotype;
 pub mod crossover;
 pub mod evolve;
 pub mod fitness;
