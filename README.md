@@ -52,3 +52,4 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * remove builder duplication in Genotype implementations
 * maybe seed best_chromosome back into population after degenerate?
 * make meta-genotype example to optimize nqueens configuration
+* remove as type casts in IndexGenotype, remove Gene trait

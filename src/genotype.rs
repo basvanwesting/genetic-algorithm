@@ -19,14 +19,20 @@ pub trait PermutableGenotype: Genotype {
 mod binary;
 pub use self::binary::Binary as BinaryGenotype;
 
+mod continuous;
+pub use self::continuous::Continuous as ContinuousGenotype;
+
+mod index;
+pub use self::index::Index as IndexGenotype;
+
+mod unique_index;
+pub use self::unique_index::UniqueIndex as UniqueIndexGenotype;
+
 mod discrete;
 pub use self::discrete::Discrete as DiscreteGenotype;
 
 mod discrete_unique;
 pub use self::discrete_unique::DiscreteUnique as DiscreteUniqueGenotype;
-
-mod continuous;
-pub use self::continuous::Continuous as ContinuousGenotype;
 
 mod range;
 pub use self::range::Range as RangeGenotype;
