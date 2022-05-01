@@ -33,7 +33,7 @@ mod mutate_tests {
     }
 
     #[test]
-    fn test_single_gene_discrete() {
+    fn test_single_gene_index() {
         let genotype = IndexGenotype::new()
             .with_gene_size(3)
             .with_gene_value_size(4)

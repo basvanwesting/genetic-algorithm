@@ -16,7 +16,7 @@ mod builders_tests {
     }
 
     #[test]
-    fn test_chromosome_discrete_discrete() {
+    fn test_chromosome_index() {
         let chromosome = build::chromosome::<IndexGenotype>(vec![3, 4, 5, 6]);
         println!("{:#?}", chromosome);
         assert_eq!(inspect::chromosome(&chromosome), vec![3, 4, 5, 6]);
