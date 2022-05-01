@@ -27,15 +27,3 @@ pub use self::index::Index as IndexGenotype;
 
 mod unique_index;
 pub use self::unique_index::UniqueIndex as UniqueIndexGenotype;
-
-mod discrete;
-pub use self::discrete::Discrete as DiscreteGenotype;
-
-mod discrete_unique;
-pub use self::discrete_unique::DiscreteUnique as DiscreteUniqueGenotype;
-
-mod range;
-pub use self::range::Range as RangeGenotype;
-
-mod range_unique;
-pub use self::range_unique::RangeUnique as RangeUniqueGenotype;

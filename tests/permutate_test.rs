@@ -4,7 +4,7 @@ mod support;
 mod permutate_tests {
     use crate::support::*;
     use genetic_algorithm::fitness;
-    use genetic_algorithm::genotype::{BinaryGenotype, DiscreteGenotype, RangeGenotype};
+    use genetic_algorithm::genotype::{BinaryGenotype, IndexGenotype};
     use genetic_algorithm::permutate::Permutate;
 
     #[test]
@@ -26,32 +26,14 @@ mod permutate_tests {
     }
 
     #[test]
-    fn test_call_discrete() {
-        let genotype = DiscreteGenotype::new()
+    fn test_call_index() {
+        let genotype = IndexGenotype::new()
             .with_gene_size(5)
-            .with_gene_values(vec![0, 1, 2, 3])
+            .with_gene_value_size(10)
             .build();
 
         let permutate = Permutate::new(genotype)
-            .with_fitness(fitness::SimpleSumDiscreteGenotypeDiscreteGene)
-            .call();
-
-        let best_chromosome = permutate.best_chromosome.unwrap();
-        println!("{:#?}", best_chromosome);
-
-        assert_eq!(best_chromosome.fitness_score, Some(15));
-        assert_eq!(inspect::chromosome(&best_chromosome), vec![3, 3, 3, 3, 3]);
-    }
-
-    #[test]
-    fn test_call_range() {
-        let genotype = RangeGenotype::new()
-            .with_gene_size(5)
-            .with_gene_range(0..10)
-            .build();
-
-        let permutate = Permutate::new(genotype)
-            .with_fitness(fitness::SimpleSumRangeGenotypeDiscreteGene)
+            .with_fitness(fitness::SimpleSumIndexGenotype)
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();

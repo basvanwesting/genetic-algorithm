@@ -9,7 +9,7 @@ use genetic_algorithm::compete;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::Fitness;
-use genetic_algorithm::genotype::RangeUniqueGenotype;
+use genetic_algorithm::genotype::UniqueIndexGenotype;
 use genetic_algorithm::mutate;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -19,7 +19,7 @@ use rand::rngs::SmallRng;
 #[derive(Clone, Debug)]
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
-    type Genotype = RangeUniqueGenotype;
+    type Genotype = UniqueIndexGenotype;
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         let mut score = 0;
         let max_index = chromosome.genes.len() - 1;
@@ -52,7 +52,7 @@ criterion_main!(benches);
 
 fn run() {
     let rng = SmallRng::from_entropy();
-    let genotype = RangeUniqueGenotype::new().with_gene_range(0..32).build();
+    let genotype = UniqueIndexGenotype::new().with_gene_size(32).build();
 
     let evolve = Evolve::new(genotype, rng)
         .with_population_size(100)

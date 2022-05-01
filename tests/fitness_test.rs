@@ -4,11 +4,9 @@ mod support;
 mod fitness_tests {
     use crate::support::*;
     use genetic_algorithm::fitness::{
-        Fitness, SimpleSumBinaryGenotype, SimpleSumContinuousGenotype,
-        SimpleSumDiscreteGenotypeContinuousGene, SimpleSumDiscreteGenotypeDiscreteGene,
+        Fitness, SimpleSumBinaryGenotype, SimpleSumContinuousGenotype, SimpleSumIndexGenotype,
     };
-    use genetic_algorithm::gene::{ContinuousGene, DiscreteGene};
-    use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, DiscreteGenotype};
+    use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, IndexGenotype};
 
     #[test]
     fn test_simple_sum_binary() {
@@ -26,18 +24,12 @@ mod fitness_tests {
     }
 
     #[test]
-    fn test_simple_sum_discrete() {
-        let chromosome = build::chromosome::<DiscreteGenotype<DiscreteGene>>(vec![1, 2, 3]);
-        assert_eq!(
-            SimpleSumDiscreteGenotypeDiscreteGene.call_for_chromosome(&chromosome),
-            6
-        );
+    fn test_simple_sum_index() {
+        let chromosome = build::chromosome::<IndexGenotype>(vec![0, 1, 2, 3]);
+        assert_eq!(SimpleSumIndexGenotype.call_for_chromosome(&chromosome), 6);
 
-        let chromosome = build::chromosome::<DiscreteGenotype<DiscreteGene>>(vec![0, 0, 0]);
-        assert_eq!(
-            SimpleSumDiscreteGenotypeDiscreteGene.call_for_chromosome(&chromosome),
-            0
-        );
+        let chromosome = build::chromosome::<IndexGenotype>(vec![0, 0, 0, 0]);
+        assert_eq!(SimpleSumIndexGenotype.call_for_chromosome(&chromosome), 0);
     }
 
     #[test]
@@ -57,24 +49,6 @@ mod fitness_tests {
         let chromosome = build::chromosome::<ContinuousGenotype>(vec![1.4, 2.4, 3.4]);
         assert_eq!(
             SimpleSumContinuousGenotype.call_for_chromosome(&chromosome),
-            7
-        );
-
-        let chromosome = build::chromosome::<DiscreteGenotype<ContinuousGene>>(vec![0.0, 0.0, 0.0]);
-        assert_eq!(
-            SimpleSumDiscreteGenotypeContinuousGene.call_for_chromosome(&chromosome),
-            0
-        );
-
-        let chromosome = build::chromosome::<DiscreteGenotype<ContinuousGene>>(vec![0.1, 0.2, 0.3]);
-        assert_eq!(
-            SimpleSumDiscreteGenotypeContinuousGene.call_for_chromosome(&chromosome),
-            0
-        );
-
-        let chromosome = build::chromosome::<DiscreteGenotype<ContinuousGene>>(vec![1.4, 2.4, 3.4]);
-        assert_eq!(
-            SimpleSumDiscreteGenotypeContinuousGene.call_for_chromosome(&chromosome),
             7
         );
     }

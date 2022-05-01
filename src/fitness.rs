@@ -1,7 +1,6 @@
 use crate::chromosome::Chromosome;
-use crate::gene::{ContinuousGene, DiscreteGene};
 use crate::genotype::{
-    BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, RangeGenotype,
+    BinaryGenotype, ContinuousGenotype, Genotype, IndexGenotype, UniqueIndexGenotype,
 };
 use crate::population::Population;
 
@@ -43,9 +42,9 @@ impl Fitness for SimpleSumContinuousGenotype {
 }
 
 #[derive(Clone, Debug)]
-pub struct SimpleSumDiscreteGenotypeDiscreteGene;
-impl Fitness for SimpleSumDiscreteGenotypeDiscreteGene {
-    type Genotype = DiscreteGenotype<DiscreteGene>;
+pub struct SimpleSumIndexGenotype;
+impl Fitness for SimpleSumIndexGenotype {
+    type Genotype = IndexGenotype;
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         chromosome
             .genes
@@ -55,33 +54,9 @@ impl Fitness for SimpleSumDiscreteGenotypeDiscreteGene {
 }
 
 #[derive(Clone, Debug)]
-pub struct SimpleSumDiscreteGenotypeContinuousGene;
-impl Fitness for SimpleSumDiscreteGenotypeContinuousGene {
-    type Genotype = DiscreteGenotype<ContinuousGene>;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
-        chromosome
-            .genes
-            .iter()
-            .sum::<<Self::Genotype as Genotype>::Gene>() as isize
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct SimpleSumRangeGenotypeDiscreteGene;
-impl Fitness for SimpleSumRangeGenotypeDiscreteGene {
-    type Genotype = RangeGenotype<DiscreteGene>;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
-        chromosome
-            .genes
-            .iter()
-            .sum::<<Self::Genotype as Genotype>::Gene>() as isize
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct SimpleSumRangeGenotypeContinuousGene;
-impl Fitness for SimpleSumRangeGenotypeContinuousGene {
-    type Genotype = RangeGenotype<ContinuousGene>;
+pub struct SimpleSumUniqueIndexGenotype;
+impl Fitness for SimpleSumUniqueIndexGenotype {
+    type Genotype = UniqueIndexGenotype;
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         chromosome
             .genes

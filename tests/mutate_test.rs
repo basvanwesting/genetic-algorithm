@@ -3,7 +3,7 @@ mod support;
 #[cfg(test)]
 mod mutate_tests {
     use crate::support::*;
-    use genetic_algorithm::genotype::{BinaryGenotype, DiscreteGenotype};
+    use genetic_algorithm::genotype::{BinaryGenotype, IndexGenotype};
     use genetic_algorithm::mutate;
     use genetic_algorithm::mutate::Mutate;
 
@@ -34,9 +34,9 @@ mod mutate_tests {
 
     #[test]
     fn test_single_gene_discrete() {
-        let genotype = DiscreteGenotype::new()
+        let genotype = IndexGenotype::new()
             .with_gene_size(3)
-            .with_gene_values(vec![0, 1, 2, 3])
+            .with_gene_value_size(4)
             .build();
 
         let population = build::population(vec![
@@ -54,55 +54,4 @@ mod mutate_tests {
             vec![vec![0, 3, 0], vec![0, 0, 3], vec![0, 0, 0], vec![0, 3, 0],]
         );
     }
-
-    //#[test]
-    //fn test_multiple_gene_discrete() {
-    //let genotype = DiscreteGenotype::new()
-    //.with_gene_size(3)
-    //.with_gene_values(vec![0, 1, 2, 3])
-    //.build();
-
-    //let population = build::population(vec![
-    //vec![0, 0, 0],
-    //vec![0, 0, 0],
-    //vec![0, 0, 0],
-    //vec![0, 0, 0],
-    //]);
-
-    //let mut rng = SmallRng::seed_from_u64(0);
-    //let population = mutate::MultipleGene(0.5).call(&genotype, population, &mut rng);
-
-    //assert_eq!(
-    //inspect::population(&population),
-    //vec![vec![2, 3, 0], vec![0, 1, 0], vec![0, 0, 1], vec![0, 0, 0],]
-    //);
-    //}
-
-    //#[test]
-    //fn test_swap_single_gene_discrete() {
-    //let genotype = DiscreteGenotype::new()
-    //.with_gene_size(5)
-    //.with_gene_values(vec![1, 2, 3, 4, 5])
-    //.build();
-
-    //let population = build::population(vec![
-    //vec![1, 2, 3, 4, 5],
-    //vec![1, 2, 3, 4, 5],
-    //vec![1, 2, 3, 4, 5],
-    //vec![1, 2, 3, 4, 5],
-    //]);
-
-    //let mut rng = SmallRng::seed_from_u64(0);
-    //let population = mutate::SwapSingleGene(0.5).call(&genotype, population, &mut rng);
-
-    //assert_eq!(
-    //inspect::population(&population),
-    //vec![
-    //vec![1, 2, 5, 4, 3],
-    //vec![1, 2, 3, 4, 5],
-    //vec![1, 2, 3, 4, 5],
-    //vec![1, 5, 3, 4, 2],
-    //]
-    //);
-    //}
 }
