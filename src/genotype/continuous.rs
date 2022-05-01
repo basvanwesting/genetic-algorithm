@@ -35,12 +35,12 @@ impl Genotype for Continuous {
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Continuous> {
-        let genes: Vec<ContinuousGene> = (0..self.gene_size).map(|_| rng.gen()).collect();
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+        let genes: Vec<Self::Gene> = (0..self.gene_size).map(|_| rng.gen()).collect();
         Chromosome::new(genes)
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Continuous>, rng: &mut R) {
+    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = rng.gen();
         chromosome.taint_fitness_score();

@@ -38,14 +38,14 @@ impl Genotype for Binary {
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Binary> {
-        let genes: Vec<BinaryGene> = (0..self.gene_size)
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+        let genes: Vec<Self::Gene> = (0..self.gene_size)
             .map(|_| self.gene_value_sampler.sample(rng))
             .collect();
         Chromosome::new(genes)
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Binary>, rng: &mut R) {
+    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = !chromosome.genes[index];
         chromosome.taint_fitness_score();
@@ -53,7 +53,7 @@ impl Genotype for Binary {
 }
 
 impl PermutableGenotype for Binary {
-    fn gene_values(&self) -> Vec<BinaryGene> {
+    fn gene_values(&self) -> Vec<Self::Gene> {
         vec![true, false]
     }
 }

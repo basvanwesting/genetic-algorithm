@@ -1,6 +1,6 @@
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
-use crate::gene::DiscreteGene;
+use crate::gene::IndexGene;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
@@ -41,27 +41,27 @@ impl Index {
 }
 
 impl Genotype for Index {
-    type Gene = DiscreteGene;
+    type Gene = IndexGene;
     fn gene_size(&self) -> usize {
         self.gene_size
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Index> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         let genes: Vec<Self::Gene> = (0..self.gene_size)
-            .map(|_| self.gene_value_sampler.sample(rng) as Self::Gene)
+            .map(|_| self.gene_value_sampler.sample(rng))
             .collect();
         Chromosome::new(genes)
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Index>, rng: &mut R) {
+    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.gene_value_sampler.sample(rng) as Self::Gene;
+        chromosome.genes[index] = self.gene_value_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
 }
 
 impl PermutableGenotype for Index {
     fn gene_values(&self) -> Vec<Self::Gene> {
-        (0..self.gene_value_size as Self::Gene).collect()
+        (0..self.gene_value_size).collect()
     }
 }
 
