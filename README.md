@@ -12,7 +12,7 @@ But I wasn't able to find an elegant approach to creating a heterogene setup. It
 
 So, after some consideration I settled on using an index based Genotype with an external vector of arbitrary types which should be retrieved in the fitness function.
 
-See example meta_evolve_nqueens for an meta analysis of the evolution strategy. `cargo run --example meta_evolve_nqueens --release`
+See example meta_evolve_binary for an meta analysis of the evolution strategy. `cargo run --example meta_evolve_binary --release`
 Currently implemented as a permutation, but with caching an evolve strategy could also be used for larger search spaces.
 
 Implemented genotypes:
@@ -53,4 +53,4 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * run clippy
 * remove builder duplication in Genotype implementations
 * maybe seed best_chromosome back into population after degenerate?
-* make meta-genotype example to optimize nqueens configuration
+* make duration stats return Duration, so we can choose sec/milli/micro afterwards.
