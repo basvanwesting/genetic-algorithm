@@ -5,8 +5,8 @@ mod genotype_tests {
 
     use crate::support::*;
     use genetic_algorithm::genotype::{
-        BinaryGenotype, ContinuousGenotype, Genotype, IndexGenotype, PermutableGenotype,
-        UniqueIndexGenotype,
+        BinaryGenotype, ContinuousGenotype, Genotype, IndexGenotype, MultiIndexGenotype,
+        PermutableGenotype, UniqueIndexGenotype,
     };
 
     #[test]
@@ -89,5 +89,22 @@ mod genotype_tests {
         assert_eq!(inspect::chromosome(&chromosome), vec![3, 0, 1, 2, 4]);
 
         assert_eq!(genotype.gene_values(), vec![0, 1, 2, 3, 4]);
+    }
+
+    #[test]
+    fn test_multi_index_genotype() {
+        let mut rng = SmallRng::seed_from_u64(0);
+        let genotype = MultiIndexGenotype::new()
+            .with_gene_value_sizes(vec![5, 2, 3, 4])
+            .build();
+
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 1]);
+
+        genotype.mutate_chromosome(&mut chromosome, &mut rng);
+        //genotype.mutate_chromosome(&mut chromosome, &mut rng);
+        assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 3]);
+
+        //assert_eq!(genotype.gene_values(), vec![0, 1, 2, 3, 4]);
     }
 }

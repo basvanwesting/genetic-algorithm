@@ -8,9 +8,9 @@ use std::fmt;
 #[derive(Debug)]
 pub struct Index {
     pub gene_size: usize,
-    pub gene_value_size: usize,
+    pub gene_value_size: IndexGene,
     gene_index_sampler: Uniform<usize>,
-    gene_value_sampler: Uniform<usize>,
+    gene_value_sampler: Uniform<IndexGene>,
 }
 
 impl Index {
@@ -28,7 +28,7 @@ impl Index {
         self
     }
 
-    pub fn with_gene_value_size(mut self, gene_value_size: usize) -> Self {
+    pub fn with_gene_value_size(mut self, gene_value_size: IndexGene) -> Self {
         self.gene_value_size = gene_value_size;
         self
     }

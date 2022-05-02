@@ -27,3 +27,6 @@ pub use self::index::Index as IndexGenotype;
 
 mod unique_index;
 pub use self::unique_index::UniqueIndex as UniqueIndexGenotype;
+
+mod multi_index;
+pub use self::multi_index::MultiIndex as MultiIndexGenotype;
