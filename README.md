@@ -16,9 +16,9 @@ Implemented genotypes:
 
 * BinaryGenotype: list of true|false values with 50% chance, permutable. Initialize with only gene-size.
 * ContinuousGenotype: list of 0.0..1.0 values with uniform chance, with optional offset and scale, not-permutable. Initialize with only gene-size.
-* IndexGenotype: list of 0..n with uniform chance, permutable. Initialize with gene-size and gene-value-size (=n).
-* UniqueIndexGenotype: list of 0..n with uniform chance, each index occurs exactly once, permutable. Initialize with only gene-size (=n).
-* MultiIndexGenotype: list of 0..x, 0..y, 0..z, etc... where each gene has it's own index range with a weighted chance depending on the range size. Initialize with list of max-index values.
+* IndexGenotype: list of 0..n with uniform chance, permutable. Initialize with gene-size and gene-value-size (= n).
+* UniqueIndexGenotype: list of 0..n with uniform chance, each index occurs exactly once, permutable. Initialize with only gene-size (= gene-value-size = n).
+* MultiIndexGenotype: list of 0..x, 0..y, 0..z, etc... where each gene has it's own index range with a weighted chance depending on the range size. Initialize with list of gene-value-sizes (= [x,y,x,etc...]).
 
 Discarded genotypes:
 
@@ -48,7 +48,6 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 `cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
 
 ## TODO
-* add MultiIndexGenotype
 * run clippy
 * remove builder duplication in Genotype implementations
 * maybe seed best_chromosome back into population after degenerate?

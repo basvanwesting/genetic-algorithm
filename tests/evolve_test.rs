@@ -7,7 +7,9 @@ mod evolve_tests {
     use genetic_algorithm::crossover;
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
-    use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, IndexGenotype};
+    use genetic_algorithm::genotype::{
+        BinaryGenotype, ContinuousGenotype, IndexGenotype, MultiIndexGenotype,
+    };
     use genetic_algorithm::mutate;
 
     #[test]
@@ -97,6 +99,32 @@ mod evolve_tests {
     }
 
     #[test]
+    fn test_call_continuous() {
+        let genotype = ContinuousGenotype::new().with_gene_size(10).build();
+
+        let rng = SmallRng::seed_from_u64(0);
+        let evolve = Evolve::new(genotype, rng)
+            .with_population_size(100)
+            .with_max_stale_generations(20)
+            .with_mutate(mutate::SingleGene(0.1))
+            .with_fitness(fitness::SimpleSumContinuousGenotype)
+            .with_crossover(crossover::Individual(true))
+            .with_compete(compete::Tournament(4))
+            .call();
+        let best_chromosome = evolve.best_chromosome.unwrap();
+        println!("{:#?}", best_chromosome);
+
+        assert_eq!(best_chromosome.fitness_score, Some(9));
+        assert_eq!(
+            inspect::chromosome(&best_chromosome),
+            vec![
+                0.9651495, 0.98179513, 0.9798802, 0.8283811, 0.76474065, 0.9307497, 0.8706253,
+                0.9069808, 0.9505005, 0.9951865
+            ]
+        );
+    }
+
+    #[test]
     fn test_call_index() {
         let genotype = IndexGenotype::new()
             .with_gene_size(10)
@@ -123,29 +151,25 @@ mod evolve_tests {
     }
 
     #[test]
-    fn test_call_continuous() {
-        let genotype = ContinuousGenotype::new().with_gene_size(10).build();
+    fn test_call_multi_index() {
+        let genotype = MultiIndexGenotype::new()
+            .with_gene_value_sizes(vec![5, 2, 1, 4])
+            .build();
 
         let rng = SmallRng::seed_from_u64(0);
         let evolve = Evolve::new(genotype, rng)
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(mutate::SingleGene(0.1))
-            .with_fitness(fitness::SimpleSumContinuousGenotype)
+            .with_fitness(fitness::SimpleSumMultiIndexGenotype)
             .with_crossover(crossover::Individual(true))
             .with_compete(compete::Tournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
 
-        assert_eq!(best_chromosome.fitness_score, Some(9));
-        assert_eq!(
-            inspect::chromosome(&best_chromosome),
-            vec![
-                0.9651495, 0.98179513, 0.9798802, 0.8283811, 0.76474065, 0.9307497, 0.8706253,
-                0.9069808, 0.9505005, 0.9951865
-            ]
-        );
+        assert_eq!(best_chromosome.fitness_score, Some(8));
+        assert_eq!(inspect::chromosome(&best_chromosome), vec![4, 1, 0, 3]);
     }
 
     #[test]
