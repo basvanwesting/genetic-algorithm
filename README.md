@@ -12,6 +12,9 @@ But I wasn't able to find an elegant approach to creating a heterogene setup. It
 
 So, after some consideration I settled on using an index based Genotype with an external vector of arbitrary types which should be retrieved in the fitness function.
 
+See example meta_evolve_nqueens for an meta analysis of the evolution strategy. `cargo run --example meta_evolve_nqueens --release`
+Currently implemented as a permutation, but with caching an evolve strategy could also be used for larger search spaces.
+
 Implemented genotypes:
 
 * BinaryGenotype: list of true|false values with 50% chance, permutable. Initialize with only gene-size.
@@ -31,9 +34,8 @@ Discarded genotypes:
 * UniqueRangeGenotype with arbitrary normal number range, each number occurs exactly once, not permutable
 
 ## Examples
-Run examples with e.g. `cargo run --example evolve_binary --release`
 
-See example of custom fitness function in the example evolve_nqueens.
+See example evolve_nqueens for a custom fitness function. `cargo run --example evolve_binary --release`
 
 ## Tests
 Run tests with `cargo test`

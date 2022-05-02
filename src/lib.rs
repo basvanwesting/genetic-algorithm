@@ -2,6 +2,7 @@ pub mod chromosome;
 pub mod compete;
 pub mod crossover;
 pub mod evolve;
+pub mod evolve_stats;
 pub mod fitness;
 pub mod gene;
 pub mod genotype;
