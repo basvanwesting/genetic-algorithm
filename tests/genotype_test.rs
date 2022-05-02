@@ -104,7 +104,5 @@ mod genotype_tests {
         genotype.mutate_chromosome(&mut chromosome, &mut rng);
         //genotype.mutate_chromosome(&mut chromosome, &mut rng);
         assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 3]);
-
-        //assert_eq!(genotype.gene_values(), vec![0, 1, 2, 3, 4]);
     }
 }

@@ -1,5 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::gene::Gene;
+use crate::population::Population;
+use itertools::Itertools;
 use rand::prelude::*;
 use std::fmt;
 
@@ -14,6 +16,15 @@ pub trait Genotype: Sized + fmt::Debug + fmt::Display {
 //pub trait EvolvableGenotype: Genotype {}
 pub trait PermutableGenotype: Genotype {
     fn gene_values(&self) -> Vec<Self::Gene>;
+    fn population_factory(&self) -> Population<Self> {
+        let chromosomes = (0..self.gene_size())
+            .map(|_| self.gene_values())
+            .multi_cartesian_product()
+            .map(|genes| Chromosome::new(genes))
+            .collect();
+
+        Population::new(chromosomes)
+    }
 }
 
 mod binary;

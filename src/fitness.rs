@@ -1,6 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::genotype::{
-    BinaryGenotype, ContinuousGenotype, Genotype, IndexGenotype, UniqueIndexGenotype,
+    BinaryGenotype, ContinuousGenotype, Genotype, IndexGenotype, MultiIndexGenotype,
+    UniqueIndexGenotype,
 };
 use crate::population::Population;
 
@@ -57,6 +58,18 @@ impl Fitness for SimpleSumIndexGenotype {
 pub struct SimpleSumUniqueIndexGenotype;
 impl Fitness for SimpleSumUniqueIndexGenotype {
     type Genotype = UniqueIndexGenotype;
+    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+        chromosome
+            .genes
+            .iter()
+            .sum::<<Self::Genotype as Genotype>::Gene>() as isize
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct SimpleSumMultiIndexGenotype;
+impl Fitness for SimpleSumMultiIndexGenotype {
+    type Genotype = MultiIndexGenotype;
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         chromosome
             .genes

@@ -1,6 +1,8 @@
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::IndexGene;
+use crate::population::Population;
+use itertools::Itertools;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
@@ -59,11 +61,23 @@ impl Genotype for MultiIndex {
     }
 }
 
-//impl PermutableGenotype for MultiIndex {
-//fn gene_values(&self) -> Vec<Self::Gene> {
-//(0..self.gene_value_size).collect()
-//}
-//}
+impl PermutableGenotype for MultiIndex {
+    //noop
+    fn gene_values(&self) -> Vec<Self::Gene> {
+        vec![]
+    }
+    fn population_factory(&self) -> Population<Self> {
+        let chromosomes = self
+            .gene_value_sizes
+            .iter()
+            .map(|gene_value_size| (0..*gene_value_size).collect::<Vec<Self::Gene>>())
+            .multi_cartesian_product()
+            .map(|genes| Chromosome::new(genes))
+            .collect();
+
+        Population::new(chromosomes)
+    }
+}
 
 impl fmt::Display for MultiIndex {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
