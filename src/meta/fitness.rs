@@ -1,22 +1,18 @@
 use crate::chromosome::Chromosome;
-use crate::compete::CompeteDispatch;
-use crate::crossover::CrossoverDispatch;
 use crate::evolve::Evolve;
 use crate::evolve_stats::EvolveStats;
-use crate::fitness::Fitness;
+use crate::fitness::Fitness as FitnessTrait;
 use crate::genotype::{Genotype, MultiIndexGenotype};
-use crate::meta_config::MetaConfig;
-use crate::mutate::MutateDispatch;
+use crate::meta::MetaConfig;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use std::ops::Range;
 use std::time::Instant;
 
 #[derive(Clone, Debug)]
-pub struct Meta<G: Genotype, F: Fitness<Genotype = G>> {
+pub struct Fitness<G: Genotype, F: FitnessTrait<Genotype = G>> {
     pub config: MetaConfig<G, F>,
 }
-impl<G: Genotype, F: Fitness<Genotype = G>> Fitness for Meta<G, F> {
+impl<G: Genotype, F: FitnessTrait<Genotype = G>> FitnessTrait for Fitness<G, F> {
     type Genotype = MultiIndexGenotype;
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         let genotype = self.config.evolve_genotype.clone();

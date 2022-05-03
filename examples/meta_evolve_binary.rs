@@ -2,9 +2,8 @@ use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
 use genetic_algorithm::fitness::FitnessSimpleSumBinaryGenotype;
 use genetic_algorithm::genotype::BinaryGenotype;
-use genetic_algorithm::meta_config::MetaConfig;
+use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
-use genetic_algorithm::permutate_meta::PermutateMeta;
 
 fn main() {
     let rounds = 10;
@@ -50,6 +49,6 @@ fn main() {
         competes,
     };
 
-    let permutate_meta = PermutateMeta { config };
-    permutate_meta.call();
+    let permutate = MetaPermutate { config };
+    permutate.call();
 }

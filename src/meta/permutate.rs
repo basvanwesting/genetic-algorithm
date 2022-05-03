@@ -1,24 +1,18 @@
-use crate::compete::CompeteDispatch;
-use crate::crossover::CrossoverDispatch;
-use crate::fitness::{Fitness, FitnessMeta};
+use crate::fitness::Fitness;
 use crate::genotype::{Genotype, MultiIndexGenotype};
-use crate::meta_config::MetaConfig;
-use crate::mutate::MutateDispatch;
-use crate::permutate::Permutate;
-use std::ops::Range;
-//use rand::rngs::SmallRng;
+use crate::meta::{MetaConfig, MetaFitness};
+use crate::permutate;
 
-pub struct PermutateMeta<G: Genotype, F: Fitness<Genotype = G>> {
+pub struct Permutate<G: Genotype, F: Fitness<Genotype = G>> {
     pub config: MetaConfig<G, F>,
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> PermutateMeta<G, F> {
+impl<G: Genotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     pub fn call(self) -> Self {
-        let fitness = FitnessMeta {
+        let fitness = MetaFitness {
             config: self.config.clone(),
         };
 
-        //let rng = SmallRng::from_entropy();
         let genotype = MultiIndexGenotype::new()
             .with_gene_value_sizes(vec![
                 self.config.population_sizes.len(),
@@ -33,7 +27,9 @@ impl<G: Genotype, F: Fitness<Genotype = G>> PermutateMeta<G, F> {
 
         println!("{}", genotype);
 
-        let permutate = Permutate::new(genotype).with_fitness(fitness).call();
+        let permutate = permutate::Permutate::new(genotype)
+            .with_fitness(fitness)
+            .call();
 
         println!();
         println!("{}", permutate);

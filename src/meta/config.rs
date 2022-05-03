@@ -6,7 +6,7 @@ use crate::mutate::MutateDispatch;
 use std::ops::Range;
 
 #[derive(Clone, Debug)]
-pub struct MetaConfig<G: Genotype, F: Fitness<Genotype = G>> {
+pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub rounds: usize,
     pub evolve_genotype: G,
     pub evolve_fitness: F,
