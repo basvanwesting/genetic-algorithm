@@ -1,12 +1,12 @@
 use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::compete;
-use genetic_algorithm::crossover;
+use genetic_algorithm::compete::{CompeteDispatch, Competes};
+use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::evolve_stats::EvolveStats;
 use genetic_algorithm::fitness;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, MultiIndexGenotype};
-use genetic_algorithm::mutate;
+use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 use genetic_algorithm::permutate::Permutate;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -16,13 +16,17 @@ use std::time::Instant;
 struct MetaFitness {
     rounds: usize,
     population_sizes: Vec<usize>,
-    mutation_probabilities: Vec<f32>,
+    mutates: Vec<MutateDispatch>,
+    crossovers: Vec<CrossoverDispatch>,
+    competes: Vec<CompeteDispatch>,
 }
 impl Fitness for MetaFitness {
     type Genotype = MultiIndexGenotype;
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         let population_size = self.population_sizes[chromosome.genes[0]];
-        let mutation_probability = self.mutation_probabilities[chromosome.genes[1]];
+        let mutate = self.mutates[chromosome.genes[1]].clone();
+        let crossover = self.crossovers[chromosome.genes[2]].clone();
+        let compete = self.competes[chromosome.genes[3]].clone();
 
         let mut stats = EvolveStats::new();
         for _ in 0..self.rounds {
@@ -35,10 +39,10 @@ impl Fitness for MetaFitness {
                 .with_max_stale_generations(100)
                 .with_target_fitness_score(100)
                 //.with_degeneration_range(0.001..0.995)
-                .with_mutate(mutate::SingleGene(mutation_probability))
+                .with_mutate(mutate.clone())
                 .with_fitness(fitness::SimpleSumBinaryGenotype)
-                .with_crossover(crossover::All(true))
-                .with_compete(compete::Tournament(4))
+                .with_crossover(crossover.clone())
+                .with_compete(compete.clone())
                 .call();
 
             stats.durations.push(now.elapsed());
@@ -46,9 +50,10 @@ impl Fitness for MetaFitness {
             stats.best_fitness_scores.push(evolve.best_fitness_score());
         }
         println!(
-            "population_size: {}, mutation_probability: {:.*} | {}",
-            population_size, 2, mutation_probability, stats
+            "population_size: {}, mutate: {:?} | crossover: {:?} | compete: {:?}",
+            population_size, mutate, crossover, compete
         );
+        println!("  {}", stats);
 
         let mut score: isize = 0;
         if stats.best_fitness_score_mean() == 100.0 {
@@ -61,18 +66,47 @@ impl Fitness for MetaFitness {
 }
 
 fn main() {
-    let population_sizes = vec![10, 20, 50, 100, 200];
-    let mutation_probabilities = vec![0.05, 0.1, 0.2, 0.3, 0.4, 0.5];
+    let population_sizes = vec![10, 20, 50, 100];
+    let mutates = vec![
+        MutateDispatch(Mutates::SingleGene, 0.05),
+        MutateDispatch(Mutates::SingleGene, 0.1),
+        MutateDispatch(Mutates::SingleGene, 0.2),
+        MutateDispatch(Mutates::SingleGene, 0.3),
+        MutateDispatch(Mutates::SingleGene, 0.4),
+        MutateDispatch(Mutates::SingleGene, 0.5),
+    ];
+
+    let crossovers = vec![
+        CrossoverDispatch(Crossovers::Individual, true),
+        CrossoverDispatch(Crossovers::Individual, false),
+        CrossoverDispatch(Crossovers::All, true),
+        CrossoverDispatch(Crossovers::All, false),
+        CrossoverDispatch(Crossovers::Range, true),
+        CrossoverDispatch(Crossovers::Range, false),
+    ];
+    let competes = vec![
+        CompeteDispatch(Competes::Elite, 0),
+        CompeteDispatch(Competes::Tournament, 2),
+        CompeteDispatch(Competes::Tournament, 4),
+        CompeteDispatch(Competes::Tournament, 8),
+    ];
 
     let fitness = MetaFitness {
-        rounds: 100,
+        rounds: 10,
         population_sizes: population_sizes.clone(),
-        mutation_probabilities: mutation_probabilities.clone(),
+        mutates: mutates.clone(),
+        crossovers: crossovers.clone(),
+        competes: competes.clone(),
     };
 
     //let rng = SmallRng::from_entropy();
     let genotype = MultiIndexGenotype::new()
-        .with_gene_value_sizes(vec![population_sizes.len(), mutation_probabilities.len()])
+        .with_gene_value_sizes(vec![
+            population_sizes.len(),
+            mutates.len(),
+            crossovers.len(),
+            competes.len(),
+        ])
         .build();
 
     println!("{}", genotype);
@@ -88,9 +122,8 @@ fn main() {
             "  population_size: {}",
             population_sizes[best_chromosome.genes[0]]
         );
-        println!(
-            "  mutation_probability: {}",
-            mutation_probabilities[best_chromosome.genes[1]]
-        );
+        println!("  mutate: {:?}", mutates[best_chromosome.genes[1]]);
+        println!("  crossover: {:?}", crossovers[best_chromosome.genes[3]]);
+        println!("  compete: {:?}", competes[best_chromosome.genes[2]]);
     }
 }

@@ -16,6 +16,30 @@ pub trait Crossover: Clone + std::fmt::Debug {
 pub type KeepParent = bool;
 
 #[derive(Clone, Debug)]
+pub enum Crossovers {
+    Individual,
+    All,
+    Range,
+}
+
+#[derive(Clone, Debug)]
+pub struct CrossoverDispatch(pub Crossovers, pub KeepParent);
+impl Crossover for CrossoverDispatch {
+    fn call<T: Genotype, R: Rng>(
+        &self,
+        genotype: &T,
+        population: Population<T>,
+        rng: &mut R,
+    ) -> Population<T> {
+        match self.0 {
+            Crossovers::Individual => Individual(self.1).call(genotype, population, rng),
+            Crossovers::All => All(self.1).call(genotype, population, rng),
+            Crossovers::Range => Range(self.1).call(genotype, population, rng),
+        }
+    }
+}
+
+#[derive(Clone, Debug)]
 pub struct Individual(pub KeepParent);
 impl Crossover for Individual {
     fn call<T: Genotype, R: Rng>(
