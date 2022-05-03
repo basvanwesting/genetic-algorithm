@@ -5,6 +5,7 @@ use crate::evolve::Evolve;
 use crate::evolve_stats::EvolveStats;
 use crate::fitness::Fitness;
 use crate::genotype::{Genotype, MultiIndexGenotype};
+use crate::meta_config::MetaConfig;
 use crate::mutate::MutateDispatch;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -13,36 +14,27 @@ use std::time::Instant;
 
 #[derive(Clone, Debug)]
 pub struct Meta<G: Genotype, F: Fitness<Genotype = G>> {
-    pub rounds: usize,
-    pub evolve_genotype: G,
-    pub evolve_fitness: F,
-    pub population_sizes: Vec<usize>,
-    pub max_stale_generations_options: Vec<Option<usize>>,
-    pub target_fitness_score_options: Vec<Option<isize>>,
-    pub degeneration_range_options: Vec<Option<Range<f32>>>,
-    pub mutates: Vec<MutateDispatch>,
-    pub crossovers: Vec<CrossoverDispatch>,
-    pub competes: Vec<CompeteDispatch>,
+    pub config: MetaConfig<G, F>,
 }
 impl<G: Genotype, F: Fitness<Genotype = G>> Fitness for Meta<G, F> {
     type Genotype = MultiIndexGenotype;
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
-        let genotype = self.evolve_genotype.clone();
-        let fitness = self.evolve_fitness.clone();
+        let genotype = self.config.evolve_genotype.clone();
+        let fitness = self.config.evolve_fitness.clone();
 
-        let population_size = self.population_sizes[chromosome.genes[0]];
+        let population_size = self.config.population_sizes[chromosome.genes[0]];
         let max_stale_generations_option =
-            self.max_stale_generations_options[chromosome.genes[1]].clone();
+            self.config.max_stale_generations_options[chromosome.genes[1]].clone();
         let target_fitness_score_option =
-            self.target_fitness_score_options[chromosome.genes[2]].clone();
+            self.config.target_fitness_score_options[chromosome.genes[2]].clone();
         let degeneration_range_option =
-            self.degeneration_range_options[chromosome.genes[3]].clone();
-        let mutate = self.mutates[chromosome.genes[4]].clone();
-        let crossover = self.crossovers[chromosome.genes[5]].clone();
-        let compete = self.competes[chromosome.genes[6]].clone();
+            self.config.degeneration_range_options[chromosome.genes[3]].clone();
+        let mutate = self.config.mutates[chromosome.genes[4]].clone();
+        let crossover = self.config.crossovers[chromosome.genes[5]].clone();
+        let compete = self.config.competes[chromosome.genes[6]].clone();
 
         let mut stats = EvolveStats::new();
-        for _ in 0..self.rounds {
+        for _ in 0..self.config.rounds {
             let rng = SmallRng::from_entropy();
             let now = Instant::now();
 
