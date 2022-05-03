@@ -16,17 +16,7 @@ impl<G: Genotype, F: FitnessTrait<Genotype = G>> FitnessTrait for Fitness<G, F> 
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         let genotype = self.config.evolve_genotype.clone();
         let fitness = self.config.evolve_fitness.clone();
-
-        let population_size = self.config.population_sizes[chromosome.genes[0]];
-        let max_stale_generations_option =
-            self.config.max_stale_generations_options[chromosome.genes[1]].clone();
-        let target_fitness_score_option =
-            self.config.target_fitness_score_options[chromosome.genes[2]].clone();
-        let degeneration_range_option =
-            self.config.degeneration_range_options[chromosome.genes[3]].clone();
-        let mutate = self.config.mutates[chromosome.genes[4]].clone();
-        let crossover = self.config.crossovers[chromosome.genes[5]].clone();
-        let compete = self.config.competes[chromosome.genes[6]].clone();
+        let evolve_config = self.config.evolve_config_for_chromosome(chromosome);
 
         let mut stats = MetaStats::new();
         for _ in 0..self.config.rounds {
@@ -34,14 +24,14 @@ impl<G: Genotype, F: FitnessTrait<Genotype = G>> FitnessTrait for Fitness<G, F> 
             let now = Instant::now();
 
             let evolve = Evolve::new(genotype.clone(), rng)
-                .with_population_size(population_size)
-                .with_max_stale_generations_option(max_stale_generations_option.clone())
-                .with_target_fitness_score_option(target_fitness_score_option.clone())
-                .with_degeneration_range_option(degeneration_range_option.clone())
-                .with_mutate(mutate.clone())
                 .with_fitness(fitness.clone())
-                .with_crossover(crossover.clone())
-                .with_compete(compete.clone())
+                .with_population_size(evolve_config.population_size)
+                .with_max_stale_generations_option(evolve_config.max_stale_generations_option)
+                .with_target_fitness_score_option(evolve_config.target_fitness_score_option)
+                .with_degeneration_range_option(evolve_config.degeneration_range_option.clone())
+                .with_mutate(evolve_config.mutate.clone())
+                .with_crossover(evolve_config.crossover.clone())
+                .with_compete(evolve_config.compete.clone())
                 .call();
 
             stats.durations.push(now.elapsed());
@@ -50,7 +40,13 @@ impl<G: Genotype, F: FitnessTrait<Genotype = G>> FitnessTrait for Fitness<G, F> 
         }
         println!(
             "population_size: {} | max_stale_generations: {:?} | target_fitness_score: {:?} | degeneration_range {:?} | mutate: {:?} | crossover: {:?} | compete: {:?}",
-            population_size, max_stale_generations_option, target_fitness_score_option, degeneration_range_option, mutate, crossover, compete
+            evolve_config.population_size,
+            evolve_config.max_stale_generations_option,
+            evolve_config.target_fitness_score_option,
+            evolve_config.degeneration_range_option,
+            evolve_config.mutate,
+            evolve_config.crossover,
+            evolve_config.compete
         );
         println!("  {}", stats);
 

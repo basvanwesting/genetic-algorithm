@@ -36,7 +36,7 @@ fn main() {
     let evolve_genotype = BinaryGenotype::new().with_gene_size(100).build();
     let evolve_fitness = FitnessSimpleSumBinaryGenotype;
 
-    let config = MetaConfig {
+    let config = MetaConfig::new(
         rounds,
         evolve_genotype,
         evolve_fitness,
@@ -47,8 +47,11 @@ fn main() {
         mutates,
         crossovers,
         competes,
-    };
+    );
 
-    let permutate = MetaPermutate { config };
-    permutate.call();
+    println!("{:?}", config);
+
+    let permutate = MetaPermutate::new(config).call();
+
+    println!("{}", permutate);
 }
