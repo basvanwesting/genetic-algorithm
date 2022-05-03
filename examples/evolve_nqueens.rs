@@ -1,6 +1,6 @@
 use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::CompeteTournament;
-use genetic_algorithm::crossover::CrossoverCloning;
+use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::UniqueIndexGenotype;
@@ -45,7 +45,7 @@ fn main() {
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(NQueensFitness)
-        .with_crossover(CrossoverCloning(true))
+        .with_crossover(CrossoverClone(true))
         .with_compete(CompeteTournament(4))
         .call();
 

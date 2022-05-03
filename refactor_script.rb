@@ -10,11 +10,11 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /individual/ => 'single',
+  /cloning/ => 'clone',
 }
 
 other_translations = {
-  /Individual/ => 'Single',
+  /Cloning/ => 'Clone',
 }
 
 #check:

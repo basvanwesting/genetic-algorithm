@@ -46,8 +46,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         )
     });
 
-    c.bench_function("crossover_cloning", |b| {
-        let crossover = CrossoverCloning(false);
+    c.bench_function("crossover_clone", |b| {
+        let crossover = CrossoverClone(false);
         b.iter_batched(
             || population.clone(),
             |data| crossover.call(&genotype, data, &mut rng),

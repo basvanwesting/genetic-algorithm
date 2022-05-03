@@ -4,7 +4,7 @@ mod support;
 mod crossover_tests {
     use crate::support::*;
     use genetic_algorithm::crossover::{
-        Crossover, CrossoverAll, CrossoverCloning, CrossoverSingle, CrossoverRange,
+        Crossover, CrossoverAll, CrossoverClone, CrossoverSingle, CrossoverRange,
     };
     use genetic_algorithm::genotype::BinaryGenotype;
 
@@ -165,7 +165,7 @@ mod crossover_tests {
     }
 
     #[test]
-    fn test_cloning_odd() {
+    fn test_clone_odd() {
         let genotype = BinaryGenotype::new().with_gene_size(3).build();
 
         let population = build::population(vec![
@@ -175,7 +175,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = CrossoverCloning(true).call(&genotype, population, &mut rng);
+        let population = CrossoverClone(true).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

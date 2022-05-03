@@ -16,7 +16,7 @@ pub enum Crossovers {
     Single,
     All,
     Range,
-    Cloning,
+    Clone,
 }
 pub type KeepParent = bool;
 
@@ -36,7 +36,7 @@ impl Crossover for CrossoverDispatch {
             }
             Crossovers::All => CrossoverAll(keep_parent).call(genotype, population, rng),
             Crossovers::Range => CrossoverRange(keep_parent).call(genotype, population, rng),
-            Crossovers::Cloning => CrossoverCloning(keep_parent).call(genotype, population, rng),
+            Crossovers::Clone => CrossoverClone(keep_parent).call(genotype, population, rng),
         }
     }
 }
@@ -50,5 +50,5 @@ pub use self::all::All as CrossoverAll;
 mod range;
 pub use self::range::Range as CrossoverRange;
 
-mod cloning;
-pub use self::cloning::Cloning as CrossoverCloning;
+mod clone;
+pub use self::clone::Clone as CrossoverClone;

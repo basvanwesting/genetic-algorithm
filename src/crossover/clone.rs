@@ -4,8 +4,8 @@ use crate::population::Population;
 use rand::Rng;
 
 #[derive(Clone, Debug)]
-pub struct Cloning(pub KeepParent);
-impl Crossover for Cloning {
+pub struct Clone(pub KeepParent);
+impl Crossover for Clone {
     fn call<T: Genotype, R: Rng>(
         &self,
         _genotype: &T,
