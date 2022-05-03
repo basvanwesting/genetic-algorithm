@@ -5,8 +5,8 @@ use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
 #[derive(Debug, Clone)]
-pub struct SingleGene(pub MutationProbability);
-impl Mutate for SingleGene {
+pub struct Once(pub MutationProbability);
+impl Mutate for Once {
     fn call<T: Genotype, R: Rng>(
         &self,
         genotype: &T,

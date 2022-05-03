@@ -13,7 +13,7 @@ pub trait Mutate: Clone + std::fmt::Debug {
 
 #[derive(Clone, Debug)]
 pub enum Mutates {
-    SingleGene,
+    Once,
 }
 pub type MutationProbability = f32;
 
@@ -27,10 +27,10 @@ impl Mutate for MutateDispatch {
         rng: &mut R,
     ) -> Population<T> {
         match self.0 {
-            Mutates::SingleGene => MutateSingleGene(self.1).call(genotype, population, rng),
+            Mutates::Once => MutateOnce(self.1).call(genotype, population, rng),
         }
     }
 }
 
-mod single_gene;
-pub use self::single_gene::SingleGene as MutateSingleGene;
+mod once;
+pub use self::once::Once as MutateOnce;

@@ -73,12 +73,12 @@ fn main() {
     let degeneration_ranges = vec![0.0..0.0, 0.001..0.995];
 
     let mutates = vec![
-        MutateDispatch(Mutates::SingleGene, 0.05),
-        MutateDispatch(Mutates::SingleGene, 0.1),
-        MutateDispatch(Mutates::SingleGene, 0.2),
-        MutateDispatch(Mutates::SingleGene, 0.3),
-        MutateDispatch(Mutates::SingleGene, 0.4),
-        MutateDispatch(Mutates::SingleGene, 0.5),
+        MutateDispatch(Mutates::Once, 0.05),
+        MutateDispatch(Mutates::Once, 0.1),
+        MutateDispatch(Mutates::Once, 0.2),
+        MutateDispatch(Mutates::Once, 0.3),
+        MutateDispatch(Mutates::Once, 0.4),
+        MutateDispatch(Mutates::Once, 0.5),
     ];
 
     let crossovers = vec![

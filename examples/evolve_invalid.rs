@@ -3,7 +3,7 @@ use genetic_algorithm::crossover::CrossoverIndividual;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
 use genetic_algorithm::genotype::BinaryGenotype;
-use genetic_algorithm::mutate::MutateSingleGene;
+use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
@@ -15,7 +15,7 @@ fn main() {
 
     let evolve = Evolve::new(genotype, rng)
         .with_population_size(1000)
-        .with_mutate(MutateSingleGene(0.2))
+        .with_mutate(MutateOnce(0.2))
         .with_fitness(fitness::SimpleSumBinaryGenotype)
         .with_crossover(CrossoverIndividual(true))
         .with_compete(CompeteTournament(4))
