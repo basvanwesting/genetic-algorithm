@@ -1,9 +1,8 @@
 use crate::chromosome::Chromosome;
 use crate::evolve::Evolve;
-use crate::evolve_stats::EvolveStats;
 use crate::fitness::Fitness as FitnessTrait;
 use crate::genotype::{Genotype, MultiIndexGenotype};
-use crate::meta::MetaConfig;
+use crate::meta::{MetaConfig, MetaStats};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use std::time::Instant;
@@ -29,7 +28,7 @@ impl<G: Genotype, F: FitnessTrait<Genotype = G>> FitnessTrait for Fitness<G, F> 
         let crossover = self.config.crossovers[chromosome.genes[5]].clone();
         let compete = self.config.competes[chromosome.genes[6]].clone();
 
-        let mut stats = EvolveStats::new();
+        let mut stats = MetaStats::new();
         for _ in 0..self.config.rounds {
             let rng = SmallRng::from_entropy();
             let now = Instant::now();

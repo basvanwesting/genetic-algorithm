@@ -1,13 +1,13 @@
 use stats::{mean, stddev};
 use std::time::Duration;
 
-pub struct EvolveStats {
+pub struct Stats {
     pub durations: Vec<Duration>,
     pub best_generations: Vec<usize>,
     pub best_fitness_scores: Vec<Option<isize>>,
 }
 
-impl EvolveStats {
+impl Stats {
     pub fn new() -> Self {
         Self {
             durations: vec![],
@@ -57,7 +57,7 @@ impl EvolveStats {
     }
 }
 
-impl std::fmt::Display for EvolveStats {
+impl std::fmt::Display for Stats {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         if self.duration_mean_subsec_millis() >= 1.0 {
             write!(
