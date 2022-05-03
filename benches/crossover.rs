@@ -1,7 +1,8 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
-use genetic_algorithm::crossover;
-use genetic_algorithm::crossover::Crossover;
+use genetic_algorithm::crossover::{
+    Crossover, CrossoverAll, CrossoverClone, CrossoverRange, CrossoverSingle,
+};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
