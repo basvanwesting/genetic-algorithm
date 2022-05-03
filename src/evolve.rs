@@ -70,7 +70,11 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self
     }
     pub fn with_degeneration_range(mut self, degeneration_range: Range<f32>) -> Self {
-        self.degeneration_range = Some(degeneration_range);
+        if degeneration_range.is_empty() {
+            self.degeneration_range = None;
+        } else {
+            self.degeneration_range = Some(degeneration_range);
+        }
         self
     }
     pub fn with_mutate(mut self, mutate: M) -> Self {
