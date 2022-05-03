@@ -61,9 +61,9 @@ impl Fitness for MetaFitness {
         let mut score: isize = 0;
         if stats.best_fitness_score_mean() == 100.0 {
         } else {
-            score -= 10_000
+            score -= 1_000_000_000
         }
-        score -= (stats.duration_mean() * 1000.0) as isize;
+        score -= (stats.duration_mean_subsec_micros()) as isize;
         score
     }
 }

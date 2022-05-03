@@ -78,7 +78,7 @@ impl Fitness for MetaFitness {
         } else {
             score -= 10_000
         }
-        score -= stats.duration_mean() as isize;
+        score -= stats.duration_mean_subsec_millis() as isize;
         score
     }
 }

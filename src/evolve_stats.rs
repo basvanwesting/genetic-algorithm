@@ -19,11 +19,18 @@ impl EvolveStats {
     pub fn duration_count(&self) -> usize {
         self.durations.len()
     }
-    pub fn duration_stddev(&self) -> f64 {
+    pub fn duration_stddev_subsec_millis(&self) -> f64 {
         stddev(self.durations.iter().map(|c| c.subsec_millis()))
     }
-    pub fn duration_mean(&self) -> f64 {
+    pub fn duration_mean_subsec_millis(&self) -> f64 {
         mean(self.durations.iter().map(|c| c.subsec_millis()))
+    }
+
+    pub fn duration_stddev_subsec_micros(&self) -> f64 {
+        stddev(self.durations.iter().map(|c| c.subsec_micros()))
+    }
+    pub fn duration_mean_subsec_micros(&self) -> f64 {
+        mean(self.durations.iter().map(|c| c.subsec_micros()))
     }
 
     pub fn best_generation_count(&self) -> usize {
@@ -52,15 +59,27 @@ impl EvolveStats {
 
 impl std::fmt::Display for EvolveStats {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(
-            f,
-            "duration - count: {}, mean: {:.*}ms, stddev: {:.*}ms",
-            self.duration_count(),
-            1,
-            self.duration_mean(),
-            1,
-            self.duration_stddev()
-        )?;
+        if self.duration_mean_subsec_millis() >= 1.0 {
+            write!(
+                f,
+                "duration - count: {}, mean: {:.*}ms, stddev: {:.*}ms",
+                self.duration_count(),
+                1,
+                self.duration_mean_subsec_millis(),
+                1,
+                self.duration_stddev_subsec_millis()
+            )?;
+        } else {
+            write!(
+                f,
+                "duration - count: {}, mean: {:.*}us, stddev: {:.*}us",
+                self.duration_count(),
+                1,
+                self.duration_mean_subsec_micros(),
+                1,
+                self.duration_stddev_subsec_micros()
+            )?;
+        }
         write!(f, " | ")?;
         write!(
             f,
