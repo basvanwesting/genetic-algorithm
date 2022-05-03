@@ -24,3 +24,6 @@ pub use self::simple_sum::SimpleSumContinuousGenotype as FitnessSimpleSumContinu
 pub use self::simple_sum::SimpleSumIndexGenotype as FitnessSimpleSumIndexGenotype;
 pub use self::simple_sum::SimpleSumMultiIndexGenotype as FitnessSimpleSumMultiIndexGenotype;
 pub use self::simple_sum::SimpleSumUniqueIndexGenotype as FitnessSimpleSumUniqueIndexGenotype;
+
+mod meta;
+pub use self::meta::Meta as FitnessMeta;

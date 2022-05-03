@@ -5,7 +5,7 @@ use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct UniqueIndex {
     pub gene_size: usize,
     gene_index_sampler: Uniform<usize>,

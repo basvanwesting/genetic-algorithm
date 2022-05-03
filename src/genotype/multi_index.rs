@@ -7,7 +7,7 @@ use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct MultiIndex {
     gene_size: usize,
     pub gene_value_sizes: Vec<IndexGene>,

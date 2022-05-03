@@ -65,8 +65,22 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self.max_stale_generations = Some(max_stale_generations);
         self
     }
+    pub fn with_max_stale_generations_option(
+        mut self,
+        max_stale_generations_option: Option<usize>,
+    ) -> Self {
+        self.max_stale_generations = max_stale_generations_option;
+        self
+    }
     pub fn with_target_fitness_score(mut self, target_fitness_score: isize) -> Self {
         self.target_fitness_score = Some(target_fitness_score);
+        self
+    }
+    pub fn with_target_fitness_score_option(
+        mut self,
+        target_fitness_score_option: Option<isize>,
+    ) -> Self {
+        self.target_fitness_score = target_fitness_score_option;
         self
     }
     pub fn with_degeneration_range(mut self, degeneration_range: Range<f32>) -> Self {
@@ -75,6 +89,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         } else {
             self.degeneration_range = Some(degeneration_range);
         }
+        self
+    }
+    pub fn with_degeneration_range_option(
+        mut self,
+        degeneration_range_option: Option<Range<f32>>,
+    ) -> Self {
+        self.degeneration_range = degeneration_range_option;
         self
     }
     pub fn with_mutate(mut self, mutate: M) -> Self {
