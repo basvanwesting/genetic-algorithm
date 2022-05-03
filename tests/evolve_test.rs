@@ -3,7 +3,7 @@ mod support;
 #[cfg(test)]
 mod evolve_tests {
     use crate::support::*;
-    use genetic_algorithm::compete;
+    use genetic_algorithm::compete::CompeteTournament;
     use genetic_algorithm::crossover;
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness;
@@ -22,7 +22,7 @@ mod evolve_tests {
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSumBinaryGenotype)
             .with_crossover(crossover::Individual(true))
-            .with_compete(compete::Tournament(4))
+            .with_compete(CompeteTournament(4))
             .call();
 
         assert_eq!(evolve.best_chromosome, None);
@@ -39,7 +39,7 @@ mod evolve_tests {
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSumBinaryGenotype)
             .with_crossover(crossover::Individual(true))
-            .with_compete(compete::Tournament(4))
+            .with_compete(CompeteTournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -62,7 +62,7 @@ mod evolve_tests {
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSumBinaryGenotype)
             .with_crossover(crossover::Individual(true))
-            .with_compete(compete::Tournament(4))
+            .with_compete(CompeteTournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -86,7 +86,7 @@ mod evolve_tests {
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSumBinaryGenotype)
             .with_crossover(crossover::Individual(true))
-            .with_compete(compete::Tournament(4))
+            .with_compete(CompeteTournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -109,7 +109,7 @@ mod evolve_tests {
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSumContinuousGenotype)
             .with_crossover(crossover::Individual(true))
-            .with_compete(compete::Tournament(4))
+            .with_compete(CompeteTournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -138,7 +138,7 @@ mod evolve_tests {
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSumIndexGenotype)
             .with_crossover(crossover::Individual(true))
-            .with_compete(compete::Tournament(4))
+            .with_compete(CompeteTournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -163,7 +163,7 @@ mod evolve_tests {
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSumMultiIndexGenotype)
             .with_crossover(crossover::Individual(true))
-            .with_compete(compete::Tournament(4))
+            .with_compete(CompeteTournament(4))
             .call();
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -183,7 +183,7 @@ mod evolve_tests {
             .with_mutate(mutate::SingleGene(0.1))
             .with_fitness(fitness::SimpleSumBinaryGenotype)
             .with_crossover(crossover::Individual(true))
-            .with_compete(compete::Tournament(4));
+            .with_compete(CompeteTournament(4));
         let population = evolve.population_factory();
         println!("{:#?}", population);
 

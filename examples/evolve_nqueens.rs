@@ -1,5 +1,5 @@
 use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::compete;
+use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::Fitness;
@@ -46,7 +46,7 @@ fn main() {
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(NQueensFitness)
         .with_crossover(crossover::Cloning(true))
-        .with_compete(compete::Tournament(4))
+        .with_compete(CompeteTournament(4))
         .call();
 
     println!("{}", evolve);

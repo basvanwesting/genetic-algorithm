@@ -1,7 +1,6 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
-use genetic_algorithm::compete;
-use genetic_algorithm::compete::Compete;
+use genetic_algorithm::compete::{Compete, CompeteElite, CompeteTournament};
 use genetic_algorithm::fitness;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
@@ -29,7 +28,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     );
 
     c.bench_function("compete_tournament", |b| {
-        let compete = compete::Tournament(4);
+        let compete = CompeteTournament(4);
         b.iter_batched(
             || population.clone(),
             |data| compete.call(data, target_population_size, &mut rng),
@@ -38,7 +37,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     });
 
     c.bench_function("compete_elite", |b| {
-        let compete = compete::Elite;
+        let compete = CompeteElite;
         b.iter_batched(
             || population.clone(),
             |data| compete.call(data, target_population_size, &mut rng),

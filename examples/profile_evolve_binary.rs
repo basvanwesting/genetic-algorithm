@@ -4,7 +4,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 extern crate pprof;
 use pprof::criterion::{Output, PProfProfiler};
 
-use genetic_algorithm::compete;
+use genetic_algorithm::compete::CompeteElite;
 use genetic_algorithm::crossover;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
@@ -35,8 +35,7 @@ fn run() {
         .with_mutate(mutate::SingleGene(0.2))
         .with_fitness(fitness::SimpleSumBinaryGenotype)
         .with_crossover(crossover::Individual(true))
-        //.with_compete(compete::Tournament(4))
-        .with_compete(compete::Elite)
+        .with_compete(CompeteElite)
         .call();
 
     println!("{}", evolve);

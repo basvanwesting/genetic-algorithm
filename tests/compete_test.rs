@@ -3,8 +3,7 @@ mod support;
 #[cfg(test)]
 mod compete_tests {
     use crate::support::*;
-    use genetic_algorithm::compete;
-    use genetic_algorithm::compete::Compete;
+    use genetic_algorithm::compete::{Compete, CompeteElite, CompeteTournament};
     use genetic_algorithm::fitness::{Fitness, SimpleSumBinaryGenotype};
     use genetic_algorithm::genotype::BinaryGenotype;
 
@@ -23,7 +22,7 @@ mod compete_tests {
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = SimpleSumBinaryGenotype.call_for_population(population);
-        let population = compete::Elite.call(population, 4, &mut rng);
+        let population = CompeteElite.call(population, 4, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -51,7 +50,7 @@ mod compete_tests {
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = SimpleSumBinaryGenotype.call_for_population(population);
-        let population = compete::Tournament(4).call(population, 4, &mut rng);
+        let population = CompeteTournament(4).call(population, 4, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -73,7 +72,7 @@ mod compete_tests {
 
         let mut rng = SmallRng::seed_from_u64(0);
         let population = SimpleSumBinaryGenotype.call_for_population(population);
-        let population = compete::Tournament(4).call(population, 4, &mut rng);
+        let population = CompeteTournament(4).call(population, 4, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
