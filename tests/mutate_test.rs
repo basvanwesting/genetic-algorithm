@@ -4,8 +4,7 @@ mod support;
 mod mutate_tests {
     use crate::support::*;
     use genetic_algorithm::genotype::{BinaryGenotype, IndexGenotype};
-    use genetic_algorithm::mutate;
-    use genetic_algorithm::mutate::Mutate;
+    use genetic_algorithm::mutate::{Mutate, MutateSingleGene};
 
     #[test]
     fn test_single_gene_binary() {
@@ -19,7 +18,7 @@ mod mutate_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = mutate::SingleGene(0.5).call(&genotype, population, &mut rng);
+        let population = MutateSingleGene(0.5).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -47,7 +46,7 @@ mod mutate_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = mutate::SingleGene(0.5).call(&genotype, population, &mut rng);
+        let population = MutateSingleGene(0.5).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

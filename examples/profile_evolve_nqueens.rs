@@ -6,11 +6,11 @@ use pprof::criterion::{Output, PProfProfiler};
 
 use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::CompeteTournament;
-use genetic_algorithm::crossover;
+use genetic_algorithm::crossover::CrossoverCloning;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::UniqueIndexGenotype;
-use genetic_algorithm::mutate;
+use genetic_algorithm::mutate::MutateSingleGene;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
@@ -58,9 +58,9 @@ fn run() {
         .with_population_size(100)
         .with_max_stale_generations(1000)
         .with_target_fitness_score(0)
-        .with_mutate(mutate::SingleGene(0.2))
+        .with_mutate(MutateSingleGene(0.2))
         .with_fitness(NQueensFitness)
-        .with_crossover(crossover::Cloning(true))
+        .with_crossover(CrossoverCloning(true))
         .with_compete(CompeteTournament(4))
         .call();
 

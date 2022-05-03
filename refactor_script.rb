@@ -10,11 +10,16 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /discrete_random/ => 'discrete',
 }
 
 other_translations = {
-  /DiscreteRandom/  => 'Discrete',
+  /crossover::Individual/ => 'CrossoverIndividual',
+  /crossover::All/        => 'CrossoverAll',
+  /crossover::Range/      => 'CrossoverRange',
+  /crossover::Cloning/    => 'CrossoverCloning',
+  /compete::Elite/        => 'CompeteElite',
+  /compete::Tournament/   => 'CompeteTournament',
+  /mutate::SingleGene/    => 'MutateSingleGene',
 }
 
 #check:

@@ -3,8 +3,9 @@ mod support;
 #[cfg(test)]
 mod crossover_tests {
     use crate::support::*;
-    use genetic_algorithm::crossover;
-    use genetic_algorithm::crossover::Crossover;
+    use genetic_algorithm::crossover::{
+        Crossover, CrossoverAll, CrossoverCloning, CrossoverIndividual, CrossoverRange,
+    };
     use genetic_algorithm::genotype::BinaryGenotype;
 
     #[test]
@@ -19,7 +20,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::Individual(false).call(&genotype, population, &mut rng);
+        let population = CrossoverIndividual(false).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -45,7 +46,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::Individual(false).call(&genotype, population, &mut rng);
+        let population = CrossoverIndividual(false).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -70,7 +71,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::All(false).call(&genotype, population, &mut rng);
+        let population = CrossoverAll(false).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -96,7 +97,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::All(false).call(&genotype, population, &mut rng);
+        let population = CrossoverAll(false).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -121,7 +122,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::All(true).call(&genotype, population, &mut rng);
+        let population = CrossoverAll(true).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -150,7 +151,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::Range(false).call(&genotype, population, &mut rng);
+        let population = CrossoverRange(false).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -174,7 +175,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = crossover::Cloning(true).call(&genotype, population, &mut rng);
+        let population = CrossoverCloning(true).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

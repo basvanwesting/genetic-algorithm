@@ -20,7 +20,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     println!("population size: {}", population.size());
 
     c.bench_function("crossover_individual", |b| {
-        let crossover = crossover::Individual(false);
+        let crossover = CrossoverIndividual(false);
         b.iter_batched(
             || population.clone(),
             |data| crossover.call(&genotype, data, &mut rng),
@@ -29,7 +29,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     });
 
     c.bench_function("crossover_all", |b| {
-        let crossover = crossover::All(false);
+        let crossover = CrossoverAll(false);
         b.iter_batched(
             || population.clone(),
             |data| crossover.call(&genotype, data, &mut rng),
@@ -38,7 +38,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     });
 
     c.bench_function("crossover_range", |b| {
-        let crossover = crossover::Range(false);
+        let crossover = CrossoverRange(false);
         b.iter_batched(
             || population.clone(),
             |data| crossover.call(&genotype, data, &mut rng),
@@ -47,7 +47,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     });
 
     c.bench_function("crossover_cloning", |b| {
-        let crossover = crossover::Cloning(false);
+        let crossover = CrossoverCloning(false);
         b.iter_batched(
             || population.clone(),
             |data| crossover.call(&genotype, data, &mut rng),

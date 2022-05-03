@@ -1,10 +1,8 @@
-use super::Compete;
+use super::{Compete, TournamentSize};
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::prelude::*;
-
-pub type TournamentSize = usize;
 
 #[derive(Clone, Debug)]
 pub struct Tournament(pub TournamentSize);
