@@ -53,4 +53,5 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * run clippy
 * remove builder duplication in Genotype implementations
 * maybe seed best_chromosome back into population after degenerate?
+* add optional offset and scale to ContinuousGenotype
 * make duration stats return Duration, so we can choose sec/milli/micro afterwards.

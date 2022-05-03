@@ -1,7 +1,7 @@
 use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverAll;
 use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness;
+use genetic_algorithm::fitness::FitnessSimpleSumContinuousGenotype;
 use genetic_algorithm::genotype::ContinuousGenotype;
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
@@ -19,7 +19,7 @@ fn main() {
         .with_target_fitness_score(95)
         .with_degeneration_range(0.0001..1.0000)
         .with_mutate(MutateOnce(0.2))
-        .with_fitness(fitness::SimpleSumContinuousGenotype)
+        .with_fitness(FitnessSimpleSumContinuousGenotype)
         .with_crossover(CrossoverAll(true))
         .with_compete(CompeteTournament(4))
         .call();

@@ -3,8 +3,8 @@ use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::evolve_stats::EvolveStats;
-use genetic_algorithm::fitness;
 use genetic_algorithm::fitness::Fitness;
+use genetic_algorithm::fitness::FitnessSimpleSumBinaryGenotype;
 use genetic_algorithm::genotype::{BinaryGenotype, MultiIndexGenotype};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 use genetic_algorithm::permutate::Permutate;
@@ -43,7 +43,7 @@ impl Fitness for MetaFitness {
                 .with_target_fitness_score(100)
                 .with_degeneration_range(degeneration_range.clone())
                 .with_mutate(mutate.clone())
-                .with_fitness(fitness::SimpleSumBinaryGenotype)
+                .with_fitness(FitnessSimpleSumBinaryGenotype)
                 .with_crossover(crossover.clone())
                 .with_compete(compete.clone())
                 .call();

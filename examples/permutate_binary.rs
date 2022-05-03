@@ -1,4 +1,4 @@
-use genetic_algorithm::fitness;
+use genetic_algorithm::fitness::FitnessSimpleSumBinaryGenotype;
 use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::permutate::Permutate;
 
@@ -8,7 +8,7 @@ fn main() {
     println!("{}", genotype);
 
     let permutate = Permutate::new(genotype)
-        .with_fitness(fitness::SimpleSumBinaryGenotype)
+        .with_fitness(FitnessSimpleSumBinaryGenotype)
         .call();
 
     println!("{}", permutate);

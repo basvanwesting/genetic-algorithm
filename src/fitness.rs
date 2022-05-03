@@ -1,8 +1,5 @@
 use crate::chromosome::Chromosome;
-use crate::genotype::{
-    BinaryGenotype, ContinuousGenotype, Genotype, IndexGenotype, MultiIndexGenotype,
-    UniqueIndexGenotype,
-};
+use crate::genotype::Genotype;
 use crate::population::Population;
 
 pub trait Fitness: Clone + std::fmt::Debug {
@@ -21,59 +18,9 @@ pub trait Fitness: Clone + std::fmt::Debug {
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize;
 }
 
-#[derive(Clone, Debug)]
-pub struct SimpleSumBinaryGenotype;
-impl Fitness for SimpleSumBinaryGenotype {
-    type Genotype = BinaryGenotype;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
-        chromosome.genes.iter().filter(|&value| *value).count() as isize
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct SimpleSumContinuousGenotype;
-impl Fitness for SimpleSumContinuousGenotype {
-    type Genotype = ContinuousGenotype;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
-        chromosome
-            .genes
-            .iter()
-            .sum::<<Self::Genotype as Genotype>::Gene>() as isize
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct SimpleSumIndexGenotype;
-impl Fitness for SimpleSumIndexGenotype {
-    type Genotype = IndexGenotype;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
-        chromosome
-            .genes
-            .iter()
-            .sum::<<Self::Genotype as Genotype>::Gene>() as isize
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct SimpleSumUniqueIndexGenotype;
-impl Fitness for SimpleSumUniqueIndexGenotype {
-    type Genotype = UniqueIndexGenotype;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
-        chromosome
-            .genes
-            .iter()
-            .sum::<<Self::Genotype as Genotype>::Gene>() as isize
-    }
-}
-
-#[derive(Clone, Debug)]
-pub struct SimpleSumMultiIndexGenotype;
-impl Fitness for SimpleSumMultiIndexGenotype {
-    type Genotype = MultiIndexGenotype;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
-        chromosome
-            .genes
-            .iter()
-            .sum::<<Self::Genotype as Genotype>::Gene>() as isize
-    }
-}
+mod simple_sum;
+pub use self::simple_sum::SimpleSumBinaryGenotype as FitnessSimpleSumBinaryGenotype;
+pub use self::simple_sum::SimpleSumContinuousGenotype as FitnessSimpleSumContinuousGenotype;
+pub use self::simple_sum::SimpleSumIndexGenotype as FitnessSimpleSumIndexGenotype;
+pub use self::simple_sum::SimpleSumMultiIndexGenotype as FitnessSimpleSumMultiIndexGenotype;
+pub use self::simple_sum::SimpleSumUniqueIndexGenotype as FitnessSimpleSumUniqueIndexGenotype;
