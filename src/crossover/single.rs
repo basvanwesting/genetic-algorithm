@@ -6,8 +6,8 @@ use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 
 #[derive(Clone, Debug)]
-pub struct Individual(pub KeepParent);
-impl Crossover for Individual {
+pub struct Single(pub KeepParent);
+impl Crossover for Single {
     fn call<T: Genotype, R: Rng>(
         &self,
         genotype: &T,

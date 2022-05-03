@@ -19,8 +19,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     println!("population size: {}", population.size());
 
-    c.bench_function("crossover_individual", |b| {
-        let crossover = CrossoverIndividual(false);
+    c.bench_function("crossover_single", |b| {
+        let crossover = CrossoverSingle(false);
         b.iter_batched(
             || population.clone(),
             |data| crossover.call(&genotype, data, &mut rng),

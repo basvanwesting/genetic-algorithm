@@ -4,12 +4,12 @@ mod support;
 mod crossover_tests {
     use crate::support::*;
     use genetic_algorithm::crossover::{
-        Crossover, CrossoverAll, CrossoverCloning, CrossoverIndividual, CrossoverRange,
+        Crossover, CrossoverAll, CrossoverCloning, CrossoverSingle, CrossoverRange,
     };
     use genetic_algorithm::genotype::BinaryGenotype;
 
     #[test]
-    fn test_individual_even() {
+    fn test_single_even() {
         let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
         let population = build::population(vec![
@@ -20,7 +20,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = CrossoverIndividual(false).call(&genotype, population, &mut rng);
+        let population = CrossoverSingle(false).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),
@@ -34,7 +34,7 @@ mod crossover_tests {
     }
 
     #[test]
-    fn test_individual_odd() {
+    fn test_single_odd() {
         let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
         let population = build::population(vec![
@@ -46,7 +46,7 @@ mod crossover_tests {
         ]);
 
         let mut rng = SmallRng::seed_from_u64(0);
-        let population = CrossoverIndividual(false).call(&genotype, population, &mut rng);
+        let population = CrossoverSingle(false).call(&genotype, population, &mut rng);
 
         assert_eq!(
             inspect::population(&population),

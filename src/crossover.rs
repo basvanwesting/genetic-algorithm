@@ -13,7 +13,7 @@ pub trait Crossover: Clone + std::fmt::Debug {
 
 #[derive(Clone, Debug)]
 pub enum Crossovers {
-    Individual,
+    Single,
     All,
     Range,
     Cloning,
@@ -31,8 +31,8 @@ impl Crossover for CrossoverDispatch {
     ) -> Population<T> {
         let keep_parent = self.1;
         match self.0 {
-            Crossovers::Individual => {
-                CrossoverIndividual(keep_parent).call(genotype, population, rng)
+            Crossovers::Single => {
+                CrossoverSingle(keep_parent).call(genotype, population, rng)
             }
             Crossovers::All => CrossoverAll(keep_parent).call(genotype, population, rng),
             Crossovers::Range => CrossoverRange(keep_parent).call(genotype, population, rng),
@@ -41,8 +41,8 @@ impl Crossover for CrossoverDispatch {
     }
 }
 
-mod individual;
-pub use self::individual::Individual as CrossoverIndividual;
+mod single;
+pub use self::single::Single as CrossoverSingle;
 
 mod all;
 pub use self::all::All as CrossoverAll;

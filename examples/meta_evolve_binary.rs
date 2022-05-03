@@ -82,8 +82,8 @@ fn main() {
     ];
 
     let crossovers = vec![
-        CrossoverDispatch(Crossovers::Individual, true),
-        CrossoverDispatch(Crossovers::Individual, false),
+        CrossoverDispatch(Crossovers::Single, true),
+        CrossoverDispatch(Crossovers::Single, false),
         CrossoverDispatch(Crossovers::All, true),
         CrossoverDispatch(Crossovers::All, false),
         CrossoverDispatch(Crossovers::Range, true),

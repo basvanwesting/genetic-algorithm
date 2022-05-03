@@ -1,5 +1,5 @@
 use genetic_algorithm::compete::CompeteTournament;
-use genetic_algorithm::crossover::CrossoverIndividual;
+use genetic_algorithm::crossover::CrossoverSingle;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness;
 use genetic_algorithm::genotype::BinaryGenotype;
@@ -17,7 +17,7 @@ fn main() {
         .with_population_size(1000)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(fitness::SimpleSumBinaryGenotype)
-        .with_crossover(CrossoverIndividual(true))
+        .with_crossover(CrossoverSingle(true))
         .with_compete(CompeteTournament(4))
         .call();
 
