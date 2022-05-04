@@ -51,15 +51,11 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Run clippy
 * Remove builder duplication in Genotype implementations
 * Maybe seed best_chromosome back into population after degenerate?
-* Add optional offset and scale to ContinuousGenotype
+* Add optional offset and scale to ContinuousGenotype?
+* Add optional offset to IndexGenotype and UniqueIndexGenotype?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make meta/fitness and meta/permutate use a config reference, need lifetimes
 * Add factor parameter between best_fitness_score_mean and duration_mean_subsec_micros in meta/fitness
-* Add DiscreteGenotype back in for user defined Gene
 * Make fitness/simple_sum generic
-* fix issues where population_size is smaller then tournament_size etc..
-* fix issues where population_size is 1 in crossover without keep parents (=> empty population)
-
-## REJECTED TODO
-* Make permutation_factory return an iterator instead of a vec => no interface by population
-
+* Fix issues where population_size is smaller then tournament_size etc..
+* Fix issues where population_size is 1 in crossover without keep parents (=> empty population)

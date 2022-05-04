@@ -10,6 +10,9 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display {
     fn gene_size(&self) -> usize;
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
+    fn is_unique(&self) -> bool {
+        false
+    }
 }
 
 //Evolvable is implicit, until proven otherwise

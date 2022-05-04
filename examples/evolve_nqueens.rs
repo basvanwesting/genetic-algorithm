@@ -1,5 +1,5 @@
 use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::compete::CompeteTournament;
+use genetic_algorithm::compete::CompeteElite;
 use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::Fitness;
@@ -35,18 +35,18 @@ impl Fitness for NQueensFitness {
 
 fn main() {
     let rng = SmallRng::from_entropy();
-    let genotype = UniqueIndexGenotype::new().with_gene_value_size(32).build();
+    let genotype = UniqueIndexGenotype::new().with_gene_value_size(64).build();
 
     println!("{}", genotype);
 
     let evolve = Evolve::new(genotype, rng)
-        .with_population_size(100)
-        .with_max_stale_generations(1000)
+        .with_population_size(20)
+        .with_max_stale_generations(10000)
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(NQueensFitness)
         .with_crossover(CrossoverClone(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteElite)
         .call();
 
     println!("{}", evolve);

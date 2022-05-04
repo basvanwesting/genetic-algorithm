@@ -32,31 +32,19 @@ impl Fitness for NQueensFitness {
 }
 
 fn main() {
-    let rounds = 20;
-    let population_sizes = vec![10, 20, 50, 100];
-    let max_stale_generations_options = vec![Some(1000)];
+    let rounds = 100;
+    let population_sizes = vec![20];
+    let max_stale_generations_options = vec![Some(10000)];
     let target_fitness_score_options = vec![Some(0)];
-    let degeneration_range_options = vec![None, Some(0.001..0.995)];
+    let degeneration_range_options = vec![None, Some(0.001..0.999)];
     let mutates = vec![
         MutateDispatch(Mutates::Once, 0.1),
+        MutateDispatch(Mutates::Once, 0.2),
         MutateDispatch(Mutates::Once, 0.3),
-        MutateDispatch(Mutates::Once, 0.5),
     ];
-    let crossovers = vec![
-        CrossoverDispatch(Crossovers::Single, true),
-        CrossoverDispatch(Crossovers::Single, false),
-        CrossoverDispatch(Crossovers::All, true),
-        CrossoverDispatch(Crossovers::All, false),
-        CrossoverDispatch(Crossovers::Range, true),
-        CrossoverDispatch(Crossovers::Range, false),
-        CrossoverDispatch(Crossovers::Clone, true),
-        CrossoverDispatch(Crossovers::Clone, false),
-    ];
-    let competes = vec![
-        CompeteDispatch(Competes::Elite, 0),
-        CompeteDispatch(Competes::Tournament, 4),
-    ];
-    let evolve_genotype = UniqueIndexGenotype::new().with_gene_value_size(32).build();
+    let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
+    let competes = vec![CompeteDispatch(Competes::Elite, 0)];
+    let evolve_genotype = UniqueIndexGenotype::new().with_gene_value_size(64).build();
     let evolve_fitness = NQueensFitness;
 
     let config = MetaConfig::new(

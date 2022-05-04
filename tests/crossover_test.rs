@@ -4,9 +4,9 @@ mod support;
 mod crossover_tests {
     use crate::support::*;
     use genetic_algorithm::crossover::{
-        Crossover, CrossoverAll, CrossoverClone, CrossoverSingle, CrossoverRange,
+        Crossover, CrossoverAll, CrossoverClone, CrossoverRange, CrossoverSingle,
     };
-    use genetic_algorithm::genotype::BinaryGenotype;
+    use genetic_algorithm::genotype::{BinaryGenotype, PermutableGenotype, UniqueIndexGenotype};
 
     #[test]
     fn test_single_even() {
@@ -188,5 +188,16 @@ mod crossover_tests {
                 vec![true, true, true],
             ]
         )
+    }
+
+    #[test]
+    #[should_panic(expected = "Cannot use Crossover::Single for unique genotype")]
+    fn test_is_unique_constraints() {
+        let genotype = UniqueIndexGenotype::new().with_gene_value_size(5).build();
+        let population = genotype.population_factory();
+        let mut rng = SmallRng::seed_from_u64(0);
+
+        let _population = CrossoverClone(false).call(&genotype, population.clone(), &mut rng);
+        let _population = CrossoverSingle(false).call(&genotype, population.clone(), &mut rng);
     }
 }

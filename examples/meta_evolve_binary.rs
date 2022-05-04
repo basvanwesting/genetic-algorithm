@@ -26,6 +26,8 @@ fn main() {
         CrossoverDispatch(Crossovers::All, false),
         CrossoverDispatch(Crossovers::Range, true),
         CrossoverDispatch(Crossovers::Range, false),
+        CrossoverDispatch(Crossovers::Clone, true),
+        CrossoverDispatch(Crossovers::Clone, false),
     ];
     let competes = vec![
         CompeteDispatch(Competes::Elite, 0),

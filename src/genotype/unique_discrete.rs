@@ -53,6 +53,10 @@ impl<T: Gene> Genotype for UniqueDiscrete<T> {
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
+
+    fn is_unique(&self) -> bool {
+        true
+    }
 }
 
 impl<T: Gene> PermutableGenotype for UniqueDiscrete<T> {

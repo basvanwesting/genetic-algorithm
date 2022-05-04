@@ -27,6 +27,7 @@ mod genotype_tests {
         );
 
         assert_eq!(genotype.gene_values(), vec![true, false]);
+        assert_eq!(genotype.is_unique(), false);
     }
 
     #[test]
@@ -51,6 +52,8 @@ mod genotype_tests {
                 0.45637196, 0.39514416, 0.81885093
             ]
         );
+
+        assert_eq!(genotype.is_unique(), false);
     }
 
     #[test]
@@ -75,6 +78,7 @@ mod genotype_tests {
         );
 
         assert_eq!(genotype.gene_values(), vec![0, 1, 2, 3, 4]);
+        assert_eq!(genotype.is_unique(), false);
     }
 
     #[test]
@@ -89,6 +93,7 @@ mod genotype_tests {
         assert_eq!(inspect::chromosome(&chromosome), vec![3, 0, 1, 2, 4]);
 
         assert_eq!(genotype.gene_values(), vec![0, 1, 2, 3, 4]);
+        assert_eq!(genotype.is_unique(), true);
     }
 
     #[test]
@@ -104,6 +109,8 @@ mod genotype_tests {
         genotype.mutate_chromosome(&mut chromosome, &mut rng);
         //genotype.mutate_chromosome(&mut chromosome, &mut rng);
         assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 3]);
+
+        assert_eq!(genotype.is_unique(), false);
     }
 
     #[test]
@@ -120,6 +127,8 @@ mod genotype_tests {
         genotype.mutate_chromosome(&mut chromosome, &mut rng);
         //genotype.mutate_chromosome(&mut chromosome, &mut rng);
         assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 3]);
+
+        assert_eq!(genotype.is_unique(), false);
     }
 
     #[test]
@@ -136,5 +145,6 @@ mod genotype_tests {
         assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 3, 2]);
 
         assert_eq!(genotype.gene_values(), vec![5, 2, 3, 4]);
+        assert_eq!(genotype.is_unique(), true);
     }
 }

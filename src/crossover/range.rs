@@ -14,6 +14,9 @@ impl Crossover for Range {
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
+        if genotype.is_unique() {
+            panic!("Cannot use Crossover::Range for unique genotype");
+        }
         let gene_index_sampler = Uniform::from(0..genotype.gene_size());
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 

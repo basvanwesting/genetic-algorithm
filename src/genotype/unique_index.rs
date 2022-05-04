@@ -53,6 +53,10 @@ impl Genotype for UniqueIndex {
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
+
+    fn is_unique(&self) -> bool {
+        true
+    }
 }
 
 impl PermutableGenotype for UniqueIndex {

@@ -14,6 +14,9 @@ impl Crossover for All {
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
+        if genotype.is_unique() {
+            panic!("Cannot use Crossover::All for unique genotype");
+        }
         let bool_sampler = Bernoulli::new(0.5).unwrap();
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
