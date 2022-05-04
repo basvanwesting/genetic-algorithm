@@ -41,3 +41,6 @@ pub use self::unique_index::UniqueIndex as UniqueIndexGenotype;
 
 mod multi_index;
 pub use self::multi_index::MultiIndex as MultiIndexGenotype;
+
+mod discrete;
+pub use self::discrete::Discrete as DiscreteGenotype;
