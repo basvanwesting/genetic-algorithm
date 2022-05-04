@@ -191,6 +191,36 @@ mod crossover_tests {
     }
 
     #[test]
+    fn test_single_population_size_1() {
+        let genotype = BinaryGenotype::new().with_gene_size(5).build();
+
+        let population = build::population(vec![vec![true, false, true, false, true]]);
+
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = CrossoverSingle(false).call(&genotype, population, &mut rng);
+
+        assert_eq!(
+            inspect::population(&population),
+            vec![vec![true, false, true, false, true]]
+        )
+    }
+
+    #[test]
+    fn test_clone_population_size_1() {
+        let genotype = BinaryGenotype::new().with_gene_size(5).build();
+
+        let population = build::population(vec![vec![true, false, true, false, true]]);
+
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = CrossoverClone(false).call(&genotype, population, &mut rng);
+
+        assert_eq!(
+            inspect::population(&population),
+            vec![vec![true, false, true, false, true]]
+        )
+    }
+
+    #[test]
     #[should_panic(expected = "Cannot use Crossover::Single for unique genotype")]
     fn test_is_unique_constraints() {
         let genotype = UniqueIndexGenotype::new().with_gene_value_size(5).build();

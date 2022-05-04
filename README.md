@@ -58,4 +58,3 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Add factor parameter between best_fitness_score_mean and duration_mean_subsec_micros in meta/fitness
 * Make fitness/simple_sum generic
 * Fix issues where population_size is smaller then tournament_size etc..
-* Fix issues where population_size is 1 in crossover without keep parents (=> empty population)
