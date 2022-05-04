@@ -36,6 +36,28 @@ mod compete_tests {
     }
 
     #[test]
+    fn test_elite_shortage() {
+        let population = build::population::<BinaryGenotype>(vec![
+            vec![false, false, false],
+            vec![false, false, true],
+            vec![false, true, false],
+        ]);
+
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = FitnessSimpleCount.call_for_population(population);
+        let population = CompeteElite.call(population, 4, &mut rng);
+
+        assert_eq!(
+            inspect::population(&population),
+            vec![
+                vec![false, false, false],
+                vec![false, false, true],
+                vec![false, true, false],
+            ]
+        );
+    }
+
+    #[test]
     fn test_tournament() {
         let population = build::population::<BinaryGenotype>(vec![
             vec![false, false, false],

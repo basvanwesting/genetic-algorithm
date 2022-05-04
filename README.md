@@ -57,4 +57,3 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Make meta/fitness and meta/permutate use a config reference, need lifetimes
 * Add factor parameter between best_fitness_score_mean and duration_mean_subsec_micros in meta/fitness
 * Make fitness/simple_sum generic
-* Fix issues where population_size is smaller then tournament_size etc..

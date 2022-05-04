@@ -13,8 +13,8 @@ impl Compete for Elite {
         _rng: &mut R,
     ) -> Population<T> {
         population.sort();
-        let to_drain_from_first = population.size() - target_population_size;
-        if to_drain_from_first > 0 {
+        if population.size() > target_population_size {
+            let to_drain_from_first = population.size() - target_population_size;
             population.chromosomes.drain(..to_drain_from_first);
         }
         population
