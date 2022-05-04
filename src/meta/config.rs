@@ -50,13 +50,13 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
 
     pub fn is_valid(&self) -> bool {
         self.rounds > 0
-            && self.population_sizes.len() > 0
-            && self.max_stale_generations_options.len() > 0
-            && self.target_fitness_score_options.len() > 0
-            && self.degeneration_range_options.len() > 0
-            && self.mutates.len() > 0
-            && self.crossovers.len() > 0
-            && self.competes.len() > 0
+            && !self.population_sizes.is_empty()
+            && !self.max_stale_generations_options.is_empty()
+            && !self.target_fitness_score_options.is_empty()
+            && !self.degeneration_range_options.is_empty()
+            && !self.mutates.is_empty()
+            && !self.crossovers.is_empty()
+            && !self.competes.is_empty()
     }
 
     // order matters so keep close to build_genotype
