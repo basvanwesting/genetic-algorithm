@@ -77,8 +77,8 @@ impl<G: Genotype, F: Fitness<Genotype = G>> fmt::Display for Permutate<G, F> {
             writeln!(f, "best_crossover: {:?}", best_evolve_config.crossover)?;
             writeln!(f, "best_compete: {:?}", best_evolve_config.compete)?;
 
-            write!(f, "best fitness score: {:?}\n", self.best_fitness_score())?;
-            write!(f, "best_chromosome: {:?}\n", best_chromosome)
+            writeln!(f, "best fitness score: {:?}", self.best_fitness_score())?;
+            writeln!(f, "best_chromosome: {:?}", best_chromosome)
         } else {
             write!(f, "no best_chromosome found!",)
         }

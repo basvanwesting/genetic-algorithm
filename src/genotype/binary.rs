@@ -60,9 +60,9 @@ impl PermutableGenotype for Binary {
 
 impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "genotype:\n")?;
-        write!(f, "  gene_size: {}\n", self.gene_size)?;
-        write!(f, "  gene_index_sampler: {:?}\n", self.gene_index_sampler)?;
-        write!(f, "  gene_value_sampler: {:?}\n", self.gene_value_sampler)
+        writeln!(f, "genotype:")?;
+        writeln!(f, "  gene_size: {}", self.gene_size)?;
+        writeln!(f, "  gene_index_sampler: {:?}", self.gene_index_sampler)?;
+        writeln!(f, "  gene_value_sampler: {:?}", self.gene_value_sampler)
     }
 }

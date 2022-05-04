@@ -59,14 +59,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> fmt::Display for Permutate<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "permutate:\n")?;
-        write!(f, "  fitness: {:?}\n", self.fitness.as_ref())?;
-        write!(f, "  population size: {:?}\n", self.population.size())?;
-        write!(f, "  best fitness score: {:?}\n", self.best_fitness_score())?;
-        write!(
-            f,
-            "  best_chromosome: {:?}\n",
-            self.best_chromosome.as_ref()
-        )
+        writeln!(f, "permutate:")?;
+        writeln!(f, "  fitness: {:?}", self.fitness.as_ref())?;
+        writeln!(f, "  population size: {:?}", self.population.size())?;
+        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
+        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
     }
 }

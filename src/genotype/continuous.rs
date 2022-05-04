@@ -49,7 +49,7 @@ impl Genotype for Continuous {
 
 impl fmt::Display for Continuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "genotype:\n")?;
-        write!(f, "  gene_size: {}\n", self.gene_size)
+        writeln!(f, "genotype:")?;
+        writeln!(f, "  gene_size: {}", self.gene_size)
     }
 }

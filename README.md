@@ -50,13 +50,16 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 `cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
 
 ## TODO
-* run clippy
-* remove builder duplication in Genotype implementations
-* maybe seed best_chromosome back into population after degenerate?
-* add optional offset and scale to ContinuousGenotype
-* make duration stats return Duration, so we can choose sec/milli/micro afterwards.
-* make meta/fitness and meta/permutate use a config reference, need lifetimes
-* add factor parameter between best_fitness_score_mean and duration_mean_subsec_micros in meta/fitness
-* Make permutation_factory return an iterator instead of a vec
+* Run clippy
+* Remove builder duplication in Genotype implementations
+* Maybe seed best_chromosome back into population after degenerate?
+* Add optional offset and scale to ContinuousGenotype
+* Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
+* Make meta/fitness and meta/permutate use a config reference, need lifetimes
+* Add factor parameter between best_fitness_score_mean and duration_mean_subsec_micros in meta/fitness
 * Add DiscreteGenotype back in for user defined Gene
+* Make fitness/simple_sum generic
+
+## REJECTED TODO
+* Make permutation_factory return an iterator instead of a vec => no interface by population
 

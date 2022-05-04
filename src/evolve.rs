@@ -236,29 +236,21 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     fmt::Display for Evolve<G, M, F, S, C, R>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        write!(f, "evolve:\n")?;
-        write!(f, "  population_size: {}\n", self.population_size)?;
-        write!(
+        writeln!(f, "evolve:")?;
+        writeln!(f, "  population_size: {}", self.population_size)?;
+        writeln!(
             f,
-            "  max_stale_generations: {:?}\n",
+            "  max_stale_generations: {:?}",
             self.max_stale_generations
         )?;
-        write!(
-            f,
-            "  target_fitness_score: {:?}\n",
-            self.target_fitness_score
-        )?;
-        write!(f, "  degeneration_range: {:?}\n", self.degeneration_range)?;
-        write!(f, "  mutate: {:?}\n", self.mutate.as_ref())?;
-        write!(f, "  fitness: {:?}\n", self.fitness.as_ref())?;
-        write!(f, "  crossover: {:?}\n", self.crossover.as_ref())?;
-        write!(f, "  compete: {:?}\n", self.compete.as_ref())?;
-        write!(f, "  current generation: {:?}\n", self.current_generation)?;
-        write!(f, "  best fitness score: {:?}\n", self.best_fitness_score())?;
-        write!(
-            f,
-            "  best_chromosome: {:?}\n",
-            self.best_chromosome.as_ref()
-        )
+        writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
+        writeln!(f, "  degeneration_range: {:?}", self.degeneration_range)?;
+        writeln!(f, "  mutate: {:?}", self.mutate.as_ref())?;
+        writeln!(f, "  fitness: {:?}", self.fitness.as_ref())?;
+        writeln!(f, "  crossover: {:?}", self.crossover.as_ref())?;
+        writeln!(f, "  compete: {:?}", self.compete.as_ref())?;
+        writeln!(f, "  current generation: {:?}", self.current_generation)?;
+        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
+        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
     }
 }
