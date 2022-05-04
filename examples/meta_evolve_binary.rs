@@ -51,9 +51,8 @@ fn main() {
         competes,
     );
 
-    println!("{:?}", config);
+    let permutate = MetaPermutate::new(&config).call();
 
-    let permutate = MetaPermutate::new(config).call();
-
+    println!();
     println!("{}", permutate);
 }
