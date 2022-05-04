@@ -53,14 +53,15 @@ impl<T: Gene> Genotype for Discrete<T> {
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         let genes: Vec<Self::Gene> = (0..self.gene_size)
-            .map(|_| self.gene_values[self.gene_value_index_sampler.sample(rng)])
+            .map(|_| self.gene_values[self.gene_value_index_sampler.sample(rng)].clone())
             .collect();
         Chromosome::new(genes)
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.gene_values[self.gene_value_index_sampler.sample(rng)];
+        chromosome.genes[index] =
+            self.gene_values[self.gene_value_index_sampler.sample(rng)].clone();
         chromosome.taint_fitness_score();
     }
 }

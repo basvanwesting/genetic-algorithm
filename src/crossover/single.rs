@@ -23,8 +23,8 @@ impl Crossover for Single {
                 let mut child_father_genes = father.genes.clone();
                 let mut child_mother_genes = mother.genes.clone();
 
-                child_father_genes[index] = mother.genes[index];
-                child_mother_genes[index] = father.genes[index];
+                child_father_genes[index] = mother.genes[index].clone();
+                child_mother_genes[index] = father.genes[index].clone();
 
                 // no need to taint_fitness_score as it is initialized with None
                 child_chromosomes.push(Chromosome::new(child_father_genes));

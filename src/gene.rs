@@ -2,7 +2,7 @@ pub type IndexGene = usize;
 pub type BinaryGene = bool;
 pub type ContinuousGene = f32;
 
-pub trait Gene: Default + Copy + Clone + std::fmt::Debug {}
+pub trait Gene: Default + Clone + std::fmt::Debug {}
 
 impl Gene for IndexGene {}
 impl Gene for BinaryGene {}

@@ -24,8 +24,8 @@ impl Crossover for All {
 
                 for index in 0..(genotype.gene_size()) {
                     if bool_sampler.sample(rng) {
-                        child_father_genes[index] = mother.genes[index];
-                        child_mother_genes[index] = father.genes[index];
+                        child_father_genes[index] = mother.genes[index].clone();
+                        child_mother_genes[index] = father.genes[index].clone();
                     }
                 }
 
