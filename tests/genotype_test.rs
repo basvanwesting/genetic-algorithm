@@ -27,6 +27,7 @@ mod genotype_tests {
         );
 
         assert_eq!(genotype.gene_values(), vec![true, false]);
+        assert_eq!(genotype.population_factory_size(), 1024);
         assert_eq!(genotype.is_unique(), false);
     }
 
@@ -78,6 +79,7 @@ mod genotype_tests {
         );
 
         assert_eq!(genotype.gene_values(), vec![0, 1, 2, 3, 4]);
+        assert_eq!(genotype.population_factory_size(), 9_765_625);
         assert_eq!(genotype.is_unique(), false);
     }
 
@@ -93,6 +95,7 @@ mod genotype_tests {
         assert_eq!(inspect::chromosome(&chromosome), vec![3, 0, 1, 2, 4]);
 
         assert_eq!(genotype.gene_values(), vec![0, 1, 2, 3, 4]);
+        assert_eq!(genotype.population_factory_size(), 120);
         assert_eq!(genotype.is_unique(), true);
     }
 
@@ -110,6 +113,7 @@ mod genotype_tests {
         //genotype.mutate_chromosome(&mut chromosome, &mut rng);
         assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 3]);
 
+        assert_eq!(genotype.population_factory_size(), 120);
         assert_eq!(genotype.is_unique(), false);
     }
 
@@ -128,6 +132,7 @@ mod genotype_tests {
         //genotype.mutate_chromosome(&mut chromosome, &mut rng);
         assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 3]);
 
+        assert_eq!(genotype.population_factory_size(), 1024);
         assert_eq!(genotype.is_unique(), false);
     }
 
@@ -145,6 +150,7 @@ mod genotype_tests {
         assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 3, 2]);
 
         assert_eq!(genotype.gene_values(), vec![5, 2, 3, 4]);
+        assert_eq!(genotype.population_factory_size(), 24);
         assert_eq!(genotype.is_unique(), true);
     }
 }

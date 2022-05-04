@@ -1,6 +1,9 @@
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::IndexGene;
+use crate::population::Population;
+use factorial::Factorial;
+use itertools::Itertools;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
@@ -62,6 +65,19 @@ impl Genotype for UniqueIndex {
 impl PermutableGenotype for UniqueIndex {
     fn gene_values(&self) -> Vec<Self::Gene> {
         (0..self.gene_value_size).collect()
+    }
+    fn population_factory(&self) -> Population<Self> {
+        let chromosomes = self
+            .gene_values()
+            .iter()
+            .permutations(self.gene_size())
+            .map(|genes| Chromosome::new(genes.into_iter().cloned().collect()))
+            .collect();
+
+        Population::new(chromosomes)
+    }
+    fn population_factory_size(&self) -> usize {
+        self.gene_values().len().factorial()
     }
 }
 

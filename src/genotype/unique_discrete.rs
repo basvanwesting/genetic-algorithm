@@ -1,6 +1,9 @@
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::Gene;
+use crate::population::Population;
+use factorial::Factorial;
+use itertools::Itertools;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
@@ -62,6 +65,19 @@ impl<T: Gene> Genotype for UniqueDiscrete<T> {
 impl<T: Gene> PermutableGenotype for UniqueDiscrete<T> {
     fn gene_values(&self) -> Vec<Self::Gene> {
         self.gene_values.clone()
+    }
+    fn population_factory(&self) -> Population<Self> {
+        let chromosomes = self
+            .gene_values()
+            .iter()
+            .permutations(self.gene_size())
+            .map(|genes| Chromosome::new(genes.into_iter().cloned().collect()))
+            .collect();
+
+        Population::new(chromosomes)
+    }
+    fn population_factory_size(&self) -> usize {
+        self.gene_values().len().factorial()
     }
 }
 

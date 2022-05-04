@@ -7,7 +7,7 @@ mod permutate_tests {
         FitnessSimpleCount, FitnessSimpleSumIndexGenotype, FitnessSimpleSumMultiIndexGenotype,
     };
     use genetic_algorithm::genotype::{
-        BinaryGenotype, IndexGenotype, MultiIndexGenotype, PermutableGenotype,
+        BinaryGenotype, IndexGenotype, MultiIndexGenotype, PermutableGenotype, UniqueIndexGenotype,
     };
     use genetic_algorithm::permutate::Permutate;
 
@@ -65,11 +65,12 @@ mod permutate_tests {
     }
 
     #[test]
-    fn test_population_factory_1() {
+    fn test_population_factory_binary_1() {
         let genotype = BinaryGenotype::new().with_gene_size(1).build();
         let population = genotype.population_factory();
         println!("{:#?}", population);
 
+        assert_eq!(genotype.population_factory_size(), 2);
         assert_eq!(
             inspect::population(&population),
             vec![vec![true], vec![false],]
@@ -77,11 +78,12 @@ mod permutate_tests {
     }
 
     #[test]
-    fn test_population_factory_2() {
+    fn test_population_factory_binary_2() {
         let genotype = BinaryGenotype::new().with_gene_size(2).build();
         let population = genotype.population_factory();
         println!("{:#?}", population);
 
+        assert_eq!(genotype.population_factory_size(), 4);
         assert_eq!(
             inspect::population(&population),
             vec![
@@ -94,11 +96,12 @@ mod permutate_tests {
     }
 
     #[test]
-    fn test_population_factory_3() {
+    fn test_population_factory_binary_3() {
         let genotype = BinaryGenotype::new().with_gene_size(3).build();
         let population = genotype.population_factory();
         println!("{:#?}", population);
 
+        assert_eq!(genotype.population_factory_size(), 8);
         assert_eq!(
             inspect::population(&population),
             vec![
@@ -115,11 +118,32 @@ mod permutate_tests {
     }
 
     #[test]
+    fn test_population_factory_unique_3() {
+        let genotype = UniqueIndexGenotype::new().with_gene_value_size(3).build();
+        let population = genotype.population_factory();
+        println!("{:#?}", population);
+
+        assert_eq!(genotype.population_factory_size(), 6);
+        assert_eq!(
+            inspect::population(&population),
+            vec![
+                vec![0, 1, 2],
+                vec![0, 2, 1],
+                vec![1, 0, 2],
+                vec![1, 2, 0],
+                vec![2, 0, 1],
+                vec![2, 1, 0],
+            ]
+        )
+    }
+
+    #[test]
     fn test_population_factory_multi_1() {
         let genotype = MultiIndexGenotype::new()
             .with_gene_value_sizes(vec![1])
             .build();
 
+        assert_eq!(genotype.population_factory_size(), 1);
         assert_eq!(
             inspect::population(&genotype.population_factory()),
             vec![vec![0]]
@@ -132,6 +156,7 @@ mod permutate_tests {
             .with_gene_value_sizes(vec![1, 2, 3, 4])
             .build();
 
+        assert_eq!(genotype.population_factory_size(), 24);
         assert_eq!(
             inspect::population(&genotype.population_factory()),
             vec![

@@ -28,6 +28,9 @@ pub trait PermutableGenotype: Genotype {
 
         Population::new(chromosomes)
     }
+    fn population_factory_size(&self) -> usize {
+        self.gene_values().len().pow(self.gene_size() as u32)
+    }
 }
 
 mod binary;
