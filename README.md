@@ -22,12 +22,11 @@ Implemented genotypes:
 * IndexGenotype: list of 0..n with uniform chance, permutable. Initialize with gene-size and gene-value-size (= n).
 * UniqueIndexGenotype: list of 0..n with uniform chance, each index occurs exactly once, permutable. Initialize with only gene-value-size (= gene-size = n).
 * MultiIndexGenotype: list of 0..x, 0..y, 0..z, etc... where each gene has it's own index range with a weighted chance depending on the range size. Initialize with list of gene-value-sizes (= [x,y,x,etc...]).
-* DiscreteGenotype: list of user defined Gene values with uniform chance, permutable
+* DiscreteGenotype: list of n user defined Gene values with uniform chance, permutable. Initialize with gene-size and gene-values (= n).
+* UniqueDiscreteGenotype: list of n user defined Gene values with uniform chance, permutable. Initialize with gene-values (= gene-size = n).
 
 Discarded genotypes:
 
-* UniqueDiscreteGenotype with arbitrary list of normal numbers, each index number exactly once, ppermutable
-* UniqueDiscreteGenotype with arbitrary list of real numbers, each index number exactly once, ppermutable
 * RangeGenotype with arbitrary normal number range, permutable
 * RangeGenotype with arbitrary real number range, not-permutable
 * UniqueRangeGenotype with arbitrary normal number range, each number occurs exactly once, not permutable
@@ -58,6 +57,8 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Add factor parameter between best_fitness_score_mean and duration_mean_subsec_micros in meta/fitness
 * Add DiscreteGenotype back in for user defined Gene
 * Make fitness/simple_sum generic
+* fix issues where population_size is smaller then tournament_size etc..
+* fix issues where population_size is 1 in crossover without keep parents (=> empty population)
 
 ## REJECTED TODO
 * Make permutation_factory return an iterator instead of a vec => no interface by population

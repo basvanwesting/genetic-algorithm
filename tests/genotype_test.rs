@@ -6,7 +6,7 @@ mod genotype_tests {
     use crate::support::*;
     use genetic_algorithm::genotype::{
         BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, IndexGenotype,
-        MultiIndexGenotype, PermutableGenotype, UniqueIndexGenotype,
+        MultiIndexGenotype, PermutableGenotype, UniqueDiscreteGenotype, UniqueIndexGenotype,
     };
 
     #[test]
@@ -120,5 +120,21 @@ mod genotype_tests {
         genotype.mutate_chromosome(&mut chromosome, &mut rng);
         //genotype.mutate_chromosome(&mut chromosome, &mut rng);
         assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 3]);
+    }
+
+    #[test]
+    fn test_unique_discrete_genotype() {
+        let mut rng = SmallRng::seed_from_u64(0);
+        let genotype = UniqueDiscreteGenotype::new()
+            .with_gene_values(vec![5, 2, 3, 4])
+            .build();
+
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 2, 3]);
+
+        genotype.mutate_chromosome(&mut chromosome, &mut rng);
+        assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 3, 2]);
+
+        assert_eq!(genotype.gene_values(), vec![5, 2, 3, 4]);
     }
 }

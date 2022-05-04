@@ -15,6 +15,7 @@ chrono = "0.4.19"
 [dev-dependencies]
 criterion = "0.3"
 pprof = { version = "0.7", features = ["criterion", "flamegraph"] }
+distance = "0.4.0"
 
 [[bench]]
 name = "fitness"
