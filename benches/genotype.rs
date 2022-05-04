@@ -31,7 +31,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     c.bench_function("mutate_chromosome_unique_index", |b| {
         let mut rng = SmallRng::from_entropy();
-        let genotype = UniqueIndexGenotype::new().with_gene_size(10).build();
+        let genotype = UniqueIndexGenotype::new().with_gene_value_size(10).build();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });

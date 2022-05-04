@@ -80,7 +80,7 @@ mod genotype_tests {
     #[test]
     fn test_unique_index_genotype() {
         let mut rng = SmallRng::seed_from_u64(0);
-        let genotype = UniqueIndexGenotype::new().with_gene_size(5).build();
+        let genotype = UniqueIndexGenotype::new().with_gene_value_size(5).build();
 
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         assert_eq!(inspect::chromosome(&chromosome), vec![3, 0, 1, 4, 2]);

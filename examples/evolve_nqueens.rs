@@ -35,7 +35,7 @@ impl Fitness for NQueensFitness {
 
 fn main() {
     let rng = SmallRng::from_entropy();
-    let genotype = UniqueIndexGenotype::new().with_gene_size(32).build();
+    let genotype = UniqueIndexGenotype::new().with_gene_value_size(32).build();
 
     println!("{}", genotype);
 

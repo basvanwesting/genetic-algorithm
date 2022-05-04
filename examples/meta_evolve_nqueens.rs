@@ -56,7 +56,7 @@ fn main() {
         CompeteDispatch(Competes::Elite, 0),
         CompeteDispatch(Competes::Tournament, 4),
     ];
-    let evolve_genotype = UniqueIndexGenotype::new().with_gene_size(32).build();
+    let evolve_genotype = UniqueIndexGenotype::new().with_gene_value_size(32).build();
     let evolve_fitness = NQueensFitness;
 
     let config = MetaConfig::new(
