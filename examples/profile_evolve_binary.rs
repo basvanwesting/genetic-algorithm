@@ -7,7 +7,7 @@ use pprof::criterion::{Output, PProfProfiler};
 use genetic_algorithm::compete::CompeteElite;
 use genetic_algorithm::crossover::CrossoverSingle;
 use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness::FitnessSimpleSumBinaryGenotype;
+use genetic_algorithm::fitness::FitnessSimpleCount;
 use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
@@ -33,7 +33,7 @@ fn run() {
         .with_max_stale_generations(20)
         .with_target_fitness_score(100)
         .with_mutate(MutateOnce(0.2))
-        .with_fitness(FitnessSimpleSumBinaryGenotype)
+        .with_fitness(FitnessSimpleCount)
         .with_crossover(CrossoverSingle(true))
         .with_compete(CompeteElite)
         .call();

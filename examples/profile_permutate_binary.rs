@@ -4,7 +4,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 extern crate pprof;
 use pprof::criterion::{Output, PProfProfiler};
 
-use genetic_algorithm::fitness::FitnessSimpleSumBinaryGenotype;
+use genetic_algorithm::fitness::FitnessSimpleCount;
 use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::permutate::Permutate;
 
@@ -23,7 +23,7 @@ fn run() {
     let genotype = BinaryGenotype::new().with_gene_size(16).build();
 
     let permutate = Permutate::new(genotype)
-        .with_fitness(FitnessSimpleSumBinaryGenotype)
+        .with_fitness(FitnessSimpleCount)
         .call();
 
     println!("{}", permutate);

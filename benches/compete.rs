@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
 use genetic_algorithm::compete::{Compete, CompeteElite, CompeteTournament};
-use genetic_algorithm::fitness::{Fitness, FitnessSimpleSumBinaryGenotype};
+use genetic_algorithm::fitness::{Fitness, FitnessSimpleCount};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
@@ -18,7 +18,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .collect();
 
     let population = Population::new(chromosomes);
-    let population = FitnessSimpleSumBinaryGenotype.call_for_population(population);
+    let population = FitnessSimpleCount.call_for_population(population);
 
     println!(
         "start population size: {}, target population size: {}",

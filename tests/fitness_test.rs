@@ -4,7 +4,7 @@ mod support;
 mod fitness_tests {
     use crate::support::*;
     use genetic_algorithm::fitness::{
-        Fitness, FitnessSimpleSumBinaryGenotype, FitnessSimpleSumContinuousGenotype,
+        Fitness, FitnessSimpleCount, FitnessSimpleSumContinuousGenotype,
         FitnessSimpleSumIndexGenotype,
     };
     use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, IndexGenotype};
@@ -12,28 +12,16 @@ mod fitness_tests {
     #[test]
     fn test_simple_sum_binary() {
         let chromosome = build::chromosome::<BinaryGenotype>(vec![true, true, true]);
-        assert_eq!(
-            FitnessSimpleSumBinaryGenotype.call_for_chromosome(&chromosome),
-            3
-        );
+        assert_eq!(FitnessSimpleCount.call_for_chromosome(&chromosome), 3);
 
         let chromosome = build::chromosome::<BinaryGenotype>(vec![true, false, true]);
-        assert_eq!(
-            FitnessSimpleSumBinaryGenotype.call_for_chromosome(&chromosome),
-            2
-        );
+        assert_eq!(FitnessSimpleCount.call_for_chromosome(&chromosome), 2);
 
         let chromosome = build::chromosome::<BinaryGenotype>(vec![true, false, false]);
-        assert_eq!(
-            FitnessSimpleSumBinaryGenotype.call_for_chromosome(&chromosome),
-            1
-        );
+        assert_eq!(FitnessSimpleCount.call_for_chromosome(&chromosome), 1);
 
         let chromosome = build::chromosome::<BinaryGenotype>(vec![false, false, false]);
-        assert_eq!(
-            FitnessSimpleSumBinaryGenotype.call_for_chromosome(&chromosome),
-            0
-        );
+        assert_eq!(FitnessSimpleCount.call_for_chromosome(&chromosome), 0);
     }
 
     #[test]

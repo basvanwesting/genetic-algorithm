@@ -1,6 +1,6 @@
 use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
-use genetic_algorithm::fitness::FitnessSimpleSumBinaryGenotype;
+use genetic_algorithm::fitness::FitnessSimpleCount;
 use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
@@ -34,7 +34,7 @@ fn main() {
         CompeteDispatch(Competes::Tournament, 8),
     ];
     let evolve_genotype = BinaryGenotype::new().with_gene_size(100).build();
-    let evolve_fitness = FitnessSimpleSumBinaryGenotype;
+    let evolve_fitness = FitnessSimpleCount;
 
     let config = MetaConfig::new(
         rounds,

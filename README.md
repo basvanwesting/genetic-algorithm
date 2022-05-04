@@ -57,4 +57,6 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * make meta/fitness and meta/permutate use a config reference, need lifetimes
 * add factor parameter between best_fitness_score_mean and duration_mean_subsec_micros in meta/fitness
+* Make permutation_factory return an iterator instead of a vec
+* Add DiscreteGenotype back in for user defined Gene
 

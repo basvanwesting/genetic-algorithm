@@ -7,8 +7,8 @@ mod evolve_tests {
     use genetic_algorithm::crossover::CrossoverSingle;
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness::{
-        FitnessSimpleSumBinaryGenotype, FitnessSimpleSumContinuousGenotype,
-        FitnessSimpleSumIndexGenotype, FitnessSimpleSumMultiIndexGenotype,
+        FitnessSimpleCount, FitnessSimpleSumContinuousGenotype, FitnessSimpleSumIndexGenotype,
+        FitnessSimpleSumMultiIndexGenotype,
     };
     use genetic_algorithm::genotype::{
         BinaryGenotype, ContinuousGenotype, IndexGenotype, MultiIndexGenotype,
@@ -23,7 +23,7 @@ mod evolve_tests {
         let evolve = Evolve::new(genotype, rng)
             .with_population_size(100)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumBinaryGenotype)
+            .with_fitness(FitnessSimpleCount)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .call();
@@ -40,7 +40,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumBinaryGenotype)
+            .with_fitness(FitnessSimpleCount)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .call();
@@ -63,7 +63,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_target_fitness_score(8)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumBinaryGenotype)
+            .with_fitness(FitnessSimpleCount)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .call();
@@ -87,7 +87,7 @@ mod evolve_tests {
             .with_target_fitness_score(8)
             .with_degeneration_range(0.0001..1.0000)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumBinaryGenotype)
+            .with_fitness(FitnessSimpleCount)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .call();
@@ -184,7 +184,7 @@ mod evolve_tests {
             .with_population_size(8)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumBinaryGenotype)
+            .with_fitness(FitnessSimpleCount)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4));
         let population = evolve.population_factory();

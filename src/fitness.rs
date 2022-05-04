@@ -18,8 +18,10 @@ pub trait Fitness: Clone + std::fmt::Debug {
     fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize;
 }
 
+mod simple_count;
+pub use self::simple_count::SimpleCount as FitnessSimpleCount;
+
 mod simple_sum;
-pub use self::simple_sum::SimpleSumBinaryGenotype as FitnessSimpleSumBinaryGenotype;
 pub use self::simple_sum::SimpleSumContinuousGenotype as FitnessSimpleSumContinuousGenotype;
 pub use self::simple_sum::SimpleSumIndexGenotype as FitnessSimpleSumIndexGenotype;
 pub use self::simple_sum::SimpleSumMultiIndexGenotype as FitnessSimpleSumMultiIndexGenotype;

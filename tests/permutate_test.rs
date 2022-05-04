@@ -4,8 +4,7 @@ mod support;
 mod permutate_tests {
     use crate::support::*;
     use genetic_algorithm::fitness::{
-        FitnessSimpleSumBinaryGenotype, FitnessSimpleSumIndexGenotype,
-        FitnessSimpleSumMultiIndexGenotype,
+        FitnessSimpleCount, FitnessSimpleSumIndexGenotype, FitnessSimpleSumMultiIndexGenotype,
     };
     use genetic_algorithm::genotype::{
         BinaryGenotype, IndexGenotype, MultiIndexGenotype, PermutableGenotype,
@@ -17,7 +16,7 @@ mod permutate_tests {
         let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
         let permutate = Permutate::new(genotype)
-            .with_fitness(FitnessSimpleSumBinaryGenotype)
+            .with_fitness(FitnessSimpleCount)
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
