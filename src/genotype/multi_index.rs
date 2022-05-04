@@ -17,12 +17,7 @@ pub struct MultiIndex {
 
 impl MultiIndex {
     pub fn new() -> Self {
-        Self {
-            gene_size: 0,
-            gene_value_sizes: vec![],
-            gene_index_sampler: WeightedIndex::new(vec![1]).unwrap(),
-            gene_value_samplers: vec![],
-        }
+        Self::default()
     }
 
     pub fn with_gene_value_sizes(mut self, gene_value_sizes: Vec<IndexGene>) -> Self {
@@ -39,6 +34,17 @@ impl MultiIndex {
             .map(|gene_value_size| Uniform::from(0..*gene_value_size))
             .collect();
         self
+    }
+}
+
+impl Default for MultiIndex {
+    fn default() -> Self {
+        Self {
+            gene_size: 0,
+            gene_value_sizes: vec![],
+            gene_index_sampler: WeightedIndex::new(vec![1]).unwrap(),
+            gene_value_samplers: vec![],
+        }
     }
 }
 
@@ -72,7 +78,7 @@ impl PermutableGenotype for MultiIndex {
             .iter()
             .map(|gene_value_size| (0..*gene_value_size).collect::<Vec<Self::Gene>>())
             .multi_cartesian_product()
-            .map(|genes| Chromosome::new(genes))
+            .map(Chromosome::new)
             .collect();
 
         Population::new(chromosomes)

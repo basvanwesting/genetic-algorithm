@@ -11,7 +11,7 @@ pub struct Chromosome<T: Genotype> {
 impl<T: Genotype> Chromosome<T> {
     pub fn new(genes: Vec<T::Gene>) -> Self {
         Self {
-            genes: genes,
+            genes,
             fitness_score: None,
         }
     }
@@ -26,7 +26,7 @@ impl<T: Genotype> Clone for Chromosome<T> {
     fn clone(&self) -> Chromosome<T> {
         Self {
             genes: self.genes.clone(),
-            fitness_score: self.fitness_score.clone(),
+            fitness_score: self.fitness_score,
         }
     }
 }

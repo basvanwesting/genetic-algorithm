@@ -9,9 +9,7 @@ pub struct Population<T: Genotype> {
 
 impl<T: Genotype> Population<T> {
     pub fn new(chromosomes: Vec<Chromosome<T>>) -> Self {
-        Self {
-            chromosomes: chromosomes,
-        }
+        Self { chromosomes }
     }
 
     pub fn new_empty() -> Self {

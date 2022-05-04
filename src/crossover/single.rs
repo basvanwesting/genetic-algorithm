@@ -18,20 +18,17 @@ impl Crossover for Single {
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
         for chunk in population.chromosomes.chunks(2) {
-            match &chunk[..] {
-                [father, mother] => {
-                    let index = gene_index_sampler.sample(rng);
-                    let mut child_father_genes = father.genes.clone();
-                    let mut child_mother_genes = mother.genes.clone();
+            if let [father, mother] = chunk {
+                let index = gene_index_sampler.sample(rng);
+                let mut child_father_genes = father.genes.clone();
+                let mut child_mother_genes = mother.genes.clone();
 
-                    child_father_genes[index] = mother.genes[index];
-                    child_mother_genes[index] = father.genes[index];
+                child_father_genes[index] = mother.genes[index];
+                child_mother_genes[index] = father.genes[index];
 
-                    // no need to taint_fitness_score as it is initialized with None
-                    child_chromosomes.push(Chromosome::new(child_father_genes));
-                    child_chromosomes.push(Chromosome::new(child_mother_genes));
-                }
-                _ => {}
+                // no need to taint_fitness_score as it is initialized with None
+                child_chromosomes.push(Chromosome::new(child_father_genes));
+                child_chromosomes.push(Chromosome::new(child_mother_genes));
             }
         }
 

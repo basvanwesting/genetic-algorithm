@@ -18,23 +18,20 @@ impl Crossover for All {
         let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
         for chunk in population.chromosomes.chunks(2) {
-            match &chunk[..] {
-                [father, mother] => {
-                    let mut child_father_genes = father.genes.clone();
-                    let mut child_mother_genes = mother.genes.clone();
+            if let [father, mother] = chunk {
+                let mut child_father_genes = father.genes.clone();
+                let mut child_mother_genes = mother.genes.clone();
 
-                    for index in 0..(genotype.gene_size()) {
-                        if bool_sampler.sample(rng) {
-                            child_father_genes[index] = mother.genes[index];
-                            child_mother_genes[index] = father.genes[index];
-                        }
+                for index in 0..(genotype.gene_size()) {
+                    if bool_sampler.sample(rng) {
+                        child_father_genes[index] = mother.genes[index];
+                        child_mother_genes[index] = father.genes[index];
                     }
-
-                    // no need to taint_fitness_score as it is initialized with None
-                    child_chromosomes.push(Chromosome::new(child_father_genes));
-                    child_chromosomes.push(Chromosome::new(child_mother_genes));
                 }
-                _ => {}
+
+                // no need to taint_fitness_score as it is initialized with None
+                child_chromosomes.push(Chromosome::new(child_father_genes));
+                child_chromosomes.push(Chromosome::new(child_mother_genes));
             }
         }
 

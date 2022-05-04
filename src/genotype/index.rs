@@ -15,12 +15,7 @@ pub struct Index {
 
 impl Index {
     pub fn new() -> Self {
-        Self {
-            gene_size: 0,
-            gene_value_size: 0,
-            gene_index_sampler: Uniform::from(0..=0),
-            gene_value_sampler: Uniform::from(0..=0),
-        }
+        Self::default()
     }
 
     pub fn with_gene_size(mut self, gene_size: usize) -> Self {
@@ -37,6 +32,17 @@ impl Index {
         self.gene_index_sampler = Uniform::from(0..self.gene_size);
         self.gene_value_sampler = Uniform::from(0..self.gene_value_size);
         self
+    }
+}
+
+impl Default for Index {
+    fn default() -> Self {
+        Self {
+            gene_size: 0,
+            gene_value_size: 0,
+            gene_index_sampler: Uniform::from(0..=0),
+            gene_value_sampler: Uniform::from(0..=0),
+        }
     }
 }
 

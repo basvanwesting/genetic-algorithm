@@ -13,10 +13,7 @@ pub struct Continuous {
 
 impl Continuous {
     pub fn new() -> Self {
-        Self {
-            gene_size: 0,
-            gene_index_sampler: Uniform::from(0..=0),
-        }
+        Self::default()
     }
 
     pub fn with_gene_size(mut self, gene_size: usize) -> Self {
@@ -27,6 +24,15 @@ impl Continuous {
     pub fn build(mut self) -> Self {
         self.gene_index_sampler = Uniform::from(0..self.gene_size);
         self
+    }
+}
+
+impl Default for Continuous {
+    fn default() -> Self {
+        Self {
+            gene_size: 0,
+            gene_index_sampler: Uniform::from(0..=0),
+        }
     }
 }
 

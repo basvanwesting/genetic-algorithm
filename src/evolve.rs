@@ -39,8 +39,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 {
     pub fn new(genotype: G, rng: R) -> Self {
         Self {
-            genotype: genotype,
-            rng: rng,
+            genotype,
+            rng,
             population_size: 0,
             max_stale_generations: None,
             target_fitness_score: None,

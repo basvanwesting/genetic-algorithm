@@ -7,9 +7,9 @@ use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 
 fn main() {
     let rounds = 10;
-    let population_sizes = vec![10, 20, 50, 100];
-    let max_stale_generations_options = vec![Some(1000)];
-    let target_fitness_score_options = vec![Some(100)];
+    let population_sizes = vec![10];
+    let max_stale_generations_options = vec![Some(100)];
+    let target_fitness_score_options = vec![Some(10)];
     let degeneration_range_options = vec![None, Some(0.001..0.995)];
     let mutates = vec![
         MutateDispatch(Mutates::Once, 0.05),
@@ -31,9 +31,8 @@ fn main() {
         CompeteDispatch(Competes::Elite, 0),
         CompeteDispatch(Competes::Tournament, 2),
         CompeteDispatch(Competes::Tournament, 4),
-        CompeteDispatch(Competes::Tournament, 8),
     ];
-    let evolve_genotype = BinaryGenotype::new().with_gene_size(100).build();
+    let evolve_genotype = BinaryGenotype::new().with_gene_size(10).build();
     let evolve_fitness = FitnessSimpleCount;
 
     let config = MetaConfig::new(

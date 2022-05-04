@@ -1,6 +1,7 @@
 use stats::{mean, stddev};
 use std::time::Duration;
 
+#[derive(Default)]
 pub struct Stats {
     pub durations: Vec<Duration>,
     pub best_generations: Vec<usize>,
@@ -9,11 +10,7 @@ pub struct Stats {
 
 impl Stats {
     pub fn new() -> Self {
-        Self {
-            durations: vec![],
-            best_generations: vec![],
-            best_fitness_scores: vec![],
-        }
+        Self::default()
     }
 
     pub fn duration_count(&self) -> usize {

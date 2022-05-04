@@ -14,7 +14,7 @@ pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>> {
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     pub fn new(genotype: G) -> Self {
         Self {
-            genotype: genotype,
+            genotype,
             fitness: None,
             best_chromosome: None,
             population: Population::new_empty(),

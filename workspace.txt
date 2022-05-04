@@ -26,3 +26,164 @@ trait Gene {
     fn mutate(&mut self, _: &[Self], …);
 }
 
+
+
+warning: you should consider adding a `Default` implementation for `Binary`
+  --> src/genotype/binary.rs:16:5
+   |
+16 | /     pub fn new() -> Self {
+17 | |         Self {
+18 | |             gene_size: 0,
+19 | |             gene_index_sampler: Uniform::from(0..=0),
+20 | |             gene_value_sampler: Bernoulli::new(0.0).unwrap(),
+21 | |         }
+22 | |     }
+   | |_____^
+   |
+   = note: `#[warn(clippy::new_without_default)]` on by default
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default
+help: try adding this
+   |
+15 + impl Default for Binary {
+16 +     fn default() -> Self {
+17 +         Self::new()
+18 +     }
+19 + }
+   |
+
+warning: you should consider adding a `Default` implementation for `Continuous`
+  --> src/genotype/continuous.rs:15:5
+   |
+15 | /     pub fn new() -> Self {
+16 | |         Self {
+17 | |             gene_size: 0,
+18 | |             gene_index_sampler: Uniform::from(0..=0),
+19 | |         }
+20 | |     }
+   | |_____^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default
+help: try adding this
+   |
+14 + impl Default for Continuous {
+15 +     fn default() -> Self {
+16 +         Self::new()
+17 +     }
+18 + }
+   |
+
+warning: you should consider adding a `Default` implementation for `Index`
+  --> src/genotype/index.rs:17:5
+   |
+17 | /     pub fn new() -> Self {
+18 | |         Self {
+19 | |             gene_size: 0,
+20 | |             gene_value_size: 0,
+...  |
+23 | |         }
+24 | |     }
+   | |_____^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default
+help: try adding this
+   |
+16 + impl Default for Index {
+17 +     fn default() -> Self {
+18 +         Self::new()
+19 +     }
+20 + }
+   |
+
+warning: you should consider adding a `Default` implementation for `UniqueIndex`
+  --> src/genotype/unique_index.rs:15:5
+   |
+15 | /     pub fn new() -> Self {
+16 | |         Self {
+17 | |             gene_size: 0,
+18 | |             gene_index_sampler: Uniform::from(0..=0),
+19 | |         }
+20 | |     }
+   | |_____^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default
+help: try adding this
+   |
+14 + impl Default for UniqueIndex {
+15 +     fn default() -> Self {
+16 +         Self::new()
+17 +     }
+18 + }
+   |
+
+warning: you should consider adding a `Default` implementation for `MultiIndex`
+  --> src/genotype/multi_index.rs:19:5
+   |
+19 | /     pub fn new() -> Self {
+20 | |         Self {
+21 | |             gene_size: 0,
+22 | |             gene_value_sizes: vec![],
+...  |
+25 | |         }
+26 | |     }
+   | |_____^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default
+help: try adding this
+   |
+18 + impl Default for MultiIndex {
+19 +     fn default() -> Self {
+20 +         Self::new()
+21 +     }
+22 + }
+   |
+
+warning: redundant closure
+  --> src/genotype/multi_index.rs:75:18
+   |
+75 |             .map(|genes| Chromosome::new(genes))
+   |                  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ help: replace the closure with the function itself: `Chromosome::new`
+   |
+   = note: `#[warn(clippy::redundant_closure)]` on by default
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#redundant_closure
+
+warning: this function has too many arguments (10/7)
+  --> src/meta/config.rs:25:5
+   |
+25 | /     pub fn new(
+26 | |         rounds: usize,
+27 | |         evolve_genotype: G,
+28 | |         evolve_fitness: F,
+...  |
+35 | |         competes: Vec<CompeteDispatch>,
+36 | |     ) -> Self {
+   | |_____________^
+   |
+   = note: `#[warn(clippy::too_many_arguments)]` on by default
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#too_many_arguments
+
+warning: you should consider adding a `Default` implementation for `Stats`
+  --> src/meta/stats.rs:11:5
+   |
+11 | /     pub fn new() -> Self {
+12 | |         Self {
+13 | |             durations: vec![],
+14 | |             best_generations: vec![],
+15 | |             best_fitness_scores: vec![],
+16 | |         }
+17 | |     }
+   | |_____^
+   |
+   = help: for further information visit https://rust-lang.github.io/rust-clippy/master/index.html#new_without_default
+help: try adding this
+   |
+10 + impl Default for Stats {
+11 +     fn default() -> Self {
+12 +         Self::new()
+13 +     }
+14 + }
+   |
+
+warning: `genetic_algorithm` (lib) generated 20 warnings
+    Finished dev [unoptimized + debuginfo] target(s) in 0.05s
+?  genetic-algorithm git:(main) ?
+
