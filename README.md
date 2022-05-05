@@ -33,7 +33,9 @@ Discarded genotypes:
 
 ## Examples
 
-See example evolve_nqueens for a custom fitness function. `cargo run --example evolve_binary --release`
+See example evolve_nqueens for a custom fitness function: https://en.wikipedia.org/wiki/Eight_queens_puzzle. `cargo run --example evolve_nqueens --release`
+
+See example evolve_binary_lru_cache_fitness for a custom fitness function with a LRU cache (which doesn't help performance much in this case). `cargo run --example evolve_binary_lru_cache_fitness --release`
 
 ## Tests
 Run tests with `cargo test`
