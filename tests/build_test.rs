@@ -1,7 +1,7 @@
 mod support;
 
 #[cfg(test)]
-mod builders_tests {
+mod build_tests {
     use crate::support::*;
     use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, IndexGenotype};
 
