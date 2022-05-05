@@ -137,7 +137,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 
     fn execute(mut self) -> Self {
         let mutate = self.mutate.as_ref().cloned().unwrap();
-        let fitness = self.fitness.as_ref().cloned().unwrap();
+        let mut fitness = self.fitness.as_ref().cloned().unwrap();
         let crossover = self.crossover.as_ref().cloned().unwrap();
         let compete = self.compete.as_ref().cloned().unwrap();
 

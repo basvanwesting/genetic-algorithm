@@ -24,7 +24,7 @@ impl std::fmt::Display for MyGene {
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
     type Genotype = UniqueDiscreteGenotype<MyGene>;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         let string = chromosome.genes.iter().join("");
 
         hamming(&string, "genetic").unwrap() as isize * -1

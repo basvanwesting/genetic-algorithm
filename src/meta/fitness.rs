@@ -13,7 +13,7 @@ pub struct Fitness<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> {
 }
 impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fitness<'a, G, F> {
     type Genotype = MultiIndexGenotype;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         let genotype = self.config.evolve_genotype.clone();
         let fitness = self.config.evolve_fitness.clone();
         let evolve_config = self.config.evolve_config_for_chromosome(chromosome);

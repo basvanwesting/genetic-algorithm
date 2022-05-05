@@ -38,7 +38,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     }
 
     fn execute(mut self) -> Self {
-        let fitness = self.fitness.as_ref().cloned().unwrap();
+        let mut fitness = self.fitness.as_ref().cloned().unwrap();
 
         self.population = self.genotype.population_factory();
         self.population = fitness.call_for_population(self.population);

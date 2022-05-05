@@ -17,7 +17,7 @@ use rand::rngs::SmallRng;
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
     type Genotype = UniqueIndexGenotype;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         let mut score = 0;
         let max_index = chromosome.genes.len() - 1;
         for i in 0..max_index {

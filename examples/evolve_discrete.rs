@@ -17,7 +17,7 @@ impl Gene for MyGene {}
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
     type Genotype = DiscreteGenotype<MyGene>;
-    fn call_for_chromosome(&self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         chromosome
             .genes
             .iter()

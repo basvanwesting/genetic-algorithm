@@ -9,19 +9,19 @@ use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, IndexGenot
 pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("fitness_simple_sum_binary", |b| {
         let chromosome = Chromosome::<BinaryGenotype>::new(vec![true; 1000]);
-        let simple_sum = FitnessSimpleCount;
+        let mut simple_sum = FitnessSimpleCount;
         b.iter(|| simple_sum.call_for_chromosome(black_box(&chromosome)))
     });
 
     c.bench_function("fitness_simple_sum_index", |b| {
         let chromosome = Chromosome::<IndexGenotype>::new(vec![1; 1000]);
-        let simple_sum = FitnessSimpleSumIndexGenotype;
+        let mut simple_sum = FitnessSimpleSumIndexGenotype;
         b.iter(|| simple_sum.call_for_chromosome(black_box(&chromosome)))
     });
 
     c.bench_function("fitness_simple_sum_continuous", |b| {
         let chromosome = Chromosome::<ContinuousGenotype>::new(vec![1.0; 1000]);
-        let simple_sum = FitnessSimpleSumContinuousGenotype;
+        let mut simple_sum = FitnessSimpleSumContinuousGenotype;
         b.iter(|| simple_sum.call_for_chromosome(black_box(&chromosome)))
     });
 }
