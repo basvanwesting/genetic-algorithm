@@ -9,7 +9,7 @@ use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
-#[derive(Clone, Copy, Debug, Default)]
+#[derive(Clone, Debug, Default)]
 struct MyGene(u8, u8);
 impl Gene for MyGene {}
 

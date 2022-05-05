@@ -1,7 +1,4 @@
-extern crate criterion;
 use criterion::{criterion_group, criterion_main, Criterion};
-
-extern crate pprof;
 use pprof::criterion::{Output, PProfProfiler};
 
 use genetic_algorithm::fitness::FitnessSimpleCount;
