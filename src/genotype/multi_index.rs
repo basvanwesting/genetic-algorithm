@@ -84,9 +84,7 @@ impl PermutableGenotype for MultiIndex {
         Population::new(chromosomes)
     }
     fn population_factory_size(&self) -> usize {
-        self.gene_value_sizes
-            .iter()
-            .fold(1, |acc, gene_value_size| acc * gene_value_size)
+        self.gene_value_sizes.iter().product()
     }
 }
 

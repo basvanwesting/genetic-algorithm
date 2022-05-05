@@ -49,7 +49,6 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 
 ## TODO
 * Setup prelude
-* Refactor tests to subdirectories, just like implementations
 * Run clippy
 * Remove builder duplication in Genotype implementations
 * Maybe seed best_chromosome back into population after degenerate?
