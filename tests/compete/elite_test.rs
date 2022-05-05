@@ -5,7 +5,7 @@ use genetic_algorithm::fitness::{Fitness, FitnessSimpleCount};
 use genetic_algorithm::genotype::BinaryGenotype;
 
 #[test]
-fn test_surplus() {
+fn population_surplus() {
     let population = build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],
@@ -33,7 +33,7 @@ fn test_surplus() {
 }
 
 #[test]
-fn test_shortage() {
+fn population_shortage() {
     let population = build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],

@@ -3,7 +3,7 @@ use crate::support::*;
 use genetic_algorithm::genotype::{DiscreteGenotype, Genotype, PermutableGenotype};
 
 #[test]
-fn test() {
+fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = DiscreteGenotype::new()
         .with_gene_size(5)

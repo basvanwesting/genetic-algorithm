@@ -16,7 +16,7 @@ mod evolve_tests {
     use genetic_algorithm::mutate::MutateOnce;
 
     #[test]
-    fn test_invalid() {
+    fn call_invalid() {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
 
         let rng = SmallRng::seed_from_u64(0);
@@ -32,7 +32,7 @@ mod evolve_tests {
     }
 
     #[test]
-    fn test_call_binary_max_stale_generations() {
+    fn call_binary_max_stale_generations() {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
 
         let rng = SmallRng::seed_from_u64(0);
@@ -55,7 +55,7 @@ mod evolve_tests {
     }
 
     #[test]
-    fn test_call_binary_target_fitness_score() {
+    fn call_binary_target_fitness_score() {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
 
         let rng = SmallRng::seed_from_u64(0);
@@ -78,7 +78,7 @@ mod evolve_tests {
     }
 
     #[test]
-    fn test_call_binary_degeneration_range() {
+    fn call_binary_degeneration_range() {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
 
         let rng = SmallRng::seed_from_u64(0);
@@ -102,7 +102,7 @@ mod evolve_tests {
     }
 
     #[test]
-    fn test_call_continuous() {
+    fn call_continuous() {
         let genotype = ContinuousGenotype::new().with_gene_size(10).build();
 
         let rng = SmallRng::seed_from_u64(0);
@@ -128,7 +128,7 @@ mod evolve_tests {
     }
 
     #[test]
-    fn test_call_index() {
+    fn call_index() {
         let genotype = IndexGenotype::new()
             .with_gene_size(10)
             .with_gene_value_size(4)
@@ -154,7 +154,7 @@ mod evolve_tests {
     }
 
     #[test]
-    fn test_call_multi_index() {
+    fn call_multi_index() {
         let genotype = MultiIndexGenotype::new()
             .with_gene_value_sizes(vec![5, 2, 1, 4])
             .build();
@@ -176,7 +176,7 @@ mod evolve_tests {
     }
 
     #[test]
-    fn test_population_factory() {
+    fn population_factory_binary() {
         let genotype = BinaryGenotype::new().with_gene_size(4).build();
 
         let rng = SmallRng::seed_from_u64(0);

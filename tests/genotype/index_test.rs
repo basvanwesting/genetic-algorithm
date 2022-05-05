@@ -3,7 +3,7 @@ use crate::support::*;
 use genetic_algorithm::genotype::{Genotype, IndexGenotype, PermutableGenotype};
 
 #[test]
-fn test() {
+fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = IndexGenotype::new()
         .with_gene_size(10)

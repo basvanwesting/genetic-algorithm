@@ -4,7 +4,7 @@ use genetic_algorithm::crossover::{Crossover, CrossoverClone};
 use genetic_algorithm::genotype::{BinaryGenotype, PermutableGenotype, UniqueIndexGenotype};
 
 #[test]
-fn test_odd() {
+fn population_odd() {
     let genotype = BinaryGenotype::new().with_gene_size(3).build();
 
     let population = build::population(vec![
@@ -30,7 +30,7 @@ fn test_odd() {
 }
 
 #[test]
-fn test_population_size_1() {
+fn population_size_one() {
     let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
     let population = build::population(vec![vec![true, false, true, false, true]]);
@@ -45,7 +45,7 @@ fn test_population_size_1() {
 }
 
 #[test]
-fn test_is_unique_constraints() {
+fn genotype_is_unique_constraints() {
     let genotype = UniqueIndexGenotype::new().with_gene_value_size(5).build();
     let population = genotype.population_factory();
     let mut rng = SmallRng::seed_from_u64(0);

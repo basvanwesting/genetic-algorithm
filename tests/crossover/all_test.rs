@@ -4,7 +4,7 @@ use genetic_algorithm::crossover::{Crossover, CrossoverAll};
 use genetic_algorithm::genotype::BinaryGenotype;
 
 #[test]
-fn test_even() {
+fn population_even() {
     let genotype = BinaryGenotype::new().with_gene_size(6).build();
 
     let population = build::population(vec![
@@ -29,7 +29,7 @@ fn test_even() {
 }
 
 #[test]
-fn test_odd() {
+fn population_odd() {
     let genotype = BinaryGenotype::new().with_gene_size(3).build();
 
     let population = build::population(vec![
@@ -55,7 +55,7 @@ fn test_odd() {
 }
 
 #[test]
-fn test_even_keep_parent() {
+fn population_even_keep_parent() {
     let genotype = BinaryGenotype::new().with_gene_size(6).build();
 
     let population = build::population(vec![

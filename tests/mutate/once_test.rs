@@ -4,7 +4,7 @@ use genetic_algorithm::genotype::{BinaryGenotype, IndexGenotype};
 use genetic_algorithm::mutate::{Mutate, MutateOnce};
 
 #[test]
-fn test_binary() {
+fn binary_genotype() {
     let genotype = BinaryGenotype::new().with_gene_size(3).build();
 
     let population = build::population(vec![
@@ -29,7 +29,7 @@ fn test_binary() {
 }
 
 #[test]
-fn test_index() {
+fn index_genotype() {
     let genotype = IndexGenotype::new()
         .with_gene_size(3)
         .with_gene_value_size(4)

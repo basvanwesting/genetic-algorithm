@@ -7,7 +7,7 @@ mod population_tests {
     use genetic_algorithm::genotype::BinaryGenotype;
 
     #[test]
-    fn test_fitness_score_stddev() {
+    fn fitness_score_stddev() {
         let population = build::population::<BinaryGenotype>(vec![
             vec![false, true, true],
             vec![false, true, false],

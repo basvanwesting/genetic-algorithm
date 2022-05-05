@@ -6,7 +6,7 @@ use genetic_algorithm::fitness::{
 use genetic_algorithm::genotype::{ContinuousGenotype, IndexGenotype};
 
 #[test]
-fn test_index() {
+fn index_genotype() {
     let chromosome = build::chromosome::<IndexGenotype>(vec![0, 1, 2, 3]);
     assert_eq!(
         FitnessSimpleSumIndexGenotype.call_for_chromosome(&chromosome),
@@ -21,7 +21,7 @@ fn test_index() {
 }
 
 #[test]
-fn test_continuous() {
+fn continuous_genotype() {
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![0.0, 0.0, 0.0]);
     assert_eq!(
         FitnessSimpleSumContinuousGenotype.call_for_chromosome(&chromosome),

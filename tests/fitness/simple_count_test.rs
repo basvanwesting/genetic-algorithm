@@ -4,7 +4,7 @@ use genetic_algorithm::fitness::{Fitness, FitnessSimpleCount};
 use genetic_algorithm::genotype::BinaryGenotype;
 
 #[test]
-fn test_binary() {
+fn binary_genotype() {
     let chromosome = build::chromosome::<BinaryGenotype>(vec![true, true, true]);
     assert_eq!(FitnessSimpleCount.call_for_chromosome(&chromosome), 3);
 
