@@ -1,3 +1,4 @@
+use crate::fitness::FitnessValue;
 use stats::{mean, stddev};
 use std::time::Duration;
 
@@ -5,7 +6,7 @@ use std::time::Duration;
 pub struct Stats {
     pub durations: Vec<Duration>,
     pub best_generations: Vec<usize>,
-    pub best_fitness_scores: Vec<Option<isize>>,
+    pub best_fitness_scores: Vec<Option<FitnessValue>>,
 }
 
 impl Stats {

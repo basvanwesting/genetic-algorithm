@@ -1,7 +1,7 @@
 use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
-use genetic_algorithm::fitness::Fitness;
+use genetic_algorithm::fitness::{Fitness, FitnessValue};
 use genetic_algorithm::genotype::UniqueIndexGenotype;
 use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
@@ -12,7 +12,7 @@ use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
     type Genotype = UniqueIndexGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
         let mut score = 0;
         let max_index = chromosome.genes.len() - 1;
         for i in 0..max_index {

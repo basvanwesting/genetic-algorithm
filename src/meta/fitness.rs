@@ -1,6 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::evolve::Evolve;
 use crate::fitness;
+use crate::fitness::FitnessValue;
 use crate::genotype::{Genotype, MultiIndexGenotype};
 use crate::meta::{MetaConfig, MetaStats};
 use rand::prelude::*;
@@ -13,7 +14,7 @@ pub struct Fitness<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> {
 }
 impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fitness<'a, G, F> {
     type Genotype = MultiIndexGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
         let genotype = self.config.evolve_genotype.clone();
         let fitness = self.config.evolve_fitness.clone();
         let evolve_config = self.config.evolve_config_for_chromosome(chromosome);
@@ -50,9 +51,9 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         );
         println!("  {}", stats);
 
-        let mut score: isize = 0;
-        score += stats.best_fitness_score_mean() as isize * 1_000_000_000;
-        score -= stats.duration_mean_subsec_micros() as isize;
+        let mut score: FitnessValue = 0;
+        score += stats.best_fitness_score_mean() as FitnessValue * 1_000_000_000;
+        score -= stats.duration_mean_subsec_micros() as FitnessValue;
         score
     }
 }

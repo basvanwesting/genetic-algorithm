@@ -2,7 +2,7 @@ use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::CompeteElite;
 use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness::Fitness;
+use genetic_algorithm::fitness::{Fitness, FitnessValue};
 use genetic_algorithm::genotype::UniqueIndexGenotype;
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
@@ -14,7 +14,7 @@ use rand::rngs::SmallRng;
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
     type Genotype = UniqueIndexGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
         let mut score = 0;
         let max_index = chromosome.genes.len() - 1;
         for i in 0..max_index {

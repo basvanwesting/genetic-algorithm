@@ -2,7 +2,7 @@ use genetic_algorithm::chromosome::{Chromosome, GenesKey};
 use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness::Fitness;
+use genetic_algorithm::fitness::{Fitness, FitnessValue};
 use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
@@ -23,16 +23,16 @@ impl ExpensiveCount {
 }
 impl Fitness for ExpensiveCount {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
-        chromosome.genes.iter().filter(|&value| *value).count() as isize
+        chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue
     }
 }
 
 #[derive(Clone, Debug)]
 pub struct CachedExpensiveCount {
     pub micro_seconds: MicroSeconds,
-    pub cache: HashMap<GenesKey, isize>,
+    pub cache: HashMap<GenesKey, FitnessValue>,
 }
 impl CachedExpensiveCount {
     pub fn new(micro_seconds: MicroSeconds, initial_cache_cap: usize) -> Self {
@@ -44,12 +44,12 @@ impl CachedExpensiveCount {
 }
 impl Fitness for CachedExpensiveCount {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
         //print!("cache try ({}), ", self.cache.len());
         *self.cache.entry(chromosome.genes_key()).or_insert_with(|| {
             //println!("miss");
             thread::sleep(time::Duration::from_micros(self.micro_seconds));
-            chromosome.genes.iter().filter(|&value| *value).count() as isize
+            chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue
         })
     }
 }

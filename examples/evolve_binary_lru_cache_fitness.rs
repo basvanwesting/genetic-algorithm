@@ -2,7 +2,7 @@ use genetic_algorithm::chromosome::{Chromosome, GenesKey};
 use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness::Fitness;
+use genetic_algorithm::fitness::{Fitness, FitnessValue};
 use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::mutate::MutateOnce;
 use lru::LruCache;
@@ -24,9 +24,9 @@ impl ExpensiveCount {
 }
 impl Fitness for ExpensiveCount {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
-        chromosome.genes.iter().filter(|&value| *value).count() as isize
+        chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue
     }
 }
 
@@ -34,7 +34,7 @@ impl Fitness for ExpensiveCount {
 pub struct CachedExpensiveCount {
     pub micro_seconds: MicroSeconds,
     pub cache_size: CacheSize,
-    pub cache: LruCache<GenesKey, isize>,
+    pub cache: LruCache<GenesKey, FitnessValue>,
 }
 impl CachedExpensiveCount {
     pub fn new(micro_seconds: MicroSeconds, cache_size: CacheSize) -> Self {
@@ -47,14 +47,14 @@ impl CachedExpensiveCount {
 }
 impl Fitness for CachedExpensiveCount {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
         //print!("cache try ({}), ", self.cache.len());
         *self
             .cache
             .get_or_insert(chromosome.genes_key(), || {
                 //println!("miss");
                 thread::sleep(time::Duration::from_micros(self.micro_seconds));
-                chromosome.genes.iter().filter(|&value| *value).count() as isize
+                chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue
             })
             .unwrap()
     }

@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
-use crate::fitness::Fitness;
+use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
@@ -21,7 +21,7 @@ pub struct Evolve<
     pub rng: R,
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
-    pub target_fitness_score: Option<isize>,
+    pub target_fitness_score: Option<FitnessValue>,
     pub degeneration_range: Option<Range<f32>>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -72,13 +72,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self.max_stale_generations = max_stale_generations_option;
         self
     }
-    pub fn with_target_fitness_score(mut self, target_fitness_score: isize) -> Self {
+    pub fn with_target_fitness_score(mut self, target_fitness_score: FitnessValue) -> Self {
         self.target_fitness_score = Some(target_fitness_score);
         self
     }
     pub fn with_target_fitness_score_option(
         mut self,
-        target_fitness_score_option: Option<isize>,
+        target_fitness_score_option: Option<FitnessValue>,
     ) -> Self {
         self.target_fitness_score = target_fitness_score_option;
         self
@@ -220,7 +220,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         );
     }
 
-    pub fn best_fitness_score(&self) -> Option<isize> {
+    pub fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 

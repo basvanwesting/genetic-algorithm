@@ -2,7 +2,7 @@ use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverAll;
 use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness::Fitness;
+use genetic_algorithm::fitness::{Fitness, FitnessValue};
 use genetic_algorithm::gene::Gene;
 use genetic_algorithm::genotype::DiscreteGenotype;
 use genetic_algorithm::mutate::MutateOnce;
@@ -17,11 +17,12 @@ impl Gene for MyGene {}
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
     type Genotype = DiscreteGenotype<MyGene>;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
         chromosome
             .genes
             .iter()
-            .fold(0, |acc, c| acc + c.0 as isize + c.1 as isize) as isize
+            .fold(0, |acc, c| acc + c.0 as FitnessValue + c.1 as FitnessValue)
+            as FitnessValue
     }
 }
 

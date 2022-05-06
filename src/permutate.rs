@@ -1,5 +1,5 @@
 use crate::chromosome::Chromosome;
-use crate::fitness::Fitness;
+use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::PermutableGenotype;
 use crate::population::Population;
 use std::fmt;
@@ -52,7 +52,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
         }
     }
 
-    fn best_fitness_score(&self) -> Option<isize> {
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 }

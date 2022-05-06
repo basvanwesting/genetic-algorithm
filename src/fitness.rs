@@ -2,6 +2,8 @@ use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
 
+pub type FitnessValue = isize;
+
 pub trait Fitness: Clone + std::fmt::Debug {
     type Genotype: Genotype;
     fn call_for_population(
@@ -15,7 +17,7 @@ pub trait Fitness: Clone + std::fmt::Debug {
             .for_each(|c| c.fitness_score = Some(self.call_for_chromosome(c)));
         population
     }
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize;
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue;
 }
 
 mod simple_count;

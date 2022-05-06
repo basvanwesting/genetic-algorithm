@@ -1,5 +1,6 @@
 use super::{Compete, TournamentSize};
 use crate::chromosome::Chromosome;
+use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::prelude::*;
@@ -18,7 +19,7 @@ impl Compete for Tournament {
         let target_population_size = std::cmp::min(target_population_size, working_population_size);
 
         let mut target_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(target_population_size);
-        let mut tournament_chromosomes: Vec<(usize, Option<isize>)> =
+        let mut tournament_chromosomes: Vec<(usize, Option<FitnessValue>)> =
             Vec::with_capacity(tournament_size);
 
         for _ in 0..target_population_size {

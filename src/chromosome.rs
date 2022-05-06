@@ -1,3 +1,4 @@
+use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
@@ -9,7 +10,7 @@ pub type GenesKey = u64;
 #[derive(Debug)]
 pub struct Chromosome<T: Genotype> {
     pub genes: Vec<T::Gene>,
-    pub fitness_score: Option<isize>,
+    pub fitness_score: Option<FitnessValue>,
 }
 
 // Cannot Hash ContinuousGene

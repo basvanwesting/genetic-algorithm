@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
-use crate::fitness::Fitness;
+use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiIndexGenotype};
 use crate::meta::MetaEvolveConfig;
 use crate::mutate::MutateDispatch;
@@ -14,7 +14,7 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub evolve_fitness: F,
     pub population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
-    pub target_fitness_score_options: Vec<Option<isize>>,
+    pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub degeneration_range_options: Vec<Option<Range<f32>>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
@@ -28,7 +28,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
         evolve_fitness: F,
         population_sizes: Vec<usize>,
         max_stale_generations_options: Vec<Option<usize>>,
-        target_fitness_score_options: Vec<Option<isize>>,
+        target_fitness_score_options: Vec<Option<FitnessValue>>,
         degeneration_range_options: Vec<Option<Range<f32>>>,
         mutates: Vec<MutateDispatch>,
         crossovers: Vec<CrossoverDispatch>,
