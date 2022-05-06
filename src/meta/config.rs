@@ -65,16 +65,15 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     ) -> EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch> {
         let genes = &chromosome.genes;
 
-        let mut evolve_config = self.evolve_config.clone();
-        evolve_config.population_size = self.population_sizes[genes[0]];
-        evolve_config.max_stale_generations = self.max_stale_generations_options[genes[1]];
-        evolve_config.target_fitness_score = self.target_fitness_score_options[genes[2]];
-        evolve_config.degeneration_range = self.degeneration_range_options[genes[3]].clone();
-        evolve_config.mutate = Some(self.mutates[genes[4]].clone());
-        evolve_config.crossover = Some(self.crossovers[genes[5]].clone());
-        evolve_config.compete = Some(self.competes[genes[6]].clone());
-
-        evolve_config
+        self.evolve_config
+            .clone()
+            .with_population_size(self.population_sizes[genes[0]])
+            .with_max_stale_generations_option(self.max_stale_generations_options[genes[1]])
+            .with_target_fitness_score_option(self.target_fitness_score_options[genes[2]])
+            .with_degeneration_range_option(self.degeneration_range_options[genes[3]].clone())
+            .with_mutate(self.mutates[genes[4]].clone())
+            .with_crossover(self.crossovers[genes[5]].clone())
+            .with_compete(self.competes[genes[6]].clone())
     }
 
     // order matters so keep close to evolve_config_for_chromosome

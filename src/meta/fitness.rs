@@ -1,6 +1,6 @@
 use crate::chromosome::Chromosome;
 use crate::fitness;
-use crate::fitness::FitnessValue;
+use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::{Genotype, MultiIndexGenotype};
 use crate::meta::{MetaConfig, MetaStats};
 use rand::prelude::*;
@@ -42,8 +42,16 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         println!("  {}", stats);
 
         let mut score: FitnessValue = 0;
-        score += stats.best_fitness_score_mean() as FitnessValue * 1_000_000_000;
-        score -= stats.duration_mean_subsec_micros() as FitnessValue;
+        match evolve_config.fitness_ordering {
+            FitnessOrdering::Maximize => {
+                score += stats.best_fitness_score_mean() as FitnessValue * 1_000_000_000;
+                score -= stats.duration_mean_subsec_micros() as FitnessValue;
+            }
+            FitnessOrdering::Minimize => {
+                score += stats.best_fitness_score_mean() as FitnessValue * 1_000_000_000;
+                score += stats.duration_mean_subsec_micros() as FitnessValue;
+            }
+        }
         Some(score)
     }
 }

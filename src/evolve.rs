@@ -38,19 +38,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     }
 
     pub fn call<R: Rng>(mut self, rng: &mut R) -> Self {
-        //let mutate = self.mutate.as_ref().cloned().unwrap();
-        //let mut fitness = self.fitness.as_ref().cloned().unwrap();
-        //let crossover = self.crossover.as_ref().cloned().unwrap();
-        //let compete = self.compete.as_ref().cloned().unwrap();
-
         self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
         self.population = self.population_factory(rng);
-        //self.best_chromosome = self
-        //.population
-        //.best_chromosome(self.fitness_ordering)
-        //.cloned();
 
         while !self.is_finished() {
             if self.toggle_degenerate() {

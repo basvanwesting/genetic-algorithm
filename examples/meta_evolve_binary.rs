@@ -1,7 +1,7 @@
 use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
 use genetic_algorithm::evolve_config::EvolveConfig;
-use genetic_algorithm::fitness::FitnessSimpleCount;
+use genetic_algorithm::fitness::{FitnessOrdering, FitnessSimpleCount};
 use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
@@ -10,7 +10,7 @@ fn main() {
     let rounds = 10;
     let population_sizes = vec![1, 2, 3, 4, 5, 10];
     let max_stale_generations_options = vec![Some(100)];
-    let target_fitness_score_options = vec![None];
+    let target_fitness_score_options = vec![Some(0)];
     let degeneration_range_options = vec![None, Some(0.001..0.995)];
     let mutates = vec![
         MutateDispatch(Mutates::Once, 0.05),
@@ -40,7 +40,8 @@ fn main() {
     let fitness = FitnessSimpleCount;
     let evolve_config = EvolveConfig::new()
         .with_genotype(genotype)
-        .with_fitness(fitness);
+        .with_fitness(fitness)
+        .with_fitness_ordering(FitnessOrdering::Minimize);
 
     let config = MetaConfig::new(
         evolve_config,

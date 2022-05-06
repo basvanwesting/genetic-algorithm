@@ -2,7 +2,7 @@ use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
 use genetic_algorithm::evolve_config::EvolveConfig;
-use genetic_algorithm::fitness::{Fitness, FitnessValue};
+use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use genetic_algorithm::genotype::UniqueIndexGenotype;
 use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
@@ -26,7 +26,7 @@ impl Fitness for NQueensFitness {
                     let dy = chromosome.genes[i].abs_diff(chromosome.genes[j]) as usize;
                     if dx == dy {
                         //diagonal clash
-                        score -= 1;
+                        score += 1;
                     }
                 }
             }
@@ -53,7 +53,8 @@ fn main() {
 
     let evolve_config = EvolveConfig::new()
         .with_genotype(genotype)
-        .with_fitness(fitness);
+        .with_fitness(fitness)
+        .with_fitness_ordering(FitnessOrdering::Minimize);
 
     let config = MetaConfig::new(
         evolve_config,
