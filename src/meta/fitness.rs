@@ -1,5 +1,4 @@
 use crate::chromosome::Chromosome;
-use crate::evolve::Evolve;
 use crate::fitness;
 use crate::fitness::FitnessValue;
 use crate::genotype::{Genotype, MultiIndexGenotype};
@@ -19,23 +18,12 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let evolve_config = self.config.evolve_config_for_chromosome(chromosome);
-
         let mut stats = MetaStats::new();
-        for _ in 0..self.config.rounds {
-            let rng = SmallRng::from_entropy();
-            let now = Instant::now();
+        let mut rng = SmallRng::from_entropy();
 
-            let evolve = Evolve::new(evolve_config.genotype.clone(), rng)
-                .with_fitness(evolve_config.fitness.clone())
-                .with_population_size(evolve_config.population_size)
-                .with_max_stale_generations_option(evolve_config.max_stale_generations)
-                .with_fitness_ordering(evolve_config.fitness_ordering)
-                .with_target_fitness_score_option(evolve_config.target_fitness_score)
-                .with_degeneration_range_option(evolve_config.degeneration_range.clone())
-                .with_mutate(evolve_config.mutate.clone().unwrap())
-                .with_crossover(evolve_config.crossover.clone().unwrap())
-                .with_compete(evolve_config.compete.clone().unwrap())
-                .call();
+        for _ in 0..self.config.rounds {
+            let now = Instant::now();
+            let evolve = evolve_config.clone().build().call(&mut rng);
 
             stats.durations.push(now.elapsed());
             stats.best_generations.push(evolve.best_generation);

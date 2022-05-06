@@ -5,12 +5,11 @@ use crate::evolve_config::EvolveConfig;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiIndexGenotype};
 use crate::mutate::MutateDispatch;
-use rand::Rng;
 use std::ops::Range;
 
 #[derive(Clone, Debug)]
-pub struct Config<G: Genotype, F: Fitness<Genotype = G>, R: Rng> {
-    pub evolve_config: EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch, R>,
+pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
+    pub evolve_config: EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>,
     pub rounds: usize,
     pub population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
@@ -21,9 +20,9 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>, R: Rng> {
     pub competes: Vec<CompeteDispatch>,
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>, R: Rng> Config<G, F, R> {
+impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     pub fn new(
-        evolve_config: EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch, R>,
+        evolve_config: EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>,
         rounds: usize,
         population_sizes: Vec<usize>,
         max_stale_generations_options: Vec<Option<usize>>,
@@ -48,6 +47,8 @@ impl<G: Genotype, F: Fitness<Genotype = G>, R: Rng> Config<G, F, R> {
 
     pub fn is_valid(&self) -> bool {
         self.rounds > 0
+            && !self.evolve_config.genotype.is_some()
+            && !self.evolve_config.fitness.is_some()
             && !self.population_sizes.is_empty()
             && !self.max_stale_generations_options.is_empty()
             && !self.target_fitness_score_options.is_empty()
@@ -61,7 +62,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>, R: Rng> Config<G, F, R> {
     pub fn evolve_config_for_chromosome(
         &self,
         chromosome: &Chromosome<MultiIndexGenotype>,
-    ) -> EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch, R> {
+    ) -> EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch> {
         let genes = &chromosome.genes;
 
         let mut evolve_config = self.evolve_config.clone();

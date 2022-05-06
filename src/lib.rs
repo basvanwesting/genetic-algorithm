@@ -6,7 +6,7 @@ pub mod evolve_config;
 pub mod fitness;
 pub mod gene;
 pub mod genotype;
-//pub mod meta;
+pub mod meta;
 pub mod mutate;
 pub mod permutate;
 pub mod population;
