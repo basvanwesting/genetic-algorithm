@@ -4,7 +4,7 @@ use crate::population::Population;
 
 pub type FitnessValue = isize;
 
-#[derive(Copy, Clone)]
+#[derive(Copy, Clone, Debug)]
 pub enum FitnessOrdering {
     Maximize,
     Minimize,

@@ -18,8 +18,6 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
-        let genotype = self.config.evolve_genotype.clone();
-        let fitness = self.config.evolve_fitness.clone();
         let evolve_config = self.config.evolve_config_for_chromosome(chromosome);
 
         let mut stats = MetaStats::new();
@@ -27,15 +25,16 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
             let rng = SmallRng::from_entropy();
             let now = Instant::now();
 
-            let evolve = Evolve::new(genotype.clone(), rng)
-                .with_fitness(fitness.clone())
+            let evolve = Evolve::new(evolve_config.genotype.clone(), rng)
+                .with_fitness(evolve_config.fitness.clone())
                 .with_population_size(evolve_config.population_size)
-                .with_max_stale_generations_option(evolve_config.max_stale_generations_option)
-                .with_target_fitness_score_option(evolve_config.target_fitness_score_option)
-                .with_degeneration_range_option(evolve_config.degeneration_range_option.clone())
-                .with_mutate(evolve_config.mutate.clone())
-                .with_crossover(evolve_config.crossover.clone())
-                .with_compete(evolve_config.compete.clone())
+                .with_max_stale_generations_option(evolve_config.max_stale_generations)
+                .with_fitness_ordering(evolve_config.fitness_ordering)
+                .with_target_fitness_score_option(evolve_config.target_fitness_score)
+                .with_degeneration_range_option(evolve_config.degeneration_range.clone())
+                .with_mutate(evolve_config.mutate.clone().unwrap())
+                .with_crossover(evolve_config.crossover.clone().unwrap())
+                .with_compete(evolve_config.compete.clone().unwrap())
                 .call();
 
             stats.durations.push(now.elapsed());
@@ -45,9 +44,9 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         println!(
             "population_size: {} | max_stale_generations: {:?} | target_fitness_score: {:?} | degeneration_range {:?} | mutate: {:?} | crossover: {:?} | compete: {:?}",
             evolve_config.population_size,
-            evolve_config.max_stale_generations_option,
-            evolve_config.target_fitness_score_option,
-            evolve_config.degeneration_range_option,
+            evolve_config.max_stale_generations,
+            evolve_config.target_fitness_score,
+            evolve_config.degeneration_range,
             evolve_config.mutate,
             evolve_config.crossover,
             evolve_config.compete

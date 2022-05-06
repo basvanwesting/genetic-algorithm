@@ -9,9 +9,8 @@ use std::ops::Range;
 
 #[derive(Clone, Debug)]
 pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
+    pub evolve_config: MetaEvolveConfig<G, F>,
     pub rounds: usize,
-    pub evolve_genotype: G,
-    pub evolve_fitness: F,
     pub population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
@@ -23,9 +22,8 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
 
 impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     pub fn new(
+        evolve_config: MetaEvolveConfig<G, F>,
         rounds: usize,
-        evolve_genotype: G,
-        evolve_fitness: F,
         population_sizes: Vec<usize>,
         max_stale_generations_options: Vec<Option<usize>>,
         target_fitness_score_options: Vec<Option<FitnessValue>>,
@@ -35,9 +33,8 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
         competes: Vec<CompeteDispatch>,
     ) -> Self {
         Self {
+            evolve_config,
             rounds,
-            evolve_genotype,
-            evolve_fitness,
             population_sizes,
             max_stale_generations_options,
             target_fitness_score_options,
@@ -63,18 +60,19 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     pub fn evolve_config_for_chromosome(
         &self,
         chromosome: &Chromosome<MultiIndexGenotype>,
-    ) -> MetaEvolveConfig {
+    ) -> MetaEvolveConfig<G, F> {
         let genes = &chromosome.genes;
 
-        MetaEvolveConfig {
-            population_size: self.population_sizes[genes[0]],
-            max_stale_generations_option: self.max_stale_generations_options[genes[1]],
-            target_fitness_score_option: self.target_fitness_score_options[genes[2]],
-            degeneration_range_option: self.degeneration_range_options[genes[3]].clone(),
-            mutate: self.mutates[genes[4]].clone(),
-            crossover: self.crossovers[genes[5]].clone(),
-            compete: self.competes[genes[6]].clone(),
-        }
+        let mut evolve_config = self.evolve_config.clone();
+        evolve_config.population_size = self.population_sizes[genes[0]];
+        evolve_config.max_stale_generations = self.max_stale_generations_options[genes[1]];
+        evolve_config.target_fitness_score = self.target_fitness_score_options[genes[2]];
+        evolve_config.degeneration_range = self.degeneration_range_options[genes[3]].clone();
+        evolve_config.mutate = Some(self.mutates[genes[4]].clone());
+        evolve_config.crossover = Some(self.crossovers[genes[5]].clone());
+        evolve_config.compete = Some(self.competes[genes[6]].clone());
+
+        evolve_config
     }
 
     // order matters so keep close to evolve_config_for_chromosome

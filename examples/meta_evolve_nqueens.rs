@@ -3,7 +3,7 @@ use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
 use genetic_algorithm::fitness::{Fitness, FitnessValue};
 use genetic_algorithm::genotype::UniqueIndexGenotype;
-use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
+use genetic_algorithm::meta::{MetaConfig, MetaEvolveConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 
 // see https://en.wikipedia.org/wiki/Eight_queens_puzzle
@@ -47,13 +47,14 @@ fn main() {
     ];
     let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
     let competes = vec![CompeteDispatch(Competes::Elite, 0)];
-    let evolve_genotype = UniqueIndexGenotype::new().with_gene_value_size(64).build();
-    let evolve_fitness = NQueensFitness;
+    let genotype = UniqueIndexGenotype::new().with_gene_value_size(64).build();
+    let fitness = NQueensFitness;
+
+    let evolve_config = MetaEvolveConfig::new(genotype, fitness);
 
     let config = MetaConfig::new(
+        evolve_config,
         rounds,
-        evolve_genotype,
-        evolve_fitness,
         population_sizes,
         max_stale_generations_options,
         target_fitness_score_options,

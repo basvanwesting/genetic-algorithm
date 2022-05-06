@@ -65,17 +65,17 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> fmt::Display for Permutate<'a, G
                 writeln!(
                     f,
                     "  best_max_stale_generations: {:?}",
-                    best_evolve_config.max_stale_generations_option
+                    best_evolve_config.max_stale_generations
                 )?;
                 writeln!(
                     f,
                     "  best_target_fitness_score: {:?}",
-                    best_evolve_config.target_fitness_score_option
+                    best_evolve_config.target_fitness_score
                 )?;
                 writeln!(
                     f,
                     "  best_degeneration_range: {:?}",
-                    best_evolve_config.degeneration_range_option
+                    best_evolve_config.degeneration_range
                 )?;
                 writeln!(f, "  best_mutate: {:?}", best_evolve_config.mutate)?;
                 writeln!(f, "  best_crossover: {:?}", best_evolve_config.crossover)?;

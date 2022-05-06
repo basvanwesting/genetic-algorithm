@@ -173,7 +173,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             }
 
             self.update_best_chromosome();
-            self.report_round();
+            //self.report_round();
             self.current_generation += 1;
         }
         self
