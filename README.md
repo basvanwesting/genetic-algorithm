@@ -51,10 +51,10 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 
 ## TODO
 * Setup prelude
-* Remove builder duplication in Genotype implementations
+* Remove builder duplication in Genotype implementations and add TryFrom
 * Maybe seed best_chromosome back into population after degenerate?
 * Add optional offset and scale to ContinuousGenotype?
 * Add optional offset to IndexGenotype and UniqueIndexGenotype?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
-* Let builders use try_into with Result type
+* Check Crossover v. Genotype.is_unique() invalid combinations in EvolveBuilder.is_valid()
