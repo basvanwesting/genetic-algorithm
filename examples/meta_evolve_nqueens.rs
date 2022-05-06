@@ -1,9 +1,10 @@
 use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
+use genetic_algorithm::evolve_config::EvolveConfig;
 use genetic_algorithm::fitness::{Fitness, FitnessValue};
 use genetic_algorithm::genotype::UniqueIndexGenotype;
-use genetic_algorithm::meta::{MetaConfig, MetaEvolveConfig, MetaPermutate};
+use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 
 // see https://en.wikipedia.org/wiki/Eight_queens_puzzle
@@ -50,7 +51,9 @@ fn main() {
     let genotype = UniqueIndexGenotype::new().with_gene_value_size(64).build();
     let fitness = NQueensFitness;
 
-    let evolve_config = MetaEvolveConfig::new(genotype, fitness);
+    let evolve_config = EvolveConfig::new()
+        .with_genotype(genotype)
+        .with_fitness(fitness);
 
     let config = MetaConfig::new(
         evolve_config,

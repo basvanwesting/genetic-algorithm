@@ -8,7 +8,7 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 fn main() {
-    let rng = SmallRng::from_entropy();
+    let mut rng = SmallRng::from_entropy();
     let genotype = IndexGenotype::new()
         .with_gene_size(100)
         .with_gene_value_size(5)
@@ -16,7 +16,8 @@ fn main() {
 
     println!("{}", genotype);
 
-    let evolve = Evolve::new(genotype, rng)
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
         .with_population_size(1000)
         .with_max_stale_generations(20)
         .with_target_fitness_score(400)
@@ -24,7 +25,8 @@ fn main() {
         .with_fitness(FitnessSimpleSumIndexGenotype)
         .with_crossover(CrossoverAll(true))
         .with_compete(CompeteTournament(4))
-        .call();
+        .build()
+        .call(&mut rng);
 
     println!("{}", evolve);
 }

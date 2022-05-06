@@ -32,7 +32,7 @@ impl Fitness for MyGeneFitness {
 }
 
 fn main() {
-    let rng = SmallRng::from_entropy();
+    let mut rng = SmallRng::from_entropy();
     let genotype = DiscreteGenotype::<MyGene>::new()
         .with_gene_size(100)
         .with_gene_values(vec![MyGene(1, 2), MyGene(3, 4), MyGene(5, 6), MyGene(7, 8)])
@@ -40,7 +40,8 @@ fn main() {
 
     println!("{}", genotype);
 
-    let evolve = Evolve::new(genotype, rng)
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
         .with_population_size(100)
         .with_max_stale_generations(1000)
         .with_target_fitness_score(1500)
@@ -49,7 +50,8 @@ fn main() {
         .with_fitness(MyGeneFitness)
         .with_crossover(CrossoverAll(true))
         .with_compete(CompeteTournament(4))
-        .call();
+        .build()
+        .call(&mut rng);
 
     println!("{}", evolve);
 }

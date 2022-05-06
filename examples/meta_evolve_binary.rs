@@ -1,8 +1,9 @@
 use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
+use genetic_algorithm::evolve_config::EvolveConfig;
 use genetic_algorithm::fitness::FitnessSimpleCount;
 use genetic_algorithm::genotype::BinaryGenotype;
-use genetic_algorithm::meta::{MetaConfig, MetaEvolveConfig, MetaPermutate};
+use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 
 fn main() {
@@ -37,8 +38,9 @@ fn main() {
     ];
     let genotype = BinaryGenotype::new().with_gene_size(10).build();
     let fitness = FitnessSimpleCount;
-
-    let evolve_config = MetaEvolveConfig::new(genotype, fitness);
+    let evolve_config = EvolveConfig::new()
+        .with_genotype(genotype)
+        .with_fitness(fitness);
 
     let config = MetaConfig::new(
         evolve_config,
@@ -53,7 +55,6 @@ fn main() {
     );
 
     let permutate = MetaPermutate::new(&config).call();
-
     println!();
     println!("{}", permutate);
 }

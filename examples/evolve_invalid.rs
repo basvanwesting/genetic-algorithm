@@ -8,18 +8,20 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 fn main() {
-    let rng = SmallRng::from_entropy();
+    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::new().with_gene_size(100).build();
 
     println!("{}", genotype);
 
-    let evolve = Evolve::new(genotype, rng)
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
         .with_population_size(1000)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(FitnessSimpleCount)
         .with_crossover(CrossoverSingle(true))
         .with_compete(CompeteTournament(4))
-        .call();
+        .build()
+        .call(&mut rng);
 
     println!("{}", evolve);
 }

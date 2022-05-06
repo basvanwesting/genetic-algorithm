@@ -47,8 +47,8 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
 
     pub fn is_valid(&self) -> bool {
         self.rounds > 0
-            && !self.evolve_config.genotype.is_some()
-            && !self.evolve_config.fitness.is_some()
+            && self.evolve_config.genotype.is_some()
+            && self.evolve_config.fitness.is_some()
             && !self.population_sizes.is_empty()
             && !self.max_stale_generations_options.is_empty()
             && !self.target_fitness_score_options.is_empty()

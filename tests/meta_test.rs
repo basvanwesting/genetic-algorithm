@@ -53,5 +53,8 @@ mod meta_tests {
 
         println!();
         println!("{}", permutate);
+
+        assert!(permutate.inner_permutate.is_some());
+        assert!(permutate.inner_permutate.unwrap().best_chromosome.is_some());
     }
 }

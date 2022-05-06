@@ -51,10 +51,11 @@ criterion_group! {
 criterion_main!(benches);
 
 fn run() {
-    let rng = SmallRng::from_entropy();
+    let mut rng = SmallRng::from_entropy();
     let genotype = UniqueIndexGenotype::new().with_gene_value_size(64).build();
 
-    let evolve = Evolve::new(genotype, rng)
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
         .with_population_size(20)
         .with_max_stale_generations(10000)
         .with_fitness_ordering(FitnessOrdering::Minimize)
@@ -63,7 +64,8 @@ fn run() {
         .with_fitness(NQueensFitness)
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteElite)
-        .call();
+        .build()
+        .call(&mut rng);
 
     println!("{}", evolve);
 }
