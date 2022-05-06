@@ -56,6 +56,7 @@ fn main() {
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteElite)
         .build()
+        .unwrap()
         .call(&mut rng);
 
     println!("{}", evolve);

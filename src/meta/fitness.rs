@@ -24,7 +24,7 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
 
         for _ in 0..self.config.rounds {
             let now = Instant::now();
-            let evolve = evolve_builder.clone().build().call(&mut rng);
+            let evolve = evolve_builder.clone().build().unwrap().call(&mut rng);
 
             stats.durations.push(now.elapsed());
             stats.best_generations.push(evolve.best_generation);

@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
-use crate::evolve_builder::EvolveBuilder;
+use crate::evolve_builder::{EvolveBuilder, TryFromEvolveBuilderError};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
@@ -173,30 +173,33 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
-    From<EvolveBuilder<G, M, F, S, C>> for Evolve<G, M, F, S, C>
+    TryFrom<EvolveBuilder<G, M, F, S, C>> for Evolve<G, M, F, S, C>
 {
-    fn from(builder: EvolveBuilder<G, M, F, S, C>) -> Self {
+    type Error = TryFromEvolveBuilderError;
+
+    fn try_from(builder: EvolveBuilder<G, M, F, S, C>) -> Result<Self, Self::Error> {
         if !builder.is_valid() {
-            panic!("Cannot build Evolve from invalid EvolveBuilder")
-        }
-        Self {
-            genotype: builder.genotype.unwrap(),
-            mutate: builder.mutate.unwrap(),
-            fitness: builder.fitness.unwrap(),
-            crossover: builder.crossover.unwrap(),
-            compete: builder.compete.unwrap(),
+            Err(TryFromEvolveBuilderError)
+        } else {
+            Ok(Self {
+                genotype: builder.genotype.unwrap(),
+                mutate: builder.mutate.unwrap(),
+                fitness: builder.fitness.unwrap(),
+                crossover: builder.crossover.unwrap(),
+                compete: builder.compete.unwrap(),
 
-            population_size: builder.population_size,
-            max_stale_generations: builder.max_stale_generations,
-            target_fitness_score: builder.target_fitness_score,
-            fitness_ordering: builder.fitness_ordering,
-            degeneration_range: builder.degeneration_range,
+                population_size: builder.population_size,
+                max_stale_generations: builder.max_stale_generations,
+                target_fitness_score: builder.target_fitness_score,
+                fitness_ordering: builder.fitness_ordering,
+                degeneration_range: builder.degeneration_range,
 
-            current_generation: 0,
-            best_generation: 0,
-            best_chromosome: None,
-            population: Population::new_empty(),
-            degenerate: false,
+                current_generation: 0,
+                best_generation: 0,
+                best_chromosome: None,
+                population: Population::new_empty(),
+                degenerate: false,
+            })
         }
     }
 }

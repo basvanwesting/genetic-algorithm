@@ -2,7 +2,7 @@ use crate::fitness::{Fitness, FitnessOrdering};
 use crate::genotype::PermutableGenotype;
 use crate::permutate::Permutate;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromPermutateBuilderError;
 
 #[derive(Clone, Debug)]

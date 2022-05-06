@@ -9,6 +9,16 @@ mod permutate_tests {
     };
     use genetic_algorithm::genotype::{BinaryGenotype, IndexGenotype, MultiIndexGenotype};
     use genetic_algorithm::permutate::Permutate;
+    //use genetic_algorithm::permutate_builder::TryFromPermutateBuilderError;
+
+    //#[test]
+    //fn build_invalid() {
+    //let genotype = BinaryGenotype::new().with_gene_size(10).build();
+    //let permutate = Permutate::builder().with_genotype(genotype).build();
+
+    //assert!(permutate.is_err());
+    //assert_eq!(permutate.err(), Some(TryFromPermutateBuilderError));
+    //}
 
     #[test]
     fn call_binary_maximize() {

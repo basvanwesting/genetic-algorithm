@@ -21,6 +21,7 @@ fn main() {
         .with_crossover(CrossoverSingle(true))
         .with_compete(CompeteTournament(4))
         .build()
+        .unwrap()
         .call(&mut rng);
 
     println!("{}", evolve);

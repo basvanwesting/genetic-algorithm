@@ -6,6 +6,9 @@ use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use std::ops::Range;
 
+#[derive(Debug, Clone, Eq, PartialEq)]
+pub struct TryFromEvolveBuilderError;
+
 #[derive(Clone, Debug)]
 pub struct EvolveBuilder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 {
@@ -28,8 +31,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         Self::default()
     }
 
-    pub fn build(self) -> Evolve<G, M, F, S, C> {
-        self.into()
+    pub fn build(self) -> Result<Evolve<G, M, F, S, C>, TryFromEvolveBuilderError> {
+        self.try_into()
     }
 
     pub fn with_genotype(mut self, genotype: G) -> Self {

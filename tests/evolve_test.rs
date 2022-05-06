@@ -6,6 +6,7 @@ mod evolve_tests {
     use genetic_algorithm::compete::CompeteTournament;
     use genetic_algorithm::crossover::CrossoverSingle;
     use genetic_algorithm::evolve::Evolve;
+    use genetic_algorithm::evolve_builder::TryFromEvolveBuilderError;
     use genetic_algorithm::fitness::{
         FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumContinuousGenotype,
         FitnessSimpleSumIndexGenotype, FitnessSimpleSumMultiIndexGenotype,
@@ -16,10 +17,9 @@ mod evolve_tests {
     use genetic_algorithm::mutate::MutateOnce;
 
     #[test]
-    #[should_panic(expected = "Cannot build Evolve from invalid EvolveBuilder")]
-    fn call_invalid() {
+    fn build_invalid() {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
-        let _evolve = Evolve::builder()
+        let evolve = Evolve::builder()
             .with_genotype(genotype)
             .with_population_size(100)
             .with_mutate(MutateOnce(0.1))
@@ -27,6 +27,9 @@ mod evolve_tests {
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build();
+
+        assert!(evolve.is_err());
+        assert_eq!(evolve.err(), Some(TryFromEvolveBuilderError));
     }
 
     #[test]
@@ -42,6 +45,7 @@ mod evolve_tests {
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
+            .unwrap()
             .call(&mut rng);
 
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -68,6 +72,7 @@ mod evolve_tests {
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
+            .unwrap()
             .call(&mut rng);
 
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -93,6 +98,7 @@ mod evolve_tests {
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
+            .unwrap()
             .call(&mut rng);
 
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -119,6 +125,7 @@ mod evolve_tests {
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
+            .unwrap()
             .call(&mut rng);
 
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -145,6 +152,7 @@ mod evolve_tests {
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
+            .unwrap()
             .call(&mut rng);
 
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -170,6 +178,7 @@ mod evolve_tests {
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
+            .unwrap()
             .call(&mut rng);
 
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -202,6 +211,7 @@ mod evolve_tests {
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
+            .unwrap()
             .call(&mut rng);
 
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -229,6 +239,7 @@ mod evolve_tests {
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
+            .unwrap()
             .call(&mut rng);
 
         let best_chromosome = evolve.best_chromosome.unwrap();
@@ -250,7 +261,8 @@ mod evolve_tests {
             .with_fitness(FitnessSimpleCount)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
-            .build();
+            .build()
+            .unwrap();
 
         let population = evolve.population_factory(&mut rng);
         println!("{:#?}", population);
