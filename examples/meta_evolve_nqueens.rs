@@ -55,9 +55,11 @@ fn main() {
         .with_genotype(genotype)
         .with_fitness(fitness)
         .with_fitness_ordering(FitnessOrdering::Minimize);
+    let evolve_fitness_to_micro_second_factor = 1_000_000;
 
     let config = MetaConfig::new(
         evolve_config,
+        evolve_fitness_to_micro_second_factor,
         rounds,
         population_sizes,
         max_stale_generations_options,

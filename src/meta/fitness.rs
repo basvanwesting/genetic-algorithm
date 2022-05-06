@@ -44,11 +44,13 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         let mut score: FitnessValue = 0;
         match evolve_config.fitness_ordering {
             FitnessOrdering::Maximize => {
-                score += stats.best_fitness_score_mean() as FitnessValue * 1_000_000_000;
+                score += stats.best_fitness_score_mean() as FitnessValue
+                    * self.config.evolve_fitness_to_micro_second_factor;
                 score -= stats.duration_mean_subsec_micros() as FitnessValue;
             }
             FitnessOrdering::Minimize => {
-                score += stats.best_fitness_score_mean() as FitnessValue * 1_000_000_000;
+                score += stats.best_fitness_score_mean() as FitnessValue
+                    * self.config.evolve_fitness_to_micro_second_factor;
                 score += stats.duration_mean_subsec_micros() as FitnessValue;
             }
         }

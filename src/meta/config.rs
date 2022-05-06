@@ -10,6 +10,7 @@ use std::ops::Range;
 #[derive(Clone, Debug)]
 pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub evolve_config: EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>,
+    pub evolve_fitness_to_micro_second_factor: FitnessValue,
     pub rounds: usize,
     pub population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
@@ -23,6 +24,7 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
 impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     pub fn new(
         evolve_config: EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>,
+        evolve_fitness_to_micro_second_factor: FitnessValue,
         rounds: usize,
         population_sizes: Vec<usize>,
         max_stale_generations_options: Vec<Option<usize>>,
@@ -34,6 +36,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     ) -> Self {
         Self {
             evolve_config,
+            evolve_fitness_to_micro_second_factor,
             rounds,
             population_sizes,
             max_stale_generations_options,
