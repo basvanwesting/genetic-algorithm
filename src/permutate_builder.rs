@@ -2,6 +2,9 @@ use crate::fitness::{Fitness, FitnessOrdering};
 use crate::genotype::PermutableGenotype;
 use crate::permutate::Permutate;
 
+#[derive(Debug, Clone)]
+pub struct TryFromPermutateBuilderError;
+
 #[derive(Clone, Debug)]
 pub struct PermutateBuilder<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     pub genotype: Option<G>,
@@ -14,8 +17,8 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> PermutateBuilder<G, F> {
         Self::default()
     }
 
-    pub fn build(self) -> Permutate<G, F> {
-        self.into()
+    pub fn build(self) -> Result<Permutate<G, F>, TryFromPermutateBuilderError> {
+        self.try_into()
     }
 
     pub fn with_genotype(mut self, genotype: G) -> Self {

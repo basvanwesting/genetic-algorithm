@@ -12,6 +12,7 @@ fn main() {
         .with_fitness(FitnessSimpleCount)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .build()
+        .unwrap()
         .call();
 
     println!("{}", permutate);

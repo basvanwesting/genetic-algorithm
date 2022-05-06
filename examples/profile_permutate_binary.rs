@@ -23,6 +23,7 @@ fn run() {
         .with_genotype(genotype)
         .with_fitness(FitnessSimpleCount)
         .build()
+        .unwrap()
         .call();
 
     println!("{}", permutate);

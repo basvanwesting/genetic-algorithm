@@ -18,6 +18,7 @@ mod permutate_tests {
             .with_genotype(genotype)
             .with_fitness(FitnessSimpleCount)
             .build()
+            .unwrap()
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
@@ -39,6 +40,7 @@ mod permutate_tests {
             .with_fitness_ordering(FitnessOrdering::Minimize)
             .with_fitness(FitnessSimpleCount)
             .build()
+            .unwrap()
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
@@ -62,6 +64,7 @@ mod permutate_tests {
             .with_genotype(genotype)
             .with_fitness(FitnessSimpleSumIndexGenotype)
             .build()
+            .unwrap()
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
@@ -81,6 +84,7 @@ mod permutate_tests {
             .with_genotype(genotype)
             .with_fitness(FitnessSimpleSumMultiIndexGenotype)
             .build()
+            .unwrap()
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();

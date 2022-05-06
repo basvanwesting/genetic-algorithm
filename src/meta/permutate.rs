@@ -34,6 +34,7 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
             .with_fitness(fitness)
             .with_fitness_ordering(fitness_ordering)
             .build()
+            .unwrap()
             .call();
 
         self.inner_permutate = Some(permutate);

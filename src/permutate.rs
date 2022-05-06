@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
-use crate::permutate_builder::PermutateBuilder;
+use crate::permutate_builder::{PermutateBuilder, TryFromPermutateBuilderError};
 use crate::population::Population;
 use std::fmt;
 
@@ -39,21 +39,24 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> From<PermutateBuilder<G, F>>
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> TryFrom<PermutateBuilder<G, F>>
     for Permutate<G, F>
 {
-    fn from(builder: PermutateBuilder<G, F>) -> Self {
+    type Error = TryFromPermutateBuilderError;
+
+    fn try_from(builder: PermutateBuilder<G, F>) -> Result<Self, Self::Error> {
         if !builder.is_valid() {
-            panic!("Cannot build Permutate from invalid PermutateBuilder")
-        }
-        Self {
-            genotype: builder.genotype.unwrap(),
-            fitness: builder.fitness.unwrap(),
+            Err(TryFromPermutateBuilderError)
+        } else {
+            Ok(Self {
+                genotype: builder.genotype.unwrap(),
+                fitness: builder.fitness.unwrap(),
 
-            fitness_ordering: builder.fitness_ordering,
+                fitness_ordering: builder.fitness_ordering,
 
-            best_chromosome: None,
-            population: Population::new_empty(),
+                best_chromosome: None,
+                population: Population::new_empty(),
+            })
         }
     }
 }
