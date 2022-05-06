@@ -4,7 +4,7 @@ use crate::crossover::CrossoverDispatch;
 use crate::evolve_builder::EvolveBuilder;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiIndexGenotype};
-use crate::meta::config_builder::ConfigBuilder;
+use crate::meta::config_builder::{ConfigBuilder, TryFromConfigBuilderError};
 use crate::mutate::MutateDispatch;
 use std::ops::Range;
 
@@ -61,22 +61,26 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> From<ConfigBuilder<G, F>> for Config<G, F> {
-    fn from(builder: ConfigBuilder<G, F>) -> Self {
+impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Config<G, F> {
+    type Error = TryFromConfigBuilderError;
+
+    fn try_from(builder: ConfigBuilder<G, F>) -> Result<Self, Self::Error> {
         if !builder.is_valid() {
-            panic!("Cannot build Meta::Config from invalid Meta::ConfigBuilder")
-        }
-        Self {
-            evolve_builder: builder.evolve_builder.unwrap(),
-            evolve_fitness_to_micro_second_factor: builder.evolve_fitness_to_micro_second_factor,
-            rounds: builder.rounds,
-            population_sizes: builder.population_sizes,
-            max_stale_generations_options: builder.max_stale_generations_options,
-            target_fitness_score_options: builder.target_fitness_score_options,
-            degeneration_range_options: builder.degeneration_range_options,
-            mutates: builder.mutates,
-            crossovers: builder.crossovers,
-            competes: builder.competes,
+            Err(TryFromConfigBuilderError)
+        } else {
+            Ok(Self {
+                evolve_builder: builder.evolve_builder.unwrap(),
+                evolve_fitness_to_micro_second_factor: builder
+                    .evolve_fitness_to_micro_second_factor,
+                rounds: builder.rounds,
+                population_sizes: builder.population_sizes,
+                max_stale_generations_options: builder.max_stale_generations_options,
+                target_fitness_score_options: builder.target_fitness_score_options,
+                degeneration_range_options: builder.degeneration_range_options,
+                mutates: builder.mutates,
+                crossovers: builder.crossovers,
+                competes: builder.competes,
+            })
         }
     }
 }

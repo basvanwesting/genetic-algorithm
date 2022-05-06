@@ -68,7 +68,8 @@ fn main() {
         .with_mutates(mutates)
         .with_crossovers(crossovers)
         .with_competes(competes)
-        .build();
+        .build()
+        .unwrap();
 
     let permutate = MetaPermutate::new(&config).call();
 
