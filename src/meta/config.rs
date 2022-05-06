@@ -83,6 +83,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
         self
     }
 
+    // TODO: remove clones for genotype/fitness check
     pub fn is_valid(&self) -> bool {
         self.rounds > 0
             && self.evolve_config.is_some()
