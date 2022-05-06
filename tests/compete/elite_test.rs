@@ -103,3 +103,39 @@ fn minimize_population_shortage() {
         ]
     );
 }
+
+#[test]
+fn fitness_ordering_with_none_fitness() {
+    let population = build::population_with_fitness_scores::<BinaryGenotype>(vec![
+        (vec![false, false, false], Some(0)),
+        (vec![false, false, true], Some(1)),
+        (vec![false, true, true], Some(2)),
+        (vec![true, true, true], Some(3)),
+        (vec![true, true, false], None),
+    ]);
+
+    let mut rng = SmallRng::seed_from_u64(0);
+    let population = CompeteElite.call(population, FitnessOrdering::Maximize, 5, &mut rng);
+    assert_eq!(
+        inspect::population_with_fitness_scores(&population),
+        vec![
+            (vec![true, true, false], None),
+            (vec![false, false, false], Some(0)),
+            (vec![false, false, true], Some(1)),
+            (vec![false, true, true], Some(2)),
+            (vec![true, true, true], Some(3)),
+        ]
+    );
+
+    let population = CompeteElite.call(population, FitnessOrdering::Minimize, 5, &mut rng);
+    assert_eq!(
+        inspect::population_with_fitness_scores(&population),
+        vec![
+            (vec![true, true, false], None),
+            (vec![true, true, true], Some(3)),
+            (vec![false, true, true], Some(2)),
+            (vec![false, false, true], Some(1)),
+            (vec![false, false, false], Some(0)),
+        ]
+    );
+}
