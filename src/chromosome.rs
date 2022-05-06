@@ -1,11 +1,28 @@
 use crate::genotype::Genotype;
 use std::cmp::Ordering;
+use std::collections::hash_map::DefaultHasher;
 use std::fmt;
+use std::hash::{Hash, Hasher};
+
+pub type GenesKey = u64;
 
 #[derive(Debug)]
 pub struct Chromosome<T: Genotype> {
     pub genes: Vec<T::Gene>,
     pub fitness_score: Option<isize>,
+}
+
+// Cannot Hash ContinuousGene
+impl<T: Genotype> Chromosome<T>
+where
+    <T as Genotype>::Gene: Hash,
+{
+    // genes_key() can be used for caching, without lifetime concerns of the chromosome
+    pub fn genes_key(&self) -> GenesKey {
+        let mut s = DefaultHasher::new();
+        self.genes.hash(&mut s);
+        s.finish()
+    }
 }
 
 impl<T: Genotype> Chromosome<T> {

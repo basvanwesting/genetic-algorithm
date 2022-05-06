@@ -5,13 +5,12 @@ use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::mutate::MutateOnce;
-use lru::LruCache;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
+use std::collections::HashMap;
 use std::{thread, time};
 
 pub type MicroSeconds = u64;
-pub type CacheSize = usize;
 
 #[derive(Clone, Debug)]
 pub struct ExpensiveCount {
@@ -30,18 +29,16 @@ impl Fitness for ExpensiveCount {
     }
 }
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct CachedExpensiveCount {
     pub micro_seconds: MicroSeconds,
-    pub cache_size: CacheSize,
-    pub cache: LruCache<GenesKey, isize>,
+    pub cache: HashMap<GenesKey, isize>,
 }
 impl CachedExpensiveCount {
-    pub fn new(micro_seconds: MicroSeconds, cache_size: CacheSize) -> Self {
+    pub fn new(micro_seconds: MicroSeconds, initial_cache_cap: usize) -> Self {
         Self {
             micro_seconds,
-            cache_size,
-            cache: LruCache::new(cache_size),
+            cache: HashMap::with_capacity(initial_cache_cap),
         }
     }
 }
@@ -49,19 +46,11 @@ impl Fitness for CachedExpensiveCount {
     type Genotype = BinaryGenotype;
     fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> isize {
         //print!("cache try ({}), ", self.cache.len());
-        *self
-            .cache
-            .get_or_insert(chromosome.genes_key(), || {
-                //println!("miss");
-                thread::sleep(time::Duration::from_micros(self.micro_seconds));
-                chromosome.genes.iter().filter(|&value| *value).count() as isize
-            })
-            .unwrap()
-    }
-}
-impl Clone for CachedExpensiveCount {
-    fn clone(&self) -> Self {
-        Self::new(self.micro_seconds, self.cache_size)
+        *self.cache.entry(chromosome.genes_key()).or_insert_with(|| {
+            //println!("miss");
+            thread::sleep(time::Duration::from_micros(self.micro_seconds));
+            chromosome.genes.iter().filter(|&value| *value).count() as isize
+        })
     }
 }
 
@@ -77,7 +66,7 @@ fn main() {
         .with_target_fitness_score(100)
         .with_mutate(MutateOnce(0.05))
         //.with_fitness(ExpensiveCount::new(1000))
-        .with_fitness(CachedExpensiveCount::new(1000, 1500))
+        .with_fitness(CachedExpensiveCount::new(1000, 5000))
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteTournament(4))
         .call();
