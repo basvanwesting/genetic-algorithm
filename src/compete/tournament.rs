@@ -37,7 +37,10 @@ impl Compete for Tournament {
             match fitness_ordering {
                 FitnessOrdering::Maximize => tournament_chromosomes.sort_unstable_by_key(|a| a.1),
                 FitnessOrdering::Minimize => {
-                    tournament_chromosomes.sort_unstable_by_key(|a| Reverse(a.1))
+                    tournament_chromosomes.sort_unstable_by_key(|a| match a.1 {
+                        Some(fitness_score) => Reverse(fitness_score),
+                        None => Reverse(FitnessValue::MAX),
+                    })
                 }
             }
             if let Some(&(winning_index, _)) = tournament_chromosomes.last() {
