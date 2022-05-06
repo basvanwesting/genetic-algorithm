@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
-use crate::fitness::{Fitness, FitnessValue};
+use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
@@ -22,6 +22,7 @@ pub struct Evolve<
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
+    pub fitness_ordering: FitnessOrdering,
     pub degeneration_range: Option<Range<f32>>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -44,6 +45,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             population_size: 0,
             max_stale_generations: None,
             target_fitness_score: None,
+            fitness_ordering: FitnessOrdering::Maximize,
             degeneration_range: None,
             mutate: None,
             fitness: None,
@@ -81,6 +83,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         target_fitness_score_option: Option<FitnessValue>,
     ) -> Self {
         self.target_fitness_score = target_fitness_score_option;
+        self
+    }
+    pub fn with_fitness_ordering(mut self, fitness_ordering: FitnessOrdering) -> Self {
+        self.fitness_ordering = fitness_ordering;
         self
     }
     pub fn with_degeneration_range(mut self, degeneration_range: Range<f32>) -> Self {
@@ -145,7 +151,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self.current_generation = 0;
         self.best_generation = 0;
         self.population = self.population_factory();
-        self.best_chromosome = self.population.best_chromosome().cloned();
+        //self.best_chromosome = self
+        //.population
+        //.best_chromosome(self.fitness_ordering)
+        //.cloned();
 
         while !self.is_finished() {
             if self.toggle_degenerate() {
@@ -155,21 +164,61 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 self.population = crossover.call(&self.genotype, self.population, &mut self.rng);
                 self.population = mutate.call(&self.genotype, self.population, &mut self.rng);
                 self.population = fitness.call_for_population(self.population);
-                self.population =
-                    compete.call(self.population, self.population_size, &mut self.rng);
+                self.population = compete.call(
+                    self.population,
+                    self.fitness_ordering,
+                    self.population_size,
+                    &mut self.rng,
+                );
             }
 
             self.update_best_chromosome();
-            //self.report_round();
+            self.report_round();
             self.current_generation += 1;
         }
         self
     }
 
     fn update_best_chromosome(&mut self) {
-        if self.best_chromosome.as_ref() < self.population.best_chromosome() {
-            self.best_chromosome = self.population.best_chromosome().cloned();
-            self.best_generation = self.current_generation;
+        match (
+            self.best_chromosome.as_ref(),
+            self.population.best_chromosome(self.fitness_ordering),
+        ) {
+            (None, None) => {}
+            (Some(_), None) => {}
+            (None, Some(contending_best_chromosome)) => {
+                self.best_chromosome = Some(contending_best_chromosome.clone());
+                self.best_generation = self.current_generation;
+            }
+            (Some(current_best_chromosome), Some(contending_best_chromosome)) => {
+                match (
+                    current_best_chromosome.fitness_score,
+                    contending_best_chromosome.fitness_score,
+                ) {
+                    (None, None) => {}
+                    (Some(_), None) => {}
+                    (None, Some(_)) => {
+                        self.best_chromosome = Some(contending_best_chromosome.clone());
+                        self.best_generation = self.current_generation;
+                    }
+                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
+                        match self.fitness_ordering {
+                            FitnessOrdering::Maximize => {
+                                if contending_fitness_score > current_fitness_score {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    self.best_generation = self.current_generation;
+                                }
+                            }
+                            FitnessOrdering::Minimize => {
+                                if contending_fitness_score < current_fitness_score {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    self.best_generation = self.current_generation;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
         }
     }
 
@@ -200,7 +249,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     fn is_finished_by_target_fitness_score(&self) -> bool {
         if let Some(target_fitness_score) = self.target_fitness_score {
             if let Some(fitness_score) = self.best_fitness_score() {
-                fitness_score >= target_fitness_score
+                match self.fitness_ordering {
+                    FitnessOrdering::Maximize => fitness_score >= target_fitness_score,
+                    FitnessOrdering::Minimize => fitness_score <= target_fitness_score,
+                }
             } else {
                 false
             }

@@ -1,9 +1,11 @@
 use super::{Compete, TournamentSize};
 use crate::chromosome::Chromosome;
+use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::prelude::*;
+use std::cmp::Reverse;
 
 #[derive(Clone, Debug)]
 pub struct Tournament(pub TournamentSize);
@@ -11,6 +13,7 @@ impl Compete for Tournament {
     fn call<T: Genotype, R: Rng>(
         &self,
         mut population: Population<T>,
+        fitness_ordering: FitnessOrdering,
         target_population_size: usize,
         rng: &mut R,
     ) -> Population<T> {
@@ -31,7 +34,12 @@ impl Compete for Tournament {
                 ));
             }
 
-            tournament_chromosomes.sort_unstable_by_key(|a| a.1);
+            match fitness_ordering {
+                FitnessOrdering::Maximize => tournament_chromosomes.sort_unstable_by_key(|a| a.1),
+                FitnessOrdering::Minimize => {
+                    tournament_chromosomes.sort_unstable_by_key(|a| Reverse(a.1))
+                }
+            }
             if let Some(&(winning_index, _)) = tournament_chromosomes.last() {
                 let chromosome = population.chromosomes.swap_remove(winning_index);
                 target_chromosomes.push(chromosome);

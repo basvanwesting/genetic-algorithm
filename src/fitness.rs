@@ -4,6 +4,12 @@ use crate::population::Population;
 
 pub type FitnessValue = isize;
 
+#[derive(Copy, Clone)]
+pub enum FitnessOrdering {
+    Maximize,
+    Minimize,
+}
+
 pub trait Fitness: Clone + std::fmt::Debug {
     type Genotype: Genotype;
     fn call_for_population(

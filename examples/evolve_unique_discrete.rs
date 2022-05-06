@@ -3,7 +3,7 @@ use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness::{Fitness, FitnessValue};
+use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use genetic_algorithm::gene::Gene;
 use genetic_algorithm::genotype::UniqueDiscreteGenotype;
 use genetic_algorithm::mutate::MutateOnce;
@@ -26,8 +26,7 @@ impl Fitness for MyGeneFitness {
     type Genotype = UniqueDiscreteGenotype<MyGene>;
     fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
         let string = chromosome.genes.iter().join("");
-
-        hamming(&string, "genetic").unwrap() as FitnessValue * -1
+        hamming(&string, "genetic").unwrap() as FitnessValue
     }
 }
 
@@ -50,6 +49,7 @@ fn main() {
     let evolve = Evolve::new(genotype, rng)
         .with_population_size(10)
         .with_max_stale_generations(100)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(MyGeneFitness)

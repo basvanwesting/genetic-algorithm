@@ -4,13 +4,14 @@ mod support;
 mod permutate_tests {
     use crate::support::*;
     use genetic_algorithm::fitness::{
-        FitnessSimpleCount, FitnessSimpleSumIndexGenotype, FitnessSimpleSumMultiIndexGenotype,
+        FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumIndexGenotype,
+        FitnessSimpleSumMultiIndexGenotype,
     };
     use genetic_algorithm::genotype::{BinaryGenotype, IndexGenotype, MultiIndexGenotype};
     use genetic_algorithm::permutate::Permutate;
 
     #[test]
-    fn call_binary() {
+    fn call_binary_maximize() {
         let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
         let permutate = Permutate::new(genotype)
@@ -24,6 +25,25 @@ mod permutate_tests {
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![true, true, true, true, true]
+        );
+    }
+
+    #[test]
+    fn call_binary_minimize() {
+        let genotype = BinaryGenotype::new().with_gene_size(5).build();
+
+        let permutate = Permutate::new(genotype)
+            .with_fitness_ordering(FitnessOrdering::Minimize)
+            .with_fitness(FitnessSimpleCount)
+            .call();
+
+        let best_chromosome = permutate.best_chromosome.unwrap();
+        println!("{:#?}", best_chromosome);
+
+        assert_eq!(best_chromosome.fitness_score, Some(0));
+        assert_eq!(
+            inspect::chromosome(&best_chromosome),
+            vec![false, false, false, false, false]
         );
     }
 

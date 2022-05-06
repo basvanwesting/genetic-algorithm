@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
 
 use genetic_algorithm::compete::{Compete, CompeteElite, CompeteTournament};
-use genetic_algorithm::fitness::{Fitness, FitnessSimpleCount};
+use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessSimpleCount};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
@@ -30,7 +30,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let compete = CompeteTournament(4);
         b.iter_batched(
             || population.clone(),
-            |data| compete.call(data, target_population_size, &mut rng),
+            |data| {
+                compete.call(
+                    data,
+                    FitnessOrdering::Maximize,
+                    target_population_size,
+                    &mut rng,
+                )
+            },
             BatchSize::SmallInput,
         )
     });
@@ -39,7 +46,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let compete = CompeteElite;
         b.iter_batched(
             || population.clone(),
-            |data| compete.call(data, target_population_size, &mut rng),
+            |data| {
+                compete.call(
+                    data,
+                    FitnessOrdering::Maximize,
+                    target_population_size,
+                    &mut rng,
+                )
+            },
             BatchSize::SmallInput,
         )
     });

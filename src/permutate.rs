@@ -1,13 +1,14 @@
 use crate::chromosome::Chromosome;
-use crate::fitness::{Fitness, FitnessValue};
+use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
 use crate::population::Population;
 use std::fmt;
 
 pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     pub genotype: G,
-    pub best_chromosome: Option<Chromosome<G>>,
+    pub fitness_ordering: FitnessOrdering,
     pub fitness: Option<F>,
+    pub best_chromosome: Option<Chromosome<G>>,
     pub population: Population<G>,
 }
 
@@ -15,10 +16,16 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     pub fn new(genotype: G) -> Self {
         Self {
             genotype,
+            fitness_ordering: FitnessOrdering::Maximize,
             fitness: None,
             best_chromosome: None,
             population: Population::new_empty(),
         }
+    }
+
+    pub fn with_fitness_ordering(mut self, fitness_ordering: FitnessOrdering) -> Self {
+        self.fitness_ordering = fitness_ordering;
+        self
     }
 
     pub fn with_fitness(mut self, fitness: F) -> Self {
@@ -47,9 +54,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     }
 
     fn update_best_chromosome(&mut self) {
-        if self.best_chromosome.as_ref() < self.population.best_chromosome() {
-            self.best_chromosome = self.population.best_chromosome().cloned();
-        }
+        self.best_chromosome = self
+            .population
+            .best_chromosome(self.fitness_ordering)
+            .cloned();
     }
 
     fn best_fitness_score(&self) -> Option<FitnessValue> {

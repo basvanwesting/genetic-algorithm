@@ -7,8 +7,8 @@ mod evolve_tests {
     use genetic_algorithm::crossover::CrossoverSingle;
     use genetic_algorithm::evolve::Evolve;
     use genetic_algorithm::fitness::{
-        FitnessSimpleCount, FitnessSimpleSumContinuousGenotype, FitnessSimpleSumIndexGenotype,
-        FitnessSimpleSumMultiIndexGenotype,
+        FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumContinuousGenotype,
+        FitnessSimpleSumIndexGenotype, FitnessSimpleSumMultiIndexGenotype,
     };
     use genetic_algorithm::genotype::{
         BinaryGenotype, ContinuousGenotype, IndexGenotype, MultiIndexGenotype,
@@ -32,7 +32,7 @@ mod evolve_tests {
     }
 
     #[test]
-    fn call_binary_max_stale_generations() {
+    fn call_binary_max_stale_generations_maximize() {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
 
         let rng = SmallRng::seed_from_u64(0);
@@ -55,7 +55,31 @@ mod evolve_tests {
     }
 
     #[test]
-    fn call_binary_target_fitness_score() {
+    fn call_binary_max_stale_generations_minimize() {
+        let genotype = BinaryGenotype::new().with_gene_size(10).build();
+
+        let rng = SmallRng::seed_from_u64(0);
+        let evolve = Evolve::new(genotype, rng)
+            .with_population_size(100)
+            .with_fitness_ordering(FitnessOrdering::Minimize)
+            .with_max_stale_generations(20)
+            .with_mutate(MutateOnce(0.1))
+            .with_fitness(FitnessSimpleCount)
+            .with_crossover(CrossoverSingle(true))
+            .with_compete(CompeteTournament(4))
+            .call();
+        let best_chromosome = evolve.best_chromosome.unwrap();
+        println!("{:#?}", best_chromosome);
+
+        assert_eq!(best_chromosome.fitness_score, Some(0));
+        assert_eq!(
+            inspect::chromosome(&best_chromosome),
+            vec![false, false, false, false, false, false, false, false, false, false]
+        );
+    }
+
+    #[test]
+    fn call_binary_target_fitness_score_maximize() {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
 
         let rng = SmallRng::seed_from_u64(0);
@@ -74,6 +98,30 @@ mod evolve_tests {
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![true, true, true, true, true, true, true, true, true, false]
+        );
+    }
+
+    #[test]
+    fn call_binary_target_fitness_score_minimize() {
+        let genotype = BinaryGenotype::new().with_gene_size(10).build();
+
+        let rng = SmallRng::seed_from_u64(0);
+        let evolve = Evolve::new(genotype, rng)
+            .with_population_size(100)
+            .with_fitness_ordering(FitnessOrdering::Minimize)
+            .with_target_fitness_score(0)
+            .with_mutate(MutateOnce(0.1))
+            .with_fitness(FitnessSimpleCount)
+            .with_crossover(CrossoverSingle(true))
+            .with_compete(CompeteTournament(4))
+            .call();
+        let best_chromosome = evolve.best_chromosome.unwrap();
+        println!("{:#?}", best_chromosome);
+
+        assert_eq!(best_chromosome.fitness_score, Some(0));
+        assert_eq!(
+            inspect::chromosome(&best_chromosome),
+            vec![false, false, false, false, false, false, false, false, false, false]
         );
     }
 

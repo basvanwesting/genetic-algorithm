@@ -5,7 +5,7 @@ use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::CompeteElite;
 use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness::{Fitness, FitnessValue};
+use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use genetic_algorithm::genotype::UniqueIndexGenotype;
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
@@ -27,7 +27,7 @@ impl Fitness for NQueensFitness {
                     let dy = chromosome.genes[i].abs_diff(chromosome.genes[j]) as usize;
                     if dx == dy {
                         //diagonal clash
-                        score -= 1;
+                        score += 1;
                     }
                 }
             }
@@ -54,6 +54,7 @@ fn run() {
     let evolve = Evolve::new(genotype, rng)
         .with_population_size(20)
         .with_max_stale_generations(10000)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(NQueensFitness)

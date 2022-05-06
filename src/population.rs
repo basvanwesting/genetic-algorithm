@@ -1,6 +1,8 @@
 use crate::chromosome::Chromosome;
+use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use stats::stddev;
+use std::cmp::Reverse;
 
 #[derive(Debug)]
 pub struct Population<T: Genotype> {
@@ -22,16 +24,34 @@ impl<T: Genotype> Population<T> {
         self.chromosomes.append(&mut other.chromosomes);
     }
 
-    pub fn sort(&mut self) {
-        self.chromosomes.sort_unstable_by_key(|c| c.fitness_score);
-    }
-
     pub fn size(&self) -> usize {
         self.chromosomes.len()
     }
 
-    pub fn best_chromosome(&self) -> Option<&Chromosome<T>> {
-        self.chromosomes.iter().max()
+    // fitness_score is Option and None is least, but invalid as best_chromosome
+    pub fn sort(&mut self, fitness_ordering: FitnessOrdering) {
+        match fitness_ordering {
+            FitnessOrdering::Maximize => self.chromosomes.sort_unstable_by_key(|c| c.fitness_score),
+            FitnessOrdering::Minimize => {
+                self.chromosomes
+                    .sort_unstable_by_key(|c| match c.fitness_score {
+                        Some(fitness_score) => Reverse(fitness_score),
+                        None => Reverse(FitnessValue::MAX),
+                    })
+            }
+        }
+    }
+
+    // fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out
+    pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&Chromosome<T>> {
+        match fitness_ordering {
+            FitnessOrdering::Maximize => self.chromosomes.iter().max(),
+            FitnessOrdering::Minimize => self
+                .chromosomes
+                .iter()
+                .filter(|c| c.fitness_score.is_some())
+                .min(),
+        }
     }
 
     pub fn fitness_score_stddev(&self) -> f32 {
