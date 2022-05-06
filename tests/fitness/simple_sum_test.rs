@@ -10,13 +10,13 @@ fn index_genotype() {
     let chromosome = build::chromosome::<IndexGenotype>(vec![0, 1, 2, 3]);
     assert_eq!(
         FitnessSimpleSumIndexGenotype.call_for_chromosome(&chromosome),
-        6
+        Some(6)
     );
 
     let chromosome = build::chromosome::<IndexGenotype>(vec![0, 0, 0, 0]);
     assert_eq!(
         FitnessSimpleSumIndexGenotype.call_for_chromosome(&chromosome),
-        0
+        Some(0)
     );
 }
 
@@ -25,18 +25,18 @@ fn continuous_genotype() {
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![0.0, 0.0, 0.0]);
     assert_eq!(
         FitnessSimpleSumContinuousGenotype.call_for_chromosome(&chromosome),
-        0
+        Some(0)
     );
 
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![0.1, 0.2, 0.3]);
     assert_eq!(
         FitnessSimpleSumContinuousGenotype.call_for_chromosome(&chromosome),
-        0
+        Some(0)
     );
 
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![1.4, 2.4, 3.4]);
     assert_eq!(
         FitnessSimpleSumContinuousGenotype.call_for_chromosome(&chromosome),
-        7
+        Some(7)
     );
 }

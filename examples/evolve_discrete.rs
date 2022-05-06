@@ -17,12 +17,17 @@ impl Gene for MyGene {}
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
     type Genotype = DiscreteGenotype<MyGene>;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
-        chromosome
-            .genes
-            .iter()
-            .fold(0, |acc, c| acc + c.0 as FitnessValue + c.1 as FitnessValue)
-            as FitnessValue
+    fn call_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Genotype>,
+    ) -> Option<FitnessValue> {
+        Some(
+            chromosome
+                .genes
+                .iter()
+                .fold(0, |acc, c| acc + c.0 as FitnessValue + c.1 as FitnessValue)
+                as FitnessValue,
+        )
     }
 }
 

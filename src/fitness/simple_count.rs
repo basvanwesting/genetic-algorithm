@@ -6,7 +6,10 @@ use crate::genotype::BinaryGenotype;
 pub struct SimpleCount;
 impl Fitness for SimpleCount {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
-        chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue
+    fn call_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Genotype>,
+    ) -> Option<FitnessValue> {
+        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
     }
 }

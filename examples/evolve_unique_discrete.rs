@@ -24,9 +24,12 @@ impl std::fmt::Display for MyGene {
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
     type Genotype = UniqueDiscreteGenotype<MyGene>;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
+    fn call_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Genotype>,
+    ) -> Option<FitnessValue> {
         let string = chromosome.genes.iter().join("");
-        hamming(&string, "genetic").unwrap() as FitnessValue
+        Some(hamming(&string, "genetic").unwrap() as FitnessValue)
     }
 }
 

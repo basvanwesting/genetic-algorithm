@@ -9,12 +9,18 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 // see https://en.wikipedia.org/wiki/Eight_queens_puzzle
-
+// with additional constraint that the first queen must be first row
 #[derive(Clone, Debug)]
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
     type Genotype = UniqueIndexGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
+    fn call_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Genotype>,
+    ) -> Option<FitnessValue> {
+        if chromosome.genes[0] != 0 {
+            return None;
+        }
         let mut score = 0;
         let max_index = chromosome.genes.len() - 1;
         for i in 0..max_index {
@@ -29,7 +35,7 @@ impl Fitness for NQueensFitness {
                 }
             }
         }
-        score
+        Some(score)
     }
 }
 

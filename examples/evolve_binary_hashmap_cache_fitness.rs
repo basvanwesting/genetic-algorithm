@@ -23,9 +23,12 @@ impl ExpensiveCount {
 }
 impl Fitness for ExpensiveCount {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
+    fn call_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Genotype>,
+    ) -> Option<FitnessValue> {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
-        chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue
+        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
     }
 }
 
@@ -44,13 +47,18 @@ impl CachedExpensiveCount {
 }
 impl Fitness for CachedExpensiveCount {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
+    fn call_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Genotype>,
+    ) -> Option<FitnessValue> {
         //print!("cache try ({}), ", self.cache.len());
-        *self.cache.entry(chromosome.genes_key()).or_insert_with(|| {
-            //println!("miss");
-            thread::sleep(time::Duration::from_micros(self.micro_seconds));
-            chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue
-        })
+        Some(
+            *self.cache.entry(chromosome.genes_key()).or_insert_with(|| {
+                //println!("miss");
+                thread::sleep(time::Duration::from_micros(self.micro_seconds));
+                chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue
+            }),
+        )
     }
 }
 

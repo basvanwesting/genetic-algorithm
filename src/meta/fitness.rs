@@ -14,7 +14,10 @@ pub struct Fitness<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> {
 }
 impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fitness<'a, G, F> {
     type Genotype = MultiIndexGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> FitnessValue {
+    fn call_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Genotype>,
+    ) -> Option<FitnessValue> {
         let genotype = self.config.evolve_genotype.clone();
         let fitness = self.config.evolve_fitness.clone();
         let evolve_config = self.config.evolve_config_for_chromosome(chromosome);
@@ -54,6 +57,6 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         let mut score: FitnessValue = 0;
         score += stats.best_fitness_score_mean() as FitnessValue * 1_000_000_000;
         score -= stats.duration_mean_subsec_micros() as FitnessValue;
-        score
+        Some(score)
     }
 }

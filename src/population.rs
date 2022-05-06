@@ -42,6 +42,13 @@ impl<T: Genotype> Population<T> {
     pub fn fitness_score_stddev(&self) -> f32 {
         stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
     }
+
+    pub fn fitness_score_count(&self) -> usize {
+        self.chromosomes
+            .iter()
+            .filter(|c| c.fitness_score.is_some())
+            .count()
+    }
 }
 
 // manually implement Clone, because derive requires Genotype to be Clone as well
