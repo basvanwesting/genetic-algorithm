@@ -10,20 +10,12 @@ use rand::Rng;
 use std::fmt;
 use std::ops::Range;
 
-pub struct Evolve<
-    G: Genotype,
-    M: Mutate,
-    F: Fitness<Genotype = G>,
-    S: Crossover,
-    C: Compete,
-    R: Rng,
-> {
+pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> {
     pub genotype: G,
     pub mutate: M,
     pub fitness: F,
     pub crossover: S,
     pub compete: C,
-    pub rng: R,
 
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
@@ -38,14 +30,14 @@ pub struct Evolve<
     pub degenerate: bool,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng>
-    Evolve<G, M, F, S, C, R>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+    Evolve<G, M, F, S, C>
 {
-    pub fn builder() -> EvolveConfig<G, M, F, S, C, R> {
+    pub fn builder() -> EvolveConfig<G, M, F, S, C> {
         EvolveConfig::new()
     }
 
-    pub fn call(mut self) -> Self {
+    pub fn call<R: Rng>(mut self, rng: &mut R) -> Self {
         //let mutate = self.mutate.as_ref().cloned().unwrap();
         //let mut fitness = self.fitness.as_ref().cloned().unwrap();
         //let crossover = self.crossover.as_ref().cloned().unwrap();
@@ -54,7 +46,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
-        self.population = self.population_factory();
+        self.population = self.population_factory(rng);
         //self.best_chromosome = self
         //.population
         //.best_chromosome(self.fitness_ordering)
@@ -62,23 +54,17 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 
         while !self.is_finished() {
             if self.toggle_degenerate() {
-                self.population = self
-                    .mutate
-                    .call(&self.genotype, self.population, &mut self.rng);
+                self.population = self.mutate.call(&self.genotype, self.population, rng);
                 self.population = self.fitness.call_for_population(self.population);
             } else {
-                self.population =
-                    self.crossover
-                        .call(&self.genotype, self.population, &mut self.rng);
-                self.population = self
-                    .mutate
-                    .call(&self.genotype, self.population, &mut self.rng);
+                self.population = self.crossover.call(&self.genotype, self.population, rng);
+                self.population = self.mutate.call(&self.genotype, self.population, rng);
                 self.population = self.fitness.call_for_population(self.population);
                 self.population = self.compete.call(
                     self.population,
                     self.fitness_ordering,
                     self.population_size,
-                    &mut self.rng,
+                    rng,
                 );
             }
 
@@ -187,18 +173,18 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 
-    pub fn population_factory(&mut self) -> Population<G> {
+    pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G> {
         let chromosomes = (0..self.population_size)
-            .map(|_| self.genotype.chromosome_factory(&mut self.rng))
+            .map(|_| self.genotype.chromosome_factory(rng))
             .collect();
         Population::new(chromosomes)
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng>
-    From<EvolveConfig<G, M, F, S, C, R>> for Evolve<G, M, F, S, C, R>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+    From<EvolveConfig<G, M, F, S, C>> for Evolve<G, M, F, S, C>
 {
-    fn from(config: EvolveConfig<G, M, F, S, C, R>) -> Self {
+    fn from(config: EvolveConfig<G, M, F, S, C>) -> Self {
         if !config.is_valid() {
             panic!("Cannot build Evolve from invalid EvolveConfig")
         }
@@ -208,7 +194,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             fitness: config.fitness.unwrap(),
             crossover: config.crossover.unwrap(),
             compete: config.compete.unwrap(),
-            rng: config.rng.unwrap(),
 
             population_size: config.population_size,
             max_stale_generations: config.max_stale_generations,
@@ -225,8 +210,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng>
-    fmt::Display for Evolve<G, M, F, S, C, R>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> fmt::Display
+    for Evolve<G, M, F, S, C>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve:")?;
@@ -235,7 +220,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         writeln!(f, "  fitness: {:?}", self.fitness)?;
         writeln!(f, "  crossover: {:?}", self.crossover)?;
         writeln!(f, "  compete: {:?}", self.compete)?;
-        //writeln!(f, "  rng: {:?}", self.rng)?;
 
         writeln!(f, "  population_size: {}", self.population_size)?;
         writeln!(

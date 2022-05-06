@@ -4,20 +4,12 @@ use crate::evolve::Evolve;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
-use rand::Rng;
 use std::ops::Range;
 
 #[derive(Clone, Debug)]
-pub struct EvolveConfig<
-    G: Genotype,
-    M: Mutate,
-    F: Fitness<Genotype = G>,
-    S: Crossover,
-    C: Compete,
-    R: Rng,
-> {
+pub struct EvolveConfig<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+{
     pub genotype: Option<G>,
-    pub rng: Option<R>,
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
@@ -29,14 +21,14 @@ pub struct EvolveConfig<
     pub compete: Option<C>,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng>
-    EvolveConfig<G, M, F, S, C, R>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+    EvolveConfig<G, M, F, S, C>
 {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn build(self) -> Evolve<G, M, F, S, C, R> {
+    pub fn build(self) -> Evolve<G, M, F, S, C> {
         self.into()
     }
 
@@ -106,11 +98,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self
     }
 
-    pub fn with_rng(mut self, rng: R) -> Self {
-        self.rng = Some(rng);
-        self
-    }
-
     pub fn is_valid(&self) -> bool {
         (self.max_stale_generations.is_some() || self.target_fitness_score.is_some())
             && self.genotype.is_some()
@@ -118,17 +105,15 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             && self.fitness.is_some()
             && self.crossover.is_some()
             && self.compete.is_some()
-            && self.rng.is_some()
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng> Default
-    for EvolveConfig<G, M, F, S, C, R>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Default
+    for EvolveConfig<G, M, F, S, C>
 {
     fn default() -> Self {
         Self {
             genotype: None,
-            rng: None,
             population_size: 0,
             max_stale_generations: None,
             target_fitness_score: None,
