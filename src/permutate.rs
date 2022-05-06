@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
-use crate::permutate_config::PermutateConfig;
+use crate::permutate_builder::PermutateBuilder;
 use crate::population::Population;
 use std::fmt;
 
@@ -16,8 +16,8 @@ pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>> {
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
-    pub fn builder() -> PermutateConfig<G, F> {
-        PermutateConfig::new()
+    pub fn builder() -> PermutateBuilder<G, F> {
+        PermutateBuilder::new()
     }
 
     pub fn call(mut self) -> Self {
@@ -39,12 +39,12 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> From<PermutateConfig<G, F>>
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> From<PermutateBuilder<G, F>>
     for Permutate<G, F>
 {
-    fn from(config: PermutateConfig<G, F>) -> Self {
+    fn from(config: PermutateBuilder<G, F>) -> Self {
         if !config.is_valid() {
-            panic!("Cannot build Permutate from invalid PermutateConfig")
+            panic!("Cannot build Permutate from invalid PermutateBuilder")
         }
         Self {
             genotype: config.genotype.unwrap(),

@@ -1,7 +1,7 @@
 use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
-use genetic_algorithm::evolve_config::EvolveConfig;
+use genetic_algorithm::evolve_builder::EvolveBuilder;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use genetic_algorithm::genotype::UniqueIndexGenotype;
 use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
@@ -51,14 +51,14 @@ fn main() {
     let genotype = UniqueIndexGenotype::new().with_gene_value_size(64).build();
     let fitness = NQueensFitness;
 
-    let evolve_config = EvolveConfig::new()
+    let evolve_builder = EvolveBuilder::new()
         .with_genotype(genotype)
         .with_fitness(fitness)
         .with_fitness_ordering(FitnessOrdering::Minimize);
     let evolve_fitness_to_micro_second_factor = 1_000_000;
 
     let config = MetaConfig::new()
-        .with_evolve_config(evolve_config)
+        .with_evolve_builder(evolve_builder)
         .with_evolve_fitness_to_micro_second_factor(evolve_fitness_to_micro_second_factor)
         .with_rounds(rounds)
         .with_population_sizes(population_sizes)

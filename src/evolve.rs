@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
-use crate::evolve_config::EvolveConfig;
+use crate::evolve_builder::EvolveBuilder;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
@@ -33,8 +33,8 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     Evolve<G, M, F, S, C>
 {
-    pub fn builder() -> EvolveConfig<G, M, F, S, C> {
-        EvolveConfig::new()
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C> {
+        EvolveBuilder::new()
     }
 
     pub fn call<R: Rng>(mut self, rng: &mut R) -> Self {
@@ -173,11 +173,11 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
-    From<EvolveConfig<G, M, F, S, C>> for Evolve<G, M, F, S, C>
+    From<EvolveBuilder<G, M, F, S, C>> for Evolve<G, M, F, S, C>
 {
-    fn from(config: EvolveConfig<G, M, F, S, C>) -> Self {
+    fn from(config: EvolveBuilder<G, M, F, S, C>) -> Self {
         if !config.is_valid() {
-            panic!("Cannot build Evolve from invalid EvolveConfig")
+            panic!("Cannot build Evolve from invalid EvolveBuilder")
         }
         Self {
             genotype: config.genotype.unwrap(),

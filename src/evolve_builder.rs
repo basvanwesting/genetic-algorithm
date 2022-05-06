@@ -7,7 +7,7 @@ use crate::mutate::Mutate;
 use std::ops::Range;
 
 #[derive(Clone, Debug)]
-pub struct EvolveConfig<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+pub struct EvolveBuilder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 {
     pub genotype: Option<G>,
     pub population_size: usize,
@@ -22,7 +22,7 @@ pub struct EvolveConfig<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Cro
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
-    EvolveConfig<G, M, F, S, C>
+    EvolveBuilder<G, M, F, S, C>
 {
     pub fn new() -> Self {
         Self::default()
@@ -109,7 +109,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Default
-    for EvolveConfig<G, M, F, S, C>
+    for EvolveBuilder<G, M, F, S, C>
 {
     fn default() -> Self {
         Self {

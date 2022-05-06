@@ -35,7 +35,7 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
         };
         let fitness_ordering = self
             .config
-            .evolve_config
+            .evolve_builder
             .clone()
             .map(|c| c.fitness_ordering)
             .unwrap();
@@ -63,32 +63,32 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> fmt::Display for Permutate<'a, G
             writeln!(f, "inner-{}", inner_permutate)?;
 
             if let Some(best_chromosome) = &inner_permutate.best_chromosome {
-                let best_evolve_config = self.config.evolve_config_for_chromosome(best_chromosome);
+                let best_evolve_builder = self.config.evolve_builder_for_chromosome(best_chromosome);
 
                 writeln!(f, "meta-permutate:")?;
                 writeln!(
                     f,
                     "  best_population_size: {:?}",
-                    best_evolve_config.population_size
+                    best_evolve_builder.population_size
                 )?;
                 writeln!(
                     f,
                     "  best_max_stale_generations: {:?}",
-                    best_evolve_config.max_stale_generations
+                    best_evolve_builder.max_stale_generations
                 )?;
                 writeln!(
                     f,
                     "  best_target_fitness_score: {:?}",
-                    best_evolve_config.target_fitness_score
+                    best_evolve_builder.target_fitness_score
                 )?;
                 writeln!(
                     f,
                     "  best_degeneration_range: {:?}",
-                    best_evolve_config.degeneration_range
+                    best_evolve_builder.degeneration_range
                 )?;
-                writeln!(f, "  best_mutate: {:?}", best_evolve_config.mutate)?;
-                writeln!(f, "  best_crossover: {:?}", best_evolve_config.crossover)?;
-                writeln!(f, "  best_compete: {:?}", best_evolve_config.compete)
+                writeln!(f, "  best_mutate: {:?}", best_evolve_builder.mutate)?;
+                writeln!(f, "  best_crossover: {:?}", best_evolve_builder.crossover)?;
+                writeln!(f, "  best_compete: {:?}", best_evolve_builder.compete)
             } else {
                 write!(f, "meta-permutate: no best chromosome")
             }

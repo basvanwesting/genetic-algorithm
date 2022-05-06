@@ -3,13 +3,13 @@ use crate::genotype::PermutableGenotype;
 use crate::permutate::Permutate;
 
 #[derive(Clone, Debug)]
-pub struct PermutateConfig<G: PermutableGenotype, F: Fitness<Genotype = G>> {
+pub struct PermutateBuilder<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     pub genotype: Option<G>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> PermutateConfig<G, F> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> PermutateBuilder<G, F> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -36,7 +36,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> PermutateConfig<G, F> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default for PermutateConfig<G, F> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default for PermutateBuilder<G, F> {
     fn default() -> Self {
         Self {
             genotype: None,

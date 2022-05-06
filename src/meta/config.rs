@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
-use crate::evolve_config::EvolveConfig;
+use crate::evolve_builder::EvolveBuilder;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiIndexGenotype};
 use crate::mutate::MutateDispatch;
@@ -9,8 +9,8 @@ use std::ops::Range;
 
 #[derive(Clone, Debug)]
 pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
-    pub evolve_config:
-        Option<EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>>,
+    pub evolve_builder:
+        Option<EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>>,
     pub evolve_fitness_to_micro_second_factor: FitnessValue,
     pub rounds: usize,
     pub population_sizes: Vec<usize>,
@@ -27,11 +27,11 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
         Self::default()
     }
 
-    pub fn with_evolve_config(
+    pub fn with_evolve_builder(
         mut self,
-        evolve_config: EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>,
+        evolve_builder: EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>,
     ) -> Self {
-        self.evolve_config = Some(evolve_config);
+        self.evolve_builder = Some(evolve_builder);
         self
     }
     pub fn with_rounds(mut self, rounds: usize) -> Self {
@@ -86,9 +86,9 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     // TODO: remove clones for genotype/fitness check
     pub fn is_valid(&self) -> bool {
         self.rounds > 0
-            && self.evolve_config.is_some()
-            && self.evolve_config.clone().map(|c| c.genotype).is_some()
-            && self.evolve_config.clone().map(|c| c.fitness).is_some()
+            && self.evolve_builder.is_some()
+            && self.evolve_builder.clone().map(|c| c.genotype).is_some()
+            && self.evolve_builder.clone().map(|c| c.fitness).is_some()
             && !self.population_sizes.is_empty()
             && !self.max_stale_generations_options.is_empty()
             && !self.target_fitness_score_options.is_empty()
@@ -99,13 +99,13 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     }
 
     // order matters so keep close to build_genotype
-    pub fn evolve_config_for_chromosome(
+    pub fn evolve_builder_for_chromosome(
         &self,
         chromosome: &Chromosome<MultiIndexGenotype>,
-    ) -> EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch> {
+    ) -> EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch> {
         let genes = &chromosome.genes;
 
-        self.evolve_config
+        self.evolve_builder
             .clone()
             .unwrap()
             .with_population_size(self.population_sizes[genes[0]])
@@ -117,7 +117,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
             .with_compete(self.competes[genes[6]].clone())
     }
 
-    // order matters so keep close to evolve_config_for_chromosome
+    // order matters so keep close to evolve_builder_for_chromosome
     pub fn build_genotype(&self) -> MultiIndexGenotype {
         MultiIndexGenotype::new()
             .with_gene_value_sizes(vec![
@@ -136,7 +136,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
 impl<G: Genotype, F: Fitness<Genotype = G>> Default for Config<G, F> {
     fn default() -> Self {
         Self {
-            evolve_config: None,
+            evolve_builder: None,
             evolve_fitness_to_micro_second_factor: 1_000_000,
             rounds: 0,
             population_sizes: vec![],

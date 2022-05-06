@@ -4,7 +4,7 @@ mod support;
 mod meta_tests {
     use genetic_algorithm::compete::{CompeteDispatch, Competes};
     use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
-    use genetic_algorithm::evolve_config::EvolveConfig;
+    use genetic_algorithm::evolve_builder::EvolveBuilder;
     use genetic_algorithm::fitness::FitnessSimpleCount;
     use genetic_algorithm::genotype::BinaryGenotype;
     use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
@@ -33,13 +33,13 @@ mod meta_tests {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
         let fitness = FitnessSimpleCount;
 
-        let evolve_config = EvolveConfig::new()
+        let evolve_builder = EvolveBuilder::new()
             .with_genotype(genotype)
             .with_fitness(fitness);
         let evolve_fitness_to_micro_second_factor = 1_000_000;
 
         let config = MetaConfig::new()
-            .with_evolve_config(evolve_config)
+            .with_evolve_builder(evolve_builder)
             .with_evolve_fitness_to_micro_second_factor(evolve_fitness_to_micro_second_factor)
             .with_rounds(rounds)
             .with_population_sizes(population_sizes)

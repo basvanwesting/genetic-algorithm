@@ -16,7 +16,7 @@ mod evolve_tests {
     use genetic_algorithm::mutate::MutateOnce;
 
     #[test]
-    #[should_panic(expected = "Cannot build Evolve from invalid EvolveConfig")]
+    #[should_panic(expected = "Cannot build Evolve from invalid EvolveBuilder")]
     fn call_invalid() {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
         let _evolve = Evolve::builder()
