@@ -1,6 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
+use crate::evolve_config::EvolveConfig;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
@@ -18,16 +19,18 @@ pub struct Evolve<
     R: Rng,
 > {
     pub genotype: G,
+    pub mutate: M,
+    pub fitness: F,
+    pub crossover: S,
+    pub compete: C,
     pub rng: R,
+
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub degeneration_range: Option<Range<f32>>,
-    pub mutate: Option<M>,
-    pub fitness: Option<F>,
-    pub crossover: Option<S>,
-    pub compete: Option<C>,
+
     pub current_generation: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<G>>,
@@ -38,114 +41,15 @@ pub struct Evolve<
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng>
     Evolve<G, M, F, S, C, R>
 {
-    pub fn new(genotype: G, rng: R) -> Self {
-        Self {
-            genotype,
-            rng,
-            population_size: 0,
-            max_stale_generations: None,
-            target_fitness_score: None,
-            fitness_ordering: FitnessOrdering::Maximize,
-            degeneration_range: None,
-            mutate: None,
-            fitness: None,
-            crossover: None,
-            compete: None,
-            current_generation: 0,
-            best_generation: 0,
-            best_chromosome: None,
-            population: Population::new_empty(),
-            degenerate: false,
-        }
+    pub fn builder() -> EvolveConfig<G, M, F, S, C, R> {
+        EvolveConfig::new()
     }
 
-    pub fn with_population_size(mut self, population_size: usize) -> Self {
-        self.population_size = population_size;
-        self
-    }
-    pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
-        self.max_stale_generations = Some(max_stale_generations);
-        self
-    }
-    pub fn with_max_stale_generations_option(
-        mut self,
-        max_stale_generations_option: Option<usize>,
-    ) -> Self {
-        self.max_stale_generations = max_stale_generations_option;
-        self
-    }
-    pub fn with_target_fitness_score(mut self, target_fitness_score: FitnessValue) -> Self {
-        self.target_fitness_score = Some(target_fitness_score);
-        self
-    }
-    pub fn with_target_fitness_score_option(
-        mut self,
-        target_fitness_score_option: Option<FitnessValue>,
-    ) -> Self {
-        self.target_fitness_score = target_fitness_score_option;
-        self
-    }
-    pub fn with_fitness_ordering(mut self, fitness_ordering: FitnessOrdering) -> Self {
-        self.fitness_ordering = fitness_ordering;
-        self
-    }
-    pub fn with_degeneration_range(mut self, degeneration_range: Range<f32>) -> Self {
-        if degeneration_range.is_empty() {
-            self.degeneration_range = None;
-        } else {
-            self.degeneration_range = Some(degeneration_range);
-        }
-        self
-    }
-    pub fn with_degeneration_range_option(
-        mut self,
-        degeneration_range_option: Option<Range<f32>>,
-    ) -> Self {
-        self.degeneration_range = degeneration_range_option;
-        self
-    }
-    pub fn with_mutate(mut self, mutate: M) -> Self {
-        self.mutate = Some(mutate);
-        self
-    }
-    pub fn with_fitness(mut self, fitness: F) -> Self {
-        self.fitness = Some(fitness);
-        self
-    }
-    pub fn with_crossover(mut self, crossover: S) -> Self {
-        self.crossover = Some(crossover);
-        self
-    }
-    pub fn with_compete(mut self, compete: C) -> Self {
-        self.compete = Some(compete);
-        self
-    }
-
-    pub fn with_rng(mut self, rng: R) -> Self {
-        self.rng = rng;
-        self
-    }
-
-    pub fn is_valid(&self) -> bool {
-        (self.max_stale_generations.is_some() || self.target_fitness_score.is_some())
-            && self.mutate.is_some()
-            && self.fitness.is_some()
-            && self.crossover.is_some()
-            && self.compete.is_some()
-    }
-
-    pub fn call(self) -> Self {
-        if !self.is_valid() {
-            return self;
-        }
-        self.execute()
-    }
-
-    fn execute(mut self) -> Self {
-        let mutate = self.mutate.as_ref().cloned().unwrap();
-        let mut fitness = self.fitness.as_ref().cloned().unwrap();
-        let crossover = self.crossover.as_ref().cloned().unwrap();
-        let compete = self.compete.as_ref().cloned().unwrap();
+    pub fn call(mut self) -> Self {
+        //let mutate = self.mutate.as_ref().cloned().unwrap();
+        //let mut fitness = self.fitness.as_ref().cloned().unwrap();
+        //let crossover = self.crossover.as_ref().cloned().unwrap();
+        //let compete = self.compete.as_ref().cloned().unwrap();
 
         self.degenerate = false;
         self.current_generation = 0;
@@ -158,13 +62,19 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 
         while !self.is_finished() {
             if self.toggle_degenerate() {
-                self.population = mutate.call(&self.genotype, self.population, &mut self.rng);
-                self.population = fitness.call_for_population(self.population);
+                self.population = self
+                    .mutate
+                    .call(&self.genotype, self.population, &mut self.rng);
+                self.population = self.fitness.call_for_population(self.population);
             } else {
-                self.population = crossover.call(&self.genotype, self.population, &mut self.rng);
-                self.population = mutate.call(&self.genotype, self.population, &mut self.rng);
-                self.population = fitness.call_for_population(self.population);
-                self.population = compete.call(
+                self.population =
+                    self.crossover
+                        .call(&self.genotype, self.population, &mut self.rng);
+                self.population = self
+                    .mutate
+                    .call(&self.genotype, self.population, &mut self.rng);
+                self.population = self.fitness.call_for_population(self.population);
+                self.population = self.compete.call(
                     self.population,
                     self.fitness_ordering,
                     self.population_size,
@@ -286,10 +196,47 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng>
+    From<EvolveConfig<G, M, F, S, C, R>> for Evolve<G, M, F, S, C, R>
+{
+    fn from(config: EvolveConfig<G, M, F, S, C, R>) -> Self {
+        if !config.is_valid() {
+            panic!("Cannot build Evolve from invalid EvolveConfig")
+        }
+        Self {
+            genotype: config.genotype.unwrap(),
+            mutate: config.mutate.unwrap(),
+            fitness: config.fitness.unwrap(),
+            crossover: config.crossover.unwrap(),
+            compete: config.compete.unwrap(),
+            rng: config.rng.unwrap(),
+
+            population_size: config.population_size,
+            max_stale_generations: config.max_stale_generations,
+            target_fitness_score: config.target_fitness_score,
+            fitness_ordering: config.fitness_ordering,
+            degeneration_range: config.degeneration_range,
+
+            current_generation: 0,
+            best_generation: 0,
+            best_chromosome: None,
+            population: Population::new_empty(),
+            degenerate: false,
+        }
+    }
+}
+
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, R: Rng>
     fmt::Display for Evolve<G, M, F, S, C, R>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve:")?;
+        writeln!(f, "  genotype: {:?}", self.genotype)?;
+        writeln!(f, "  mutate: {:?}", self.mutate)?;
+        writeln!(f, "  fitness: {:?}", self.fitness)?;
+        writeln!(f, "  crossover: {:?}", self.crossover)?;
+        writeln!(f, "  compete: {:?}", self.compete)?;
+        //writeln!(f, "  rng: {:?}", self.rng)?;
+
         writeln!(f, "  population_size: {}", self.population_size)?;
         writeln!(
             f,
@@ -297,11 +244,9 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             self.max_stale_generations
         )?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
+        writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  degeneration_range: {:?}", self.degeneration_range)?;
-        writeln!(f, "  mutate: {:?}", self.mutate.as_ref())?;
-        writeln!(f, "  fitness: {:?}", self.fitness.as_ref())?;
-        writeln!(f, "  crossover: {:?}", self.crossover.as_ref())?;
-        writeln!(f, "  compete: {:?}", self.compete.as_ref())?;
+
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
         writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())

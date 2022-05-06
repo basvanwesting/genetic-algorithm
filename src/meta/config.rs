@@ -1,15 +1,16 @@
 use crate::chromosome::Chromosome;
 use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
+use crate::evolve_config::EvolveConfig;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiIndexGenotype};
-use crate::meta::MetaEvolveConfig;
 use crate::mutate::MutateDispatch;
+use rand::Rng;
 use std::ops::Range;
 
 #[derive(Clone, Debug)]
-pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
-    pub evolve_config: MetaEvolveConfig<G, F>,
+pub struct Config<G: Genotype, F: Fitness<Genotype = G>, R: Rng> {
+    pub evolve_config: EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch, R>,
     pub rounds: usize,
     pub population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
@@ -20,9 +21,9 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub competes: Vec<CompeteDispatch>,
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
+impl<G: Genotype, F: Fitness<Genotype = G>, R: Rng> Config<G, F, R> {
     pub fn new(
-        evolve_config: MetaEvolveConfig<G, F>,
+        evolve_config: EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch, R>,
         rounds: usize,
         population_sizes: Vec<usize>,
         max_stale_generations_options: Vec<Option<usize>>,
@@ -60,7 +61,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     pub fn evolve_config_for_chromosome(
         &self,
         chromosome: &Chromosome<MultiIndexGenotype>,
-    ) -> MetaEvolveConfig<G, F> {
+    ) -> EvolveConfig<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch, R> {
         let genes = &chromosome.genes;
 
         let mut evolve_config = self.evolve_config.clone();
