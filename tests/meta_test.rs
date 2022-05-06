@@ -38,7 +38,7 @@ mod meta_tests {
             .with_fitness(fitness);
         let evolve_fitness_to_micro_second_factor = 1_000_000;
 
-        let config = MetaConfig::new()
+        let config = MetaConfig::builder()
             .with_evolve_builder(evolve_builder)
             .with_evolve_fitness_to_micro_second_factor(evolve_fitness_to_micro_second_factor)
             .with_rounds(rounds)
@@ -48,7 +48,8 @@ mod meta_tests {
             .with_degeneration_range_options(degeneration_range_options)
             .with_mutates(mutates)
             .with_crossovers(crossovers)
-            .with_competes(competes);
+            .with_competes(competes)
+            .build();
 
         let permutate = MetaPermutate::new(&config).call();
 

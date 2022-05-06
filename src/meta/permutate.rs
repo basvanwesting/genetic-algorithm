@@ -17,28 +17,12 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
         }
     }
 
-    pub fn is_valid(&self) -> bool {
-        self.config.is_valid()
-    }
-
-    pub fn call(self) -> Self {
-        if !self.is_valid() {
-            return self;
-        }
-        self.execute()
-    }
-
-    pub fn execute(mut self) -> Self {
+    pub fn call(mut self) -> Self {
         let genotype = self.config.build_genotype();
         let fitness = MetaFitness {
             config: self.config,
         };
-        let fitness_ordering = self
-            .config
-            .evolve_builder
-            .clone()
-            .map(|c| c.fitness_ordering)
-            .unwrap();
+        let fitness_ordering = self.config.evolve_builder.fitness_ordering;
 
         println!(
             "meta-permutate population_size: {}",
@@ -63,7 +47,8 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> fmt::Display for Permutate<'a, G
             writeln!(f, "inner-{}", inner_permutate)?;
 
             if let Some(best_chromosome) = &inner_permutate.best_chromosome {
-                let best_evolve_builder = self.config.evolve_builder_for_chromosome(best_chromosome);
+                let best_evolve_builder =
+                    self.config.evolve_builder_for_chromosome(best_chromosome);
 
                 writeln!(f, "meta-permutate:")?;
                 writeln!(

@@ -2,14 +2,15 @@ use crate::chromosome::Chromosome;
 use crate::fitness;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::{Genotype, MultiIndexGenotype};
-use crate::meta::{MetaConfig, MetaStats};
+use crate::meta::config::Config;
+use crate::meta::stats::Stats;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use std::time::Instant;
 
 #[derive(Clone, Debug)]
 pub struct Fitness<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> {
-    pub config: &'a MetaConfig<G, F>,
+    pub config: &'a Config<G, F>,
 }
 impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fitness<'a, G, F> {
     type Genotype = MultiIndexGenotype;
@@ -18,7 +19,7 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let evolve_builder = self.config.evolve_builder_for_chromosome(chromosome);
-        let mut stats = MetaStats::new();
+        let mut stats = Stats::new();
         let mut rng = SmallRng::from_entropy();
 
         for _ in 0..self.config.rounds {

@@ -42,15 +42,15 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> From<PermutateBuilder<G, F>>
     for Permutate<G, F>
 {
-    fn from(config: PermutateBuilder<G, F>) -> Self {
-        if !config.is_valid() {
+    fn from(builder: PermutateBuilder<G, F>) -> Self {
+        if !builder.is_valid() {
             panic!("Cannot build Permutate from invalid PermutateBuilder")
         }
         Self {
-            genotype: config.genotype.unwrap(),
-            fitness: config.fitness.unwrap(),
+            genotype: builder.genotype.unwrap(),
+            fitness: builder.fitness.unwrap(),
 
-            fitness_ordering: config.fitness_ordering,
+            fitness_ordering: builder.fitness_ordering,
 
             best_chromosome: None,
             population: Population::new_empty(),

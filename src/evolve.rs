@@ -175,22 +175,22 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     From<EvolveBuilder<G, M, F, S, C>> for Evolve<G, M, F, S, C>
 {
-    fn from(config: EvolveBuilder<G, M, F, S, C>) -> Self {
-        if !config.is_valid() {
+    fn from(builder: EvolveBuilder<G, M, F, S, C>) -> Self {
+        if !builder.is_valid() {
             panic!("Cannot build Evolve from invalid EvolveBuilder")
         }
         Self {
-            genotype: config.genotype.unwrap(),
-            mutate: config.mutate.unwrap(),
-            fitness: config.fitness.unwrap(),
-            crossover: config.crossover.unwrap(),
-            compete: config.compete.unwrap(),
+            genotype: builder.genotype.unwrap(),
+            mutate: builder.mutate.unwrap(),
+            fitness: builder.fitness.unwrap(),
+            crossover: builder.crossover.unwrap(),
+            compete: builder.compete.unwrap(),
 
-            population_size: config.population_size,
-            max_stale_generations: config.max_stale_generations,
-            target_fitness_score: config.target_fitness_score,
-            fitness_ordering: config.fitness_ordering,
-            degeneration_range: config.degeneration_range,
+            population_size: builder.population_size,
+            max_stale_generations: builder.max_stale_generations,
+            target_fitness_score: builder.target_fitness_score,
+            fitness_ordering: builder.fitness_ordering,
+            degeneration_range: builder.degeneration_range,
 
             current_generation: 0,
             best_generation: 0,

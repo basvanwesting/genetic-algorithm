@@ -106,6 +106,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             && self.crossover.is_some()
             && self.compete.is_some()
     }
+
+    pub fn is_valid_for_meta(&self) -> bool {
+        self.genotype.is_some() && self.fitness.is_some()
+    }
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Default
