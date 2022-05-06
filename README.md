@@ -57,3 +57,4 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Add optional offset to IndexGenotype and UniqueIndexGenotype?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
+* Let builders use try_into with Result type
