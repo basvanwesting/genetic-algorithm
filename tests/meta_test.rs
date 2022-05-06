@@ -38,18 +38,17 @@ mod meta_tests {
             .with_fitness(fitness);
         let evolve_fitness_to_micro_second_factor = 1_000_000;
 
-        let config = MetaConfig::new(
-            evolve_config,
-            evolve_fitness_to_micro_second_factor,
-            rounds,
-            population_sizes,
-            max_stale_generations_options,
-            target_fitness_score_options,
-            degeneration_range_options,
-            mutates,
-            crossovers,
-            competes,
-        );
+        let config = MetaConfig::new()
+            .with_evolve_config(evolve_config)
+            .with_evolve_fitness_to_micro_second_factor(evolve_fitness_to_micro_second_factor)
+            .with_rounds(rounds)
+            .with_population_sizes(population_sizes)
+            .with_max_stale_generations_options(max_stale_generations_options)
+            .with_target_fitness_score_options(target_fitness_score_options)
+            .with_degeneration_range_options(degeneration_range_options)
+            .with_mutates(mutates)
+            .with_crossovers(crossovers)
+            .with_competes(competes);
 
         let permutate = MetaPermutate::new(&config).call();
 

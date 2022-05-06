@@ -33,6 +33,12 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
         let fitness = MetaFitness {
             config: self.config,
         };
+        let fitness_ordering = self
+            .config
+            .evolve_config
+            .clone()
+            .map(|c| c.fitness_ordering)
+            .unwrap();
 
         println!(
             "meta-permutate population_size: {}",
@@ -42,7 +48,7 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
         let permutate = permutate::Permutate::builder()
             .with_genotype(genotype)
             .with_fitness(fitness)
-            .with_fitness_ordering(self.config.evolve_config.fitness_ordering)
+            .with_fitness_ordering(fitness_ordering)
             .build()
             .call();
 
