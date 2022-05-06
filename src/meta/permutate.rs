@@ -39,9 +39,11 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
             genotype.population_factory_size()
         );
 
-        let permutate = permutate::Permutate::new(genotype)
+        let permutate = permutate::Permutate::builder()
+            .with_genotype(genotype)
             .with_fitness(fitness)
             .with_fitness_ordering(self.config.evolve_config.fitness_ordering)
+            .build()
             .call();
 
         self.inner_permutate = Some(permutate);

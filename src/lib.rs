@@ -9,4 +9,5 @@ pub mod genotype;
 pub mod meta;
 pub mod mutate;
 pub mod permutate;
+pub mod permutate_config;
 pub mod population;

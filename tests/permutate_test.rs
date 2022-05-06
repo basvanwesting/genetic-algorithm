@@ -14,8 +14,10 @@ mod permutate_tests {
     fn call_binary_maximize() {
         let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
-        let permutate = Permutate::new(genotype)
+        let permutate = Permutate::builder()
+            .with_genotype(genotype)
             .with_fitness(FitnessSimpleCount)
+            .build()
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
@@ -32,9 +34,11 @@ mod permutate_tests {
     fn call_binary_minimize() {
         let genotype = BinaryGenotype::new().with_gene_size(5).build();
 
-        let permutate = Permutate::new(genotype)
+        let permutate = Permutate::builder()
+            .with_genotype(genotype)
             .with_fitness_ordering(FitnessOrdering::Minimize)
             .with_fitness(FitnessSimpleCount)
+            .build()
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
@@ -54,8 +58,10 @@ mod permutate_tests {
             .with_gene_value_size(10)
             .build();
 
-        let permutate = Permutate::new(genotype)
+        let permutate = Permutate::builder()
+            .with_genotype(genotype)
             .with_fitness(FitnessSimpleSumIndexGenotype)
+            .build()
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
@@ -71,8 +77,10 @@ mod permutate_tests {
             .with_gene_value_sizes(vec![5, 2, 1, 4])
             .build();
 
-        let permutate = Permutate::new(genotype)
+        let permutate = Permutate::builder()
+            .with_genotype(genotype)
             .with_fitness(FitnessSimpleSumMultiIndexGenotype)
+            .build()
             .call();
 
         let best_chromosome = permutate.best_chromosome.unwrap();

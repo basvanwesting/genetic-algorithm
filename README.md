@@ -57,6 +57,4 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Add optional offset and scale to ContinuousGenotype?
 * Add optional offset to IndexGenotype and UniqueIndexGenotype?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
-* Add factor parameter between best_fitness_score_mean and duration_mean_subsec_micros in meta/fitness
 * Make fitness/simple_sum generic
-* Add fitness_ordering to meta

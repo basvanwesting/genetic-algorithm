@@ -1,4 +1,4 @@
-use genetic_algorithm::fitness::FitnessSimpleCount;
+use genetic_algorithm::fitness::{FitnessOrdering, FitnessSimpleCount};
 use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::permutate::Permutate;
 
@@ -7,8 +7,11 @@ fn main() {
 
     println!("{}", genotype);
 
-    let permutate = Permutate::new(genotype)
+    let permutate = Permutate::builder()
+        .with_genotype(genotype)
         .with_fitness(FitnessSimpleCount)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .build()
         .call();
 
     println!("{}", permutate);

@@ -19,8 +19,10 @@ criterion_main!(benches);
 fn run() {
     let genotype = BinaryGenotype::new().with_gene_size(16).build();
 
-    let permutate = Permutate::new(genotype)
+    let permutate = Permutate::builder()
+        .with_genotype(genotype)
         .with_fitness(FitnessSimpleCount)
+        .build()
         .call();
 
     println!("{}", permutate);
