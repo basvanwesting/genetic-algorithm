@@ -7,7 +7,7 @@ use crate::mutate::Mutate;
 use std::ops::Range;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromEvolveBuilderError;
+pub struct TryFromEvolveBuilderError(pub &'static str);
 
 #[derive(Clone, Debug)]
 pub struct EvolveBuilder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
@@ -99,19 +99,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     pub fn with_compete(mut self, compete: C) -> Self {
         self.compete = Some(compete);
         self
-    }
-
-    pub fn is_valid(&self) -> bool {
-        (self.max_stale_generations.is_some() || self.target_fitness_score.is_some())
-            && self.genotype.is_some()
-            && self.mutate.is_some()
-            && self.fitness.is_some()
-            && self.crossover.is_some()
-            && self.compete.is_some()
-    }
-
-    pub fn is_valid_for_meta(&self) -> bool {
-        self.genotype.is_some() && self.fitness.is_some()
     }
 }
 

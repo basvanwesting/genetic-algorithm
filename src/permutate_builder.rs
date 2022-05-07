@@ -3,7 +3,7 @@ use crate::genotype::PermutableGenotype;
 use crate::permutate::Permutate;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromPermutateBuilderError;
+pub struct TryFromPermutateBuilderError(pub &'static str);
 
 #[derive(Clone, Debug)]
 pub struct PermutateBuilder<G: PermutableGenotype, F: Fitness<Genotype = G>> {
@@ -32,10 +32,6 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> PermutateBuilder<G, F> {
     pub fn with_fitness(mut self, fitness: F) -> Self {
         self.fitness = Some(fitness);
         self
-    }
-
-    pub fn is_valid(&self) -> bool {
-        self.genotype.is_some() && self.fitness.is_some()
     }
 }
 

@@ -178,8 +178,23 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     type Error = TryFromEvolveBuilderError;
 
     fn try_from(builder: EvolveBuilder<G, M, F, S, C>) -> Result<Self, Self::Error> {
-        if !builder.is_valid() {
-            Err(TryFromEvolveBuilderError)
+        if builder.genotype.is_none() {
+            Err(TryFromEvolveBuilderError("Require a Genotype"))
+        } else if builder.fitness.is_none() {
+            Err(TryFromEvolveBuilderError("Require a Fitness"))
+        } else if builder.mutate.is_none() {
+            Err(TryFromEvolveBuilderError("Require a Mutate strategy"))
+        } else if builder.crossover.is_none() {
+            Err(TryFromEvolveBuilderError("Require a Crossover strategy"))
+        } else if builder.compete.is_none() {
+            Err(TryFromEvolveBuilderError("Require a Compete strategy"))
+        } else if !(builder.population_size > 0) {
+            Err(TryFromEvolveBuilderError("Require a population_size > 0"))
+        } else if builder.max_stale_generations.is_none() && builder.target_fitness_score.is_none()
+        {
+            Err(TryFromEvolveBuilderError(
+                "Require at least a max_stale_generations or target_fitness_score ending condition",
+            ))
         } else {
             Ok(Self {
                 genotype: builder.genotype.unwrap(),

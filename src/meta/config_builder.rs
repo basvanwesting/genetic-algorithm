@@ -8,7 +8,7 @@ use crate::mutate::MutateDispatch;
 use std::ops::Range;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromConfigBuilderError;
+pub struct TryFromConfigBuilderError(pub &'static str);
 
 #[derive(Clone, Debug)]
 pub struct ConfigBuilder<G: Genotype, F: Fitness<Genotype = G>> {
@@ -89,20 +89,6 @@ impl<G: Genotype, F: Fitness<Genotype = G>> ConfigBuilder<G, F> {
         self.competes = competes;
         self
     }
-
-    // TODO: remove clone for is_valid_for_meta check
-    pub fn is_valid(&self) -> bool {
-        self.rounds > 0
-            && self.evolve_builder.is_some()
-            && self.evolve_builder.clone().unwrap().is_valid_for_meta()
-            && !self.population_sizes.is_empty()
-            && !self.max_stale_generations_options.is_empty()
-            && !self.target_fitness_score_options.is_empty()
-            && !self.degeneration_range_options.is_empty()
-            && !self.mutates.is_empty()
-            && !self.crossovers.is_empty()
-            && !self.competes.is_empty()
-    }
 }
 
 impl<G: Genotype, F: Fitness<Genotype = G>> Default for ConfigBuilder<G, F> {
@@ -112,9 +98,9 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Default for ConfigBuilder<G, F> {
             evolve_fitness_to_micro_second_factor: 1_000_000,
             rounds: 0,
             population_sizes: vec![],
-            max_stale_generations_options: vec![],
-            target_fitness_score_options: vec![],
-            degeneration_range_options: vec![],
+            max_stale_generations_options: vec![None],
+            target_fitness_score_options: vec![None],
+            degeneration_range_options: vec![None],
             mutates: vec![],
             crossovers: vec![],
             competes: vec![],

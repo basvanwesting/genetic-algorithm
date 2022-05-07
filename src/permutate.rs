@@ -45,8 +45,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> TryFrom<PermutateBuilder<G
     type Error = TryFromPermutateBuilderError;
 
     fn try_from(builder: PermutateBuilder<G, F>) -> Result<Self, Self::Error> {
-        if !builder.is_valid() {
-            Err(TryFromPermutateBuilderError)
+        if builder.genotype.is_none() {
+            Err(TryFromPermutateBuilderError("Require a Genotype"))
+        } else if builder.fitness.is_none() {
+            Err(TryFromPermutateBuilderError("Require a Fitness"))
         } else {
             Ok(Self {
                 genotype: builder.genotype.unwrap(),

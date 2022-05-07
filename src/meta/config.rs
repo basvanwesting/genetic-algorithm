@@ -65,8 +65,58 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
     type Error = TryFromConfigBuilderError;
 
     fn try_from(builder: ConfigBuilder<G, F>) -> Result<Self, Self::Error> {
-        if !builder.is_valid() {
-            Err(TryFromConfigBuilderError)
+        if builder.evolve_builder.is_none() {
+            Err(TryFromConfigBuilderError("Missing EvolveBuilder"))
+        } else if builder
+            .evolve_builder
+            .as_ref()
+            .map(|e| e.genotype.is_none())
+            .unwrap()
+        {
+            Err(TryFromConfigBuilderError(
+                "EvolveBuilder requires a Genotype",
+            ))
+        } else if builder
+            .evolve_builder
+            .as_ref()
+            .map(|e| e.fitness.is_none())
+            .unwrap()
+        {
+            Err(TryFromConfigBuilderError(
+                "EvolveBuilder requires a Fitness",
+            ))
+        } else if builder.population_sizes.is_empty() {
+            Err(TryFromConfigBuilderError(
+                "Require at least one population_size",
+            ))
+        } else if builder
+            .max_stale_generations_options
+            .iter()
+            .all(|o| o.is_none())
+            && builder
+                .target_fitness_score_options
+                .iter()
+                .all(|o| o.is_none())
+        {
+            Err(TryFromConfigBuilderError(
+                "Require at least one max_stale_generations_option or target_fitness_score_option that is not None",
+            ))
+        } else if builder.degeneration_range_options.is_empty() {
+            Err(TryFromConfigBuilderError(
+                "Require at least one degeneration_range_option, None is allowed",
+            ))
+        } else if builder.mutates.is_empty() {
+            Err(TryFromConfigBuilderError(
+                "Require at least one Mutate strategy",
+            ))
+        } else if builder.crossovers.is_empty() {
+            Err(TryFromConfigBuilderError(
+                "Require at least one Crossover strategy",
+            ))
+        } else if builder.competes.is_empty() {
+            Err(TryFromConfigBuilderError(
+                "Require at least one Compete strategy",
+            ))
         } else {
             Ok(Self {
                 evolve_builder: builder.evolve_builder.unwrap(),

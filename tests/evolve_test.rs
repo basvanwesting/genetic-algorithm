@@ -29,7 +29,12 @@ mod evolve_tests {
             .build();
 
         assert!(evolve.is_err());
-        assert_eq!(evolve.err(), Some(TryFromEvolveBuilderError));
+        assert_eq!(
+            evolve.err(),
+            Some(TryFromEvolveBuilderError(
+                "Require at least a max_stale_generations or target_fitness_score ending condition"
+            ))
+        );
     }
 
     #[test]
