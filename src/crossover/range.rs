@@ -14,9 +14,6 @@ impl Crossover for Range {
         mut population: Population<T>,
         rng: &mut R,
     ) -> Population<T> {
-        if genotype.is_unique() {
-            panic!("Cannot use Crossover::Range for unique genotype");
-        }
         if population.size() < 2 {
             return population;
         }

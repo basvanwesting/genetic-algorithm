@@ -9,6 +9,10 @@ pub trait Crossover: Clone + std::fmt::Debug {
         population: Population<T>,
         rng: &mut R,
     ) -> Population<T>;
+
+    fn allow_unique_genotype(&self) -> bool {
+        false
+    }
 }
 
 #[derive(Clone, Debug)]
@@ -31,9 +35,7 @@ impl Crossover for CrossoverDispatch {
     ) -> Population<T> {
         let keep_parent = self.1;
         match self.0 {
-            Crossovers::Single => {
-                CrossoverSingle(keep_parent).call(genotype, population, rng)
-            }
+            Crossovers::Single => CrossoverSingle(keep_parent).call(genotype, population, rng),
             Crossovers::All => CrossoverAll(keep_parent).call(genotype, population, rng),
             Crossovers::Range => CrossoverRange(keep_parent).call(genotype, population, rng),
             Crossovers::Clone => CrossoverClone(keep_parent).call(genotype, population, rng),

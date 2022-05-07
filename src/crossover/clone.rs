@@ -20,4 +20,8 @@ impl Crossover for Clone {
             population
         }
     }
+
+    fn allow_unique_genotype(&self) -> bool {
+        true
+    }
 }

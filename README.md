@@ -57,4 +57,3 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Add optional offset to IndexGenotype and UniqueIndexGenotype?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
-* Check Crossover v. Genotype.is_unique() invalid combinations in EvolveBuilder.is_valid()

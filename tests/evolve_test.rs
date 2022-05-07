@@ -10,14 +10,15 @@ mod evolve_tests {
     use genetic_algorithm::fitness::{
         FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumContinuousGenotype,
         FitnessSimpleSumIndexGenotype, FitnessSimpleSumMultiIndexGenotype,
+        FitnessSimpleSumUniqueIndexGenotype,
     };
     use genetic_algorithm::genotype::{
-        BinaryGenotype, ContinuousGenotype, IndexGenotype, MultiIndexGenotype,
+        BinaryGenotype, ContinuousGenotype, IndexGenotype, MultiIndexGenotype, UniqueIndexGenotype,
     };
     use genetic_algorithm::mutate::MutateOnce;
 
     #[test]
-    fn build_invalid() {
+    fn build_invalid_missing_ending_condition() {
         let genotype = BinaryGenotype::new().with_gene_size(10).build();
         let evolve = Evolve::builder()
             .with_genotype(genotype)
@@ -33,6 +34,27 @@ mod evolve_tests {
             evolve.err(),
             Some(TryFromEvolveBuilderError(
                 "Require at least a max_stale_generations or target_fitness_score ending condition"
+            ))
+        );
+    }
+
+    #[test]
+    fn build_invalid_incompatible_genotype_and_crossover() {
+        let genotype = UniqueIndexGenotype::new().with_gene_value_size(10).build();
+        let evolve = Evolve::builder()
+            .with_genotype(genotype)
+            .with_population_size(100)
+            .with_mutate(MutateOnce(0.1))
+            .with_fitness(FitnessSimpleSumUniqueIndexGenotype)
+            .with_crossover(CrossoverSingle(true))
+            .with_compete(CompeteTournament(4))
+            .build();
+
+        assert!(evolve.is_err());
+        assert_eq!(
+            evolve.err(),
+            Some(TryFromEvolveBuilderError(
+                "The provided Crossover strategy does not allow for the provided unique Genotype"
             ))
         );
     }
