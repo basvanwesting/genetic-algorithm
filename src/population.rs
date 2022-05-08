@@ -3,7 +3,7 @@ use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
 use stats::stddev;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Population<T: Genotype> {
     pub chromosomes: Vec<Chromosome<T>>,
 }
@@ -48,14 +48,5 @@ impl<T: Genotype> Population<T> {
             .iter()
             .filter(|c| c.fitness_score.is_some())
             .count()
-    }
-}
-
-// manually implement Clone, because derive requires Genotype to be Clone as well
-impl<T: Genotype> Clone for Population<T> {
-    fn clone(&self) -> Population<T> {
-        Self {
-            chromosomes: self.chromosomes.clone(),
-        }
     }
 }
