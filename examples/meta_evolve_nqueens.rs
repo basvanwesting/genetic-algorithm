@@ -1,7 +1,7 @@
 use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
-use genetic_algorithm::evolve_builder::EvolveBuilder;
+use genetic_algorithm::evolve::EvolveBuilder;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use genetic_algorithm::genotype::{Genotype, UniqueIndexGenotype};
 use genetic_algorithm::meta::{MetaConfig, MetaPermutate};

@@ -5,8 +5,7 @@ mod evolve_tests {
     use crate::support::*;
     use genetic_algorithm::compete::CompeteTournament;
     use genetic_algorithm::crossover::CrossoverSingle;
-    use genetic_algorithm::evolve::Evolve;
-    use genetic_algorithm::evolve_builder::TryFromEvolveBuilderError;
+    use genetic_algorithm::evolve::{Evolve, TryFromEvolveBuilderError};
     use genetic_algorithm::fitness::{
         FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumContinuousGenotype,
         FitnessSimpleSumIndexGenotype, FitnessSimpleSumMultiIndexGenotype,
@@ -37,7 +36,7 @@ mod evolve_tests {
         assert_eq!(
             evolve.err(),
             Some(TryFromEvolveBuilderError(
-                "Require at least a max_stale_generations or target_fitness_score ending condition"
+                "Evolve requires at least a max_stale_generations or target_fitness_score ending condition"
             ))
         );
     }

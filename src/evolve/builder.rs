@@ -7,11 +7,10 @@ use crate::mutate::Mutate;
 use std::ops::Range;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromEvolveBuilderError(pub &'static str);
+pub struct TryFromBuilderError(pub &'static str);
 
 #[derive(Clone, Debug)]
-pub struct EvolveBuilder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
-{
+pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> {
     pub genotype: Option<G>,
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
@@ -25,13 +24,13 @@ pub struct EvolveBuilder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Cr
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
-    EvolveBuilder<G, M, F, S, C>
+    Builder<G, M, F, S, C>
 {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn build(self) -> Result<Evolve<G, M, F, S, C>, TryFromEvolveBuilderError> {
+    pub fn build(self) -> Result<Evolve<G, M, F, S, C>, TryFromBuilderError> {
         self.try_into()
     }
 
@@ -103,7 +102,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Default
-    for EvolveBuilder<G, M, F, S, C>
+    for Builder<G, M, F, S, C>
 {
     fn default() -> Self {
         Self {

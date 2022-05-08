@@ -1,6 +1,6 @@
 use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
-use genetic_algorithm::evolve_builder::EvolveBuilder;
+use genetic_algorithm::evolve::EvolveBuilder;
 use genetic_algorithm::fitness::{FitnessOrdering, FitnessSimpleCount};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::meta::{MetaConfig, MetaPermutate};

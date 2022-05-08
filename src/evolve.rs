@@ -1,7 +1,11 @@
+mod builder;
+
+pub use self::builder::{
+    Builder as EvolveBuilder, TryFromBuilderError as TryFromEvolveBuilderError,
+};
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
-use crate::evolve_builder::{EvolveBuilder, TryFromEvolveBuilderError};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
@@ -179,15 +183,21 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 
     fn try_from(builder: EvolveBuilder<G, M, F, S, C>) -> Result<Self, Self::Error> {
         if builder.genotype.is_none() {
-            Err(TryFromEvolveBuilderError("Require a Genotype"))
+            Err(TryFromEvolveBuilderError("Evolve requires a Genotype"))
         } else if builder.fitness.is_none() {
-            Err(TryFromEvolveBuilderError("Require a Fitness"))
+            Err(TryFromEvolveBuilderError("Evolve requires a Fitness"))
         } else if builder.mutate.is_none() {
-            Err(TryFromEvolveBuilderError("Require a Mutate strategy"))
+            Err(TryFromEvolveBuilderError(
+                "Evolve requires a Mutate strategy",
+            ))
         } else if builder.crossover.is_none() {
-            Err(TryFromEvolveBuilderError("Require a Crossover strategy"))
+            Err(TryFromEvolveBuilderError(
+                "Evolve requires a Crossover strategy",
+            ))
         } else if builder.compete.is_none() {
-            Err(TryFromEvolveBuilderError("Require a Compete strategy"))
+            Err(TryFromEvolveBuilderError(
+                "Evolve requires a Compete strategy",
+            ))
         } else if builder.genotype.as_ref().map(|o| o.is_unique()).unwrap()
             && !builder
                 .crossover
@@ -199,11 +209,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 "The provided Crossover strategy does not allow for the provided unique Genotype",
             ))
         } else if !(builder.population_size > 0) {
-            Err(TryFromEvolveBuilderError("Require a population_size > 0"))
+            Err(TryFromEvolveBuilderError(
+                "Evolve requires a population_size > 0",
+            ))
         } else if builder.max_stale_generations.is_none() && builder.target_fitness_score.is_none()
         {
             Err(TryFromEvolveBuilderError(
-                "Require at least a max_stale_generations or target_fitness_score ending condition",
+                "Evolve requires at least a max_stale_generations or target_fitness_score ending condition",
             ))
         } else {
             Ok(Self {

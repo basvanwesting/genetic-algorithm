@@ -1,6 +1,6 @@
 use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
-use crate::evolve_builder::EvolveBuilder;
+use crate::evolve::EvolveBuilder;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::Genotype;
 use crate::meta::config::Config;
