@@ -7,7 +7,9 @@ mod permutate_tests {
         FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumIndexGenotype,
         FitnessSimpleSumMultiIndexGenotype,
     };
-    use genetic_algorithm::genotype::{BinaryGenotype, IndexGenotype, MultiIndexGenotype};
+    use genetic_algorithm::genotype::{
+        BinaryGenotype, Genotype, IndexGenotype, MultiIndexGenotype,
+    };
     use genetic_algorithm::permutate::Permutate;
 
     //#[test]
@@ -15,7 +17,7 @@ mod permutate_tests {
 
     #[test]
     fn call_binary_maximize() {
-        let genotype = BinaryGenotype::new().with_gene_size(5).build();
+        let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
@@ -36,7 +38,7 @@ mod permutate_tests {
 
     #[test]
     fn call_binary_minimize() {
-        let genotype = BinaryGenotype::new().with_gene_size(5).build();
+        let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
@@ -58,10 +60,11 @@ mod permutate_tests {
 
     #[test]
     fn call_index() {
-        let genotype = IndexGenotype::new()
+        let genotype = IndexGenotype::builder()
             .with_gene_size(5)
             .with_gene_value_size(10)
-            .build();
+            .build()
+            .unwrap();
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
@@ -79,9 +82,10 @@ mod permutate_tests {
 
     #[test]
     fn call_multi_index() {
-        let genotype = MultiIndexGenotype::new()
+        let genotype = MultiIndexGenotype::builder()
             .with_gene_value_sizes(vec![5, 2, 1, 4])
-            .build();
+            .build()
+            .unwrap();
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)

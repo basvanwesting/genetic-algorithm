@@ -1,3 +1,4 @@
+use super::builder::{Builder, TryFromGenotypeBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::Gene;
@@ -14,27 +15,17 @@ pub struct UniqueDiscrete<T: Gene> {
     gene_index_sampler: Uniform<usize>,
 }
 
-impl<T: Gene> UniqueDiscrete<T> {
-    pub fn new() -> Self {
-        Self::default()
-    }
+impl<T: Gene> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
+    type Error = TryFromGenotypeBuilderError;
 
-    pub fn with_gene_values(mut self, gene_values: Vec<T>) -> Self {
-        self.gene_values = gene_values;
-        self
-    }
-
-    pub fn build(mut self) -> Self {
-        self.gene_index_sampler = Uniform::from(0..self.gene_values.len());
-        self
-    }
-}
-
-impl<T: Gene> Default for UniqueDiscrete<T> {
-    fn default() -> Self {
-        Self {
-            gene_values: vec![],
-            gene_index_sampler: Uniform::from(0..=0),
+    fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
+        if builder.gene_values.is_empty() {
+            Err(TryFromGenotypeBuilderError("Require a gene_values"))
+        } else {
+            Ok(Self {
+                gene_values: builder.gene_values.clone(),
+                gene_index_sampler: Uniform::from(0..builder.gene_values.len()),
+            })
         }
     }
 }

@@ -1,11 +1,11 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::crossover::{Crossover, CrossoverSingle};
-use genetic_algorithm::genotype::BinaryGenotype;
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 
 #[test]
 fn population_even() {
-    let genotype = BinaryGenotype::new().with_gene_size(5).build();
+    let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
     let population = build::population(vec![
         vec![true, true, true, true, true],
@@ -30,7 +30,7 @@ fn population_even() {
 
 #[test]
 fn population_odd() {
-    let genotype = BinaryGenotype::new().with_gene_size(5).build();
+    let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
     let population = build::population(vec![
         vec![true, true, true, true, true],
@@ -56,7 +56,7 @@ fn population_odd() {
 
 #[test]
 fn population_size_one() {
-    let genotype = BinaryGenotype::new().with_gene_size(5).build();
+    let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
     let population = build::population(vec![vec![true, false, true, false, true]]);
 

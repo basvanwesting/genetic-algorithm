@@ -1,3 +1,4 @@
+use super::builder::{Builder, TryFromGenotypeBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::BinaryGene;
@@ -12,29 +13,18 @@ pub struct Binary {
     gene_value_sampler: Bernoulli,
 }
 
-impl Binary {
-    pub fn new() -> Self {
-        Self::default()
-    }
+impl TryFrom<Builder<Self>> for Binary {
+    type Error = TryFromGenotypeBuilderError;
 
-    pub fn with_gene_size(mut self, gene_size: usize) -> Self {
-        self.gene_size = gene_size;
-        self
-    }
-
-    pub fn build(mut self) -> Self {
-        self.gene_index_sampler = Uniform::from(0..self.gene_size);
-        self.gene_value_sampler = Bernoulli::new(0.5).unwrap();
-        self
-    }
-}
-
-impl Default for Binary {
-    fn default() -> Self {
-        Self {
-            gene_size: 0,
-            gene_index_sampler: Uniform::from(0..=0),
-            gene_value_sampler: Bernoulli::new(0.0).unwrap(),
+    fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
+        if builder.gene_size.is_none() {
+            Err(TryFromGenotypeBuilderError("Require gene_size"))
+        } else {
+            Ok(Self {
+                gene_size: builder.gene_size.unwrap(),
+                gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
+                gene_value_sampler: Bernoulli::new(0.5).unwrap(),
+            })
         }
     }
 }

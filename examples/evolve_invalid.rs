@@ -2,11 +2,14 @@ use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverSingle;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::FitnessSimpleCount;
-use genetic_algorithm::genotype::BinaryGenotype;
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::mutate::MutateOnce;
 
 fn main() {
-    let genotype = BinaryGenotype::new().with_gene_size(100).build();
+    let genotype = BinaryGenotype::builder()
+        .with_gene_size(100)
+        .build()
+        .unwrap();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_population_size(1000)

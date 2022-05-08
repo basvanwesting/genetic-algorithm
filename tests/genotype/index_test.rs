@@ -5,10 +5,11 @@ use genetic_algorithm::genotype::{Genotype, IndexGenotype, PermutableGenotype};
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = IndexGenotype::new()
+    let genotype = IndexGenotype::builder()
         .with_gene_size(10)
         .with_gene_value_size(5)
-        .build();
+        .build()
+        .unwrap();
 
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(

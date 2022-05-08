@@ -5,13 +5,16 @@ use itertools::Itertools;
 use rand::prelude::*;
 use std::fmt;
 
-pub trait Genotype: Clone + fmt::Debug + fmt::Display {
+pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>> {
     type Gene: Gene;
     fn gene_size(&self) -> usize;
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
     fn is_unique(&self) -> bool {
         false
+    }
+    fn builder() -> GenotypeBuilder<Self> {
+        GenotypeBuilder::<Self>::default()
     }
 }
 
@@ -32,6 +35,9 @@ pub trait PermutableGenotype: Genotype {
         self.gene_values().len().pow(self.gene_size() as u32)
     }
 }
+
+mod builder;
+pub use self::builder::Builder as GenotypeBuilder;
 
 mod binary;
 pub use self::binary::Binary as BinaryGenotype;

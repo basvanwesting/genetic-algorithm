@@ -5,9 +5,10 @@ use genetic_algorithm::genotype::{Genotype, PermutableGenotype, UniqueDiscreteGe
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = UniqueDiscreteGenotype::new()
+    let genotype = UniqueDiscreteGenotype::builder()
         .with_gene_values(vec![5, 2, 3, 4])
-        .build();
+        .build()
+        .unwrap();
 
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 2, 3]);

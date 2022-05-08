@@ -4,7 +4,7 @@ use genetic_algorithm::crossover::CrossoverAll;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::{Fitness, FitnessValue};
 use genetic_algorithm::gene::Gene;
-use genetic_algorithm::genotype::DiscreteGenotype;
+use genetic_algorithm::genotype::{DiscreteGenotype, Genotype};
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -33,10 +33,11 @@ impl Fitness for MyGeneFitness {
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = DiscreteGenotype::<MyGene>::new()
+    let genotype = DiscreteGenotype::<MyGene>::builder()
         .with_gene_size(100)
         .with_gene_values(vec![MyGene(1, 2), MyGene(3, 4), MyGene(5, 6), MyGene(7, 8)])
-        .build();
+        .build()
+        .unwrap();
 
     println!("{}", genotype);
 

@@ -2,17 +2,18 @@ use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverAll;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::FitnessSimpleSumIndexGenotype;
-use genetic_algorithm::genotype::IndexGenotype;
+use genetic_algorithm::genotype::{Genotype, IndexGenotype};
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = IndexGenotype::new()
+    let genotype = IndexGenotype::builder()
         .with_gene_size(100)
         .with_gene_value_size(5)
-        .build();
+        .build()
+        .unwrap();
 
     println!("{}", genotype);
 

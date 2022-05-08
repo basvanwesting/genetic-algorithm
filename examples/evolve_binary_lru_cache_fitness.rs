@@ -3,7 +3,7 @@ use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::{Fitness, FitnessValue};
-use genetic_algorithm::genotype::BinaryGenotype;
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::mutate::MutateOnce;
 use lru::LruCache;
 use rand::prelude::*;
@@ -75,7 +75,10 @@ impl Clone for CachedExpensiveCount {
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = BinaryGenotype::new().with_gene_size(100).build();
+    let genotype = BinaryGenotype::builder()
+        .with_gene_size(100)
+        .build()
+        .unwrap();
 
     println!("{}", genotype);
 

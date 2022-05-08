@@ -1,3 +1,4 @@
+use super::builder::{Builder, TryFromGenotypeBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::IndexGene;
@@ -15,35 +16,23 @@ pub struct MultiIndex {
     gene_value_samplers: Vec<Uniform<IndexGene>>,
 }
 
-impl MultiIndex {
-    pub fn new() -> Self {
-        Self::default()
-    }
+impl TryFrom<Builder<Self>> for MultiIndex {
+    type Error = TryFromGenotypeBuilderError;
 
-    pub fn with_gene_value_sizes(mut self, gene_value_sizes: Vec<IndexGene>) -> Self {
-        self.gene_value_sizes = gene_value_sizes;
-        self
-    }
-
-    pub fn build(mut self) -> Self {
-        self.gene_size = self.gene_value_sizes.len();
-        self.gene_index_sampler = WeightedIndex::new(self.gene_value_sizes.clone()).unwrap();
-        self.gene_value_samplers = self
-            .gene_value_sizes
-            .iter()
-            .map(|gene_value_size| Uniform::from(0..*gene_value_size))
-            .collect();
-        self
-    }
-}
-
-impl Default for MultiIndex {
-    fn default() -> Self {
-        Self {
-            gene_size: 0,
-            gene_value_sizes: vec![],
-            gene_index_sampler: WeightedIndex::new(vec![1]).unwrap(),
-            gene_value_samplers: vec![],
+    fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
+        if builder.gene_value_sizes.is_empty() {
+            Err(TryFromGenotypeBuilderError("Require gene_value_sizes"))
+        } else {
+            Ok(Self {
+                gene_size: builder.gene_value_sizes.len(),
+                gene_value_sizes: builder.gene_value_sizes.clone(),
+                gene_index_sampler: WeightedIndex::new(builder.gene_value_sizes.clone()).unwrap(),
+                gene_value_samplers: builder
+                    .gene_value_sizes
+                    .iter()
+                    .map(|gene_value_size| Uniform::from(0..*gene_value_size))
+                    .collect(),
+            })
         }
     }
 }

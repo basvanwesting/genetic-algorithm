@@ -1,11 +1,11 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{BinaryGenotype, IndexGenotype};
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype, IndexGenotype};
 use genetic_algorithm::mutate::{Mutate, MutateOnce};
 
 #[test]
 fn binary_genotype() {
-    let genotype = BinaryGenotype::new().with_gene_size(3).build();
+    let genotype = BinaryGenotype::builder().with_gene_size(3).build().unwrap();
 
     let population = build::population(vec![
         vec![true, true, true],
@@ -30,10 +30,11 @@ fn binary_genotype() {
 
 #[test]
 fn index_genotype() {
-    let genotype = IndexGenotype::new()
+    let genotype = IndexGenotype::builder()
         .with_gene_size(3)
         .with_gene_value_size(4)
-        .build();
+        .build()
+        .unwrap();
 
     let population = build::population(vec![
         vec![0, 0, 0],

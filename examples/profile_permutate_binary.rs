@@ -2,7 +2,7 @@ use criterion::{criterion_group, criterion_main, Criterion};
 use pprof::criterion::{Output, PProfProfiler};
 
 use genetic_algorithm::fitness::FitnessSimpleCount;
-use genetic_algorithm::genotype::BinaryGenotype;
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::permutate::Permutate;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -17,7 +17,10 @@ criterion_group! {
 criterion_main!(benches);
 
 fn run() {
-    let genotype = BinaryGenotype::new().with_gene_size(16).build();
+    let genotype = BinaryGenotype::builder()
+        .with_gene_size(16)
+        .build()
+        .unwrap();
 
     let permutate = Permutate::builder()
         .with_genotype(genotype)

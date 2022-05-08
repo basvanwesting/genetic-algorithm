@@ -1,3 +1,4 @@
+use super::builder::{Builder, TryFromGenotypeBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::IndexGene;
@@ -13,35 +14,21 @@ pub struct Index {
     gene_value_sampler: Uniform<IndexGene>,
 }
 
-impl Index {
-    pub fn new() -> Self {
-        Self::default()
-    }
+impl TryFrom<Builder<Self>> for Index {
+    type Error = TryFromGenotypeBuilderError;
 
-    pub fn with_gene_size(mut self, gene_size: usize) -> Self {
-        self.gene_size = gene_size;
-        self
-    }
-
-    pub fn with_gene_value_size(mut self, gene_value_size: IndexGene) -> Self {
-        self.gene_value_size = gene_value_size;
-        self
-    }
-
-    pub fn build(mut self) -> Self {
-        self.gene_index_sampler = Uniform::from(0..self.gene_size);
-        self.gene_value_sampler = Uniform::from(0..self.gene_value_size);
-        self
-    }
-}
-
-impl Default for Index {
-    fn default() -> Self {
-        Self {
-            gene_size: 0,
-            gene_value_size: 0,
-            gene_index_sampler: Uniform::from(0..=0),
-            gene_value_sampler: Uniform::from(0..=0),
+    fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
+        if builder.gene_size.is_none() {
+            Err(TryFromGenotypeBuilderError("Require gene_size"))
+        } else if builder.gene_value_size.is_none() {
+            Err(TryFromGenotypeBuilderError("Require gene_value_size"))
+        } else {
+            Ok(Self {
+                gene_size: builder.gene_size.unwrap(),
+                gene_value_size: builder.gene_value_size.unwrap(),
+                gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
+                gene_value_sampler: Uniform::from(0..builder.gene_value_size.unwrap()),
+            })
         }
     }
 }

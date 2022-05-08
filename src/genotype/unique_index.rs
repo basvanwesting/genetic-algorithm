@@ -1,3 +1,4 @@
+use super::builder::{Builder, TryFromGenotypeBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::IndexGene;
@@ -14,27 +15,17 @@ pub struct UniqueIndex {
     gene_index_sampler: Uniform<usize>,
 }
 
-impl UniqueIndex {
-    pub fn new() -> Self {
-        Self::default()
-    }
+impl TryFrom<Builder<Self>> for UniqueIndex {
+    type Error = TryFromGenotypeBuilderError;
 
-    pub fn with_gene_value_size(mut self, gene_value_size: IndexGene) -> Self {
-        self.gene_value_size = gene_value_size;
-        self
-    }
-
-    pub fn build(mut self) -> Self {
-        self.gene_index_sampler = Uniform::from(0..self.gene_value_size);
-        self
-    }
-}
-
-impl Default for UniqueIndex {
-    fn default() -> Self {
-        Self {
-            gene_value_size: 0,
-            gene_index_sampler: Uniform::from(0..=0),
+    fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
+        if builder.gene_value_size.is_none() {
+            Err(TryFromGenotypeBuilderError("Require gene_value_size"))
+        } else {
+            Ok(Self {
+                gene_value_size: builder.gene_value_size.unwrap(),
+                gene_index_sampler: Uniform::from(0..builder.gene_value_size.unwrap()),
+            })
         }
     }
 }

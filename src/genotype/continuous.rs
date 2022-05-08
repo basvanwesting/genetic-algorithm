@@ -1,3 +1,4 @@
+use super::builder::{Builder, TryFromGenotypeBuilderError};
 use super::Genotype;
 use crate::chromosome::Chromosome;
 use crate::gene::ContinuousGene;
@@ -11,27 +12,17 @@ pub struct Continuous {
     gene_index_sampler: Uniform<usize>,
 }
 
-impl Continuous {
-    pub fn new() -> Self {
-        Self::default()
-    }
+impl TryFrom<Builder<Self>> for Continuous {
+    type Error = TryFromGenotypeBuilderError;
 
-    pub fn with_gene_size(mut self, gene_size: usize) -> Self {
-        self.gene_size = gene_size;
-        self
-    }
-
-    pub fn build(mut self) -> Self {
-        self.gene_index_sampler = Uniform::from(0..self.gene_size);
-        self
-    }
-}
-
-impl Default for Continuous {
-    fn default() -> Self {
-        Self {
-            gene_size: 0,
-            gene_index_sampler: Uniform::from(0..=0),
+    fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
+        if builder.gene_size.is_none() {
+            Err(TryFromGenotypeBuilderError("Require gene_size"))
+        } else {
+            Ok(Self {
+                gene_size: builder.gene_size.unwrap(),
+                gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
+            })
         }
     }
 }

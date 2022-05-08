@@ -47,7 +47,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
 
     // order matters so keep close to evolve_builder_for_chromosome
     pub fn build_genotype(&self) -> MultiIndexGenotype {
-        MultiIndexGenotype::new()
+        MultiIndexGenotype::builder()
             .with_gene_value_sizes(vec![
                 self.population_sizes.len(),
                 self.max_stale_generations_options.len(),
@@ -58,6 +58,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
                 self.competes.len(),
             ])
             .build()
+            .unwrap()
     }
 }
 

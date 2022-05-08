@@ -2,14 +2,17 @@ use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverAll;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::FitnessSimpleSumContinuousGenotype;
-use genetic_algorithm::genotype::ContinuousGenotype;
+use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = ContinuousGenotype::new().with_gene_size(100).build();
+    let genotype = ContinuousGenotype::builder()
+        .with_gene_size(100)
+        .build()
+        .unwrap();
 
     println!("{}", genotype);
 

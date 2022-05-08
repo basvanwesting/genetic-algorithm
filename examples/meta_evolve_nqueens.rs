@@ -3,7 +3,7 @@ use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
 use genetic_algorithm::evolve_builder::EvolveBuilder;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use genetic_algorithm::genotype::UniqueIndexGenotype;
+use genetic_algorithm::genotype::{Genotype, UniqueIndexGenotype};
 use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 
@@ -48,7 +48,10 @@ fn main() {
     ];
     let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
     let competes = vec![CompeteDispatch(Competes::Elite, 0)];
-    let genotype = UniqueIndexGenotype::new().with_gene_value_size(64).build();
+    let genotype = UniqueIndexGenotype::builder()
+        .with_gene_value_size(64)
+        .build()
+        .unwrap();
     let fitness = NQueensFitness;
 
     let evolve_builder = EvolveBuilder::new()

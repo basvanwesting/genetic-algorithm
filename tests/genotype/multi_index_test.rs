@@ -5,9 +5,10 @@ use genetic_algorithm::genotype::{Genotype, MultiIndexGenotype, PermutableGenoty
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = MultiIndexGenotype::new()
+    let genotype = MultiIndexGenotype::builder()
         .with_gene_value_sizes(vec![5, 2, 3, 4])
-        .build();
+        .build()
+        .unwrap();
 
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 1]);
@@ -21,9 +22,10 @@ fn general() {
 
 #[test]
 fn population_factory_size_one() {
-    let genotype = MultiIndexGenotype::new()
+    let genotype = MultiIndexGenotype::builder()
         .with_gene_value_sizes(vec![1])
-        .build();
+        .build()
+        .unwrap();
 
     assert_eq!(genotype.population_factory_size(), 1);
     assert_eq!(
@@ -34,9 +36,10 @@ fn population_factory_size_one() {
 
 #[test]
 fn population_factory_size_four() {
-    let genotype = MultiIndexGenotype::new()
+    let genotype = MultiIndexGenotype::builder()
         .with_gene_value_sizes(vec![1, 2, 3, 4])
-        .build();
+        .build()
+        .unwrap();
 
     assert_eq!(genotype.population_factory_size(), 24);
     assert_eq!(

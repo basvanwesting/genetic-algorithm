@@ -5,7 +5,10 @@ use genetic_algorithm::genotype::{BinaryGenotype, Genotype, PermutableGenotype};
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::new().with_gene_size(10).build();
+    let genotype = BinaryGenotype::builder()
+        .with_gene_size(10)
+        .build()
+        .unwrap();
 
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(
@@ -26,7 +29,7 @@ fn general() {
 
 #[test]
 fn population_factory_size_one() {
-    let genotype = BinaryGenotype::new().with_gene_size(1).build();
+    let genotype = BinaryGenotype::builder().with_gene_size(1).build().unwrap();
     let population = genotype.population_factory();
     println!("{:#?}", population);
 
@@ -39,7 +42,7 @@ fn population_factory_size_one() {
 
 #[test]
 fn population_factory_size_two() {
-    let genotype = BinaryGenotype::new().with_gene_size(2).build();
+    let genotype = BinaryGenotype::builder().with_gene_size(2).build().unwrap();
     let population = genotype.population_factory();
     println!("{:#?}", population);
 
@@ -57,7 +60,7 @@ fn population_factory_size_two() {
 
 #[test]
 fn population_factory_size_three() {
-    let genotype = BinaryGenotype::new().with_gene_size(3).build();
+    let genotype = BinaryGenotype::builder().with_gene_size(3).build().unwrap();
     let population = genotype.population_factory();
     println!("{:#?}", population);
 

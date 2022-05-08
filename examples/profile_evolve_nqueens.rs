@@ -6,7 +6,7 @@ use genetic_algorithm::compete::CompeteElite;
 use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use genetic_algorithm::genotype::UniqueIndexGenotype;
+use genetic_algorithm::genotype::{Genotype, UniqueIndexGenotype};
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -52,7 +52,10 @@ criterion_main!(benches);
 
 fn run() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = UniqueIndexGenotype::new().with_gene_value_size(64).build();
+    let genotype = UniqueIndexGenotype::builder()
+        .with_gene_value_size(64)
+        .build()
+        .unwrap();
 
     let evolve = Evolve::builder()
         .with_genotype(genotype)

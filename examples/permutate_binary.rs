@@ -1,9 +1,12 @@
 use genetic_algorithm::fitness::{FitnessOrdering, FitnessSimpleCount};
-use genetic_algorithm::genotype::BinaryGenotype;
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::permutate::Permutate;
 
 fn main() {
-    let genotype = BinaryGenotype::new().with_gene_size(16).build();
+    let genotype = BinaryGenotype::builder()
+        .with_gene_size(16)
+        .build()
+        .unwrap();
 
     println!("{}", genotype);
 

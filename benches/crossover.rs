@@ -10,7 +10,10 @@ use rand::rngs::SmallRng;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    let genotype = BinaryGenotype::new().with_gene_size(100).build();
+    let genotype = BinaryGenotype::builder()
+        .with_gene_size(100)
+        .build()
+        .unwrap();
 
     let chromosomes = (0..1000)
         .map(|_| genotype.chromosome_factory(&mut rng))

@@ -5,7 +5,10 @@ use genetic_algorithm::genotype::{Genotype, PermutableGenotype, UniqueIndexGenot
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = UniqueIndexGenotype::new().with_gene_value_size(5).build();
+    let genotype = UniqueIndexGenotype::builder()
+        .with_gene_value_size(5)
+        .build()
+        .unwrap();
 
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![3, 0, 1, 4, 2]);
@@ -20,7 +23,10 @@ fn general() {
 
 #[test]
 fn population_factory_size_three() {
-    let genotype = UniqueIndexGenotype::new().with_gene_value_size(3).build();
+    let genotype = UniqueIndexGenotype::builder()
+        .with_gene_value_size(3)
+        .build()
+        .unwrap();
     let population = genotype.population_factory();
     println!("{:#?}", population);
 
