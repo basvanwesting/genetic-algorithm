@@ -1,10 +1,15 @@
+mod builder;
+
+pub use self::builder::{
+    Builder as ConfigBuilder, TryFromBuilderError as TryFromConfigBuilderError,
+};
+
 use crate::chromosome::Chromosome;
 use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
 use crate::evolve::EvolveBuilder;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiIndexGenotype};
-use crate::meta::config_builder::{ConfigBuilder, TryFromConfigBuilderError};
 use crate::mutate::MutateDispatch;
 use std::ops::Range;
 
@@ -67,7 +72,9 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
 
     fn try_from(builder: ConfigBuilder<G, F>) -> Result<Self, Self::Error> {
         if builder.evolve_builder.is_none() {
-            Err(TryFromConfigBuilderError("Missing EvolveBuilder"))
+            Err(TryFromConfigBuilderError(
+                "MetaConfig requires an EvolveBuilder",
+            ))
         } else if builder
             .evolve_builder
             .as_ref()
@@ -75,7 +82,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
             .unwrap()
         {
             Err(TryFromConfigBuilderError(
-                "EvolveBuilder requires a Genotype",
+                "MetaConfig's EvolveBuilder requires a Genotype",
             ))
         } else if builder
             .evolve_builder
@@ -84,11 +91,11 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
             .unwrap()
         {
             Err(TryFromConfigBuilderError(
-                "EvolveBuilder requires a Fitness",
+                "MetaConfig's EvolveBuilder requires a Fitness",
             ))
         } else if builder.population_sizes.is_empty() {
             Err(TryFromConfigBuilderError(
-                "Require at least one population_size",
+                "MetaConfig requires at least one population_size",
             ))
         } else if builder
             .max_stale_generations_options
@@ -100,23 +107,23 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
                 .all(|o| o.is_none())
         {
             Err(TryFromConfigBuilderError(
-                "Require at least one max_stale_generations_option or target_fitness_score_option that is not None",
+                "MetaConfig requires at least one max_stale_generations_option or target_fitness_score_option that is not None",
             ))
         } else if builder.degeneration_range_options.is_empty() {
             Err(TryFromConfigBuilderError(
-                "Require at least one degeneration_range_option, None is allowed",
+                "MetaConfig requires at least one degeneration_range_option, None is allowed",
             ))
         } else if builder.mutates.is_empty() {
             Err(TryFromConfigBuilderError(
-                "Require at least one Mutate strategy",
+                "MetaConfig requires at least one Mutate strategy",
             ))
         } else if builder.crossovers.is_empty() {
             Err(TryFromConfigBuilderError(
-                "Require at least one Crossover strategy",
+                "MetaConfig requires at least one Crossover strategy",
             ))
         } else if builder.competes.is_empty() {
             Err(TryFromConfigBuilderError(
-                "Require at least one Compete strategy",
+                "MetaConfig requires at least one Compete strategy",
             ))
         } else {
             Ok(Self {

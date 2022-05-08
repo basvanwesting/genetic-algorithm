@@ -8,10 +8,10 @@ use crate::mutate::MutateDispatch;
 use std::ops::Range;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromConfigBuilderError(pub &'static str);
+pub struct TryFromBuilderError(pub &'static str);
 
 #[derive(Clone, Debug)]
-pub struct ConfigBuilder<G: Genotype, F: Fitness<Genotype = G>> {
+pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub evolve_builder:
         Option<EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>>,
     pub evolve_fitness_to_micro_second_factor: FitnessValue,
@@ -25,12 +25,12 @@ pub struct ConfigBuilder<G: Genotype, F: Fitness<Genotype = G>> {
     pub competes: Vec<CompeteDispatch>,
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> ConfigBuilder<G, F> {
+impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn build(self) -> Result<Config<G, F>, TryFromConfigBuilderError> {
+    pub fn build(self) -> Result<Config<G, F>, TryFromBuilderError> {
         self.try_into()
     }
 
@@ -91,7 +91,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> ConfigBuilder<G, F> {
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> Default for ConfigBuilder<G, F> {
+impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
     fn default() -> Self {
         Self {
             evolve_builder: None,
