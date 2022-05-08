@@ -7,7 +7,7 @@ use std::hash::{Hash, Hasher};
 
 pub type GenesKey = u64;
 
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Chromosome<T: Genotype> {
     pub genes: Vec<T::Gene>,
     pub fitness_score: Option<FitnessValue>,
@@ -36,16 +36,6 @@ impl<T: Genotype> Chromosome<T> {
 
     pub fn taint_fitness_score(&mut self) {
         self.fitness_score = None;
-    }
-}
-
-// manually implement Clone, because derive requires Genotype to be Clone as well
-impl<T: Genotype> Clone for Chromosome<T> {
-    fn clone(&self) -> Chromosome<T> {
-        Self {
-            genes: self.genes.clone(),
-            fitness_score: self.fitness_score,
-        }
     }
 }
 

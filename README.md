@@ -50,6 +50,7 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 `cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
 
 ## TODO
+* Reduce usage of clone
 * Setup prelude
 * Maybe seed best_chromosome back into population after degenerate?
 * Add optional offset and scale to ContinuousGenotype?
