@@ -1,7 +1,11 @@
+mod builder;
+
+pub use self::builder::{
+    Builder as PermutateBuilder, TryFromBuilderError as TryFromPermutateBuilderError,
+};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
-use crate::permutate_builder::{PermutateBuilder, TryFromPermutateBuilderError};
 use crate::population::Population;
 use std::fmt;
 
@@ -46,9 +50,11 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> TryFrom<PermutateBuilder<G
 
     fn try_from(builder: PermutateBuilder<G, F>) -> Result<Self, Self::Error> {
         if builder.genotype.is_none() {
-            Err(TryFromPermutateBuilderError("Require a Genotype"))
+            Err(TryFromPermutateBuilderError(
+                "Permutate requires a Genotype",
+            ))
         } else if builder.fitness.is_none() {
-            Err(TryFromPermutateBuilderError("Require a Fitness"))
+            Err(TryFromPermutateBuilderError("Permutate requires a Fitness"))
         } else {
             Ok(Self {
                 genotype: builder.genotype.unwrap(),

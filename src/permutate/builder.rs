@@ -3,21 +3,21 @@ use crate::genotype::PermutableGenotype;
 use crate::permutate::Permutate;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromPermutateBuilderError(pub &'static str);
+pub struct TryFromBuilderError(pub &'static str);
 
 #[derive(Clone, Debug)]
-pub struct PermutateBuilder<G: PermutableGenotype, F: Fitness<Genotype = G>> {
+pub struct Builder<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     pub genotype: Option<G>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> PermutateBuilder<G, F> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn build(self) -> Result<Permutate<G, F>, TryFromPermutateBuilderError> {
+    pub fn build(self) -> Result<Permutate<G, F>, TryFromBuilderError> {
         self.try_into()
     }
 
@@ -35,7 +35,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> PermutateBuilder<G, F> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default for PermutateBuilder<G, F> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
     fn default() -> Self {
         Self {
             genotype: None,
