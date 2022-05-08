@@ -43,15 +43,13 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         println!("  {}", stats);
 
         let mut score: FitnessValue = 0;
+        score += stats.best_fitness_score_mean() as FitnessValue
+            * self.config.evolve_fitness_to_micro_second_factor;
         match evolve_builder.fitness_ordering {
             FitnessOrdering::Maximize => {
-                score += stats.best_fitness_score_mean() as FitnessValue
-                    * self.config.evolve_fitness_to_micro_second_factor;
                 score -= stats.duration_mean_subsec_micros() as FitnessValue;
             }
             FitnessOrdering::Minimize => {
-                score += stats.best_fitness_score_mean() as FitnessValue
-                    * self.config.evolve_fitness_to_micro_second_factor;
                 score += stats.duration_mean_subsec_micros() as FitnessValue;
             }
         }
