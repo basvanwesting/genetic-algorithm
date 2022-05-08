@@ -1,4 +1,4 @@
-use super::builder::{Builder, TryFromGenotypeBuilderError};
+use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::BinaryGene;
@@ -14,11 +14,11 @@ pub struct Binary {
 }
 
 impl TryFrom<Builder<Self>> for Binary {
-    type Error = TryFromGenotypeBuilderError;
+    type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.gene_size.is_none() {
-            Err(TryFromGenotypeBuilderError("Require gene_size"))
+            Err(TryFromBuilderError("BinaryGenotype requires a gene_size"))
         } else {
             Ok(Self {
                 gene_size: builder.gene_size.unwrap(),

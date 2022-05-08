@@ -1,3 +1,12 @@
+mod simple_count;
+mod simple_sum;
+
+pub use self::simple_count::SimpleCount as FitnessSimpleCount;
+pub use self::simple_sum::SimpleSumContinuousGenotype as FitnessSimpleSumContinuousGenotype;
+pub use self::simple_sum::SimpleSumIndexGenotype as FitnessSimpleSumIndexGenotype;
+pub use self::simple_sum::SimpleSumMultiIndexGenotype as FitnessSimpleSumMultiIndexGenotype;
+pub use self::simple_sum::SimpleSumUniqueIndexGenotype as FitnessSimpleSumUniqueIndexGenotype;
+
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -28,12 +37,3 @@ pub trait Fitness: Clone + std::fmt::Debug {
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue>;
 }
-
-mod simple_count;
-pub use self::simple_count::SimpleCount as FitnessSimpleCount;
-
-mod simple_sum;
-pub use self::simple_sum::SimpleSumContinuousGenotype as FitnessSimpleSumContinuousGenotype;
-pub use self::simple_sum::SimpleSumIndexGenotype as FitnessSimpleSumIndexGenotype;
-pub use self::simple_sum::SimpleSumMultiIndexGenotype as FitnessSimpleSumMultiIndexGenotype;
-pub use self::simple_sum::SimpleSumUniqueIndexGenotype as FitnessSimpleSumUniqueIndexGenotype;

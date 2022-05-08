@@ -1,3 +1,9 @@
+mod elite;
+mod tournament;
+
+pub use self::elite::Elite as CompeteElite;
+pub use self::tournament::Tournament as CompeteTournament;
+
 use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -43,9 +49,3 @@ impl Compete for CompeteDispatch {
         }
     }
 }
-
-mod elite;
-pub use self::elite::Elite as CompeteElite;
-
-mod tournament;
-pub use self::tournament::Tournament as CompeteTournament;

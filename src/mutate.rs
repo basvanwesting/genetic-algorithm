@@ -1,3 +1,7 @@
+mod once;
+
+pub use self::once::Once as MutateOnce;
+
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::Rng;
@@ -31,6 +35,3 @@ impl Mutate for MutateDispatch {
         }
     }
 }
-
-mod once;
-pub use self::once::Once as MutateOnce;

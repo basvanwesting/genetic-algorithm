@@ -1,4 +1,4 @@
-use super::builder::{Builder, TryFromGenotypeBuilderError};
+use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use crate::gene::Gene;
@@ -16,11 +16,13 @@ pub struct UniqueDiscrete<T: Gene> {
 }
 
 impl<T: Gene> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
-    type Error = TryFromGenotypeBuilderError;
+    type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.gene_values.is_empty() {
-            Err(TryFromGenotypeBuilderError("Require a gene_values"))
+            Err(TryFromBuilderError(
+                "UniqueDiscreteGenotype requires non-empty gene_values",
+            ))
         } else {
             Ok(Self {
                 gene_values: builder.gene_values.clone(),

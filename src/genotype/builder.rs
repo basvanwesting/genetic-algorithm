@@ -1,7 +1,7 @@
 use super::Genotype;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromGenotypeBuilderError(pub &'static str);
+pub struct TryFromBuilderError(pub &'static str);
 
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {

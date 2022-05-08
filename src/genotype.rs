@@ -1,3 +1,23 @@
+mod binary;
+mod builder;
+mod continuous;
+mod discrete;
+mod index;
+mod multi_index;
+mod unique_discrete;
+mod unique_index;
+
+pub use self::binary::Binary as BinaryGenotype;
+pub use self::builder::{
+    Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
+};
+pub use self::continuous::Continuous as ContinuousGenotype;
+pub use self::discrete::Discrete as DiscreteGenotype;
+pub use self::index::Index as IndexGenotype;
+pub use self::multi_index::MultiIndex as MultiIndexGenotype;
+pub use self::unique_discrete::UniqueDiscrete as UniqueDiscreteGenotype;
+pub use self::unique_index::UniqueIndex as UniqueIndexGenotype;
+
 use crate::chromosome::Chromosome;
 use crate::gene::Gene;
 use crate::population::Population;
@@ -35,27 +55,3 @@ pub trait PermutableGenotype: Genotype {
         self.gene_values().len().pow(self.gene_size() as u32)
     }
 }
-
-mod builder;
-pub use self::builder::Builder as GenotypeBuilder;
-
-mod binary;
-pub use self::binary::Binary as BinaryGenotype;
-
-mod continuous;
-pub use self::continuous::Continuous as ContinuousGenotype;
-
-mod index;
-pub use self::index::Index as IndexGenotype;
-
-mod unique_index;
-pub use self::unique_index::UniqueIndex as UniqueIndexGenotype;
-
-mod multi_index;
-pub use self::multi_index::MultiIndex as MultiIndexGenotype;
-
-mod discrete;
-pub use self::discrete::Discrete as DiscreteGenotype;
-
-mod unique_discrete;
-pub use self::unique_discrete::UniqueDiscrete as UniqueDiscreteGenotype;

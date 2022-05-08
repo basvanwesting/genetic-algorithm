@@ -1,4 +1,4 @@
-use super::builder::{Builder, TryFromGenotypeBuilderError};
+use super::builder::{Builder, TryFromBuilderError};
 use super::Genotype;
 use crate::chromosome::Chromosome;
 use crate::gene::ContinuousGene;
@@ -13,11 +13,13 @@ pub struct Continuous {
 }
 
 impl TryFrom<Builder<Self>> for Continuous {
-    type Error = TryFromGenotypeBuilderError;
+    type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.gene_size.is_none() {
-            Err(TryFromGenotypeBuilderError("Require gene_size"))
+            Err(TryFromBuilderError(
+                "ContinuousGenotype requires a gene_size",
+            ))
         } else {
             Ok(Self {
                 gene_size: builder.gene_size.unwrap(),

@@ -1,3 +1,13 @@
+mod all;
+mod clone;
+mod range;
+mod single;
+
+pub use self::all::All as CrossoverAll;
+pub use self::clone::Clone as CrossoverClone;
+pub use self::range::Range as CrossoverRange;
+pub use self::single::Single as CrossoverSingle;
+
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::Rng;
@@ -42,15 +52,3 @@ impl Crossover for CrossoverDispatch {
         }
     }
 }
-
-mod single;
-pub use self::single::Single as CrossoverSingle;
-
-mod all;
-pub use self::all::All as CrossoverAll;
-
-mod range;
-pub use self::range::Range as CrossoverRange;
-
-mod clone;
-pub use self::clone::Clone as CrossoverClone;
