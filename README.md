@@ -18,7 +18,7 @@ Currently implemented as a permutation, but with caching an evolve strategy coul
 Implemented genotypes:
 
 * BinaryGenotype: list of true|false values with 50% chance, permutable. Initialize with only gene-size.
-* ContinuousGenotype: list of 0.0..1.0 values with uniform chance, with optional offset and scale, not-permutable. Initialize with only gene-size.
+* ContinuousGenotype: list of 0.0..1.0 values with uniform chance, not-permutable. Initialize with only gene-size.
 * IndexGenotype: list of 0..n with uniform chance, permutable. Initialize with gene-size and gene-value-size (= n).
 * UniqueIndexGenotype: list of 0..n with uniform chance, each index occurs exactly once, permutable. Initialize with only gene-value-size (= gene-size = n).
 * MultiIndexGenotype: list of 0..x, 0..y, 0..z, etc... where each gene has it's own index range with a weighted chance depending on the range size. Initialize with list of gene-value-sizes (= [x,y,x,etc...]).
@@ -52,9 +52,7 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 ## TODO
 * Setup prelude
 * Maybe seed best_chromosome back into population after degenerate?
-* Add optional offset and scale to ContinuousGenotype?
-* Add optional offset to IndexGenotype and UniqueIndexGenotype?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
 * Support genotypes with variable length (for knapsack problem). A Set type?
-* Either implement offset and scale fully, or add RangeGenotype back in
+* Add RangeGenotype back in

@@ -9,7 +9,6 @@ pub struct Builder<G: Genotype> {
     pub gene_value_size: Option<<G as Genotype>::Gene>,
     pub gene_value_sizes: Option<Vec<<G as Genotype>::Gene>>,
     pub gene_values: Option<Vec<<G as Genotype>::Gene>>,
-    pub gene_value_offset: Option<<G as Genotype>::Gene>,
     pub seed_genes: Option<Vec<<G as Genotype>::Gene>>,
 }
 
@@ -25,11 +24,6 @@ impl<G: Genotype> Builder<G> {
 
     pub fn with_gene_value_size(mut self, gene_value_size: <G as Genotype>::Gene) -> Self {
         self.gene_value_size = Some(gene_value_size);
-        self
-    }
-
-    pub fn with_gene_value_offset(mut self, gene_value_offset: <G as Genotype>::Gene) -> Self {
-        self.gene_value_offset = Some(gene_value_offset);
         self
     }
 
@@ -60,7 +54,6 @@ impl<G: Genotype> Default for Builder<G> {
             gene_value_size: None,
             gene_value_sizes: None,
             gene_values: None,
-            gene_value_offset: None,
             seed_genes: None,
         }
     }
