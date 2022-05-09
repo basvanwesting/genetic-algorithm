@@ -161,7 +161,7 @@ The Evolve strategy is build with the following options:
     * `with_degeneration_range(Range<F32>)`: When approacking a (local) optimum in the fitness score, the variation in the population goes down dramatically. This slows down the efficiency, but also has the risk of local optimum lock-in. Set this parameter to simulate a cambrian explosion, where there is only mutation until the population diversity is large enough again.
          The controlling metric is fitness score standard deviation in the population. The degeneration has a hysteresis switch, where the degeneration is activated at the start bound of the range, and deactivated at the end bound of the range.
          A typical value is `(0.005..0.995)`
-* Used in context of meta, see [Heterogeneous Genotypes and Meta performance analysis][] below for more context:
+* Used in context of meta, see [Heterogeneous Genotypes and Meta performance analysis]() below for more context:
     * `with_max_stale_generations_option`: the max_stale_generations value wrapped in an option to allow for a `None` value next to `Some(usize)` values.
     * `with_target_fitness_score_option`: the target_fitness_score value wrapped in an option to allow for a `None` value next to `Some(FitnessValue)` values.
     * `with_degeneration_range_option`: the degeneration_range value wrapped in an option to allow for a `None` value next to `Some(Range<F32>)` values.
