@@ -2,7 +2,7 @@ mod support;
 
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, IndexGenotype};
+use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, DiscreteGenotype};
 
 #[test]
 fn chromosome_binary() {
@@ -15,8 +15,8 @@ fn chromosome_binary() {
 }
 
 #[test]
-fn chromosome_index() {
-    let chromosome = build::chromosome::<IndexGenotype>(vec![3, 4, 5, 6]);
+fn chromosome_discrete() {
+    let chromosome = build::chromosome::<DiscreteGenotype<u8>>(vec![3, 4, 5, 6]);
     println!("{:#?}", chromosome);
     assert_eq!(inspect::chromosome(&chromosome), vec![3, 4, 5, 6]);
 }

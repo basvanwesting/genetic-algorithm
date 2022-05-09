@@ -3,9 +3,9 @@ mod simple_sum;
 
 pub use self::simple_count::SimpleCount as FitnessSimpleCount;
 pub use self::simple_sum::SimpleSumContinuousGenotype as FitnessSimpleSumContinuousGenotype;
-pub use self::simple_sum::SimpleSumIndexGenotype as FitnessSimpleSumIndexGenotype;
-pub use self::simple_sum::SimpleSumMultiIndexGenotype as FitnessSimpleSumMultiIndexGenotype;
-pub use self::simple_sum::SimpleSumUniqueIndexGenotype as FitnessSimpleSumUniqueIndexGenotype;
+pub use self::simple_sum::SimpleSumDiscreteGenotype as FitnessSimpleSumDiscreteGenotype;
+pub use self::simple_sum::SimpleSumMultiDiscreteGenotype as FitnessSimpleSumMultiDiscreteGenotype;
+pub use self::simple_sum::SimpleSumUniqueDiscreteGenotype as FitnessSimpleSumUniqueDiscreteGenotype;
 
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;

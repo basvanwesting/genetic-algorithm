@@ -1,21 +1,21 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::fitness::{
-    Fitness, FitnessSimpleSumContinuousGenotype, FitnessSimpleSumIndexGenotype,
+    Fitness, FitnessSimpleSumContinuousGenotype, FitnessSimpleSumDiscreteGenotype,
 };
-use genetic_algorithm::genotype::{ContinuousGenotype, IndexGenotype};
+use genetic_algorithm::genotype::{ContinuousGenotype, DiscreteGenotype};
 
 #[test]
-fn index_genotype() {
-    let chromosome = build::chromosome::<IndexGenotype>(vec![0, 1, 2, 3]);
+fn discrete_genotype() {
+    let chromosome = build::chromosome::<DiscreteGenotype<usize>>(vec![0, 1, 2, 3]);
     assert_eq!(
-        FitnessSimpleSumIndexGenotype.call_for_chromosome(&chromosome),
+        FitnessSimpleSumDiscreteGenotype.call_for_chromosome(&chromosome),
         Some(6)
     );
 
-    let chromosome = build::chromosome::<IndexGenotype>(vec![0, 0, 0, 0]);
+    let chromosome = build::chromosome::<DiscreteGenotype<usize>>(vec![0, 0, 0, 0]);
     assert_eq!(
-        FitnessSimpleSumIndexGenotype.call_for_chromosome(&chromosome),
+        FitnessSimpleSumDiscreteGenotype.call_for_chromosome(&chromosome),
         Some(0)
     );
 }

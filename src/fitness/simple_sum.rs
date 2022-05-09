@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{
-    ContinuousGenotype, Genotype, IndexGenotype, MultiIndexGenotype, UniqueIndexGenotype,
+    ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype, UniqueDiscreteGenotype,
 };
 
 #[derive(Clone, Debug)]
@@ -22,9 +22,9 @@ impl Fitness for SimpleSumContinuousGenotype {
 }
 
 #[derive(Clone, Debug)]
-pub struct SimpleSumIndexGenotype;
-impl Fitness for SimpleSumIndexGenotype {
-    type Genotype = IndexGenotype;
+pub struct SimpleSumDiscreteGenotype;
+impl Fitness for SimpleSumDiscreteGenotype {
+    type Genotype = DiscreteGenotype<usize>;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -39,9 +39,9 @@ impl Fitness for SimpleSumIndexGenotype {
 }
 
 #[derive(Clone, Debug)]
-pub struct SimpleSumUniqueIndexGenotype;
-impl Fitness for SimpleSumUniqueIndexGenotype {
-    type Genotype = UniqueIndexGenotype;
+pub struct SimpleSumUniqueDiscreteGenotype;
+impl Fitness for SimpleSumUniqueDiscreteGenotype {
+    type Genotype = UniqueDiscreteGenotype<usize>;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -56,9 +56,9 @@ impl Fitness for SimpleSumUniqueIndexGenotype {
 }
 
 #[derive(Clone, Debug)]
-pub struct SimpleSumMultiIndexGenotype;
-impl Fitness for SimpleSumMultiIndexGenotype {
-    type Genotype = MultiIndexGenotype;
+pub struct SimpleSumMultiDiscreteGenotype;
+impl Fitness for SimpleSumMultiDiscreteGenotype {
+    type Genotype = MultiDiscreteGenotype<usize>;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,

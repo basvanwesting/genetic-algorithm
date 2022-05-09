@@ -22,12 +22,12 @@ fn run() {
         .build()
         .unwrap();
 
-    let permutate = Permutate::builder()
+    let _permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(FitnessSimpleCount)
         .build()
         .unwrap()
         .call();
 
-    println!("{}", permutate);
+    //println!("{}", permutate);
 }

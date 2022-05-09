@@ -4,11 +4,11 @@ mod support;
 mod permutate_tests {
     use crate::support::*;
     use genetic_algorithm::fitness::{
-        FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumIndexGenotype,
-        FitnessSimpleSumMultiIndexGenotype,
+        FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumDiscreteGenotype,
+        FitnessSimpleSumMultiDiscreteGenotype,
     };
     use genetic_algorithm::genotype::{
-        BinaryGenotype, Genotype, IndexGenotype, MultiIndexGenotype,
+        BinaryGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
     };
     use genetic_algorithm::permutate::Permutate;
 
@@ -59,16 +59,16 @@ mod permutate_tests {
     }
 
     #[test]
-    fn call_index() {
-        let genotype = IndexGenotype::builder()
+    fn call_discrete() {
+        let genotype = DiscreteGenotype::builder()
             .with_gene_size(5)
-            .with_gene_value_size(10)
+            .with_gene_values((0..10).collect())
             .build()
             .unwrap();
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
-            .with_fitness(FitnessSimpleSumIndexGenotype)
+            .with_fitness(FitnessSimpleSumDiscreteGenotype)
             .build()
             .unwrap()
             .call();
@@ -81,15 +81,20 @@ mod permutate_tests {
     }
 
     #[test]
-    fn call_multi_index() {
-        let genotype = MultiIndexGenotype::builder()
-            .with_gene_value_sizes(vec![5, 2, 1, 4])
+    fn call_multi_discrete() {
+        let genotype = MultiDiscreteGenotype::builder()
+            .with_gene_multi_values(vec![
+                vec![0, 1, 2, 3, 4],
+                vec![0, 1],
+                vec![0],
+                vec![0, 1, 2, 3],
+            ])
             .build()
             .unwrap();
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
-            .with_fitness(FitnessSimpleSumMultiIndexGenotype)
+            .with_fitness(FitnessSimpleSumMultiDiscreteGenotype)
             .build()
             .unwrap()
             .call();

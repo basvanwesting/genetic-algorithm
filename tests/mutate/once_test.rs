@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype, IndexGenotype};
+use genetic_algorithm::genotype::{BinaryGenotype, DiscreteGenotype, Genotype};
 use genetic_algorithm::mutate::{Mutate, MutateOnce};
 
 #[test]
@@ -29,10 +29,10 @@ fn binary_genotype() {
 }
 
 #[test]
-fn index_genotype() {
-    let genotype = IndexGenotype::builder()
+fn discrete_genotype() {
+    let genotype = DiscreteGenotype::builder()
         .with_gene_size(3)
-        .with_gene_value_size(4)
+        .with_gene_values(vec![0, 1, 2, 3])
         .build()
         .unwrap();
 

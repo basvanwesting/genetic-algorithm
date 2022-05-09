@@ -26,21 +26,42 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });
 
-    c.bench_function("mutate_chromosome_index", |b| {
+    c.bench_function("mutate_chromosome_discrete", |b| {
         let mut rng = SmallRng::from_entropy();
-        let genotype = IndexGenotype::builder()
+        let genotype = DiscreteGenotype::builder()
             .with_gene_size(100)
-            .with_gene_value_size(10)
+            .with_gene_values((0..10).collect())
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });
 
-    c.bench_function("mutate_chromosome_unique_index", |b| {
+    c.bench_function("mutate_chromosome_unique_discrete", |b| {
         let mut rng = SmallRng::from_entropy();
-        let genotype = UniqueIndexGenotype::builder()
-            .with_gene_value_size(10)
+        let genotype = UniqueDiscreteGenotype::builder()
+            .with_gene_values((0..10).collect())
+            .build()
+            .unwrap();
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
+    });
+
+    c.bench_function("mutate_chromosome_multi_discrete", |b| {
+        let mut rng = SmallRng::from_entropy();
+        let genotype = MultiDiscreteGenotype::builder()
+            .with_gene_multi_values(vec![
+                (0..1).collect(),
+                (0..2).collect(),
+                (0..3).collect(),
+                (0..4).collect(),
+                (0..5).collect(),
+                (0..6).collect(),
+                (0..7).collect(),
+                (0..8).collect(),
+                (0..9).collect(),
+                (0..10).collect(),
+            ])
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);

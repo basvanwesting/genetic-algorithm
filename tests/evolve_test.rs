@@ -8,12 +8,12 @@ mod evolve_tests {
     use genetic_algorithm::evolve::{Evolve, TryFromEvolveBuilderError};
     use genetic_algorithm::fitness::{
         FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumContinuousGenotype,
-        FitnessSimpleSumIndexGenotype, FitnessSimpleSumMultiIndexGenotype,
-        FitnessSimpleSumUniqueIndexGenotype,
+        FitnessSimpleSumDiscreteGenotype, FitnessSimpleSumMultiDiscreteGenotype,
+        FitnessSimpleSumUniqueDiscreteGenotype,
     };
     use genetic_algorithm::genotype::{
-        BinaryGenotype, ContinuousGenotype, Genotype, IndexGenotype, MultiIndexGenotype,
-        UniqueIndexGenotype,
+        BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
+        UniqueDiscreteGenotype,
     };
     use genetic_algorithm::mutate::MutateOnce;
 
@@ -43,8 +43,8 @@ mod evolve_tests {
 
     #[test]
     fn build_invalid_incompatible_genotype_and_crossover() {
-        let genotype = UniqueIndexGenotype::builder()
-            .with_gene_value_size(10)
+        let genotype = UniqueDiscreteGenotype::builder()
+            .with_gene_values((0..10).collect())
             .build()
             .unwrap();
         let evolve = Evolve::builder()
@@ -52,7 +52,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumUniqueIndexGenotype)
+            .with_fitness(FitnessSimpleSumUniqueDiscreteGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build();
@@ -248,10 +248,10 @@ mod evolve_tests {
     }
 
     #[test]
-    fn call_index() {
-        let genotype = IndexGenotype::builder()
+    fn call_discrete() {
+        let genotype = DiscreteGenotype::builder()
             .with_gene_size(10)
-            .with_gene_value_size(4)
+            .with_gene_values((0..4).collect())
             .build()
             .unwrap();
 
@@ -261,7 +261,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumIndexGenotype)
+            .with_fitness(FitnessSimpleSumDiscreteGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
@@ -279,9 +279,14 @@ mod evolve_tests {
     }
 
     #[test]
-    fn call_multi_index() {
-        let genotype = MultiIndexGenotype::builder()
-            .with_gene_value_sizes(vec![5, 2, 1, 4])
+    fn call_multi_discrete() {
+        let genotype = MultiDiscreteGenotype::builder()
+            .with_gene_multi_values(vec![
+                vec![0, 1, 2, 3, 4],
+                vec![0, 1],
+                vec![0],
+                vec![0, 1, 2, 3],
+            ])
             .build()
             .unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
@@ -290,7 +295,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumMultiIndexGenotype)
+            .with_fitness(FitnessSimpleSumMultiDiscreteGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
