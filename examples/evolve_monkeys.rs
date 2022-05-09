@@ -4,7 +4,7 @@ use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverRange;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use genetic_algorithm::genotype::{Genotype, IndexGenotype};
+use genetic_algorithm::genotype::{DiscreteGenotype, Genotype};
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -14,34 +14,28 @@ use rand::rngs::SmallRng;
 const TARGET_TEXT: &str =
   "Be not afraid of greatness! Some are great, some achieve greatness, and some have greatness thrust upon 'em.";
 
+const MIN_CHAR: u8 = 0x20;
+const MAX_CHAR: u8 = 0x7e;
+
 #[derive(Clone, Debug)]
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
-    type Genotype = IndexGenotype;
+    type Genotype = DiscreteGenotype<u8>;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
-        let result = String::from_utf8(chromosome.genes.iter().map(|c| *c as u8).collect());
-        match result {
-            Ok(string) => {
-                println!("{}", string);
-                Some(hamming(&string, TARGET_TEXT).unwrap() as FitnessValue)
-            }
-            Err(error) => {
-                println!("{}", error);
-                None
-            }
-        }
+        let string = String::from_utf8(chromosome.genes.clone()).unwrap();
+        println!("{}", string);
+        Some(hamming(&string, TARGET_TEXT).unwrap() as FitnessValue)
     }
 }
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = IndexGenotype::builder()
+    let genotype = DiscreteGenotype::builder()
         .with_gene_size(TARGET_TEXT.len())
-        .with_gene_value_size(96)
-        .with_gene_value_offset(32)
+        .with_gene_values((MIN_CHAR..=MAX_CHAR).collect())
         .build()
         .unwrap();
 
