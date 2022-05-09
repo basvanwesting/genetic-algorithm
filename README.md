@@ -1,5 +1,6 @@
 # genetic-algorithm
 A genetic algorithm implementation for Rust.
+Inspired by the book [Genetic Algorithms in Elixir](https://pragprog.com/titles/smgaelixir/genetic-algorithms-in-elixir/)
 
 There are three main elements to this approach:
 * The Genotype (the search space)
@@ -24,7 +25,7 @@ There are three main elements to this approach:
 ## Quick Usage
 
 ```rust
-// the seach space
+// the search space
 let genotype = BinaryGenotype::builder() // boolean genes
     .with_gene_size(100)                 // 100 of them
     .build()
@@ -32,7 +33,7 @@ let genotype = BinaryGenotype::builder() // boolean genes
 
 println!("{}", genotype);
 
-// the seach goal
+// the search goal to optimize towards (maximize or minimize)
 #[derive(Clone, Debug)]
 pub struct SimpleCount;
 impl Fitness for SimpleCount {
@@ -42,7 +43,7 @@ impl Fitness for SimpleCount {
     }
 }
 
-// the seach strategy
+// the search strategy
 let mut rng = SmallRng::from_entropy();
 let evolve = Evolve::builder()
     .with_genotype(genotype)
@@ -63,37 +64,37 @@ println!("{}", evolve);
 The following genotypes are implemented:
 
 * `BinaryGenotype`
-    * List of true|false values with 50% chance, Initialize:
-        * `with_gene_size(usize)`, mandatory, number of genes
+    * List of true|false values with 50% chance
+    * Builder `with_gene_size(usize)`, mandatory, number of genes
     * Permutable
 * `DiscreteGenotype<T>`
-    * List of items with uniform chance. Initialize:
-        * `with_gene_size(usize)`, mandatory, number of genes
-        * `with_gene_values(Vec<T>)`, mandatory, possible values for genes
+    * List of items with uniform chance
+    * Builder `with_gene_size(usize)`, mandatory, number of genes
+    * Builder `with_gene_values(Vec<T>)`, mandatory, possible values for genes
     * Permutable
 * `UniqueDiscreteGenotype<T>`
-    * List of items with uniform chance, each item occurs exactly once. Initialize:
-        * `with_gene_values(Vec<T>)`, mandatory, possible values for genes
-        * gene size is derived
+    * List of items with uniform chance, each item occurs exactly once
+    * Builder `with_gene_values(Vec<T>)`, mandatory, possible values for genes
+    * Builder gene size is derived, same as gene values length
     * Permutable
 * `MultiDiscreteGenotype<T>`
-    * List of separate item lists (different sizes, but same type), where each gene has its own item list with a weighted chance depending on the list size. Initialize:
-        * `with_gene_multi_values(<Vec<VecT>>)`, mandatory, possible values for each individual gene.
-        * gene size is derived
+    * List of separate item lists (different sizes, but same type), where each gene has its own item list with a weighted chance depending on the list size
+    * Builder `with_gene_multi_values(<Vec<VecT>>)`, mandatory, possible values for each individual gene.
+    * Builder gene size is derived, same as number of item lists
     * Permutable
 * `ContinuousGenotype`
-    * list of float ranges (f32) with uniform chance. Initialize:
-        * `with_gene_size(usize)`, mandatory, number of genes
-        * `with_gene_range(Range<f32>)`, mandatory, possible values for genes
+    * list of float ranges (f32) with uniform chance
+    * Builder `with_gene_size(usize)`, mandatory, number of genes
+    * Builder `with_gene_range(Range<f32>)`, mandatory, possible values for genes
     * Not-Permutable
 * `MultiContinuousGenotype`
-    * List of separate float ranges (different sizes, but same type = f32), where each gene has it's own range with a weighted chance depending on the range size. Initialize:
-        * `with_gene_ranges(Vec<Range<f32>>)`, mandatory, possible values for each individual gene.
-        * gene size is derived
+    * List of separate float ranges (different sizes, but same type = f32), where each gene has it's own range with a weighted chance depending on the range size
+    * Builder `with_gene_ranges(Vec<Range<f32>>)`, mandatory, possible values for each individual gene.
+    * Builder gene size is derived, same as number of ranges
     * Not-Permutable
 
 * General initialization options for all Genotypes:
-    * `with_seed_genes(Vec<bool>)`, optional, start genes of population (instead of random genes). Sometimes it is efficient to start with a certain population (e.g. Knapsack problem)
+    * Builder `with_seed_genes(Vec<bool>)`, optional, start genes of population (instead of random genes). Sometimes it is efficient to start with a certain population (e.g. Knapsack problem with no items in it)
 
 ## Fitness
 
@@ -103,6 +104,7 @@ up last in the competition phase, regardless whether the fitness is maximized or
 It is usually better to add a penalty to invalid or unwanted solutions instead
 of returning a `None`, so "less" invalid chromosomes are preferred over "more"
 invalid ones. This usually conditions the population towards a solution faster.
+See the knapsack problem for an example of a penalty and a `None`.
 
 The trait Fitness needs to be implemented for a fitness function. It only requires one method.
 The example below is taken from the Infinite Monkey Theorem:
@@ -117,7 +119,7 @@ impl Fitness for MyFitness {
     type Genotype = DiscreteGenotype<u8>;
     fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
         let string = String::from_utf8(chromosome.genes.clone()).unwrap();
-        println!("{}", string);
+        println!("{}", string); // not needed, but it looks cool!
         Some(hamming(&string, TARGET_TEXT).unwrap() as FitnessValue)
     }
 }
@@ -129,23 +131,23 @@ The Evolve strategy is build with the following options:
 * Mandatory
     * `with_genotype(Genotype)`: the genotype initialized earlier
     * `with_population_size(usize)`: the number of chromosomes in the population
-    * one or more ending conditions:
+    * one or more ending conditions (first one met stops searching):
         * `with_target_fitness_score(FitnessValue)`, if you know the ultimate goal in terms of fitness score, stop searching when met.
-        * `with_max_stale_generations(usize)`, if you don't and depend on some convergion threshold, stop searching when improvement stalls.
+        * `with_max_stale_generations(usize)`, if you don't know the ultimate goal and depend on some convergion threshold, stop searching when improvement stalls.
     * `with_fitness(Fitness)`: the Fitness function
     * `with_mutate(Mutate)`: the mutation strategy, very important for avoiding local optimum lock-in. But don't overdo it, as it degenerates the
-      population too much if overused. Generally between 5% and 20%. Choose one:
-        * MutateOnce(mutation_probabilty: f32): Each genotype has a specific mutation strategy (e.g. non-unique chromosome just pack a random now gene value, but unique chromosomes swap two genes, in order to stay valid). With this approach each chromosome has the mutation probability to be mutated once.
+      population too much if overused. Mutation probability generally between 5% and 20%. Choose one:
+        * `MutateOnce(mutation_probabilty: f32)`: Each genotype has a specific mutation strategy (e.g. non-unique chromosome just pack a random now gene value, but unique chromosomes swap two genes, in order to stay valid). With this approach each chromosome has the mutation probability to be mutated once.
     * `with_crossover(Crossover)`: the crossover strategy. Every two parents create two children. The competition phase determines the order of the
       parent pairing (overall with fitter first). If you choose to keep the parents, the parents will compete with their own
-      children and population is temporarily overbooked and half of it will be discarded in the competition phase. Choose one:
-        * CrossoverAll(keep_parents: bool): 50% probability for each gene to come from one of the two parents. Not allowed for unique genotypes
-        * CrossoverClone(keep_parents: bool): Children are clones, effectively doubling the population if you keep the parents. Acts as no-op if the parents are not kept. Allowed for unique genotypes
-        * CrossoverRange(keep_parents: bool): Single random position in the genes, after which the genes are switched from one parent to the other. Not allowed for unique genotypes
-        * CrossoverSingle(keep_parents: bool): Random position in the genes, where a single gene is taken from the other parent. Not allowed for unique genotypes
+      children and the population is temporarily overbooked and half of it will be discarded in the competition phase. Choose one:
+        * `CrossoverAll(keep_parents: bool)`: 50% probability for each gene to come from one of the two parents. Not allowed for unique genotypes
+        * `CrossoverClone(keep_parents: bool)`: Children are clones, effectively doubling the population if you keep the parents. Acts as no-op if the parents are not kept. Allowed for unique genotypes
+        * `CrossoverRange(keep_parents: bool)`: Single random position in the genes, after which the genes are switched from one parent to the other. Not allowed for unique genotypes
+        * `CrossoverSingle(keep_parents: bool)`: Random position in the genes, where a single gene is taken from the other parent. Not allowed for unique genotypes
     * `with_compete(Compete`)
-        * CompeteElite: Simply sort the chromosomes with fittest first. This approach has the risk of locking in to a local optimum.
-        * CompeteTournament(tournament_size: usize): Run tournaments with randomly chosen chromosomes and pick a single winner. Do this
+        * `CompeteElite`: Simply sort the chromosomes with fittest first. This approach has the risk of locking in to a local optimum.
+        * `CompeteTournament(tournament_size: usize)`: Run tournaments with randomly chosen chromosomes and pick a single winner. Do this
           population size times until the required population level is reached. This approach kind of sorts the fitness first, but not very strictly. This preserves a level of diversity, which
           avoids local optimum lock-in.
 * Optional
@@ -157,6 +159,7 @@ The Evolve strategy is build with the following options:
     * `with_max_stale_generations_option`: the max_stale_generations value wrapped in an option to allow for a `None` value next to `Some(usize)` values.
     * `with_target_fitness_score_option`: the target_fitness_score value wrapped in an option to allow for a `None` value next to `Some(FitnessValue)` values.
     * `with_degeneration_range_option`: the degeneration_range value wrapped in an option to allow for a `None` value next to `Some(Range<F32>)` values.
+    * Mutate-/Crossover-/CompeteDispatch implementations.
 
 ## Permutate strategy (as alternative to Evolve)
 Sometimes the population size is small enough to simply check all possible solutions.
