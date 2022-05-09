@@ -1,7 +1,7 @@
 use crate::chromosome::Chromosome;
 use crate::fitness;
 use crate::fitness::{FitnessOrdering, FitnessValue};
-use crate::genotype::{Genotype, MultiIndexGenotype};
+use crate::genotype::{Genotype, MultiDiscreteGenotype};
 use crate::meta::config::Config;
 use crate::meta::stats::Stats;
 use rand::prelude::*;
@@ -13,7 +13,7 @@ pub struct Fitness<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> {
     pub config: &'a Config<G, F>,
 }
 impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fitness<'a, G, F> {
-    type Genotype = MultiIndexGenotype;
+    type Genotype = MultiDiscreteGenotype<usize>;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,

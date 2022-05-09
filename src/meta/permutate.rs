@@ -1,12 +1,13 @@
 use crate::fitness::Fitness;
-use crate::genotype::{Genotype, MultiIndexGenotype, PermutableGenotype};
+use crate::genotype::{Genotype, MultiDiscreteGenotype, PermutableGenotype};
 use crate::meta::{MetaConfig, MetaFitness};
 use crate::permutate;
 use std::fmt;
 
 pub struct Permutate<'a, G: Genotype, F: Fitness<Genotype = G>> {
     pub config: &'a MetaConfig<G, F>,
-    pub inner_permutate: Option<permutate::Permutate<MultiIndexGenotype, MetaFitness<'a, G, F>>>,
+    pub inner_permutate:
+        Option<permutate::Permutate<MultiDiscreteGenotype<usize>, MetaFitness<'a, G, F>>>,
 }
 
 impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {

@@ -9,7 +9,7 @@ use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
 use crate::evolve::EvolveBuilder;
 use crate::fitness::{Fitness, FitnessValue};
-use crate::genotype::{Genotype, MultiIndexGenotype};
+use crate::genotype::{Genotype, MultiDiscreteGenotype};
 use crate::mutate::MutateDispatch;
 use std::ops::Range;
 
@@ -35,7 +35,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     // order matters so keep close to build_genotype
     pub fn evolve_builder_for_chromosome(
         &self,
-        chromosome: &Chromosome<MultiIndexGenotype>,
+        chromosome: &Chromosome<MultiDiscreteGenotype<usize>>,
     ) -> EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch> {
         let genes = &chromosome.genes;
 
@@ -51,16 +51,16 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     }
 
     // order matters so keep close to evolve_builder_for_chromosome
-    pub fn build_genotype(&self) -> MultiIndexGenotype {
-        MultiIndexGenotype::builder()
-            .with_gene_value_sizes(vec![
-                self.population_sizes.len(),
-                self.max_stale_generations_options.len(),
-                self.target_fitness_score_options.len(),
-                self.degeneration_range_options.len(),
-                self.mutates.len(),
-                self.crossovers.len(),
-                self.competes.len(),
+    pub fn build_genotype(&self) -> MultiDiscreteGenotype<usize> {
+        MultiDiscreteGenotype::builder()
+            .with_gene_multi_values(vec![
+                (0..self.population_sizes.len()).collect(),
+                (0..self.max_stale_generations_options.len()).collect(),
+                (0..self.target_fitness_score_options.len()).collect(),
+                (0..self.degeneration_range_options.len()).collect(),
+                (0..self.mutates.len()).collect(),
+                (0..self.crossovers.len()).collect(),
+                (0..self.competes.len()).collect(),
             ])
             .build()
             .unwrap()
