@@ -10,15 +10,19 @@ There are three main elements to this approach:
 ## Examples
 
 * N-Queens puzzle https://en.wikipedia.org/wiki/Eight_queens_puzzle.
+    * See [example/evolve_nqueens](../blob/main/examples/evolve_nqueens.rs)
     * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup and custom `NQueensFitness` fitness
     * `cargo run --example evolve_nqueens --release`
 * Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
+    * See [example/evolve_knapsack](../blob/main/examples/evolve_knapsack.rs)
     * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
     * `cargo run --example evolve_knapsack --release`
 * Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
+    * See [example/evolve_monkeys](../blob/main/examples/evolve_monkeys.rs)
     * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
     * `cargo run --example evolve_monkeys --release`
 * Custom Fitness function with LRU cache
+    * See [example/evolve_binary_lru_cache_fitness](../blob/main/examples/evolve_binary_lru_cache_fitness.rs)
     * Note: doesn't help performance much in this case...
     * `cargo run --example evolve_binary_lru_cache_fitness --release`
 
@@ -104,10 +108,10 @@ up last in the competition phase, regardless whether the fitness is maximized or
 It is usually better to add a penalty to invalid or unwanted solutions instead
 of returning a `None`, so "less" invalid chromosomes are preferred over "more"
 invalid ones. This usually conditions the population towards a solution faster.
-See the knapsack problem for an example of a penalty and a `None`.
+See the [example/evolve_knapsack](../blob/main/examples/evolve_knapsack.rs) for an example of a penalty and a `None`.
 
 The trait Fitness needs to be implemented for a fitness function. It only requires one method.
-The example below is taken from the Infinite Monkey Theorem:
+The example below is taken from the Infinite Monkey Theorem, see [example/evolve_monkeys](../blob/main/examples/evolve_monkeys.rs):
 
 ```rust
 const TARGET_TEXT: &str =
