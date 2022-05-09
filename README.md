@@ -98,7 +98,7 @@ The following genotypes are implemented:
     * Not-Permutable
 
 * General initialization options for all Genotypes:
-    * Builder `with_seed_genes(Vec<bool>)`, optional, start genes of all chromosomes in the population
+    * Builder `with_seed_genes(Vec<_>)`, optional, start genes of all chromosomes in the population
       (instead of the default random genes). Sometimes it is efficient to start with a certain population 
       (e.g. [Knapsack problem](../main/examples/evolve_knapsack.rs) with no items in it)
 
