@@ -3,7 +3,7 @@ use genetic_algorithm::compete::{CompeteDispatch, Competes};
 use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
 use genetic_algorithm::evolve::EvolveBuilder;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use genetic_algorithm::genotype::{Genotype, UniqueIndexGenotype};
+use genetic_algorithm::genotype::{Genotype, UniqueDiscreteGenotype};
 use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
 use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 
@@ -12,7 +12,7 @@ use genetic_algorithm::mutate::{MutateDispatch, Mutates};
 #[derive(Clone, Debug)]
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
-    type Genotype = UniqueIndexGenotype;
+    type Genotype = UniqueDiscreteGenotype<u8>;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -48,8 +48,8 @@ fn main() {
     ];
     let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
     let competes = vec![CompeteDispatch(Competes::Elite, 0)];
-    let genotype = UniqueIndexGenotype::builder()
-        .with_gene_value_size(64)
+    let genotype = UniqueDiscreteGenotype::builder()
+        .with_gene_values((0..64).collect())
         .build()
         .unwrap();
     let fitness = NQueensFitness;
