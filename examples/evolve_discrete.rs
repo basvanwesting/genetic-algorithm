@@ -3,7 +3,6 @@ use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverAll;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::{Fitness, FitnessValue};
-use genetic_algorithm::gene::Gene;
 use genetic_algorithm::genotype::{DiscreteGenotype, Genotype};
 use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
@@ -11,7 +10,6 @@ use rand::rngs::SmallRng;
 
 #[derive(Clone, Debug, Default)]
 struct MyGene(u8, u8);
-impl Gene for MyGene {}
 
 #[derive(Clone, Debug)]
 struct MyGeneFitness;

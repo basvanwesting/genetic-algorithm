@@ -19,14 +19,16 @@ pub use self::unique_discrete::UniqueDiscrete as UniqueDiscreteGenotype;
 pub use self::unique_index::UniqueIndex as UniqueIndexGenotype;
 
 use crate::chromosome::Chromosome;
-use crate::gene::Gene;
 use crate::population::Population;
 use itertools::Itertools;
 use rand::prelude::*;
 use std::fmt;
 
+// trait alias, experimental
+//pub trait Gene = Default + Clone + std::fmt::Debug;
+
 pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>> {
-    type Gene: Gene;
+    type Gene: Default + Clone + std::fmt::Debug;
     fn gene_size(&self) -> usize;
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);

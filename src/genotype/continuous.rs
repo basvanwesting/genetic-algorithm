@@ -1,10 +1,11 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::Genotype;
 use crate::chromosome::Chromosome;
-use crate::gene::ContinuousGene;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
+
+pub type ContinuousGene = f32;
 
 #[derive(Clone, Debug)]
 pub struct Continuous {

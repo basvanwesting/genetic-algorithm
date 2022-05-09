@@ -3,7 +3,6 @@ pub mod compete;
 pub mod crossover;
 pub mod evolve;
 pub mod fitness;
-pub mod gene;
 pub mod genotype;
 pub mod meta;
 pub mod mutate;

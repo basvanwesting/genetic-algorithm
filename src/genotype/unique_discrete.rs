@@ -1,7 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
-use crate::gene::Gene;
 use crate::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
@@ -9,14 +8,17 @@ use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
+// trait alias, experimental
+//pub trait Gene = Default + Clone + std::fmt::Debug;
+
 #[derive(Debug, Clone)]
-pub struct UniqueDiscrete<T: Gene> {
+pub struct UniqueDiscrete<T: Default + Clone + std::fmt::Debug> {
     pub gene_values: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes: Option<Vec<T>>,
 }
 
-impl<T: Gene> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
+impl<T: Default + Clone + std::fmt::Debug> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -39,7 +41,7 @@ impl<T: Gene> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
     }
 }
 
-impl<T: Gene> Genotype for UniqueDiscrete<T> {
+impl<T: Default + Clone + std::fmt::Debug> Genotype for UniqueDiscrete<T> {
     type Gene = T;
     fn gene_size(&self) -> usize {
         self.gene_values.len()
@@ -66,7 +68,7 @@ impl<T: Gene> Genotype for UniqueDiscrete<T> {
     }
 }
 
-impl<T: Gene> PermutableGenotype for UniqueDiscrete<T> {
+impl<T: Default + Clone + std::fmt::Debug> PermutableGenotype for UniqueDiscrete<T> {
     fn gene_values(&self) -> Vec<Self::Gene> {
         self.gene_values.clone()
     }
@@ -85,7 +87,7 @@ impl<T: Gene> PermutableGenotype for UniqueDiscrete<T> {
     }
 }
 
-impl<T: Gene> fmt::Display for UniqueDiscrete<T> {
+impl<T: Default + Clone + std::fmt::Debug> fmt::Display for UniqueDiscrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_values: {:?}", self.gene_values)?;

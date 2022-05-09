@@ -3,7 +3,6 @@ use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverSingle;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::{Fitness, FitnessValue};
-use genetic_algorithm::gene::Gene;
 use genetic_algorithm::genotype::{DiscreteGenotype, Genotype};
 use genetic_algorithm::mutate::MutateOnce;
 use itertools::Itertools;
@@ -21,7 +20,6 @@ type Value = u16;
 
 #[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
 struct Item(pub Weight, pub Value);
-impl Gene for Item {}
 impl std::fmt::Display for Item {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         write!(f, "weight: {}, value: {}", self.0, self.1)

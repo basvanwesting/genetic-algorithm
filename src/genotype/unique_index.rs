@@ -1,13 +1,14 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
-use crate::gene::IndexGene;
 use crate::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
+
+pub type IndexGene = usize;
 
 #[derive(Clone, Debug)]
 pub struct UniqueIndex {

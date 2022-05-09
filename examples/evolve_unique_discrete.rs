@@ -4,26 +4,16 @@ use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::evolve::Evolve;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use genetic_algorithm::gene::Gene;
 use genetic_algorithm::genotype::{Genotype, UniqueDiscreteGenotype};
 use genetic_algorithm::mutate::MutateOnce;
 use itertools::Itertools;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
-#[derive(Clone, Debug, Default)]
-struct MyGene(String);
-impl Gene for MyGene {}
-impl std::fmt::Display for MyGene {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        write!(f, "{}", self.0)
-    }
-}
-
 #[derive(Clone, Debug)]
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
-    type Genotype = UniqueDiscreteGenotype<MyGene>;
+    type Genotype = UniqueDiscreteGenotype<String>;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -35,15 +25,15 @@ impl Fitness for MyGeneFitness {
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = UniqueDiscreteGenotype::<MyGene>::builder()
+    let genotype = UniqueDiscreteGenotype::<String>::builder()
         .with_gene_values(vec![
-            MyGene("c".to_string()),
-            MyGene("e".to_string()),
-            MyGene("e".to_string()),
-            MyGene("g".to_string()),
-            MyGene("i".to_string()),
-            MyGene("n".to_string()),
-            MyGene("t".to_string()),
+            "c".to_string(),
+            "e".to_string(),
+            "e".to_string(),
+            "g".to_string(),
+            "i".to_string(),
+            "n".to_string(),
+            "t".to_string(),
         ])
         .build()
         .unwrap();

@@ -1,10 +1,11 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
-use crate::gene::BinaryGene;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use std::fmt;
+
+pub type BinaryGene = bool;
 
 #[derive(Clone, Debug)]
 pub struct Binary {
