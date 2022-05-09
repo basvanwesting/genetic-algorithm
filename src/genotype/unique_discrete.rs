@@ -19,14 +19,19 @@ impl<T: Gene> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.gene_values.is_empty() {
+        if builder.gene_values.is_none() {
+            Err(TryFromBuilderError(
+                "UniqueDiscreteGenotype requires gene_values",
+            ))
+        } else if builder.gene_values.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
                 "UniqueDiscreteGenotype requires non-empty gene_values",
             ))
         } else {
+            let gene_values = builder.gene_values.unwrap();
             Ok(Self {
-                gene_values: builder.gene_values.clone(),
-                gene_index_sampler: Uniform::from(0..builder.gene_values.len()),
+                gene_values: gene_values.clone(),
+                gene_index_sampler: Uniform::from(0..gene_values.len()),
             })
         }
     }

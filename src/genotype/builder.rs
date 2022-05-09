@@ -7,8 +7,9 @@ pub struct TryFromBuilderError(pub &'static str);
 pub struct Builder<G: Genotype> {
     pub gene_size: Option<usize>,
     pub gene_value_size: Option<<G as Genotype>::Gene>,
-    pub gene_value_sizes: Vec<<G as Genotype>::Gene>,
-    pub gene_values: Vec<<G as Genotype>::Gene>,
+    pub gene_value_sizes: Option<Vec<<G as Genotype>::Gene>>,
+    pub gene_values: Option<Vec<<G as Genotype>::Gene>>,
+    pub seed_genes: Option<Vec<<G as Genotype>::Gene>>,
 }
 
 impl<G: Genotype> Builder<G> {
@@ -27,12 +28,17 @@ impl<G: Genotype> Builder<G> {
     }
 
     pub fn with_gene_values(mut self, gene_values: Vec<<G as Genotype>::Gene>) -> Self {
-        self.gene_values = gene_values;
+        self.gene_values = Some(gene_values);
+        self
+    }
+
+    pub fn with_seed_genes(mut self, seed_genes: Vec<<G as Genotype>::Gene>) -> Self {
+        self.seed_genes = Some(seed_genes);
         self
     }
 
     pub fn with_gene_value_sizes(mut self, gene_value_sizes: Vec<<G as Genotype>::Gene>) -> Self {
-        self.gene_value_sizes = gene_value_sizes;
+        self.gene_value_sizes = Some(gene_value_sizes);
         self
     }
 
@@ -46,8 +52,9 @@ impl<G: Genotype> Default for Builder<G> {
         Self {
             gene_size: None,
             gene_value_size: None,
-            gene_value_sizes: vec![],
-            gene_values: vec![],
+            gene_value_sizes: None,
+            gene_values: None,
+            seed_genes: None,
         }
     }
 }

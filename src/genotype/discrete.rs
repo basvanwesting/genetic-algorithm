@@ -20,16 +20,19 @@ impl<T: Gene> TryFrom<Builder<Self>> for Discrete<T> {
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.gene_size.is_none() {
             Err(TryFromBuilderError("DiscreteGenotype requires a gene_size"))
-        } else if builder.gene_values.is_empty() {
+        } else if builder.gene_values.is_none() {
+            Err(TryFromBuilderError("DiscreteGenotype requires gene_values"))
+        } else if builder.gene_values.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
                 "DiscreteGenotype requires non-empty gene_values",
             ))
         } else {
+            let gene_values = builder.gene_values.unwrap();
             Ok(Self {
                 gene_size: builder.gene_size.unwrap(),
-                gene_values: builder.gene_values.clone(),
+                gene_values: gene_values.clone(),
                 gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
-                gene_value_index_sampler: Uniform::from(0..builder.gene_values.len()),
+                gene_value_index_sampler: Uniform::from(0..gene_values.len()),
             })
         }
     }

@@ -20,17 +20,26 @@ impl TryFrom<Builder<Self>> for MultiIndex {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.gene_value_sizes.is_empty() {
+        if builder.gene_value_sizes.is_none() {
             Err(TryFromBuilderError(
                 "MultiIndexGenotype requires a gene_value_sizes",
             ))
+        } else if builder
+            .gene_value_sizes
+            .as_ref()
+            .map(|o| o.is_empty())
+            .unwrap()
+        {
+            Err(TryFromBuilderError(
+                "UniqueDiscreteGenotype requires non-empty gene_value_sizes",
+            ))
         } else {
+            let gene_value_sizes = builder.gene_value_sizes.unwrap();
             Ok(Self {
-                gene_size: builder.gene_value_sizes.len(),
-                gene_value_sizes: builder.gene_value_sizes.clone(),
-                gene_index_sampler: WeightedIndex::new(builder.gene_value_sizes.clone()).unwrap(),
-                gene_value_samplers: builder
-                    .gene_value_sizes
+                gene_size: gene_value_sizes.len(),
+                gene_value_sizes: gene_value_sizes.clone(),
+                gene_index_sampler: WeightedIndex::new(gene_value_sizes.clone()).unwrap(),
+                gene_value_samplers: gene_value_sizes
                     .iter()
                     .map(|gene_value_size| Uniform::from(0..*gene_value_size))
                     .collect(),
