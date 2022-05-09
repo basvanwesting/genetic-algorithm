@@ -75,7 +75,6 @@ impl fmt::Display for Index {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_size: {}", self.gene_size)?;
         writeln!(f, "  gene_value_size: {}", self.gene_value_size)?;
-        writeln!(f, "  gene_index_sampler: {:?}", self.gene_index_sampler)?;
-        writeln!(f, "  gene_value_sampler: {:?}", self.gene_value_sampler)
+        writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }

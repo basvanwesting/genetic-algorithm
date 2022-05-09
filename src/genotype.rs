@@ -3,6 +3,7 @@ mod builder;
 mod continuous;
 mod discrete;
 mod index;
+mod multi_continuous;
 mod multi_index;
 mod unique_discrete;
 mod unique_index;
@@ -14,6 +15,7 @@ pub use self::builder::{
 pub use self::continuous::Continuous as ContinuousGenotype;
 pub use self::discrete::Discrete as DiscreteGenotype;
 pub use self::index::Index as IndexGenotype;
+pub use self::multi_continuous::MultiContinuous as MultiContinuousGenotype;
 pub use self::multi_index::MultiIndex as MultiIndexGenotype;
 pub use self::unique_discrete::UniqueDiscrete as UniqueDiscreteGenotype;
 pub use self::unique_index::UniqueIndex as UniqueIndexGenotype;

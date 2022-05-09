@@ -85,6 +85,6 @@ impl fmt::Display for UniqueIndex {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_value_size: {}", self.gene_value_size)?;
-        writeln!(f, "  gene_index_sampler: {:?}", self.gene_index_sampler)
+        writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }

@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::Genotype;
 use crate::chromosome::Chromosome;
-use rand::distributions::{Distribution, Uniform};
+use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
 use std::ops::Range;
@@ -12,42 +12,49 @@ use std::ops::Range;
 pub type ContinuousGene = f32;
 
 #[derive(Clone, Debug)]
-pub struct Continuous {
-    pub gene_size: usize,
-    pub gene_range: Range<ContinuousGene>,
-    gene_index_sampler: Uniform<usize>,
-    gene_value_sampler: Uniform<ContinuousGene>,
+pub struct MultiContinuous {
+    gene_size: usize,
+    pub gene_ranges: Vec<Range<ContinuousGene>>,
+    gene_index_sampler: WeightedIndex<ContinuousGene>,
+    gene_value_samplers: Vec<Uniform<ContinuousGene>>,
     pub seed_genes: Option<Vec<ContinuousGene>>,
 }
 
-impl TryFrom<Builder<Self>> for Continuous {
+impl TryFrom<Builder<Self>> for MultiContinuous {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.gene_size.is_none() {
+        if builder.gene_ranges.is_none() {
             Err(TryFromBuilderError(
-                "ContinuousGenotype requires a gene_size",
+                "MultiContinuousGenotype requires a gene_ranges",
             ))
-        } else if builder.gene_range.is_none() {
+        } else if builder.gene_ranges.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
-                "ContinuousGenotype requires a gene_range",
+                "UniqueDiscreteGenotype requires non-empty gene_ranges",
             ))
         } else {
-            let gene_size = builder.gene_size.unwrap();
-            let gene_range = builder.gene_range.unwrap();
+            let gene_ranges = builder.gene_ranges.unwrap();
+            let gene_size = gene_ranges.len();
+            let index_weights: Vec<ContinuousGene> = gene_ranges
+                .iter()
+                .map(|gene_range| gene_range.end - gene_range.start)
+                .collect();
 
             Ok(Self {
                 gene_size: gene_size,
-                gene_range: gene_range.clone(),
-                gene_index_sampler: Uniform::from(0..gene_size),
-                gene_value_sampler: Uniform::from(gene_range.clone()),
+                gene_ranges: gene_ranges.clone(),
+                gene_index_sampler: WeightedIndex::new(index_weights).unwrap(),
+                gene_value_samplers: gene_ranges
+                    .iter()
+                    .map(|gene_range| Uniform::from(gene_range.clone()))
+                    .collect(),
                 seed_genes: builder.seed_genes,
             })
         }
     }
 }
 
-impl Genotype for Continuous {
+impl Genotype for MultiContinuous {
     type Gene = ContinuousGene;
     fn gene_size(&self) -> usize {
         self.gene_size
@@ -57,7 +64,7 @@ impl Genotype for Continuous {
             Chromosome::new(seed_genes.clone())
         } else {
             let genes: Vec<Self::Gene> = (0..self.gene_size)
-                .map(|_| self.gene_value_sampler.sample(rng))
+                .map(|index| self.gene_value_samplers[index].sample(rng))
                 .collect();
             Chromosome::new(genes)
         }
@@ -65,16 +72,16 @@ impl Genotype for Continuous {
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.gene_value_sampler.sample(rng);
+        chromosome.genes[index] = self.gene_value_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
 }
 
-impl fmt::Display for Continuous {
+impl fmt::Display for MultiContinuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_size: {}", self.gene_size)?;
-        writeln!(f, "  gene_range: {:?}", self.gene_range)?;
+        writeln!(f, "  gene_ranges: {:?}\n", self.gene_ranges)?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }

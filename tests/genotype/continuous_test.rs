@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = ContinuousGenotype::<f32>::builder()
+    let genotype = ContinuousGenotype::builder()
         .with_gene_size(10)
         .with_gene_range(0.0..1.0)
         .build()
