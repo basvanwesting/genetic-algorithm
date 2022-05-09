@@ -3,9 +3,9 @@ A genetic algorithm implementation for Rust.
 Inspired by the book [Genetic Algorithms in Elixir](https://pragprog.com/titles/smgaelixir/genetic-algorithms-in-elixir/)
 
 There are three main elements to this approach:
-* The Genotype (the search space)
-* The Fitness function (the search goal)
-* The Evolve strategy (the search strategy)
+* The [Genotype](#genotypes) (the search space)
+* The [Fitness](#fitness) function (the search goal)
+* The [Evolve](#evolve-strategy) strategy (the search strategy)
 
 ## Examples
 
