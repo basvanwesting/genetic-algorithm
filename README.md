@@ -57,5 +57,4 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
 * Support genotypes with variable length (for knapsack problem). A Set type?
-* Be more flexible with Gene types, to allow for u8 or char more easily, or add Char Genotype
 * Either implement offset and scale fully, or add RangeGenotype back in

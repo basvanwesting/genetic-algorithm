@@ -13,7 +13,7 @@ use rand::rngs::SmallRng;
 #[derive(Clone, Debug)]
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
-    type Genotype = UniqueDiscreteGenotype<String>;
+    type Genotype = UniqueDiscreteGenotype<char>;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -25,16 +25,8 @@ impl Fitness for MyGeneFitness {
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = UniqueDiscreteGenotype::<String>::builder()
-        .with_gene_values(vec![
-            "c".to_string(),
-            "e".to_string(),
-            "e".to_string(),
-            "g".to_string(),
-            "i".to_string(),
-            "n".to_string(),
-            "t".to_string(),
-        ])
+    let genotype = UniqueDiscreteGenotype::<char>::builder()
+        .with_gene_values(vec!['c', 'e', 'e', 'g', 'i', 'n', 't'])
         .build()
         .unwrap();
 
