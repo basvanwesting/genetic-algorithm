@@ -9,8 +9,9 @@ use rand::rngs::SmallRng;
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = ContinuousGenotype::builder()
+    let genotype = ContinuousGenotype::<f32>::builder()
         .with_gene_size(100)
+        .with_gene_range(0.0..1.0)
         .build()
         .unwrap();
 

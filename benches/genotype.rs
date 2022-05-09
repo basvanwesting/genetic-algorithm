@@ -19,6 +19,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let mut rng = SmallRng::from_entropy();
         let genotype = ContinuousGenotype::builder()
             .with_gene_size(100)
+            .with_gene_range(0.0..1.0)
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);

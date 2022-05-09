@@ -5,8 +5,9 @@ use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = ContinuousGenotype::builder()
+    let genotype = ContinuousGenotype::<f32>::builder()
         .with_gene_size(10)
+        .with_gene_range(0.0..1.0)
         .build()
         .unwrap();
 
@@ -14,8 +15,8 @@ fn general() {
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.43914026, 0.9798802, 0.4621672, 0.897079, 0.9429498, 0.58814746,
-            0.45637196, 0.39514416, 0.81885093
+            0.447325, 0.4391402, 0.9798802, 0.46216714, 0.897079, 0.9429498, 0.5881474, 0.4563719,
+            0.3951441, 0.8188509
         ]
     );
 
@@ -23,8 +24,8 @@ fn general() {
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.43914026, 0.9763819, 0.4621672, 0.897079, 0.9429498, 0.58814746,
-            0.45637196, 0.39514416, 0.81885093
+            0.447325, 0.4391402, 0.9763819, 0.46216714, 0.897079, 0.9429498, 0.5881474, 0.4563719,
+            0.3951441, 0.8188509
         ]
     );
 

@@ -217,6 +217,7 @@ mod evolve_tests {
     fn call_continuous() {
         let genotype = ContinuousGenotype::builder()
             .with_gene_size(10)
+            .with_gene_range(0.0..1.0)
             .build()
             .unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
@@ -239,8 +240,8 @@ mod evolve_tests {
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![
-                0.9651495, 0.98179513, 0.9798802, 0.8283811, 0.76474065, 0.9307497, 0.8706253,
-                0.9069808, 0.9505005, 0.9951865
+                0.9651495, 0.9817951, 0.9798802, 0.82838106, 0.7647406, 0.93074965, 0.87062526,
+                0.90698075, 0.9505005, 0.99518645
             ]
         );
     }
