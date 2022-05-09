@@ -6,53 +6,54 @@ A genetic algorithm implementation for Rust
 ### Evolve
 
 #### Usage
+```rust
+// need randomness, simply inject for maximum flexibility and testability
+let mut rng = SmallRng::from_entropy();
+
+let genotype = BinaryGenotype::builder() // boolean genes
+    .with_gene_size(100)                 // 100 of them
+    .build()
+    .unwrap();
+
+println!("{}", genotype);
+
+let evolve = Evolve::builder()
+    .with_genotype(genotype)
+    .with_population_size(100)          // evolve with 100 chromosomes
+    .with_target_fitness_score(100)     // goal is 100 times true in the best chromosome
+    .with_crossover(CrossoverAll(true)) // crossover all individual genes between 2 chromosomes for offspring
+    .with_mutate(MutateOnce(0.2))       // mutate a single gene with a 20% chance
+    .with_fitness(FitnessSimpleCount)   // count the number of true values in the chromosomes
+    .with_compete(CompeteElite)         // sort the chromosomes by fitness to determine crossover order
+    .build()
+    .unwrap()
+    .call(&mut rng);
+
+println!("{}", evolve);
 ```
-    // need randomness, simply inject for maximum flexibility and testability
-    let mut rng = SmallRng::from_entropy();
 
-    let genotype = BinaryGenotype::builder() // boolean genes
-        .with_gene_size(100)                 // 100 of them
-        .build()
-        .unwrap();
-
-    println!("{}", genotype);
-
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_population_size(100)          // evolve with 100 chromosomes
-        .with_target_fitness_score(100)     // goal is 100 times true in the best chromosome
-        .with_crossover(CrossoverAll(true)) // crossover all individual genes between 2 chromosomes for offspring
-        .with_mutate(MutateOnce(0.2))       // mutate a single gene with a 20% chance
-        .with_fitness(FitnessSimpleCount)   // count the number of true values in the chromosomes
-        .with_compete(CompeteElite)         // sort the chromosomes by fitness to determine crossover order
-        .build()
-        .unwrap()
-        .call(&mut rng);
-
-    println!("{}", evolve);
-```
-
-### Permtate
-Sometimes the population size is small enough to simple check all possible solutions.
+### Permutate
+Sometimes the population size is small enough to simply check all possible solutions.
+No randomness, mutation, crossover, competition strategies needed.
 
 #### Usage
-```
-    let genotype = BinaryGenotype::builder()
-        .with_gene_size(16)
-        .build()
-        .unwrap();
+```rust
+let genotype = BinaryGenotype::builder()
+    .with_gene_size(16)
+    .build()
+    .unwrap();
 
-    println!("{}", genotype);
+println!("{}", genotype);
 
-    let permutate = Permutate::builder()
-        .with_genotype(genotype)
-        .with_fitness(FitnessSimpleCount)
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .build()
-        .unwrap()
-        .call();
+let permutate = Permutate::builder()
+    .with_genotype(genotype)
+    .with_fitness(FitnessSimpleCount)                 // count true values for fitness
+    .with_fitness_ordering(FitnessOrdering::Minimize) // goal is zero true values
+    .build()
+    .unwrap()
+    .call();
 
-    println!("{}", permutate);
+println!("{}", permutate);
 ```
 
 
@@ -75,7 +76,7 @@ Implemented genotypes:
     * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
     * `cargo run --example evolve_knapsack --release`
 * Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem 
-    * `DiscreteGenotype<u8>` with a 64x64 chess board setup and custom `NQueensFitness` fitness
+    * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
     * `cargo run --example evolve_monkeys --release`
 * Custom Fitness function with LRU cache
     * Note: doesn't help performance much in this case...
@@ -98,6 +99,67 @@ See example meta_evolve_binary for an meta analysis of the evolution strategy:
     * `cargo run --example meta_evolve_nqueens --release`
 
 Currently implemented as a permutation, but with caching an evolve strategy could also be used for larger search spaces.
+
+```rust
+let rounds = 10;
+let population_sizes = vec![1, 2, 3, 4, 5, 10];
+let max_stale_generations_options = vec![Some(100)];
+let target_fitness_score_options = vec![Some(0)];
+let degeneration_range_options = vec![None, Some(0.001..0.995)];
+let mutates = vec![
+    MutateDispatch(Mutates::Once, 0.05),
+    MutateDispatch(Mutates::Once, 0.1),
+    MutateDispatch(Mutates::Once, 0.2),
+    MutateDispatch(Mutates::Once, 0.3),
+    MutateDispatch(Mutates::Once, 0.4),
+    MutateDispatch(Mutates::Once, 0.5),
+];
+let crossovers = vec![
+    CrossoverDispatch(Crossovers::Single, true),
+    CrossoverDispatch(Crossovers::Single, false),
+    CrossoverDispatch(Crossovers::All, true),
+    CrossoverDispatch(Crossovers::All, false),
+    CrossoverDispatch(Crossovers::Range, true),
+    CrossoverDispatch(Crossovers::Range, false),
+    CrossoverDispatch(Crossovers::Clone, true),
+    CrossoverDispatch(Crossovers::Clone, false),
+];
+let competes = vec![
+    CompeteDispatch(Competes::Elite, 0),
+    CompeteDispatch(Competes::Tournament, 2),
+    CompeteDispatch(Competes::Tournament, 4),
+    CompeteDispatch(Competes::Tournament, 8),
+];
+
+let genotype = BinaryGenotype::builder()
+    .with_gene_size(10)
+    .build()
+    .unwrap();
+let fitness = FitnessSimpleCount;
+let evolve_builder = EvolveBuilder::new()
+    .with_genotype(genotype)
+    .with_fitness(fitness)
+    .with_fitness_ordering(FitnessOrdering::Minimize);
+let evolve_fitness_to_micro_second_factor = 1_000_000;
+
+let config = MetaConfig::builder()
+    .with_evolve_builder(evolve_builder)
+    .with_evolve_fitness_to_micro_second_factor(evolve_fitness_to_micro_second_factor)
+    .with_rounds(rounds)
+    .with_population_sizes(population_sizes)
+    .with_max_stale_generations_options(max_stale_generations_options)
+    .with_target_fitness_score_options(target_fitness_score_options)
+    .with_degeneration_range_options(degeneration_range_options)
+    .with_mutates(mutates)
+    .with_crossovers(crossovers)
+    .with_competes(competes)
+    .build()
+    .unwrap();
+
+let permutate = MetaPermutate::new(&config).call();
+println!();
+println!("{}", permutate);
+```
 
 ## Tests
 Run tests with `cargo test`
