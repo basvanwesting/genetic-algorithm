@@ -10,6 +10,7 @@ pub struct Builder<G: Genotype> {
     pub gene_value_size: Option<<G as Genotype>::Gene>,
     pub gene_value_sizes: Option<Vec<<G as Genotype>::Gene>>,
     pub gene_values: Option<Vec<<G as Genotype>::Gene>>,
+    pub gene_multi_values: Option<Vec<Vec<<G as Genotype>::Gene>>>,
     pub gene_range: Option<Range<<G as Genotype>::Gene>>,
     pub gene_ranges: Option<Vec<Range<<G as Genotype>::Gene>>>,
     pub seed_genes: Option<Vec<<G as Genotype>::Gene>>,
@@ -32,6 +33,14 @@ impl<G: Genotype> Builder<G> {
 
     pub fn with_gene_values(mut self, gene_values: Vec<<G as Genotype>::Gene>) -> Self {
         self.gene_values = Some(gene_values);
+        self
+    }
+
+    pub fn with_gene_multi_values(
+        mut self,
+        gene_multi_values: Vec<Vec<<G as Genotype>::Gene>>,
+    ) -> Self {
+        self.gene_multi_values = Some(gene_multi_values);
         self
     }
 
@@ -67,6 +76,7 @@ impl<G: Genotype> Default for Builder<G> {
             gene_value_size: None,
             gene_value_sizes: None,
             gene_values: None,
+            gene_multi_values: None,
             gene_range: None,
             gene_ranges: None,
             seed_genes: None,
