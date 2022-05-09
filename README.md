@@ -55,4 +55,6 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
 * Support genotypes with variable length (for knapsack problem). A Set type?
-* Add RangeGenotype back in
+* Add RangeGenotype back in but only for ContinuousGenotype and merge it to a single continuous genotype with 0.0..=1.0 default, maybe generic just like DiscreteGenotype
+* Are the Index genotypes justified or should it all become Discrete (UniqueDiscrete, MultiDiscrete). The only difference is a collection on the initialization range
+* MultiContinuous?
