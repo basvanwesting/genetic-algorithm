@@ -9,7 +9,8 @@ use std::fmt;
 #[derive(Clone, Debug)]
 pub struct Index {
     pub gene_size: usize,
-    pub gene_value_size: IndexGene,
+    pub gene_start_value: IndexGene,
+    pub gene_end_value: IndexGene,
     gene_index_sampler: Uniform<usize>,
     gene_value_sampler: Uniform<IndexGene>,
     pub seed_genes: Option<Vec<IndexGene>>,
@@ -26,11 +27,19 @@ impl TryFrom<Builder<Self>> for Index {
                 "IndexGenotype requires a gene_value_size",
             ))
         } else {
+            let gene_value_size = builder.gene_value_size.unwrap();
+            let gene_start_value = *builder.gene_value_offset.as_ref().unwrap_or(&0);
+            let gene_end_value = builder
+                .gene_value_offset
+                .as_ref()
+                .map_or(gene_value_size, |v| v + gene_value_size);
+
             Ok(Self {
                 gene_size: builder.gene_size.unwrap(),
-                gene_value_size: builder.gene_value_size.unwrap(),
+                gene_start_value: gene_start_value,
+                gene_end_value: gene_end_value,
                 gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
-                gene_value_sampler: Uniform::from(0..builder.gene_value_size.unwrap()),
+                gene_value_sampler: Uniform::from(gene_start_value..gene_end_value),
                 seed_genes: builder.seed_genes,
             })
         }
@@ -62,7 +71,7 @@ impl Genotype for Index {
 
 impl PermutableGenotype for Index {
     fn gene_values(&self) -> Vec<Self::Gene> {
-        (0..self.gene_value_size).collect()
+        (self.gene_start_value..self.gene_end_value).collect()
     }
 }
 
@@ -70,7 +79,11 @@ impl fmt::Display for Index {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_size: {}", self.gene_size)?;
-        writeln!(f, "  gene_value_size: {:?}", self.gene_value_size)?;
+        writeln!(
+            f,
+            "  gene_values: ({}..{})",
+            self.gene_start_value, self.gene_end_value
+        )?;
         writeln!(f, "  gene_index_sampler: {:?}", self.gene_index_sampler)?;
         writeln!(f, "  gene_value_sampler: {:?}", self.gene_value_sampler)
     }
