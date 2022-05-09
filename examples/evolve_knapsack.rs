@@ -40,7 +40,7 @@ impl Fitness for KnapsackFitness {
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
-        // return no score if there are duplicate items
+        // return no score if there are duplicate non-zero items
         if !chromosome.genes.iter().filter(|c| c.0 > 0).all_unique() {
             return None;
         }
@@ -65,7 +65,7 @@ fn main() {
     let genotype = DiscreteGenotype::<Item>::builder()
         .with_gene_size(10)
         .with_gene_values(vec![
-            Item(0, 0),
+            Item(0, 0), // empty knapsack position
             Item(23, 505),
             Item(26, 352),
             Item(20, 458),
@@ -77,7 +77,7 @@ fn main() {
             Item(30, 473),
             Item(27, 543),
         ])
-        .with_seed_genes(vec![Item(0, 0); 10])
+        .with_seed_genes(vec![Item(0, 0); 10]) // start with empty knapsacks
         .build()
         .unwrap();
 
