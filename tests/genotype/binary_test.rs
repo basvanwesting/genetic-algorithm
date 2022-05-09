@@ -79,3 +79,31 @@ fn population_factory_size_three() {
         ]
     )
 }
+
+#[test]
+fn chromosome_factory_with_seed_genes() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_gene_size(4)
+        .with_seed_genes(vec![true, true, false, false])
+        .build()
+        .unwrap();
+    let chromosomes = vec![
+        genotype.chromosome_factory(&mut rng),
+        genotype.chromosome_factory(&mut rng),
+        genotype.chromosome_factory(&mut rng),
+    ];
+    println!("{:#?}", chromosomes);
+    assert_eq!(
+        inspect::chromosome(&chromosomes[0]),
+        vec![true, true, false, false]
+    );
+    assert_eq!(
+        inspect::chromosome(&chromosomes[1]),
+        vec![true, true, false, false]
+    );
+    assert_eq!(
+        inspect::chromosome(&chromosomes[2]),
+        vec![true, true, false, false]
+    );
+}

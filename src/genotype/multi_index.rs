@@ -14,6 +14,7 @@ pub struct MultiIndex {
     pub gene_value_sizes: Vec<IndexGene>,
     gene_index_sampler: WeightedIndex<usize>,
     gene_value_samplers: Vec<Uniform<IndexGene>>,
+    pub seed_genes: Option<Vec<IndexGene>>,
 }
 
 impl TryFrom<Builder<Self>> for MultiIndex {
@@ -43,6 +44,7 @@ impl TryFrom<Builder<Self>> for MultiIndex {
                     .iter()
                     .map(|gene_value_size| Uniform::from(0..*gene_value_size))
                     .collect(),
+                seed_genes: builder.seed_genes,
             })
         }
     }
@@ -54,10 +56,14 @@ impl Genotype for MultiIndex {
         self.gene_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        let genes: Vec<Self::Gene> = (0..self.gene_size)
-            .map(|index| self.gene_value_samplers[index].sample(rng))
-            .collect();
-        Chromosome::new(genes)
+        if let Some(seed_genes) = self.seed_genes.as_ref() {
+            Chromosome::new(seed_genes.clone())
+        } else {
+            let genes: Vec<Self::Gene> = (0..self.gene_size)
+                .map(|index| self.gene_value_samplers[index].sample(rng))
+                .collect();
+            Chromosome::new(genes)
+        }
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {

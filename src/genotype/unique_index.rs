@@ -13,6 +13,7 @@ use std::fmt;
 pub struct UniqueIndex {
     pub gene_value_size: IndexGene,
     gene_index_sampler: Uniform<usize>,
+    pub seed_genes: Option<Vec<IndexGene>>,
 }
 
 impl TryFrom<Builder<Self>> for UniqueIndex {
@@ -27,6 +28,7 @@ impl TryFrom<Builder<Self>> for UniqueIndex {
             Ok(Self {
                 gene_value_size: builder.gene_value_size.unwrap(),
                 gene_index_sampler: Uniform::from(0..builder.gene_value_size.unwrap()),
+                seed_genes: builder.seed_genes,
             })
         }
     }
@@ -38,9 +40,13 @@ impl Genotype for UniqueIndex {
         self.gene_value_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        let mut genes: Vec<Self::Gene> = (0..self.gene_value_size).collect();
-        genes.shuffle(rng);
-        Chromosome::new(genes)
+        if let Some(seed_genes) = self.seed_genes.as_ref() {
+            Chromosome::new(seed_genes.clone())
+        } else {
+            let mut genes: Vec<Self::Gene> = (0..self.gene_value_size).collect();
+            genes.shuffle(rng);
+            Chromosome::new(genes)
+        }
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {

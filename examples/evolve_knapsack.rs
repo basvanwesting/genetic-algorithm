@@ -77,6 +77,7 @@ fn main() {
             Item(30, 473),
             Item(27, 543),
         ])
+        .with_seed_genes(vec![Item(0, 0); 10])
         .build()
         .unwrap();
 

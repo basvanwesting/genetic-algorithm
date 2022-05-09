@@ -10,6 +10,7 @@ use std::fmt;
 pub struct Continuous {
     pub gene_size: usize,
     gene_index_sampler: Uniform<usize>,
+    pub seed_genes: Option<Vec<ContinuousGene>>,
 }
 
 impl TryFrom<Builder<Self>> for Continuous {
@@ -24,6 +25,7 @@ impl TryFrom<Builder<Self>> for Continuous {
             Ok(Self {
                 gene_size: builder.gene_size.unwrap(),
                 gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
+                seed_genes: builder.seed_genes,
             })
         }
     }
@@ -35,8 +37,12 @@ impl Genotype for Continuous {
         self.gene_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        let genes: Vec<Self::Gene> = (0..self.gene_size).map(|_| rng.gen()).collect();
-        Chromosome::new(genes)
+        if let Some(seed_genes) = self.seed_genes.as_ref() {
+            Chromosome::new(seed_genes.clone())
+        } else {
+            let genes: Vec<Self::Gene> = (0..self.gene_size).map(|_| rng.gen()).collect();
+            Chromosome::new(genes)
+        }
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {

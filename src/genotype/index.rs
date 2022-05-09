@@ -12,6 +12,7 @@ pub struct Index {
     pub gene_value_size: IndexGene,
     gene_index_sampler: Uniform<usize>,
     gene_value_sampler: Uniform<IndexGene>,
+    pub seed_genes: Option<Vec<IndexGene>>,
 }
 
 impl TryFrom<Builder<Self>> for Index {
@@ -30,6 +31,7 @@ impl TryFrom<Builder<Self>> for Index {
                 gene_value_size: builder.gene_value_size.unwrap(),
                 gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
                 gene_value_sampler: Uniform::from(0..builder.gene_value_size.unwrap()),
+                seed_genes: builder.seed_genes,
             })
         }
     }
@@ -41,10 +43,14 @@ impl Genotype for Index {
         self.gene_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        let genes: Vec<Self::Gene> = (0..self.gene_size)
-            .map(|_| self.gene_value_sampler.sample(rng))
-            .collect();
-        Chromosome::new(genes)
+        if let Some(seed_genes) = self.seed_genes.as_ref() {
+            Chromosome::new(seed_genes.clone())
+        } else {
+            let genes: Vec<Self::Gene> = (0..self.gene_size)
+                .map(|_| self.gene_value_sampler.sample(rng))
+                .collect();
+            Chromosome::new(genes)
+        }
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {

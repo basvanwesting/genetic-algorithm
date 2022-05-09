@@ -12,6 +12,7 @@ pub struct Discrete<T: Gene> {
     pub gene_values: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     gene_value_index_sampler: Uniform<usize>,
+    pub seed_genes: Option<Vec<T>>,
 }
 
 impl<T: Gene> TryFrom<Builder<Self>> for Discrete<T> {
@@ -33,6 +34,7 @@ impl<T: Gene> TryFrom<Builder<Self>> for Discrete<T> {
                 gene_values: gene_values.clone(),
                 gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
                 gene_value_index_sampler: Uniform::from(0..gene_values.len()),
+                seed_genes: builder.seed_genes,
             })
         }
     }
@@ -44,10 +46,14 @@ impl<T: Gene> Genotype for Discrete<T> {
         self.gene_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        let genes: Vec<Self::Gene> = (0..self.gene_size)
-            .map(|_| self.gene_values[self.gene_value_index_sampler.sample(rng)].clone())
-            .collect();
-        Chromosome::new(genes)
+        if let Some(seed_genes) = self.seed_genes.as_ref() {
+            Chromosome::new(seed_genes.clone())
+        } else {
+            let genes: Vec<Self::Gene> = (0..self.gene_size)
+                .map(|_| self.gene_values[self.gene_value_index_sampler.sample(rng)].clone())
+                .collect();
+            Chromosome::new(genes)
+        }
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {

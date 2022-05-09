@@ -13,6 +13,7 @@ use std::fmt;
 pub struct UniqueDiscrete<T: Gene> {
     pub gene_values: Vec<T>,
     gene_index_sampler: Uniform<usize>,
+    pub seed_genes: Option<Vec<T>>,
 }
 
 impl<T: Gene> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
@@ -32,6 +33,7 @@ impl<T: Gene> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
             Ok(Self {
                 gene_values: gene_values.clone(),
                 gene_index_sampler: Uniform::from(0..gene_values.len()),
+                seed_genes: builder.seed_genes,
             })
         }
     }
@@ -43,9 +45,13 @@ impl<T: Gene> Genotype for UniqueDiscrete<T> {
         self.gene_values.len()
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        let mut genes = self.gene_values.clone();
-        genes.shuffle(rng);
-        Chromosome::new(genes)
+        if let Some(seed_genes) = self.seed_genes.as_ref() {
+            Chromosome::new(seed_genes.clone())
+        } else {
+            let mut genes = self.gene_values.clone();
+            genes.shuffle(rng);
+            Chromosome::new(genes)
+        }
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
