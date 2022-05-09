@@ -1,15 +1,30 @@
 # genetic-algorithm
-A genetic algorithm implementation for Rust
+A genetic algorithm implementation for Rust.
 
-## Usage
+There are three main elements to this approach:
+* The Genotype (the search space)
+* The Fitness function (the search goal)
+* The Evolve strategy (the search strategy)
 
-### Evolve
+## Examples
 
-#### Usage
+* N-Queens puzzle https://en.wikipedia.org/wiki/Eight_queens_puzzle.
+    * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup and custom `NQueensFitness` fitness
+    * `cargo run --example evolve_nqueens --release`
+* Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
+    * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
+    * `cargo run --example evolve_knapsack --release`
+* Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
+    * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
+    * `cargo run --example evolve_monkeys --release`
+* Custom Fitness function with LRU cache
+    * Note: doesn't help performance much in this case...
+    * `cargo run --example evolve_binary_lru_cache_fitness --release`
+
+## Quick Usage
+
 ```rust
-// need randomness, simply inject for maximum flexibility and testability
-let mut rng = SmallRng::from_entropy();
-
+// the seach space
 let genotype = BinaryGenotype::builder() // boolean genes
     .with_gene_size(100)                 // 100 of them
     .build()
@@ -17,13 +32,25 @@ let genotype = BinaryGenotype::builder() // boolean genes
 
 println!("{}", genotype);
 
+// the seach goal
+#[derive(Clone, Debug)]
+pub struct SimpleCount;
+impl Fitness for SimpleCount {
+    type Genotype = BinaryGenotype;
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
+        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
+    }
+}
+
+// the seach strategy
+let mut rng = SmallRng::from_entropy();
 let evolve = Evolve::builder()
     .with_genotype(genotype)
     .with_population_size(100)          // evolve with 100 chromosomes
     .with_target_fitness_score(100)     // goal is 100 times true in the best chromosome
     .with_crossover(CrossoverAll(true)) // crossover all individual genes between 2 chromosomes for offspring
     .with_mutate(MutateOnce(0.2))       // mutate a single gene with a 20% chance
-    .with_fitness(FitnessSimpleCount)   // count the number of true values in the chromosomes
+    .with_fitness(SimpleCount)          // count the number of true values in the chromosomes
     .with_compete(CompeteElite)         // sort the chromosomes by fitness to determine crossover order
     .build()
     .unwrap()
@@ -32,11 +59,109 @@ let evolve = Evolve::builder()
 println!("{}", evolve);
 ```
 
-### Permutate
+## Genotypes
+The following genotypes are implemented:
+
+* `BinaryGenotype`
+    * List of true|false values with 50% chance, Initialize:
+        * `with_gene_size(usize)`, mandatory, number of genes
+    * Permutable
+* `DiscreteGenotype<T>`
+    * List of items with uniform chance. Initialize:
+        * `with_gene_size(usize)`, mandatory, number of genes
+        * `with_gene_values(Vec<T>)`, mandatory, possible values for genes
+    * Permutable
+* `UniqueDiscreteGenotype<T>`
+    * List of items with uniform chance, each item occurs exactly once. Initialize:
+        * `with_gene_values(Vec<T>)`, mandatory, possible values for genes
+        * gene size is derived
+    * Permutable
+* `MultiDiscreteGenotype<T>`
+    * List of separate item lists (different sizes, but same type), where each gene has its own item list with a weighted chance depending on the list size. Initialize:
+        * `with_gene_multi_values(<Vec<VecT>>)`, mandatory, possible values for each individual gene.
+        * gene size is derived
+    * Permutable
+* `ContinuousGenotype`
+    * list of float ranges (f32) with uniform chance. Initialize:
+        * `with_gene_size(usize)`, mandatory, number of genes
+        * `with_gene_range(Range<f32>)`, mandatory, possible values for genes
+    * Not-Permutable
+* `MultiContinuousGenotype`
+    * List of separate float ranges (different sizes, but same type = f32), where each gene has it's own range with a weighted chance depending on the range size. Initialize:
+        * `with_gene_ranges(Vec<Range<f32>>)`, mandatory, possible values for each individual gene.
+        * gene size is derived
+    * Not-Permutable
+
+* General initialization options for all Genotypes:
+    * `with_seed_genes(Vec<bool>)`, optional, start genes of population (instead of random genes). Sometimes it is efficient to start with a certain population (e.g. Knapsack problem)
+
+## Fitness
+
+The fitness function has an associated Genotype.
+It returns an `Option<FitnessValue = isize>`. When a `None` is returned the chromosome ends
+up last in the competition phase, regardless whether the fitness is maximized or minimized.
+It is usually better to add a penalty to invalid or unwanted solutions instead
+of returning a `None`, so "less" invalid chromosomes are preferred over "more"
+invalid ones. This usually conditions the population towards a solution faster.
+
+The trait Fitness needs to be implemented for a fitness function. It only requires one method.
+The example below is taken from the Infinite Monkey Theorem:
+
+```rust
+const TARGET_TEXT: &str =
+  "Be not afraid of greatness! Some are great, some achieve greatness, and some have greatness thrust upon 'em.";
+
+#[derive(Clone, Debug)]
+struct MyFitness;
+impl Fitness for MyFitness {
+    type Genotype = DiscreteGenotype<u8>;
+    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
+        let string = String::from_utf8(chromosome.genes.clone()).unwrap();
+        println!("{}", string);
+        Some(hamming(&string, TARGET_TEXT).unwrap() as FitnessValue)
+    }
+}
+```
+
+## Evolve strategy
+The Evolve strategy is build with the following options:
+
+* Mandatory
+    * `with_genotype(Genotype)`: the genotype initialized earlier
+    * `with_population_size(usize)`: the number of chromosomes in the population
+    * one or more ending conditions:
+        * `with_target_fitness_score(FitnessValue)`, if you know the ultimate goal in terms of fitness score, stop searching when met.
+        * `with_max_stale_generations(usize)`, if you don't and depend on some convergion threshold, stop searching when improvement stalls.
+    * `with_fitness(Fitness)`: the Fitness function
+    * `with_mutate(Mutate)`: the mutation strategy, very important for avoiding local optimum lock-in. But don't overdo it, as it degenerates the
+      population too much if overused. Generally between 5% and 20%. Choose one:
+        * MutateOnce(mutation_probabilty: f32): Each genotype has a specific mutation strategy (e.g. non-unique chromosome just pack a random now gene value, but unique chromosomes swap two genes, in order to stay valid). With this approach each chromosome has the mutation probability to be mutated once.
+    * `with_crossover(Crossover)`: the crossover strategy. Every two parents create two children. The competition phase determines the order of the
+      parent pairing (overall with fitter first). If you choose to keep the parents, the parents will compete with their own
+      children and population is temporarily overbooked and half of it will be discarded in the competition phase. Choose one:
+        * CrossoverAll(keep_parents: bool): 50% probability for each gene to come from one of the two parents. Not allowed for unique genotypes
+        * CrossoverClone(keep_parents: bool): Children are clones, effectively doubling the population if you keep the parents. Acts as no-op if the parents are not kept. Allowed for unique genotypes
+        * CrossoverRange(keep_parents: bool): Single random position in the genes, after which the genes are switched from one parent to the other. Not allowed for unique genotypes
+        * CrossoverSingle(keep_parents: bool): Random position in the genes, where a single gene is taken from the other parent. Not allowed for unique genotypes
+    * `with_compete(Compete`)
+        * CompeteElite: Simply sort the chromosomes with fittest first. This approach has the risk of locking in to a local optimum.
+        * CompeteTournament(tournament_size: usize): Run tournaments with randomly chosen chromosomes and pick a single winner. Do this
+          population size times until the required population level is reached. This approach kind of sorts the fitness first, but not very strictly. This preserves a level of diversity, which
+          avoids local optimum lock-in.
+* Optional
+    * `with_fitness_ordering(FitnessOrdering)`: defaults to `FitnessOrdering::Maximize`, so is not mandatory. Set to `FitnessOrdering::Minimize` when the search goal is to minimize the fitness function.
+    * `with_degeneration_range(Range<F32>)`: When approacking a (local) optimum in the fitness score, the variation in the population goes down dramatically. This slows down the efficiency, but also has the risk of local optimum lock-in. Set this parameter to simulate a cambrian explosion, where there is only mutation until the population diversity is large enough again.
+         The controlling metric is fitness score standard deviation in the population. The degeneration has a hysteresis switch, where the degeneration is activated at the start bound of the range, and deactivated at the end bound of the range.
+         A typical value is `(0.005..0.995)`
+* Used in context of meta, see meta for more context:
+    * `with_max_stale_generations_option`: the max_stale_generations value wrapped in an option to allow for a `None` value next to `Some(usize)` values.
+    * `with_target_fitness_score_option`: the target_fitness_score value wrapped in an option to allow for a `None` value next to `Some(FitnessValue)` values.
+    * `with_degeneration_range_option`: the degeneration_range value wrapped in an option to allow for a `None` value next to `Some(Range<F32>)` values.
+
+## Permutate strategy (as alternative to Evolve)
 Sometimes the population size is small enough to simply check all possible solutions.
 No randomness, mutation, crossover, competition strategies needed.
 
-#### Usage
 ```rust
 let genotype = BinaryGenotype::builder()
     .with_gene_size(16)
@@ -56,47 +181,23 @@ let permutate = Permutate::builder()
 println!("{}", permutate);
 ```
 
-
-## Genotypes
-Implemented genotypes:
-
-* `BinaryGenotype`: list of true|false values with 50% chance, permutable. Initialize with only gene-size.
-* `DiscreteGenotype<T>`: list of n items with uniform chance, permutable. Initialize with gene-size and gene-values (of size n).
-* `UniqueDiscreteGenotype<T>`: list of n items with uniform chance, each item occurs exactly once, permutable. Initialize with only gene-values (of size n = gene-size).
-* `MultiDiscreteGenotype<T>`: list of separate item lists (different sizes, but same type), where each gene has it's own item list with a weighted chance depending on the list size. Initialize with list of gene-values (= [[x1, x2],[y1, y2, y3], ...]).
-* `ContinuousGenotype`: range of n float values (f32) with uniform chance, not-permutable. Initialize with gene-size(= n) and gene-range.
-* `MultiContinuousGenotype`: list of separate float ranges (different sizes, but same type = f32), where each gene has it's own range with a weighted chance depending on the range size. Initialize with list of gene-ranges (= [(0..1), (0..3), (2..5), ...]).
-
-## Examples
-
-* N-Queens puzzle https://en.wikipedia.org/wiki/Eight_queens_puzzle.
-    * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup and custom `NQueensFitness` fitness
-    * `cargo run --example evolve_nqueens --release`
-* Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem 
-    * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
-    * `cargo run --example evolve_knapsack --release`
-* Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem 
-    * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
-    * `cargo run --example evolve_monkeys --release`
-* Custom Fitness function with LRU cache
-    * Note: doesn't help performance much in this case...
-    * `cargo run --example evolve_binary_lru_cache_fitness --release`
-
 ## Heterogeneous Genotypes & Meta performance analysis
 
-One cool thing to do with genotypes is to make a meta-genotype of all the Crossover/Mutate/Compete and other Evolve parameters. This could be used to optimize the parameter of some other genetic algorithm.
-Yes, a simple nested for loop would also work, but where is the fun in that?
-But I wasn't able to find an elegant approach to creating a heterogene setup. It was tried with Trait objects, Any and Enums, but all didn't work well:
+One cool thing to do with genotypes is to make a meta-genotype of all the Crossover/Mutate/Compete strategies and other Evolve parameters. This could be
+used to optimize the parameters of some other genetic algorithm. Yes, a simple nested for loop would also work, but where is the fun in that? But I wasn't
+able to find an elegant approach to creating such a heterogene setup. It was tried with Trait objects, Any and Enums, but all didn't work well:
 
 * Genotype wasn't allowed to become a Trait object due to it's other traits and generics.
 * Any worked, but you still need to know all possible Genotypes up front for downcasting, defeating the flexible purpose
 * Enum worked, but you still need to know all possible Genotypes up front for wrapping, defeating the flexible purpose
 
-So, after some consideration I settled on using an nested index based Genotype with an external vector of arbitrary types which should be retrieved in the fitness function: `MultiDiscreteGenotype<usize>`.
+So, after some consideration I settled on using an nested index based Genotype `MultiDiscreteGenotype<usize>` indices of external vectors of arbitrary types, which should then be retrieved in the fitness function.
+Only one type is allowed per external vector, so the Crossover/Mutate/Compete strategies all have a Dispatch implementation forwarding to the underlying types (e.g. `CompeteDispatch(Competes::Tournament, 4)`)
 
 See example meta_evolve_binary for an meta analysis of the evolution strategy:
-    * `cargo run --example meta_evolve_binary --release`
-    * `cargo run --example meta_evolve_nqueens --release`
+
+* `cargo run --example meta_evolve_binary --release`
+* `cargo run --example meta_evolve_nqueens --release`
 
 Currently implemented as a permutation, but with caching an evolve strategy could also be used for larger search spaces.
 
@@ -159,6 +260,21 @@ let config = MetaConfig::builder()
 let permutate = MetaPermutate::new(&config).call();
 println!();
 println!("{}", permutate);
+```
+
+```
+meta-permutate population_size: 2304
+
+[...]
+
+meta-permutate:
+  best_population_size: 2
+  best_max_stale_generations: Some(100)
+  best_target_fitness_score: Some(0)
+  best_degeneration_range: None
+  best_mutate: Some(MutateDispatch(Once, 0.5))
+  best_crossover: Some(CrossoverDispatch(Clone, true))
+  best_compete: Some(CompeteDispatch(Elite, 0))
 ```
 
 ## Tests
