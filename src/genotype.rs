@@ -25,10 +25,10 @@ use rand::prelude::*;
 use std::fmt;
 
 // trait alias, experimental
-//pub trait Gene = Default + Clone + std::fmt::Debug;
+//pub trait Gene = Clone + std::fmt::Debug;
 
 pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>> {
-    type Gene: Default + Clone + std::fmt::Debug;
+    type Gene: Clone + std::fmt::Debug;
     fn gene_size(&self) -> usize;
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);

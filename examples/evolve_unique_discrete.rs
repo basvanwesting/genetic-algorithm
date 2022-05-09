@@ -25,7 +25,7 @@ impl Fitness for MyGeneFitness {
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = UniqueDiscreteGenotype::<char>::builder()
+    let genotype = UniqueDiscreteGenotype::builder()
         .with_gene_values(vec!['c', 'e', 'e', 'g', 'i', 'n', 't'])
         .build()
         .unwrap();

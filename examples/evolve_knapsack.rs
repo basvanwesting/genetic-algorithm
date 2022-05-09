@@ -18,7 +18,7 @@ type WeightLimit = u16;
 type Weight = u16;
 type Value = u16;
 
-#[derive(Clone, Debug, Default, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 struct Item(pub Weight, pub Value);
 impl std::fmt::Display for Item {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
