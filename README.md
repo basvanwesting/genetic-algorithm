@@ -54,7 +54,7 @@ let evolve = Evolve::builder()
     .with_population_size(100)          // evolve with 100 chromosomes
     .with_target_fitness_score(100)     // goal is 100 times true in the best chromosome
     .with_crossover(CrossoverAll(true)) // crossover all individual genes between 2 chromosomes for offspring
-    .with_mutate(MutateOnce(0.2))       // mutate a single gene with a 20% chance
+    .with_mutate(MutateOnce(0.2))       // mutate a single gene with a 20% probability per chromosome
     .with_fitness(SimpleCount)          // count the number of true values in the chromosomes
     .with_compete(CompeteElite)         // sort the chromosomes by fitness to determine crossover order
     .build()
@@ -68,37 +68,39 @@ println!("{}", evolve);
 The following genotypes are implemented:
 
 * `BinaryGenotype`
-    * List of true|false values with 50% chance
-    * Builder `with_gene_size(usize)`, mandatory, number of genes
+    * List of true|false values with 50% probability
+    * Builder `with_gene_size(usize)`, mandatory, number of genes per chromosome
     * Permutable
 * `DiscreteGenotype<T>`
-    * List of items with uniform chance
-    * Builder `with_gene_size(usize)`, mandatory, number of genes
+    * List of items with uniform probability
+    * Builder `with_gene_size(usize)`, mandatory, number of genes per chromosome
     * Builder `with_gene_values(Vec<T>)`, mandatory, possible values for genes
     * Permutable
 * `UniqueDiscreteGenotype<T>`
-    * List of items with uniform chance, each item occurs exactly once
+    * List of items with uniform probability, each item occurs exactly once
     * Builder `with_gene_values(Vec<T>)`, mandatory, possible values for genes
     * Builder gene size is derived, same as gene values length
     * Permutable
 * `MultiDiscreteGenotype<T>`
-    * List of separate item lists (different sizes, but same type), where each gene has its own item list with a weighted chance depending on the list size
+    * List of separate item lists (different sizes, but same type), where each gene has its own item list with a weighted probability depending on the list size
     * Builder `with_gene_multi_values(<Vec<VecT>>)`, mandatory, possible values for each individual gene.
     * Builder gene size is derived, same as number of item lists
     * Permutable
 * `ContinuousGenotype`
-    * list of float ranges (f32) with uniform chance
-    * Builder `with_gene_size(usize)`, mandatory, number of genes
+    * list of float ranges (f32) with uniform probability
+    * Builder `with_gene_size(usize)`, mandatory, number of genes per chromosome
     * Builder `with_gene_range(Range<f32>)`, mandatory, possible values for genes
     * Not-Permutable
 * `MultiContinuousGenotype`
-    * List of separate float ranges (different sizes, but same type = f32), where each gene has it's own range with a weighted chance depending on the range size
+    * List of separate float ranges (different sizes, but same type = f32), where each gene has it's own range with a weighted probability depending on the range size
     * Builder `with_gene_ranges(Vec<Range<f32>>)`, mandatory, possible values for each individual gene.
     * Builder gene size is derived, same as number of ranges
     * Not-Permutable
 
 * General initialization options for all Genotypes:
-    * Builder `with_seed_genes(Vec<bool>)`, optional, start genes of population (instead of random genes). Sometimes it is efficient to start with a certain population (e.g. Knapsack problem with no items in it)
+    * Builder `with_seed_genes(Vec<bool>)`, optional, start genes of all chromosomes in the population
+      (instead of the default random genes). Sometimes it is efficient to start with a certain population 
+      (e.g. [Knapsack problem](../main/examples/evolve_knapsack.rs) with no items in it)
 
 ## Fitness
 
@@ -108,7 +110,7 @@ up last in the competition phase, regardless whether the fitness is maximized or
 It is usually better to add a penalty to invalid or unwanted solutions instead
 of returning a `None`, so "less" invalid chromosomes are preferred over "more"
 invalid ones. This usually conditions the population towards a solution faster.
-See the [example/evolve_knapsack](../main/examples/evolve_knapsack.rs) for an example of a penalty and a `None`.
+See [example/evolve_knapsack](../main/examples/evolve_knapsack.rs) for an example of a penalty and a `None`.
 
 The trait Fitness needs to be implemented for a fitness function. It only requires one method.
 The example below is taken from the Infinite Monkey Theorem, see [example/evolve_monkeys](../main/examples/evolve_monkeys.rs):
@@ -159,7 +161,7 @@ The Evolve strategy is build with the following options:
     * `with_degeneration_range(Range<F32>)`: When approacking a (local) optimum in the fitness score, the variation in the population goes down dramatically. This slows down the efficiency, but also has the risk of local optimum lock-in. Set this parameter to simulate a cambrian explosion, where there is only mutation until the population diversity is large enough again.
          The controlling metric is fitness score standard deviation in the population. The degeneration has a hysteresis switch, where the degeneration is activated at the start bound of the range, and deactivated at the end bound of the range.
          A typical value is `(0.005..0.995)`
-* Used in context of meta, see meta for more context:
+* Used in context of meta, see [Heterogeneous Genotypes & Meta performance analysis][] below for more context:
     * `with_max_stale_generations_option`: the max_stale_generations value wrapped in an option to allow for a `None` value next to `Some(usize)` values.
     * `with_target_fitness_score_option`: the target_fitness_score value wrapped in an option to allow for a `None` value next to `Some(FitnessValue)` values.
     * `with_degeneration_range_option`: the degeneration_range value wrapped in an option to allow for a `None` value next to `Some(Range<F32>)` values.
