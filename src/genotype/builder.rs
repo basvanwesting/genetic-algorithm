@@ -26,11 +26,6 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
-    pub fn with_gene_value_size(mut self, gene_value_size: <G as Genotype>::Gene) -> Self {
-        self.gene_value_size = Some(gene_value_size);
-        self
-    }
-
     pub fn with_gene_values(mut self, gene_values: Vec<<G as Genotype>::Gene>) -> Self {
         self.gene_values = Some(gene_values);
         self
@@ -56,11 +51,6 @@ impl<G: Genotype> Builder<G> {
 
     pub fn with_seed_genes(mut self, seed_genes: Vec<<G as Genotype>::Gene>) -> Self {
         self.seed_genes = Some(seed_genes);
-        self
-    }
-
-    pub fn with_gene_value_sizes(mut self, gene_value_sizes: Vec<<G as Genotype>::Gene>) -> Self {
-        self.gene_value_sizes = Some(gene_value_sizes);
         self
     }
 
