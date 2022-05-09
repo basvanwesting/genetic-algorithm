@@ -50,6 +50,7 @@ mod evolve_tests {
         let evolve = Evolve::builder()
             .with_genotype(genotype)
             .with_population_size(100)
+            .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(FitnessSimpleSumUniqueIndexGenotype)
             .with_crossover(CrossoverSingle(true))

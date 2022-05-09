@@ -22,14 +22,6 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         let mut stats = Stats::new();
         let mut rng = SmallRng::from_entropy();
 
-        for _ in 0..self.config.rounds {
-            let now = Instant::now();
-            let evolve = evolve_builder.clone().build().unwrap().call(&mut rng);
-
-            stats.durations.push(now.elapsed());
-            stats.best_generations.push(evolve.best_generation);
-            stats.best_fitness_scores.push(evolve.best_fitness_score());
-        }
         println!(
             "population_size: {} | max_stale_generations: {:?} | target_fitness_score: {:?} | degeneration_range {:?} | mutate: {:?} | crossover: {:?} | compete: {:?}",
             evolve_builder.population_size,
@@ -40,6 +32,14 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
             evolve_builder.crossover,
             evolve_builder.compete
         );
+        for _ in 0..self.config.rounds {
+            let now = Instant::now();
+            let evolve = evolve_builder.clone().build().unwrap().call(&mut rng);
+
+            stats.durations.push(now.elapsed());
+            stats.best_generations.push(evolve.best_generation);
+            stats.best_fitness_scores.push(evolve.best_fitness_score());
+        }
         println!("  {}", stats);
 
         let mut score: FitnessValue = 0;

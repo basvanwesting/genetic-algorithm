@@ -27,3 +27,9 @@ fn population_even() {
         ]
     )
 }
+
+#[test]
+fn allow_unique_genotype() {
+    assert_eq!(CrossoverRange(false).allow_unique_genotype(), false);
+    assert_eq!(CrossoverRange(true).allow_unique_genotype(), false);
+}

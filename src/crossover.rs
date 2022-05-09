@@ -51,4 +51,14 @@ impl Crossover for CrossoverDispatch {
             Crossovers::Clone => CrossoverClone(keep_parent).call(genotype, population, rng),
         }
     }
+
+    fn allow_unique_genotype(&self) -> bool {
+        let keep_parent = self.1;
+        match self.0 {
+            Crossovers::Single => CrossoverSingle(keep_parent).allow_unique_genotype(),
+            Crossovers::All => CrossoverAll(keep_parent).allow_unique_genotype(),
+            Crossovers::Range => CrossoverRange(keep_parent).allow_unique_genotype(),
+            Crossovers::Clone => CrossoverClone(keep_parent).allow_unique_genotype(),
+        }
+    }
 }
