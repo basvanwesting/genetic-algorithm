@@ -2,6 +2,15 @@
 name = "genetic_algorithm"
 version = "0.1.0"
 edition = "2021"
+readme = "README.md"
+rust-version = "1.60"
+description = "A genetic algorithm implementation"
+repository = "https://github.com/basvanwesting/genetic-algorithm.git"
+homepage = "https://github.com/basvanwesting/genetic-algorithm.git"
+documentation = "https://github.com/basvanwesting/genetic-algorithm.git"
+license-file = "LICENSE"
+keywords = ["genetic", "ga"]
+exclude = ["/.projections.json", "/performance.txt", "/refactor_script.rb", "/workspace.txt"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
