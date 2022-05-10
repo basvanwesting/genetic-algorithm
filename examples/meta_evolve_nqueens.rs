@@ -1,11 +1,4 @@
-use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::compete::{CompeteDispatch, Competes};
-use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
-use genetic_algorithm::evolve::EvolveBuilder;
-use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use genetic_algorithm::genotype::{Genotype, UniqueDiscreteGenotype};
-use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
-use genetic_algorithm::mutate::{MutateDispatch, Mutates};
+use genetic_algorithm::meta::prelude::*;
 
 // see https://en.wikipedia.org/wiki/Eight_queens_puzzle
 

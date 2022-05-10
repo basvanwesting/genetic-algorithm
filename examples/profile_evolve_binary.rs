@@ -1,12 +1,8 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use pprof::criterion::{Output, PProfProfiler};
 
-use genetic_algorithm::compete::CompeteTournament;
-use genetic_algorithm::crossover::CrossoverAll;
-use genetic_algorithm::evolve::Evolve;
+use genetic_algorithm::evolve::prelude::*;
 use genetic_algorithm::fitness::FitnessSimpleCount;
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
-use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 

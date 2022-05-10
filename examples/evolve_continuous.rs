@@ -1,9 +1,5 @@
-use genetic_algorithm::compete::CompeteTournament;
-use genetic_algorithm::crossover::CrossoverAll;
-use genetic_algorithm::evolve::Evolve;
+use genetic_algorithm::evolve::prelude::*;
 use genetic_algorithm::fitness::FitnessSimpleSumContinuousGenotype;
-use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
-use genetic_algorithm::mutate::MutateOnce;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 

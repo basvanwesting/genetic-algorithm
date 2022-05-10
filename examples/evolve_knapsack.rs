@@ -1,10 +1,4 @@
-use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::compete::CompeteTournament;
-use genetic_algorithm::crossover::CrossoverSingle;
-use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness::{Fitness, FitnessValue};
-use genetic_algorithm::genotype::{DiscreteGenotype, Genotype};
-use genetic_algorithm::mutate::MutateOnce;
+use genetic_algorithm::evolve::prelude::*;
 use itertools::Itertools;
 use rand::prelude::*;
 use rand::rngs::SmallRng;

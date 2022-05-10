@@ -1,9 +1,5 @@
-use genetic_algorithm::compete::CompeteTournament;
-use genetic_algorithm::crossover::CrossoverSingle;
-use genetic_algorithm::evolve::Evolve;
+use genetic_algorithm::evolve::prelude::*;
 use genetic_algorithm::fitness::FitnessSimpleCount;
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
-use genetic_algorithm::mutate::MutateOnce;
 
 fn main() {
     let genotype = BinaryGenotype::builder()

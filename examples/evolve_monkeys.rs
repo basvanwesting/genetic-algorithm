@@ -1,11 +1,5 @@
 use distance::hamming;
-use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::compete::CompeteTournament;
-use genetic_algorithm::crossover::CrossoverRange;
-use genetic_algorithm::evolve::Evolve;
-use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use genetic_algorithm::genotype::{DiscreteGenotype, Genotype};
-use genetic_algorithm::mutate::MutateOnce;
+use genetic_algorithm::evolve::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 

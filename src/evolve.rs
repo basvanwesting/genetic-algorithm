@@ -1,4 +1,5 @@
 mod builder;
+pub mod prelude;
 
 pub use self::builder::{
     Builder as EvolveBuilder, TryFromBuilderError as TryFromEvolveBuilderError,

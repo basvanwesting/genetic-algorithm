@@ -1,6 +1,7 @@
 mod config;
 mod fitness;
 mod permutate;
+pub mod prelude;
 mod stats;
 
 pub use self::config::{

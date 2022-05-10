@@ -1,10 +1,5 @@
-use genetic_algorithm::compete::{CompeteDispatch, Competes};
-use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
-use genetic_algorithm::evolve::EvolveBuilder;
-use genetic_algorithm::fitness::{FitnessOrdering, FitnessSimpleCount};
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
-use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
-use genetic_algorithm::mutate::{MutateDispatch, Mutates};
+use genetic_algorithm::fitness::FitnessSimpleCount;
+use genetic_algorithm::meta::prelude::*;
 
 fn main() {
     let rounds = 10;

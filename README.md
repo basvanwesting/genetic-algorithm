@@ -29,6 +29,8 @@ There are three main elements to this approach:
 ## Quick Usage
 
 ```rust
+use genetic_algorithm::evolve::prelude::*;
+
 // the search space
 let genotype = BinaryGenotype::builder() // boolean genes
     .with_gene_size(100)                 // 100 of them
@@ -48,7 +50,7 @@ impl Fitness for SimpleCount {
 }
 
 // the search strategy
-let mut rng = SmallRng::from_entropy();
+let mut rng = rand::thread_rng();       // a randomness provider implementing Trait rand::Rng
 let evolve = Evolve::builder()
     .with_genotype(genotype)
     .with_population_size(100)          // evolve with 100 chromosomes
@@ -99,8 +101,20 @@ The following genotypes are implemented:
 
 * General initialization options for all Genotypes:
     * Builder `with_seed_genes(Vec<_>)`, optional, start genes of all chromosomes in the population
-      (instead of the default random genes). Sometimes it is efficient to start with a certain population 
+      (instead of the default random genes). Sometimes it is efficient to start with a certain population
       (e.g. [Knapsack problem](../main/examples/evolve_knapsack.rs) with no items in it)
+
+Example usage:
+
+```rust
+let genotype = DiscreteGenotype::<u8>::builder()
+    .with_gene_size(100)
+    .with_gene_values(vec![2,4,6,8])
+    .build()
+    .unwrap();
+```
+
+
 
 ## Fitness
 
@@ -167,11 +181,47 @@ The Evolve strategy is build with the following options:
     * `with_degeneration_range_option`: the degeneration_range value wrapped in an option to allow for a `None` value next to `Some(Range<F32>)` values.
     * Mutate-/Crossover-/CompeteDispatch implementations.
 
+After building, the strategy can be executed with a randomness provider (Trait rand::Rng): `evolve.call(&mut rng)`
+
+Example usage:
+```rust
+let mut evolve = Evolve::builder()
+    .with_genotype(my_genotype)
+    .with_population_size(100)
+    .with_max_stale_generations(1000)
+    .with_target_fitness_score(0)
+    .with_fitness_ordering(FitnessOrdering::Minimize)
+    .with_degeneration_range(0.001..0.995)
+    .with_mutate(MutateOnce(0.2))
+    .with_fitness(my_fitness)
+    .with_crossover(CrossoverAll(true))
+    .with_compete(CompeteTournament(4))
+    .build()
+    .unwrap();
+
+evolve.call(&mut rng);
+
+println!("{}", evolve);
+```
+
 ## Permutate strategy (as alternative to Evolve)
 Sometimes the population size is small enough to simply check all possible solutions.
 No randomness, mutation, crossover, competition strategies needed.
 
+The Permute strategy is build with the following options:
+
+* Mandatory
+    * `with_genotype(Genotype)`: the genotype initialized earlier
+    * `with_fitness(Fitness)`: the Fitness function
+* Optional
+    * `with_fitness_ordering(FitnessOrdering)`: defaults to `FitnessOrdering::Maximize`, so is not mandatory. Set to `FitnessOrdering::Minimize` when the search goal is to minimize the fitness function.
+
+After building, the strategy can be executed without the need for a randomness provider.
+
 ```rust
+use genetic_algorithm::fitness::FitnessSimpleCount;
+use genetic_algorithm::permutate::prelude::*;
+
 let genotype = BinaryGenotype::builder()
     .with_gene_size(16)
     .build()
@@ -179,13 +229,14 @@ let genotype = BinaryGenotype::builder()
 
 println!("{}", genotype);
 
-let permutate = Permutate::builder()
+let mut permutate = Permutate::builder()
     .with_genotype(genotype)
     .with_fitness(FitnessSimpleCount)                 // count true values for fitness
-    .with_fitness_ordering(FitnessOrdering::Minimize) // goal is zero true values
+    .with_fitness_ordering(FitnessOrdering::Minimize) // goal is as little true values as possible
     .build()
-    .unwrap()
-    .call();
+    .unwrap();
+
+permutate.call();
 
 println!("{}", permutate);
 ```
@@ -205,12 +256,15 @@ Only one type is allowed per external vector, so the Crossover/Mutate/Compete st
 
 See example meta_evolve_binary for an meta analysis of the evolution strategy:
 
-* `cargo run --example meta_evolve_binary --release`
-* `cargo run --example meta_evolve_nqueens --release`
+* See [example/meta_evolve_binary](../main/examples/meta_evolve_binary.rs) `cargo run --example meta_evolve_binary --release`
+* See [example/meta_evolve_nqueens](../main/examples/meta_evolve_nqueens.rs) `cargo run --example meta_evolve_nqueens --release`
 
 Currently implemented as a permutation, but with caching an evolve strategy could also be used for larger search spaces.
 
 ```rust
+use genetic_algorithm::fitness::FitnessSimpleCount;
+use genetic_algorithm::meta::prelude::*;
+
 let rounds = 10;
 let population_sizes = vec![1, 2, 3, 4, 5, 10];
 let max_stale_generations_options = vec![Some(100)];
@@ -299,7 +353,6 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 `cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
 
 ## TODO
-* Setup prelude
 * Maybe seed best_chromosome back into population after degenerate?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
