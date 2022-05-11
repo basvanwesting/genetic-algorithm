@@ -6,8 +6,7 @@ use std::fmt;
 
 pub struct Permutate<'a, G: Genotype, F: Fitness<Genotype = G>> {
     pub config: &'a MetaConfig<G, F>,
-    pub inner_permutate:
-        Option<permutate::Permutate<MultiDiscreteGenotype<usize>, MetaFitness<'a, G, F>>>,
+    pub inner_permutate: Option<permutate::Permutate<MultiDiscreteGenotype, MetaFitness<'a, G, F>>>,
 }
 
 impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {

@@ -23,13 +23,13 @@ fn count_true() {
 
 #[test]
 fn sum_discrete_genotype() {
-    let chromosome = build::chromosome::<DiscreteGenotype<usize>>(vec![0, 1, 2, 3]);
+    let chromosome = build::chromosome::<DiscreteGenotype>(vec![0, 1, 2, 3]);
     assert_eq!(
         SumDiscreteGenotype.call_for_chromosome(&chromosome),
         Some(6)
     );
 
-    let chromosome = build::chromosome::<DiscreteGenotype<usize>>(vec![0, 0, 0, 0]);
+    let chromosome = build::chromosome::<DiscreteGenotype>(vec![0, 0, 0, 0]);
     assert_eq!(
         SumDiscreteGenotype.call_for_chromosome(&chromosome),
         Some(0)

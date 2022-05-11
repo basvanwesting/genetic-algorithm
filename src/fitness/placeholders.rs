@@ -41,7 +41,7 @@ impl Fitness for SumContinuousGenotype {
 #[derive(Clone, Debug)]
 pub struct SumDiscreteGenotype;
 impl Fitness for SumDiscreteGenotype {
-    type Genotype = DiscreteGenotype<usize>;
+    type Genotype = DiscreteGenotype;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -77,7 +77,7 @@ impl Fitness for SumMultiContinuousGenotype {
 #[derive(Clone, Debug)]
 pub struct SumMultiDiscreteGenotype;
 impl Fitness for SumMultiDiscreteGenotype {
-    type Genotype = MultiDiscreteGenotype<usize>;
+    type Genotype = MultiDiscreteGenotype;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -95,7 +95,7 @@ impl Fitness for SumMultiDiscreteGenotype {
 #[derive(Clone, Debug)]
 pub struct SumUniqueDiscreteGenotype;
 impl Fitness for SumUniqueDiscreteGenotype {
-    type Genotype = UniqueDiscreteGenotype<usize>;
+    type Genotype = UniqueDiscreteGenotype;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,

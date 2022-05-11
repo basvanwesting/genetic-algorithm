@@ -35,7 +35,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     // order matters so keep close to build_genotype
     pub fn evolve_builder_for_chromosome(
         &self,
-        chromosome: &Chromosome<MultiDiscreteGenotype<usize>>,
+        chromosome: &Chromosome<MultiDiscreteGenotype>,
     ) -> EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch> {
         let genes = &chromosome.genes;
 
@@ -51,7 +51,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     }
 
     // order matters so keep close to evolve_builder_for_chromosome
-    pub fn build_genotype(&self) -> MultiDiscreteGenotype<usize> {
+    pub fn build_genotype(&self) -> MultiDiscreteGenotype {
         MultiDiscreteGenotype::builder()
             .with_gene_multi_values(vec![
                 (0..self.population_sizes.len()).collect(),

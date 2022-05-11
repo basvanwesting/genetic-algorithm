@@ -13,7 +13,7 @@ pub struct Fitness<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> {
     pub config: &'a Config<G, F>,
 }
 impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fitness<'a, G, F> {
-    type Genotype = MultiDiscreteGenotype<usize>;
+    type Genotype = MultiDiscreteGenotype;
     fn call_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
