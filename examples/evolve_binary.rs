@@ -1,5 +1,5 @@
 use genetic_algorithm::evolve::prelude::*;
-use genetic_algorithm::fitness::FitnessCountTrue;
+use genetic_algorithm::fitness::placeholders::CountTrue;
 
 fn main() {
     let mut rng = rand::thread_rng();
@@ -16,7 +16,7 @@ fn main() {
         .with_max_stale_generations(1000)
         .with_target_fitness_score(100)
         .with_mutate(MutateOnce(0.2))
-        .with_fitness(FitnessCountTrue)
+        .with_fitness(CountTrue)
         .with_crossover(CrossoverAll(true))
         .with_compete(CompeteTournament(4))
         .build()

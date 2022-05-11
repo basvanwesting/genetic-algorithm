@@ -1,4 +1,4 @@
-use genetic_algorithm::fitness::FitnessCountTrue;
+use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::permutate::prelude::*;
 
 fn main() {
@@ -11,7 +11,7 @@ fn main() {
 
     let permutate = Permutate::builder()
         .with_genotype(genotype)
-        .with_fitness(FitnessCountTrue)
+        .with_fitness(CountTrue)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .build()
         .unwrap()

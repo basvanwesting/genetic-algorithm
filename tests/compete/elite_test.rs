@@ -1,7 +1,8 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::compete::{Compete, CompeteElite};
-use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessCountTrue};
+use genetic_algorithm::fitness::placeholders::CountTrue;
+use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::BinaryGenotype;
 
 #[test]
@@ -18,7 +19,7 @@ fn maximize_population_surplus() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = FitnessCountTrue.call_for_population(population);
+    let population = CountTrue.call_for_population(population);
     let population = CompeteElite.call(population, FitnessOrdering::Maximize, 4, &mut rng);
 
     assert_eq!(
@@ -41,7 +42,7 @@ fn maximize_population_shortage() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = FitnessCountTrue.call_for_population(population);
+    let population = CountTrue.call_for_population(population);
     let population = CompeteElite.call(population, FitnessOrdering::Maximize, 4, &mut rng);
 
     assert_eq!(
@@ -68,7 +69,7 @@ fn minimize_population_surplus() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = FitnessCountTrue.call_for_population(population);
+    let population = CountTrue.call_for_population(population);
     let population = CompeteElite.call(population, FitnessOrdering::Minimize, 4, &mut rng);
 
     assert_eq!(
@@ -91,7 +92,7 @@ fn minimize_population_shortage() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = FitnessCountTrue.call_for_population(population);
+    let population = CountTrue.call_for_population(population);
     let population = CompeteElite.call(population, FitnessOrdering::Minimize, 4, &mut rng);
 
     assert_eq!(

@@ -3,10 +3,10 @@ mod support;
 #[cfg(test)]
 mod permutate_tests {
     use crate::support::*;
-    use genetic_algorithm::fitness::{
-        FitnessOrdering, FitnessCountTrue, FitnessSumDiscreteGenotype,
-        FitnessSumMultiDiscreteGenotype,
+    use genetic_algorithm::fitness::placeholders::{
+        CountTrue, SumDiscreteGenotype, SumMultiDiscreteGenotype,
     };
+    use genetic_algorithm::fitness::FitnessOrdering;
     use genetic_algorithm::genotype::{
         BinaryGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
     };
@@ -21,7 +21,7 @@ mod permutate_tests {
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
-            .with_fitness(FitnessCountTrue)
+            .with_fitness(CountTrue)
             .build()
             .unwrap()
             .call();
@@ -43,7 +43,7 @@ mod permutate_tests {
         let permutate = Permutate::builder()
             .with_genotype(genotype)
             .with_fitness_ordering(FitnessOrdering::Minimize)
-            .with_fitness(FitnessCountTrue)
+            .with_fitness(CountTrue)
             .build()
             .unwrap()
             .call();
@@ -68,7 +68,7 @@ mod permutate_tests {
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
-            .with_fitness(FitnessSumDiscreteGenotype)
+            .with_fitness(SumDiscreteGenotype)
             .build()
             .unwrap()
             .call();
@@ -94,7 +94,7 @@ mod permutate_tests {
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
-            .with_fitness(FitnessSumMultiDiscreteGenotype)
+            .with_fitness(SumMultiDiscreteGenotype)
             .build()
             .unwrap()
             .call();

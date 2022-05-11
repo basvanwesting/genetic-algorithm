@@ -3,20 +3,16 @@
 //! Each problem will usually have its own specific [Fitness] function, therefore you need to
 //! implement it yourself. Because the [Fitness] function is specific, it is also bound to the
 //! [genotype](crate::genotype) through a trait attribute (no reason to make it generic).
+//!
+//! See [Fitness] Trait
+pub mod placeholders;
 pub mod prelude;
-mod count_true;
-mod sum;
-
-pub use self::count_true::CountTrue as FitnessCountTrue;
-pub use self::sum::SumContinuousGenotype as FitnessSumContinuousGenotype;
-pub use self::sum::SumDiscreteGenotype as FitnessSumDiscreteGenotype;
-pub use self::sum::SumMultiDiscreteGenotype as FitnessSumMultiDiscreteGenotype;
-pub use self::sum::SumUniqueDiscreteGenotype as FitnessSumUniqueDiscreteGenotype;
 
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
 
+/// Use isize for easy handling of scores (ordering, comparing) as floats are tricky in that regard.
 pub type FitnessValue = isize;
 
 #[derive(Copy, Clone, Debug)]
@@ -27,7 +23,7 @@ pub enum FitnessOrdering {
 
 /// The fitness function, is implemented as a fitness method object.
 ///
-/// Normally the fitness returns `Some(FitnessValue)` for the chromosome, which can be minimized or
+/// Normally the fitness returns [`Some(FitnessValue)`](FitnessValue) for the chromosome, which can be minimized or
 /// maximized in the search strategy (e.g. [Evolve](crate::evolve::Evolve) or
 /// [Permutate](crate::permutate::Permutate)) by providing the [FitnessOrdering].
 ///

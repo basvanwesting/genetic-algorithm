@@ -1,5 +1,5 @@
 use genetic_algorithm::evolve::prelude::*;
-use genetic_algorithm::fitness::FitnessCountTrue;
+use genetic_algorithm::fitness::placeholders::CountTrue;
 
 fn main() {
     let genotype = BinaryGenotype::builder()
@@ -10,7 +10,7 @@ fn main() {
         .with_genotype(genotype)
         .with_population_size(1000)
         .with_mutate(MutateOnce(0.2))
-        .with_fitness(FitnessCountTrue)
+        .with_fitness(CountTrue)
         .with_crossover(CrossoverSingle(true))
         .with_compete(CompeteTournament(4))
         .build();

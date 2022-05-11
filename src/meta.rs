@@ -22,7 +22,7 @@
 //! Currently implemented as a permutation, but with caching an evolve strategy could also be used for larger search spaces.
 //!
 //! ```rust
-//! use genetic_algorithm::fitness::FitnessCountTrue;
+//! use genetic_algorithm::fitness::placeholders::CountTrue;
 //! use genetic_algorithm::meta::prelude::*;
 //!
 //! let rounds = 10;
@@ -52,7 +52,7 @@
 //!     .with_gene_size(10)
 //!     .build()
 //!     .unwrap();
-//! let fitness = FitnessCountTrue;
+//! let fitness = CountTrue;
 //! let evolve_builder = EvolveBuilder::new()
 //!     .with_genotype(genotype)
 //!     .with_fitness(fitness)

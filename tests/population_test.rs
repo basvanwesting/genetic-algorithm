@@ -3,7 +3,8 @@ mod support;
 #[cfg(test)]
 mod population_tests {
     use crate::support::*;
-    use genetic_algorithm::fitness::{Fitness, FitnessOrdering, FitnessCountTrue};
+    use genetic_algorithm::fitness::placeholders::CountTrue;
+    use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
     use genetic_algorithm::genotype::BinaryGenotype;
 
     #[test]
@@ -20,7 +21,7 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        let population = FitnessCountTrue.call_for_population(population);
+        let population = CountTrue.call_for_population(population);
         assert_eq!(population.fitness_score_stddev(), 0.8660254);
 
         let population = build::population::<BinaryGenotype>(vec![
@@ -35,7 +36,7 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        let population = FitnessCountTrue.call_for_population(population);
+        let population = CountTrue.call_for_population(population);
         assert_eq!(population.fitness_score_stddev(), 0.3307189);
     }
 
