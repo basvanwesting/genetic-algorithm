@@ -80,7 +80,7 @@ fn main() {
         .with_population_size(100)
         .with_max_stale_generations(100)
         .with_mutate(MutateOnce(0.3))
-        .with_fitness(KnapsackFitness(67))
+        .with_fitness(KnapsackFitness(67)) // set the weight limit
         .with_crossover(CrossoverSingle(true))
         .with_compete(CompeteTournament(4))
         .build()

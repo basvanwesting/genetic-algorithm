@@ -9,7 +9,7 @@ There are three main elements to this approach:
 
 ## Documentation
 
-See [crate.io](https://docs.rs/genetic_algorithm/latest/genetic_algorithm)
+See [docs.rs](https://docs.rs/genetic_algorithm/latest/genetic_algorithm)
 
 ## Quick Usage
 
@@ -77,8 +77,10 @@ Run tests with `cargo test`
 Implemented using criterion. Run benchmarks with `cargo bench`
 
 ## Profiling
-Implemented using criterion and pprof. 
+Implemented using criterion and pprof.
+
 Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
+
 Run with `cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
 
 ## TODO

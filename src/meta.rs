@@ -16,8 +16,8 @@
 //!
 //! See example meta_evolve_binary for an meta analysis of the evolution strategy:
 //!
-//! * See [example/meta_evolve_binary](../main/examples/meta_evolve_binary.rs) `cargo run --example meta_evolve_binary --release`
-//! * See [example/meta_evolve_nqueens](../main/examples/meta_evolve_nqueens.rs) `cargo run --example meta_evolve_nqueens --release`
+//! * See [example/meta_evolve_binary](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/meta_evolve_binary.rs) `cargo run --example meta_evolve_binary --release`
+//! * See [example/meta_evolve_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/meta_evolve_nqueens.rs) `cargo run --example meta_evolve_nqueens --release`
 //!
 //! Currently implemented as a permutation, but with caching an evolve strategy could also be used for larger search spaces.
 //!
