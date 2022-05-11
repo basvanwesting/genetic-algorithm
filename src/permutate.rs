@@ -20,7 +20,7 @@ use std::fmt;
 /// Example:
 /// ```
 /// use genetic_algorithm::permutate::prelude::*;
-/// use genetic_algorithm::fitness::FitnessSimpleCount;
+/// use genetic_algorithm::fitness::FitnessCountTrue;
 ///
 /// // the search space
 /// let genotype = BinaryGenotype::builder() // boolean genes
@@ -31,7 +31,7 @@ use std::fmt;
 /// // the search strategy
 /// let permutate = Permutate::builder()
 ///     .with_genotype(genotype)
-///     .with_fitness(FitnessSimpleCount)                 // count the number of true values in the chromosomes
+///     .with_fitness(FitnessCountTrue)                 // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .build()
 ///     .unwrap()

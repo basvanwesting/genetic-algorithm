@@ -1,7 +1,7 @@
 use criterion::{criterion_group, criterion_main, Criterion};
 use pprof::criterion::{Output, PProfProfiler};
 
-use genetic_algorithm::fitness::FitnessSimpleCount;
+use genetic_algorithm::fitness::FitnessCountTrue;
 use genetic_algorithm::permutate::prelude::*;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -23,7 +23,7 @@ fn run() {
 
     let _permutate = Permutate::builder()
         .with_genotype(genotype)
-        .with_fitness(FitnessSimpleCount)
+        .with_fitness(FitnessCountTrue)
         .build()
         .unwrap()
         .call();

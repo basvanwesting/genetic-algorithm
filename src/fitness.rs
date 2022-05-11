@@ -4,14 +4,14 @@
 //! implement it yourself. Because the [Fitness] function is specific, it is also bound to the
 //! [genotype](crate::genotype) through a trait attribute (no reason to make it generic).
 pub mod prelude;
-mod simple_count;
-mod simple_sum;
+mod count_true;
+mod sum;
 
-pub use self::simple_count::SimpleCount as FitnessSimpleCount;
-pub use self::simple_sum::SimpleSumContinuousGenotype as FitnessSimpleSumContinuousGenotype;
-pub use self::simple_sum::SimpleSumDiscreteGenotype as FitnessSimpleSumDiscreteGenotype;
-pub use self::simple_sum::SimpleSumMultiDiscreteGenotype as FitnessSimpleSumMultiDiscreteGenotype;
-pub use self::simple_sum::SimpleSumUniqueDiscreteGenotype as FitnessSimpleSumUniqueDiscreteGenotype;
+pub use self::count_true::CountTrue as FitnessCountTrue;
+pub use self::sum::SumContinuousGenotype as FitnessSumContinuousGenotype;
+pub use self::sum::SumDiscreteGenotype as FitnessSumDiscreteGenotype;
+pub use self::sum::SumMultiDiscreteGenotype as FitnessSumMultiDiscreteGenotype;
+pub use self::sum::SumUniqueDiscreteGenotype as FitnessSumUniqueDiscreteGenotype;
 
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;

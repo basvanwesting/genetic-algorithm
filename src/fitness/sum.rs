@@ -6,8 +6,8 @@ use crate::genotype::{
 
 /// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SimpleSumContinuousGenotype;
-impl Fitness for SimpleSumContinuousGenotype {
+pub struct SumContinuousGenotype;
+impl Fitness for SumContinuousGenotype {
     type Genotype = ContinuousGenotype;
     fn call_for_chromosome(
         &mut self,
@@ -24,8 +24,8 @@ impl Fitness for SimpleSumContinuousGenotype {
 
 /// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SimpleSumDiscreteGenotype;
-impl Fitness for SimpleSumDiscreteGenotype {
+pub struct SumDiscreteGenotype;
+impl Fitness for SumDiscreteGenotype {
     type Genotype = DiscreteGenotype<usize>;
     fn call_for_chromosome(
         &mut self,
@@ -42,8 +42,8 @@ impl Fitness for SimpleSumDiscreteGenotype {
 
 /// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SimpleSumUniqueDiscreteGenotype;
-impl Fitness for SimpleSumUniqueDiscreteGenotype {
+pub struct SumUniqueDiscreteGenotype;
+impl Fitness for SumUniqueDiscreteGenotype {
     type Genotype = UniqueDiscreteGenotype<usize>;
     fn call_for_chromosome(
         &mut self,
@@ -60,8 +60,8 @@ impl Fitness for SimpleSumUniqueDiscreteGenotype {
 
 /// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SimpleSumMultiDiscreteGenotype;
-impl Fitness for SimpleSumMultiDiscreteGenotype {
+pub struct SumMultiDiscreteGenotype;
+impl Fitness for SumMultiDiscreteGenotype {
     type Genotype = MultiDiscreteGenotype<usize>;
     fn call_for_chromosome(
         &mut self,

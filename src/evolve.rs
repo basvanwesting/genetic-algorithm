@@ -45,7 +45,7 @@ use std::ops::Range;
 /// Example:
 /// ```
 /// use genetic_algorithm::evolve::prelude::*;
-/// use genetic_algorithm::fitness::FitnessSimpleCount;
+/// use genetic_algorithm::fitness::FitnessCountTrue;
 ///
 /// // the search space
 /// let genotype = BinaryGenotype::builder() // boolean genes
@@ -61,7 +61,7 @@ use std::ops::Range;
 ///     .with_target_fitness_score(0)          // goal is 0 times true in the best chromosome
 ///     .with_max_stale_generations(1000)      // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_degeneration_range(0.005..0.995) // simulate cambrian explosion when reaching a local optimum
-///     .with_fitness(FitnessSimpleCount)      // count the number of true values in the chromosomes
+///     .with_fitness(FitnessCountTrue)      // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_crossover(CrossoverAll(true))    // crossover all individual genes between 2 chromosomes for offspring
 ///     .with_mutate(MutateOnce(0.2))          // mutate a single gene with a 20% probability per chromosome

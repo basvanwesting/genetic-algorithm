@@ -7,9 +7,9 @@ mod evolve_tests {
     use genetic_algorithm::crossover::CrossoverSingle;
     use genetic_algorithm::evolve::{Evolve, TryFromEvolveBuilderError};
     use genetic_algorithm::fitness::{
-        FitnessOrdering, FitnessSimpleCount, FitnessSimpleSumContinuousGenotype,
-        FitnessSimpleSumDiscreteGenotype, FitnessSimpleSumMultiDiscreteGenotype,
-        FitnessSimpleSumUniqueDiscreteGenotype,
+        FitnessOrdering, FitnessCountTrue, FitnessSumContinuousGenotype,
+        FitnessSumDiscreteGenotype, FitnessSumMultiDiscreteGenotype,
+        FitnessSumUniqueDiscreteGenotype,
     };
     use genetic_algorithm::genotype::{
         BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
@@ -27,7 +27,7 @@ mod evolve_tests {
             .with_genotype(genotype)
             .with_population_size(100)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleCount)
+            .with_fitness(FitnessCountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build();
@@ -52,7 +52,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumUniqueDiscreteGenotype)
+            .with_fitness(FitnessSumUniqueDiscreteGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build();
@@ -78,7 +78,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleCount)
+            .with_fitness(FitnessCountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
@@ -108,7 +108,7 @@ mod evolve_tests {
             .with_fitness_ordering(FitnessOrdering::Minimize)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleCount)
+            .with_fitness(FitnessCountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
@@ -137,7 +137,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_target_fitness_score(8)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleCount)
+            .with_fitness(FitnessCountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
@@ -167,7 +167,7 @@ mod evolve_tests {
             .with_fitness_ordering(FitnessOrdering::Minimize)
             .with_target_fitness_score(0)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleCount)
+            .with_fitness(FitnessCountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
@@ -197,7 +197,7 @@ mod evolve_tests {
             .with_target_fitness_score(8)
             .with_degeneration_range(0.0001..1.0000)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleCount)
+            .with_fitness(FitnessCountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
@@ -227,7 +227,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumContinuousGenotype)
+            .with_fitness(FitnessSumContinuousGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
@@ -261,7 +261,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumDiscreteGenotype)
+            .with_fitness(FitnessSumDiscreteGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
@@ -295,7 +295,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleSumMultiDiscreteGenotype)
+            .with_fitness(FitnessSumMultiDiscreteGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()
@@ -318,7 +318,7 @@ mod evolve_tests {
             .with_population_size(8)
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
-            .with_fitness(FitnessSimpleCount)
+            .with_fitness(FitnessCountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
             .build()

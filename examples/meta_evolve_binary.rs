@@ -1,4 +1,4 @@
-use genetic_algorithm::fitness::FitnessSimpleCount;
+use genetic_algorithm::fitness::FitnessCountTrue;
 use genetic_algorithm::meta::prelude::*;
 
 fn main() {
@@ -35,7 +35,7 @@ fn main() {
         .with_gene_size(10)
         .build()
         .unwrap();
-    let fitness = FitnessSimpleCount;
+    let fitness = FitnessCountTrue;
     let evolve_builder = EvolveBuilder::new()
         .with_genotype(genotype)
         .with_fitness(fitness)

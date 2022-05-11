@@ -10,13 +10,13 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /evolve_config/ => 'evolve_builder',
-  /permutate_config/ => 'permutate_builder',
+  /simple_sum/ => 'sum',
+  /simple_count/ => 'count_true',
 }
 
 other_translations = {
-  /EvolveConfig/ => 'EvolveBuilder',
-  /PermutateConfig/ => 'PermutateBuilder',
+  /SimpleSum/ => 'Sum',
+  /SimpleCount/ => 'CountTrue',
 }
 
 #check:

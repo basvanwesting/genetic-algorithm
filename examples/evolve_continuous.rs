@@ -1,5 +1,5 @@
 use genetic_algorithm::evolve::prelude::*;
-use genetic_algorithm::fitness::FitnessSimpleSumContinuousGenotype;
+use genetic_algorithm::fitness::FitnessSumContinuousGenotype;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
@@ -20,7 +20,7 @@ fn main() {
         .with_target_fitness_score(95)
         .with_degeneration_range(0.0001..1.0000)
         .with_mutate(MutateOnce(0.2))
-        .with_fitness(FitnessSimpleSumContinuousGenotype)
+        .with_fitness(FitnessSumContinuousGenotype)
         .with_crossover(CrossoverAll(true))
         .with_compete(CompeteTournament(4))
         .build()

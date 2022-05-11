@@ -4,8 +4,8 @@ use crate::genotype::BinaryGenotype;
 
 /// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SimpleCount;
-impl Fitness for SimpleCount {
+pub struct CountTrue;
+impl Fitness for CountTrue {
     type Genotype = BinaryGenotype;
     fn call_for_chromosome(
         &mut self,

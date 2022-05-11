@@ -1,5 +1,5 @@
 mod fitness {
-    mod simple_count_test;
-    mod simple_sum_test;
+    mod count_true_test;
+    mod sum_test;
 }
 mod support;

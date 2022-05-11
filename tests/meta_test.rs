@@ -5,7 +5,7 @@ mod meta_tests {
     use genetic_algorithm::compete::{CompeteDispatch, Competes};
     use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
     use genetic_algorithm::evolve::EvolveBuilder;
-    use genetic_algorithm::fitness::FitnessSimpleCount;
+    use genetic_algorithm::fitness::FitnessCountTrue;
     use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
     use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
     use genetic_algorithm::mutate::{MutateDispatch, Mutates};
@@ -33,7 +33,7 @@ mod meta_tests {
             .with_gene_size(10)
             .build()
             .unwrap();
-        let fitness = FitnessSimpleCount;
+        let fitness = FitnessCountTrue;
 
         let evolve_builder = EvolveBuilder::new()
             .with_genotype(genotype)
