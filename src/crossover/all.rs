@@ -5,6 +5,10 @@ use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
+/// Crossover with 50% probability for each gene to come from one of the two parents.
+/// Optionally keep parents around to compete with children later on.
+///
+/// Not allowed for unique genotypes as it would not preserve the gene uniqueness in the children.
 #[derive(Clone, Debug)]
 pub struct All(pub KeepParent);
 impl Crossover for All {

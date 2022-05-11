@@ -4,6 +4,7 @@ use crate::genotype::{
     ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype, UniqueDiscreteGenotype,
 };
 
+/// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
 pub struct SimpleSumContinuousGenotype;
 impl Fitness for SimpleSumContinuousGenotype {
@@ -21,6 +22,7 @@ impl Fitness for SimpleSumContinuousGenotype {
     }
 }
 
+/// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
 pub struct SimpleSumDiscreteGenotype;
 impl Fitness for SimpleSumDiscreteGenotype {
@@ -38,6 +40,7 @@ impl Fitness for SimpleSumDiscreteGenotype {
     }
 }
 
+/// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
 pub struct SimpleSumUniqueDiscreteGenotype;
 impl Fitness for SimpleSumUniqueDiscreteGenotype {
@@ -55,6 +58,7 @@ impl Fitness for SimpleSumUniqueDiscreteGenotype {
     }
 }
 
+/// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
 pub struct SimpleSumMultiDiscreteGenotype;
 impl Fitness for SimpleSumMultiDiscreteGenotype {

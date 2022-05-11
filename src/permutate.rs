@@ -1,3 +1,4 @@
+//! A solution strategy for finding the best chromosomes in case of small problem spaces.
 mod builder;
 pub mod prelude;
 
@@ -11,6 +12,35 @@ use crate::genotype::PermutableGenotype;
 use crate::population::Population;
 use std::fmt;
 
+/// All possible combinations of genes are instantiated as chromosomes in the population.
+/// The fitness is calculated for each chromosome and the best is taken.
+///
+/// See [PermutateBuilder] for initialization options.
+///
+/// Example:
+/// ```
+/// use genetic_algorithm::permutate::prelude::*;
+/// use genetic_algorithm::fitness::FitnessSimpleCount;
+///
+/// // the search space
+/// let genotype = BinaryGenotype::builder() // boolean genes
+///     .with_gene_size(16)                  // 16 of them
+///     .build()
+///     .unwrap();
+///
+/// // the search strategy
+/// let permutate = Permutate::builder()
+///     .with_genotype(genotype)
+///     .with_fitness(FitnessSimpleCount)                 // count the number of true values in the chromosomes
+///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
+///     .build()
+///     .unwrap()
+///     .call();
+///
+/// // it's all about the best chromosome after all
+/// let best_chromosome = permutate.best_chromosome.unwrap();
+/// assert_eq!(best_chromosome.genes, vec![false; 16])
+/// ```
 pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     pub genotype: G,
     pub fitness: F,

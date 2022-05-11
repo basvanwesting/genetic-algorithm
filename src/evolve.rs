@@ -1,3 +1,4 @@
+//! A solution strategy for finding the best chromosomes.
 mod builder;
 pub mod prelude;
 
@@ -16,6 +17,63 @@ use rand::Rng;
 use std::fmt;
 use std::ops::Range;
 
+/// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
+/// seeds specific genes to start with).
+/// Then the Evolve strategy runs through generations of chromosomes in a loop:
+/// * [crossover](crate::crossover) to produce new offspring with a mix of parents chromosome genes
+/// * [mutate](crate::mutate) a subset of chromosomes to add some additional diversity
+/// * calculate [fitness](crate::fitness) for all chromosomes
+/// * [compete](crate::compete) to pair up chromosomes for crossover in next generation and drop excess chromosomes
+/// * store best chromosome
+/// * check ending conditions
+///
+/// The ending conditions are one or more of the following:
+/// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
+/// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
+///   threshold, or one wants a duration limitation next to the target_fitness_score
+///
+/// Optionally a degeneration_range can be set. When approacking a (local) optimum in the fitness
+/// score, the variation in the population goes down dramatically. This reduces the efficiency,
+/// but also has the risk of local optimum lock-in. Set this parameter to simulate a cambrian
+/// explosion, where there is only mutation until the population diversity is large enough again.
+/// The controlling metric is fitness score standard deviation in the population. The degeneration
+/// has a hysteresis switch, where the degeneration is activated at the start bound of the range,
+/// and deactivated at the end bound of the range. A typical value is `(0.005..0.995)`
+///
+/// See [EvolveBuilder] for initialization options.
+///
+/// Example:
+/// ```
+/// use genetic_algorithm::evolve::prelude::*;
+/// use genetic_algorithm::fitness::FitnessSimpleCount;
+///
+/// // the search space
+/// let genotype = BinaryGenotype::builder() // boolean genes
+///     .with_gene_size(100)                 // 100 of them
+///     .build()
+///     .unwrap();
+///
+/// // the search strategy
+/// let mut rng = rand::thread_rng();          // a randomness provider implementing Trait rand::Rng
+/// let evolve = Evolve::builder()
+///     .with_genotype(genotype)
+///     .with_population_size(100)             // evolve with 100 chromosomes
+///     .with_target_fitness_score(0)          // goal is 0 times true in the best chromosome
+///     .with_max_stale_generations(1000)      // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_degeneration_range(0.005..0.995) // simulate cambrian explosion when reaching a local optimum
+///     .with_fitness(FitnessSimpleCount)      // count the number of true values in the chromosomes
+///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
+///     .with_crossover(CrossoverAll(true))    // crossover all individual genes between 2 chromosomes for offspring
+///     .with_mutate(MutateOnce(0.2))          // mutate a single gene with a 20% probability per chromosome
+///     .with_compete(CompeteElite)            // sort the chromosomes by fitness to determine crossover order
+///     .build()
+///     .unwrap()
+///     .call(&mut rng);
+///
+/// // it's all about the best chromosome after all
+/// let best_chromosome = evolve.best_chromosome.unwrap();
+/// assert_eq!(best_chromosome.genes, vec![false; 100])
+/// ```
 pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> {
     pub genotype: G,
     pub mutate: M,

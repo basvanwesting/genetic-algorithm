@@ -1,3 +1,8 @@
+//! The crossover phase where every two parent chromosomes create two children chromosomes. The
+//! [competition](crate::compete) phase determines the order of the parent pairing (overall with
+//! fitter first). If you choose to keep the parents, the parents will compete with their own
+//! children and the population is temporarily overbooked and half of it will be discarded in the
+//! [competition](crate::compete) phase.
 mod all;
 mod clone;
 mod range;
@@ -20,6 +25,8 @@ pub trait Crossover: Clone + std::fmt::Debug {
         rng: &mut R,
     ) -> Population<T>;
 
+    /// a flag to guard against invalid Crossover strategies which break the internal consistency
+    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
     fn allow_unique_genotype(&self) -> bool {
         false
     }
@@ -34,6 +41,7 @@ pub enum Crossovers {
 }
 pub type KeepParent = bool;
 
+/// Wrapper for use in [meta analysis](crate::meta)
 #[derive(Clone, Debug)]
 pub struct CrossoverDispatch(pub Crossovers, pub KeepParent);
 impl Crossover for CrossoverDispatch {

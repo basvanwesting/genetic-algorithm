@@ -9,6 +9,7 @@ use std::ops::Range;
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
 
+/// The builder for an Evolve struct.
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> {
     pub genotype: Option<G>,

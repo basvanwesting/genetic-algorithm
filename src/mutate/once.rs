@@ -4,6 +4,8 @@ use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
+/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the provided [MutationProbability]. Then mutates the
+/// selected chromosomes once.
 #[derive(Debug, Clone)]
 pub struct Once(pub MutationProbability);
 impl Mutate for Once {

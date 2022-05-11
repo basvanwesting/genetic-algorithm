@@ -7,8 +7,77 @@ use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
 
+pub type DefaultDiscreteGene = usize;
+
+/// Genes are a list of values, each individually taken from its own gene_values using clone().
+/// The gene_size is derived to be the same as number of provided gene_values. All
+/// gene_values have to be of the same type, but can have different values and lengths. On
+/// random initialization, each gene gets a value from its own gene_values with a uniform
+/// probability. Each gene has a weighted probability of mutating, depending on its gene_values
+/// length. If a gene mutates, a new values is taken from its own gene_values with a uniform
+/// probability (regardless of current value, which could therefore be assigned again, not mutating
+/// as a result). Duplicate gene values are allowed. Defaults to usize as item.
+///
+/// This genotype is also used in the [meta analysis](crate::meta), to hold the indices of the
+/// different [Evolve](crate::evolve::Evolve) configuration values (defined outside of the genotype).
+///
+/// # Example (usize, default):
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, MultiDiscreteGenotype};
+///
+/// let genotype = MultiDiscreteGenotype::builder()
+///     .with_gene_multi_values(vec![
+///        (0..10).collect(),
+///        (0..20).collect(),
+///        (0..5).collect(),
+///        (0..30).collect(),
+///     ])
+///     .build()
+///     .unwrap();
+/// ```
+///
+/// # Example (usize, used to lookup external types of different kind):
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, MultiDiscreteGenotype};
+///
+/// let cars = vec!["BMW X3", "Ford Mustang", "Chevrolet Camaro"];
+/// let drivers = vec!["Louis", "Max", "Charles"];
+/// let number_of_laps = vec![10, 20, 30, 40];
+/// let rain_probabilities = vec![0.0, 0.2, 0.4, 0.6, 0.8, 1.0];
+///
+/// let genotype = MultiDiscreteGenotype::builder()
+///     .with_gene_multi_values(vec![
+///        (0..cars.len()).collect(),
+///        (0..drivers.len()).collect(),
+///        (0..number_of_laps.len()).collect(),
+///        (0..rain_probabilities.len()).collect(),
+///     ])
+///     .build()
+///     .unwrap();
+///
+/// // The fitness function will be provided the genes (e.g. [2,0,1,4]) and will then have to
+/// // lookup the external types and implement some fitness logic for the combination (e.g.
+/// // ["Chevrolet Camaro", "Louis", 20, 0.8])
+/// ```
+///
+/// # Example (struct, the limitation is that the type needs to be the same for all lists)
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, MultiDiscreteGenotype};
+///
+/// #[derive(Clone, Debug)]
+/// struct Item(pub u16, pub u16);
+///
+/// let genotype = MultiDiscreteGenotype::builder()
+///     .with_gene_multi_values(vec![
+///       vec![Item(23, 505), Item(26, 352), Item(20, 458)],
+///       vec![Item(23, 505), Item(26, 352)],
+///       vec![Item(26, 352), Item(20, 458), Item(13, 123)],
+///     ])
+///     .build()
+///     .unwrap();
+/// ```
 #[derive(Clone, Debug)]
-pub struct MultiDiscrete<T: Clone + std::fmt::Debug> {
+pub struct MultiDiscrete<T: Clone + std::fmt::Debug = DefaultDiscreteGene> {
     gene_size: usize,
     gene_value_sizes: Vec<usize>,
     pub gene_multi_values: Vec<Vec<T>>,

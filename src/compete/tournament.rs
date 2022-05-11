@@ -7,6 +7,12 @@ use crate::population::Population;
 use rand::prelude::*;
 use std::cmp::Reverse;
 
+/// Run tournaments with randomly chosen chromosomes and pick a single winner. Do this
+/// target_population_size times until the required population level is reached. This approach kind
+/// of sorts the fitness first, but not very strictly. This preserves a level of diversity, which
+/// avoids local optimum lock-in.
+///
+/// Excess chromosomes, beyond the target_population_size are dropped.
 #[derive(Clone, Debug)]
 pub struct Tournament(pub TournamentSize);
 impl Compete for Tournament {

@@ -1,3 +1,5 @@
+//! The competition phase, where chromosomes are lined up for pairing in the
+//! [crossover](crate::crossover) phase.
 mod elite;
 mod tournament;
 
@@ -26,6 +28,7 @@ pub enum Competes {
 }
 pub type TournamentSize = usize;
 
+/// Wrapper for use in [meta analysis](crate::meta)
 #[derive(Clone, Debug)]
 pub struct CompeteDispatch(pub Competes, pub TournamentSize);
 impl Compete for CompeteDispatch {

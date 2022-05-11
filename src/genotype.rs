@@ -1,3 +1,4 @@
+//! The search space for the algorithm.
 mod binary;
 mod builder;
 mod continuous;
@@ -25,11 +26,15 @@ use std::fmt;
 // trait alias, experimental
 //pub trait Gene = Clone + std::fmt::Debug;
 
+/// Each implemented genotype handles its own random genes initialization and mutation.
 pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>> {
     type Gene: Clone + std::fmt::Debug;
     fn gene_size(&self) -> usize;
+    /// a random chromosome factory to seed the initial population for [Evolve](crate::evolve::Evolve)
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
+    /// a flag to guard against invalid crossover strategies which break the internal consistency
+    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
     fn is_unique(&self) -> bool {
         false
     }
@@ -40,8 +45,10 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
 
 //Evolvable is implicit, until proven otherwise
 //pub trait EvolvableGenotype: Genotype {}
+/// Not all genotypes are permutable, only countable ones (e.g. continuous genotypes cannot be permutated).
 pub trait PermutableGenotype: Genotype {
     fn gene_values(&self) -> Vec<Self::Gene>;
+    /// the full population with all possible gene combinations for [Permutate](crate::permutate::Permutate)
     fn population_factory(&self) -> Population<Self> {
         let chromosomes = (0..self.gene_size())
             .map(|_| self.gene_values())

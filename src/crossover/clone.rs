@@ -3,6 +3,10 @@ use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::Rng;
 
+/// Children are clones of the parents, effectively doubling the population if you keep the parents.
+/// Acts as no-op if the parents are not kept.
+///
+/// Allowed for unique genotypes.
 #[derive(Clone, Debug)]
 pub struct Clone(pub KeepParent);
 impl Crossover for Clone {

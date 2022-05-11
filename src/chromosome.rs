@@ -1,3 +1,4 @@
+//! The chromosome is a container for the genes and caches a fitness score
 use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
 use std::cmp::Ordering;
@@ -5,8 +6,13 @@ use std::collections::hash_map::DefaultHasher;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 
+/// The GenesKey can be used for caching fitness scores, without lifetime concerns of the chromosome
 pub type GenesKey = u64;
 
+/// The Chromosome is used as an individual in the [Population](crate::population::Population). It
+/// holds the genes and knows how to sort between itself with regard to it's fitness score.
+/// Chromosomes [crossover](crate::crossover), [mutate](crate::mutate) and [compete](crate::compete) with each other in the
+/// [Evolve](crate::evolve::Evolve) strategy
 #[derive(Clone, Debug)]
 pub struct Chromosome<T: Genotype> {
     pub genes: Vec<T::Gene>,
@@ -18,7 +24,6 @@ impl<T: Genotype> Chromosome<T>
 where
     <T as Genotype>::Gene: Hash,
 {
-    // genes_key() can be used for caching, without lifetime concerns of the chromosome
     pub fn genes_key(&self) -> GenesKey {
         let mut s = DefaultHasher::new();
         self.genes.hash(&mut s);
@@ -34,6 +39,7 @@ impl<T: Genotype> Chromosome<T> {
         }
     }
 
+    /// Reset fitness_score for recalculation
     pub fn taint_fitness_score(&mut self) {
         self.fitness_score = None;
     }

@@ -6,11 +6,29 @@ use rand::prelude::*;
 use std::fmt;
 use std::ops::Range;
 
-// trait alias, experimental
-//pub trait Gene = Clone + std::fmt::Debug;
-
 pub type ContinuousGene = f32;
 
+/// Genes are a list of f32, each individually taken from its own gene_range.
+/// The gene_size is derived to be the same as number of provided gene_ranges. On
+/// random initialization, each gene gets a value from its own gene_range with a uniform
+/// probability. Each gene has a weighted probability of mutating, depending on its gene_range
+/// size. If a gene mutates, a new values is taken from its own gene_range with a uniform
+/// probability. Duplicate gene values are allowed. Defaults to usize as item.
+///
+/// # Example:
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, MultiContinuousGenotype};
+///
+/// let genotype = MultiContinuousGenotype::builder()
+///     .with_gene_ranges(vec![
+///        (0.0..10.0),
+///        (5.0..20.0),
+///        (0.0..5.0),
+///        (10.0..30.0),
+///     ])
+///     .build()
+///     .unwrap();
+/// ```
 #[derive(Clone, Debug)]
 pub struct MultiContinuous {
     gene_size: usize,

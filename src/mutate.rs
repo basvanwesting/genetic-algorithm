@@ -1,3 +1,6 @@
+//! The mutation strategy, very important for avoiding local optimum lock-in. But don't overdo it,
+//! as it degenerates the population too much if overused. Use a mutation probability generally between
+//! 5% and 20%.
 mod once;
 
 pub use self::once::Once as MutateOnce;
@@ -21,6 +24,7 @@ pub enum Mutates {
 }
 pub type MutationProbability = f32;
 
+/// Wrapper for use in [meta analysis](crate::meta)
 #[derive(Clone, Debug)]
 pub struct MutateDispatch(pub Mutates, pub MutationProbability);
 impl Mutate for MutateDispatch {

@@ -4,6 +4,13 @@ use std::ops::Range;
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
 
+/// The builder for a Genotype struct
+///
+/// Shared initialization options for all Genotypes:
+/// * Builder `with_seed_genes(Vec<_>)`, optional, start genes of all chromosomes in the population
+///   (instead of the default random genes). Sometimes it is efficient to start with a certain population
+///   (e.g. [Knapsack problem](../main/examples/evolve_knapsack.rs) with no items in it)
+///
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {
     pub gene_size: Option<usize>,

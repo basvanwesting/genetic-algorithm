@@ -25,6 +25,8 @@ There are three main elements to this approach:
     * See [example/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)
     * Note: doesn't help performance much in this case...
     * `cargo run --example evolve_binary_lru_cache_fitness --release`
+* Permutation strategy instead of Evolve strategy for small search spaces
+    * See [example/permutate_binary](../main/examples/permutate_binary.rs)
 
 ## Quick Usage
 
@@ -41,8 +43,8 @@ println!("{}", genotype);
 
 // the search goal to optimize towards (maximize or minimize)
 #[derive(Clone, Debug)]
-pub struct SimpleCount;
-impl Fitness for SimpleCount {
+pub struct CountTrue;
+impl Fitness for CountTrue {
     type Genotype = BinaryGenotype;
     fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
@@ -55,9 +57,9 @@ let evolve = Evolve::builder()
     .with_genotype(genotype)
     .with_population_size(100)          // evolve with 100 chromosomes
     .with_target_fitness_score(100)     // goal is 100 times true in the best chromosome
+    .with_fitness(CountTrue)            // count the number of true values in the chromosomes
     .with_crossover(CrossoverAll(true)) // crossover all individual genes between 2 chromosomes for offspring
     .with_mutate(MutateOnce(0.2))       // mutate a single gene with a 20% probability per chromosome
-    .with_fitness(SimpleCount)          // count the number of true values in the chromosomes
     .with_compete(CompeteElite)         // sort the chromosomes by fitness to determine crossover order
     .build()
     .unwrap()
@@ -356,4 +358,5 @@ Implemented using criterion and pprof. find the flamegraph in: ./target/criterio
 * Maybe seed best_chromosome back into population after degenerate?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
-* Support genotypes with variable length (for knapsack problem). A Set type?
+* Support genotypes with variable length (for knapsack problem). A Bag / Set type?
+* Add a chromosome stream for Permutate, instead of initializing the full population

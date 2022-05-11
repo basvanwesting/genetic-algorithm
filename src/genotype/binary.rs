@@ -7,6 +7,19 @@ use std::fmt;
 
 pub type BinaryGene = bool;
 
+/// Genes are a list of booleans. On random initialization, each gene has a 50% probability of
+/// becoming true or false. Each gene has an equal probability of mutating. If a gene mutates, its
+/// value is flipped.
+///
+/// # Example:
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, BinaryGenotype};
+///
+/// let genotype = BinaryGenotype::builder()
+///     .with_gene_size(100)
+///     .build()
+///     .unwrap();
+/// ```
 #[derive(Clone, Debug)]
 pub struct Binary {
     pub gene_size: usize,

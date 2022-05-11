@@ -5,11 +5,45 @@ use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
-// trait alias, experimental
-//pub trait Gene = Clone + std::fmt::Debug;
+pub type DefaultDiscreteGene = usize;
 
+/// Genes are a list of values, each taken from the gene_values using clone(). On random
+/// initialization, each gene gets a value from the gene_values with a uniform probability. Each
+/// gene has an equal probability of mutating. If a gene mutates, a new values is taken from the
+/// gene_values with a uniform probability (regardless of current value, which could therefore be
+/// assigned again, not mutating as a result). Duplicate gene values are allowed. Defaults to usize
+/// as item.
+///
+/// # Example (usize, default):
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, DiscreteGenotype};
+///
+/// let genotype = DiscreteGenotype::builder()
+///     .with_gene_size(100)
+///     .with_gene_values((0..10).collect())
+///     .build()
+///     .unwrap();
+/// ```
+///
+/// # Example (struct)
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, DiscreteGenotype};
+///
+/// #[derive(Clone, Debug)]
+/// struct Item(pub u16, pub u16);
+///
+/// let genotype = DiscreteGenotype::builder()
+///     .with_gene_size(100)
+///     .with_gene_values(vec![
+///         Item(23, 505),
+///         Item(26, 352),
+///         Item(20, 458),
+///     ])
+///     .build()
+///     .unwrap();
+/// ```
 #[derive(Debug, Clone)]
-pub struct Discrete<T: Clone + std::fmt::Debug> {
+pub struct Discrete<T: Clone + std::fmt::Debug = DefaultDiscreteGene> {
     pub gene_size: usize,
     pub gene_values: Vec<T>,
     gene_index_sampler: Uniform<usize>,

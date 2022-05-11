@@ -5,6 +5,7 @@ use crate::permutate::Permutate;
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
 
+/// The builder for an Permutate struct.
 #[derive(Clone, Debug)]
 pub struct Builder<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     pub genotype: Option<G>,

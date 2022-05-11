@@ -5,6 +5,11 @@ use crate::population::Population;
 use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 
+/// Crossover with a single gene position from which on the rest of the genes are taken from the
+/// other parent. The gene position is chosen with uniform probability.
+/// Optionally keep parents around to compete with children later on.
+///
+/// Not allowed for unique genotypes as it would not preserve the gene uniqueness in the children.
 #[derive(Clone, Debug)]
 pub struct Range(pub KeepParent);
 impl Crossover for Range {

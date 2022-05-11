@@ -2,6 +2,7 @@ use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::BinaryGenotype;
 
+/// placeholder for internal testing, not really used in practice
 #[derive(Clone, Debug)]
 pub struct SimpleCount;
 impl Fitness for SimpleCount {

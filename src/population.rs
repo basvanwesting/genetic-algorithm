@@ -1,3 +1,4 @@
+//! The population is a  container for [Chromosomes](Chromosome)
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
@@ -27,7 +28,8 @@ impl<T: Genotype> Population<T> {
         self.chromosomes.len()
     }
 
-    // fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out
+    /// fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out
+    /// when minimizing the fitness score, otherwise None would end up as best.
     pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&Chromosome<T>> {
         match fitness_ordering {
             FitnessOrdering::Maximize => self.chromosomes.iter().max(),
