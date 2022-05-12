@@ -106,9 +106,10 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for UniqueDiscrete<T> {
     fn population_factory(&self) -> Population<Self> {
         let chromosomes = self
             .gene_values()
-            .iter()
+            .clone()
+            .into_iter()
             .permutations(self.gene_size())
-            .map(|genes| Chromosome::new(genes.into_iter().cloned().collect()))
+            .map(|genes| Chromosome::new(genes))
             .collect();
 
         Population::new(chromosomes)

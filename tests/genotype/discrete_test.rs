@@ -20,3 +20,46 @@ fn general() {
     assert_eq!(genotype.population_factory_size(), 1024);
     assert_eq!(genotype.is_unique(), false);
 }
+
+#[test]
+fn population_factory() {
+    let genotype = DiscreteGenotype::builder()
+        .with_gene_size(3)
+        .with_gene_values(vec![0, 1, 2])
+        .build()
+        .unwrap();
+
+    assert_eq!(genotype.population_factory_size(), 27);
+    assert_eq!(
+        inspect::population(&genotype.population_factory()),
+        vec![
+            vec![0, 0, 0],
+            vec![0, 0, 1],
+            vec![0, 0, 2],
+            vec![0, 1, 0],
+            vec![0, 1, 1],
+            vec![0, 1, 2],
+            vec![0, 2, 0],
+            vec![0, 2, 1],
+            vec![0, 2, 2],
+            vec![1, 0, 0],
+            vec![1, 0, 1],
+            vec![1, 0, 2],
+            vec![1, 1, 0],
+            vec![1, 1, 1],
+            vec![1, 1, 2],
+            vec![1, 2, 0],
+            vec![1, 2, 1],
+            vec![1, 2, 2],
+            vec![2, 0, 0],
+            vec![2, 0, 1],
+            vec![2, 0, 2],
+            vec![2, 1, 0],
+            vec![2, 1, 1],
+            vec![2, 1, 2],
+            vec![2, 2, 0],
+            vec![2, 2, 1],
+            vec![2, 2, 2],
+        ]
+    );
+}

@@ -40,7 +40,7 @@ fn population_factory_size_one() {
 }
 
 #[test]
-fn population_factory_size_four() {
+fn population_factory() {
     let genotype = MultiDiscreteGenotype::builder()
         .with_gene_multi_values(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1, 2, 3]])
         .build()
