@@ -48,7 +48,7 @@ impl TryFrom<Builder<Self>> for MultiContinuous {
             ))
         } else if builder.gene_ranges.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
-                "UniqueDiscreteGenotype requires non-empty gene_ranges",
+                "MultiContinuousGenotype requires non-empty gene_ranges",
             ))
         } else {
             let gene_ranges = builder.gene_ranges.unwrap();

@@ -100,7 +100,7 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for MultiDiscrete<T> {
             .unwrap()
         {
             Err(TryFromBuilderError(
-                "UniqueDiscreteGenotype requires non-empty gene_multi_values",
+                "MultiDiscreteGenotype requires non-empty gene_multi_values",
             ))
         } else {
             let gene_multi_values = builder.gene_multi_values.unwrap();

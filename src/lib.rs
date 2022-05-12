@@ -52,8 +52,10 @@
 //!     * See [examples/evolve_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_nqueens.rs)
 //!     * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup and custom `NQueensFitness` fitness
 //! * Knapsack problem: <https://en.wikipedia.org/wiki/Knapsack_problem>
-//!     * See [examples/evolve_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_knapsack.rs)
-//!     * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
+//!     * See [examples/evolve_knapsack_discrete](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_knapsack_discrete.rs)
+//!         * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
+//!     * See [examples/evolve_knapsack_set](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_knapsack_set.rs)
+//!         * `SetGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
 //! * Infinite Monkey theorem: <https://en.wikipedia.org/wiki/Infinite_monkey_theorem>
 //!     * See [examples/evolve_monkeys](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_monkeys.rs)
 //!     * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop

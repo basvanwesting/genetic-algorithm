@@ -94,7 +94,7 @@ impl<T: Clone + std::fmt::Debug + Hash + Eq> Genotype for Set<T> {
     }
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
-        if self.boolean_sampler.sample(rng) {
+        if chromosome.genes.len() > 0 && self.boolean_sampler.sample(rng) {
             // remove an item
             let index = rng.gen_range(0..chromosome.genes.len());
             chromosome.genes.swap_remove(index);

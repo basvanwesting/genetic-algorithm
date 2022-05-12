@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
 
 use genetic_algorithm::genotype::*;
 use rand::prelude::*;
@@ -37,10 +37,21 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });
 
-    c.bench_function("mutate_chromosome_unique_discrete", |b| {
+    c.bench_function("mutate_chromosome_multi_continuous", |b| {
         let mut rng = SmallRng::from_entropy();
-        let genotype = UniqueDiscreteGenotype::builder()
-            .with_gene_values((0..10).collect())
+        let genotype = MultiContinuousGenotype::builder()
+            .with_gene_ranges(vec![
+                (0.0..1.0),
+                (0.0..2.0),
+                (0.0..3.0),
+                (0.0..4.0),
+                (0.0..5.0),
+                (0.0..6.0),
+                (0.0..7.0),
+                (0.0..8.0),
+                (0.0..9.0),
+                (0.0..10.0),
+            ])
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -62,6 +73,29 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 (0..9).collect(),
                 (0..10).collect(),
             ])
+            .build()
+            .unwrap();
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
+    });
+
+    c.bench_function("mutate_chromosome_set", |b| {
+        let mut rng = SmallRng::from_entropy();
+        let genotype = SetGenotype::builder()
+            .with_gene_values((0..10).collect())
+            .build()
+            .unwrap();
+        b.iter_batched(
+            || genotype.chromosome_factory(&mut SmallRng::from_entropy()),
+            |mut chromosome| genotype.mutate_chromosome(&mut chromosome, &mut rng),
+            BatchSize::SmallInput,
+        )
+    });
+
+    c.bench_function("mutate_chromosome_unique_discrete", |b| {
+        let mut rng = SmallRng::from_entropy();
+        let genotype = UniqueDiscreteGenotype::builder()
+            .with_gene_values((0..10).collect())
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);

@@ -58,8 +58,10 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * See [example/evolve_nqueens](../main/examples/evolve_nqueens.rs)
     * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup and custom `NQueensFitness` fitness
 * Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
-    * See [example/evolve_knapsack](../main/examples/evolve_knapsack.rs)
-    * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
+    * See [example/evolve_knapsack_discrete](../main/examples/evolve_knapsack_discrete.rs)
+        * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
+    * See [example/evolve_knapsack_set](../main/examples/evolve_knapsack_set.rs)
+        * `SetGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
 * Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
     * See [example/evolve_monkeys](../main/examples/evolve_monkeys.rs)
     * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
