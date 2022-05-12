@@ -1,4 +1,6 @@
 use genetic_algorithm::permutate::prelude::*;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
 
 // see https://en.wikipedia.org/wiki/Knapsack_problem
 // example data 10 items with (weight, value):
