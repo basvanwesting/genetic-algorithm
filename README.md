@@ -55,21 +55,28 @@ println!("{}", evolve);
 Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 
 * N-Queens puzzle https://en.wikipedia.org/wiki/Eight_queens_puzzle.
-    * See [example/evolve_nqueens](../main/examples/evolve_nqueens.rs)
-    * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup and custom `NQueensFitness` fitness
+    * See [examples/evolve_nqueens](../main/examples/evolve_nqueens.rs)
+        * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup
+        * custom `NQueensFitness` fitness
 * Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
-    * See [example/evolve_knapsack_discrete](../main/examples/evolve_knapsack_discrete.rs)
-        * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
-    * See [example/evolve_knapsack_set](../main/examples/evolve_knapsack_set.rs)
-        * `SetGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
+    * See [examples/evolve_knapsack_discrete](../main/examples/evolve_knapsack_discrete.rs)
+        * `DiscreteGenotype<(weight, value)>` with a `(0, 0)` empty item to set on empty gene slots
+        * custom `KnapsackFitness(weight_limit)` fitness, extra checking for duplicate items
+    * See [examples/evolve_knapsack_set](../main/examples/evolve_knapsack_set.rs)
+        * `SetGenotype<(weight, value)>` no need for empty items as the gene size is variable
+        * custom `KnapsackFitness(weight_limit)` fitness
+    * See [examples/permutate_knapsack_set](../main/examples/permutate_knapsack_set.rs)
+        * `SetGenotype<(weight, value)>` permutate, since there are only 1023 possible combinations with 10 items
+        * custom `KnapsackFitness(weight_limit)` fitness
 * Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
-    * See [example/evolve_monkeys](../main/examples/evolve_monkeys.rs)
-    * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
+    * See [examples/evolve_monkeys](../main/examples/evolve_monkeys.rs)
+        * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
+        * custom fitness using hamming distance
 * Custom Fitness function with LRU cache
-    * See [example/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)
-    * Note: doesn't help performance much in this case...
+    * See [examples/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)
+    * _Note: doesn't help performance much in this case..._
 * Permutation strategy instead of Evolve strategy for small search spaces
-    * See [example/permutate_binary](../main/examples/permutate_binary.rs)
+    * See [examples/permutate_binary](../main/examples/permutate_binary.rs)
 
 
 ## Tests

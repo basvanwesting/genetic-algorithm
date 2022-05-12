@@ -50,18 +50,25 @@
 //!
 //! * N-Queens puzzle <https://en.wikipedia.org/wiki/Eight_queens_puzzle>
 //!     * See [examples/evolve_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_nqueens.rs)
-//!     * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup and custom `NQueensFitness` fitness
+//!         * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup
+//!         * custom `NQueensFitness` fitness
 //! * Knapsack problem: <https://en.wikipedia.org/wiki/Knapsack_problem>
 //!     * See [examples/evolve_knapsack_discrete](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_knapsack_discrete.rs)
-//!         * `DiscreteGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
+//!         * custom `KnapsackFitness(weight_limit)` fitness, extra checking for duplicate items
+//!         * `DiscreteGenotype<(weight, value)>` with a `(0, 0)` empty item to set on empty gene slots
 //!     * See [examples/evolve_knapsack_set](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_knapsack_set.rs)
-//!         * `SetGenotype<(weight, value)>` with a custom `KnapsackFitness(weight_limit)` fitness
+//!         * custom `KnapsackFitness(weight_limit)` fitness
+//!         * `SetGenotype<(weight, value)>` no need for empty items as the gene size is variable
+//!     * See [examples/permutate_knapsack_set](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_knapsack_set.rs)
+//!         * custom `KnapsackFitness(weight_limit)` fitness
+//!         * `SetGenotype<(weight, value)>` permutate, since there are only 1023 possible combinations with 10 items
 //! * Infinite Monkey theorem: <https://en.wikipedia.org/wiki/Infinite_monkey_theorem>
 //!     * See [examples/evolve_monkeys](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_monkeys.rs)
-//!     * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
+//!         * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
+//!         * custom fitness using hamming distance
 //! * Custom Fitness function with LRU cache
 //!     * See [examples/evolve_binary_lru_cache_fitness](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_binary_lru_cache_fitness.rs)
-//!     * Note: doesn't help performance much in this case...
+//!     * _Note: doesn't help performance much in this case..._
 //! * Permutation strategy instead of Evolve strategy for small search spaces
 //!     * See [example/permutate_binary](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_binary.rs)
 //!
