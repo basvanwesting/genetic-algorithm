@@ -98,3 +98,4 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make fitness/simple_sum generic
 * Support genotypes with variable length (for knapsack problem). A Bag / Set type?
 * Does Fitness need an associated trait for Genotype?, can this be made more light weight
+* Use checked math or some big number type for chromosome_permutations_size as it overflows easily
