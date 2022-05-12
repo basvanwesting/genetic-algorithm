@@ -179,6 +179,11 @@ impl<T: Clone + std::fmt::Debug> fmt::Display for MultiDiscrete<T> {
         writeln!(f, "  gene_size: {}\n", self.gene_size)?;
         writeln!(f, "  gene_value_sizes: {:?}", self.gene_value_sizes)?;
         writeln!(f, "  gene_multi_values: {:?}", self.gene_multi_values)?;
-        writeln!(f, "  seed_genes: {:?}", self.seed_genes)
+        writeln!(f, "  seed_genes: {:?}", self.seed_genes)?;
+        writeln!(
+            f,
+            "  chromosome_permutations_size: {:?}",
+            self.chromosome_permutations_size()
+        )
     }
 }
