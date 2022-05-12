@@ -52,8 +52,11 @@ pub trait Fitness: Clone + std::fmt::Debug {
             .chromosomes
             .iter_mut()
             .filter(|c| c.fitness_score.is_none())
-            .for_each(|c| c.fitness_score = self.calculate_for_chromosome(c));
+            .for_each(|c| self.call_for_chromosome(c));
         population
+    }
+    fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Genotype>) {
+        chromosome.fitness_score = self.calculate_for_chromosome(chromosome);
     }
     fn calculate_for_chromosome(
         &mut self,

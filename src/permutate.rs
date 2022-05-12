@@ -58,10 +58,8 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
 
     pub fn call(mut self) -> Self {
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
-            if let Some(fitness_value) = self.fitness.calculate_for_chromosome(&chromosome) {
-                chromosome.fitness_score = Some(fitness_value);
-                self.update_best_chromosome(&chromosome);
-            }
+            self.fitness.call_for_chromosome(&mut chromosome);
+            self.update_best_chromosome(&chromosome);
         }
         self
     }
