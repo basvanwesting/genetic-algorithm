@@ -18,7 +18,6 @@ pub use self::multi_discrete::MultiDiscrete as MultiDiscreteGenotype;
 pub use self::unique_discrete::UniqueDiscrete as UniqueDiscreteGenotype;
 
 use crate::chromosome::Chromosome;
-use crate::population::Population;
 use itertools::Itertools;
 use rand::prelude::*;
 use std::fmt;
@@ -48,12 +47,9 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
 /// Not all genotypes are permutable, only countable ones (e.g. continuous genotypes cannot be permutated).
 pub trait PermutableGenotype: Genotype {
     fn gene_values(&self) -> Vec<Self::Gene>;
-    /// the full population with all possible gene combinations for [Permutate](crate::permutate::Permutate)
-    fn population_factory(&self) -> Population<Self> {
-        Population::new(self.steaming_chromosome_factory().collect())
-    }
 
-    fn steaming_chromosome_factory<'a>(
+    /// chromosome iterator for the all possible gene combinations for [Permutate](crate::permutate::Permutate)
+    fn chromosome_permutations_into_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
         Box::new(
@@ -64,7 +60,8 @@ pub trait PermutableGenotype: Genotype {
         )
     }
 
-    fn population_factory_size(&self) -> usize {
+    /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::permutate::Permutate)
+    fn chromosome_permutations_size(&self) -> usize {
         self.gene_values().len().pow(self.gene_size() as u32)
     }
 }

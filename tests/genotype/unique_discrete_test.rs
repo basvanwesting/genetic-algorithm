@@ -17,20 +17,20 @@ fn general() {
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 3, 2]);
 
     assert_eq!(genotype.gene_values(), vec![5, 2, 3, 4]);
-    assert_eq!(genotype.population_factory_size(), 24);
+    assert_eq!(genotype.chromosome_permutations_size(), 24);
     assert_eq!(genotype.is_unique(), true);
 }
 
 #[test]
-fn population_factory() {
+fn chromosome_permutations() {
     let genotype = UniqueDiscreteGenotype::builder()
         .with_gene_values(vec![0, 1, 2, 3])
         .build()
         .unwrap();
 
-    assert_eq!(genotype.population_factory_size(), 24);
+    assert_eq!(genotype.chromosome_permutations_size(), 24);
     assert_eq!(
-        inspect::population(&genotype.population_factory()),
+        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![
             vec![0, 1, 2, 3],
             vec![0, 1, 3, 2],

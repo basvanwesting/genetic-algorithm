@@ -21,34 +21,34 @@ fn general() {
     genotype.mutate_chromosome(&mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 7]);
 
-    assert_eq!(genotype.population_factory_size(), 120);
+    assert_eq!(genotype.chromosome_permutations_size(), 120);
     assert_eq!(genotype.is_unique(), false);
 }
 
 #[test]
-fn population_factory_size_one() {
+fn chromosome_permutations_gene_size_1() {
     let genotype = MultiDiscreteGenotype::builder()
         .with_gene_multi_values(vec![vec![0]])
         .build()
         .unwrap();
 
-    assert_eq!(genotype.population_factory_size(), 1);
+    assert_eq!(genotype.chromosome_permutations_size(), 1);
     assert_eq!(
-        inspect::population(&genotype.population_factory()),
+        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![vec![0]]
     );
 }
 
 #[test]
-fn population_factory() {
+fn chromosome_permutations_gene_size_4() {
     let genotype = MultiDiscreteGenotype::builder()
         .with_gene_multi_values(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1, 2, 3]])
         .build()
         .unwrap();
 
-    assert_eq!(genotype.population_factory_size(), 24);
+    assert_eq!(genotype.chromosome_permutations_size(), 24);
     assert_eq!(
-        inspect::population(&genotype.population_factory()),
+        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![
             vec![0, 0, 0, 0],
             vec![0, 0, 0, 1],

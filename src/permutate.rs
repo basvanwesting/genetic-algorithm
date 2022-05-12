@@ -11,8 +11,9 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
 use std::fmt;
 
-/// All possible combinations of genes are instantiated as chromosomes in the population.
+/// All possible combinations of genes are iterated over as chromosomes.
 /// The fitness is calculated for each chromosome and the best is taken.
+/// For efficiency reasons the full population is never instantiated as a whole.
 ///
 /// See [PermutateBuilder] for initialization options.
 ///
@@ -56,7 +57,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     }
 
     pub fn call(mut self) -> Self {
-        for mut chromosome in self.genotype.clone().steaming_chromosome_factory() {
+        for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
             if let Some(fitness_value) = self.fitness.call_for_chromosome(&chromosome) {
                 chromosome.fitness_score = Some(fitness_value);
                 self.update_best_chromosome(&chromosome);
@@ -118,7 +119,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> TryFrom<PermutateBuilder<G
             Err(TryFromPermutateBuilderError("Permutate requires a Fitness"))
         } else {
             let genotype = builder.genotype.unwrap();
-            let population_size = genotype.population_factory_size();
+            let population_size = genotype.chromosome_permutations_size();
 
             Ok(Self {
                 genotype: genotype,

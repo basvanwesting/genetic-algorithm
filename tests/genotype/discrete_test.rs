@@ -17,21 +17,21 @@ fn general() {
     genotype.mutate_chromosome(&mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 3]);
 
-    assert_eq!(genotype.population_factory_size(), 1024);
+    assert_eq!(genotype.chromosome_permutations_size(), 1024);
     assert_eq!(genotype.is_unique(), false);
 }
 
 #[test]
-fn population_factory() {
+fn chromosome_permutations() {
     let genotype = DiscreteGenotype::builder()
         .with_gene_size(3)
         .with_gene_values(vec![0, 1, 2])
         .build()
         .unwrap();
 
-    assert_eq!(genotype.population_factory_size(), 27);
+    assert_eq!(genotype.chromosome_permutations_size(), 27);
     assert_eq!(
-        inspect::population(&genotype.population_factory()),
+        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![
             vec![0, 0, 0],
             vec![0, 0, 1],

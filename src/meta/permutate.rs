@@ -26,7 +26,7 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
 
         println!(
             "meta-permutate population_size: {}",
-            genotype.population_factory_size()
+            genotype.chromosome_permutations_size()
         );
 
         let permutate = permutate::Permutate::builder()

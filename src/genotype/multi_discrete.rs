@@ -156,7 +156,7 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiDiscrete<T> {
         vec![]
     }
 
-    fn steaming_chromosome_factory<'a>(
+    fn chromosome_permutations_into_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
         Box::new(
@@ -168,7 +168,7 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiDiscrete<T> {
         )
     }
 
-    fn population_factory_size(&self) -> usize {
+    fn chromosome_permutations_size(&self) -> usize {
         self.gene_value_sizes.iter().product()
     }
 }

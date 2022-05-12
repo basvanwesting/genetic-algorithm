@@ -23,32 +23,28 @@ fn general() {
     );
 
     assert_eq!(genotype.gene_values(), vec![true, false]);
-    assert_eq!(genotype.population_factory_size(), 1024);
+    assert_eq!(genotype.chromosome_permutations_size(), 1024);
     assert_eq!(genotype.is_unique(), false);
 }
 
 #[test]
-fn population_factory_size_one() {
+fn chromosome_permutations_gene_size_1() {
     let genotype = BinaryGenotype::builder().with_gene_size(1).build().unwrap();
-    let population = genotype.population_factory();
-    println!("{:#?}", population);
 
-    assert_eq!(genotype.population_factory_size(), 2);
+    assert_eq!(genotype.chromosome_permutations_size(), 2);
     assert_eq!(
-        inspect::population(&population),
+        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![vec![true], vec![false],]
     )
 }
 
 #[test]
-fn population_factory_size_two() {
+fn chromosome_permutations_gene_size_2() {
     let genotype = BinaryGenotype::builder().with_gene_size(2).build().unwrap();
-    let population = genotype.population_factory();
-    println!("{:#?}", population);
 
-    assert_eq!(genotype.population_factory_size(), 4);
+    assert_eq!(genotype.chromosome_permutations_size(), 4);
     assert_eq!(
-        inspect::population(&population),
+        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![
             vec![true, true],
             vec![true, false],
@@ -59,14 +55,12 @@ fn population_factory_size_two() {
 }
 
 #[test]
-fn population_factory_size_three() {
+fn chromosome_permutations_gene_size_3() {
     let genotype = BinaryGenotype::builder().with_gene_size(3).build().unwrap();
-    let population = genotype.population_factory();
-    println!("{:#?}", population);
 
-    assert_eq!(genotype.population_factory_size(), 8);
+    assert_eq!(genotype.chromosome_permutations_size(), 8);
     assert_eq!(
-        inspect::population(&population),
+        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![
             vec![true, true, true],
             vec![true, true, false],
