@@ -1,3 +1,19 @@
+pub trait Gene: Copy + Clone {
+    fn mutate<T: Gene>(&mut self, _gene_values: &[T], _rng: SmallRng) {}
+}
+
+impl Gene for BinaryGene {
+    fn mutate(&mut self, _gene_values: &[BinaryGene], _rng: SmallRng) {
+        *self = !*self;
+    }
+}
+
+impl Gene for DiscreteGene {
+    fn mutate(&mut self, gene_values: &[DiscreteGene], rng: SmallRng) {
+        *self = *gene_values.choose(&mut rng).unwrap();
+    }
+}
+
 right so the issue here is that the contract the Gene trait expresses, is that a type implementing it must be able to be mutated by any caller-chosen type T: Gene
 You cannot choose which one
 so BinaryGene cannot satisfy that contract if it can only be mutated by BinaryGenes only
@@ -25,48 +41,3 @@ or maybe even your gene types will only be able to be mutated by values of that 
 trait Gene {
     fn mutate(&mut self, _: &[Self], …);
 }
-
-
-
-## Streaming Permutate
-
-    fn population_factory(&self) -> Population<Self> {
-        //let chromosomes = (0..self.gene_size())
-        //.map(|_| self.gene_values())
-        //.multi_cartesian_product()
-        //.map(|genes| Chromosome::new(genes))
-        //.collect();
-
-        Population::new(self.steaming_chromosome_factory().collect())
-    }
-
-    fn steaming_chromosome_factory<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
-        Box::new(
-            (0..self.gene_size())
-                .map(|_| self.gene_values().clone())
-                .multi_cartesian_product()
-                .map(|genes| Chromosome::new(genes)),
-        )
-    }
-
-    fn steaming_chromosome_factory2<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = Vec<Self::Gene>> + 'a> {
-        Box::new(
-            (0..self.gene_size())
-                .map(|_| self.gene_values().clone())
-                .multi_cartesian_product(),
-        )
-    }
-
-    fn returns_simple_iter() -> Box<dyn Iterator<Item = Vec<u8>>> {
-        Box::new(
-            vec![vec![0, 1, 2, 3], vec![0, 1, 2, 3], vec![0, 1, 2, 3]]
-                .iter()
-                .map(|vec| vec.clone())
-                .multi_cartesian_product()
-                .into_iter(),
-        )
-    }
