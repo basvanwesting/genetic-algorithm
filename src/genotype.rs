@@ -50,14 +50,20 @@ pub trait PermutableGenotype: Genotype {
     fn gene_values(&self) -> Vec<Self::Gene>;
     /// the full population with all possible gene combinations for [Permutate](crate::permutate::Permutate)
     fn population_factory(&self) -> Population<Self> {
-        let chromosomes = (0..self.gene_size())
-            .map(|_| self.gene_values())
-            .multi_cartesian_product()
-            .map(|genes| Chromosome::new(genes))
-            .collect();
-
-        Population::new(chromosomes)
+        Population::new(self.steaming_chromosome_factory().collect())
     }
+
+    fn steaming_chromosome_factory<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
+        Box::new(
+            (0..self.gene_size())
+                .map(|_| self.gene_values())
+                .multi_cartesian_product()
+                .map(|genes| Chromosome::new(genes)),
+        )
+    }
+
     fn population_factory_size(&self) -> usize {
         self.gene_values().len().pow(self.gene_size() as u32)
     }

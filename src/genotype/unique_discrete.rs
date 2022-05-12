@@ -1,7 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
-use crate::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
 use rand::distributions::{Distribution, Uniform};
@@ -103,19 +102,21 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for UniqueDiscrete<T> {
     fn gene_values(&self) -> Vec<Self::Gene> {
         self.gene_values.clone()
     }
-    fn population_factory(&self) -> Population<Self> {
-        let chromosomes = self
-            .gene_values()
-            .clone()
-            .into_iter()
-            .permutations(self.gene_size())
-            .map(|genes| Chromosome::new(genes))
-            .collect();
 
-        Population::new(chromosomes)
+    fn steaming_chromosome_factory<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
+        Box::new(
+            self.gene_values
+                .clone()
+                .into_iter()
+                .permutations(self.gene_size())
+                .map(|genes| Chromosome::new(genes)),
+        )
     }
+
     fn population_factory_size(&self) -> usize {
-        self.gene_values().len().factorial()
+        self.gene_values.len().factorial()
     }
 }
 
