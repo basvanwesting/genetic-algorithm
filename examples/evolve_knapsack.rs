@@ -28,7 +28,7 @@ impl KnapsackFitness {
 impl Fitness for KnapsackFitness {
     type Genotype = DiscreteGenotype<Item>;
 
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {

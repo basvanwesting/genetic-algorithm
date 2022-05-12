@@ -14,7 +14,7 @@ pub struct Fitness<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> {
 }
 impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fitness<'a, G, F> {
     type Genotype = MultiDiscreteGenotype;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {

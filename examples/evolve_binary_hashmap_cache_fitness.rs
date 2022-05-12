@@ -17,7 +17,7 @@ impl ExpensiveCount {
 }
 impl Fitness for ExpensiveCount {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
@@ -41,7 +41,7 @@ impl CachedExpensiveCount {
 }
 impl Fitness for CachedExpensiveCount {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {

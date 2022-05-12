@@ -29,7 +29,7 @@ println!("{}", genotype);
 pub struct CountTrue;
 impl Fitness for CountTrue {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
+    fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
     }
 }
@@ -88,4 +88,4 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
 * Support genotypes with variable length (for knapsack problem). A Bag / Set type?
-* Add a chromosome stream for Permutate, instead of initializing the full population
+* Fitness doesn't need an associated trait for Genotype, this can be made more light weight

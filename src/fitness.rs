@@ -37,7 +37,7 @@ pub enum FitnessOrdering {
 /// pub struct CountTrue;
 /// impl Fitness for CountTrue {
 ///     type Genotype = BinaryGenotype;
-///     fn call_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
+///     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
 ///         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
 ///     }
 /// }
@@ -52,10 +52,10 @@ pub trait Fitness: Clone + std::fmt::Debug {
             .chromosomes
             .iter_mut()
             .filter(|c| c.fitness_score.is_none())
-            .for_each(|c| c.fitness_score = self.call_for_chromosome(c));
+            .for_each(|c| c.fitness_score = self.calculate_for_chromosome(c));
         population
     }
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue>;

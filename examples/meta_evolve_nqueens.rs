@@ -6,7 +6,7 @@ use genetic_algorithm::meta::prelude::*;
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
     type Genotype = UniqueDiscreteGenotype<u8>;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {

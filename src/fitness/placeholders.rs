@@ -11,7 +11,7 @@ use crate::genotype::{
 pub struct CountTrue;
 impl Fitness for CountTrue {
     type Genotype = BinaryGenotype;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
@@ -24,7 +24,7 @@ impl Fitness for CountTrue {
 pub struct SumContinuousGenotype;
 impl Fitness for SumContinuousGenotype {
     type Genotype = ContinuousGenotype;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
@@ -42,7 +42,7 @@ impl Fitness for SumContinuousGenotype {
 pub struct SumDiscreteGenotype;
 impl Fitness for SumDiscreteGenotype {
     type Genotype = DiscreteGenotype;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
@@ -60,7 +60,7 @@ impl Fitness for SumDiscreteGenotype {
 pub struct SumMultiContinuousGenotype;
 impl Fitness for SumMultiContinuousGenotype {
     type Genotype = MultiContinuousGenotype;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
@@ -78,7 +78,7 @@ impl Fitness for SumMultiContinuousGenotype {
 pub struct SumMultiDiscreteGenotype;
 impl Fitness for SumMultiDiscreteGenotype {
     type Genotype = MultiDiscreteGenotype;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
@@ -96,7 +96,7 @@ impl Fitness for SumMultiDiscreteGenotype {
 pub struct SumUniqueDiscreteGenotype;
 impl Fitness for SumUniqueDiscreteGenotype {
     type Genotype = UniqueDiscreteGenotype;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {

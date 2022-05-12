@@ -15,7 +15,7 @@ const MAX_CHAR: u8 = 0x7e;
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
     type Genotype = DiscreteGenotype<u8>;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {

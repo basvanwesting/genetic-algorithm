@@ -9,7 +9,7 @@ struct MyGene(u8, u8);
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
     type Genotype = DiscreteGenotype<MyGene>;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {

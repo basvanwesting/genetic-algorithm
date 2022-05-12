@@ -8,7 +8,7 @@ use rand::rngs::SmallRng;
 struct MyGeneFitness;
 impl Fitness for MyGeneFitness {
     type Genotype = UniqueDiscreteGenotype<char>;
-    fn call_for_chromosome(
+    fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
