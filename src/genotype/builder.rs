@@ -9,7 +9,6 @@ pub struct TryFromBuilderError(pub &'static str);
 /// Shared initialization options for all Genotypes:
 /// * Builder `with_seed_genes(Vec<_>)`, optional, start genes of all chromosomes in the population
 ///   (instead of the default random genes). Sometimes it is efficient to start with a certain population
-///   (e.g. [Knapsack problem](../main/examples/evolve_knapsack_discrete.rs) with no items in it)
 ///
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {

@@ -56,22 +56,17 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 
 * N-Queens puzzle https://en.wikipedia.org/wiki/Eight_queens_puzzle.
     * See [examples/evolve_nqueens](../main/examples/evolve_nqueens.rs)
-        * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup
-        * custom `NQueensFitness` fitness
-* Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem (10 items)
-    * See [examples/evolve_knapsack_discrete](../main/examples/evolve_knapsack_discrete.rs)
-        * `DiscreteGenotype<(weight, value)>` with a `(0, 0)` empty item to set on empty gene slots
-        * custom `KnapsackFitness(weight_limit)` fitness, extra checking for duplicate items
-    * See [examples/evolve_knapsack_set](../main/examples/evolve_knapsack_set.rs)
-        * `SetGenotype<(weight, value)>` no need for empty items as the gene size is variable
-        * custom `KnapsackFitness(weight_limit)` fitness
-    * See [examples/permutate_knapsack_set](../main/examples/permutate_knapsack_set.rs)
-        * `SetGenotype<(weight, value)>` permutable, because SetGenotype has only 1023 possible combinations, where DiscreteGenotype has 25_937_424_601
-        * custom `KnapsackFitness(weight_limit)` fitness
+    * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup
+    * custom `NQueensFitness` fitness
+* Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
+    * See [examples/evolve_knapsack](../main/examples/evolve_knapsack.rs)
+    * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
+    * `BinaryGenotype<(weight, value)>` each gene encodes presence in the knapsack
+    * custom `KnapsackFitness(weight_limit)` fitness
 * Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
     * See [examples/evolve_monkeys](../main/examples/evolve_monkeys.rs)
-        * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
-        * custom fitness using hamming distance
+    * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
+    * custom fitness using hamming distance
 * Custom Fitness function with LRU cache
     * See [examples/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)
     * _Note: doesn't help performance much in this case..._

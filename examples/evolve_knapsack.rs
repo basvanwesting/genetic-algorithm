@@ -33,10 +33,7 @@ impl Fitness for KnapsackFitness<'_> {
             .genes
             .iter()
             .enumerate()
-            .filter_map(|(i, v)| match v {
-                true => Some(i),
-                false => None,
-            })
+            .filter_map(|(i, v)| if *v { Some(i) } else { None })
             .collect();
         let weight: u16 = item_indices.iter().map(|i| self.items[*i].0).sum();
         let value: u16 = item_indices.iter().map(|i| self.items[*i].1).sum();
@@ -95,15 +92,11 @@ fn main() {
     println!("{}", evolve);
 
     if let Some(best_chromosome) = evolve.best_chromosome {
-        let selected_items =
-            best_chromosome
-                .genes
-                .iter()
-                .enumerate()
-                .filter_map(|(i, v)| match v {
-                    true => Some(&items[i]),
-                    false => None,
-                });
+        let selected_items = best_chromosome
+            .genes
+            .iter()
+            .enumerate()
+            .filter_map(|(i, v)| if *v { Some(&items[i]) } else { None });
         println!(
             "selected items: {:?}",
             selected_items.collect::<Vec<&Item>>()
