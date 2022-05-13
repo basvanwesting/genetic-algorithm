@@ -79,19 +79,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), &mut rng))
     });
 
-    c.bench_function("mutate_chromosome_set", |b| {
-        let mut rng = SmallRng::from_entropy();
-        let genotype = SetGenotype::builder()
-            .with_gene_values((0..10).collect())
-            .build()
-            .unwrap();
-        b.iter_batched(
-            || genotype.chromosome_factory(&mut SmallRng::from_entropy()),
-            |mut chromosome| genotype.mutate_chromosome(&mut chromosome, &mut rng),
-            BatchSize::SmallInput,
-        )
-    });
-
     c.bench_function("mutate_chromosome_unique_discrete", |b| {
         let mut rng = SmallRng::from_entropy();
         let genotype = UniqueDiscreteGenotype::builder()
