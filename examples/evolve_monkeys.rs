@@ -12,8 +12,8 @@ const MIN_CHAR: u8 = 0x20;
 const MAX_CHAR: u8 = 0x7e;
 
 #[derive(Clone, Debug)]
-struct MyGeneFitness;
-impl Fitness for MyGeneFitness {
+struct MonkeyFitness;
+impl Fitness for MonkeyFitness {
     type Genotype = DiscreteGenotype<u8>;
     fn calculate_for_chromosome(
         &mut self,
@@ -42,7 +42,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce(0.2))
-        .with_fitness(MyGeneFitness)
+        .with_fitness(MonkeyFitness)
         .with_crossover(CrossoverRange(true))
         .with_compete(CompeteTournament(4))
         .build()
@@ -50,4 +50,9 @@ fn main() {
         .call(&mut rng);
 
     println!("{}", evolve);
+
+    if let Some(best_chromosome) = evolve.best_chromosome {
+        let string = String::from_utf8(best_chromosome.genes.clone()).unwrap();
+        println!("{}", string);
+    }
 }

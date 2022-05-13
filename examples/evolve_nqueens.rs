@@ -30,9 +30,11 @@ impl Fitness for NQueensFitness {
 }
 
 fn main() {
+    const BOARD_SIZE: u8 = 64;
+
     let mut rng = SmallRng::from_entropy();
     let genotype = UniqueDiscreteGenotype::builder()
-        .with_gene_values((0..64).collect())
+        .with_gene_values((0..BOARD_SIZE).collect())
         .build()
         .unwrap();
 
@@ -53,4 +55,12 @@ fn main() {
         .call(&mut rng);
 
     println!("{}", evolve);
+
+    if let Some(best_chromosome) = evolve.best_chromosome {
+        for gene in best_chromosome.genes {
+            let mut chars: Vec<char> = (0..BOARD_SIZE).map(|_| '.').collect();
+            chars[gene as usize] = 'X';
+            println!("{}", String::from_iter(chars));
+        }
+    }
 }
