@@ -65,7 +65,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * custom `KnapsackFitness(&items, weight_limit)` fitness
 * Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
     * See [examples/evolve_monkeys](../main/examples/evolve_monkeys.rs)
-    * `DiscreteGenotype<u8>` 100 monkeys randomly typing characters in a loop
+    * `DiscreteGenotype<char>` 100 monkeys randomly typing characters in a loop
     * custom fitness using hamming distance
 * Custom Fitness function with LRU cache
     * See [examples/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)

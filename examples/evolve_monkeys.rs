@@ -8,18 +8,19 @@ use rand::rngs::SmallRng;
 const TARGET_TEXT: &str =
   "Be not afraid of greatness! Some are great, some achieve greatness, and some have greatness thrust upon 'em.";
 
-const MIN_CHAR: u8 = 0x20;
-const MAX_CHAR: u8 = 0x7e;
+// printable chars
+const MIN_CHAR: char = ' '; // 0x20;
+const MAX_CHAR: char = '~'; // 0x7e;
 
 #[derive(Clone, Debug)]
 struct MonkeyFitness;
 impl Fitness for MonkeyFitness {
-    type Genotype = DiscreteGenotype<u8>;
+    type Genotype = DiscreteGenotype<char>;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
-        let string = String::from_utf8(chromosome.genes.clone()).unwrap();
+        let string = String::from_iter(chromosome.genes.clone());
         println!("{}", string);
         Some(hamming(&string, TARGET_TEXT).unwrap() as FitnessValue)
     }
@@ -52,7 +53,7 @@ fn main() {
     println!("{}", evolve);
 
     if let Some(best_chromosome) = evolve.best_chromosome {
-        let string = String::from_utf8(best_chromosome.genes.clone()).unwrap();
+        let string = String::from_iter(best_chromosome.genes);
         println!("{}", string);
     }
 }
