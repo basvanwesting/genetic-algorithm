@@ -3,6 +3,7 @@ use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use factorial::Factorial;
 use itertools::Itertools;
+use num::BigUint;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::prelude::*;
 use std::collections::HashSet;
@@ -141,10 +142,11 @@ impl<T: Clone + std::fmt::Debug + Hash + Eq> PermutableGenotype for Set<T> {
             })
     }
 
-    fn chromosome_permutations_size(&self) -> usize {
+    fn chromosome_permutations_size(&self) -> BigUint {
         let n = self.gene_values.len();
-        (0..n).fold(0, |acc, r| {
-            acc + n.factorial() / (r.factorial() * (n - r).factorial())
+        (0..n).fold(BigUint::from(0u8), |acc, r| {
+            acc + BigUint::from(n).factorial()
+                / (BigUint::from(r).factorial() * BigUint::from(n - r).factorial())
         })
     }
 }

@@ -23,7 +23,10 @@ fn general() {
     );
 
     assert_eq!(genotype.gene_values(), vec![true, false]);
-    assert_eq!(genotype.chromosome_permutations_size(), 1024);
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::from(1024u32)
+    );
     assert_eq!(genotype.is_unique(), false);
 }
 
@@ -31,7 +34,7 @@ fn general() {
 fn chromosome_permutations_gene_size_1() {
     let genotype = BinaryGenotype::builder().with_gene_size(1).build().unwrap();
 
-    assert_eq!(genotype.chromosome_permutations_size(), 2);
+    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(2u32));
     assert_eq!(
         inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![vec![true], vec![false],]
@@ -42,7 +45,7 @@ fn chromosome_permutations_gene_size_1() {
 fn chromosome_permutations_gene_size_2() {
     let genotype = BinaryGenotype::builder().with_gene_size(2).build().unwrap();
 
-    assert_eq!(genotype.chromosome_permutations_size(), 4);
+    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(4u32));
     assert_eq!(
         inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![
@@ -55,10 +58,22 @@ fn chromosome_permutations_gene_size_2() {
 }
 
 #[test]
+fn chromosome_permutations_gene_size_huge() {
+    let genotype = BinaryGenotype::builder()
+        .with_gene_size(100)
+        .build()
+        .unwrap();
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::parse_bytes(b"1267650600228229401496703205376", 10).unwrap()
+    );
+}
+
+#[test]
 fn chromosome_permutations_gene_size_3() {
     let genotype = BinaryGenotype::builder().with_gene_size(3).build().unwrap();
 
-    assert_eq!(genotype.chromosome_permutations_size(), 8);
+    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(8u32));
     assert_eq!(
         inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![

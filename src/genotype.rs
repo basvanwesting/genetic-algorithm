@@ -21,6 +21,7 @@ pub use self::unique_discrete::UniqueDiscrete as UniqueDiscreteGenotype;
 
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
+use num::BigUint;
 use rand::prelude::*;
 use std::fmt;
 
@@ -63,7 +64,7 @@ pub trait PermutableGenotype: Genotype {
     }
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::permutate::Permutate)
-    fn chromosome_permutations_size(&self) -> usize {
-        self.gene_values().len().pow(self.gene_size() as u32)
+    fn chromosome_permutations_size(&self) -> BigUint {
+        BigUint::from(self.gene_values().len()).pow(self.gene_size() as u32)
     }
 }

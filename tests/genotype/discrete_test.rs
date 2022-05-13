@@ -17,7 +17,10 @@ fn general() {
     genotype.mutate_chromosome(&mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 3]);
 
-    assert_eq!(genotype.chromosome_permutations_size(), 1024);
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::from(1024u32)
+    );
     assert_eq!(genotype.is_unique(), false);
 }
 
@@ -29,7 +32,10 @@ fn chromosome_permutations() {
         .build()
         .unwrap();
 
-    assert_eq!(genotype.chromosome_permutations_size(), 27);
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::from(27u32)
+    );
     assert_eq!(
         inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![
@@ -61,5 +67,18 @@ fn chromosome_permutations() {
             vec![2, 2, 1],
             vec![2, 2, 2],
         ]
+    );
+}
+
+#[test]
+fn chromosome_permutations_gene_size_huge() {
+    let genotype = DiscreteGenotype::builder()
+        .with_gene_size(30)
+        .with_gene_values((0..10).collect())
+        .build()
+        .unwrap();
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::parse_bytes(b"1000000000000000000000000000000", 10).unwrap()
     );
 }

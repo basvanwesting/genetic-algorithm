@@ -2,6 +2,7 @@ use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
+use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
@@ -168,8 +169,11 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiDiscrete<T> {
         )
     }
 
-    fn chromosome_permutations_size(&self) -> usize {
-        self.gene_value_sizes.iter().product()
+    fn chromosome_permutations_size(&self) -> BigUint {
+        self.gene_value_sizes
+            .iter()
+            .map(|v| BigUint::from(*v))
+            .product()
     }
 }
 

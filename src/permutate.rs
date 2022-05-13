@@ -9,6 +9,7 @@ pub use self::builder::{
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
+use num::BigUint;
 use std::fmt;
 
 /// All possible combinations of genes are iterated over as chromosomes.
@@ -48,7 +49,7 @@ pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     pub fitness_ordering: FitnessOrdering,
 
     pub best_chromosome: Option<Chromosome<G>>,
-    pub population_size: usize,
+    pub population_size: BigUint,
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
@@ -138,7 +139,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> fmt::Display for Permutate
         writeln!(f, "  genotype: {:?}", self.genotype)?;
         writeln!(f, "  fitness: {:?}", self.fitness)?;
 
-        writeln!(f, "  population_size: {:?}", self.population_size)?;
+        writeln!(f, "  population_size: {}", self.population_size)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
 
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;

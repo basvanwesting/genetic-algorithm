@@ -3,6 +3,7 @@ use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use factorial::Factorial;
 use itertools::Itertools;
+use num::BigUint;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
@@ -115,8 +116,8 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for UniqueDiscrete<T> {
         )
     }
 
-    fn chromosome_permutations_size(&self) -> usize {
-        self.gene_values.len().factorial()
+    fn chromosome_permutations_size(&self) -> BigUint {
+        BigUint::from(self.gene_values.len()).factorial()
     }
 }
 

@@ -30,7 +30,10 @@ fn chromosome_permutations() {
         .build()
         .unwrap();
 
-    assert_eq!(genotype.chromosome_permutations_size(), 15);
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::from(15u32)
+    );
     assert_eq!(
         inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
         vec![
@@ -50,5 +53,17 @@ fn chromosome_permutations() {
             vec![0, 2, 3],
             vec![1, 2, 3],
         ]
+    );
+}
+
+#[test]
+fn chromosome_permutations_gene_size_huge() {
+    let genotype = SetGenotype::builder()
+        .with_gene_values((0..50).collect())
+        .build()
+        .unwrap();
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::parse_bytes(b"1125899906842623", 10).unwrap()
     );
 }
