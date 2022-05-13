@@ -155,6 +155,11 @@ impl<T: Clone + std::fmt::Debug + Hash + Eq> fmt::Display for Set<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_values: {:?}", self.gene_values)?;
+        writeln!(
+            f,
+            "  chromosome_permutations_size: {}",
+            self.chromosome_permutations_size()
+        )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }

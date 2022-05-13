@@ -111,6 +111,11 @@ impl<T: Clone + std::fmt::Debug> fmt::Display for Discrete<T> {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_size: {}", self.gene_size)?;
         writeln!(f, "  gene_values: {:?}", self.gene_values)?;
+        writeln!(
+            f,
+            "  chromosome_permutations_size: {}",
+            self.chromosome_permutations_size()
+        )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }

@@ -78,6 +78,11 @@ impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_size: {}", self.gene_size)?;
+        writeln!(
+            f,
+            "  chromosome_permutations_size: {}",
+            self.chromosome_permutations_size()
+        )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }

@@ -100,6 +100,7 @@ impl fmt::Display for MultiContinuous {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_size: {}", self.gene_size)?;
         writeln!(f, "  gene_ranges: {:?}\n", self.gene_ranges)?;
+        writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }

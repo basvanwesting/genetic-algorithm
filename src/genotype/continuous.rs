@@ -86,6 +86,7 @@ impl fmt::Display for Continuous {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_size: {}", self.gene_size)?;
         writeln!(f, "  gene_range: {:?}", self.gene_range)?;
+        writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }
