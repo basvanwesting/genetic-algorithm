@@ -6,7 +6,7 @@ use genetic_algorithm::genotype::{Genotype, MultiContinuousGenotype};
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiContinuousGenotype::builder()
-        .with_gene_ranges(vec![0.0..1.0, 0.0..5.0, 10.0..20.0])
+        .with_gene_multi_range(vec![0.0..1.0, 0.0..5.0, 10.0..20.0])
         .build()
         .unwrap();
 

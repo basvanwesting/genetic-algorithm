@@ -9,14 +9,14 @@ use std::fmt;
 
 pub type DefaultDiscreteGene = usize;
 
-/// Genes are a list of values, each individually taken from its own gene_values using clone().
-/// The gene_size is derived to be the same as number of provided gene_values. All
-/// gene_values have to be of the same type, but can have different values and lengths. On
-/// random initialization, each gene gets a value from its own gene_values with a uniform
-/// probability. Each gene has a weighted probability of mutating, depending on its gene_values
-/// length. If a gene mutates, a new values is taken from its own gene_values with a uniform
-/// probability (regardless of current value, which could therefore be assigned again, not mutating
-/// as a result). Duplicate gene values are allowed. Defaults to usize as item.
+/// Genes are a list of values, each individually taken from its own gene_values using clone(). The
+/// gene_size is derived to be the gene_multi_values length. All gene_values have to be of the same
+/// type, but can have different values and lengths. On random initialization, each gene gets a
+/// value from its own gene_values with a uniform probability. Each gene has a weighted probability
+/// of mutating, depending on its gene_values length. If a gene mutates, a new values is taken from
+/// its own gene_values with a uniform probability (regardless of current value, which could
+/// therefore be assigned again, not mutating as a result). Duplicate gene values are allowed.
+/// Defaults to usize as item.
 ///
 /// This genotype is also used in the [meta analysis](crate::meta), to hold the indices of the
 /// different [Evolve](crate::evolve::Evolve) configuration values (defined outside of the genotype).

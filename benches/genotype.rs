@@ -1,4 +1,4 @@
-use criterion::{black_box, criterion_group, criterion_main, BatchSize, Criterion};
+use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 use genetic_algorithm::genotype::*;
 use rand::prelude::*;
@@ -40,7 +40,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("mutate_chromosome_multi_continuous", |b| {
         let mut rng = SmallRng::from_entropy();
         let genotype = MultiContinuousGenotype::builder()
-            .with_gene_ranges(vec![
+            .with_gene_multi_range(vec![
                 (0.0..1.0),
                 (0.0..2.0),
                 (0.0..3.0),
