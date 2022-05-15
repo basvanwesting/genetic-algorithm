@@ -1,63 +1,68 @@
-use criterion::{criterion_group, criterion_main, BatchSize, Criterion};
-
-use genetic_algorithm::crossover::{
-    Crossover, CrossoverAll, CrossoverClone, CrossoverRange, CrossoverSingle,
-};
+use criterion::*;
+use genetic_algorithm::crossover::*;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
+use std::time::Duration;
 
-pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut rng = SmallRng::from_entropy();
+pub fn setup(
+    gene_size: usize,
+    population_size: usize,
+    rng: &mut SmallRng,
+) -> (BinaryGenotype, Population<BinaryGenotype>) {
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(100)
+        .with_gene_size(gene_size)
         .build()
         .unwrap();
 
-    let chromosomes = (0..1000)
-        .map(|_| genotype.chromosome_factory(&mut rng))
+    let chromosomes = (0..population_size)
+        .map(|_| genotype.chromosome_factory(rng))
         .collect();
 
     let population = Population::new(chromosomes);
+    (genotype, population)
+}
 
-    println!("population size: {}", population.size());
+pub fn criterion_benchmark(c: &mut Criterion) {
+    let mut rng = SmallRng::from_entropy();
+    let population_size: usize = 1000;
+    let gene_sizes = vec![10, 100, 1000, 10000];
 
-    c.bench_function("crossover_single", |b| {
-        let crossover = CrossoverSingle(false);
-        b.iter_batched(
-            || population.clone(),
-            |data| crossover.call(&genotype, data, &mut rng),
-            BatchSize::SmallInput,
-        )
-    });
+    let crossovers = vec![
+        CrossoverDispatch(Crossovers::Single, true),
+        CrossoverDispatch(Crossovers::Single, false),
+        CrossoverDispatch(Crossovers::All, true),
+        CrossoverDispatch(Crossovers::All, false),
+        CrossoverDispatch(Crossovers::Range, true),
+        CrossoverDispatch(Crossovers::Range, false),
+        CrossoverDispatch(Crossovers::Clone, true),
+        //CrossoverDispatch(Crossovers::Clone, false), //noop
+    ];
 
-    c.bench_function("crossover_all", |b| {
-        let crossover = CrossoverAll(false);
-        b.iter_batched(
-            || population.clone(),
-            |data| crossover.call(&genotype, data, &mut rng),
-            BatchSize::SmallInput,
-        )
-    });
+    let mut group = c.benchmark_group(format!("crossovers-pop{}", population_size));
+    group.warm_up_time(Duration::from_secs(3));
+    group.measurement_time(Duration::from_secs(3));
+    let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
+    group.plot_config(plot_config);
 
-    c.bench_function("crossover_range", |b| {
-        let crossover = CrossoverRange(false);
-        b.iter_batched(
-            || population.clone(),
-            |data| crossover.call(&genotype, data, &mut rng),
-            BatchSize::SmallInput,
-        )
-    });
-
-    c.bench_function("crossover_clone", |b| {
-        let crossover = CrossoverClone(false);
-        b.iter_batched(
-            || population.clone(),
-            |data| crossover.call(&genotype, data, &mut rng),
-            BatchSize::SmallInput,
-        )
-    });
+    for crossover in crossovers {
+        for gene_size in &gene_sizes {
+            group.throughput(Throughput::Elements(*gene_size as u64));
+            let (genotype, population) = setup(*gene_size, population_size, &mut rng);
+            group.bench_with_input(
+                BenchmarkId::new(format!("{:?}-{}", crossover.0, crossover.1), gene_size),
+                gene_size,
+                |b, &_gene_size| {
+                    b.iter_batched(
+                        || population.clone(),
+                        |data| crossover.call(&genotype, data, &mut rng),
+                        BatchSize::SmallInput,
+                    )
+                },
+            );
+        }
+    }
 }
 
 criterion_group!(benches, criterion_benchmark);
