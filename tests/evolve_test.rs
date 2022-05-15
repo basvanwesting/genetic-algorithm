@@ -150,7 +150,7 @@ mod evolve_tests {
         assert_eq!(best_chromosome.fitness_score, Some(9));
         assert_eq!(
             inspect::chromosome(&best_chromosome),
-            vec![true, true, true, true, true, true, true, true, true, false]
+            vec![true, true, true, true, true, true, true, false, true, true]
         );
     }
 
@@ -241,8 +241,8 @@ mod evolve_tests {
         assert_eq!(
             inspect::chromosome(&best_chromosome),
             vec![
-                0.9651495, 0.9817951, 0.9798802, 0.82838106, 0.7647406, 0.93074965, 0.87062526,
-                0.90698075, 0.9505005, 0.99518645
+                0.99824846, 0.9817951, 0.86975336, 0.82838106, 0.98283255, 0.9091289, 0.9379811,
+                0.90698075, 0.6531458, 0.99518645
             ]
         );
     }

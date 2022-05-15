@@ -14,6 +14,29 @@ fn population_odd() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
+    let population = CrossoverClone(false).call(&genotype, population, &mut rng);
+
+    assert_eq!(
+        inspect::population(&population),
+        vec![
+            vec![true, true, true],
+            vec![false, false, false],
+            vec![true, true, true],
+        ]
+    )
+}
+
+#[test]
+fn population_odd_keep_parents() {
+    let genotype = BinaryGenotype::builder().with_gene_size(3).build().unwrap();
+
+    let population = build::population(vec![
+        vec![true, true, true],
+        vec![false, false, false],
+        vec![true, true, true],
+    ]);
+
+    let mut rng = SmallRng::seed_from_u64(0);
     let population = CrossoverClone(true).call(&genotype, population, &mut rng);
 
     assert_eq!(

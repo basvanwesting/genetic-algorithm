@@ -22,29 +22,46 @@ impl Crossover for All {
             return population;
         }
         let bool_sampler = Bernoulli::new(0.5).unwrap();
-        let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
-
-        for chunk in population.chromosomes.chunks(2) {
-            if let [father, mother] = chunk {
-                let mut child_father_genes = father.genes.clone();
-                let mut child_mother_genes = mother.genes.clone();
-
-                for index in 0..(genotype.gene_size()) {
-                    if bool_sampler.sample(rng) {
-                        child_father_genes[index] = mother.genes[index].clone();
-                        child_mother_genes[index] = father.genes[index].clone();
-                    }
-                }
-
-                // no need to taint_fitness_score as it is initialized with None
-                child_chromosomes.push(Chromosome::new(child_father_genes));
-                child_chromosomes.push(Chromosome::new(child_mother_genes));
-            }
-        }
-
+        let gene_size = genotype.gene_size();
         if self.0 {
-            child_chromosomes.append(&mut population.chromosomes);
+            let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
+
+            for chunk in population.chromosomes.chunks(2) {
+                if let [father, mother] = chunk {
+                    let mut child_father_genes = father.genes.clone();
+                    let mut child_mother_genes = mother.genes.clone();
+
+                    for index in 0..gene_size {
+                        if bool_sampler.sample(rng) {
+                            //std::mem::swap(&mut child_father_genes[index], &mut child_mother_genes[index]);
+                            child_father_genes[index] = mother.genes[index].clone();
+                            child_mother_genes[index] = father.genes[index].clone();
+                        }
+                    }
+
+                    // no need to taint_fitness_score as it is initialized with None
+                    child_chromosomes.push(Chromosome::new(child_father_genes));
+                    child_chromosomes.push(Chromosome::new(child_mother_genes));
+                }
+            }
+
+            population.chromosomes.append(&mut child_chromosomes);
+            population
+        } else {
+            for chunk in population.chromosomes.chunks_mut(2) {
+                if let [father, mother] = chunk {
+                    for index in 0..gene_size {
+                        if bool_sampler.sample(rng) {
+                            //std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                            (father.genes[index], mother.genes[index]) =
+                                (mother.genes[index].clone(), father.genes[index].clone());
+                        }
+                    }
+                    mother.taint_fitness_score();
+                    father.taint_fitness_score();
+                }
+            }
+            population
         }
-        Population::new(child_chromosomes)
     }
 }

@@ -50,6 +50,7 @@ fn population_odd() {
             vec![true, true, false, false, false],
             vec![false, true, true, true, true],
             vec![true, false, false, false, false],
+            vec![true, true, true, true, true],
         ]
     )
 }
@@ -71,14 +72,14 @@ fn population_even_keep_parent() {
     assert_eq!(
         inspect::population(&population),
         vec![
+            vec![true, true, true, true, true],
+            vec![false, false, false, false, false],
+            vec![true, true, true, true, true],
+            vec![false, false, false, false, false],
             vec![false, false, true, false, true],
             vec![true, true, false, true, false],
             vec![true, false, false, true, false],
             vec![false, true, true, false, true],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
         ]
     )
 }
