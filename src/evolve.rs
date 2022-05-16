@@ -66,9 +66,8 @@ use std::ops::Range;
 ///     .with_crossover(CrossoverAll(true))    // crossover all individual genes between 2 chromosomes for offspring
 ///     .with_mutate(MutateOnce(0.2))          // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite)            // sort the chromosomes by fitness to determine crossover order
-///     .build()
-///     .unwrap()
-///     .call(&mut rng);
+///     .call(&mut rng)
+///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
 /// let best_chromosome = evolve.best_chromosome.unwrap();
@@ -100,7 +99,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         EvolveBuilder::new()
     }
 
-    pub fn call<R: Rng>(mut self, rng: &mut R) -> Self {
+    pub fn call<R: Rng>(&mut self, rng: &mut R) {
         self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
@@ -122,7 +121,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             //self.report_round(population);
             self.current_generation += 1;
         }
-        self
     }
 
     fn update_best_chromosome(&mut self, population: &Population<G>) {

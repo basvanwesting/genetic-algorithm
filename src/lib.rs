@@ -39,9 +39,8 @@
 //!     .with_crossover(CrossoverAll(true)) // crossover all individual genes between 2 chromosomes for offspring
 //!     .with_mutate(MutateOnce(0.2))       // mutate a single gene with a 20% probability per chromosome
 //!     .with_compete(CompeteElite)         // sort the chromosomes by fitness to determine crossover order
-//!     .build()
-//!     .unwrap()
-//!     .call(&mut rng);
+//!     .call(&mut rng)
+//!     .unwrap();
 //!
 //! println!("{}", evolve);
 //! ```

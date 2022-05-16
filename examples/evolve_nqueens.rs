@@ -50,9 +50,8 @@ fn main() {
         .with_fitness(NQueensFitness)
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteElite)
-        .build()
-        .unwrap()
-        .call(&mut rng);
+        .call(&mut rng)
+        .unwrap();
 
     println!("{}", evolve);
 

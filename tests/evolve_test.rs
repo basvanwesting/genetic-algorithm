@@ -81,9 +81,8 @@ mod evolve_tests {
             .with_fitness(CountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
-            .build()
-            .unwrap()
-            .call(&mut rng);
+            .call(&mut rng)
+            .unwrap();
 
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -111,9 +110,8 @@ mod evolve_tests {
             .with_fitness(CountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
-            .build()
-            .unwrap()
-            .call(&mut rng);
+            .call(&mut rng)
+            .unwrap();
 
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -140,9 +138,8 @@ mod evolve_tests {
             .with_fitness(CountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
-            .build()
-            .unwrap()
-            .call(&mut rng);
+            .call(&mut rng)
+            .unwrap();
 
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -170,9 +167,8 @@ mod evolve_tests {
             .with_fitness(CountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
-            .build()
-            .unwrap()
-            .call(&mut rng);
+            .call(&mut rng)
+            .unwrap();
 
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -200,9 +196,8 @@ mod evolve_tests {
             .with_fitness(CountTrue)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
-            .build()
-            .unwrap()
-            .call(&mut rng);
+            .call(&mut rng)
+            .unwrap();
 
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -230,9 +225,8 @@ mod evolve_tests {
             .with_fitness(SumContinuousGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
-            .build()
-            .unwrap()
-            .call(&mut rng);
+            .call(&mut rng)
+            .unwrap();
 
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -264,9 +258,8 @@ mod evolve_tests {
             .with_fitness(SumDiscreteGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
-            .build()
-            .unwrap()
-            .call(&mut rng);
+            .call(&mut rng)
+            .unwrap();
 
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -298,9 +291,8 @@ mod evolve_tests {
             .with_fitness(SumMultiDiscreteGenotype)
             .with_crossover(CrossoverSingle(true))
             .with_compete(CompeteTournament(4))
-            .build()
-            .unwrap()
-            .call(&mut rng);
+            .call(&mut rng)
+            .unwrap();
 
         let best_chromosome = evolve.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);

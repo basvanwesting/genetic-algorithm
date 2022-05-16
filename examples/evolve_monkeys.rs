@@ -46,9 +46,8 @@ fn main() {
         .with_fitness(MonkeyFitness)
         .with_crossover(CrossoverRange(true))
         .with_compete(CompeteTournament(4))
-        .build()
-        .unwrap()
-        .call(&mut rng);
+        .call(&mut rng)
+        .unwrap();
 
     println!("{}", evolve);
 

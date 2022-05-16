@@ -86,9 +86,8 @@ fn main() {
         .with_fitness(CachedExpensiveCount::new(1000, 1500))
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteTournament(4))
-        .build()
-        .unwrap()
-        .call(&mut rng);
+        .call(&mut rng)
+        .unwrap();
 
     println!("{}", evolve);
 }

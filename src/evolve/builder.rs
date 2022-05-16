@@ -4,6 +4,7 @@ use crate::evolve::Evolve;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
+use rand::Rng;
 use std::ops::Range;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -33,6 +34,12 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 
     pub fn build(self) -> Result<Evolve<G, M, F, S, C>, TryFromBuilderError> {
         self.try_into()
+    }
+
+    pub fn call<R: Rng>(self, rng: &mut R) -> Result<Evolve<G, M, F, S, C>, TryFromBuilderError> {
+        let mut evolve: Evolve<G, M, F, S, C> = self.try_into()?;
+        evolve.call(rng);
+        Ok(evolve)
     }
 
     pub fn with_genotype(mut self, genotype: G) -> Self {
