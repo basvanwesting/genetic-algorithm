@@ -2,20 +2,20 @@ use criterion::*;
 use genetic_algorithm::genotype::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use std::time::Duration;
+//use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let gene_sizes = vec![10, 100, 1000, 10000];
 
     let mut group = c.benchmark_group("genotype-mutate");
-    group.warm_up_time(Duration::from_secs(3));
-    group.measurement_time(Duration::from_secs(3));
+    //group.warm_up_time(Duration::from_secs(3));
+    //group.measurement_time(Duration::from_secs(3));
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
     for gene_size in &gene_sizes {
-        group.throughput(Throughput::Elements(*gene_size as u64));
+        //group.throughput(Throughput::Elements(*gene_size as u64));
         group.bench_with_input(
             BenchmarkId::new("binary", gene_size),
             gene_size,
@@ -31,7 +31,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     }
 
     for gene_size in &gene_sizes {
-        group.throughput(Throughput::Elements(*gene_size as u64));
+        //group.throughput(Throughput::Elements(*gene_size as u64));
         group.bench_with_input(
             BenchmarkId::new("continuous", gene_size),
             gene_size,
@@ -48,7 +48,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     }
 
     for gene_size in &gene_sizes {
-        group.throughput(Throughput::Elements(*gene_size as u64));
+        //group.throughput(Throughput::Elements(*gene_size as u64));
         group.bench_with_input(
             BenchmarkId::new("discrete", gene_size),
             gene_size,
@@ -65,7 +65,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     }
 
     for gene_size in &gene_sizes {
-        group.throughput(Throughput::Elements(*gene_size as u64));
+        //group.throughput(Throughput::Elements(*gene_size as u64));
         group.bench_with_input(
             BenchmarkId::new("multi_continuous", gene_size),
             gene_size,
@@ -81,7 +81,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     }
 
     for gene_size in &gene_sizes {
-        group.throughput(Throughput::Elements(*gene_size as u64));
+        //group.throughput(Throughput::Elements(*gene_size as u64));
         group.bench_with_input(
             BenchmarkId::new("multi_discrete", gene_size),
             gene_size,
@@ -97,7 +97,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     }
 
     for gene_size in &gene_sizes {
-        group.throughput(Throughput::Elements(*gene_size as u64));
+        //group.throughput(Throughput::Elements(*gene_size as u64));
         group.bench_with_input(
             BenchmarkId::new("unique_discrete", gene_size),
             gene_size,

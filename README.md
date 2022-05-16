@@ -44,9 +44,8 @@ let evolve = Evolve::builder()
     .with_crossover(CrossoverAll(true)) // crossover all individual genes between 2 chromosomes for offspring
     .with_mutate(MutateOnce(0.2))       // mutate a single gene with a 20% probability per chromosome
     .with_compete(CompeteElite)         // sort the chromosomes by fitness to determine crossover order
-    .build()
-    .unwrap()
     .call(&mut rng);
+    .unwrap()
 
 println!("{}", evolve);
 ```
@@ -91,6 +90,4 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Maybe seed best_chromosome back into population after degenerate?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
-* Support genotypes with variable length (for knapsack problem). A Bag / Set type?
-* Does Fitness need an associated trait for Genotype?, can this be made more light weight
-* Use checked math or some big number type for chromosome_permutations_size as it overflows easily
+* Does Fitness need an associated trait for Genotype? Can this be made more lightweight?

@@ -39,7 +39,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
             b.iter_batched(
                 || evolve_builder.clone().build().unwrap(),
-                |e| e.call(&mut rng),
+                |mut e| e.call(&mut rng),
                 BatchSize::SmallInput,
             );
         },
@@ -68,7 +68,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
             b.iter_batched(
                 || evolve_builder.clone().build().unwrap(),
-                |e| e.call(&mut rng),
+                |mut e| e.call(&mut rng),
                 BatchSize::SmallInput,
             );
         },

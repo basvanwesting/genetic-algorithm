@@ -4,7 +4,7 @@ use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use std::time::Duration;
+//use std::time::Duration;
 
 pub fn setup(
     gene_size: usize,
@@ -41,14 +41,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     ];
 
     let mut group = c.benchmark_group(format!("crossovers-pop{}", population_size));
-    group.warm_up_time(Duration::from_secs(3));
-    group.measurement_time(Duration::from_secs(3));
+    //group.warm_up_time(Duration::from_secs(3));
+    //group.measurement_time(Duration::from_secs(3));
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
     for crossover in crossovers {
         for gene_size in &gene_sizes {
-            group.throughput(Throughput::Elements(*gene_size as u64));
+            group.throughput(Throughput::Elements(population_size as u64));
             let (genotype, population) = setup(*gene_size, population_size, &mut rng);
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}-{}", crossover.0, crossover.1), gene_size),
@@ -56,7 +56,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 |b, &_gene_size| {
                     b.iter_batched(
                         || population.clone(),
-                        |data| crossover.call(&genotype, data, &mut rng),
+                        |mut data| crossover.call(&genotype, &mut data, &mut rng),
                         BatchSize::SmallInput,
                     )
                 },

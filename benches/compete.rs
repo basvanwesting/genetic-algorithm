@@ -6,7 +6,7 @@ use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use std::time::Duration;
+//use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
@@ -21,8 +21,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     ];
 
     let mut group = c.benchmark_group("competes");
-    group.warm_up_time(Duration::from_secs(3));
-    group.measurement_time(Duration::from_secs(3));
+    //group.warm_up_time(Duration::from_secs(3));
+    //group.measurement_time(Duration::from_secs(3));
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
@@ -41,8 +41,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             let chromosomes = (0..source_population_size)
                 .map(|_| genotype.chromosome_factory(&mut rng))
                 .collect();
-            let population = Population::new(chromosomes);
-            let population = CountTrue.call_for_population(population);
+            let population = &mut Population::new(chromosomes);
+            CountTrue.call_for_population(population);
 
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}-{}", compete.0, compete.1), population_size),
@@ -50,8 +50,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 |b, &_population_size| {
                     b.iter_batched(
                         || population.clone(),
-                        |data| {
-                            compete.call(data, fitness_ordering, *target_population_size, &mut rng)
+                        |mut data| {
+                            compete.call(
+                                &mut data,
+                                fitness_ordering,
+                                *target_population_size,
+                                &mut rng,
+                            )
                         },
                         BatchSize::SmallInput,
                     )
