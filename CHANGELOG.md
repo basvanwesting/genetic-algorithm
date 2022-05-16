@@ -5,7 +5,9 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [0.3.0pre] - TBD
+## [0.3.0] - 2022-05-16
+### Documentation
+* Make proper distinction between gene and allele as in the book "Genetic Algorithms in Elixir"
 
 ### Added
 * Add option to `call()` from `EvolveBuilder` & `PermutateBuilder` directly
@@ -14,11 +16,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Refactor `Evolve` & `Permutate` to `call(&mut self, ...)`
 * Refactor `Fitness`, `Crossover`, `Mutate` & `Compete` to take mutable population reference
-* Rename `gene_ranges` to `gene_multi_range` for symmetry reasons with `gene_multi_values`
 * Improve performance in `Crossover` when not keeping parents
+* Rename `gene_value*` to `allele_value*`
+* Rename `gene_ranges` to `allele_multi_range` for symmetry reasons with `allele_multi_values`
+* Rename `gene_size` to `genes_size` as it is not the size of a gene
+* Rename `CrossoverSingle` to `CrossoverSingleGene`
+* Rename `CrossoverRange` to `CrossoverSinglePoint`
+* Rename `CrossoverAll` to `CrossoverUniform`
 
 ### Removed
 * Drop SetGenotype as it is always better implemented using BinaryGenotype
+* Cleanup examples
 
 ## [0.2.0] - 2022-05-13
 ### Added
