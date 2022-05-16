@@ -296,7 +296,7 @@ dependencies = [
 
 [[package]]
 name = "genetic_algorithm"
-version = "0.3.0"
+version = "0.3.1"
 dependencies = [
  "criterion",
  "distance",
