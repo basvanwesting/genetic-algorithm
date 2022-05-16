@@ -78,7 +78,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * See [examples/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)
     * _Note: doesn't help performance much in this case..._
 * Permutation strategy instead of Evolve strategy for small search spaces
-    * See [examples/permutate_binary](../main/examples/permutate_binary.rs)
+    * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
 
 
 ## Tests

@@ -23,7 +23,7 @@ impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fi
         let mut rng = SmallRng::from_entropy();
 
         println!(
-            "population_size: {} | max_stale_generations: {:?} | target_fitness_score: {:?} | degeneration_range {:?} | mutate: {:?} | crossover: {:?} | compete: {:?}",
+            "pop-size: {} | max-stale-gen: {:?} | target-fitness: {:?} | degen-range: {:?} | {:?} | {:?} | {:?}",
             evolve_builder.population_size,
             evolve_builder.max_stale_generations,
             evolve_builder.target_fitness_score,

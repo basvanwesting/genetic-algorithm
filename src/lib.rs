@@ -72,7 +72,7 @@
 //!     * See [examples/evolve_binary_lru_cache_fitness](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_binary_lru_cache_fitness.rs)
 //!     * _Note: doesn't help performance much in this case..._
 //! * Permutation strategy instead of Evolve strategy for small search spaces
-//!     * See [example/permutate_binary](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_binary.rs)
+//!     * See [examples/permutate_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_knapsack.rs)
 //!
 
 pub mod chromosome;
