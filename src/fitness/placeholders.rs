@@ -5,6 +5,25 @@ use crate::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiContinuousGenotype,
     MultiDiscreteGenotype, UniqueDiscreteGenotype,
 };
+use std::marker::PhantomData;
+
+/// placeholder for testing and bootstrapping, not really used in practice
+#[derive(Clone, Debug)]
+pub struct Zero<T: Genotype>(PhantomData<T>);
+impl<T: Genotype> Zero<T> {
+    pub fn new() -> Self {
+        Self(PhantomData)
+    }
+}
+impl<T: Genotype> Fitness for Zero<T> {
+    type Genotype = T;
+    fn calculate_for_chromosome(
+        &mut self,
+        _chromosome: &Chromosome<Self::Genotype>,
+    ) -> Option<FitnessValue> {
+        Some(0)
+    }
+}
 
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]

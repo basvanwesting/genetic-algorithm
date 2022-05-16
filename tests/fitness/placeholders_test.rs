@@ -1,10 +1,22 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::fitness::placeholders::{
-    CountTrue, SumContinuousGenotype, SumDiscreteGenotype,
+    CountTrue, SumContinuousGenotype, SumDiscreteGenotype, Zero,
 };
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, DiscreteGenotype};
+
+#[test]
+fn zero() {
+    let chromosome = build::chromosome::<BinaryGenotype>(vec![true, true, true]);
+    assert_eq!(Zero::new().calculate_for_chromosome(&chromosome), Some(0));
+
+    let chromosome = build::chromosome::<ContinuousGenotype>(vec![0.1, 0.2, 0.3]);
+    assert_eq!(Zero::new().calculate_for_chromosome(&chromosome), Some(0));
+
+    let chromosome = build::chromosome::<DiscreteGenotype>(vec![0, 1, 2, 3]);
+    assert_eq!(Zero::new().calculate_for_chromosome(&chromosome), Some(0));
+}
 
 #[test]
 fn count_true() {
