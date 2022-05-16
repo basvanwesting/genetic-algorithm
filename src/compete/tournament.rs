@@ -12,7 +12,7 @@ use std::cmp::Reverse;
 /// of sorts the fitness first, but not very strictly. This preserves a level of diversity, which
 /// avoids local optimum lock-in.
 ///
-/// Excess chromosomes, beyond the target_population_size are dropped.
+/// Excess chromosomes, beyond the target_population_size, are dropped.
 #[derive(Clone, Debug)]
 pub struct Tournament(pub TournamentSize);
 impl Compete for Tournament {

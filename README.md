@@ -99,8 +99,10 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
 * Does Fitness need an associated trait for Genotype? Can this be made more lightweight?
+
+## MAYBE
+* Add Tournament competition with duplicates (needs cloning)
+* Add Roulette competition with and without duplicates (with fitness ordering)
+* Add OrderOne crossover for UniqueDiscreteGenotype?
+* Add WholeArithmetic crossover for ContinuousGenotype?
 * Rename Continuous to Real?
-* Add Tournament competition with duplicates
-* Add Roulette competition with and without duplicates
-* Add OrderOne crossover for UniqueDiscreteGenotype
-* Add WholeArithmetic crossover for ContinuousGenotype

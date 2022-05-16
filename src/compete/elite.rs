@@ -7,7 +7,7 @@ use std::cmp::Reverse;
 
 /// Simply sort the chromosomes with fittest first. This approach has the risk of locking in to a local optimum.
 ///
-/// Excess chromosomes, beyond the target_population_size are dropped.
+/// Excess chromosomes, beyond the target_population_size, are dropped.
 #[derive(Clone, Debug)]
 pub struct Elite;
 impl Compete for Elite {

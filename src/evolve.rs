@@ -54,18 +54,18 @@ use std::ops::Range;
 ///     .unwrap();
 ///
 /// // the search strategy
-/// let mut rng = rand::thread_rng();          // a randomness provider implementing Trait rand::Rng
+/// let mut rng = rand::thread_rng();           // a randomness provider implementing Trait rand::Rng
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
-///     .with_population_size(100)             // evolve with 100 chromosomes
-///     .with_target_fitness_score(0)          // goal is 0 times true in the best chromosome
-///     .with_max_stale_generations(1000)      // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_degeneration_range(0.005..0.995) // simulate cambrian explosion when reaching a local optimum
-///     .with_fitness(CountTrue)               // count the number of true values in the chromosomes
+///     .with_population_size(100)              // evolve with 100 chromosomes
+///     .with_target_fitness_score(0)           // goal is 0 times true in the best chromosome
+///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_degeneration_range(0.005..0.995)  // simulate cambrian explosion when reaching a local optimum
+///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .with_crossover(CrossoverUniform(true))    // crossover all individual genes between 2 chromosomes for offspring
-///     .with_mutate(MutateOnce(0.2))          // mutate a single gene with a 20% probability per chromosome
-///     .with_compete(CompeteElite)            // sort the chromosomes by fitness to determine crossover order
+///     .with_crossover(CrossoverUniform(true)) // crossover all individual genes between 2 chromosomes for offspring
+///     .with_mutate(MutateOnce(0.2))           // mutate a single gene with a 20% probability per chromosome
+///     .with_compete(CompeteElite)             // sort the chromosomes by fitness to determine crossover order
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
