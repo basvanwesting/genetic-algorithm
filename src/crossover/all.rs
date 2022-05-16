@@ -33,9 +33,10 @@ impl Crossover for All {
 
                     for index in 0..gene_size {
                         if bool_sampler.sample(rng) {
-                            //std::mem::swap(&mut child_father_genes[index], &mut child_mother_genes[index]);
-                            child_father_genes[index] = mother.genes[index].clone();
-                            child_mother_genes[index] = father.genes[index].clone();
+                            std::mem::swap(
+                                &mut child_father_genes[index],
+                                &mut child_mother_genes[index],
+                            );
                         }
                     }
 
@@ -52,9 +53,7 @@ impl Crossover for All {
                 if let [father, mother] = chunk {
                     for index in 0..gene_size {
                         if bool_sampler.sample(rng) {
-                            //std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-                            (father.genes[index], mother.genes[index]) =
-                                (mother.genes[index].clone(), father.genes[index].clone());
+                            std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
                         }
                     }
                     mother.taint_fitness_score();
