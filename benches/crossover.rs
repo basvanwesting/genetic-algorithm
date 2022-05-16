@@ -7,12 +7,12 @@ use rand::rngs::SmallRng;
 //use std::time::Duration;
 
 pub fn setup(
-    gene_size: usize,
+    genes_size: usize,
     population_size: usize,
     rng: &mut SmallRng,
 ) -> (BinaryGenotype, Population<BinaryGenotype>) {
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(gene_size)
+        .with_genes_size(genes_size)
         .build()
         .unwrap();
 
@@ -27,7 +27,7 @@ pub fn setup(
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let population_size: usize = 1000;
-    let gene_sizes = vec![10, 100, 1000, 10000];
+    let genes_sizes = vec![10, 100, 1000, 10000];
 
     let crossovers = vec![
         CrossoverDispatch(Crossovers::Single, true),
@@ -47,13 +47,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.plot_config(plot_config);
 
     for crossover in crossovers {
-        for gene_size in &gene_sizes {
+        for genes_size in &genes_sizes {
             group.throughput(Throughput::Elements(population_size as u64));
-            let (genotype, population) = setup(*gene_size, population_size, &mut rng);
+            let (genotype, population) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
-                BenchmarkId::new(format!("{:?}-{}", crossover.0, crossover.1), gene_size),
-                gene_size,
-                |b, &_gene_size| {
+                BenchmarkId::new(format!("{:?}-{}", crossover.0, crossover.1), genes_size),
+                genes_size,
+                |b, &_genes_size| {
                     b.iter_batched(
                         || population.clone(),
                         |mut data| crossover.call(&genotype, &mut data, &mut rng),

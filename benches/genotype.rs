@@ -6,7 +6,7 @@ use rand::rngs::SmallRng;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    let gene_sizes = vec![10, 100, 1000, 10000];
+    let genes_sizes = vec![10, 100, 1000, 10000];
 
     let mut group = c.benchmark_group("genotype-mutate");
     //group.warm_up_time(Duration::from_secs(3));
@@ -14,14 +14,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    for gene_size in &gene_sizes {
-        //group.throughput(Throughput::Elements(*gene_size as u64));
+    for genes_size in &genes_sizes {
+        //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("binary", gene_size),
-            gene_size,
-            |b, &gene_size| {
+            BenchmarkId::new("binary", genes_size),
+            genes_size,
+            |b, &genes_size| {
                 let genotype = BinaryGenotype::builder()
-                    .with_gene_size(gene_size)
+                    .with_genes_size(genes_size)
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -30,14 +30,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
     }
 
-    for gene_size in &gene_sizes {
-        //group.throughput(Throughput::Elements(*gene_size as u64));
+    for genes_size in &genes_sizes {
+        //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("continuous", gene_size),
-            gene_size,
-            |b, &gene_size| {
+            BenchmarkId::new("continuous", genes_size),
+            genes_size,
+            |b, &genes_size| {
                 let genotype = ContinuousGenotype::builder()
-                    .with_gene_size(gene_size)
+                    .with_genes_size(genes_size)
                     .with_allele_range(0.0..1.0)
                     .build()
                     .unwrap();
@@ -47,14 +47,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
     }
 
-    for gene_size in &gene_sizes {
-        //group.throughput(Throughput::Elements(*gene_size as u64));
+    for genes_size in &genes_sizes {
+        //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("discrete", gene_size),
-            gene_size,
-            |b, &gene_size| {
+            BenchmarkId::new("discrete", genes_size),
+            genes_size,
+            |b, &genes_size| {
                 let genotype = DiscreteGenotype::builder()
-                    .with_gene_size(gene_size)
+                    .with_genes_size(genes_size)
                     .with_allele_values((0..10).collect())
                     .build()
                     .unwrap();
@@ -64,14 +64,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
     }
 
-    for gene_size in &gene_sizes {
-        //group.throughput(Throughput::Elements(*gene_size as u64));
+    for genes_size in &genes_sizes {
+        //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("multi_continuous", gene_size),
-            gene_size,
-            |b, &gene_size| {
+            BenchmarkId::new("multi_continuous", genes_size),
+            genes_size,
+            |b, &genes_size| {
                 let genotype = MultiContinuousGenotype::builder()
-                    .with_allele_multi_range((0..gene_size).map(|_| (0.0..1.0)).collect())
+                    .with_allele_multi_range((0..genes_size).map(|_| (0.0..1.0)).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -80,14 +80,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
     }
 
-    for gene_size in &gene_sizes {
-        //group.throughput(Throughput::Elements(*gene_size as u64));
+    for genes_size in &genes_sizes {
+        //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("multi_discrete", gene_size),
-            gene_size,
-            |b, &gene_size| {
+            BenchmarkId::new("multi_discrete", genes_size),
+            genes_size,
+            |b, &genes_size| {
                 let genotype = MultiDiscreteGenotype::builder()
-                    .with_allele_multi_values((0..gene_size).map(|_| (0..10).collect()).collect())
+                    .with_allele_multi_values((0..genes_size).map(|_| (0..10).collect()).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -96,14 +96,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
     }
 
-    for gene_size in &gene_sizes {
-        //group.throughput(Throughput::Elements(*gene_size as u64));
+    for genes_size in &genes_sizes {
+        //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("unique_discrete", gene_size),
-            gene_size,
-            |b, &gene_size| {
+            BenchmarkId::new("unique_discrete", genes_size),
+            genes_size,
+            |b, &genes_size| {
                 let genotype = UniqueDiscreteGenotype::builder()
-                    .with_gene_size(gene_size)
+                    .with_genes_size(genes_size)
                     .with_allele_values((0..10).collect())
                     .build()
                     .unwrap();

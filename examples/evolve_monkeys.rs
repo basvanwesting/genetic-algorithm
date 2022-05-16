@@ -29,7 +29,7 @@ impl Fitness for MonkeyFitness {
 fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = DiscreteGenotype::builder()
-        .with_gene_size(TARGET_TEXT.len())
+        .with_genes_size(TARGET_TEXT.len())
         .with_allele_values((MIN_CHAR..=MAX_CHAR).collect())
         .build()
         .unwrap();

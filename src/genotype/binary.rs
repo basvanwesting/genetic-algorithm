@@ -16,13 +16,13 @@ pub type BinaryAllele = bool;
 /// use genetic_algorithm::genotype::{Genotype, BinaryGenotype};
 ///
 /// let genotype = BinaryGenotype::builder()
-///     .with_gene_size(100)
+///     .with_genes_size(100)
 ///     .build()
 ///     .unwrap();
 /// ```
 #[derive(Clone, Debug)]
 pub struct Binary {
-    pub gene_size: usize,
+    pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
     allele_value_sampler: Bernoulli,
     pub seed_genes: Option<Vec<BinaryAllele>>,
@@ -32,12 +32,12 @@ impl TryFrom<Builder<Self>> for Binary {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.gene_size.is_none() {
-            Err(TryFromBuilderError("BinaryGenotype requires a gene_size"))
+        if builder.genes_size.is_none() {
+            Err(TryFromBuilderError("BinaryGenotype requires a genes_size"))
         } else {
             Ok(Self {
-                gene_size: builder.gene_size.unwrap(),
-                gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
+                genes_size: builder.genes_size.unwrap(),
+                gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
                 allele_value_sampler: Bernoulli::new(0.5).unwrap(),
                 seed_genes: builder.seed_genes,
             })
@@ -47,14 +47,14 @@ impl TryFrom<Builder<Self>> for Binary {
 
 impl Genotype for Binary {
     type Allele = BinaryAllele;
-    fn gene_size(&self) -> usize {
-        self.gene_size
+    fn genes_size(&self) -> usize {
+        self.genes_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
             Chromosome::new(seed_genes.clone())
         } else {
-            let genes: Vec<Self::Allele> = (0..self.gene_size)
+            let genes: Vec<Self::Allele> = (0..self.genes_size)
                 .map(|_| self.allele_value_sampler.sample(rng))
                 .collect();
             Chromosome::new(genes)
@@ -77,7 +77,7 @@ impl PermutableGenotype for Binary {
 impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
-        writeln!(f, "  gene_size: {}", self.gene_size)?;
+        writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",

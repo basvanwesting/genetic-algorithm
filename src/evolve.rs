@@ -49,7 +49,7 @@ use std::ops::Range;
 ///
 /// // the search space
 /// let genotype = BinaryGenotype::builder() // boolean alleles
-///     .with_gene_size(100)                 // 100 of them
+///     .with_genes_size(100)                // 100 genes per chromosome
 ///     .build()
 ///     .unwrap();
 ///

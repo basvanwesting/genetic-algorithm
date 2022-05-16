@@ -19,7 +19,7 @@ pub type DefaultDiscreteAllele = usize;
 /// use genetic_algorithm::genotype::{Genotype, DiscreteGenotype};
 ///
 /// let genotype = DiscreteGenotype::builder()
-///     .with_gene_size(100)
+///     .with_genes_size(100)
 ///     .with_allele_values((0..10).collect())
 ///     .build()
 ///     .unwrap();
@@ -33,7 +33,7 @@ pub type DefaultDiscreteAllele = usize;
 /// struct Item(pub u16, pub u16);
 ///
 /// let genotype = DiscreteGenotype::builder()
-///     .with_gene_size(100)
+///     .with_genes_size(100)
 ///     .with_allele_values(vec![
 ///         Item(23, 505),
 ///         Item(26, 352),
@@ -44,7 +44,7 @@ pub type DefaultDiscreteAllele = usize;
 /// ```
 #[derive(Debug, Clone)]
 pub struct Discrete<T: Clone + std::fmt::Debug = DefaultDiscreteAllele> {
-    pub gene_size: usize,
+    pub genes_size: usize,
     pub allele_values: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     allele_value_index_sampler: Uniform<usize>,
@@ -55,8 +55,8 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.gene_size.is_none() {
-            Err(TryFromBuilderError("DiscreteGenotype requires a gene_size"))
+        if builder.genes_size.is_none() {
+            Err(TryFromBuilderError("DiscreteGenotype requires a genes_size"))
         } else if builder.allele_values.is_none() {
             Err(TryFromBuilderError(
                 "DiscreteGenotype requires allele_values",
@@ -73,9 +73,9 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
         } else {
             let allele_values = builder.allele_values.unwrap();
             Ok(Self {
-                gene_size: builder.gene_size.unwrap(),
+                genes_size: builder.genes_size.unwrap(),
                 allele_values: allele_values.clone(),
-                gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
+                gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
                 allele_value_index_sampler: Uniform::from(0..allele_values.len()),
                 seed_genes: builder.seed_genes,
             })
@@ -85,14 +85,14 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
 
 impl<T: Clone + std::fmt::Debug> Genotype for Discrete<T> {
     type Allele = T;
-    fn gene_size(&self) -> usize {
-        self.gene_size
+    fn genes_size(&self) -> usize {
+        self.genes_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
             Chromosome::new(seed_genes.clone())
         } else {
-            let genes: Vec<Self::Allele> = (0..self.gene_size)
+            let genes: Vec<Self::Allele> = (0..self.genes_size)
                 .map(|_| self.allele_values[self.allele_value_index_sampler.sample(rng)].clone())
                 .collect();
             Chromosome::new(genes)
@@ -116,7 +116,7 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for Discrete<T> {
 impl<T: Clone + std::fmt::Debug> fmt::Display for Discrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
-        writeln!(f, "  gene_size: {}", self.gene_size)?;
+        writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  allele_values: {:?}", self.allele_values)?;
         writeln!(
             f,

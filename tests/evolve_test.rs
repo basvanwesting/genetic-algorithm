@@ -20,7 +20,7 @@ mod evolve_tests {
     #[test]
     fn build_invalid_missing_ending_condition() {
         let genotype = BinaryGenotype::builder()
-            .with_gene_size(10)
+            .with_genes_size(10)
             .build()
             .unwrap();
         let evolve = Evolve::builder()
@@ -69,7 +69,7 @@ mod evolve_tests {
     #[test]
     fn call_binary_max_stale_generations_maximize() {
         let genotype = BinaryGenotype::builder()
-            .with_gene_size(10)
+            .with_genes_size(10)
             .build()
             .unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
@@ -97,7 +97,7 @@ mod evolve_tests {
     #[test]
     fn call_binary_max_stale_generations_minimize() {
         let genotype = BinaryGenotype::builder()
-            .with_gene_size(10)
+            .with_genes_size(10)
             .build()
             .unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
@@ -126,7 +126,7 @@ mod evolve_tests {
     #[test]
     fn call_binary_target_fitness_score_maximize() {
         let genotype = BinaryGenotype::builder()
-            .with_gene_size(10)
+            .with_genes_size(10)
             .build()
             .unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
@@ -154,7 +154,7 @@ mod evolve_tests {
     #[test]
     fn call_binary_target_fitness_score_minimize() {
         let genotype = BinaryGenotype::builder()
-            .with_gene_size(10)
+            .with_genes_size(10)
             .build()
             .unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
@@ -183,7 +183,7 @@ mod evolve_tests {
     #[test]
     fn call_binary_degeneration_range() {
         let genotype = BinaryGenotype::builder()
-            .with_gene_size(10)
+            .with_genes_size(10)
             .build()
             .unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
@@ -212,7 +212,7 @@ mod evolve_tests {
     #[test]
     fn call_continuous() {
         let genotype = ContinuousGenotype::builder()
-            .with_gene_size(10)
+            .with_genes_size(10)
             .with_allele_range(0.0..1.0)
             .build()
             .unwrap();
@@ -244,7 +244,7 @@ mod evolve_tests {
     #[test]
     fn call_discrete() {
         let genotype = DiscreteGenotype::builder()
-            .with_gene_size(10)
+            .with_genes_size(10)
             .with_allele_values((0..4).collect())
             .build()
             .unwrap();
@@ -303,7 +303,7 @@ mod evolve_tests {
 
     #[test]
     fn population_factory_binary() {
-        let genotype = BinaryGenotype::builder().with_gene_size(4).build().unwrap();
+        let genotype = BinaryGenotype::builder().with_genes_size(4).build().unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
         let mut evolve = Evolve::builder()
             .with_genotype(genotype)

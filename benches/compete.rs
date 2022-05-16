@@ -27,7 +27,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.plot_config(plot_config);
 
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(100)
+        .with_genes_size(100)
         .build()
         .unwrap();
 

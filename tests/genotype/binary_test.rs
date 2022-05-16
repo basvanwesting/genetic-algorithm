@@ -6,7 +6,7 @@ use genetic_algorithm::genotype::{BinaryGenotype, Genotype, PermutableGenotype};
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(10)
+        .with_genes_size(10)
         .build()
         .unwrap();
 
@@ -31,8 +31,8 @@ fn general() {
 }
 
 #[test]
-fn chromosome_permutations_gene_size_1() {
-    let genotype = BinaryGenotype::builder().with_gene_size(1).build().unwrap();
+fn chromosome_permutations_genes_size_1() {
+    let genotype = BinaryGenotype::builder().with_genes_size(1).build().unwrap();
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(2u32));
     assert_eq!(
@@ -42,8 +42,8 @@ fn chromosome_permutations_gene_size_1() {
 }
 
 #[test]
-fn chromosome_permutations_gene_size_2() {
-    let genotype = BinaryGenotype::builder().with_gene_size(2).build().unwrap();
+fn chromosome_permutations_genes_size_2() {
+    let genotype = BinaryGenotype::builder().with_genes_size(2).build().unwrap();
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(4u32));
     assert_eq!(
@@ -58,9 +58,9 @@ fn chromosome_permutations_gene_size_2() {
 }
 
 #[test]
-fn chromosome_permutations_gene_size_huge() {
+fn chromosome_permutations_genes_size_huge() {
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(100)
+        .with_genes_size(100)
         .build()
         .unwrap();
     assert_eq!(
@@ -70,8 +70,8 @@ fn chromosome_permutations_gene_size_huge() {
 }
 
 #[test]
-fn chromosome_permutations_gene_size_3() {
-    let genotype = BinaryGenotype::builder().with_gene_size(3).build().unwrap();
+fn chromosome_permutations_genes_size_3() {
+    let genotype = BinaryGenotype::builder().with_genes_size(3).build().unwrap();
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(8u32));
     assert_eq!(
@@ -93,7 +93,7 @@ fn chromosome_permutations_gene_size_3() {
 fn chromosome_factory_with_seed_genes() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(4)
+        .with_genes_size(4)
         .with_seed_genes(vec![true, true, false, false])
         .build()
         .unwrap();

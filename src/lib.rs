@@ -8,10 +8,10 @@
 //!
 //! Terminology:
 //! * [Population](crate::population): a population has `population_size` number of individuals (called chromosomes).
-//! * [Chromosome](crate::chromosome): a chromosome has `gene_size` number of genes
+//! * [Chromosome](crate::chromosome): a chromosome has `genes_size` number of genes
 //! * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
 //! * Allele: alleles are the possible values of the genes
-//! * [Genotype](crate::genotype): holds the `gene_size` and alleles and knows how to generate and mutate chromosomes efficiently
+//! * [Genotype](crate::genotype): holds the `genes_size` and alleles and knows how to generate and mutate chromosomes efficiently
 //! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
 //!
 //! ## Quick Usage
@@ -21,7 +21,7 @@
 //!
 //! // the search space
 //! let genotype = BinaryGenotype::builder() // boolean alleles
-//!     .with_gene_size(100)                 // 100 of them
+//!     .with_genes_size(100)                // 100 genes per chromosome
 //!     .build()
 //!     .unwrap();
 //!

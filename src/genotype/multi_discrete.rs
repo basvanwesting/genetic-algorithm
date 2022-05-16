@@ -10,7 +10,7 @@ use std::fmt;
 pub type DefaultDiscreteAllele = usize;
 
 /// Genes are a list of values, each individually taken from its own allele_values using clone(). The
-/// gene_size is derived to be the allele_multi_values length. All allele_values have to be of the same
+/// genes_size is derived to be the allele_multi_values length. All allele_values have to be of the same
 /// type, but can have different values and lengths. On random initialization, each gene gets a
 /// value from its own allele_values with a uniform probability. Each gene has a weighted probability
 /// of mutating, depending on its allele_values length. If a gene mutates, a new values is taken from
@@ -78,7 +78,7 @@ pub type DefaultDiscreteAllele = usize;
 /// ```
 #[derive(Clone, Debug)]
 pub struct MultiDiscrete<T: Clone + std::fmt::Debug = DefaultDiscreteAllele> {
-    gene_size: usize,
+    genes_size: usize,
     allele_value_sizes: Vec<usize>,
     pub allele_multi_values: Vec<Vec<T>>,
     gene_index_sampler: WeightedIndex<usize>,
@@ -108,7 +108,7 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for MultiDiscrete<T> {
             let allele_value_sizes: Vec<usize> =
                 allele_multi_values.iter().map(|v| v.len()).collect();
             Ok(Self {
-                gene_size: allele_multi_values.len(),
+                genes_size: allele_multi_values.len(),
                 allele_value_sizes: allele_value_sizes.clone(),
                 allele_multi_values: allele_multi_values.clone(),
                 gene_index_sampler: WeightedIndex::new(allele_value_sizes.clone()).unwrap(),
@@ -124,8 +124,8 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for MultiDiscrete<T> {
 
 impl<T: Clone + std::fmt::Debug> Genotype for MultiDiscrete<T> {
     type Allele = T;
-    fn gene_size(&self) -> usize {
-        self.gene_size
+    fn genes_size(&self) -> usize {
+        self.genes_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
@@ -181,7 +181,7 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiDiscrete<T> {
 impl<T: Clone + std::fmt::Debug> fmt::Display for MultiDiscrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
-        writeln!(f, "  gene_size: {}\n", self.gene_size)?;
+        writeln!(f, "  genes_size: {}\n", self.genes_size)?;
         writeln!(f, "  allele_value_sizes: {:?}", self.allele_value_sizes)?;
         writeln!(f, "  allele_multi_values: {:?}", self.allele_multi_values)?;
         writeln!(

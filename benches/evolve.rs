@@ -7,7 +7,7 @@ use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    let gene_size = 100;
+    let genes_size = 100;
     let population_size = 100;
     let max_stale_generations = 100;
 
@@ -20,11 +20,11 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function(
         format!(
             "binary-{}-pop{}-gen{}",
-            gene_size, population_size, max_stale_generations
+            genes_size, population_size, max_stale_generations
         ),
         |b| {
             let genotype = BinaryGenotype::builder()
-                .with_gene_size(gene_size)
+                .with_genes_size(genes_size)
                 .build()
                 .unwrap();
 
@@ -48,11 +48,11 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function(
         format!(
             "discrete-{}-pop{}-gen{}",
-            gene_size, population_size, max_stale_generations
+            genes_size, population_size, max_stale_generations
         ),
         |b| {
             let genotype = DiscreteGenotype::builder()
-                .with_gene_size(gene_size)
+                .with_genes_size(genes_size)
                 .with_allele_values((0..10).collect())
                 .build()
                 .unwrap();

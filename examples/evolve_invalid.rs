@@ -3,7 +3,7 @@ use genetic_algorithm::fitness::placeholders::CountTrue;
 
 fn main() {
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(100)
+        .with_genes_size(100)
         .build()
         .unwrap();
     let evolve = Evolve::builder()

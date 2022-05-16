@@ -70,7 +70,7 @@ impl Clone for CachedExpensiveCount {
 fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(100)
+        .with_genes_size(100)
         .build()
         .unwrap();
 

@@ -29,7 +29,7 @@ fn general() {
 }
 
 #[test]
-fn chromosome_permutations_gene_size_1() {
+fn chromosome_permutations_genes_size_1() {
     let genotype = MultiDiscreteGenotype::builder()
         .with_allele_multi_values(vec![vec![0]])
         .build()
@@ -43,7 +43,7 @@ fn chromosome_permutations_gene_size_1() {
 }
 
 #[test]
-fn chromosome_permutations_gene_size_4() {
+fn chromosome_permutations_genes_size_4() {
     let genotype = MultiDiscreteGenotype::builder()
         .with_allele_multi_values(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1, 2, 3]])
         .build()
@@ -85,7 +85,7 @@ fn chromosome_permutations_gene_size_4() {
 }
 
 #[test]
-fn chromosome_permutations_gene_size_huge() {
+fn chromosome_permutations_genes_size_huge() {
     let genotype = MultiDiscreteGenotype::builder()
         .with_allele_multi_values(vec![
             (0..1000).collect(),

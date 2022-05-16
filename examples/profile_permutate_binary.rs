@@ -17,7 +17,7 @@ criterion_main!(benches);
 
 fn run() {
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(16)
+        .with_genes_size(16)
         .build()
         .unwrap();
 

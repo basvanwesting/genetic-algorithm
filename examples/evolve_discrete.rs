@@ -26,7 +26,7 @@ impl Fitness for MyFitness {
 fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = DiscreteGenotype::<MyAllele>::builder()
-        .with_gene_size(100)
+        .with_genes_size(100)
         .with_allele_values(vec![
             MyAllele(1, 2),
             MyAllele(3, 4),

@@ -17,14 +17,14 @@ pub type ContinuousAllele = f32;
 /// use genetic_algorithm::genotype::{Genotype, ContinuousGenotype};
 ///
 /// let genotype = ContinuousGenotype::builder()
-///     .with_gene_size(100)
+///     .with_genes_size(100)
 ///     .with_allele_range(0.0..1.0)
 ///     .build()
 ///     .unwrap();
 /// ```
 #[derive(Clone, Debug)]
 pub struct Continuous {
-    pub gene_size: usize,
+    pub genes_size: usize,
     pub allele_range: Range<ContinuousAllele>,
     gene_index_sampler: Uniform<usize>,
     allele_value_sampler: Uniform<ContinuousAllele>,
@@ -35,22 +35,22 @@ impl TryFrom<Builder<Self>> for Continuous {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.gene_size.is_none() {
+        if builder.genes_size.is_none() {
             Err(TryFromBuilderError(
-                "ContinuousGenotype requires a gene_size",
+                "ContinuousGenotype requires a genes_size",
             ))
         } else if builder.allele_range.is_none() {
             Err(TryFromBuilderError(
                 "ContinuousGenotype requires a allele_range",
             ))
         } else {
-            let gene_size = builder.gene_size.unwrap();
+            let genes_size = builder.genes_size.unwrap();
             let allele_range = builder.allele_range.unwrap();
 
             Ok(Self {
-                gene_size: gene_size,
+                genes_size: genes_size,
                 allele_range: allele_range.clone(),
-                gene_index_sampler: Uniform::from(0..gene_size),
+                gene_index_sampler: Uniform::from(0..genes_size),
                 allele_value_sampler: Uniform::from(allele_range.clone()),
                 seed_genes: builder.seed_genes,
             })
@@ -60,14 +60,14 @@ impl TryFrom<Builder<Self>> for Continuous {
 
 impl Genotype for Continuous {
     type Allele = ContinuousAllele;
-    fn gene_size(&self) -> usize {
-        self.gene_size
+    fn genes_size(&self) -> usize {
+        self.genes_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
             Chromosome::new(seed_genes.clone())
         } else {
-            let genes: Vec<Self::Allele> = (0..self.gene_size)
+            let genes: Vec<Self::Allele> = (0..self.genes_size)
                 .map(|_| self.allele_value_sampler.sample(rng))
                 .collect();
             Chromosome::new(genes)
@@ -84,7 +84,7 @@ impl Genotype for Continuous {
 impl fmt::Display for Continuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
-        writeln!(f, "  gene_size: {}", self.gene_size)?;
+        writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  allele_range: {:?}", self.allele_range)?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)

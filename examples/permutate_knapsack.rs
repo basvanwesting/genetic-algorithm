@@ -68,7 +68,7 @@ fn main() {
     };
 
     let genotype = BinaryGenotype::builder()
-        .with_gene_size(items.len())
+        .with_genes_size(items.len())
         .build()
         .unwrap();
 

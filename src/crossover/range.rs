@@ -17,7 +17,7 @@ impl Crossover for Range {
         if population.size() < 2 {
             return;
         }
-        let gene_index_sampler = Uniform::from(0..genotype.gene_size());
+        let gene_index_sampler = Uniform::from(0..genotype.genes_size());
         if self.0 {
             let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 

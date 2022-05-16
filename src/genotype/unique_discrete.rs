@@ -11,7 +11,7 @@ use std::fmt;
 pub type DefaultDiscreteAllele = usize;
 
 /// Genes are a list of unique values, taken from the allele_values using clone(), each value occurs
-/// exactly once. The gene_size is derived to be the same as allele_values length. On random
+/// exactly once. The genes_size is derived to be the same as allele_values length. On random
 /// initialization, the allele_values are suffled to form the genes. Each pair of genes has an equal
 /// probability of mutating. If a pair of genes mutates, the values are switched, ensuring the list
 /// of alleles remains unique. Defaults to usize as item.
@@ -79,7 +79,7 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
 
 impl<T: Clone + std::fmt::Debug> Genotype for UniqueDiscrete<T> {
     type Allele = T;
-    fn gene_size(&self) -> usize {
+    fn genes_size(&self) -> usize {
         self.allele_values.len()
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
@@ -116,7 +116,7 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for UniqueDiscrete<T> {
             self.allele_values
                 .clone()
                 .into_iter()
-                .permutations(self.gene_size())
+                .permutations(self.genes_size())
                 .map(|genes| Chromosome::new(genes)),
         )
     }

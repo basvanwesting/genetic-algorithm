@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 
 #[test]
 fn population_even() {
-    let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
 
     let population = &mut build::population(vec![
         vec![true, true, true, true, true],
@@ -30,7 +30,7 @@ fn population_even() {
 
 #[test]
 fn population_odd() {
-    let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
 
     let population = &mut build::population(vec![
         vec![true, true, true, true, true],
@@ -57,7 +57,7 @@ fn population_odd() {
 
 #[test]
 fn population_even_keep_parents() {
-    let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
 
     let population = &mut build::population(vec![
         vec![true, true, true, true, true],
@@ -86,7 +86,7 @@ fn population_even_keep_parents() {
 
 #[test]
 fn population_odd_keep_parents() {
-    let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
 
     let population = &mut build::population(vec![
         vec![true, true, true, true, true],
@@ -117,7 +117,7 @@ fn population_odd_keep_parents() {
 
 #[test]
 fn population_size_one() {
-    let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
 
     let population = &mut build::population(vec![vec![true, false, true, false, true]]);
 

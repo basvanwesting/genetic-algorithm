@@ -17,7 +17,7 @@ mod permutate_tests {
 
     #[test]
     fn call_binary_maximize() {
-        let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
+        let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
@@ -37,7 +37,7 @@ mod permutate_tests {
 
     #[test]
     fn call_binary_minimize() {
-        let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
+        let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
 
         let permutate = Permutate::builder()
             .with_genotype(genotype)
@@ -59,7 +59,7 @@ mod permutate_tests {
     #[test]
     fn call_discrete() {
         let genotype = DiscreteGenotype::builder()
-            .with_gene_size(5)
+            .with_genes_size(5)
             .with_allele_values((0..10).collect())
             .build()
             .unwrap();

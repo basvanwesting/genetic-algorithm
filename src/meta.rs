@@ -49,7 +49,7 @@
 //! ];
 //!
 //! let genotype = BinaryGenotype::builder()
-//!     .with_gene_size(10)
+//!     .with_genes_size(10)
 //!     .build()
 //!     .unwrap();
 //! let fitness = CountTrue;

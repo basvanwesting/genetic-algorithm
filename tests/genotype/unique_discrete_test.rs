@@ -67,7 +67,7 @@ fn chromosome_permutations() {
 }
 
 #[test]
-fn chromosome_permutations_gene_size_huge() {
+fn chromosome_permutations_genes_size_huge() {
     let genotype = UniqueDiscreteGenotype::builder()
         .with_allele_values((0..30).collect())
         .build()

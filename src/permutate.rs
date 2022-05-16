@@ -25,7 +25,7 @@ use std::fmt;
 ///
 /// // the search space
 /// let genotype = BinaryGenotype::builder() // boolean alleles
-///     .with_gene_size(16)                  // 16 of them
+///     .with_genes_size(16)                 // 16 genes per chromosome
 ///     .build()
 ///     .unwrap();
 ///

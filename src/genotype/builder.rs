@@ -12,7 +12,7 @@ pub struct TryFromBuilderError(pub &'static str);
 ///
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {
-    pub gene_size: Option<usize>,
+    pub genes_size: Option<usize>,
     pub allele_value_size: Option<<G as Genotype>::Allele>,
     pub allele_value_sizes: Option<Vec<<G as Genotype>::Allele>>,
     pub allele_values: Option<Vec<<G as Genotype>::Allele>>,
@@ -27,8 +27,8 @@ impl<G: Genotype> Builder<G> {
         Self::default()
     }
 
-    pub fn with_gene_size(mut self, gene_size: usize) -> Self {
-        self.gene_size = Some(gene_size);
+    pub fn with_genes_size(mut self, genes_size: usize) -> Self {
+        self.genes_size = Some(genes_size);
         self
     }
 
@@ -71,7 +71,7 @@ impl<G: Genotype> Builder<G> {
 impl<G: Genotype> Default for Builder<G> {
     fn default() -> Self {
         Self {
-            gene_size: None,
+            genes_size: None,
             allele_value_size: None,
             allele_value_sizes: None,
             allele_values: None,

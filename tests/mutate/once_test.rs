@@ -5,7 +5,7 @@ use genetic_algorithm::mutate::{Mutate, MutateOnce};
 
 #[test]
 fn binary_genotype() {
-    let genotype = BinaryGenotype::builder().with_gene_size(3).build().unwrap();
+    let genotype = BinaryGenotype::builder().with_genes_size(3).build().unwrap();
 
     let population = &mut build::population(vec![
         vec![true, true, true],
@@ -31,7 +31,7 @@ fn binary_genotype() {
 #[test]
 fn discrete_genotype() {
     let genotype = DiscreteGenotype::builder()
-        .with_gene_size(3)
+        .with_genes_size(3)
         .with_allele_values(vec![0, 1, 2, 3])
         .build()
         .unwrap();

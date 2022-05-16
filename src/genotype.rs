@@ -29,7 +29,7 @@ use std::fmt;
 /// Each implemented genotype handles its own random genes initialization and mutation.
 pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>> {
     type Allele: Clone + std::fmt::Debug;
-    fn gene_size(&self) -> usize;
+    fn genes_size(&self) -> usize;
     /// a random chromosome factory to seed the initial population for [Evolve](crate::evolve::Evolve)
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
@@ -54,7 +54,7 @@ pub trait PermutableGenotype: Genotype {
         &'a self,
     ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
         Box::new(
-            (0..self.gene_size())
+            (0..self.genes_size())
                 .map(|_| self.allele_values())
                 .multi_cartesian_product()
                 .map(|genes| Chromosome::new(genes)),
@@ -63,6 +63,6 @@ pub trait PermutableGenotype: Genotype {
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::permutate::Permutate)
     fn chromosome_permutations_size(&self) -> BigUint {
-        BigUint::from(self.allele_values().len()).pow(self.gene_size() as u32)
+        BigUint::from(self.allele_values().len()).pow(self.genes_size() as u32)
     }
 }
