@@ -4,6 +4,22 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.3.0pre] - TBD
+
+### Added
+* Add option to `call()` from `EvolveBuilder` & `PermutateBuilder` directly
+* Add `Fitness::Zero` placeholder
+
+### Changed
+* Refactor `Evolve` & `Permutate` to `call(&mut self, ...)`
+* Refactor `Fitness`, `Crossover`, `Mutate` & `Compete` to take mutable population reference
+* Rename `gene_ranges` to `gene_multi_range` for symmetry reasons with `gene_multi_values`
+* Improve performance in `Crossover` when not keeping parents
+
+### Removed
+* Drop SetGenotype as it is always better implemented using BinaryGenotype
+
 ## [0.2.0] - 2022-05-13
 ### Added
 * Add `SetGenotype<T>`, with `examples/evolve_knapsack_set.rs` and `examples/permutate_knapsack_set.rs`
