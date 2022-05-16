@@ -12,14 +12,9 @@ use rand::Rng;
 #[derive(Clone, Debug)]
 pub struct All(pub KeepParent);
 impl Crossover for All {
-    fn call<T: Genotype, R: Rng>(
-        &self,
-        genotype: &T,
-        mut population: Population<T>,
-        rng: &mut R,
-    ) -> Population<T> {
+    fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R) {
         if population.size() < 2 {
-            return population;
+            return;
         }
         let bool_sampler = Bernoulli::new(0.5).unwrap();
         let gene_size = genotype.gene_size();
@@ -47,7 +42,6 @@ impl Crossover for All {
             }
 
             population.chromosomes.append(&mut child_chromosomes);
-            population
         } else {
             for chunk in population.chromosomes.chunks_mut(2) {
                 if let [father, mother] = chunk {
@@ -60,7 +54,6 @@ impl Crossover for All {
                     father.taint_fitness_score();
                 }
             }
-            population
         }
     }
 }

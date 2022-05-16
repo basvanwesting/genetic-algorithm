@@ -9,7 +9,7 @@ mod population_tests {
 
     #[test]
     fn fitness_score_stddev() {
-        let population = build::population::<BinaryGenotype>(vec![
+        let population = &mut build::population::<BinaryGenotype>(vec![
             vec![false, true, true],
             vec![false, true, false],
             vec![false, false, true],
@@ -21,10 +21,10 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        let population = CountTrue.call_for_population(population);
+        CountTrue.call_for_population(population);
         assert_eq!(population.fitness_score_stddev(), 0.8660254);
 
-        let population = build::population::<BinaryGenotype>(vec![
+        let population = &mut build::population::<BinaryGenotype>(vec![
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
@@ -36,13 +36,13 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        let population = CountTrue.call_for_population(population);
+        CountTrue.call_for_population(population);
         assert_eq!(population.fitness_score_stddev(), 0.3307189);
     }
 
     #[test]
     fn best_chromosome() {
-        let population = build::population_with_fitness_scores::<BinaryGenotype>(vec![
+        let population = &mut build::population_with_fitness_scores::<BinaryGenotype>(vec![
             (vec![false, false, false], Some(0)),
             (vec![false, false, true], Some(1)),
             (vec![false, true, true], Some(2)),

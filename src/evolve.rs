@@ -90,7 +90,6 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     pub current_generation: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<G>>,
-    pub population: Population<G>,
     pub degenerate: bool,
 }
 
@@ -105,35 +104,31 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
-        self.population = self.population_factory(rng);
+        let population = &mut self.population_factory(rng);
 
         while !self.is_finished() {
-            if self.toggle_degenerate() {
-                self.population = self.mutate.call(&self.genotype, self.population, rng);
-                self.population = self.fitness.call_for_population(self.population);
+            if self.toggle_degenerate(population) {
+                self.mutate.call(&self.genotype, population, rng);
+                self.fitness.call_for_population(population);
             } else {
-                self.population = self.crossover.call(&self.genotype, self.population, rng);
-                self.population = self.mutate.call(&self.genotype, self.population, rng);
-                self.population = self.fitness.call_for_population(self.population);
-                self.population = self.compete.call(
-                    self.population,
-                    self.fitness_ordering,
-                    self.population_size,
-                    rng,
-                );
+                self.crossover.call(&self.genotype, population, rng);
+                self.mutate.call(&self.genotype, population, rng);
+                self.fitness.call_for_population(population);
+                self.compete
+                    .call(population, self.fitness_ordering, self.population_size, rng);
             }
 
-            self.update_best_chromosome();
-            //self.report_round();
+            self.update_best_chromosome(population);
+            //self.report_round(population);
             self.current_generation += 1;
         }
         self
     }
 
-    fn update_best_chromosome(&mut self) {
+    fn update_best_chromosome(&mut self, population: &Population<G>) {
         match (
             self.best_chromosome.as_ref(),
-            self.population.best_chromosome(self.fitness_ordering),
+            population.best_chromosome(self.fitness_ordering),
         ) {
             (None, None) => {}
             (Some(_), None) => {}
@@ -173,9 +168,9 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         }
     }
 
-    fn toggle_degenerate(&mut self) -> bool {
+    fn toggle_degenerate(&mut self, population: &Population<G>) -> bool {
         if let Some(degeneration_range) = self.degeneration_range.as_ref() {
-            let fitness_score_stddev = self.population.fitness_score_stddev();
+            let fitness_score_stddev = population.fitness_score_stddev();
             if self.degenerate && fitness_score_stddev > degeneration_range.end {
                 self.degenerate = false;
             } else if !self.degenerate && fitness_score_stddev < degeneration_range.start {
@@ -213,13 +208,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     }
 
     #[allow(dead_code)]
-    fn report_round(&self) {
+    fn report_round(&self, population: &Population<G>) {
         println!(
             "current generation: {}, best fitness score: {:?}, fitness score count: {}, fitness score stddev: {}, degenerate: {}",
             self.current_generation,
             self.best_fitness_score(),
-            self.population.fitness_score_count(),
-            self.population.fitness_score_stddev(),
+            population.fitness_score_count(),
+            population.fitness_score_stddev(),
             self.degenerate,
         );
     }
@@ -294,7 +289,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 current_generation: 0,
                 best_generation: 0,
                 best_chromosome: None,
-                population: Population::new_empty(),
                 degenerate: false,
             })
         }

@@ -7,7 +7,7 @@ use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 fn population_even() {
     let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
-    let population = build::population(vec![
+    let population = &mut build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
@@ -15,10 +15,10 @@ fn population_even() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CrossoverSingle(false).call(&genotype, population, &mut rng);
+    CrossoverSingle(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![true, true, false, true, true],
             vec![false, false, true, false, false],
@@ -32,7 +32,7 @@ fn population_even() {
 fn population_odd() {
     let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
-    let population = build::population(vec![
+    let population = &mut build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
@@ -41,10 +41,10 @@ fn population_odd() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CrossoverSingle(false).call(&genotype, population, &mut rng);
+    CrossoverSingle(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![true, true, false, true, true],
             vec![false, false, true, false, false],
@@ -59,7 +59,7 @@ fn population_odd() {
 fn population_even_keep_parents() {
     let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
-    let population = build::population(vec![
+    let population = &mut build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
@@ -67,10 +67,10 @@ fn population_even_keep_parents() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CrossoverSingle(true).call(&genotype, population, &mut rng);
+    CrossoverSingle(true).call(&genotype, population, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![true, true, true, true, true],
             vec![false, false, false, false, false],
@@ -88,7 +88,7 @@ fn population_even_keep_parents() {
 fn population_odd_keep_parents() {
     let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
-    let population = build::population(vec![
+    let population = &mut build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
@@ -97,10 +97,10 @@ fn population_odd_keep_parents() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CrossoverSingle(true).call(&genotype, population, &mut rng);
+    CrossoverSingle(true).call(&genotype, population, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![true, true, true, true, true],
             vec![false, false, false, false, false],
@@ -119,13 +119,13 @@ fn population_odd_keep_parents() {
 fn population_size_one() {
     let genotype = BinaryGenotype::builder().with_gene_size(5).build().unwrap();
 
-    let population = build::population(vec![vec![true, false, true, false, true]]);
+    let population = &mut build::population(vec![vec![true, false, true, false, true]]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CrossoverSingle(false).call(&genotype, population, &mut rng);
+    CrossoverSingle(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![vec![true, false, true, false, true]]
     )
 }

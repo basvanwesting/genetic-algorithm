@@ -7,7 +7,7 @@ use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 fn population_even() {
     let genotype = BinaryGenotype::builder().with_gene_size(6).build().unwrap();
 
-    let population = build::population(vec![
+    let population = &mut build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
@@ -15,10 +15,10 @@ fn population_even() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CrossoverRange(false).call(&genotype, population, &mut rng);
+    CrossoverRange(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![true, true, false, false, false],
             vec![false, false, true, true, true],
@@ -32,7 +32,7 @@ fn population_even() {
 fn population_even_keep_parents() {
     let genotype = BinaryGenotype::builder().with_gene_size(6).build().unwrap();
 
-    let population = build::population(vec![
+    let population = &mut build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
@@ -40,10 +40,10 @@ fn population_even_keep_parents() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CrossoverRange(true).call(&genotype, population, &mut rng);
+    CrossoverRange(true).call(&genotype, population, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![true, true, true, true, true],
             vec![false, false, false, false, false],

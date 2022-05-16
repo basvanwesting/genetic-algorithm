@@ -14,11 +14,11 @@ use rand::prelude::*;
 pub trait Compete: Clone + std::fmt::Debug {
     fn call<T: Genotype, R: Rng>(
         &self,
-        population: Population<T>,
+        population: &mut Population<T>,
         fitness_ordering: FitnessOrdering,
         target_population_size: usize,
         rng: &mut R,
-    ) -> Population<T>;
+    );
 }
 
 #[derive(Clone, Debug)]
@@ -34,11 +34,11 @@ pub struct CompeteDispatch(pub Competes, pub TournamentSize);
 impl Compete for CompeteDispatch {
     fn call<T: Genotype, R: Rng>(
         &self,
-        population: Population<T>,
+        population: &mut Population<T>,
         fitness_ordering: FitnessOrdering,
         target_population_size: usize,
         rng: &mut R,
-    ) -> Population<T> {
+    ) {
         match self.0 {
             Competes::Elite => {
                 CompeteElite.call(population, fitness_ordering, target_population_size, rng)

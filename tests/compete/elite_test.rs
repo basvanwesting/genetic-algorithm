@@ -7,7 +7,7 @@ use genetic_algorithm::genotype::BinaryGenotype;
 
 #[test]
 fn maximize_population_surplus() {
-    let population = build::population::<BinaryGenotype>(vec![
+    let population = &mut build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
@@ -19,11 +19,11 @@ fn maximize_population_surplus() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CountTrue.call_for_population(population);
-    let population = CompeteElite.call(population, FitnessOrdering::Maximize, 4, &mut rng);
+    CountTrue.call_for_population(population);
+    CompeteElite.call(population, FitnessOrdering::Maximize, 4, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![false, true, true],
             vec![true, false, true],
@@ -35,18 +35,18 @@ fn maximize_population_surplus() {
 
 #[test]
 fn maximize_population_shortage() {
-    let population = build::population::<BinaryGenotype>(vec![
+    let population = &mut build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CountTrue.call_for_population(population);
-    let population = CompeteElite.call(population, FitnessOrdering::Maximize, 4, &mut rng);
+    CountTrue.call_for_population(population);
+    CompeteElite.call(population, FitnessOrdering::Maximize, 4, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![false, false, false],
             vec![false, false, true],
@@ -57,7 +57,7 @@ fn maximize_population_shortage() {
 
 #[test]
 fn minimize_population_surplus() {
-    let population = build::population::<BinaryGenotype>(vec![
+    let population = &mut build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
@@ -69,11 +69,11 @@ fn minimize_population_surplus() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CountTrue.call_for_population(population);
-    let population = CompeteElite.call(population, FitnessOrdering::Minimize, 4, &mut rng);
+    CountTrue.call_for_population(population);
+    CompeteElite.call(population, FitnessOrdering::Minimize, 4, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![false, false, true],
             vec![false, true, false],
@@ -85,18 +85,18 @@ fn minimize_population_surplus() {
 
 #[test]
 fn minimize_population_shortage() {
-    let population = build::population::<BinaryGenotype>(vec![
+    let population = &mut build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CountTrue.call_for_population(population);
-    let population = CompeteElite.call(population, FitnessOrdering::Minimize, 4, &mut rng);
+    CountTrue.call_for_population(population);
+    CompeteElite.call(population, FitnessOrdering::Minimize, 4, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![false, false, true],
             vec![false, true, false],
@@ -107,7 +107,7 @@ fn minimize_population_shortage() {
 
 #[test]
 fn fitness_ordering_with_none_fitness() {
-    let population = build::population_with_fitness_scores::<BinaryGenotype>(vec![
+    let population = &mut build::population_with_fitness_scores::<BinaryGenotype>(vec![
         (vec![false, false, false], Some(0)),
         (vec![false, false, true], Some(1)),
         (vec![false, true, true], Some(2)),
@@ -116,9 +116,9 @@ fn fitness_ordering_with_none_fitness() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = CompeteElite.call(population, FitnessOrdering::Maximize, 5, &mut rng);
+    CompeteElite.call(population, FitnessOrdering::Maximize, 5, &mut rng);
     assert_eq!(
-        inspect::population_with_fitness_scores(&population),
+        inspect::population_with_fitness_scores(population),
         vec![
             (vec![true, true, false], None),
             (vec![false, false, false], Some(0)),
@@ -128,9 +128,9 @@ fn fitness_ordering_with_none_fitness() {
         ]
     );
 
-    let population = CompeteElite.call(population, FitnessOrdering::Minimize, 5, &mut rng);
+    CompeteElite.call(population, FitnessOrdering::Minimize, 5, &mut rng);
     assert_eq!(
-        inspect::population_with_fitness_scores(&population),
+        inspect::population_with_fitness_scores(population),
         vec![
             (vec![true, true, false], None),
             (vec![true, true, true], Some(3)),

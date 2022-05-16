@@ -18,11 +18,11 @@ pub struct Tournament(pub TournamentSize);
 impl Compete for Tournament {
     fn call<T: Genotype, R: Rng>(
         &self,
-        mut population: Population<T>,
+        population: &mut Population<T>,
         fitness_ordering: FitnessOrdering,
         target_population_size: usize,
         rng: &mut R,
-    ) -> Population<T> {
+    ) {
         let mut working_population_size = population.size();
         let tournament_size = std::cmp::min(self.0, working_population_size);
         let target_population_size = std::cmp::min(target_population_size, working_population_size);
@@ -58,6 +58,7 @@ impl Compete for Tournament {
                 break;
             }
         }
-        Population::new(target_chromosomes)
+
+        population.chromosomes = target_chromosomes;
     }
 }

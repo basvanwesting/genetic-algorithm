@@ -13,15 +13,12 @@ impl Crossover for Clone {
     fn call<T: Genotype, R: Rng>(
         &self,
         _genotype: &T,
-        mut population: Population<T>,
+        population: &mut Population<T>,
         _rng: &mut R,
-    ) -> Population<T> {
+    ) {
         if self.0 {
             let mut clones = population.clone();
             population.merge(&mut clones);
-            population
-        } else {
-            population
         }
     }
 

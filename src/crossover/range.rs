@@ -13,14 +13,9 @@ use rand::Rng;
 #[derive(Clone, Debug)]
 pub struct Range(pub KeepParent);
 impl Crossover for Range {
-    fn call<T: Genotype, R: Rng>(
-        &self,
-        genotype: &T,
-        mut population: Population<T>,
-        rng: &mut R,
-    ) -> Population<T> {
+    fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R) {
         if population.size() < 2 {
-            return population;
+            return;
         }
         let gene_index_sampler = Uniform::from(0..genotype.gene_size());
         if self.0 {
@@ -43,7 +38,6 @@ impl Crossover for Range {
                 }
             }
             population.chromosomes.append(&mut child_chromosomes);
-            population
         } else {
             for chunk in population.chromosomes.chunks_mut(2) {
                 if let [father, mother] = chunk {
@@ -58,7 +52,6 @@ impl Crossover for Range {
                     father.taint_fitness_score();
                 }
             }
-            population
         }
     }
 }

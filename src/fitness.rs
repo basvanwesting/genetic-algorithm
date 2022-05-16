@@ -44,16 +44,12 @@ pub enum FitnessOrdering {
 /// ```
 pub trait Fitness: Clone + std::fmt::Debug {
     type Genotype: Genotype;
-    fn call_for_population(
-        &mut self,
-        mut population: Population<Self::Genotype>,
-    ) -> Population<Self::Genotype> {
+    fn call_for_population(&mut self, population: &mut Population<Self::Genotype>) {
         population
             .chromosomes
             .iter_mut()
             .filter(|c| c.fitness_score.is_none())
             .for_each(|c| self.call_for_chromosome(c));
-        population
     }
     fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Genotype>) {
         chromosome.fitness_score = self.calculate_for_chromosome(chromosome);

@@ -7,7 +7,7 @@ use genetic_algorithm::mutate::{Mutate, MutateOnce};
 fn binary_genotype() {
     let genotype = BinaryGenotype::builder().with_gene_size(3).build().unwrap();
 
-    let population = build::population(vec![
+    let population = &mut build::population(vec![
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],
@@ -15,10 +15,10 @@ fn binary_genotype() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = MutateOnce(0.5).call(&genotype, population, &mut rng);
+    MutateOnce(0.5).call(&genotype, population, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![
             vec![true, false, true],
             vec![true, true, true],
@@ -36,7 +36,7 @@ fn discrete_genotype() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let population = &mut build::population(vec![
         vec![0, 0, 0],
         vec![0, 0, 0],
         vec![0, 0, 0],
@@ -44,10 +44,10 @@ fn discrete_genotype() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let population = MutateOnce(0.5).call(&genotype, population, &mut rng);
+    MutateOnce(0.5).call(&genotype, population, &mut rng);
 
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(population),
         vec![vec![0, 3, 0], vec![0, 0, 3], vec![0, 0, 0], vec![0, 3, 0],]
     );
 }

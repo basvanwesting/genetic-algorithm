@@ -18,12 +18,7 @@ use crate::population::Population;
 use rand::Rng;
 
 pub trait Crossover: Clone + std::fmt::Debug {
-    fn call<T: Genotype, R: Rng>(
-        &self,
-        genotype: &T,
-        population: Population<T>,
-        rng: &mut R,
-    ) -> Population<T>;
+    fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R);
 
     /// a flag to guard against invalid Crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
@@ -45,12 +40,7 @@ pub type KeepParent = bool;
 #[derive(Clone, Debug)]
 pub struct CrossoverDispatch(pub Crossovers, pub KeepParent);
 impl Crossover for CrossoverDispatch {
-    fn call<T: Genotype, R: Rng>(
-        &self,
-        genotype: &T,
-        population: Population<T>,
-        rng: &mut R,
-    ) -> Population<T> {
+    fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R) {
         let keep_parent = self.1;
         match self.0 {
             Crossovers::Single => CrossoverSingle(keep_parent).call(genotype, population, rng),

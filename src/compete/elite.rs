@@ -13,11 +13,11 @@ pub struct Elite;
 impl Compete for Elite {
     fn call<T: Genotype, R: Rng>(
         &self,
-        mut population: Population<T>,
+        population: &mut Population<T>,
         fitness_ordering: FitnessOrdering,
         target_population_size: usize,
         _rng: &mut R,
-    ) -> Population<T> {
+    ) {
         match fitness_ordering {
             FitnessOrdering::Maximize => population
                 .chromosomes
@@ -35,6 +35,5 @@ impl Compete for Elite {
             let to_drain_from_first = population.size() - target_population_size;
             population.chromosomes.drain(..to_drain_from_first);
         }
-        population
     }
 }
