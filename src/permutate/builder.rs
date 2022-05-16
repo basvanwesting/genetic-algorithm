@@ -21,6 +21,11 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
     pub fn build(self) -> Result<Permutate<G, F>, TryFromBuilderError> {
         self.try_into()
     }
+    pub fn call(self) -> Result<Permutate<G, F>, TryFromBuilderError> {
+        let mut permutate: Permutate<G, F> = self.try_into()?;
+        permutate.call();
+        Ok(permutate)
+    }
 
     pub fn with_genotype(mut self, genotype: G) -> Self {
         self.genotype = Some(genotype);

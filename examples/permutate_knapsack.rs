@@ -77,9 +77,8 @@ fn main() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(fitness)
-        .build()
-        .unwrap()
-        .call();
+        .call()
+        .unwrap();
 
     println!("{}", permutate);
 

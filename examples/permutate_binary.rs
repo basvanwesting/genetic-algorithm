@@ -13,9 +13,8 @@ fn main() {
         .with_genotype(genotype)
         .with_fitness(CountTrue)
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .build()
-        .unwrap()
-        .call();
+        .call()
+        .unwrap();
 
     println!("{}", permutate);
 }

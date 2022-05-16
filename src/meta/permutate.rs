@@ -29,13 +29,14 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
             genotype.chromosome_permutations_size()
         );
 
-        let permutate = permutate::Permutate::builder()
+        let mut permutate = permutate::Permutate::builder()
             .with_genotype(genotype)
             .with_fitness(fitness)
             .with_fitness_ordering(fitness_ordering)
             .build()
-            .unwrap()
-            .call();
+            .unwrap();
+
+        permutate.call();
 
         self.inner_permutate = Some(permutate);
         self

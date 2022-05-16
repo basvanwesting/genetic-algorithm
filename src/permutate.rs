@@ -34,9 +34,8 @@ use std::fmt;
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .build()
-///     .unwrap()
-///     .call();
+///     .call()
+///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
 /// let best_chromosome = permutate.best_chromosome.unwrap();
@@ -57,12 +56,11 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
         PermutateBuilder::new()
     }
 
-    pub fn call(mut self) -> Self {
+    pub fn call(&mut self) {
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
             self.fitness.call_for_chromosome(&mut chromosome);
             self.update_best_chromosome(&chromosome);
         }
-        self
     }
 
     fn update_best_chromosome(&mut self, contending_best_chromosome: &Chromosome<G>) {

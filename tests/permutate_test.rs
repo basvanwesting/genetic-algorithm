@@ -22,9 +22,8 @@ mod permutate_tests {
         let permutate = Permutate::builder()
             .with_genotype(genotype)
             .with_fitness(CountTrue)
-            .build()
-            .unwrap()
-            .call();
+            .call()
+            .unwrap();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -44,9 +43,8 @@ mod permutate_tests {
             .with_genotype(genotype)
             .with_fitness_ordering(FitnessOrdering::Minimize)
             .with_fitness(CountTrue)
-            .build()
-            .unwrap()
-            .call();
+            .call()
+            .unwrap();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -69,9 +67,8 @@ mod permutate_tests {
         let permutate = Permutate::builder()
             .with_genotype(genotype)
             .with_fitness(SumDiscreteGenotype)
-            .build()
-            .unwrap()
-            .call();
+            .call()
+            .unwrap();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
@@ -95,9 +92,8 @@ mod permutate_tests {
         let permutate = Permutate::builder()
             .with_genotype(genotype)
             .with_fitness(SumMultiDiscreteGenotype)
-            .build()
-            .unwrap()
-            .call();
+            .call()
+            .unwrap();
 
         let best_chromosome = permutate.best_chromosome.unwrap();
         println!("{:#?}", best_chromosome);
