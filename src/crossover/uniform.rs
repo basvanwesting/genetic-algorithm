@@ -2,22 +2,22 @@ use super::{Crossover, KeepParent};
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
-use rand::distributions::{Distribution, Uniform};
+use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
-/// Crossover starting with clones of the parents, with a single gene taken from the other parent.
-/// The single gene is chosen with uniform probability.
+/// Crossover with 50% probability for each gene to come from one of the two parents.
 /// Optionally keep parents around to compete with children later on.
 ///
 /// Not allowed for unique genotypes as it would not preserve the gene uniqueness in the children.
 #[derive(Clone, Debug)]
-pub struct Single(pub KeepParent);
-impl Crossover for Single {
+pub struct Uniform(pub KeepParent);
+impl Crossover for Uniform {
     fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R) {
         if population.size() < 2 {
             return;
         }
-        let gene_index_sampler = Uniform::from(0..genotype.genes_size());
+        let bool_sampler = Bernoulli::new(0.5).unwrap();
+        let genes_size = genotype.genes_size();
         if self.0 {
             let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
@@ -26,11 +26,14 @@ impl Crossover for Single {
                     let mut child_father_genes = father.genes.clone();
                     let mut child_mother_genes = mother.genes.clone();
 
-                    let index = gene_index_sampler.sample(rng);
-                    std::mem::swap(
-                        &mut child_father_genes[index],
-                        &mut child_mother_genes[index],
-                    );
+                    for index in 0..genes_size {
+                        if bool_sampler.sample(rng) {
+                            std::mem::swap(
+                                &mut child_father_genes[index],
+                                &mut child_mother_genes[index],
+                            );
+                        }
+                    }
 
                     // no need to taint_fitness_score as it is initialized with None
                     child_chromosomes.push(Chromosome::new(child_father_genes));
@@ -42,8 +45,11 @@ impl Crossover for Single {
         } else {
             for chunk in population.chromosomes.chunks_mut(2) {
                 if let [father, mother] = chunk {
-                    let index = gene_index_sampler.sample(rng);
-                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                    for index in 0..genes_size {
+                        if bool_sampler.sample(rng) {
+                            std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                        }
+                    }
                     mother.taint_fitness_score();
                     father.taint_fitness_score();
                 }

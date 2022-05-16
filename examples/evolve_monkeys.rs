@@ -44,7 +44,7 @@ fn main() {
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(MonkeyFitness)
-        .with_crossover(CrossoverRange(true))
+        .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4))
         .call(&mut rng)
         .unwrap();

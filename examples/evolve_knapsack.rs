@@ -83,7 +83,7 @@ fn main() {
         .with_max_stale_generations(100)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(fitness)
-        .with_crossover(CrossoverRange(true))
+        .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4))
         .call(&mut rng)
         .unwrap();

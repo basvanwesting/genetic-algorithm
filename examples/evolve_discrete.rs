@@ -46,7 +46,7 @@ fn main() {
         .with_degeneration_range(0.001..0.995)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(MyFitness)
-        .with_crossover(CrossoverAll(true))
+        .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
         .call(&mut rng)
         .unwrap();

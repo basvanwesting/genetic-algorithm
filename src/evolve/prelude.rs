@@ -3,7 +3,9 @@ pub use crate::chromosome::{Chromosome, GenesKey};
 #[doc(no_inline)]
 pub use crate::compete::{CompeteElite, CompeteTournament};
 #[doc(no_inline)]
-pub use crate::crossover::{CrossoverAll, CrossoverClone, CrossoverRange, CrossoverSingle};
+pub use crate::crossover::{
+    CrossoverClone, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
+};
 #[doc(no_inline)]
 pub use crate::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};
 #[doc(no_inline)]

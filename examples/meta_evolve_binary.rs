@@ -16,14 +16,14 @@ fn main() {
         MutateDispatch(Mutates::Once, 0.5),
     ];
     let crossovers = vec![
-        CrossoverDispatch(Crossovers::Single, true),
-        CrossoverDispatch(Crossovers::Single, false),
-        CrossoverDispatch(Crossovers::All, true),
-        CrossoverDispatch(Crossovers::All, false),
-        CrossoverDispatch(Crossovers::Range, true),
-        CrossoverDispatch(Crossovers::Range, false),
-        CrossoverDispatch(Crossovers::Clone, true),
         CrossoverDispatch(Crossovers::Clone, false),
+        CrossoverDispatch(Crossovers::Clone, true),
+        CrossoverDispatch(Crossovers::SingleGene, false),
+        CrossoverDispatch(Crossovers::SingleGene, true),
+        CrossoverDispatch(Crossovers::SinglePoint, false),
+        CrossoverDispatch(Crossovers::SinglePoint, true),
+        CrossoverDispatch(Crossovers::Uniform, false),
+        CrossoverDispatch(Crossovers::Uniform, true),
     ];
     let competes = vec![
         CompeteDispatch(Competes::Elite, 0),

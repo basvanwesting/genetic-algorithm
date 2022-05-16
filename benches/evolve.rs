@@ -34,7 +34,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .with_max_stale_generations(max_stale_generations)
                 .with_mutate(MutateOnce(0.2))
                 .with_fitness(Zero::new())
-                .with_crossover(CrossoverSingle(true))
+                .with_crossover(CrossoverSingleGene(true))
                 .with_compete(CompeteTournament(4));
 
             b.iter_batched(
@@ -63,7 +63,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .with_max_stale_generations(max_stale_generations)
                 .with_mutate(MutateOnce(0.2))
                 .with_fitness(Zero::new())
-                .with_crossover(CrossoverSingle(true))
+                .with_crossover(CrossoverSingleGene(true))
                 .with_compete(CompeteTournament(4));
 
             b.iter_batched(

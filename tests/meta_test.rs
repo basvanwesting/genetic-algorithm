@@ -21,9 +21,9 @@ mod meta_tests {
             MutateDispatch(Mutates::Once, 0.2),
         ];
         let crossovers = vec![
-            CrossoverDispatch(Crossovers::Single, true),
-            CrossoverDispatch(Crossovers::Single, false),
-            CrossoverDispatch(Crossovers::Range, true),
+            CrossoverDispatch(Crossovers::SingleGene, true),
+            CrossoverDispatch(Crossovers::SingleGene, false),
+            CrossoverDispatch(Crossovers::SinglePoint, true),
         ];
         let competes = vec![
             CompeteDispatch(Competes::Elite, 0),

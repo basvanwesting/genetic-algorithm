@@ -4,7 +4,7 @@ mod support;
 mod evolve_tests {
     use crate::support::*;
     use genetic_algorithm::compete::CompeteTournament;
-    use genetic_algorithm::crossover::CrossoverSingle;
+    use genetic_algorithm::crossover::CrossoverSingleGene;
     use genetic_algorithm::evolve::{Evolve, TryFromEvolveBuilderError};
     use genetic_algorithm::fitness::placeholders::{
         CountTrue, SumContinuousGenotype, SumDiscreteGenotype, SumMultiDiscreteGenotype,
@@ -28,7 +28,7 @@ mod evolve_tests {
             .with_population_size(100)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(CountTrue)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .build();
 
@@ -53,7 +53,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(SumUniqueDiscreteGenotype)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .build();
 
@@ -79,7 +79,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(CountTrue)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .call(&mut rng)
             .unwrap();
@@ -108,7 +108,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(CountTrue)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .call(&mut rng)
             .unwrap();
@@ -136,7 +136,7 @@ mod evolve_tests {
             .with_target_fitness_score(8)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(CountTrue)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .call(&mut rng)
             .unwrap();
@@ -165,7 +165,7 @@ mod evolve_tests {
             .with_target_fitness_score(0)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(CountTrue)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .call(&mut rng)
             .unwrap();
@@ -194,7 +194,7 @@ mod evolve_tests {
             .with_degeneration_range(0.0001..1.0000)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(CountTrue)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .call(&mut rng)
             .unwrap();
@@ -223,7 +223,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(SumContinuousGenotype)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .call(&mut rng)
             .unwrap();
@@ -256,7 +256,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(SumDiscreteGenotype)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .call(&mut rng)
             .unwrap();
@@ -289,7 +289,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(SumMultiDiscreteGenotype)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .call(&mut rng)
             .unwrap();
@@ -303,7 +303,10 @@ mod evolve_tests {
 
     #[test]
     fn population_factory_binary() {
-        let genotype = BinaryGenotype::builder().with_genes_size(4).build().unwrap();
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(4)
+            .build()
+            .unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
         let mut evolve = Evolve::builder()
             .with_genotype(genotype)
@@ -311,7 +314,7 @@ mod evolve_tests {
             .with_max_stale_generations(20)
             .with_mutate(MutateOnce(0.1))
             .with_fitness(CountTrue)
-            .with_crossover(CrossoverSingle(true))
+            .with_crossover(CrossoverSingleGene(true))
             .with_compete(CompeteTournament(4))
             .build()
             .unwrap();

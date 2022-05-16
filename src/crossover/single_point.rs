@@ -11,8 +11,8 @@ use rand::Rng;
 ///
 /// Not allowed for unique genotypes as it would not preserve the gene uniqueness in the children.
 #[derive(Clone, Debug)]
-pub struct Range(pub KeepParent);
-impl Crossover for Range {
+pub struct SinglePoint(pub KeepParent);
+impl Crossover for SinglePoint {
     fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R) {
         if population.size() < 2 {
             return;

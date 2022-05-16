@@ -1,11 +1,14 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::crossover::{Crossover, CrossoverSingle};
+use genetic_algorithm::crossover::{Crossover, CrossoverSingleGene};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 
 #[test]
 fn population_even() {
-    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
 
     let population = &mut build::population(vec![
         vec![true, true, true, true, true],
@@ -15,7 +18,7 @@ fn population_even() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSingle(false).call(&genotype, population, &mut rng);
+    CrossoverSingleGene(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -30,7 +33,10 @@ fn population_even() {
 
 #[test]
 fn population_odd() {
-    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
 
     let population = &mut build::population(vec![
         vec![true, true, true, true, true],
@@ -41,7 +47,7 @@ fn population_odd() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSingle(false).call(&genotype, population, &mut rng);
+    CrossoverSingleGene(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -57,7 +63,10 @@ fn population_odd() {
 
 #[test]
 fn population_even_keep_parents() {
-    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
 
     let population = &mut build::population(vec![
         vec![true, true, true, true, true],
@@ -67,7 +76,7 @@ fn population_even_keep_parents() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSingle(true).call(&genotype, population, &mut rng);
+    CrossoverSingleGene(true).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -86,7 +95,10 @@ fn population_even_keep_parents() {
 
 #[test]
 fn population_odd_keep_parents() {
-    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
 
     let population = &mut build::population(vec![
         vec![true, true, true, true, true],
@@ -97,7 +109,7 @@ fn population_odd_keep_parents() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSingle(true).call(&genotype, population, &mut rng);
+    CrossoverSingleGene(true).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -117,12 +129,15 @@ fn population_odd_keep_parents() {
 
 #[test]
 fn population_size_one() {
-    let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
 
     let population = &mut build::population(vec![vec![true, false, true, false, true]]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSingle(false).call(&genotype, population, &mut rng);
+    CrossoverSingleGene(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -132,6 +147,6 @@ fn population_size_one() {
 
 #[test]
 fn allow_unique_genotype() {
-    assert_eq!(CrossoverSingle(false).allow_unique_genotype(), false);
-    assert_eq!(CrossoverSingle(true).allow_unique_genotype(), false);
+    assert_eq!(CrossoverSingleGene(false).allow_unique_genotype(), false);
+    assert_eq!(CrossoverSingleGene(true).allow_unique_genotype(), false);
 }

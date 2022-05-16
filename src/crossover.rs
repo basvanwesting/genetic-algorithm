@@ -3,15 +3,15 @@
 //! fitter first). If you choose to keep the parents, the parents will compete with their own
 //! children and the population is temporarily overbooked and half of it will be discarded in the
 //! [competition](crate::compete) phase.
-mod all;
 mod clone;
-mod range;
-mod single;
+mod single_gene;
+mod single_point;
+mod uniform;
 
-pub use self::all::All as CrossoverAll;
 pub use self::clone::Clone as CrossoverClone;
-pub use self::range::Range as CrossoverRange;
-pub use self::single::Single as CrossoverSingle;
+pub use self::single_gene::SingleGene as CrossoverSingleGene;
+pub use self::single_point::SinglePoint as CrossoverSinglePoint;
+pub use self::uniform::Uniform as CrossoverUniform;
 
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -29,10 +29,10 @@ pub trait Crossover: Clone + std::fmt::Debug {
 
 #[derive(Clone, Debug)]
 pub enum Crossovers {
-    Single,
-    All,
-    Range,
     Clone,
+    SingleGene,
+    SinglePoint,
+    Uniform,
 }
 pub type KeepParent = bool;
 
@@ -43,20 +43,24 @@ impl Crossover for CrossoverDispatch {
     fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R) {
         let keep_parent = self.1;
         match self.0 {
-            Crossovers::Single => CrossoverSingle(keep_parent).call(genotype, population, rng),
-            Crossovers::All => CrossoverAll(keep_parent).call(genotype, population, rng),
-            Crossovers::Range => CrossoverRange(keep_parent).call(genotype, population, rng),
             Crossovers::Clone => CrossoverClone(keep_parent).call(genotype, population, rng),
+            Crossovers::SingleGene => {
+                CrossoverSingleGene(keep_parent).call(genotype, population, rng)
+            }
+            Crossovers::SinglePoint => {
+                CrossoverSinglePoint(keep_parent).call(genotype, population, rng)
+            }
+            Crossovers::Uniform => CrossoverUniform(keep_parent).call(genotype, population, rng),
         }
     }
 
     fn allow_unique_genotype(&self) -> bool {
         let keep_parent = self.1;
         match self.0 {
-            Crossovers::Single => CrossoverSingle(keep_parent).allow_unique_genotype(),
-            Crossovers::All => CrossoverAll(keep_parent).allow_unique_genotype(),
-            Crossovers::Range => CrossoverRange(keep_parent).allow_unique_genotype(),
             Crossovers::Clone => CrossoverClone(keep_parent).allow_unique_genotype(),
+            Crossovers::SingleGene => CrossoverSingleGene(keep_parent).allow_unique_genotype(),
+            Crossovers::SinglePoint => CrossoverSinglePoint(keep_parent).allow_unique_genotype(),
+            Crossovers::Uniform => CrossoverUniform(keep_parent).allow_unique_genotype(),
         }
     }
 }

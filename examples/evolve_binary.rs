@@ -17,7 +17,7 @@ fn main() {
         .with_target_fitness_score(100)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverAll(true))
+        .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
         .call(&mut rng)
         .unwrap();
