@@ -20,7 +20,7 @@
 //! use genetic_algorithm::evolve::prelude::*;
 //!
 //! // the search space
-//! let genotype = BinaryGenotype::builder() // boolean genes
+//! let genotype = BinaryGenotype::builder() // boolean alleles
 //!     .with_gene_size(100)                 // 100 of them
 //!     .build()
 //!     .unwrap();

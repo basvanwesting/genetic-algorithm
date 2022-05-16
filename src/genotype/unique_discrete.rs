@@ -14,7 +14,7 @@ pub type DefaultDiscreteAllele = usize;
 /// exactly once. The gene_size is derived to be the same as allele_values length. On random
 /// initialization, the allele_values are suffled to form the genes. Each pair of genes has an equal
 /// probability of mutating. If a pair of genes mutates, the values are switched, ensuring the list
-/// of genes remains unique. Defaults to usize as item.
+/// of alleles remains unique. Defaults to usize as item.
 ///
 /// # Example (usize, default):
 /// ```

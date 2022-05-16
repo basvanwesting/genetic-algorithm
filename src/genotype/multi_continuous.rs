@@ -12,7 +12,7 @@ pub type ContinuousAllele = f32;
 /// derived to be the allele_multi_range length. On random initialization, each gene gets a value
 /// from its own allele_range with a uniform probability. Each gene has a weighted probability of
 /// mutating, depending on its allele_range size. If a gene mutates, a new values is taken from its
-/// own allele_range with a uniform probability. Duplicate gene values are allowed. Defaults to usize
+/// own allele_range with a uniform probability. Duplicate allele values are allowed. Defaults to usize
 /// as item.
 ///
 /// # Example:

@@ -15,7 +15,7 @@ pub type DefaultDiscreteAllele = usize;
 /// value from its own allele_values with a uniform probability. Each gene has a weighted probability
 /// of mutating, depending on its allele_values length. If a gene mutates, a new values is taken from
 /// its own allele_values with a uniform probability (regardless of current value, which could
-/// therefore be assigned again, not mutating as a result). Duplicate gene values are allowed.
+/// therefore be assigned again, not mutating as a result). Duplicate allele values are allowed.
 /// Defaults to usize as item.
 ///
 /// This genotype is also used in the [meta analysis](crate::meta), to hold the indices of the

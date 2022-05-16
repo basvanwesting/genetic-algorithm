@@ -24,7 +24,7 @@ use std::fmt;
 /// use genetic_algorithm::fitness::placeholders::CountTrue;
 ///
 /// // the search space
-/// let genotype = BinaryGenotype::builder() // boolean genes
+/// let genotype = BinaryGenotype::builder() // boolean alleles
 ///     .with_gene_size(16)                  // 16 of them
 ///     .build()
 ///     .unwrap();
