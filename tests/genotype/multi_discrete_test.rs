@@ -6,7 +6,7 @@ use genetic_algorithm::genotype::{Genotype, MultiDiscreteGenotype, PermutableGen
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiDiscreteGenotype::builder()
-        .with_gene_multi_values(vec![
+        .with_allele_multi_values(vec![
             vec![0, 1, 2, 3, 4],
             vec![0, 1],
             vec![0, 1, 2],
@@ -31,7 +31,7 @@ fn general() {
 #[test]
 fn chromosome_permutations_gene_size_1() {
     let genotype = MultiDiscreteGenotype::builder()
-        .with_gene_multi_values(vec![vec![0]])
+        .with_allele_multi_values(vec![vec![0]])
         .build()
         .unwrap();
 
@@ -45,7 +45,7 @@ fn chromosome_permutations_gene_size_1() {
 #[test]
 fn chromosome_permutations_gene_size_4() {
     let genotype = MultiDiscreteGenotype::builder()
-        .with_gene_multi_values(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1, 2, 3]])
+        .with_allele_multi_values(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1, 2, 3]])
         .build()
         .unwrap();
 
@@ -87,7 +87,7 @@ fn chromosome_permutations_gene_size_4() {
 #[test]
 fn chromosome_permutations_gene_size_huge() {
     let genotype = MultiDiscreteGenotype::builder()
-        .with_gene_multi_values(vec![
+        .with_allele_multi_values(vec![
             (0..1000).collect(),
             (0..1000).collect(),
             (0..1000).collect(),

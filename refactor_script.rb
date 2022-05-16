@@ -10,13 +10,27 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /simple_sum/ => 'sum',
-  /simple_count/ => 'count_true',
+  /gene_values/               => 'allele_values',
+  /gene_range/                => 'allele_range',
+  /with_gene_range/           => 'with_allele_range',
+  /with_gene_values/          => 'with_allele_values',
+  /gene_value_index_sampler/  => 'allele_value_index_sampler',
+  /gene_value_index_samplers/ => 'allele_value_index_samplers',
+  /gene_value_sampler/        => 'allele_value_sampler',
+  /gene_value_samplers/       => 'allele_value_samplers',
+  /gene_value_size/           => 'allele_value_size',
+  /gene_value_sizes/          => 'allele_value_sizes',
+  /gene_multi_range/          => 'allele_multi_range',
+  /gene_multi_values/         => 'allele_multi_values',
+  /with_gene_multi_range/     => 'with_allele_multi_range',
+  /with_gene_multi_values/    => 'with_allele_multi_values',
 }
 
 other_translations = {
-  /SimpleSum/ => 'Sum',
-  /SimpleCount/ => 'CountTrue',
+  /BinaryGene/          => 'BinaryAllele',
+  /ContinuousGene/      => 'ContinuousAllele',
+  /DefaultDiscreteGene/ => 'DefaultDiscreteAllele',
+  /DiscreteGene/        => 'DiscreteAllele',
 }
 
 #check:

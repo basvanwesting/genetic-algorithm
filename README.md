@@ -7,6 +7,14 @@ There are three main elements to this approach:
 * The Fitness function (the search goal)
 * The Evolve strategy (the search strategy)
 
+Terminology:
+* Population: a population has `population_size` number of individuals (called chromosomes).
+* Chromosome: a chromosome has `gene_size` number of genes
+* Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
+* Allele: alleles are the possible values of the genes
+* Genotype: holds the `gene_size` and alleles and knows how to generate and mutate chromosomes efficiently
+* Fitness: knows how to determine the fitness of a chromosome
+
 ## Documentation
 
 See [docs.rs](https://docs.rs/genetic_algorithm/latest/genetic_algorithm)

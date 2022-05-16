@@ -6,6 +6,14 @@
 //! * The [Fitness](crate::fitness) function (the search goal)
 //! * The [Evolve](crate::evolve::Evolve) strategy (the search strategy)
 //!
+//! Terminology:
+//! * [Population](crate::population): a population has `population_size` number of individuals (called chromosomes).
+//! * [Chromosome](crate::chromosome): a chromosome has `gene_size` number of genes
+//! * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
+//! * Allele: alleles are the possible values of the genes
+//! * [Genotype](crate::genotype): holds the `gene_size` and alleles and knows how to generate and mutate chromosomes efficiently
+//! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
+//!
 //! ## Quick Usage
 //!
 //! ```rust

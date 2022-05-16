@@ -53,7 +53,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         |b| {
             let genotype = DiscreteGenotype::builder()
                 .with_gene_size(gene_size)
-                .with_gene_values((0..10).collect())
+                .with_allele_values((0..10).collect())
                 .build()
                 .unwrap();
 

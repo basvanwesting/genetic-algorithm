@@ -22,7 +22,7 @@ fn general() {
         vec![true, true, true, true, false, false, false, true, true, false]
     );
 
-    assert_eq!(genotype.gene_values(), vec![true, false]);
+    assert_eq!(genotype.allele_values(), vec![true, false]);
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::from(1024u32)

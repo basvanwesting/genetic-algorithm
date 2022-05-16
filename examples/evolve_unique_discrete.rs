@@ -5,8 +5,8 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 #[derive(Clone, Debug)]
-struct MyGeneFitness;
-impl Fitness for MyGeneFitness {
+struct MyFitness;
+impl Fitness for MyFitness {
     type Genotype = UniqueDiscreteGenotype<char>;
     fn calculate_for_chromosome(
         &mut self,
@@ -20,7 +20,7 @@ impl Fitness for MyGeneFitness {
 fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = UniqueDiscreteGenotype::builder()
-        .with_gene_values(vec!['c', 'e', 'e', 'g', 'i', 'n', 't'])
+        .with_allele_values(vec!['c', 'e', 'e', 'g', 'i', 'n', 't'])
         .build()
         .unwrap();
 
@@ -33,7 +33,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce(0.2))
-        .with_fitness(MyGeneFitness)
+        .with_fitness(MyFitness)
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteTournament(4))
         .call(&mut rng)

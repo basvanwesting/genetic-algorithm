@@ -44,7 +44,7 @@ mod evolve_tests {
     #[test]
     fn build_invalid_incompatible_genotype_and_crossover() {
         let genotype = UniqueDiscreteGenotype::builder()
-            .with_gene_values((0..10).collect())
+            .with_allele_values((0..10).collect())
             .build()
             .unwrap();
         let evolve = Evolve::builder()
@@ -213,7 +213,7 @@ mod evolve_tests {
     fn call_continuous() {
         let genotype = ContinuousGenotype::builder()
             .with_gene_size(10)
-            .with_gene_range(0.0..1.0)
+            .with_allele_range(0.0..1.0)
             .build()
             .unwrap();
         let mut rng = SmallRng::seed_from_u64(0);
@@ -245,7 +245,7 @@ mod evolve_tests {
     fn call_discrete() {
         let genotype = DiscreteGenotype::builder()
             .with_gene_size(10)
-            .with_gene_values((0..4).collect())
+            .with_allele_values((0..4).collect())
             .build()
             .unwrap();
 
@@ -274,7 +274,7 @@ mod evolve_tests {
     #[test]
     fn call_multi_discrete() {
         let genotype = MultiDiscreteGenotype::builder()
-            .with_gene_multi_values(vec![
+            .with_allele_multi_values(vec![
                 vec![0, 1, 2, 3, 4],
                 vec![0, 1],
                 vec![0],

@@ -47,7 +47,7 @@ criterion_main!(benches);
 fn run() {
     let mut rng = SmallRng::from_entropy();
     let genotype = UniqueDiscreteGenotype::builder()
-        .with_gene_values((0..64).collect())
+        .with_allele_values((0..64).collect())
         .build()
         .unwrap();
 

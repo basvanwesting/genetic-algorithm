@@ -5,7 +5,7 @@ use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use std::fmt;
 
-pub type BinaryGene = bool;
+pub type BinaryAllele = bool;
 
 /// Genes are a list of booleans. On random initialization, each gene has a 50% probability of
 /// becoming true or false. Each gene has an equal probability of mutating. If a gene mutates, its
@@ -24,8 +24,8 @@ pub type BinaryGene = bool;
 pub struct Binary {
     pub gene_size: usize,
     gene_index_sampler: Uniform<usize>,
-    gene_value_sampler: Bernoulli,
-    pub seed_genes: Option<Vec<BinaryGene>>,
+    allele_value_sampler: Bernoulli,
+    pub seed_genes: Option<Vec<BinaryAllele>>,
 }
 
 impl TryFrom<Builder<Self>> for Binary {
@@ -38,7 +38,7 @@ impl TryFrom<Builder<Self>> for Binary {
             Ok(Self {
                 gene_size: builder.gene_size.unwrap(),
                 gene_index_sampler: Uniform::from(0..builder.gene_size.unwrap()),
-                gene_value_sampler: Bernoulli::new(0.5).unwrap(),
+                allele_value_sampler: Bernoulli::new(0.5).unwrap(),
                 seed_genes: builder.seed_genes,
             })
         }
@@ -46,7 +46,7 @@ impl TryFrom<Builder<Self>> for Binary {
 }
 
 impl Genotype for Binary {
-    type Gene = BinaryGene;
+    type Allele = BinaryAllele;
     fn gene_size(&self) -> usize {
         self.gene_size
     }
@@ -54,8 +54,8 @@ impl Genotype for Binary {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
             Chromosome::new(seed_genes.clone())
         } else {
-            let genes: Vec<Self::Gene> = (0..self.gene_size)
-                .map(|_| self.gene_value_sampler.sample(rng))
+            let genes: Vec<Self::Allele> = (0..self.gene_size)
+                .map(|_| self.allele_value_sampler.sample(rng))
                 .collect();
             Chromosome::new(genes)
         }
@@ -69,7 +69,7 @@ impl Genotype for Binary {
 }
 
 impl PermutableGenotype for Binary {
-    fn gene_values(&self) -> Vec<Self::Gene> {
+    fn allele_values(&self) -> Vec<Self::Allele> {
         vec![true, false]
     }
 }

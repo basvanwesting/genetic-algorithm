@@ -6,7 +6,7 @@ use genetic_algorithm::genotype::{Genotype, PermutableGenotype, UniqueDiscreteGe
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = UniqueDiscreteGenotype::builder()
-        .with_gene_values(vec![5, 2, 3, 4])
+        .with_allele_values(vec![5, 2, 3, 4])
         .build()
         .unwrap();
 
@@ -16,7 +16,7 @@ fn general() {
     genotype.mutate_chromosome(&mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 3, 2]);
 
-    assert_eq!(genotype.gene_values(), vec![5, 2, 3, 4]);
+    assert_eq!(genotype.allele_values(), vec![5, 2, 3, 4]);
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::from(24u32)
@@ -27,7 +27,7 @@ fn general() {
 #[test]
 fn chromosome_permutations() {
     let genotype = UniqueDiscreteGenotype::builder()
-        .with_gene_values(vec![0, 1, 2, 3])
+        .with_allele_values(vec![0, 1, 2, 3])
         .build()
         .unwrap();
 
@@ -69,7 +69,7 @@ fn chromosome_permutations() {
 #[test]
 fn chromosome_permutations_gene_size_huge() {
     let genotype = UniqueDiscreteGenotype::builder()
-        .with_gene_values((0..30).collect())
+        .with_allele_values((0..30).collect())
         .build()
         .unwrap();
     assert_eq!(

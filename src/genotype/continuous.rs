@@ -6,11 +6,11 @@ use rand::prelude::*;
 use std::fmt;
 use std::ops::Range;
 
-pub type ContinuousGene = f32;
+pub type ContinuousAllele = f32;
 
-/// Genes are a list of f32, each taken from the gene_range using clone(). On random initialization, each
-/// gene gets a value from the gene_range with a uniform probability. Each gene has an equal probability
-/// of mutating. If a gene mutates, a new value is taken from gene_range with a uniform probability.
+/// Genes are a list of f32, each taken from the allele_range using clone(). On random initialization, each
+/// gene gets a value from the allele_range with a uniform probability. Each gene has an equal probability
+/// of mutating. If a gene mutates, a new value is taken from allele_range with a uniform probability.
 ///
 /// # Example:
 /// ```
@@ -18,17 +18,17 @@ pub type ContinuousGene = f32;
 ///
 /// let genotype = ContinuousGenotype::builder()
 ///     .with_gene_size(100)
-///     .with_gene_range(0.0..1.0)
+///     .with_allele_range(0.0..1.0)
 ///     .build()
 ///     .unwrap();
 /// ```
 #[derive(Clone, Debug)]
 pub struct Continuous {
     pub gene_size: usize,
-    pub gene_range: Range<ContinuousGene>,
+    pub allele_range: Range<ContinuousAllele>,
     gene_index_sampler: Uniform<usize>,
-    gene_value_sampler: Uniform<ContinuousGene>,
-    pub seed_genes: Option<Vec<ContinuousGene>>,
+    allele_value_sampler: Uniform<ContinuousAllele>,
+    pub seed_genes: Option<Vec<ContinuousAllele>>,
 }
 
 impl TryFrom<Builder<Self>> for Continuous {
@@ -39,19 +39,19 @@ impl TryFrom<Builder<Self>> for Continuous {
             Err(TryFromBuilderError(
                 "ContinuousGenotype requires a gene_size",
             ))
-        } else if builder.gene_range.is_none() {
+        } else if builder.allele_range.is_none() {
             Err(TryFromBuilderError(
-                "ContinuousGenotype requires a gene_range",
+                "ContinuousGenotype requires a allele_range",
             ))
         } else {
             let gene_size = builder.gene_size.unwrap();
-            let gene_range = builder.gene_range.unwrap();
+            let allele_range = builder.allele_range.unwrap();
 
             Ok(Self {
                 gene_size: gene_size,
-                gene_range: gene_range.clone(),
+                allele_range: allele_range.clone(),
                 gene_index_sampler: Uniform::from(0..gene_size),
-                gene_value_sampler: Uniform::from(gene_range.clone()),
+                allele_value_sampler: Uniform::from(allele_range.clone()),
                 seed_genes: builder.seed_genes,
             })
         }
@@ -59,7 +59,7 @@ impl TryFrom<Builder<Self>> for Continuous {
 }
 
 impl Genotype for Continuous {
-    type Gene = ContinuousGene;
+    type Allele = ContinuousAllele;
     fn gene_size(&self) -> usize {
         self.gene_size
     }
@@ -67,8 +67,8 @@ impl Genotype for Continuous {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
             Chromosome::new(seed_genes.clone())
         } else {
-            let genes: Vec<Self::Gene> = (0..self.gene_size)
-                .map(|_| self.gene_value_sampler.sample(rng))
+            let genes: Vec<Self::Allele> = (0..self.gene_size)
+                .map(|_| self.allele_value_sampler.sample(rng))
                 .collect();
             Chromosome::new(genes)
         }
@@ -76,7 +76,7 @@ impl Genotype for Continuous {
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.gene_value_sampler.sample(rng);
+        chromosome.genes[index] = self.allele_value_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
 }
@@ -85,7 +85,7 @@ impl fmt::Display for Continuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  gene_size: {}", self.gene_size)?;
-        writeln!(f, "  gene_range: {:?}", self.gene_range)?;
+        writeln!(f, "  allele_range: {:?}", self.allele_range)?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }

@@ -38,7 +38,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &gene_size| {
                 let genotype = ContinuousGenotype::builder()
                     .with_gene_size(gene_size)
-                    .with_gene_range(0.0..1.0)
+                    .with_allele_range(0.0..1.0)
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -55,7 +55,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &gene_size| {
                 let genotype = DiscreteGenotype::builder()
                     .with_gene_size(gene_size)
-                    .with_gene_values((0..10).collect())
+                    .with_allele_values((0..10).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -71,7 +71,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             gene_size,
             |b, &gene_size| {
                 let genotype = MultiContinuousGenotype::builder()
-                    .with_gene_multi_range((0..gene_size).map(|_| (0.0..1.0)).collect())
+                    .with_allele_multi_range((0..gene_size).map(|_| (0.0..1.0)).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -87,7 +87,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             gene_size,
             |b, &gene_size| {
                 let genotype = MultiDiscreteGenotype::builder()
-                    .with_gene_multi_values((0..gene_size).map(|_| (0..10).collect()).collect())
+                    .with_allele_multi_values((0..gene_size).map(|_| (0..10).collect()).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -104,7 +104,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &gene_size| {
                 let genotype = UniqueDiscreteGenotype::builder()
                     .with_gene_size(gene_size)
-                    .with_gene_values((0..10).collect())
+                    .with_allele_values((0..10).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);

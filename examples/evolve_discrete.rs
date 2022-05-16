@@ -3,12 +3,12 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 #[derive(Clone, Debug)]
-struct MyGene(u8, u8);
+struct MyAllele(u8, u8);
 
 #[derive(Clone, Debug)]
-struct MyGeneFitness;
-impl Fitness for MyGeneFitness {
-    type Genotype = DiscreteGenotype<MyGene>;
+struct MyFitness;
+impl Fitness for MyFitness {
+    type Genotype = DiscreteGenotype<MyAllele>;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -25,9 +25,14 @@ impl Fitness for MyGeneFitness {
 
 fn main() {
     let mut rng = SmallRng::from_entropy();
-    let genotype = DiscreteGenotype::<MyGene>::builder()
+    let genotype = DiscreteGenotype::<MyAllele>::builder()
         .with_gene_size(100)
-        .with_gene_values(vec![MyGene(1, 2), MyGene(3, 4), MyGene(5, 6), MyGene(7, 8)])
+        .with_allele_values(vec![
+            MyAllele(1, 2),
+            MyAllele(3, 4),
+            MyAllele(5, 6),
+            MyAllele(7, 8),
+        ])
         .build()
         .unwrap();
 
@@ -40,7 +45,7 @@ fn main() {
         .with_target_fitness_score(1500)
         .with_degeneration_range(0.001..0.995)
         .with_mutate(MutateOnce(0.2))
-        .with_fitness(MyGeneFitness)
+        .with_fitness(MyFitness)
         .with_crossover(CrossoverAll(true))
         .with_compete(CompeteTournament(4))
         .call(&mut rng)

@@ -53,7 +53,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     // order matters so keep close to evolve_builder_for_chromosome
     pub fn build_genotype(&self) -> MultiDiscreteGenotype {
         MultiDiscreteGenotype::builder()
-            .with_gene_multi_values(vec![
+            .with_allele_multi_values(vec![
                 (0..self.population_sizes.len()).collect(),
                 (0..self.max_stale_generations_options.len()).collect(),
                 (0..self.target_fitness_score_options.len()).collect(),

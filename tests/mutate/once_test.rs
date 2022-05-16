@@ -32,7 +32,7 @@ fn binary_genotype() {
 fn discrete_genotype() {
     let genotype = DiscreteGenotype::builder()
         .with_gene_size(3)
-        .with_gene_values(vec![0, 1, 2, 3])
+        .with_allele_values(vec![0, 1, 2, 3])
         .build()
         .unwrap();
 

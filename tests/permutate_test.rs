@@ -60,7 +60,7 @@ mod permutate_tests {
     fn call_discrete() {
         let genotype = DiscreteGenotype::builder()
             .with_gene_size(5)
-            .with_gene_values((0..10).collect())
+            .with_allele_values((0..10).collect())
             .build()
             .unwrap();
 
@@ -80,7 +80,7 @@ mod permutate_tests {
     #[test]
     fn call_multi_discrete() {
         let genotype = MultiDiscreteGenotype::builder()
-            .with_gene_multi_values(vec![
+            .with_allele_multi_values(vec![
                 vec![0, 1, 2, 3, 4],
                 vec![0, 1],
                 vec![0],

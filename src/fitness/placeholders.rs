@@ -51,7 +51,7 @@ impl Fitness for SumContinuousGenotype {
             chromosome
                 .genes
                 .iter()
-                .sum::<<Self::Genotype as Genotype>::Gene>() as FitnessValue,
+                .sum::<<Self::Genotype as Genotype>::Allele>() as FitnessValue,
         )
     }
 }
@@ -69,7 +69,7 @@ impl Fitness for SumDiscreteGenotype {
             chromosome
                 .genes
                 .iter()
-                .sum::<<Self::Genotype as Genotype>::Gene>() as FitnessValue,
+                .sum::<<Self::Genotype as Genotype>::Allele>() as FitnessValue,
         )
     }
 }
@@ -87,7 +87,7 @@ impl Fitness for SumMultiContinuousGenotype {
             chromosome
                 .genes
                 .iter()
-                .sum::<<Self::Genotype as Genotype>::Gene>() as FitnessValue,
+                .sum::<<Self::Genotype as Genotype>::Allele>() as FitnessValue,
         )
     }
 }
@@ -105,7 +105,7 @@ impl Fitness for SumMultiDiscreteGenotype {
             chromosome
                 .genes
                 .iter()
-                .sum::<<Self::Genotype as Genotype>::Gene>() as FitnessValue,
+                .sum::<<Self::Genotype as Genotype>::Allele>() as FitnessValue,
         )
     }
 }
@@ -123,7 +123,7 @@ impl Fitness for SumUniqueDiscreteGenotype {
             chromosome
                 .genes
                 .iter()
-                .sum::<<Self::Genotype as Genotype>::Gene>() as FitnessValue,
+                .sum::<<Self::Genotype as Genotype>::Allele>() as FitnessValue,
         )
     }
 }

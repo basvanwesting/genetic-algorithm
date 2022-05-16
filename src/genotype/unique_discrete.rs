@@ -8,11 +8,11 @@ use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
-pub type DefaultDiscreteGene = usize;
+pub type DefaultDiscreteAllele = usize;
 
-/// Genes are a list of unique values, taken from the gene_values using clone(), each value occurs
-/// exactly once. The gene_size is derived to be the same as gene_values length. On random
-/// initialization, the gene_values are suffled to form the genes. Each pair of genes has an equal
+/// Genes are a list of unique values, taken from the allele_values using clone(), each value occurs
+/// exactly once. The gene_size is derived to be the same as allele_values length. On random
+/// initialization, the allele_values are suffled to form the genes. Each pair of genes has an equal
 /// probability of mutating. If a pair of genes mutates, the values are switched, ensuring the list
 /// of genes remains unique. Defaults to usize as item.
 ///
@@ -21,7 +21,7 @@ pub type DefaultDiscreteGene = usize;
 /// use genetic_algorithm::genotype::{Genotype, UniqueDiscreteGenotype};
 ///
 /// let genotype = UniqueDiscreteGenotype::builder()
-///     .with_gene_values((0..100).collect())
+///     .with_allele_values((0..100).collect())
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -34,7 +34,7 @@ pub type DefaultDiscreteGene = usize;
 /// struct Item(pub u16, pub u16);
 ///
 /// let genotype = UniqueDiscreteGenotype::builder()
-///     .with_gene_values(vec![
+///     .with_allele_values(vec![
 ///         Item(23, 505),
 ///         Item(26, 352),
 ///         Item(20, 458),
@@ -43,8 +43,8 @@ pub type DefaultDiscreteGene = usize;
 ///     .unwrap();
 /// ```
 #[derive(Debug, Clone)]
-pub struct UniqueDiscrete<T: Clone + std::fmt::Debug = DefaultDiscreteGene> {
-    pub gene_values: Vec<T>,
+pub struct UniqueDiscrete<T: Clone + std::fmt::Debug = DefaultDiscreteAllele> {
+    pub allele_values: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes: Option<Vec<T>>,
 }
@@ -53,19 +53,24 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.gene_values.is_none() {
+        if builder.allele_values.is_none() {
             Err(TryFromBuilderError(
-                "UniqueDiscreteGenotype requires gene_values",
+                "UniqueDiscreteGenotype requires allele_values",
             ))
-        } else if builder.gene_values.as_ref().map(|o| o.is_empty()).unwrap() {
+        } else if builder
+            .allele_values
+            .as_ref()
+            .map(|o| o.is_empty())
+            .unwrap()
+        {
             Err(TryFromBuilderError(
-                "UniqueDiscreteGenotype requires non-empty gene_values",
+                "UniqueDiscreteGenotype requires non-empty allele_values",
             ))
         } else {
-            let gene_values = builder.gene_values.unwrap();
+            let allele_values = builder.allele_values.unwrap();
             Ok(Self {
-                gene_values: gene_values.clone(),
-                gene_index_sampler: Uniform::from(0..gene_values.len()),
+                allele_values: allele_values.clone(),
+                gene_index_sampler: Uniform::from(0..allele_values.len()),
                 seed_genes: builder.seed_genes,
             })
         }
@@ -73,15 +78,15 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for UniqueDiscrete<T> {
 }
 
 impl<T: Clone + std::fmt::Debug> Genotype for UniqueDiscrete<T> {
-    type Gene = T;
+    type Allele = T;
     fn gene_size(&self) -> usize {
-        self.gene_values.len()
+        self.allele_values.len()
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
             Chromosome::new(seed_genes.clone())
         } else {
-            let mut genes = self.gene_values.clone();
+            let mut genes = self.allele_values.clone();
             genes.shuffle(rng);
             Chromosome::new(genes)
         }
@@ -100,15 +105,15 @@ impl<T: Clone + std::fmt::Debug> Genotype for UniqueDiscrete<T> {
 }
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for UniqueDiscrete<T> {
-    fn gene_values(&self) -> Vec<Self::Gene> {
-        self.gene_values.clone()
+    fn allele_values(&self) -> Vec<Self::Allele> {
+        self.allele_values.clone()
     }
 
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
         Box::new(
-            self.gene_values
+            self.allele_values
                 .clone()
                 .into_iter()
                 .permutations(self.gene_size())
@@ -117,14 +122,14 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for UniqueDiscrete<T> {
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {
-        BigUint::from(self.gene_values.len()).factorial()
+        BigUint::from(self.allele_values.len()).factorial()
     }
 }
 
 impl<T: Clone + std::fmt::Debug> fmt::Display for UniqueDiscrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
-        writeln!(f, "  gene_values: {:?}", self.gene_values)?;
+        writeln!(f, "  allele_values: {:?}", self.allele_values)?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",

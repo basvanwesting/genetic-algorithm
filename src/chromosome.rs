@@ -15,14 +15,14 @@ pub type GenesKey = u64;
 /// [Evolve](crate::evolve::Evolve) strategy
 #[derive(Clone, Debug)]
 pub struct Chromosome<T: Genotype> {
-    pub genes: Vec<T::Gene>,
+    pub genes: Vec<T::Allele>,
     pub fitness_score: Option<FitnessValue>,
 }
 
-// Cannot Hash ContinuousGene
+// Cannot Hash ContinuousAllele
 impl<T: Genotype> Chromosome<T>
 where
-    <T as Genotype>::Gene: Hash,
+    <T as Genotype>::Allele: Hash,
 {
     pub fn genes_key(&self) -> GenesKey {
         let mut s = DefaultHasher::new();
@@ -32,7 +32,7 @@ where
 }
 
 impl<T: Genotype> Chromosome<T> {
-    pub fn new(genes: Vec<T::Gene>) -> Self {
+    pub fn new(genes: Vec<T::Allele>) -> Self {
         Self {
             genes,
             fitness_score: None,

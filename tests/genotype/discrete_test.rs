@@ -7,7 +7,7 @@ fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = DiscreteGenotype::builder()
         .with_gene_size(5)
-        .with_gene_values(vec![5, 2, 3, 4])
+        .with_allele_values(vec![5, 2, 3, 4])
         .build()
         .unwrap();
 
@@ -28,7 +28,7 @@ fn general() {
 fn chromosome_permutations() {
     let genotype = DiscreteGenotype::builder()
         .with_gene_size(3)
-        .with_gene_values(vec![0, 1, 2])
+        .with_allele_values(vec![0, 1, 2])
         .build()
         .unwrap();
 
@@ -74,7 +74,7 @@ fn chromosome_permutations() {
 fn chromosome_permutations_gene_size_huge() {
     let genotype = DiscreteGenotype::builder()
         .with_gene_size(30)
-        .with_gene_values((0..10).collect())
+        .with_allele_values((0..10).collect())
         .build()
         .unwrap();
     assert_eq!(
