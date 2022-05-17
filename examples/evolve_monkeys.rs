@@ -40,10 +40,10 @@ fn main() {
         .with_genotype(genotype)
         .with_population_size(20)
         .with_max_stale_generations(10000)
+        .with_fitness(MonkeyFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce(0.3))
-        .with_fitness(MonkeyFitness)
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteElite)
         .call(&mut rng)
@@ -52,7 +52,15 @@ fn main() {
     println!("{}", evolve);
 
     if let Some(best_chromosome) = evolve.best_chromosome {
-        let string = String::from_iter(best_chromosome.genes);
-        println!("{}", string);
+        if let Some(fitness_score) = best_chromosome.fitness_score {
+            if fitness_score == 0 {
+                let string = String::from_iter(best_chromosome.genes);
+                println!("{}", string);
+            } else {
+                println!("Wrong solution with fitness score: {}", fitness_score);
+            }
+        } else {
+            println!("Invalid solution with fitness score: None");
+        }
     }
 }
