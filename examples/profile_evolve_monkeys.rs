@@ -1,6 +1,3 @@
-use criterion::{criterion_group, criterion_main, Criterion};
-use pprof::criterion::{Output, PProfProfiler};
-
 use distance::hamming;
 use genetic_algorithm::evolve::prelude::*;
 use rand::prelude::*;
@@ -9,7 +6,7 @@ use rand::rngs::SmallRng;
 // see https://en.wikipedia.org/wiki/Infinite_monkey_theorem
 
 const TARGET_TEXT: &str =
-    "Some are great, some achieve greatness, and some have greatness thrust upon 'em.";
+  "Be not afraid of greatness! Some are great, some achieve greatness, and some have greatness thrust upon 'em.";
 
 // printable chars
 const MIN_CHAR: char = ' '; // 0x20;
@@ -28,18 +25,7 @@ impl Fitness for MonkeyFitness {
     }
 }
 
-pub fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("profile_evolve_monkeys", |b| b.iter(|| run()));
-}
-
-criterion_group! {
-    name = benches;
-    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
-    targets = criterion_benchmark
-}
-criterion_main!(benches);
-
-fn run() {
+fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = DiscreteGenotype::builder()
         .with_genes_size(TARGET_TEXT.len())
@@ -47,7 +33,7 @@ fn run() {
         .build()
         .unwrap();
 
-    let evolve = Evolve::builder()
+    let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
         .with_population_size(100)
         .with_max_stale_generations(1000)
@@ -56,9 +42,22 @@ fn run() {
         .with_mutate(MutateOnce(0.2))
         .with_fitness(MonkeyFitness)
         .with_crossover(CrossoverSinglePoint(true))
-        .with_compete(CompeteTournament(4))
-        .call(&mut rng)
+        .with_compete(CompeteTournament(4));
+
+    let guard = pprof::ProfilerGuardBuilder::default()
+        .frequency(1000)
+        .blocklist(&["libc", "libgcc", "pthread", "vdso"])
+        .build()
         .unwrap();
 
-    println!("{}", evolve);
+    for _ in 0..10 {
+        let mut evolve = evolve_builder.clone().build().unwrap();
+        evolve.call(&mut rng);
+        println!("{}", evolve);
+    }
+
+    if let Ok(report) = guard.report().build() {
+        let file = std::fs::File::create("flamegraph_monkeys.svg").unwrap();
+        report.flamegraph(file).unwrap();
+    };
 }

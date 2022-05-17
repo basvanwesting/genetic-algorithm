@@ -1,40 +1,39 @@
-use criterion::{criterion_group, criterion_main, Criterion};
-use pprof::criterion::{Output, PProfProfiler};
-
 use genetic_algorithm::evolve::prelude::*;
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
-pub fn criterion_benchmark(c: &mut Criterion) {
-    c.bench_function("profile_evolve_binary", |b| b.iter(|| run()));
-}
-
-criterion_group! {
-    name = benches;
-    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
-    targets = criterion_benchmark
-}
-criterion_main!(benches);
-
-fn run() {
+fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
-        .with_genes_size(100)
+        .with_genes_size(1000)
         .build()
         .unwrap();
 
-    let evolve = Evolve::builder()
+    let mut evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_population_size(1000)
         .with_max_stale_generations(1000)
-        .with_target_fitness_score(100)
-        .with_mutate(MutateOnce(0.2))
+        .with_target_fitness_score(0)
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverUniform(true))
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_mutate(MutateOnce(0.2))
+        .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4))
-        .call(&mut rng)
+        .build()
         .unwrap();
 
+    let guard = pprof::ProfilerGuardBuilder::default()
+        .frequency(1000)
+        .blocklist(&["libc", "libgcc", "pthread", "vdso"])
+        .build()
+        .unwrap();
+
+    evolve.call(&mut rng);
     println!("{}", evolve);
+
+    if let Ok(report) = guard.report().build() {
+        let file = std::fs::File::create("flamegraph_binary.svg").unwrap();
+        report.flamegraph(file).unwrap();
+    };
 }
