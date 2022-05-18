@@ -27,6 +27,10 @@ criterion = "0.3"
 pprof = { version = "0.7", features = ["criterion", "flamegraph"] }
 distance = "0.4.0"
 
+# for profiling and flamegraph
+#[profile.release]
+#debug = 1
+
 [[bench]]
 name = "fitness"
 harness = false
