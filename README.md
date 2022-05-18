@@ -106,8 +106,8 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make fitness/simple_sum generic
 * Does Fitness need an associated trait for Genotype? Can this be made more lightweight?
 * Add simulated annealing strategy
-* Add MultiUniqueDiscrete
-* Add MultiBinary
+* Rename UniqueDiscreteGenotype to UniqueGenotype as it is discrete by definition
+* Add MultiUniqueGenotype, possible to set valid crossover points.
 
 ## MAYBE
 * Store age on chromosome?

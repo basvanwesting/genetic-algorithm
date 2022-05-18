@@ -62,9 +62,3 @@ fn population_even_keep_parents() {
         ]
     )
 }
-
-#[test]
-fn allow_unique_genotype() {
-    assert_eq!(CrossoverSinglePoint(false).allow_unique_genotype(), false);
-    assert_eq!(CrossoverSinglePoint(true).allow_unique_genotype(), false);
-}

@@ -16,8 +16,9 @@ impl Crossover for Uniform {
         if population.size() < 2 {
             return;
         }
+        let crossover_indexes = genotype.crossover_indexes();
         let bool_sampler = Bernoulli::new(0.5).unwrap();
-        let genes_size = genotype.genes_size();
+
         if self.0 {
             let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
@@ -26,11 +27,11 @@ impl Crossover for Uniform {
                     let mut child_father_genes = father.genes.clone();
                     let mut child_mother_genes = mother.genes.clone();
 
-                    for index in 0..genes_size {
+                    for index in &crossover_indexes {
                         if bool_sampler.sample(rng) {
                             std::mem::swap(
-                                &mut child_father_genes[index],
-                                &mut child_mother_genes[index],
+                                &mut child_father_genes[*index],
+                                &mut child_mother_genes[*index],
                             );
                         }
                     }
@@ -45,9 +46,9 @@ impl Crossover for Uniform {
         } else {
             for chunk in population.chromosomes.chunks_mut(2) {
                 if let [father, mother] = chunk {
-                    for index in 0..genes_size {
+                    for index in &crossover_indexes {
                         if bool_sampler.sample(rng) {
-                            std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                            std::mem::swap(&mut father.genes[*index], &mut mother.genes[*index]);
                         }
                     }
                     mother.taint_fitness_score();
@@ -55,5 +56,11 @@ impl Crossover for Uniform {
                 }
             }
         }
+    }
+    fn require_crossover_indexes(&self) -> bool {
+        true
+    }
+    fn require_crossover_points(&self) -> bool {
+        false
     }
 }

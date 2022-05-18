@@ -144,9 +144,3 @@ fn population_size_one() {
         vec![vec![true, false, true, false, true]]
     )
 }
-
-#[test]
-fn allow_unique_genotype() {
-    assert_eq!(CrossoverSingleGene(false).allow_unique_genotype(), false);
-    assert_eq!(CrossoverSingleGene(true).allow_unique_genotype(), false);
-}

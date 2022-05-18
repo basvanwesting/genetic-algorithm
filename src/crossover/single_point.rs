@@ -2,7 +2,7 @@ use super::{Crossover, KeepParent};
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
-use rand::distributions::{Distribution, Uniform};
+use rand::distributions::{Distribution, Slice};
 use rand::Rng;
 
 /// Crossover with a single gene position from which on the rest of the genes are taken from the
@@ -17,18 +17,20 @@ impl Crossover for SinglePoint {
         if population.size() < 2 {
             return;
         }
-        let gene_index_sampler = Uniform::from(0..genotype.genes_size());
+
+        let crossover_points = genotype.crossover_points();
+        let crossover_point_sampler = Slice::new(&crossover_points).unwrap();
         if self.0 {
             let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
             for chunk in population.chromosomes.chunks(2) {
                 if let [father, mother] = chunk {
-                    let index = gene_index_sampler.sample(rng);
+                    let index = crossover_point_sampler.sample(rng);
                     let mut child_father_genes = father.genes.clone();
                     let mut child_mother_genes = mother.genes.clone();
 
-                    let mut child_father_genes_split = child_father_genes.split_off(index);
-                    let mut child_mother_genes_split = child_mother_genes.split_off(index);
+                    let mut child_father_genes_split = child_father_genes.split_off(*index);
+                    let mut child_mother_genes_split = child_mother_genes.split_off(*index);
                     child_father_genes.append(&mut child_mother_genes_split);
                     child_mother_genes.append(&mut child_father_genes_split);
 
@@ -41,10 +43,10 @@ impl Crossover for SinglePoint {
         } else {
             for chunk in population.chromosomes.chunks_mut(2) {
                 if let [father, mother] = chunk {
-                    let index = gene_index_sampler.sample(rng);
+                    let index = crossover_point_sampler.sample(rng);
 
-                    let mut father_genes_split = father.genes.split_off(index);
-                    let mut mother_genes_split = mother.genes.split_off(index);
+                    let mut father_genes_split = father.genes.split_off(*index);
+                    let mut mother_genes_split = mother.genes.split_off(*index);
                     father.genes.append(&mut mother_genes_split);
                     mother.genes.append(&mut father_genes_split);
 
@@ -53,5 +55,11 @@ impl Crossover for SinglePoint {
                 }
             }
         }
+    }
+    fn require_crossover_indexes(&self) -> bool {
+        false
+    }
+    fn require_crossover_points(&self) -> bool {
+        true
     }
 }

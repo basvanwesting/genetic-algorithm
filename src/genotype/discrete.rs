@@ -56,7 +56,9 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.genes_size.is_none() {
-            Err(TryFromBuilderError("DiscreteGenotype requires a genes_size"))
+            Err(TryFromBuilderError(
+                "DiscreteGenotype requires a genes_size",
+            ))
         } else if builder.allele_values.is_none() {
             Err(TryFromBuilderError(
                 "DiscreteGenotype requires allele_values",

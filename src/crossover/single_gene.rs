@@ -2,7 +2,7 @@ use super::{Crossover, KeepParent};
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
-use rand::distributions::{Distribution, Uniform};
+use rand::distributions::{Distribution, Slice};
 use rand::Rng;
 
 /// Crossover starting with clones of the parents, with a single gene taken from the other parent.
@@ -17,7 +17,8 @@ impl Crossover for SingleGene {
         if population.size() < 2 {
             return;
         }
-        let gene_index_sampler = Uniform::from(0..genotype.genes_size());
+        let crossover_indexes = genotype.crossover_indexes();
+        let crossover_index_sampler = Slice::new(&crossover_indexes).unwrap();
         if self.0 {
             let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
@@ -26,10 +27,10 @@ impl Crossover for SingleGene {
                     let mut child_father_genes = father.genes.clone();
                     let mut child_mother_genes = mother.genes.clone();
 
-                    let index = gene_index_sampler.sample(rng);
+                    let index = crossover_index_sampler.sample(rng);
                     std::mem::swap(
-                        &mut child_father_genes[index],
-                        &mut child_mother_genes[index],
+                        &mut child_father_genes[*index],
+                        &mut child_mother_genes[*index],
                     );
 
                     // no need to taint_fitness_score as it is initialized with None
@@ -42,12 +43,18 @@ impl Crossover for SingleGene {
         } else {
             for chunk in population.chromosomes.chunks_mut(2) {
                 if let [father, mother] = chunk {
-                    let index = gene_index_sampler.sample(rng);
-                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                    let index = crossover_index_sampler.sample(rng);
+                    std::mem::swap(&mut father.genes[*index], &mut mother.genes[*index]);
                     mother.taint_fitness_score();
                     father.taint_fitness_score();
                 }
             }
         }
+    }
+    fn require_crossover_indexes(&self) -> bool {
+        true
+    }
+    fn require_crossover_points(&self) -> bool {
+        false
     }
 }

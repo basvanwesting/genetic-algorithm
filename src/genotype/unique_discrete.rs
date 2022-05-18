@@ -82,6 +82,14 @@ impl<T: Clone + std::fmt::Debug> Genotype for UniqueDiscrete<T> {
     fn genes_size(&self) -> usize {
         self.allele_values.len()
     }
+    ///unique genotypes can't simply exchange genes without gene duplication issues
+    fn crossover_points(&self) -> Vec<usize> {
+        vec![]
+    }
+    ///unique genotypes can't simply exchange genes without gene duplication issues
+    fn crossover_indexes(&self) -> Vec<usize> {
+        vec![]
+    }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
             Chromosome::new(seed_genes.clone())
@@ -97,10 +105,6 @@ impl<T: Clone + std::fmt::Debug> Genotype for UniqueDiscrete<T> {
         let index2 = self.gene_index_sampler.sample(rng);
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
-    }
-
-    fn is_unique(&self) -> bool {
-        true
     }
 }
 

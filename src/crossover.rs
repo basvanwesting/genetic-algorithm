@@ -20,11 +20,12 @@ use rand::Rng;
 pub trait Crossover: Clone + std::fmt::Debug {
     fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R);
 
-    /// a flag to guard against invalid Crossover strategies which break the internal consistency
+    /// to guard against invalid Crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn allow_unique_genotype(&self) -> bool {
-        false
-    }
+    fn require_crossover_indexes(&self) -> bool;
+    /// to guard against invalid Crossover strategies which break the internal consistency
+    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
+    fn require_crossover_points(&self) -> bool;
 }
 
 #[derive(Clone, Debug)]
@@ -53,14 +54,24 @@ impl Crossover for CrossoverDispatch {
             Crossovers::Uniform => CrossoverUniform(keep_parent).call(genotype, population, rng),
         }
     }
-
-    fn allow_unique_genotype(&self) -> bool {
+    fn require_crossover_indexes(&self) -> bool {
         let keep_parent = self.1;
         match self.0 {
-            Crossovers::Clone => CrossoverClone(keep_parent).allow_unique_genotype(),
-            Crossovers::SingleGene => CrossoverSingleGene(keep_parent).allow_unique_genotype(),
-            Crossovers::SinglePoint => CrossoverSinglePoint(keep_parent).allow_unique_genotype(),
-            Crossovers::Uniform => CrossoverUniform(keep_parent).allow_unique_genotype(),
+            Crossovers::Clone => CrossoverClone(keep_parent).require_crossover_indexes(),
+            Crossovers::SingleGene => CrossoverSingleGene(keep_parent).require_crossover_indexes(),
+            Crossovers::SinglePoint => {
+                CrossoverSinglePoint(keep_parent).require_crossover_indexes()
+            }
+            Crossovers::Uniform => CrossoverUniform(keep_parent).require_crossover_indexes(),
+        }
+    }
+    fn require_crossover_points(&self) -> bool {
+        let keep_parent = self.1;
+        match self.0 {
+            Crossovers::Clone => CrossoverClone(keep_parent).require_crossover_points(),
+            Crossovers::SingleGene => CrossoverSingleGene(keep_parent).require_crossover_points(),
+            Crossovers::SinglePoint => CrossoverSinglePoint(keep_parent).require_crossover_points(),
+            Crossovers::Uniform => CrossoverUniform(keep_parent).require_crossover_points(),
         }
     }
 }

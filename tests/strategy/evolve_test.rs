@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::compete::CompeteTournament;
-use genetic_algorithm::crossover::CrossoverSingleGene;
+use genetic_algorithm::crossover::{CrossoverSingleGene, CrossoverSinglePoint};
 use genetic_algorithm::fitness::placeholders::{
     CountTrue, SumContinuousGenotype, SumDiscreteGenotype, SumMultiDiscreteGenotype,
     SumUniqueDiscreteGenotype,
@@ -40,7 +40,7 @@ fn build_invalid_missing_ending_condition() {
 }
 
 #[test]
-fn build_invalid_incompatible_genotype_and_crossover() {
+fn build_invalid_require_crossover_indexes() {
     let genotype = UniqueDiscreteGenotype::builder()
         .with_allele_values((0..10).collect())
         .build()
@@ -59,7 +59,31 @@ fn build_invalid_incompatible_genotype_and_crossover() {
     assert_eq!(
         evolve.err(),
         Some(TryFromEvolveBuilderError(
-            "The provided Crossover strategy does not allow for the provided unique Genotype"
+            "The provided Crossover strategy requires crossover_indexes, which the provided Genotype does not provide"
+        ))
+    );
+}
+#[test]
+fn build_invalid_require_crossover_points() {
+    let genotype = UniqueDiscreteGenotype::builder()
+        .with_allele_values((0..10).collect())
+        .build()
+        .unwrap();
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_population_size(100)
+        .with_max_stale_generations(20)
+        .with_mutate(MutateOnce(0.1))
+        .with_fitness(SumUniqueDiscreteGenotype)
+        .with_crossover(CrossoverSinglePoint(true))
+        .with_compete(CompeteTournament(4))
+        .build();
+
+    assert!(evolve.is_err());
+    assert_eq!(
+        evolve.err(),
+        Some(TryFromEvolveBuilderError(
+            "The provided Crossover strategy requires crossover_points, which the provided Genotype does not provide"
         ))
     );
 }

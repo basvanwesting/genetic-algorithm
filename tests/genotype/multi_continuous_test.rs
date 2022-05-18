@@ -22,5 +22,6 @@ fn general() {
         vec![0.447325, 2.1957011, 18.970789]
     );
 
-    assert_eq!(genotype.is_unique(), false);
+    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<usize>>());
+    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<usize>>());
 }

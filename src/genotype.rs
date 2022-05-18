@@ -33,10 +33,15 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
     /// a random chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
-    /// a flag to guard against invalid crossover strategies which break the internal consistency
+    /// to guard against invalid crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn is_unique(&self) -> bool {
-        false
+    fn crossover_points(&self) -> Vec<usize> {
+        (0..self.genes_size()).collect()
+    }
+    /// to guard against invalid crossover strategies which break the internal consistency
+    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
+    fn crossover_indexes(&self) -> Vec<usize> {
+        (0..self.genes_size()).collect()
     }
     fn builder() -> GenotypeBuilder<Self> {
         GenotypeBuilder::<Self>::default()

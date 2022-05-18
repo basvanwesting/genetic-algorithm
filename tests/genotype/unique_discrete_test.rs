@@ -21,7 +21,8 @@ fn general() {
         genotype.chromosome_permutations_size(),
         BigUint::from(24u32)
     );
-    assert_eq!(genotype.is_unique(), true);
+    assert_eq!(genotype.crossover_indexes(), vec![]);
+    assert_eq!(genotype.crossover_points(), vec![]);
 }
 
 #[test]

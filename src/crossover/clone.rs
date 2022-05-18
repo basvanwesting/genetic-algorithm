@@ -22,7 +22,10 @@ impl Crossover for Clone {
         }
     }
 
-    fn allow_unique_genotype(&self) -> bool {
-        true
+    fn require_crossover_indexes(&self) -> bool {
+        false
+    }
+    fn require_crossover_points(&self) -> bool {
+        false
     }
 }

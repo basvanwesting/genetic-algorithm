@@ -259,15 +259,33 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             Err(TryFromEvolveBuilderError(
                 "Evolve requires a Compete strategy",
             ))
-        } else if builder.genotype.as_ref().map(|o| o.is_unique()).unwrap()
-            && !builder
-                .crossover
+        } else if builder
+            .crossover
+            .as_ref()
+            .map(|o| o.require_crossover_indexes())
+            .unwrap()
+            && builder
+                .genotype
                 .as_ref()
-                .map(|o| o.allow_unique_genotype())
+                .map(|o| o.crossover_indexes().is_empty())
                 .unwrap()
         {
             Err(TryFromEvolveBuilderError(
-                "The provided Crossover strategy does not allow for the provided unique Genotype",
+                "The provided Crossover strategy requires crossover_indexes, which the provided Genotype does not provide",
+            ))
+        } else if builder
+            .crossover
+            .as_ref()
+            .map(|o| o.require_crossover_points())
+            .unwrap()
+            && builder
+                .genotype
+                .as_ref()
+                .map(|o| o.crossover_points().is_empty())
+                .unwrap()
+        {
+            Err(TryFromEvolveBuilderError(
+                "The provided Crossover strategy requires crossover_points, which the provided Genotype does not provide",
             ))
         } else if !(builder.population_size > 0) {
             Err(TryFromEvolveBuilderError(
