@@ -16,7 +16,8 @@ use std::fmt;
 /// Optimize by repeatedly mutating a single chromosome.
 /// The fitness is calculated each round.
 /// * If the fitness is worse, the mutation is undone and the next round is started
-/// * If the fitness is equal or better, the mutated chromosome is taken for the next round
+/// * If the fitness is equal or better, the mutated chromosome is taken for the next round.
+///   It is important to update the best chromosome on equal fitness for diversity reasons
 ///
 /// See [HillClimbBuilder] for initialization options.
 ///
@@ -206,8 +207,15 @@ impl<G: Genotype, F: Fitness<Genotype = G>> fmt::Display for HillClimb<G, F> {
         writeln!(f, "  genotype: {:?}", self.genotype)?;
         writeln!(f, "  fitness: {:?}", self.fitness)?;
 
+        writeln!(
+            f,
+            "  max_stale_generations: {:?}",
+            self.max_stale_generations
+        )?;
+        writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
 
+        writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
         writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
     }
