@@ -85,7 +85,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
 * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
     * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
-    * See [examples/hill_climb_table_setting](../main/examples/hill_climb_table_setting.rs)
+    * See [examples/hill_climb_table_seating](../main/examples/hill_climb_table_seating.rs)
 
 
 ## Tests

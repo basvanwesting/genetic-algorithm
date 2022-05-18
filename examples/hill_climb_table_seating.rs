@@ -9,8 +9,8 @@ type TableSize = u8;
 type HostsWithTableSizesPerRound = Vec<Vec<(Person, TableSize)>>;
 
 #[derive(Clone, Debug)]
-struct TableSettingFitness(pub HostsWithTableSizesPerRound);
-impl Fitness for TableSettingFitness {
+struct TableSeatingFitness(pub HostsWithTableSizesPerRound);
+impl Fitness for TableSeatingFitness {
     type Genotype = MultiUniqueGenotype<Person>;
     fn calculate_for_chromosome(
         &mut self,
@@ -87,7 +87,7 @@ fn main() {
     let mut hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_max_stale_generations(10000)
-        .with_fitness(TableSettingFitness(
+        .with_fitness(TableSeatingFitness(
             hosts_with_table_sizes_per_round.clone(),
         ))
         .with_fitness_ordering(FitnessOrdering::Minimize)

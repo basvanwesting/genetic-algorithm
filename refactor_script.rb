@@ -10,11 +10,11 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /unique_discrete/ => 'unique',
+  /table_setting/ => 'table_seating',
 }
 
 other_translations = {
-  /UniqueDiscrete/ => 'Unique',
+  /TableSetting/ => 'TableSeating',
 }
 
 #check:
