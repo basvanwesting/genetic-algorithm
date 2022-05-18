@@ -16,7 +16,6 @@ fn general() {
     genotype.mutate_chromosome(&mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 3, 2]);
 
-    assert_eq!(genotype.allele_values(), vec![5, 2, 3, 4]);
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::from(24u32)

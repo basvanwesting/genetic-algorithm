@@ -69,7 +69,7 @@ impl Genotype for Binary {
 }
 
 impl PermutableGenotype for Binary {
-    fn allele_values(&self) -> Vec<Self::Allele> {
+    fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         vec![true, false]
     }
 }

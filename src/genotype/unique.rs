@@ -107,8 +107,9 @@ impl<T: Clone + std::fmt::Debug> Genotype for Unique<T> {
 }
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for Unique<T> {
-    fn allele_values(&self) -> Vec<Self::Allele> {
-        self.allele_values.clone()
+    //noop
+    fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
+        vec![]
     }
 
     fn chromosome_permutations_into_iter<'a>(

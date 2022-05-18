@@ -110,7 +110,7 @@ impl<T: Clone + std::fmt::Debug> Genotype for Discrete<T> {
 }
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for Discrete<T> {
-    fn allele_values(&self) -> Vec<Self::Allele> {
+    fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         self.allele_values.clone()
     }
 }

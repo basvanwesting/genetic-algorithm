@@ -5,6 +5,7 @@ mod continuous;
 mod discrete;
 mod multi_continuous;
 mod multi_discrete;
+mod multi_unique;
 mod unique;
 
 pub use self::binary::Binary as BinaryGenotype;
@@ -15,6 +16,7 @@ pub use self::continuous::Continuous as ContinuousGenotype;
 pub use self::discrete::Discrete as DiscreteGenotype;
 pub use self::multi_continuous::MultiContinuous as MultiContinuousGenotype;
 pub use self::multi_discrete::MultiDiscrete as MultiDiscreteGenotype;
+pub use self::multi_unique::MultiUnique as MultiUniqueGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::Chromosome;
@@ -52,7 +54,8 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
 //pub trait EvolvableGenotype: Genotype {}
 /// Not all genotypes are permutable, only countable ones (e.g. continuous genotypes cannot be permutated).
 pub trait PermutableGenotype: Genotype {
-    fn allele_values(&self) -> Vec<Self::Allele>;
+    /// used for default chromosome_permutations_into_iter implementation
+    fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele>;
 
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_into_iter<'a>(
@@ -60,7 +63,7 @@ pub trait PermutableGenotype: Genotype {
     ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
         Box::new(
             (0..self.genes_size())
-                .map(|_| self.allele_values())
+                .map(|_| self.allele_values_for_chromosome_permutations())
                 .multi_cartesian_product()
                 .map(|genes| Chromosome::new(genes)),
         )
@@ -68,6 +71,7 @@ pub trait PermutableGenotype: Genotype {
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_size(&self) -> BigUint {
-        BigUint::from(self.allele_values().len()).pow(self.genes_size() as u32)
+        BigUint::from(self.allele_values_for_chromosome_permutations().len())
+            .pow(self.genes_size() as u32)
     }
 }

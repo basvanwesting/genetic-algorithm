@@ -71,6 +71,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
             self.genotype.mutate_chromosome(working_chromosome, rng);
             self.fitness.call_for_chromosome(working_chromosome);
             self.update_best_chromosome(working_chromosome);
+            self.report_round(working_chromosome);
             self.current_generation += 1;
         }
     }
@@ -155,10 +156,11 @@ impl<G: Genotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     #[allow(dead_code)]
     fn report_round(&self, chromosome: &Chromosome<G>) {
         println!(
-            "current generation: {}, best fitness score: {:?}, current fitness score: {:?}",
+            "current generation: {}, best fitness score: {:?}, current fitness score: {:?}, genes: {:?}",
             self.current_generation,
             self.best_fitness_score(),
             chromosome.fitness_score,
+            chromosome.genes,
         );
     }
 
