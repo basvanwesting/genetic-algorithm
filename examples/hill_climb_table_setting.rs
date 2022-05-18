@@ -4,28 +4,33 @@ use rand::rngs::SmallRng;
 use std::collections::HashMap;
 use std::collections::HashSet;
 
-// see https://en.wikipedia.org/wiki/Eight_queens_puzzle
+type Person = u8;
+type TableSize = u8;
+type HostsWithTableSizesPerRound = Vec<Vec<(Person, TableSize)>>;
+
 #[derive(Clone, Debug)]
-struct TableSettingFitness(pub u8, pub Vec<usize>);
+struct TableSettingFitness(pub HostsWithTableSizesPerRound);
 impl Fitness for TableSettingFitness {
-    type Genotype = MultiUniqueGenotype<u8>;
+    type Genotype = MultiUniqueGenotype<Person>;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
-        let number_of_rounds = &self.0;
-        let table_sizes = &self.1;
+        let hosts_with_table_sizes_per_round = &self.0;
         let mut people = chromosome.genes.clone();
-        let mut tables: Vec<Vec<u8>> = vec![];
+        let mut tables: Vec<Vec<Person>> = vec![];
 
-        for _round in 0..*number_of_rounds {
-            for table_size in table_sizes {
-                tables.push(people.drain(..table_size).collect());
+        for hosts_with_table_sizes in hosts_with_table_sizes_per_round {
+            for (host, table_size) in hosts_with_table_sizes {
+                let mut people_on_table: Vec<Person> =
+                    people.drain(..(*table_size as usize - 1)).collect();
+                people_on_table.push(*host);
+                tables.push(people_on_table);
             }
         }
 
         let mut score = 0;
-        let mut person_sets: HashMap<u8, HashSet<u8>> = HashMap::new();
+        let mut person_sets: HashMap<Person, HashSet<Person>> = HashMap::new();
 
         for table in tables {
             for person in &table {
@@ -48,17 +53,32 @@ impl Fitness for TableSettingFitness {
 }
 
 fn main() {
-    let number_of_people: u8 = 12;
-    let table_sizes: Vec<usize> = vec![3, 3, 3, 3];
-    let number_of_rounds: u8 = 4;
+    let people: Vec<Person> = (0..24).collect();
+    let hosts_with_table_sizes_per_round: HostsWithTableSizesPerRound = vec![
+        vec![(0, 5), (1, 5), (2, 5), (3, 5), (4, 4)],
+        vec![(5, 4), (6, 4), (7, 4), (8, 4), (9, 4), (10, 4)],
+        vec![(11, 4), (12, 4), (13, 4), (14, 4), (15, 4), (16, 4)],
+        vec![(17, 5), (18, 5), (19, 5), (29, 5), (21, 4)],
+    ];
+
+    let number_of_rounds = hosts_with_table_sizes_per_round.len();
+    let hosts_per_round: Vec<Vec<Person>> = hosts_with_table_sizes_per_round
+        .iter()
+        .map(|round| round.iter().map(|(h, _s)| *h).collect())
+        .collect();
+    let allele_multi_values: Vec<Vec<Person>> = (0..number_of_rounds)
+        .map(|i| {
+            people
+                .iter()
+                .filter(|person| !hosts_per_round[i].contains(person))
+                .map(|p| *p)
+                .collect::<Vec<Person>>()
+        })
+        .collect();
 
     let mut rng = SmallRng::from_entropy();
     let genotype = MultiUniqueGenotype::builder()
-        .with_allele_multi_values(
-            (0..number_of_rounds)
-                .map(|_| (0..number_of_people).collect())
-                .collect(),
-        )
+        .with_allele_multi_values(allele_multi_values)
         .build()
         .unwrap();
 
@@ -66,8 +86,10 @@ fn main() {
 
     let mut hill_climb = HillClimb::builder()
         .with_genotype(genotype)
-        .with_max_stale_generations(100000)
-        .with_fitness(TableSettingFitness(number_of_rounds, table_sizes.clone()))
+        .with_max_stale_generations(10000)
+        .with_fitness(TableSettingFitness(
+            hosts_with_table_sizes_per_round.clone(),
+        ))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .build()
@@ -89,10 +111,13 @@ fn main() {
 
             let mut person_counters: HashMap<u8, HashMap<u8, u8>> = HashMap::new();
             let mut people = best_chromosome.genes.clone();
-            for round in 0..number_of_rounds {
-                println!("round: {}", round);
-                for table_size in &table_sizes {
-                    let people_on_table = people.drain(..table_size).collect::<Vec<u8>>();
+
+            for hosts_with_table_sizes in &hosts_with_table_sizes_per_round {
+                println!("round:");
+                for (host, table_size) in hosts_with_table_sizes {
+                    let mut people_on_table: Vec<Person> = vec![*host];
+                    people_on_table
+                        .append(&mut people.drain(..(*table_size as usize - 1)).collect());
                     println!("  table: {:?}", people_on_table);
 
                     for person in &people_on_table {
@@ -108,7 +133,17 @@ fn main() {
                     }
                 }
             }
-            println!("person_counters: {:?}", person_counters);
+
+            for (person, person_counter) in person_counters {
+                for (other_person, count) in person_counter {
+                    if count > 1 {
+                        println!(
+                            "person {} and person {} meet {} number of times",
+                            person, other_person, count
+                        );
+                    }
+                }
+            }
         }
     } else {
         println!("Invalid solution with fitness score: None");

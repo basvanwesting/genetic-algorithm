@@ -79,6 +79,7 @@
 //!     * See [examples/permutate_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_knapsack.rs)
 //! * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
 //!     * See [examples/hill_climb_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_nqueens.rs)
+//!     * See [examples/hill_climb_table_setting](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_table_setting.rs)
 //!
 
 pub mod chromosome;

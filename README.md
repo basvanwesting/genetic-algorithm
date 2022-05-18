@@ -85,6 +85,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
 * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
     * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
+    * See [examples/hill_climb_table_setting](../main/examples/hill_climb_table_setting.rs)
 
 
 ## Tests
@@ -106,6 +107,7 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make fitness/simple_sum generic
 * Does Fitness need an associated trait for Genotype? Can this be made more lightweight?
 * Add simulated annealing strategy
+* Set report_round behaviour through debug level in Evolve/HillClimb/Permutate
 
 ## MAYBE
 * Store age on chromosome?
