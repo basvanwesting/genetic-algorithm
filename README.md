@@ -67,7 +67,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * N-Queens puzzle https://en.wikipedia.org/wiki/Eight_queens_puzzle.
     * See [examples/evolve_nqueens](../main/examples/evolve_nqueens.rs)
     * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
-    * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup
+    * `UniqueGenotype<u8>` with a 64x64 chess board setup
     * custom `NQueensFitness` fitness
 * Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
     * See [examples/evolve_knapsack](../main/examples/evolve_knapsack.rs)
@@ -106,13 +106,12 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make fitness/simple_sum generic
 * Does Fitness need an associated trait for Genotype? Can this be made more lightweight?
 * Add simulated annealing strategy
-* Rename UniqueDiscreteGenotype to UniqueGenotype as it is discrete by definition
 * Add MultiUniqueGenotype, possible to set valid crossover points.
 
 ## MAYBE
 * Store age on chromosome?
 * Add Tournament competition with duplicates (needs cloning)
 * Add Roulette competition with and without duplicates (with fitness ordering)
-* Add OrderOne crossover for UniqueDiscreteGenotype?
+* Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for ContinuousGenotype?
 * Rename Continuous to Real?

@@ -5,7 +5,7 @@ use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
-pub type DefaultDiscreteAllele = usize;
+pub type DefaultAllele = usize;
 
 /// Genes are a list of values, each taken from the allele_values using clone(). On random
 /// initialization, each gene gets a value from the allele_values with a uniform probability. Each
@@ -43,7 +43,7 @@ pub type DefaultDiscreteAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Debug, Clone)]
-pub struct Discrete<T: Clone + std::fmt::Debug = DefaultDiscreteAllele> {
+pub struct Discrete<T: Clone + std::fmt::Debug = DefaultAllele> {
     pub genes_size: usize,
     pub allele_values: Vec<T>,
     gene_index_sampler: Uniform<usize>,

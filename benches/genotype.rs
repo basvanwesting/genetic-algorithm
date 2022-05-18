@@ -99,10 +99,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("unique_discrete", genes_size),
+            BenchmarkId::new("unique", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = UniqueDiscreteGenotype::builder()
+                let genotype = UniqueGenotype::builder()
                     .with_genes_size(genes_size)
                     .with_allele_values((0..10).collect())
                     .build()

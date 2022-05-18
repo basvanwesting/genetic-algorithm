@@ -61,7 +61,7 @@
 //! * N-Queens puzzle <https://en.wikipedia.org/wiki/Eight_queens_puzzle>
 //!     * See [examples/evolve_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_nqueens.rs)
 //!     * See [examples/hill_climb_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_nqueens.rs)
-//!     * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup
+//!     * `UniqueGenotype<u8>` with a 64x64 chess board setup
 //!     * custom `NQueensFitness` fitness
 //! * Knapsack problem: <https://en.wikipedia.org/wiki/Knapsack_problem>
 //!     * See [examples/evolve_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_knapsack.rs)

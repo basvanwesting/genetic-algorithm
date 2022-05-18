@@ -5,7 +5,7 @@ mod continuous;
 mod discrete;
 mod multi_continuous;
 mod multi_discrete;
-mod unique_discrete;
+mod unique;
 
 pub use self::binary::Binary as BinaryGenotype;
 pub use self::builder::{
@@ -15,7 +15,7 @@ pub use self::continuous::Continuous as ContinuousGenotype;
 pub use self::discrete::Discrete as DiscreteGenotype;
 pub use self::multi_continuous::MultiContinuous as MultiContinuousGenotype;
 pub use self::multi_discrete::MultiDiscrete as MultiDiscreteGenotype;
-pub use self::unique_discrete::UniqueDiscrete as UniqueDiscreteGenotype;
+pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::Chromosome;
 use itertools::Itertools;

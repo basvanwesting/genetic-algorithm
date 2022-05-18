@@ -5,7 +5,7 @@ use genetic_algorithm::meta::prelude::*;
 #[derive(Clone, Debug)]
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
-    type Genotype = UniqueDiscreteGenotype<u8>;
+    type Genotype = UniqueGenotype<u8>;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -41,7 +41,7 @@ fn main() {
     ];
     let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
     let competes = vec![CompeteDispatch(Competes::Elite, 0)];
-    let genotype = UniqueDiscreteGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_values((0..64).collect())
         .build()
         .unwrap();

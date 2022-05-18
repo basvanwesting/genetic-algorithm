@@ -7,7 +7,7 @@ use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
 
-pub type DefaultDiscreteAllele = usize;
+pub type DefaultAllele = usize;
 
 /// Genes are a list of values, each individually taken from its own allele_values using clone(). The
 /// genes_size is derived to be the allele_multi_values length. All allele_values have to be of the same
@@ -77,7 +77,7 @@ pub type DefaultDiscreteAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Clone, Debug)]
-pub struct MultiDiscrete<T: Clone + std::fmt::Debug = DefaultDiscreteAllele> {
+pub struct MultiDiscrete<T: Clone + std::fmt::Debug = DefaultAllele> {
     genes_size: usize,
     allele_value_sizes: Vec<usize>,
     pub allele_multi_values: Vec<Vec<T>>,

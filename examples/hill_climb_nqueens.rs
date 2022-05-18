@@ -6,7 +6,7 @@ use rand::rngs::SmallRng;
 #[derive(Clone, Debug)]
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
-    type Genotype = UniqueDiscreteGenotype<u8>;
+    type Genotype = UniqueGenotype<u8>;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -33,7 +33,7 @@ fn main() {
     const BOARD_SIZE: u8 = 64;
 
     let mut rng = SmallRng::from_entropy();
-    let genotype = UniqueDiscreteGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_values((0..BOARD_SIZE).collect())
         .build()
         .unwrap();

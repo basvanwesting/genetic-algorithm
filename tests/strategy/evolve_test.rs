@@ -4,12 +4,12 @@ use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::{CrossoverSingleGene, CrossoverSinglePoint};
 use genetic_algorithm::fitness::placeholders::{
     CountTrue, SumContinuousGenotype, SumDiscreteGenotype, SumMultiDiscreteGenotype,
-    SumUniqueDiscreteGenotype,
+    SumUniqueGenotype,
 };
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
-    UniqueDiscreteGenotype,
+    UniqueGenotype,
 };
 use genetic_algorithm::mutate::MutateOnce;
 use genetic_algorithm::strategy::evolve::{Evolve, TryFromEvolveBuilderError};
@@ -41,7 +41,7 @@ fn build_invalid_missing_ending_condition() {
 
 #[test]
 fn build_invalid_require_crossover_indexes() {
-    let genotype = UniqueDiscreteGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_values((0..10).collect())
         .build()
         .unwrap();
@@ -50,7 +50,7 @@ fn build_invalid_require_crossover_indexes() {
         .with_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce(0.1))
-        .with_fitness(SumUniqueDiscreteGenotype)
+        .with_fitness(SumUniqueGenotype)
         .with_crossover(CrossoverSingleGene(true))
         .with_compete(CompeteTournament(4))
         .build();
@@ -65,7 +65,7 @@ fn build_invalid_require_crossover_indexes() {
 }
 #[test]
 fn build_invalid_require_crossover_points() {
-    let genotype = UniqueDiscreteGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_values((0..10).collect())
         .build()
         .unwrap();
@@ -74,7 +74,7 @@ fn build_invalid_require_crossover_points() {
         .with_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce(0.1))
-        .with_fitness(SumUniqueDiscreteGenotype)
+        .with_fitness(SumUniqueGenotype)
         .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4))
         .build();

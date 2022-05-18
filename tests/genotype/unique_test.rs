@@ -1,11 +1,11 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{Genotype, PermutableGenotype, UniqueDiscreteGenotype};
+use genetic_algorithm::genotype::{Genotype, PermutableGenotype, UniqueGenotype};
 
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = UniqueDiscreteGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_values(vec![5, 2, 3, 4])
         .build()
         .unwrap();
@@ -27,7 +27,7 @@ fn general() {
 
 #[test]
 fn chromosome_permutations() {
-    let genotype = UniqueDiscreteGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_values(vec![0, 1, 2, 3])
         .build()
         .unwrap();
@@ -69,7 +69,7 @@ fn chromosome_permutations() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let genotype = UniqueDiscreteGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_values((0..30).collect())
         .build()
         .unwrap();

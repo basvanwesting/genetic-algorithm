@@ -10,10 +10,11 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /gene_size/ => 'genes_size',
+  /unique_discrete/ => 'unique',
 }
 
 other_translations = {
+  /UniqueDiscrete/ => 'Unique',
 }
 
 #check:

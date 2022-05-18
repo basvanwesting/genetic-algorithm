@@ -10,7 +10,7 @@ pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 pub use crate::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, GenotypeBuilder,
     MultiContinuousGenotype, MultiDiscreteGenotype, TryFromGenotypeBuilderError,
-    UniqueDiscreteGenotype,
+    UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::meta::{

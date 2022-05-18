@@ -3,7 +3,7 @@ use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiContinuousGenotype,
-    MultiDiscreteGenotype, UniqueDiscreteGenotype,
+    MultiDiscreteGenotype, UniqueGenotype,
 };
 use std::marker::PhantomData;
 
@@ -112,9 +112,9 @@ impl Fitness for SumMultiDiscreteGenotype {
 
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SumUniqueDiscreteGenotype;
-impl Fitness for SumUniqueDiscreteGenotype {
-    type Genotype = UniqueDiscreteGenotype;
+pub struct SumUniqueGenotype;
+impl Fitness for SumUniqueGenotype {
+    type Genotype = UniqueGenotype;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
