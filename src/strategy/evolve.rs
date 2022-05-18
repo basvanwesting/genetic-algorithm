@@ -115,7 +115,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             }
 
             self.update_best_chromosome(population);
-            self.report_round(population);
+            //self.report_round(population);
             self.current_generation += 1;
         }
     }
