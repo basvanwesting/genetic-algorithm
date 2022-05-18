@@ -115,7 +115,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             }
 
             self.update_best_chromosome(population);
-            //self.report_round(population);
+            self.report_round(population);
             self.current_generation += 1;
         }
     }
@@ -178,8 +178,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         if let Some(degeneration_range) = self.degeneration_range.as_ref() {
             let fitness_score_stddev = population.fitness_score_stddev();
             if self.degenerate && fitness_score_stddev > degeneration_range.end {
+                //println!("### turn degeneration off");
                 self.degenerate = false;
             } else if !self.degenerate && fitness_score_stddev < degeneration_range.start {
+                //println!("### turn degeneration on");
                 self.degenerate = true;
             }
         }
