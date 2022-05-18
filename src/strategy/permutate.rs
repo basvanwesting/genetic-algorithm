@@ -1,4 +1,4 @@
-//! A solution strategy for finding the best chromosomes in case of small problem spaces.
+//! A solution strategy for finding the best chromosome in case of small problem spaces (with a 100% guarantee)
 mod builder;
 pub mod prelude;
 

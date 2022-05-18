@@ -7,7 +7,8 @@ There are three main elements to this approach:
 * The Fitness function (the search goal)
 * The strategy (the search strategy)
     * Evolve (evolution strategy)
-    * Permutate (for small search spaces)
+    * Permutate (for small search spaces, with a 100% guarantee)
+    * HillClimb (when crossover is impossible or inefficient)
 
 Terminology:
 * Population: a population has `population_size` number of individuals (called chromosomes).
@@ -65,6 +66,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 
 * N-Queens puzzle https://en.wikipedia.org/wiki/Eight_queens_puzzle.
     * See [examples/evolve_nqueens](../main/examples/evolve_nqueens.rs)
+    * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
     * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup
     * custom `NQueensFitness` fitness
 * Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
@@ -79,8 +81,10 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * Custom Fitness function with LRU cache
     * See [examples/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)
     * _Note: doesn't help performance much in this case..._
-* Permutation strategy instead of Evolve strategy for small search spaces
+* Permutation strategy instead of Evolve strategy for small search spaces, with a 100% guarantee
     * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
+* HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
+    * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
 
 
 ## Tests

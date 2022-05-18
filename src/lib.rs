@@ -4,9 +4,10 @@
 //! There are three main elements to this approach:
 //! * The [Genotype](crate::genotype) (the search space)
 //! * The [Fitness](crate::fitness) function (the search goal)
-//! * The strategy (the search strategy)
+//! * The [Strategy](crate::strategy::Strategy) (the search strategy)
 //!     * [Evolve](crate::strategy::evolve::Evolve) (evolution strategy)
-//!     * [Permutate](crate::strategy::permutate::Permutate) (for small search spaces)
+//!     * [Permutate](crate::strategy::permutate::Permutate) (for small search spaces, with a 100% guarantee)
+//!     * [HillClimb](crate::strategy::hill_climb::HillClimb) (when crossover is impossible or inefficient)
 //!
 //! Terminology:
 //! * [Population](crate::population): a population has `population_size` number of individuals (called chromosomes).
@@ -59,6 +60,7 @@
 //!
 //! * N-Queens puzzle <https://en.wikipedia.org/wiki/Eight_queens_puzzle>
 //!     * See [examples/evolve_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_nqueens.rs)
+//!     * See [examples/hill_climb_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_nqueens.rs)
 //!     * `UniqueDiscreteGenotype<u8>` with a 64x64 chess board setup
 //!     * custom `NQueensFitness` fitness
 //! * Knapsack problem: <https://en.wikipedia.org/wiki/Knapsack_problem>
@@ -73,8 +75,10 @@
 //! * Custom Fitness function with LRU cache
 //!     * See [examples/evolve_binary_lru_cache_fitness](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_binary_lru_cache_fitness.rs)
 //!     * _Note: doesn't help performance much in this case..._
-//! * Permutation strategy instead of Evolve strategy for small search spaces
+//! * Permutation strategy instead of Evolve strategy for small search spaces, with a 100% guarantee
 //!     * See [examples/permutate_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_knapsack.rs)
+//! * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
+//!     * See [examples/hill_climb_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_nqueens.rs)
 //!
 
 pub mod chromosome;

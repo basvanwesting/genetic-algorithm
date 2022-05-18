@@ -1,4 +1,4 @@
-//! A solution strategy for finding the best chromosomes using evolution
+//! A solution strategy for finding the best chromosome using evolution
 mod builder;
 pub mod prelude;
 

@@ -1,5 +1,6 @@
 //! solution strategies for finding the best chromosomes.
 pub mod evolve;
+pub mod hill_climb;
 pub mod permutate;
 
 use crate::chromosome::Chromosome;
