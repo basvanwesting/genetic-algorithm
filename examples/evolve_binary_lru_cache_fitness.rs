@@ -1,4 +1,4 @@
-use genetic_algorithm::evolve::prelude::*;
+use genetic_algorithm::strategy::evolve::prelude::*;
 use lru::LruCache;
 use rand::prelude::*;
 use rand::rngs::SmallRng;

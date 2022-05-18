@@ -6,10 +6,12 @@ pub use self::builder::{
     Builder as PermutateBuilder, TryFromBuilderError as TryFromPermutateBuilderError,
 };
 
+use super::Strategy;
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
 use num::BigUint;
+use rand::Rng;
 use std::fmt;
 
 /// All possible combinations of genes are iterated over as chromosomes.
@@ -20,7 +22,7 @@ use std::fmt;
 ///
 /// Example:
 /// ```
-/// use genetic_algorithm::permutate::prelude::*;
+/// use genetic_algorithm::strategy::permutate::prelude::*;
 /// use genetic_algorithm::fitness::placeholders::CountTrue;
 ///
 /// // the search space
@@ -30,39 +32,43 @@ use std::fmt;
 ///     .unwrap();
 ///
 /// // the search strategy
+/// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
 /// let permutate = Permutate::builder()
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .call()
+///     .call(&mut rng)
 ///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
-/// let best_chromosome = permutate.best_chromosome.unwrap();
+/// let best_chromosome = permutate.best_chromosome().unwrap();
 /// assert_eq!(best_chromosome.genes, vec![false; 16])
 /// ```
 pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>> {
-    pub genotype: G,
-    pub fitness: F,
+    genotype: G,
+    fitness: F,
+    fitness_ordering: FitnessOrdering,
 
-    pub fitness_ordering: FitnessOrdering,
-
-    pub best_chromosome: Option<Chromosome<G>>,
+    best_chromosome: Option<Chromosome<G>>,
     pub population_size: BigUint,
+}
+
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Strategy<G> for Permutate<G, F> {
+    fn call<R: Rng>(&mut self, _rng: &mut R) {
+        for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
+            self.fitness.call_for_chromosome(&mut chromosome);
+            self.update_best_chromosome(&chromosome);
+        }
+    }
+    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+        self.best_chromosome.clone()
+    }
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     pub fn builder() -> PermutateBuilder<G, F> {
         PermutateBuilder::new()
     }
-
-    pub fn call(&mut self) {
-        for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
-            self.fitness.call_for_chromosome(&mut chromosome);
-            self.update_best_chromosome(&chromosome);
-        }
-    }
-
     fn update_best_chromosome(&mut self, contending_best_chromosome: &Chromosome<G>) {
         match self.best_chromosome.as_ref() {
             None => {

@@ -9,4 +9,6 @@ pub use crate::genotype::{
     UniqueDiscreteGenotype,
 };
 #[doc(no_inline)]
-pub use crate::permutate::{Permutate, PermutateBuilder, TryFromPermutateBuilderError};
+pub use crate::strategy::permutate::{Permutate, PermutateBuilder, TryFromPermutateBuilderError};
+#[doc(no_inline)]
+pub use crate::strategy::Strategy;

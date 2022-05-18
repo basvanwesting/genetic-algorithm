@@ -4,11 +4,12 @@ mod support;
 mod meta_tests {
     use genetic_algorithm::compete::{CompeteDispatch, Competes};
     use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
-    use genetic_algorithm::evolve::EvolveBuilder;
     use genetic_algorithm::fitness::placeholders::CountTrue;
     use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
     use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
     use genetic_algorithm::mutate::{MutateDispatch, Mutates};
+    use genetic_algorithm::strategy::evolve::EvolveBuilder;
+    use genetic_algorithm::strategy::Strategy;
 
     #[test]
     fn general() {
@@ -59,6 +60,10 @@ mod meta_tests {
         println!("{}", permutate);
 
         assert!(permutate.inner_permutate.is_some());
-        assert!(permutate.inner_permutate.unwrap().best_chromosome.is_some());
+        assert!(permutate
+            .inner_permutate
+            .unwrap()
+            .best_chromosome()
+            .is_some());
     }
 }

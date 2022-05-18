@@ -5,8 +5,6 @@ pub use crate::compete::{CompeteDispatch, Competes};
 #[doc(no_inline)]
 pub use crate::crossover::{CrossoverDispatch, Crossovers};
 #[doc(no_inline)]
-pub use crate::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};
-#[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]
 pub use crate::genotype::{
@@ -20,3 +18,5 @@ pub use crate::meta::{
 };
 #[doc(no_inline)]
 pub use crate::mutate::{MutateDispatch, Mutates};
+#[doc(no_inline)]
+pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};

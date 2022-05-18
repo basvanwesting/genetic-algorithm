@@ -4,7 +4,9 @@
 //! There are three main elements to this approach:
 //! * The [Genotype](crate::genotype) (the search space)
 //! * The [Fitness](crate::fitness) function (the search goal)
-//! * The [Evolve](crate::evolve::Evolve) strategy (the search strategy)
+//! * The strategy (the search strategy)
+//!     * [Evolve](crate::strategy::evolve::Evolve) (evolution strategy)
+//!     * [Permutate](crate::strategy::permutate::Permutate) (for small search spaces)
 //!
 //! Terminology:
 //! * [Population](crate::population): a population has `population_size` number of individuals (called chromosomes).
@@ -17,7 +19,7 @@
 //! ## Quick Usage
 //!
 //! ```rust
-//! use genetic_algorithm::evolve::prelude::*;
+//! use genetic_algorithm::strategy::evolve::prelude::*;
 //!
 //! // the search space
 //! let genotype = BinaryGenotype::builder() // boolean alleles
@@ -78,10 +80,9 @@
 pub mod chromosome;
 pub mod compete;
 pub mod crossover;
-pub mod evolve;
 pub mod fitness;
 pub mod genotype;
 pub mod meta;
 pub mod mutate;
-pub mod permutate;
 pub mod population;
+pub mod strategy;

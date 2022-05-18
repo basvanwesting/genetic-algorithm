@@ -1,9 +1,10 @@
+use super::Evolve;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
-use crate::evolve::Evolve;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
+use crate::strategy::Strategy;
 use rand::Rng;
 use std::ops::Range;
 

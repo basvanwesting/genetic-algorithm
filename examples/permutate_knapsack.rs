@@ -1,4 +1,4 @@
-use genetic_algorithm::permutate::prelude::*;
+use genetic_algorithm::strategy::permutate::prelude::*;
 
 // see https://en.wikipedia.org/wiki/Knapsack_problem
 // example data 10 items with (weight, value):
@@ -74,15 +74,16 @@ fn main() {
 
     println!("{}", genotype);
 
+    let mut rng = rand::thread_rng();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(fitness)
-        .call()
+        .call(&mut rng)
         .unwrap();
 
     println!("{}", permutate);
 
-    if let Some(best_chromosome) = permutate.best_chromosome {
+    if let Some(best_chromosome) = permutate.best_chromosome() {
         let selected_items = best_chromosome
             .genes
             .iter()

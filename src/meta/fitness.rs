@@ -4,6 +4,7 @@ use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::{Genotype, MultiDiscreteGenotype};
 use crate::meta::config::Config;
 use crate::meta::stats::Stats;
+use crate::strategy::Strategy;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use std::time::Instant;

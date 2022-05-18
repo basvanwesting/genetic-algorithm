@@ -1,4 +1,4 @@
-use genetic_algorithm::evolve::prelude::*;
+use genetic_algorithm::strategy::evolve::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
@@ -90,7 +90,7 @@ fn main() {
 
     println!("{}", evolve);
 
-    if let Some(best_chromosome) = evolve.best_chromosome {
+    if let Some(best_chromosome) = evolve.best_chromosome() {
         let selected_items = best_chromosome
             .genes
             .iter()

@@ -10,22 +10,27 @@ mod permutate_tests {
     use genetic_algorithm::genotype::{
         BinaryGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
     };
-    use genetic_algorithm::permutate::Permutate;
+    use genetic_algorithm::strategy::permutate::Permutate;
+    use genetic_algorithm::strategy::Strategy;
 
     //#[test]
     //build_invalid cannot be tested because invalid doesn't even have a type
 
     #[test]
     fn call_binary_maximize() {
-        let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(5)
+            .build()
+            .unwrap();
 
+        let mut rng = rand::thread_rng();
         let permutate = Permutate::builder()
             .with_genotype(genotype)
             .with_fitness(CountTrue)
-            .call()
+            .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = permutate.best_chromosome.unwrap();
+        let best_chromosome = permutate.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(5));
@@ -37,16 +42,20 @@ mod permutate_tests {
 
     #[test]
     fn call_binary_minimize() {
-        let genotype = BinaryGenotype::builder().with_genes_size(5).build().unwrap();
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(5)
+            .build()
+            .unwrap();
 
+        let mut rng = rand::thread_rng();
         let permutate = Permutate::builder()
             .with_genotype(genotype)
             .with_fitness_ordering(FitnessOrdering::Minimize)
             .with_fitness(CountTrue)
-            .call()
+            .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = permutate.best_chromosome.unwrap();
+        let best_chromosome = permutate.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(0));
@@ -64,13 +73,14 @@ mod permutate_tests {
             .build()
             .unwrap();
 
+        let mut rng = rand::thread_rng();
         let permutate = Permutate::builder()
             .with_genotype(genotype)
             .with_fitness(SumDiscreteGenotype)
-            .call()
+            .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = permutate.best_chromosome.unwrap();
+        let best_chromosome = permutate.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(45));
@@ -89,13 +99,14 @@ mod permutate_tests {
             .build()
             .unwrap();
 
+        let mut rng = rand::thread_rng();
         let permutate = Permutate::builder()
             .with_genotype(genotype)
             .with_fitness(SumMultiDiscreteGenotype)
-            .call()
+            .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = permutate.best_chromosome.unwrap();
+        let best_chromosome = permutate.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(8));

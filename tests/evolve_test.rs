@@ -5,7 +5,6 @@ mod evolve_tests {
     use crate::support::*;
     use genetic_algorithm::compete::CompeteTournament;
     use genetic_algorithm::crossover::CrossoverSingleGene;
-    use genetic_algorithm::evolve::{Evolve, TryFromEvolveBuilderError};
     use genetic_algorithm::fitness::placeholders::{
         CountTrue, SumContinuousGenotype, SumDiscreteGenotype, SumMultiDiscreteGenotype,
         SumUniqueDiscreteGenotype,
@@ -16,6 +15,8 @@ mod evolve_tests {
         UniqueDiscreteGenotype,
     };
     use genetic_algorithm::mutate::MutateOnce;
+    use genetic_algorithm::strategy::evolve::{Evolve, TryFromEvolveBuilderError};
+    use genetic_algorithm::strategy::Strategy;
 
     #[test]
     fn build_invalid_missing_ending_condition() {
@@ -84,7 +85,7 @@ mod evolve_tests {
             .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = evolve.best_chromosome.unwrap();
+        let best_chromosome = evolve.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(10));
@@ -113,7 +114,7 @@ mod evolve_tests {
             .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = evolve.best_chromosome.unwrap();
+        let best_chromosome = evolve.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(0));
@@ -141,7 +142,7 @@ mod evolve_tests {
             .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = evolve.best_chromosome.unwrap();
+        let best_chromosome = evolve.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(9));
@@ -170,7 +171,7 @@ mod evolve_tests {
             .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = evolve.best_chromosome.unwrap();
+        let best_chromosome = evolve.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(0));
@@ -199,7 +200,7 @@ mod evolve_tests {
             .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = evolve.best_chromosome.unwrap();
+        let best_chromosome = evolve.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(9));
@@ -228,7 +229,7 @@ mod evolve_tests {
             .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = evolve.best_chromosome.unwrap();
+        let best_chromosome = evolve.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(9));
@@ -261,7 +262,7 @@ mod evolve_tests {
             .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = evolve.best_chromosome.unwrap();
+        let best_chromosome = evolve.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(30));
@@ -294,7 +295,7 @@ mod evolve_tests {
             .call(&mut rng)
             .unwrap();
 
-        let best_chromosome = evolve.best_chromosome.unwrap();
+        let best_chromosome = evolve.best_chromosome().unwrap();
         println!("{:#?}", best_chromosome);
 
         assert_eq!(best_chromosome.fitness_score, Some(8));

@@ -7,10 +7,10 @@ pub use self::builder::{
 use crate::chromosome::Chromosome;
 use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
-use crate::evolve::EvolveBuilder;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiDiscreteGenotype};
 use crate::mutate::MutateDispatch;
+use crate::strategy::evolve::EvolveBuilder;
 use std::ops::Range;
 
 #[derive(Clone, Debug)]

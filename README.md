@@ -5,7 +5,9 @@ Inspired by the book [Genetic Algorithms in Elixir](https://pragprog.com/titles/
 There are three main elements to this approach:
 * The Genotype (the search space)
 * The Fitness function (the search goal)
-* The Evolve strategy (the search strategy)
+* The strategy (the search strategy)
+    * Evolve (evolution strategy)
+    * Permutate (for small search spaces)
 
 Terminology:
 * Population: a population has `population_size` number of individuals (called chromosomes).
@@ -22,7 +24,7 @@ See [docs.rs](https://docs.rs/genetic_algorithm/latest/genetic_algorithm)
 ## Quick Usage
 
 ```rust
-use genetic_algorithm::evolve::prelude::*;
+use genetic_algorithm::strategy::evolve::prelude::*;
 
 // the search space
 let genotype = BinaryGenotype::builder() // boolean alleles

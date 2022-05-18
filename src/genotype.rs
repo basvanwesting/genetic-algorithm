@@ -20,7 +20,7 @@ pub use self::unique_discrete::UniqueDiscrete as UniqueDiscreteGenotype;
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
-use rand::prelude::*;
+use rand::Rng;
 use std::fmt;
 
 // trait alias, experimental
@@ -30,7 +30,7 @@ use std::fmt;
 pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>> {
     type Allele: Clone + std::fmt::Debug;
     fn genes_size(&self) -> usize;
-    /// a random chromosome factory to seed the initial population for [Evolve](crate::evolve::Evolve)
+    /// a random chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
     /// a flag to guard against invalid crossover strategies which break the internal consistency
@@ -49,7 +49,7 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
 pub trait PermutableGenotype: Genotype {
     fn allele_values(&self) -> Vec<Self::Allele>;
 
-    /// chromosome iterator for the all possible gene combinations for [Permutate](crate::permutate::Permutate)
+    /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
@@ -61,7 +61,7 @@ pub trait PermutableGenotype: Genotype {
         )
     }
 
-    /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::permutate::Permutate)
+    /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_size(&self) -> BigUint {
         BigUint::from(self.allele_values().len()).pow(self.genes_size() as u32)
     }

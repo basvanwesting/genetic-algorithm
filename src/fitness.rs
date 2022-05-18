@@ -24,8 +24,8 @@ pub enum FitnessOrdering {
 /// The fitness function, is implemented as a fitness method object.
 ///
 /// Normally the fitness returns [`Some(FitnessValue)`](FitnessValue) for the chromosome, which can be minimized or
-/// maximized in the search strategy (e.g. [Evolve](crate::evolve::Evolve) or
-/// [Permutate](crate::permutate::Permutate)) by providing the [FitnessOrdering].
+/// maximized in the search strategy (e.g. [Evolve](crate::strategy::evolve::Evolve) or
+/// [Permutate](crate::strategy::permutate::Permutate)) by providing the [FitnessOrdering].
 ///
 /// If the fitness returns `None`, the chromosome is assumed invalid and taken last in the [competition](crate::compete) phase (also when minimizing).
 ///

@@ -1,7 +1,8 @@
 use crate::fitness::Fitness;
 use crate::genotype::{Genotype, MultiDiscreteGenotype, PermutableGenotype};
 use crate::meta::{MetaConfig, MetaFitness};
-use crate::permutate;
+use crate::strategy::permutate;
+use crate::strategy::Strategy;
 use std::fmt;
 
 pub struct Permutate<'a, G: Genotype, F: Fitness<Genotype = G>> {
@@ -29,6 +30,7 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
             genotype.chromosome_permutations_size()
         );
 
+        let mut rng = rand::thread_rng();
         let mut permutate = permutate::Permutate::builder()
             .with_genotype(genotype)
             .with_fitness(fitness)
@@ -36,7 +38,7 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
             .build()
             .unwrap();
 
-        permutate.call();
+        permutate.call(&mut rng);
 
         self.inner_permutate = Some(permutate);
         self
@@ -48,7 +50,7 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> fmt::Display for Permutate<'a, G
         if let Some(inner_permutate) = &self.inner_permutate {
             writeln!(f, "inner-{}", inner_permutate)?;
 
-            if let Some(best_chromosome) = &inner_permutate.best_chromosome {
+            if let Some(best_chromosome) = &inner_permutate.best_chromosome() {
                 let best_evolve_builder =
                     self.config.evolve_builder_for_chromosome(best_chromosome);
 

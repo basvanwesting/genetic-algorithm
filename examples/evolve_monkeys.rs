@@ -1,5 +1,5 @@
 use distance::hamming;
-use genetic_algorithm::evolve::prelude::*;
+use genetic_algorithm::strategy::evolve::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
@@ -51,7 +51,7 @@ fn main() {
 
     println!("{}", evolve);
 
-    if let Some(best_chromosome) = evolve.best_chromosome {
+    if let Some(best_chromosome) = evolve.best_chromosome() {
         if let Some(fitness_score) = best_chromosome.fitness_score {
             if fitness_score == 0 {
                 let string = String::from_iter(best_chromosome.genes);

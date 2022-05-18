@@ -1,6 +1,6 @@
 use criterion::*;
-use genetic_algorithm::evolve::prelude::*;
 use genetic_algorithm::fitness::placeholders::Zero;
+use genetic_algorithm::strategy::evolve::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use std::time::Duration;

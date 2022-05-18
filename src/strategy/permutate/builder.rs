@@ -1,6 +1,8 @@
+use super::Permutate;
 use crate::fitness::{Fitness, FitnessOrdering};
 use crate::genotype::PermutableGenotype;
-use crate::permutate::Permutate;
+use crate::strategy::Strategy;
+use rand::Rng;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -21,9 +23,9 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
     pub fn build(self) -> Result<Permutate<G, F>, TryFromBuilderError> {
         self.try_into()
     }
-    pub fn call(self) -> Result<Permutate<G, F>, TryFromBuilderError> {
+    pub fn call<R: Rng>(self, rng: &mut R) -> Result<Permutate<G, F>, TryFromBuilderError> {
         let mut permutate: Permutate<G, F> = self.try_into()?;
-        permutate.call();
+        permutate.call(rng);
         Ok(permutate)
     }
 

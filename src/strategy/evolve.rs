@@ -1,4 +1,4 @@
-//! A solution strategy for finding the best chromosomes.
+//! A solution strategy for finding the best chromosomes using evolution
 mod builder;
 pub mod prelude;
 
@@ -6,6 +6,7 @@ pub use self::builder::{
     Builder as EvolveBuilder, TryFromBuilderError as TryFromEvolveBuilderError,
 };
 
+use super::Strategy;
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
@@ -44,7 +45,7 @@ use std::ops::Range;
 ///
 /// Example:
 /// ```
-/// use genetic_algorithm::evolve::prelude::*;
+/// use genetic_algorithm::strategy::evolve::prelude::*;
 /// use genetic_algorithm::fitness::placeholders::CountTrue;
 ///
 /// // the search space
@@ -70,36 +71,32 @@ use std::ops::Range;
 ///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
-/// let best_chromosome = evolve.best_chromosome.unwrap();
+/// let best_chromosome = evolve.best_chromosome().unwrap();
 /// assert_eq!(best_chromosome.genes, vec![false; 100])
 /// ```
 pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> {
-    pub genotype: G,
-    pub mutate: M,
-    pub fitness: F,
-    pub crossover: S,
-    pub compete: C,
+    genotype: G,
+    mutate: M,
+    fitness: F,
+    crossover: S,
+    compete: C,
 
-    pub population_size: usize,
-    pub max_stale_generations: Option<usize>,
-    pub target_fitness_score: Option<FitnessValue>,
-    pub fitness_ordering: FitnessOrdering,
-    pub degeneration_range: Option<Range<f32>>,
+    population_size: usize,
+    max_stale_generations: Option<usize>,
+    target_fitness_score: Option<FitnessValue>,
+    fitness_ordering: FitnessOrdering,
+    degeneration_range: Option<Range<f32>>,
 
-    pub current_generation: usize,
+    current_generation: usize,
+    best_chromosome: Option<Chromosome<G>>,
+    degenerate: bool,
     pub best_generation: usize,
-    pub best_chromosome: Option<Chromosome<G>>,
-    pub degenerate: bool,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
-    Evolve<G, M, F, S, C>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Strategy<G>
+    for Evolve<G, M, F, S, C>
 {
-    pub fn builder() -> EvolveBuilder<G, M, F, S, C> {
-        EvolveBuilder::new()
-    }
-
-    pub fn call<R: Rng>(&mut self, rng: &mut R) {
+    fn call<R: Rng>(&mut self, rng: &mut R) {
         self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
@@ -121,6 +118,17 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             //self.report_round(population);
             self.current_generation += 1;
         }
+    }
+    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+        self.best_chromosome.clone()
+    }
+}
+
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+    Evolve<G, M, F, S, C>
+{
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C> {
+        EvolveBuilder::new()
     }
 
     fn update_best_chromosome(&mut self, population: &Population<G>) {
