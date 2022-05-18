@@ -99,6 +99,10 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
 * Does Fitness need an associated trait for Genotype? Can this be made more lightweight?
+* Add hill climbing strategy
+* Add simulated annealing strategy
+* Add MultiUniqueDiscrete
+* Add MultiBinary
 
 ## MAYBE
 * Add Tournament competition with duplicates (needs cloning)

@@ -1,3 +1,6 @@
+use criterion::*;
+use pprof::criterion::*;
+
 use distance::hamming;
 use genetic_algorithm::evolve::prelude::*;
 use rand::prelude::*;
@@ -25,7 +28,7 @@ impl Fitness for MonkeyFitness {
     }
 }
 
-fn main() {
+pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let genotype = DiscreteGenotype::builder()
         .with_genes_size(TARGET_TEXT.len())
@@ -44,20 +47,19 @@ fn main() {
         .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4));
 
-    let guard = pprof::ProfilerGuardBuilder::default()
-        .frequency(1000)
-        .blocklist(&["libc", "libgcc", "pthread", "vdso"])
-        .build()
-        .unwrap();
-
-    for _ in 0..10 {
-        let mut evolve = evolve_builder.clone().build().unwrap();
-        evolve.call(&mut rng);
-        println!("{}", evolve);
-    }
-
-    if let Ok(report) = guard.report().build() {
-        let file = std::fs::File::create("flamegraph_monkeys.svg").unwrap();
-        report.flamegraph(file).unwrap();
-    };
+    c.bench_function("profile_evolve_monkeys", |b| {
+        b.iter_batched(
+            || evolve_builder.clone().build().unwrap(),
+            |mut e| e.call(&mut rng),
+            BatchSize::SmallInput,
+        );
+    });
 }
+
+criterion_group! {
+    name = benches;
+    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
+    targets = criterion_benchmark
+}
+
+criterion_main!(benches);

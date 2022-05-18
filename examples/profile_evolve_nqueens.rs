@@ -1,3 +1,6 @@
+use criterion::*;
+use pprof::criterion::*;
+
 use genetic_algorithm::evolve::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -30,7 +33,7 @@ impl Fitness for NQueensFitness {
     }
 }
 
-fn main() {
+pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let genotype = UniqueDiscreteGenotype::builder()
         .with_allele_values((0..64).collect())
@@ -48,20 +51,19 @@ fn main() {
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteElite);
 
-    let guard = pprof::ProfilerGuardBuilder::default()
-        .frequency(1000)
-        .blocklist(&["libc", "libgcc", "pthread", "vdso"])
-        .build()
-        .unwrap();
-
-    for _ in 0..10 {
-        let mut evolve = evolve_builder.clone().build().unwrap();
-        evolve.call(&mut rng);
-        println!("{}", evolve);
-    }
-
-    if let Ok(report) = guard.report().build() {
-        let file = std::fs::File::create("flamegraph_nqueens.svg").unwrap();
-        report.flamegraph(file).unwrap();
-    };
+    c.bench_function("profile_evolve_nqueens", |b| {
+        b.iter_batched(
+            || evolve_builder.clone().build().unwrap(),
+            |mut e| e.call(&mut rng),
+            BatchSize::SmallInput,
+        );
+    });
 }
+
+criterion_group! {
+    name = benches;
+    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
+    targets = criterion_benchmark
+}
+
+criterion_main!(benches);
