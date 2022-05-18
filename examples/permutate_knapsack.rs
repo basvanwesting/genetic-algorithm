@@ -75,11 +75,15 @@ fn main() {
     println!("{}", genotype);
 
     let mut rng = rand::thread_rng();
-    let permutate = Permutate::builder()
+    let mut permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(fitness)
-        .call(&mut rng)
+        .build()
         .unwrap();
+
+    let now = std::time::Instant::now();
+    permutate.call(&mut rng);
+    let duration = now.elapsed();
 
     println!("{}", permutate);
 
@@ -94,4 +98,5 @@ fn main() {
             selected_items.collect::<Vec<&Item>>()
         );
     }
+    println!("{:?}", duration);
 }

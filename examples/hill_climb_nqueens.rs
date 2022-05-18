@@ -40,14 +40,18 @@ fn main() {
 
     println!("{}", genotype);
 
-    let hill_climb = HillClimb::builder()
+    let mut hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_max_stale_generations(10000)
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .call(&mut rng)
+        .build()
         .unwrap();
+
+    let now = std::time::Instant::now();
+    hill_climb.call(&mut rng);
+    let duration = now.elapsed();
 
     println!("{}", hill_climb);
 
@@ -66,4 +70,5 @@ fn main() {
             println!("Invalid solution with fitness score: None");
         }
     }
+    println!("{:?}", duration);
 }

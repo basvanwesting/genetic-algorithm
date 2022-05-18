@@ -36,7 +36,7 @@ fn main() {
 
     println!("{}", genotype);
 
-    let evolve = Evolve::builder()
+    let mut evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_population_size(20)
         .with_max_stale_generations(10000)
@@ -46,8 +46,12 @@ fn main() {
         .with_mutate(MutateOnce(0.3))
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteElite)
-        .call(&mut rng)
+        .build()
         .unwrap();
+
+    let now = std::time::Instant::now();
+    evolve.call(&mut rng);
+    let duration = now.elapsed();
 
     println!("{}", evolve);
 
@@ -63,4 +67,5 @@ fn main() {
             println!("Invalid solution with fitness score: None");
         }
     }
+    println!("{:?}", duration);
 }
