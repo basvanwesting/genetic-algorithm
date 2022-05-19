@@ -108,6 +108,8 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Does Fitness need an associated trait for Genotype? Can this be made more lightweight?
 * Add simulated annealing strategy
 * Set report_round behaviour through debug level in Evolve/HillClimb/Permutate
+* Redo degeneration_range, as it is tricky to configure. Depends on how fitness behaves (expected spread per mutation).
+  Maybe redo as degeneration_duration in term of generations to hold on to it, triggered by standard trigger when no variation in fitness score is left.
 
 ## MAYBE
 * Store age on chromosome?

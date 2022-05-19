@@ -34,12 +34,15 @@ use std::ops::Range;
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
 /// Optionally a degeneration_range can be set. When approacking a (local) optimum in the fitness
-/// score, the variation in the population goes down dramatically. This reduces the efficiency,
-/// but also has the risk of local optimum lock-in. Set this parameter to simulate a cambrian
+/// score, the variation in the population goes down dramatically. This reduces the efficiency, but
+/// also has the risk of local optimum lock-in. Set this parameter to simulate a cambrian
 /// explosion, where there is only mutation until the population diversity is large enough again.
 /// The controlling metric is fitness score standard deviation in the population. The degeneration
 /// has a hysteresis switch, where the degeneration is activated at the start bound of the range,
-/// and deactivated at the end bound of the range. A typical value is `(0.005..0.995)`
+/// and deactivated at the end bound of the range. The lower bound should be around zero or slightly
+/// above (meaning no variation left in population). The higher bound is more difficult to configure,
+/// as it depends on the fitness function behaviour (expected spread per mutation). So the higher
+/// bound is a case by case analysis.
 ///
 /// See [EvolveBuilder] for initialization options.
 ///
