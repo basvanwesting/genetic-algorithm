@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.1] - 2022-06-14
+### Documentation
+* Use SPDX license in Cargo.toml as the existing LICENSE file (MIT) was marked as non-standard by crates.io
+* Add Apache 2.0 license
+
 ## [0.4.0] - 2022-06-14
 ### Documentation
 * Note degeneration_range use as case by case configuration
