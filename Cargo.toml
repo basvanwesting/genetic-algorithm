@@ -8,7 +8,7 @@ description = "A genetic algorithm implementation"
 repository = "https://github.com/basvanwesting/genetic-algorithm.git"
 homepage = "https://github.com/basvanwesting/genetic-algorithm.git"
 documentation = "https://docs.rs/genetic_algorithm/latest/genetic_algorithm"
-license-file = "LICENSE"
+license = "MIT"
 keywords = ["genetic", "ga"]
 exclude = ["/.projections.json", "/performance.txt", "/refactor_script.rb", "/workspace.txt"]
 
