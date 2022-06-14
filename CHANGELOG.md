@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.4.0] - 2022-06-14
+### Documentation
+* Note degeneration_range use as case by case configuration
+
+### Added
+* Add `Strategy` trait and implement for `Evolve` and `Permutate`
+* Add `HillClimb` strategy for when crossover is impossible or inefficient
+* Add `MultiUniqueGenotype`
+* Add table_seating example (hill_climb and evolve)
+
+### Changed
+* Move `Evolve` & `Permutate` to `strategy` module
+* Remove `Genotype::is_unique` and `Crossover::allow_unique_genotype` methods
+  * Replace with `Genotype::crossover_indexes` and `Crossover::require_crossover_indexes`
+  * Replace with `Genotype::crossover_points` and `Crossover::require_crossover_points`
+* Rename `UniqueDiscreteGenotype` to `UniqueGenotype` as it is discrete by definition
+* Rename `PermutableGenotype::allele_values` to `PermutableGenotype::allele_values_for_chromosome_permutations` for clarity of purpose
+* Hide `Evolve` and `Permutate` internal fields (to align with `Strategy` trait)
 
 ## [0.3.1] - 2022-05-16
 ### Fixed
