@@ -133,26 +133,24 @@ fn call_continuous() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..1.0)
+        .with_allele_neighbour_range(-0.1..0.1)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_max_stale_generations(100)
-        .with_fitness(SumContinuousGenotype)
+        .with_fitness(SumContinuousGenotype(1e-3))
         .call(&mut rng)
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(8));
+    assert_eq!(best_chromosome.fitness_score, Some(9999));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![
-            0.9936614, 0.984962, 0.82800484, 0.6207409, 0.87795734, 0.59096897, 0.5511035,
-            0.9462583, 0.7603344, 0.9277451,
-        ]
+        vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
     );
 }
 

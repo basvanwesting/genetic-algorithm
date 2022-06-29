@@ -17,7 +17,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     group.bench_function("sum_continuous_genotype", |b| {
         let chromosome = Chromosome::<ContinuousGenotype>::new(vec![1.0; 1000]);
-        let mut sum = SumContinuousGenotype;
+        let mut sum = SumContinuousGenotype(1e-5);
         b.iter(|| sum.calculate_for_chromosome(black_box(&chromosome)))
     });
 

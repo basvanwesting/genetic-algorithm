@@ -52,19 +52,19 @@ fn sum_discrete_genotype() {
 fn sum_continuous_genotype() {
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![0.0, 0.0, 0.0]);
     assert_eq!(
-        SumContinuousGenotype.calculate_for_chromosome(&chromosome),
+        SumContinuousGenotype(1e-3).calculate_for_chromosome(&chromosome),
         Some(0)
     );
 
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![0.1, 0.2, 0.3]);
     assert_eq!(
-        SumContinuousGenotype.calculate_for_chromosome(&chromosome),
-        Some(0)
+        SumContinuousGenotype(1e-3).calculate_for_chromosome(&chromosome),
+        Some(600)
     );
 
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![1.4, 2.4, 3.4]);
     assert_eq!(
-        SumContinuousGenotype.calculate_for_chromosome(&chromosome),
-        Some(7)
+        SumContinuousGenotype(1e-3).calculate_for_chromosome(&chromosome),
+        Some(7200)
     );
 }

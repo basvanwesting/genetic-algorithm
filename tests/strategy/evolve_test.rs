@@ -244,7 +244,7 @@ fn call_continuous() {
         .with_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateRandom(0.1))
-        .with_fitness(SumContinuousGenotype)
+        .with_fitness(SumContinuousGenotype(1e-3))
         .with_crossover(CrossoverSingleGene(true))
         .with_compete(CompeteTournament(4))
         .call(&mut rng)
@@ -253,12 +253,12 @@ fn call_continuous() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    assert_eq!(best_chromosome.fitness_score, Some(9973));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
         vec![
-            0.99824846, 0.9817951, 0.86975336, 0.82838106, 0.98283255, 0.9091289, 0.9379811,
-            0.90698075, 0.6531458, 0.99518645
+            0.9993049, 0.99938405, 0.99551475, 0.9943992, 0.99443996, 0.9998164, 0.99971354,
+            0.9940715, 0.99899554, 0.9975089,
         ]
     );
 }

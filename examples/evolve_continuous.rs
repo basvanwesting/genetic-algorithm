@@ -21,7 +21,7 @@ fn main() {
         .with_target_fitness_score(99)
         //.with_degeneration_range(0.0001..1.0000)
         .with_mutate(MutateRandom(0.2))
-        .with_fitness(SumContinuousGenotype)
+        .with_fitness(SumContinuousGenotype(1e-5))
         .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
         .call(&mut rng)

@@ -2,8 +2,9 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{
-    BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiContinuousGenotype,
-    MultiDiscreteGenotype, MultiUniqueGenotype, UniqueGenotype,
+    BinaryGenotype, ContinuousGenotype, ContinuousGenotypeAllele, DiscreteGenotype, Genotype,
+    MultiContinuousGenotype, MultiContinuousGenotypeAllele, MultiDiscreteGenotype,
+    MultiUniqueGenotype, UniqueGenotype,
 };
 use std::marker::PhantomData;
 
@@ -38,9 +39,10 @@ impl Fitness for CountTrue {
     }
 }
 
+pub type SumContinuousGenotypePrecision = ContinuousGenotypeAllele;
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SumContinuousGenotype;
+pub struct SumContinuousGenotype(pub SumContinuousGenotypePrecision);
 impl Fitness for SumContinuousGenotype {
     type Genotype = ContinuousGenotype;
     fn calculate_for_chromosome(
@@ -51,6 +53,7 @@ impl Fitness for SumContinuousGenotype {
             chromosome
                 .genes
                 .iter()
+                .map(|v| v / self.0)
                 .sum::<<Self::Genotype as Genotype>::Allele>() as FitnessValue,
         )
     }
@@ -74,9 +77,10 @@ impl Fitness for SumDiscreteGenotype {
     }
 }
 
+pub type SumMultiContinuousGenotypePrecision = MultiContinuousGenotypeAllele;
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SumMultiContinuousGenotype;
+pub struct SumMultiContinuousGenotype(pub SumMultiContinuousGenotypePrecision);
 impl Fitness for SumMultiContinuousGenotype {
     type Genotype = MultiContinuousGenotype;
     fn calculate_for_chromosome(
@@ -87,6 +91,7 @@ impl Fitness for SumMultiContinuousGenotype {
             chromosome
                 .genes
                 .iter()
+                .map(|v| v / self.0)
                 .sum::<<Self::Genotype as Genotype>::Allele>() as FitnessValue,
         )
     }

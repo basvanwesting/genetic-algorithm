@@ -19,6 +19,9 @@ pub use self::multi_discrete::MultiDiscrete as MultiDiscreteGenotype;
 pub use self::multi_unique::MultiUnique as MultiUniqueGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
+pub use self::continuous::ContinuousAllele as ContinuousGenotypeAllele;
+pub use self::multi_continuous::ContinuousAllele as MultiContinuousGenotypeAllele;
+
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
