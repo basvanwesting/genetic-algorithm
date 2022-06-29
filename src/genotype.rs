@@ -43,6 +43,7 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         self.mutate_chromosome_random(chromosome, rng);
     }
+    /// all neighbouring mutations of the chromosome
     fn chromosome_neighbours(
         &self,
         _chromosome: &Chromosome<Self>,
@@ -50,6 +51,7 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
     ) -> Vec<Chromosome<Self>> {
         vec![]
     }
+    /// chromosome neighbours size for the all possible neighbouring mutation combinations
     fn chromosome_neighbours_size(&self) -> BigUint {
         BigUint::from(0u8)
     }

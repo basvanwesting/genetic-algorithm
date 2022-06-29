@@ -1,6 +1,8 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::Genotype;
 use crate::chromosome::Chromosome;
+use itertools::Itertools;
+use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
@@ -42,6 +44,7 @@ pub type ContinuousAllele = f32;
 pub struct MultiContinuous {
     genes_size: usize,
     pub allele_multi_range: Vec<Range<ContinuousAllele>>,
+    pub allele_multi_neighbour_range: Option<Vec<Range<ContinuousAllele>>>,
     gene_index_sampler: WeightedIndex<ContinuousAllele>,
     allele_value_samplers: Vec<Uniform<ContinuousAllele>>,
     allele_neighbour_samplers: Option<Vec<Uniform<ContinuousAllele>>>,
@@ -76,6 +79,7 @@ impl TryFrom<Builder<Self>> for MultiContinuous {
             Ok(Self {
                 genes_size: genes_size,
                 allele_multi_range: allele_multi_range.clone(),
+                allele_multi_neighbour_range: builder.allele_multi_neighbour_range.clone(),
                 gene_index_sampler: WeightedIndex::new(index_weights).unwrap(),
                 allele_value_samplers: allele_multi_range
                     .iter()
@@ -137,6 +141,62 @@ impl Genotype for MultiContinuous {
             chromosome.genes[index] = new_value;
         }
         chromosome.taint_fitness_score();
+    }
+    /// defaults to allele_multi_range if allele_multi_neighbour_range is not provided
+    fn chromosome_neighbours(
+        &self,
+        chromosome: &Chromosome<Self>,
+        scale: f32,
+    ) -> Vec<Chromosome<Self>> {
+        let ranges = self
+            .allele_multi_neighbour_range
+            .as_ref()
+            .unwrap_or(&self.allele_multi_range);
+
+        let range_diffs: Vec<Vec<ContinuousAllele>> = ranges
+            .iter()
+            .map(|range| vec![range.start * scale, 0.0, range.end * scale])
+            .map(|range| range.into_iter().dedup().collect())
+            .collect();
+
+        chromosome
+            .genes
+            .iter()
+            .zip(range_diffs.iter())
+            .map(|(gene, diffs)| diffs.iter().map(|d| *gene + *d))
+            .multi_cartesian_product()
+            .map(|genes| {
+                genes
+                    .into_iter()
+                    .zip(self.allele_multi_range.iter())
+                    .map(|(gene, range)| {
+                        if gene < range.start {
+                            range.start
+                        } else if gene > range.end {
+                            range.end
+                        } else {
+                            gene
+                        }
+                    })
+                    .collect()
+            })
+            .map(|genes| Chromosome::new(genes))
+            .collect()
+    }
+
+    fn chromosome_neighbours_size(&self) -> BigUint {
+        let ranges = self
+            .allele_multi_neighbour_range
+            .as_ref()
+            .unwrap_or(&self.allele_multi_range);
+
+        let range_diffs: Vec<Vec<ContinuousAllele>> = ranges
+            .iter()
+            .map(|range| vec![range.start, 0.0, range.end])
+            .map(|range| range.into_iter().dedup().collect())
+            .collect();
+
+        range_diffs.iter().map(|v| BigUint::from(v.len())).product()
     }
 }
 

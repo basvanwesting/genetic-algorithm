@@ -122,14 +122,30 @@ impl Genotype for Continuous {
             .as_ref()
             .unwrap_or(&self.allele_range);
 
-        let mut diffs = vec![range.start * scale, 0.0, range.end * scale];
-        diffs.dedup();
+        let diffs: Vec<ContinuousAllele> = vec![range.start * scale, 0.0, range.end * scale]
+            .into_iter()
+            .dedup()
+            .collect();
 
         chromosome
             .genes
             .iter()
             .map(|gene| diffs.iter().map(|d| *gene + *d))
             .multi_cartesian_product()
+            .map(|genes| {
+                genes
+                    .into_iter()
+                    .map(|gene| {
+                        if gene < self.allele_range.start {
+                            self.allele_range.start
+                        } else if gene > self.allele_range.end {
+                            self.allele_range.end
+                        } else {
+                            gene
+                        }
+                    })
+                    .collect()
+            })
             .map(|genes| Chromosome::new(genes))
             .collect()
     }
@@ -140,8 +156,10 @@ impl Genotype for Continuous {
             .as_ref()
             .unwrap_or(&self.allele_range);
 
-        let mut diffs = vec![range.start, 0.0, range.end];
-        diffs.dedup();
+        let diffs: Vec<ContinuousAllele> = vec![range.start, 0.0, range.end]
+            .into_iter()
+            .dedup()
+            .collect();
 
         BigUint::from(diffs.len()).pow(self.genes_size() as u32)
     }
