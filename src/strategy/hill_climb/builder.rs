@@ -1,4 +1,4 @@
-use super::HillClimb;
+use super::{HillClimb, RandomChromosomeProbability};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::strategy::Strategy;
@@ -15,6 +15,7 @@ pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub fitness_ordering: FitnessOrdering,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
+    pub random_chromosome_probability: Option<RandomChromosomeProbability>,
 }
 
 impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
@@ -65,6 +66,13 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.target_fitness_score = target_fitness_score_option;
         self
     }
+    pub fn with_random_chromosome_probability(
+        mut self,
+        random_chromosome_probability: RandomChromosomeProbability,
+    ) -> Self {
+        self.random_chromosome_probability = Some(random_chromosome_probability);
+        self
+    }
 }
 
 impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
@@ -75,6 +83,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
             fitness_ordering: FitnessOrdering::Maximize,
             max_stale_generations: None,
             target_fitness_score: None,
+            random_chromosome_probability: None,
         }
     }
 }

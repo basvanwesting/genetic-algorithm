@@ -29,8 +29,8 @@ impl Fitness for MILPFitness {
 fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = MultiContinuousGenotype::builder()
-        .with_allele_multi_range(vec![(-10.0..10.0), (0.0..10.0)])
-        //.with_allele_multi_neighbour_range(vec![(-1.0..1.0), (-1.0..1.0)])
+        .with_allele_multi_range(vec![(-100.0..100.0), (0.0..100.0)])
+        .with_allele_multi_neighbour_range(vec![(-1.0..1.0), (-1.0..1.0)])
         .build()
         .unwrap();
 
@@ -38,6 +38,7 @@ fn main() {
         .with_genotype(genotype)
         .with_max_stale_generations(100000)
         .with_target_fitness_score(0)
+        .with_random_chromosome_probability(0.2)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(MILPFitness);
 

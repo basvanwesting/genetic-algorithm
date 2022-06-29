@@ -99,7 +99,7 @@ fn call_binary_target_fitness_score_maximize() {
     assert_eq!(best_chromosome.fitness_score, Some(8));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, false, false, true, true, true, true]
+        vec![true, true, true, true, true, false, false, true, true, true]
     );
 }
 
