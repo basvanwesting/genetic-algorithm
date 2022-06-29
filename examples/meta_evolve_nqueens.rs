@@ -35,9 +35,9 @@ fn main() {
     let target_fitness_score_options = vec![Some(0)];
     let degeneration_range_options = vec![None, Some(0.001..0.999)];
     let mutates = vec![
-        MutateDispatch(Mutates::Once, 0.1),
-        MutateDispatch(Mutates::Once, 0.2),
-        MutateDispatch(Mutates::Once, 0.3),
+        MutateDispatch(Mutates::Once, 0.1, 0.0),
+        MutateDispatch(Mutates::Once, 0.2, 0.0),
+        MutateDispatch(Mutates::Once, 0.3, 0.0),
     ];
     let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
     let competes = vec![CompeteDispatch(Competes::Elite, 0)];

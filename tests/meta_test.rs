@@ -18,8 +18,8 @@ mod meta_tests {
         let max_stale_generations_options = vec![Some(10)];
         let degeneration_range_options = vec![None, Some(0.001..0.995)];
         let mutates = vec![
-            MutateDispatch(Mutates::Once, 0.1),
-            MutateDispatch(Mutates::Once, 0.2),
+            MutateDispatch(Mutates::Once, 0.1, 0.0),
+            MutateDispatch(Mutates::Once, 0.2, 0.0),
         ];
         let crossovers = vec![
             CrossoverDispatch(Crossovers::SingleGene, true),
