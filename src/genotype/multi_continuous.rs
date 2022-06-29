@@ -15,6 +15,9 @@ pub type ContinuousAllele = f32;
 /// own allele_range with a uniform probability. Duplicate allele values are allowed. Defaults to usize
 /// as item.
 ///
+/// Optionally an allele_multi_neighbour_range can be provided. When this is done the mutation is
+/// restricted to modify the existing value by a difference taken from allele_neighbour_range with a uniform probability.
+///
 /// # Example:
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, MultiContinuousGenotype};
@@ -26,6 +29,12 @@ pub type ContinuousAllele = f32;
 ///        (0.0..5.0),
 ///        (10.0..30.0),
 ///     ])
+///     .with_allele_multi_neighbour_range(vec![
+///        (-1.0..1.0),
+///        (-2.0..2.0),
+///        (-0.5..0.5),
+///        (-3.0..3.0),
+///     ]) // optional
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -35,6 +44,7 @@ pub struct MultiContinuous {
     pub allele_multi_range: Vec<Range<ContinuousAllele>>,
     gene_index_sampler: WeightedIndex<ContinuousAllele>,
     allele_value_samplers: Vec<Uniform<ContinuousAllele>>,
+    allele_neighbour_samplers: Option<Vec<Uniform<ContinuousAllele>>>,
     pub seed_genes: Option<Vec<ContinuousAllele>>,
 }
 
@@ -71,6 +81,16 @@ impl TryFrom<Builder<Self>> for MultiContinuous {
                     .iter()
                     .map(|allele_range| Uniform::from(allele_range.clone()))
                     .collect(),
+                allele_neighbour_samplers: builder.allele_multi_neighbour_range.map(
+                    |allele_multi_neighbour_range| {
+                        allele_multi_neighbour_range
+                            .iter()
+                            .map(|allele_neighbour_range| {
+                                Uniform::from(allele_neighbour_range.clone())
+                            })
+                            .collect()
+                    },
+                ),
                 seed_genes: builder.seed_genes,
             })
         }
@@ -95,7 +115,21 @@ impl Genotype for MultiContinuous {
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.allele_value_samplers[index].sample(rng);
+        if let Some(allele_neighbour_sampler) =
+            self.allele_neighbour_samplers.as_ref().map(|o| o[index])
+        {
+            let allele_multi_range = &self.allele_multi_range[index];
+            let new_value = chromosome.genes[index] + allele_neighbour_sampler.sample(rng);
+            if new_value < allele_multi_range.start {
+                chromosome.genes[index] = allele_multi_range.start;
+            } else if new_value > allele_multi_range.end {
+                chromosome.genes[index] = allele_multi_range.end;
+            } else {
+                chromosome.genes[index] = new_value;
+            }
+        } else {
+            chromosome.genes[index] = self.allele_value_samplers[index].sample(rng);
+        }
         chromosome.taint_fitness_score();
     }
 }

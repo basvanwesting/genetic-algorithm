@@ -59,7 +59,7 @@ impl TryFrom<Builder<Self>> for Continuous {
                 allele_value_sampler: Uniform::from(allele_range.clone()),
                 allele_neighbour_sampler: builder
                     .allele_neighbour_range
-                    .map(|o| Uniform::from(o.clone())),
+                    .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
                 seed_genes: builder.seed_genes,
             })
         }
