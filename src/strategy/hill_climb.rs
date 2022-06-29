@@ -10,19 +10,35 @@ use super::Strategy;
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
+use num::BigUint;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 use std::fmt;
 
 pub type RandomChromosomeProbability = f64;
+const STEEPEST_SCALE_BASE: f32 = 1.0;
+const STEEPEST_SCALE_FACTOR: f32 = 0.8;
 
-/// Optimize by repeatedly mutating a single chromosome using a neighbouring mutation.
-/// To avoid a local optimum, the random_chromosome_probability can be provided.
+#[derive(Clone, Debug)]
+pub enum HillClimbVariant {
+    RandomMutation,
+    NeighbourMutation,
+    Steepest,
+}
+
+/// There are 3 variants:
+/// * [HillClimbVariant::RandomMutation]: Optimize by repeatedly mutating a single chromosome using a random mutation.
+/// * [HillClimbVariant::NeighbourMutation]: Optimize by repeatedly mutating a single chromosome using a neighbouring mutation.
+/// * [HillClimbVariant::Steepest]: Optimize by comparing all direct neighbour chromsomes.
+///     * If there is a better chromosome than the current best the next round uses this chromosome as a starting point and the scale is reset
+///     * If there not, the scale is reduced by a factor to zoom in on the solution
 ///
 /// The fitness is calculated each round.
 /// * If the fitness is worse, the mutation is undone and the next round is started
 /// * If the fitness is equal or better, the mutated chromosome is taken for the next round.
 ///   It is important to update the best chromosome on equal fitness for diversity reasons
+///
+/// To avoid a local optimum, the random_chromosome_probability can be provided.
 ///
 /// See [HillClimbBuilder] for initialization options.
 ///
@@ -41,6 +57,7 @@ pub type RandomChromosomeProbability = f64;
 /// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
+///     .with_variant(HillClimbVariant::RandomMutation) // use the random mutation variant
 ///     .with_fitness(CountTrue)                 // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_target_fitness_score(0)            // goal is 0 times true in the best chromosome
@@ -56,6 +73,7 @@ pub type RandomChromosomeProbability = f64;
 pub struct HillClimb<G: Genotype, F: Fitness<Genotype = G>> {
     genotype: G,
     fitness: F,
+    variant: HillClimbVariant,
 
     fitness_ordering: FitnessOrdering,
     max_stale_generations: Option<usize>,
@@ -63,13 +81,16 @@ pub struct HillClimb<G: Genotype, F: Fitness<Genotype = G>> {
     random_chromosome_probability: RandomChromosomeProbability,
 
     current_generation: usize,
+    current_neighbour_scale: f32,
     best_chromosome: Option<Chromosome<G>>,
     pub best_generation: usize,
+    pub neighbours_size: BigUint,
 }
 
 impl<G: Genotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.current_generation = 0;
+        self.current_neighbour_scale = STEEPEST_SCALE_BASE;
         self.best_generation = 0;
         self.best_chromosome = Some(self.genotype.chromosome_factory(rng));
         let random_chromosome_sampler = Bernoulli::new(self.random_chromosome_probability).unwrap();
@@ -80,11 +101,45 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
                 self.fitness.call_for_chromosome(working_chromosome);
                 self.update_best_chromosome(working_chromosome);
             } else {
-                let working_chromosome = &mut self.best_chromosome().unwrap();
-                self.genotype
-                    .mutate_chromosome_neighbour(working_chromosome, rng);
-                self.fitness.call_for_chromosome(working_chromosome);
-                self.update_best_chromosome(working_chromosome);
+                match self.variant {
+                    HillClimbVariant::RandomMutation => {
+                        let working_chromosome = &mut self.best_chromosome().unwrap();
+                        self.genotype
+                            .mutate_chromosome_random(working_chromosome, rng);
+                        self.fitness.call_for_chromosome(working_chromosome);
+                        self.update_best_chromosome(working_chromosome);
+                    }
+                    HillClimbVariant::NeighbourMutation => {
+                        let working_chromosome = &mut self.best_chromosome().unwrap();
+                        self.genotype
+                            .mutate_chromosome_neighbour(working_chromosome, rng);
+                        self.fitness.call_for_chromosome(working_chromosome);
+                        self.update_best_chromosome(working_chromosome);
+                    }
+                    HillClimbVariant::Steepest => {
+                        let working_chromosome = &mut self.best_chromosome().unwrap();
+                        let mut working_chromosomes: Vec<Chromosome<G>> =
+                            self.genotype.chromosome_neighbours(
+                                working_chromosome,
+                                self.current_neighbour_scale,
+                            );
+                        self.current_neighbour_scale *= STEEPEST_SCALE_FACTOR;
+                        working_chromosomes
+                            .iter_mut()
+                            .for_each(|chromosome| self.fitness.call_for_chromosome(chromosome));
+
+                        let best_working_chromosome = match self.fitness_ordering {
+                            FitnessOrdering::Maximize => working_chromosomes.iter().max(),
+                            FitnessOrdering::Minimize => working_chromosomes
+                                .iter()
+                                .filter(|c| c.fitness_score.is_some())
+                                .min(),
+                        };
+                        self.update_best_chromosome(
+                            best_working_chromosome.unwrap_or(working_chromosome),
+                        );
+                    }
+                }
             }
 
             //self.report_round();
@@ -116,6 +171,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
                     (None, Some(_)) => {
                         self.best_chromosome = Some(contending_best_chromosome.clone());
                         self.best_generation = self.current_generation;
+                        self.current_neighbour_scale = STEEPEST_SCALE_BASE;
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match self.fitness_ordering {
@@ -124,6 +180,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     if contending_fitness_score > current_fitness_score {
                                         self.best_generation = self.current_generation;
+                                        self.current_neighbour_scale = STEEPEST_SCALE_BASE;
                                     }
                                 }
                             }
@@ -132,6 +189,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     if contending_fitness_score < current_fitness_score {
                                         self.best_generation = self.current_generation;
+                                        self.current_neighbour_scale = STEEPEST_SCALE_BASE;
                                     }
                                 }
                             }
@@ -202,10 +260,14 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<G, F>> for 
             ))
         } else {
             let genotype = builder.genotype.unwrap();
+            let neighbours_size = genotype.chromosome_neighbours_size();
 
             Ok(Self {
                 genotype: genotype,
                 fitness: builder.fitness.unwrap(),
+                variant: builder
+                    .variant
+                    .unwrap_or(HillClimbVariant::NeighbourMutation),
 
                 fitness_ordering: builder.fitness_ordering,
                 max_stale_generations: builder.max_stale_generations,
@@ -213,8 +275,10 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<G, F>> for 
                 random_chromosome_probability: builder.random_chromosome_probability.unwrap_or(0.0),
 
                 current_generation: 0,
+                current_neighbour_scale: STEEPEST_SCALE_BASE,
                 best_generation: 0,
                 best_chromosome: None,
+                neighbours_size: neighbours_size,
             })
         }
     }
@@ -233,6 +297,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> fmt::Display for HillClimb<G, F> {
         )?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
+        writeln!(f, "  neighbours_size: {}", self.neighbours_size)?;
 
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;

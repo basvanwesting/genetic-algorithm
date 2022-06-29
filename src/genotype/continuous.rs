@@ -173,7 +173,8 @@ impl fmt::Display for Continuous {
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(
             f,
-            "  chromosome_neighbours_size: self.chromosome_neighbours_size()"
+            "  chromosome_neighbours_size: {}",
+            self.chromosome_neighbours_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }

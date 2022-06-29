@@ -206,6 +206,11 @@ impl fmt::Display for MultiContinuous {
         writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  allele_multi_range: {:?}\n", self.allele_multi_range)?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
+        writeln!(
+            f,
+            "  chromosome_neighbours_size: {}",
+            self.chromosome_neighbours_size()
+        )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }

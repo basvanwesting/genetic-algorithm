@@ -1,4 +1,4 @@
-use super::{HillClimb, RandomChromosomeProbability};
+use super::{HillClimb, HillClimbVariant, RandomChromosomeProbability};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::strategy::Strategy;
@@ -11,6 +11,7 @@ pub struct TryFromBuilderError(pub &'static str);
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub genotype: Option<G>,
+    pub variant: Option<HillClimbVariant>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
     pub max_stale_generations: Option<usize>,
@@ -34,6 +35,10 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
 
     pub fn with_genotype(mut self, genotype: G) -> Self {
         self.genotype = Some(genotype);
+        self
+    }
+    pub fn with_variant(mut self, variant: HillClimbVariant) -> Self {
+        self.variant = Some(variant);
         self
     }
     pub fn with_fitness_ordering(mut self, fitness_ordering: FitnessOrdering) -> Self {
@@ -79,6 +84,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
     fn default() -> Self {
         Self {
             genotype: None,
+            variant: None,
             fitness: None,
             fitness_ordering: FitnessOrdering::Maximize,
             max_stale_generations: None,

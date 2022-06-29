@@ -9,6 +9,8 @@ pub use crate::genotype::{
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
-pub use crate::strategy::hill_climb::{HillClimb, HillClimbBuilder, TryFromHillClimbBuilderError};
+pub use crate::strategy::hill_climb::{
+    HillClimb, HillClimbBuilder, HillClimbVariant, TryFromHillClimbBuilderError,
+};
 #[doc(no_inline)]
 pub use crate::strategy::Strategy;
