@@ -87,7 +87,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
                 self.update_best_chromosome(working_chromosome);
             }
 
-            self.report_round();
+            //self.report_round();
             self.current_generation += 1;
         }
     }
