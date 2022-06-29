@@ -82,7 +82,7 @@ fn main() {
         .with_population_size(100)
         .with_max_stale_generations(100)
         .with_fitness(fitness)
-        .with_mutate(MutateOnce(0.2))
+        .with_mutate(MutateRandom(0.2))
         .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4))
         .build()

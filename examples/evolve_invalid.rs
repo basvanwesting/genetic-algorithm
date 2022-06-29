@@ -9,7 +9,7 @@ fn main() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_population_size(1000)
-        .with_mutate(MutateOnce(0.2))
+        .with_mutate(MutateRandom(0.2))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
         .with_compete(CompeteTournament(4))

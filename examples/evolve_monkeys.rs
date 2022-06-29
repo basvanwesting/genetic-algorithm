@@ -43,7 +43,7 @@ fn main() {
         .with_fitness(MonkeyFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_mutate(MutateOnce(0.3))
+        .with_mutate(MutateRandom(0.3))
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteElite)
         .build()

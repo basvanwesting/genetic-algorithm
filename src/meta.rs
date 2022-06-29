@@ -31,9 +31,9 @@
 //! let target_fitness_score_options = vec![Some(0)];
 //! let degeneration_range_options = vec![None, Some(0.001..0.995)];
 //! let mutates = vec![
-//!     MutateDispatch(Mutates::Once, 0.05, 0.0),
-//!     MutateDispatch(Mutates::Once, 0.2, 0.0),
-//!     MutateDispatch(Mutates::Once, 0.4, 0.0),
+//!     MutateDispatch(Mutates::Random, 0.05, 0.0),
+//!     MutateDispatch(Mutates::Random, 0.2, 0.0),
+//!     MutateDispatch(Mutates::Random, 0.4, 0.0),
 //! ];
 //! let crossovers = vec![
 //!     CrossoverDispatch(Crossovers::Clone, true),
@@ -86,7 +86,7 @@
 //! //   best_max_stale_generations: Some(10)
 //! //   best_target_fitness_score: Some(0)
 //! //   best_degeneration_range: None
-//! //   best_mutate: Some(MutateDispatch(Once, 0.4))
+//! //   best_mutate: Some(MutateDispatch(Random, 0.4))
 //! //   best_crossover: Some(CrossoverDispatch(Clone, true))
 //! //   best_compete: Some(CompeteDispatch(Elite, 0))
 //! ```

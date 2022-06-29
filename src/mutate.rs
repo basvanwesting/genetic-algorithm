@@ -6,8 +6,8 @@ mod random;
 mod random_or_neighbour;
 
 pub use self::neighbour::Neighbour as MutateNeighbour;
-pub use self::random::Random as MutateOnce; // backwards compatibility
 pub use self::random::Random as MutateRandom;
+pub use self::random::Random as MutateOnce; // backwards compatibility
 pub use self::random_or_neighbour::RandomOrNeighbour as MutateRandomOrNeighbour;
 
 use crate::genotype::Genotype;
@@ -20,7 +20,6 @@ pub trait Mutate: Clone + std::fmt::Debug {
 
 #[derive(Clone, Debug)]
 pub enum Mutates {
-    Once,
     Random,
     Neighbour,
     RandomOrNeighbour,
@@ -38,7 +37,6 @@ pub struct MutateDispatch(
 impl Mutate for MutateDispatch {
     fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R) {
         match self.0 {
-            Mutates::Once => MutateOnce(self.1).call(genotype, population, rng),
             Mutates::Random => MutateRandom(self.1).call(genotype, population, rng),
             Mutates::Neighbour => MutateNeighbour(self.2).call(genotype, population, rng),
             Mutates::RandomOrNeighbour => {

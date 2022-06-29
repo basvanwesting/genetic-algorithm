@@ -36,11 +36,11 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(1000)
-        .with_max_stale_generations(1000)
+        .with_population_size(100)
+        .with_max_stale_generations(10000)
         .with_target_fitness_score(0)
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_mutate(MutateOnce(0.4))
+        .with_mutate(MutateRandomOrNeighbour(0.1, 0.4))
         .with_fitness(MILPFitness)
         .with_crossover(CrossoverSingleGene(true))
         .with_compete(CompeteElite);
