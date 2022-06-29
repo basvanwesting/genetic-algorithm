@@ -1,6 +1,8 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::Genotype;
 use crate::chromosome::Chromosome;
+use itertools::Itertools;
+use num::BigUint;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
@@ -30,6 +32,7 @@ pub type ContinuousAllele = f32;
 pub struct Continuous {
     pub genes_size: usize,
     pub allele_range: Range<ContinuousAllele>,
+    pub allele_neighbour_range: Option<Range<ContinuousAllele>>,
     gene_index_sampler: Uniform<usize>,
     allele_value_sampler: Uniform<ContinuousAllele>,
     allele_neighbour_sampler: Option<Uniform<ContinuousAllele>>,
@@ -55,6 +58,7 @@ impl TryFrom<Builder<Self>> for Continuous {
             Ok(Self {
                 genes_size: genes_size,
                 allele_range: allele_range.clone(),
+                allele_neighbour_range: builder.allele_neighbour_range.clone(),
                 gene_index_sampler: Uniform::from(0..genes_size),
                 allele_value_sampler: Uniform::from(allele_range.clone()),
                 allele_neighbour_sampler: builder
@@ -106,6 +110,41 @@ impl Genotype for Continuous {
         }
         chromosome.taint_fitness_score();
     }
+
+    /// defaults to allele_range if allele_neighbour_range is not provided
+    fn chromosome_neighbours(
+        &self,
+        chromosome: &Chromosome<Self>,
+        scale: f32,
+    ) -> Vec<Chromosome<Self>> {
+        let range = self
+            .allele_neighbour_range
+            .as_ref()
+            .unwrap_or(&self.allele_range);
+
+        let mut diffs = vec![range.start * scale, 0.0, range.end * scale];
+        diffs.dedup();
+
+        chromosome
+            .genes
+            .iter()
+            .map(|gene| diffs.iter().map(|d| *gene + *d))
+            .multi_cartesian_product()
+            .map(|genes| Chromosome::new(genes))
+            .collect()
+    }
+
+    fn chromosome_neighbours_size(&self) -> BigUint {
+        let range = self
+            .allele_neighbour_range
+            .as_ref()
+            .unwrap_or(&self.allele_range);
+
+        let mut diffs = vec![range.start, 0.0, range.end];
+        diffs.dedup();
+
+        BigUint::from(diffs.len()).pow(self.genes_size() as u32)
+    }
 }
 
 impl fmt::Display for Continuous {
@@ -114,6 +153,10 @@ impl fmt::Display for Continuous {
         writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  allele_range: {:?}", self.allele_range)?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
+        writeln!(
+            f,
+            "  chromosome_neighbours_size: self.chromosome_neighbours_size()"
+        )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }

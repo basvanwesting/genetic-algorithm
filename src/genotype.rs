@@ -43,6 +43,17 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         self.mutate_chromosome_random(chromosome, rng);
     }
+    fn chromosome_neighbours(
+        &self,
+        _chromosome: &Chromosome<Self>,
+        _scale: f32,
+    ) -> Vec<Chromosome<Self>> {
+        vec![]
+    }
+    fn chromosome_neighbours_size(&self) -> BigUint {
+        BigUint::from(0u8)
+    }
+
     /// to guard against invalid crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
     fn crossover_points(&self) -> Vec<usize> {
