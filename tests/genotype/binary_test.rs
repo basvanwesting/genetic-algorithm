@@ -16,7 +16,7 @@ fn general() {
         vec![true, true, false, true, false, false, false, true, true, false]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![true, true, true, true, false, false, false, true, true, false]

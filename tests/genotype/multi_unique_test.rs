@@ -16,13 +16,13 @@ fn general() {
         vec![0, 1, 6, 5, 4, 7, 1, 2, 0]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 7, 4, 5, 1, 2, 0]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 7, 4, 5, 2, 1, 0]

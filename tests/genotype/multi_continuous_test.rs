@@ -16,7 +16,7 @@ fn general_random() {
         vec![0.447325, 2.1957011, 19.798801]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0.447325, 2.1957011, 18.970789]
@@ -41,7 +41,7 @@ fn general_neighbour() {
         vec![0.447325, 2.1957011, 19.798801]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0.447325, 2.1957011, 20.0]

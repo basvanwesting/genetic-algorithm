@@ -101,7 +101,7 @@ impl<T: Clone + std::fmt::Debug> Genotype for Discrete<T> {
         }
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] =
             self.allele_values[self.allele_value_index_sampler.sample(rng)].clone();

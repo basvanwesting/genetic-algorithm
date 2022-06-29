@@ -143,7 +143,7 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiDiscrete<T> {
         }
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = self.allele_multi_values[index]
             [self.allele_values_index_samplers[index].sample(rng)]

@@ -30,7 +30,7 @@ fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = MultiContinuousGenotype::builder()
         .with_allele_multi_range(vec![(-10.0..10.0), (0.0..10.0)])
-        .with_allele_multi_neighbour_range(vec![(-1.0..1.0), (-1.0..1.0)])
+        //.with_allele_multi_neighbour_range(vec![(-1.0..1.0), (-1.0..1.0)])
         .build()
         .unwrap();
 

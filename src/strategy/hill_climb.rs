@@ -68,7 +68,8 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
 
         while !self.is_finished() {
             let working_chromosome = &mut self.best_chromosome().unwrap();
-            self.genotype.mutate_chromosome(working_chromosome, rng);
+            self.genotype
+                .mutate_chromosome_random(working_chromosome, rng);
             self.fitness.call_for_chromosome(working_chromosome);
             self.update_best_chromosome(working_chromosome);
             //self.report_round(working_chromosome);

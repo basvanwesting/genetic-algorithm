@@ -61,7 +61,7 @@ impl Genotype for Binary {
         }
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = !chromosome.genes[index];
         chromosome.taint_fitness_score();

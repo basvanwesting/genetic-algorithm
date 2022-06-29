@@ -138,7 +138,7 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiUnique<T> {
         }
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.allele_values_index_sampler.sample(rng);
         let index_offset: usize = self.allele_values_index_offsets[index];
         let index1 = index_offset + self.allele_values_index_samplers[index].sample(rng);

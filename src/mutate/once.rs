@@ -13,7 +13,7 @@ impl Mutate for Once {
         let bool_sampler = Bernoulli::new(self.0 as f64).unwrap();
         for chromosome in &mut population.chromosomes {
             if bool_sampler.sample(rng) {
-                genotype.mutate_chromosome(chromosome, rng);
+                genotype.mutate_chromosome_random(chromosome, rng);
             }
         }
     }

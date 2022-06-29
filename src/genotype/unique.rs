@@ -98,7 +98,7 @@ impl<T: Clone + std::fmt::Debug> Genotype for Unique<T> {
         }
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index1 = self.gene_index_sampler.sample(rng);
         let index2 = self.gene_index_sampler.sample(rng);
         chromosome.genes.swap(index1, index2);

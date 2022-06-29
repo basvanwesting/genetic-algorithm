@@ -14,7 +14,7 @@ fn general() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 4]);
 
-    genotype.mutate_chromosome(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 3]);
 
     assert_eq!(

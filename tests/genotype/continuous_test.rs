@@ -20,7 +20,7 @@ fn general_random() {
         ]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![
@@ -55,7 +55,7 @@ fn general_neighbour() {
         ]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![

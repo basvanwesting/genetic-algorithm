@@ -82,7 +82,7 @@ impl Genotype for Continuous {
         }
     }
 
-    fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
         if let Some(allele_neighbour_sampler) = self.allele_neighbour_sampler {
             let new_value = chromosome.genes[index] + allele_neighbour_sampler.sample(rng);
