@@ -84,17 +84,25 @@ impl Genotype for Continuous {
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        if let Some(allele_neighbour_sampler) = self.allele_neighbour_sampler {
-            let new_value = chromosome.genes[index] + allele_neighbour_sampler.sample(rng);
-            if new_value < self.allele_range.start {
-                chromosome.genes[index] = self.allele_range.start;
-            } else if new_value > self.allele_range.end {
-                chromosome.genes[index] = self.allele_range.end;
-            } else {
-                chromosome.genes[index] = new_value;
-            }
+        chromosome.genes[index] = self.allele_value_sampler.sample(rng);
+        chromosome.taint_fitness_score();
+    }
+
+    /// defaults to allele_range if allele_neighbour_range is not provided
+    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+        let sampler = self
+            .allele_neighbour_sampler
+            .as_ref()
+            .unwrap_or(&self.allele_value_sampler);
+
+        let index = self.gene_index_sampler.sample(rng);
+        let new_value = chromosome.genes[index] + sampler.sample(rng);
+        if new_value < self.allele_range.start {
+            chromosome.genes[index] = self.allele_range.start;
+        } else if new_value > self.allele_range.end {
+            chromosome.genes[index] = self.allele_range.end;
         } else {
-            chromosome.genes[index] = self.allele_value_sampler.sample(rng);
+            chromosome.genes[index] = new_value;
         }
         chromosome.taint_fitness_score();
     }

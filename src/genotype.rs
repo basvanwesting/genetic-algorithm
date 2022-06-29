@@ -34,7 +34,12 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
     fn genes_size(&self) -> usize;
     /// a random chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
+    /// a random mutation of the chromosome
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
+    /// a neighbouring mutation of the chromosome (defaults to random mutation if not implemented)
+    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+        self.mutate_chromosome_random(chromosome, rng);
+    }
     /// to guard against invalid crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
     fn crossover_points(&self) -> Vec<usize> {

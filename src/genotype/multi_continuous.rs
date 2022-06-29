@@ -115,20 +115,26 @@ impl Genotype for MultiContinuous {
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        if let Some(allele_neighbour_sampler) =
-            self.allele_neighbour_samplers.as_ref().map(|o| o[index])
-        {
-            let allele_multi_range = &self.allele_multi_range[index];
-            let new_value = chromosome.genes[index] + allele_neighbour_sampler.sample(rng);
-            if new_value < allele_multi_range.start {
-                chromosome.genes[index] = allele_multi_range.start;
-            } else if new_value > allele_multi_range.end {
-                chromosome.genes[index] = allele_multi_range.end;
-            } else {
-                chromosome.genes[index] = new_value;
-            }
+        chromosome.genes[index] = self.allele_value_samplers[index].sample(rng);
+        chromosome.taint_fitness_score();
+    }
+
+    /// defaults to allele_multi_range if allele_multi_neighbour_range is not provided
+    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+        let index = self.gene_index_sampler.sample(rng);
+        let sampler = self
+            .allele_neighbour_samplers
+            .as_ref()
+            .unwrap_or(&self.allele_value_samplers)[index];
+
+        let allele_multi_range = &self.allele_multi_range[index];
+        let new_value = chromosome.genes[index] + sampler.sample(rng);
+        if new_value < allele_multi_range.start {
+            chromosome.genes[index] = allele_multi_range.start;
+        } else if new_value > allele_multi_range.end {
+            chromosome.genes[index] = allele_multi_range.end;
         } else {
-            chromosome.genes[index] = self.allele_value_samplers[index].sample(rng);
+            chromosome.genes[index] = new_value;
         }
         chromosome.taint_fitness_score();
     }
