@@ -17,6 +17,7 @@ pub struct Builder<G: Genotype> {
     pub allele_multi_values: Option<Vec<Vec<<G as Genotype>::Allele>>>,
     pub allele_range: Option<Range<<G as Genotype>::Allele>>,
     pub allele_multi_range: Option<Vec<Range<<G as Genotype>::Allele>>>,
+    pub allele_neighbour_range: Option<Range<<G as Genotype>::Allele>>,
     pub seed_genes: Option<Vec<<G as Genotype>::Allele>>,
 }
 
@@ -56,6 +57,14 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    pub fn with_allele_neighbour_range(
+        mut self,
+        allele_neighbour_range: Range<<G as Genotype>::Allele>,
+    ) -> Self {
+        self.allele_neighbour_range = Some(allele_neighbour_range);
+        self
+    }
+
     pub fn with_seed_genes(mut self, seed_genes: Vec<<G as Genotype>::Allele>) -> Self {
         self.seed_genes = Some(seed_genes);
         self
@@ -74,6 +83,7 @@ impl<G: Genotype> Default for Builder<G> {
             allele_multi_values: None,
             allele_range: None,
             allele_multi_range: None,
+            allele_neighbour_range: None,
             seed_genes: None,
         }
     }

@@ -12,6 +12,9 @@ pub type ContinuousAllele = f32;
 /// gene gets a value from the allele_range with a uniform probability. Each gene has an equal probability
 /// of mutating. If a gene mutates, a new value is taken from allele_range with a uniform probability.
 ///
+/// Optionally an allele_neighbour_range can be provided. When this is done the mutation is
+/// restricted to modify the existing value by a difference taken from allele_neighbour_range with a uniform probability.
+///
 /// # Example:
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, ContinuousGenotype};
@@ -19,6 +22,7 @@ pub type ContinuousAllele = f32;
 /// let genotype = ContinuousGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..1.0)
+///     .with_allele_neighbour_range(-0.1..0.1) // optional
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -28,6 +32,7 @@ pub struct Continuous {
     pub allele_range: Range<ContinuousAllele>,
     gene_index_sampler: Uniform<usize>,
     allele_value_sampler: Uniform<ContinuousAllele>,
+    allele_neighbour_sampler: Option<Uniform<ContinuousAllele>>,
     pub seed_genes: Option<Vec<ContinuousAllele>>,
 }
 
@@ -52,6 +57,9 @@ impl TryFrom<Builder<Self>> for Continuous {
                 allele_range: allele_range.clone(),
                 gene_index_sampler: Uniform::from(0..genes_size),
                 allele_value_sampler: Uniform::from(allele_range.clone()),
+                allele_neighbour_sampler: builder
+                    .allele_neighbour_range
+                    .map(|o| Uniform::from(o.clone())),
                 seed_genes: builder.seed_genes,
             })
         }
@@ -76,7 +84,18 @@ impl Genotype for Continuous {
 
     fn mutate_chromosome<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.allele_value_sampler.sample(rng);
+        if let Some(allele_neighbour_sampler) = self.allele_neighbour_sampler {
+            let new_value = chromosome.genes[index] + allele_neighbour_sampler.sample(rng);
+            if new_value < self.allele_range.start {
+                chromosome.genes[index] = self.allele_range.start;
+            } else if new_value > self.allele_range.end {
+                chromosome.genes[index] = self.allele_range.end;
+            } else {
+                chromosome.genes[index] = new_value;
+            }
+        } else {
+            chromosome.genes[index] = self.allele_value_sampler.sample(rng);
+        }
         chromosome.taint_fitness_score();
     }
 }

@@ -8,6 +8,7 @@ fn main() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..1.0)
+        .with_allele_neighbour_range(-0.1..0.1)
         .build()
         .unwrap();
 
@@ -17,8 +18,8 @@ fn main() {
         .with_genotype(genotype)
         .with_population_size(1000)
         .with_max_stale_generations(10000)
-        .with_target_fitness_score(95)
-        .with_degeneration_range(0.0001..1.0000)
+        .with_target_fitness_score(99)
+        //.with_degeneration_range(0.0001..1.0000)
         .with_mutate(MutateOnce(0.2))
         .with_fitness(SumContinuousGenotype)
         .with_crossover(CrossoverUniform(true))
