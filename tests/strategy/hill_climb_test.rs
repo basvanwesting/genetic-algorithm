@@ -99,7 +99,7 @@ fn call_binary_target_fitness_score_maximize() {
     assert_eq!(best_chromosome.fitness_score, Some(8));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, false, false, true, true, true, true]
+        vec![true, true, true, true, true, false, false, true, true, true]
     );
 }
 
@@ -147,10 +147,10 @@ fn call_continuous() {
     let best_chromosome = hill_climb.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9839));
+    assert_eq!(best_chromosome.fitness_score, Some(9999));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![1.0, 0.9007022, 1.0, 1.0, 1.0, 1.0, 0.9388701, 1.0, 1.0, 1.0]
+        vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0]
     );
 }
 
