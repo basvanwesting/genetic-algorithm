@@ -146,6 +146,47 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiUnique<T> {
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
+
+    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+        self.mutate_chromosome_random(chromosome, rng);
+    }
+
+    fn chromosome_neighbours(
+        &self,
+        chromosome: &Chromosome<Self>,
+        _scale: f32,
+    ) -> Vec<Chromosome<Self>> {
+        self.allele_values_sizes
+            .iter()
+            .enumerate()
+            .flat_map(|(index, allele_value_size)| {
+                let index_offset: usize = self.allele_values_index_offsets[index];
+
+                (0..*allele_value_size)
+                    .combinations(2)
+                    .map(|pair| {
+                        let mut new_genes = chromosome.genes.clone();
+                        new_genes.swap(index_offset + pair[0], index_offset + pair[1]);
+                        new_genes
+                    })
+                    .map(|genes| Chromosome::new(genes))
+                    .collect::<Vec<Chromosome<Self>>>()
+            })
+            .collect::<Vec<Chromosome<Self>>>()
+    }
+
+    fn chromosome_neighbours_size(&self) -> BigUint {
+        self.allele_values_sizes
+            .iter()
+            .filter(|allele_value_size| **allele_value_size > 1)
+            .map(|allele_value_size| {
+                let n = BigUint::from(*allele_value_size);
+                let k = BigUint::from(2usize);
+
+                n.factorial() / (k.factorial() * (n - k).factorial())
+            })
+            .sum()
+    }
 }
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
@@ -190,6 +231,11 @@ impl<T: Clone + std::fmt::Debug> fmt::Display for MultiUnique<T> {
             f,
             "  chromosome_permutations_size: {}",
             self.chromosome_permutations_size()
+        )?;
+        writeln!(
+            f,
+            "  chromosome_neighbours_size: {}",
+            self.chromosome_neighbours_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }

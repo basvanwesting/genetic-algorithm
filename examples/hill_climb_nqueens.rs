@@ -42,6 +42,7 @@ fn main() {
 
     let mut hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::RandomMutation)
         .with_max_stale_generations(10000)
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)

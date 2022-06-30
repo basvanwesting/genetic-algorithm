@@ -110,3 +110,31 @@ fn chromosome_permutations_genes_size_huge() {
         BigUint::parse_bytes(b"2283380023591730815784976384000000000000", 10).unwrap()
     );
 }
+
+#[test]
+fn chromosome_neighbours_4() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_multi_values(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1]])
+        .build()
+        .unwrap();
+
+    let chromosome = genotype.chromosome_factory(&mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![0, 0, 1, 2, 0, 1, 0, 1]
+    );
+
+    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(5u32));
+    let chromosomes = genotype.chromosome_neighbours(&chromosome, 1.0);
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![0, 1, 0, 2, 0, 1, 0, 1],
+            vec![0, 0, 1, 0, 2, 1, 0, 1],
+            vec![0, 0, 1, 1, 0, 2, 0, 1],
+            vec![0, 0, 1, 2, 1, 0, 0, 1],
+            vec![0, 0, 1, 2, 0, 1, 1, 0]
+        ]
+    );
+}

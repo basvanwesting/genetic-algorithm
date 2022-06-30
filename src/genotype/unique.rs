@@ -165,6 +165,11 @@ impl<T: Clone + std::fmt::Debug> fmt::Display for Unique<T> {
             "  chromosome_permutations_size: {}",
             self.chromosome_permutations_size()
         )?;
+        writeln!(
+            f,
+            "  chromosome_neighbours_size: {}",
+            self.chromosome_neighbours_size()
+        )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
 }
