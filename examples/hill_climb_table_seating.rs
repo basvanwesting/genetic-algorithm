@@ -86,7 +86,7 @@ fn main() {
 
     let mut hill_climb = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::RandomMutation)
+        .with_variant(HillClimbVariant::Stochastic)
         .with_max_stale_generations(10000)
         .with_fitness(TableSeatingFitness(
             hosts_with_table_sizes_per_round.clone(),

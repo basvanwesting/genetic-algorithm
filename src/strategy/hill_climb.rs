@@ -21,16 +21,17 @@ const STEEPEST_SCALE_FACTOR: f32 = 0.8;
 
 #[derive(Clone, Debug)]
 pub enum HillClimbVariant {
-    RandomMutation,
-    NeighbourMutation,
+    Stochastic,
     Steepest,
 }
 
-/// There are 3 variants:
-/// * [HillClimbVariant::RandomMutation]: Optimize by repeatedly mutating a single chromosome using a random mutation.
-/// * [HillClimbVariant::NeighbourMutation]: Optimize by repeatedly mutating a single chromosome using a neighbouring mutation.
-/// * [HillClimbVariant::Steepest]: Optimize by comparing all direct neighbour chromsomes.
-///     * If there is a better chromosome than the current best the next round uses this chromosome as a starting point and the scale is reset
+/// There are 2 variants:
+/// * [HillClimbVariant::Stochastic]: does not examine all neighbors before deciding how to move.
+///   Rather, it selects a neighbor at random, and decides (based on the amount of improvement in
+///   that neighbor) whether to move to that neighbor or to examine another
+/// * [HillClimbVariant::Steepest]: all neighbours are compared and the closest to the solution is chosen
+///     * If there is a better chromosome than the current best the next round uses this chromosome as a starting
+///       point and the scale is reset
 ///     * If there not, the scale is reduced by a factor to zoom in on the solution
 ///
 /// The fitness is calculated each round.
@@ -59,7 +60,7 @@ pub enum HillClimbVariant {
 /// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
-///     .with_variant(HillClimbVariant::RandomMutation) // use the random mutation variant
+///     .with_variant(HillClimbVariant::Stochastic) // use a random neighbouring mutation variant
 ///     .with_fitness(CountTrue)                 // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_target_fitness_score(0)            // goal is 0 times true in the best chromosome
@@ -105,14 +106,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                 self.update_best_chromosome(working_chromosome);
             } else {
                 match self.variant {
-                    HillClimbVariant::RandomMutation => {
-                        let working_chromosome = &mut self.best_chromosome().unwrap();
-                        self.genotype
-                            .mutate_chromosome_random(working_chromosome, rng);
-                        self.fitness.call_for_chromosome(working_chromosome);
-                        self.update_best_chromosome(working_chromosome);
-                    }
-                    HillClimbVariant::NeighbourMutation => {
+                    HillClimbVariant::Stochastic => {
                         let working_chromosome = &mut self.best_chromosome().unwrap();
                         self.genotype
                             .mutate_chromosome_neighbour(working_chromosome, rng);
@@ -270,9 +264,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
             Ok(Self {
                 genotype: genotype,
                 fitness: builder.fitness.unwrap(),
-                variant: builder
-                    .variant
-                    .unwrap_or(HillClimbVariant::NeighbourMutation),
+                variant: builder.variant.unwrap_or(HillClimbVariant::Stochastic),
 
                 fitness_ordering: builder.fitness_ordering,
                 max_stale_generations: builder.max_stale_generations,
