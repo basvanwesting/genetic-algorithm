@@ -48,11 +48,13 @@ pub enum HillClimbVariant {
 /// Example:
 /// ```
 /// use genetic_algorithm::strategy::hill_climb::prelude::*;
-/// use genetic_algorithm::fitness::placeholders::CountTrue;
+/// use genetic_algorithm::fitness::placeholders::SumContinuousGenotype;
 ///
 /// // the search space
-/// let genotype = BinaryGenotype::builder() // boolean alleles
-///     .with_genes_size(16)                 // 16 genes per chromosome
+/// let genotype = ContinuousGenotype::builder() // f32 alleles
+///     .with_genes_size(16)                     // 16 genes
+///     .with_allele_range(0.0..1.0)             // values betwee 0.0 and 1.0
+///     .with_allele_neighbour_range(-0.1..0.1)  // neighbouring step size or 0.1 in both directions
 ///     .build()
 ///     .unwrap();
 ///
@@ -61,17 +63,17 @@ pub enum HillClimbVariant {
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
 ///     .with_variant(HillClimbVariant::Stochastic) // use a random neighbouring mutation variant
-///     .with_fitness(CountTrue)                 // count the number of true values in the chromosomes
-///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .with_target_fitness_score(0)            // goal is 0 times true in the best chromosome
-///     .with_max_stale_generations(1000)        // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_random_chromosome_probability(0.1) // try a random chromosome with probability 0.1 to avoid local optimum
+///     .with_fitness(SumContinuousGenotype(1e-5))  // sum the gene values of the chromosomes with precision 0.00001
+///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
+///     .with_target_fitness_score(0)              // goal is 16 times <= 0.00001 in the best chromosome
+///     .with_max_stale_generations(1000)          // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_random_chromosome_probability(0.1)   // try a random chromosome with probability 0.1 to avoid local optimum
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
 /// let best_chromosome = hill_climb.best_chromosome().unwrap();
-/// assert_eq!(best_chromosome.genes, vec![false; 16])
+/// assert_eq!(best_chromosome.genes, vec![0.0; 16])
 /// ```
 pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     genotype: G,
