@@ -125,16 +125,11 @@ impl Genotype for MultiContinuous {
 }
 
 impl IncrementalGenotype for MultiContinuous {
-    /// defaults to allele_multi_range if allele_multi_neighbour_range is not provided
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        let sampler = self
-            .allele_neighbour_samplers
-            .as_ref()
-            .unwrap_or(&self.allele_value_samplers)[index];
-
         let allele_multi_range = &self.allele_multi_range[index];
-        let new_value = chromosome.genes[index] + sampler.sample(rng);
+        let new_value = chromosome.genes[index]
+            + self.allele_neighbour_samplers.as_ref().unwrap()[index].sample(rng);
         if new_value < allele_multi_range.start {
             chromosome.genes[index] = allele_multi_range.start;
         } else if new_value > allele_multi_range.end {
@@ -144,18 +139,16 @@ impl IncrementalGenotype for MultiContinuous {
         }
         chromosome.taint_fitness_score();
     }
-    /// defaults to allele_multi_range if allele_multi_neighbour_range is not provided
+
     fn chromosome_neighbours(
         &self,
         chromosome: &Chromosome<Self>,
         scale: f32,
     ) -> Vec<Chromosome<Self>> {
-        let ranges = self
+        let range_diffs: Vec<Vec<ContinuousAllele>> = self
             .allele_multi_neighbour_range
             .as_ref()
-            .unwrap_or(&self.allele_multi_range);
-
-        let range_diffs: Vec<Vec<ContinuousAllele>> = ranges
+            .unwrap()
             .iter()
             .map(|range| vec![range.start * scale, range.end * scale])
             .map(|range| {
@@ -188,12 +181,10 @@ impl IncrementalGenotype for MultiContinuous {
     }
 
     fn chromosome_neighbours_size(&self) -> BigUint {
-        let ranges = self
+        let range_diffs: Vec<Vec<ContinuousAllele>> = self
             .allele_multi_neighbour_range
             .as_ref()
-            .unwrap_or(&self.allele_multi_range);
-
-        let range_diffs: Vec<Vec<ContinuousAllele>> = ranges
+            .unwrap()
             .iter()
             .map(|range| vec![range.start, range.end])
             .map(|range| {

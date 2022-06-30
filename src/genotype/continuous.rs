@@ -94,15 +94,10 @@ impl Genotype for Continuous {
 }
 
 impl IncrementalGenotype for Continuous {
-    /// defaults to allele_range if allele_neighbour_range is not provided
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
-        let sampler = self
-            .allele_neighbour_sampler
-            .as_ref()
-            .unwrap_or(&self.allele_value_sampler);
-
         let index = self.gene_index_sampler.sample(rng);
-        let new_value = chromosome.genes[index] + sampler.sample(rng);
+        let new_value =
+            chromosome.genes[index] + self.allele_neighbour_sampler.as_ref().unwrap().sample(rng);
         if new_value < self.allele_range.start {
             chromosome.genes[index] = self.allele_range.start;
         } else if new_value > self.allele_range.end {
@@ -113,22 +108,19 @@ impl IncrementalGenotype for Continuous {
         chromosome.taint_fitness_score();
     }
 
-    /// defaults to allele_range if allele_neighbour_range is not provided
     fn chromosome_neighbours(
         &self,
         chromosome: &Chromosome<Self>,
         scale: f32,
     ) -> Vec<Chromosome<Self>> {
-        let range = self
-            .allele_neighbour_range
-            .as_ref()
-            .unwrap_or(&self.allele_range);
-
-        let diffs: Vec<ContinuousAllele> = vec![range.start * scale, range.end * scale]
-            .into_iter()
-            .dedup()
-            .filter(|diff| *diff != 0.0)
-            .collect();
+        let diffs: Vec<ContinuousAllele> = vec![
+            self.allele_neighbour_range.as_ref().unwrap().start * scale,
+            self.allele_neighbour_range.as_ref().unwrap().end * scale,
+        ]
+        .into_iter()
+        .dedup()
+        .filter(|diff| *diff != 0.0)
+        .collect();
 
         (0..self.genes_size())
             .flat_map(|index| {
@@ -149,16 +141,14 @@ impl IncrementalGenotype for Continuous {
     }
 
     fn chromosome_neighbours_size(&self) -> BigUint {
-        let range = self
-            .allele_neighbour_range
-            .as_ref()
-            .unwrap_or(&self.allele_range);
-
-        let diffs: Vec<ContinuousAllele> = vec![range.start, range.end]
-            .into_iter()
-            .dedup()
-            .filter(|diff| *diff != 0.0)
-            .collect();
+        let diffs: Vec<ContinuousAllele> = vec![
+            self.allele_neighbour_range.as_ref().unwrap().start,
+            self.allele_neighbour_range.as_ref().unwrap().end,
+        ]
+        .into_iter()
+        .dedup()
+        .filter(|diff| *diff != 0.0)
+        .collect();
 
         BigUint::from(diffs.len() * self.genes_size())
     }

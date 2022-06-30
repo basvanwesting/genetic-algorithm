@@ -29,16 +29,6 @@ fn general_random() {
         ]
     );
 
-    // ensure default implementation when neighbour ranges not provided
-    genotype.mutate_chromosome_neighbour(&mut chromosome, &mut rng);
-    assert_eq!(
-        inspect::chromosome(&chromosome),
-        vec![
-            0.447325, 0.4391402, 0.9763819, 0.46216714, 0.897079, 0.9429498, 0.64275646, 0.4563719,
-            0.3951441, 0.8188509
-        ]
-    );
-
     assert_eq!(
         genotype.crossover_indexes(),
         (0..10).collect::<Vec<usize>>()
