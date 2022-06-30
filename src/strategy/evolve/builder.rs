@@ -48,8 +48,9 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C>, TryFromBuilderError> {
         let mut best_evolve: Option<Evolve<G, M, F, S, C>> = None;
-        for _i in 0..max_repeats {
+        for iteration in 0..max_repeats {
             let mut contending_run: Evolve<G, M, F, S, C> = self.clone().try_into()?;
+            contending_run.current_iteration = iteration;
             contending_run.call(rng);
             if contending_run.is_finished_by_target_fitness_score() {
                 best_evolve = Some(contending_run);

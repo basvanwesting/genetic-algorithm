@@ -38,8 +38,9 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
         rng: &mut R,
     ) -> Result<HillClimb<G, F>, TryFromBuilderError> {
         let mut best_hill_climb: Option<HillClimb<G, F>> = None;
-        for _i in 0..max_repeats {
+        for iteration in 0..max_repeats {
             let mut contending_run: HillClimb<G, F> = self.clone().try_into()?;
+            contending_run.current_iteration = iteration;
             contending_run.call(rng);
             if contending_run.is_finished_by_target_fitness_score() {
                 best_hill_climb = Some(contending_run);

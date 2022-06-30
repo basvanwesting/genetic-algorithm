@@ -58,8 +58,8 @@ fn main() {
                 let result = 8.0 * x1 + x2;
 
                 println!(
-                    "x1: {:.5}, x2: {} = {:.5} (fitness score: {: >5}, duration {:?})",
-                    x1, x2 as u8, result, fitness_score, duration
+                    "x1: {:.5}, x2: {} = {:.5} (fitness score: {:>3}, best_iteration: {:>3}, best_generation: {:>5}, duration: {:?})",
+                    x1, x2 as u8, result, fitness_score, hill_climb.current_iteration, hill_climb.best_generation, duration
                 );
             } else {
                 println!(

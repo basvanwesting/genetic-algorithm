@@ -82,6 +82,7 @@ pub struct HillClimb<G: Genotype, F: Fitness<Genotype = G>> {
     target_fitness_score: Option<FitnessValue>,
     random_chromosome_probability: RandomChromosomeProbability,
 
+    pub current_iteration: usize,
     current_generation: usize,
     current_neighbour_scale: f32,
     best_chromosome: Option<Chromosome<G>>,
@@ -276,6 +277,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<G, F>> for 
                 target_fitness_score: builder.target_fitness_score,
                 random_chromosome_probability: builder.random_chromosome_probability.unwrap_or(0.0),
 
+                current_iteration: 0,
                 current_generation: 0,
                 current_neighbour_scale: STEEPEST_SCALE_BASE,
                 best_generation: 0,
@@ -301,6 +303,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> fmt::Display for HillClimb<G, F> {
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  neighbours_size: {}", self.neighbours_size)?;
 
+        writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
         writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())

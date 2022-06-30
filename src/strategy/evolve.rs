@@ -90,6 +90,7 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     fitness_ordering: FitnessOrdering,
     degeneration_range: Option<Range<f32>>,
 
+    pub current_iteration: usize,
     current_generation: usize,
     best_chromosome: Option<Chromosome<G>>,
     degenerate: bool,
@@ -315,6 +316,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 fitness_ordering: builder.fitness_ordering,
                 degeneration_range: builder.degeneration_range,
 
+                current_iteration: 0,
                 current_generation: 0,
                 best_generation: 0,
                 best_chromosome: None,
@@ -345,6 +347,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  degeneration_range: {:?}", self.degeneration_range)?;
 
+        writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
         writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
