@@ -128,3 +128,30 @@ fn chromosome_factory_with_seed_genes() {
         vec![true, true, false, false]
     );
 }
+
+#[test]
+fn chromosome_neighbours_3() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(4)
+        .build()
+        .unwrap();
+
+    let chromosome = genotype.chromosome_factory(&mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![true, true, false, true]
+    );
+
+    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(4u32));
+    let chromosomes = genotype.chromosome_neighbours(&chromosome, 1.0);
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![false, true, false, true],
+            vec![true, false, false, true],
+            vec![true, true, true, true],
+            vec![true, true, false, false],
+        ]
+    );
+}

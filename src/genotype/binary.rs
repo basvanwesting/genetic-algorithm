@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
+use num::BigUint;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use std::fmt;
@@ -65,6 +66,28 @@ impl Genotype for Binary {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = !chromosome.genes[index];
         chromosome.taint_fitness_score();
+    }
+
+    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+        self.mutate_chromosome_random(chromosome, rng)
+    }
+
+    fn chromosome_neighbours(
+        &self,
+        chromosome: &Chromosome<Self>,
+        _scale: f32,
+    ) -> Vec<Chromosome<Self>> {
+        (0..self.genes_size())
+            .map(|index| {
+                let mut genes = chromosome.genes.clone();
+                genes[index] = !genes[index];
+                Chromosome::new(genes)
+            })
+            .collect()
+    }
+
+    fn chromosome_neighbours_size(&self) -> BigUint {
+        BigUint::from(self.genes_size())
     }
 }
 
