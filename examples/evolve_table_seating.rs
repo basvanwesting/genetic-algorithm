@@ -84,7 +84,7 @@ fn main() {
 
     println!("{}", genotype);
 
-    let mut evolve = Evolve::builder()
+    let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
         .with_population_size(20)
         .with_max_stale_generations(10000)
@@ -96,12 +96,14 @@ fn main() {
         .with_degeneration_range(0.005..6.0)
         .with_mutate(MutateRandom(0.3))
         .with_crossover(CrossoverSinglePoint(true))
-        .with_compete(CompeteTournament(4))
-        .build()
-        .unwrap();
+        .with_compete(CompeteTournament(4));
+
+    //let now = std::time::Instant::now();
+    //let evolve = evolve_builder.call(&mut rng).unwrap();
+    //let duration = now.elapsed();
 
     let now = std::time::Instant::now();
-    evolve.call(&mut rng);
+    let evolve = evolve_builder.call_repeatedly(100, &mut rng).unwrap();
     let duration = now.elapsed();
 
     println!("{}", evolve);

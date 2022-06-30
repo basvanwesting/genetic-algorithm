@@ -42,6 +42,50 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         evolve.call(rng);
         Ok(evolve)
     }
+    pub fn call_repeatedly<R: Rng>(
+        self,
+        max_repeats: usize,
+        rng: &mut R,
+    ) -> Result<Evolve<G, M, F, S, C>, TryFromBuilderError> {
+        let mut best_evolve: Option<Evolve<G, M, F, S, C>> = None;
+        for _i in 0..max_repeats {
+            let mut contending_run: Evolve<G, M, F, S, C> = self.clone().try_into()?;
+            contending_run.call(rng);
+            if contending_run.is_finished_by_target_fitness_score() {
+                best_evolve = Some(contending_run);
+                break;
+            }
+            if let Some(best_run) = best_evolve.as_ref() {
+                match (
+                    best_run.best_fitness_score(),
+                    contending_run.best_fitness_score(),
+                ) {
+                    (None, None) => {}
+                    (Some(_), None) => {}
+                    (None, Some(_)) => {
+                        best_evolve = Some(contending_run);
+                    }
+                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
+                        match contending_run.fitness_ordering {
+                            FitnessOrdering::Maximize => {
+                                if contending_fitness_score >= current_fitness_score {
+                                    best_evolve = Some(contending_run);
+                                }
+                            }
+                            FitnessOrdering::Minimize => {
+                                if contending_fitness_score <= current_fitness_score {
+                                    best_evolve = Some(contending_run);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                best_evolve = Some(contending_run);
+            }
+        }
+        Ok(best_evolve.unwrap())
+    }
 
     pub fn with_genotype(mut self, genotype: G) -> Self {
         self.genotype = Some(genotype);

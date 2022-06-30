@@ -73,7 +73,6 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
                 best_hill_climb = Some(contending_run);
             }
         }
-
         Ok(best_hill_climb.unwrap())
     }
 
