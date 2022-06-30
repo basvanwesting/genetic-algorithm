@@ -7,7 +7,7 @@
 //! * The [Strategy](crate::strategy::Strategy) (the search strategy)
 //!     * [Evolve](crate::strategy::evolve::Evolve) (evolution strategy)
 //!     * [Permutate](crate::strategy::permutate::Permutate) (for small search spaces, with a 100% guarantee)
-//!     * [HillClimb](crate::strategy::hill_climb::HillClimb) (when crossover is impossible or inefficient)
+//!     * [HillClimb](crate::strategy::hill_climb::HillClimb) (when search space is convex with little local optima or when crossover is impossible/inefficient)
 //!
 //! Terminology:
 //! * [Population](crate::population): a population has `population_size` number of individuals (called chromosomes).

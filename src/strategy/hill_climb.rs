@@ -30,18 +30,18 @@ pub enum HillClimbVariant {
 ///   Rather, it selects a neighbor at random, and decides (based on the amount of improvement in
 ///   that neighbor) whether to move to that neighbor or to examine another
 /// * [HillClimbVariant::Steepest]: all neighbours are compared and the closest to the solution is chosen
-///     * If there is a better chromosome than the current best the next round uses this chromosome as a starting
+///     * If it is a better chromosome than the current best the next round uses this chromosome as a starting
 ///       point and the scale is reset
-///     * If there not, the scale is reduced by a factor to zoom in on the solution
+///     * If there not, the scale is reduced by a factor to zoom in on the local solution
 ///
 /// The fitness is calculated each round.
 /// * If the fitness is worse, the mutation is undone and the next round is started
 /// * If the fitness is equal or better, the mutated chromosome is taken for the next round.
 ///   It is important to update the best chromosome on equal fitness for diversity reasons
 ///
-/// To avoid a local optimum, the random_chromosome_probability can be provided.
+/// To avoid a local optimum, the `random_chromosome_probability` can be provided.
 /// It seems much more efficient to insert random chromosomes in a single [HillClimb] run, than to
-/// call_repeatedly from the [HillClimbBuilder].
+/// `call_repeatedly` from the [HillClimbBuilder].
 ///
 /// See [HillClimbBuilder] for initialization options.
 ///

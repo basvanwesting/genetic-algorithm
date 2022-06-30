@@ -44,6 +44,9 @@ use std::ops::Range;
 /// as it depends on the fitness function behaviour (expected spread per mutation). So the higher
 /// bound is a case by case analysis.
 ///
+/// Can call_repeatedly from the [EvolveBuilder], when solution has tendency to get stuck in local
+/// optimum
+///
 /// See [EvolveBuilder] for initialization options.
 ///
 /// Example:

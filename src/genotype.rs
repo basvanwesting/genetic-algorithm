@@ -31,6 +31,7 @@ use std::fmt;
 // trait alias, experimental
 //pub trait Allele = Clone + std::fmt::Debug;
 
+/// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
 pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>> {
     type Allele: Clone + std::fmt::Debug;
@@ -57,6 +58,7 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
 
 //Evolvable is implicit, until proven otherwise
 //pub trait EvolvableGenotype: Genotype {}
+/// Genotype suitable for [Permutate](crate::strategy::permutate::Permutate).
 /// Not all genotypes are permutable, only countable ones (e.g. continuous genotypes cannot be permutated).
 pub trait PermutableGenotype: Genotype {
     /// used for default chromosome_permutations_into_iter implementation
@@ -81,9 +83,10 @@ pub trait PermutableGenotype: Genotype {
     }
 }
 
-/// For genotypes that implement a neighbouring mutation and are therefore suitable for [HillClimb](crate::strategy::hill_climb::HillClimb)
+/// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb).
+/// Need to implement a neighbouring mutation.
 pub trait IncrementalGenotype: Genotype {
-    /// a neighbouring mutation of the chromosome (defaults to random mutation if not implemented)
+    /// a neighbouring mutation of the chromosome
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
     /// all neighbouring mutations of the chromosome
     fn chromosome_neighbours(

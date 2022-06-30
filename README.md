@@ -8,7 +8,7 @@ There are three main elements to this approach:
 * The strategy (the search strategy)
     * Evolve (evolution strategy)
     * Permutate (for small search spaces, with a 100% guarantee)
-    * HillClimb (when crossover is impossible or inefficient)
+    * HillClimb (when search space is convex with little local optima or when crossover is impossible/inefficient)
 
 Terminology:
 * Population: a population has `population_size` number of individuals (called chromosomes).
