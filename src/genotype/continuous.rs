@@ -122,31 +122,27 @@ impl Genotype for Continuous {
             .as_ref()
             .unwrap_or(&self.allele_range);
 
-        let diffs: Vec<ContinuousAllele> = vec![range.start * scale, 0.0, range.end * scale]
+        let diffs: Vec<ContinuousAllele> = vec![range.start * scale, range.end * scale]
             .into_iter()
             .dedup()
+            .filter(|diff| *diff != 0.0)
             .collect();
 
-        chromosome
-            .genes
-            .iter()
-            .map(|gene| diffs.iter().map(|d| *gene + *d))
-            .multi_cartesian_product()
-            .map(|genes| {
-                genes
-                    .into_iter()
-                    .map(|gene| {
-                        if gene < self.allele_range.start {
-                            self.allele_range.start
-                        } else if gene > self.allele_range.end {
-                            self.allele_range.end
-                        } else {
-                            gene
-                        }
-                    })
-                    .collect()
+        (0..self.genes_size())
+            .flat_map(|index| {
+                diffs.iter().map(move |diff| {
+                    let mut genes = chromosome.genes.clone();
+                    let new_value = genes[index] + *diff;
+                    if new_value < self.allele_range.start {
+                        genes[index] = self.allele_range.start;
+                    } else if new_value > self.allele_range.end {
+                        genes[index] = self.allele_range.end;
+                    } else {
+                        genes[index] = new_value;
+                    }
+                    Chromosome::new(genes)
+                })
             })
-            .map(|genes| Chromosome::new(genes))
             .collect()
     }
 
@@ -156,12 +152,13 @@ impl Genotype for Continuous {
             .as_ref()
             .unwrap_or(&self.allele_range);
 
-        let diffs: Vec<ContinuousAllele> = vec![range.start, 0.0, range.end]
+        let diffs: Vec<ContinuousAllele> = vec![range.start, range.end]
             .into_iter()
             .dedup()
+            .filter(|diff| *diff != 0.0)
             .collect();
 
-        BigUint::from(diffs.len()).pow(self.genes_size() as u32)
+        BigUint::from(diffs.len() * self.genes_size())
     }
 }
 

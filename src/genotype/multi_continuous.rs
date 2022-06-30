@@ -155,32 +155,33 @@ impl Genotype for MultiContinuous {
 
         let range_diffs: Vec<Vec<ContinuousAllele>> = ranges
             .iter()
-            .map(|range| vec![range.start * scale, 0.0, range.end * scale])
-            .map(|range| range.into_iter().dedup().collect())
-            .collect();
-
-        chromosome
-            .genes
-            .iter()
-            .zip(range_diffs.iter())
-            .map(|(gene, diffs)| diffs.iter().map(|d| *gene + *d))
-            .multi_cartesian_product()
-            .map(|genes| {
-                genes
+            .map(|range| vec![range.start * scale, range.end * scale])
+            .map(|range| {
+                range
                     .into_iter()
-                    .zip(self.allele_multi_range.iter())
-                    .map(|(gene, range)| {
-                        if gene < range.start {
-                            range.start
-                        } else if gene > range.end {
-                            range.end
-                        } else {
-                            gene
-                        }
-                    })
+                    .dedup()
+                    .filter(|diff| *diff != 0.0)
                     .collect()
             })
-            .map(|genes| Chromosome::new(genes))
+            .collect();
+
+        self.allele_multi_range
+            .iter()
+            .enumerate()
+            .flat_map(|(index, value_range)| {
+                range_diffs[index].iter().map(move |diff| {
+                    let mut genes = chromosome.genes.clone();
+                    let new_value = genes[index] + *diff;
+                    if new_value < value_range.start {
+                        genes[index] = value_range.start;
+                    } else if new_value > value_range.end {
+                        genes[index] = value_range.end;
+                    } else {
+                        genes[index] = new_value;
+                    }
+                    Chromosome::new(genes)
+                })
+            })
             .collect()
     }
 
@@ -192,11 +193,17 @@ impl Genotype for MultiContinuous {
 
         let range_diffs: Vec<Vec<ContinuousAllele>> = ranges
             .iter()
-            .map(|range| vec![range.start, 0.0, range.end])
-            .map(|range| range.into_iter().dedup().collect())
+            .map(|range| vec![range.start, range.end])
+            .map(|range| {
+                range
+                    .into_iter()
+                    .dedup()
+                    .filter(|diff| *diff != 0.0)
+                    .collect()
+            })
             .collect();
 
-        range_diffs.iter().map(|v| BigUint::from(v.len())).product()
+        range_diffs.iter().map(|v| BigUint::from(v.len())).sum()
     }
 }
 

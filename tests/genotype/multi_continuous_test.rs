@@ -70,12 +70,11 @@ fn chromosome_neighbours_1() {
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![0.447325]);
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(3u32));
+    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(2u32));
     let chromosomes = genotype.chromosome_neighbours(&chromosome, 1.0);
-    assert_eq!(chromosomes.len(), 3);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
-        vec![vec![0.0], vec![0.447325], vec![0.547325],]
+        vec![vec![0.0], vec![0.547325],]
     );
 }
 
@@ -94,39 +93,17 @@ fn chromosome_neighbours_3() {
         vec![0.447325, 2.1957011, 19.798801]
     );
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(27u32));
+    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(6u32));
     let chromosomes = genotype.chromosome_neighbours(&chromosome, 1.0);
-    assert_eq!(chromosomes.len(), 27);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
         vec![
-            vec![0.0, 1.6957011, 18.798801],
-            vec![0.0, 1.6957011, 19.798801],
-            vec![0.0, 1.6957011, 20.0],
-            vec![0.0, 2.1957011, 18.798801],
             vec![0.0, 2.1957011, 19.798801],
-            vec![0.0, 2.1957011, 20.0],
-            vec![0.0, 2.6957011, 18.798801],
-            vec![0.0, 2.6957011, 19.798801],
-            vec![0.0, 2.6957011, 20.0],
-            vec![0.447325, 1.6957011, 18.798801],
-            vec![0.447325, 1.6957011, 19.798801],
-            vec![0.447325, 1.6957011, 20.0],
-            vec![0.447325, 2.1957011, 18.798801],
-            vec![0.447325, 2.1957011, 19.798801],
-            vec![0.447325, 2.1957011, 20.0],
-            vec![0.447325, 2.6957011, 18.798801],
-            vec![0.447325, 2.6957011, 19.798801],
-            vec![0.447325, 2.6957011, 20.0],
-            vec![0.547325, 1.6957011, 18.798801],
-            vec![0.547325, 1.6957011, 19.798801],
-            vec![0.547325, 1.6957011, 20.0],
-            vec![0.547325, 2.1957011, 18.798801],
             vec![0.547325, 2.1957011, 19.798801],
-            vec![0.547325, 2.1957011, 20.0],
-            vec![0.547325, 2.6957011, 18.798801],
-            vec![0.547325, 2.6957011, 19.798801],
-            vec![0.547325, 2.6957011, 20.0],
+            vec![0.447325, 1.6957011, 19.798801],
+            vec![0.447325, 2.6957011, 19.798801],
+            vec![0.447325, 2.1957011, 18.798801],
+            vec![0.447325, 2.1957011, 20.0],
         ]
     );
 }
