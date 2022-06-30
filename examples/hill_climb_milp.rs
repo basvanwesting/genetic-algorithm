@@ -37,14 +37,17 @@ fn main() {
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::Steepest)
-        .with_max_stale_generations(10)
+        .with_max_stale_generations(100)
         .with_target_fitness_score(0)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(MILPFitness);
 
     for _ in 0..10 {
         let now = std::time::Instant::now();
-        let hill_climb = hill_climb_builder.clone().call(&mut rng).unwrap();
+        let hill_climb = hill_climb_builder
+            .clone()
+            .call_repeatedly(1000, &mut rng)
+            .unwrap();
         let duration = now.elapsed();
 
         if let Some(best_chromosome) = hill_climb.best_chromosome() {
