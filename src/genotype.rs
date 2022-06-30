@@ -92,13 +92,13 @@ pub trait IncrementalGenotype: Genotype {
     fn chromosome_neighbours(
         &self,
         _chromosome: &Chromosome<Self>,
-        _scale: f32,
+        _scale: Option<f32>,
     ) -> Vec<Chromosome<Self>>;
     /// all neighbouring mutations of the chromosome, permutated with each other for interpolated searching
     fn chromosome_neighbour_permutations(
         &self,
         _chromosome: &Chromosome<Self>,
-        _scale: f32,
+        _scale: Option<f32>,
     ) -> Vec<Chromosome<Self>>;
     /// chromosome neighbours size for the all possible neighbouring mutation combinations
     fn chromosome_neighbours_size(&self) -> BigUint;

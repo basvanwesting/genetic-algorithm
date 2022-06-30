@@ -114,7 +114,7 @@ impl<T: Clone + std::fmt::Debug> IncrementalGenotype for Unique<T> {
     fn chromosome_neighbours(
         &self,
         chromosome: &Chromosome<Self>,
-        _scale: f32,
+        _scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
         (0..self.genes_size())
             .combinations(2)
@@ -137,7 +137,7 @@ impl<T: Clone + std::fmt::Debug> IncrementalGenotype for Unique<T> {
     fn chromosome_neighbour_permutations(
         &self,
         chromosome: &Chromosome<Self>,
-        scale: f32,
+        scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
         self.chromosome_neighbours(chromosome, scale)
     }

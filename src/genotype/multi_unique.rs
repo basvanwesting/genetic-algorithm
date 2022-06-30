@@ -156,7 +156,7 @@ impl<T: Clone + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
     fn chromosome_neighbours(
         &self,
         chromosome: &Chromosome<Self>,
-        _scale: f32,
+        _scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
         self.allele_values_sizes
             .iter()
@@ -193,7 +193,7 @@ impl<T: Clone + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
     fn chromosome_neighbour_permutations(
         &self,
         chromosome: &Chromosome<Self>,
-        scale: f32,
+        scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
         self.chromosome_neighbours(chromosome, scale)
     }

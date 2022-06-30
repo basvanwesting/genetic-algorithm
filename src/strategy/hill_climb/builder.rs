@@ -17,6 +17,7 @@ pub struct Builder<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub random_chromosome_probability: Option<RandomChromosomeProbability>,
+    pub scaling: Option<(f32, f32)>,
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
@@ -123,6 +124,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.random_chromosome_probability = Some(random_chromosome_probability);
         self
     }
+    pub fn with_scaling(mut self, scaling: (f32, f32)) -> Self {
+        self.scaling = Some(scaling);
+        self
+    }
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
@@ -135,6 +140,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F>
             max_stale_generations: None,
             target_fitness_score: None,
             random_chromosome_probability: None,
+            scaling: None,
         }
     }
 }

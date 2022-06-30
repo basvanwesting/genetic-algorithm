@@ -128,7 +128,7 @@ fn chromosome_neighbours_4() {
     );
 
     assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(5u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, 1.0);
+    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
         vec![

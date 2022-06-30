@@ -111,11 +111,11 @@ impl IncrementalGenotype for Continuous {
     fn chromosome_neighbours(
         &self,
         chromosome: &Chromosome<Self>,
-        scale: f32,
+        scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
         let diffs: Vec<ContinuousAllele> = vec![
-            self.allele_neighbour_range.as_ref().unwrap().start * scale,
-            self.allele_neighbour_range.as_ref().unwrap().end * scale,
+            self.allele_neighbour_range.as_ref().unwrap().start * scale.unwrap_or(1.0),
+            self.allele_neighbour_range.as_ref().unwrap().end * scale.unwrap_or(1.0),
         ]
         .into_iter()
         .dedup()
@@ -156,12 +156,12 @@ impl IncrementalGenotype for Continuous {
     fn chromosome_neighbour_permutations(
         &self,
         chromosome: &Chromosome<Self>,
-        scale: f32,
+        scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
         let diffs: Vec<ContinuousAllele> = vec![
-            self.allele_neighbour_range.as_ref().unwrap().start * scale,
+            self.allele_neighbour_range.as_ref().unwrap().start * scale.unwrap_or(1.0),
             0.0,
-            self.allele_neighbour_range.as_ref().unwrap().end * scale,
+            self.allele_neighbour_range.as_ref().unwrap().end * scale.unwrap_or(1.0),
         ]
         .into_iter()
         .dedup()

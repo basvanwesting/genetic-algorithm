@@ -85,13 +85,13 @@ fn chromosome_neighbours_1() {
     assert_eq!(inspect::chromosome(&chromosome), vec![0.447325]);
 
     assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(2u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, 1.0);
+    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
         vec![vec![0.347325], vec![0.547325],]
     );
 
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, 0.5);
+    let chromosomes = genotype.chromosome_neighbours(&chromosome, Some(0.5));
     assert_eq!(
         inspect::chromosomes(&chromosomes),
         vec![vec![0.39732498], vec![0.497325]]
@@ -112,7 +112,7 @@ fn chromosome_neighbours_2() {
     assert_eq!(inspect::chromosome(&chromosome), vec![0.447325, 0.4391402]);
 
     assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(4u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, 1.0);
+    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
         vec![
@@ -141,7 +141,7 @@ fn chromosome_neighbours_3() {
     );
 
     assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(6u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, 1.0);
+    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
         vec![
@@ -172,7 +172,7 @@ fn chromosome_neighbours_3_one_sided() {
     );
 
     assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(3u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, 1.0);
+    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
         vec![
@@ -203,7 +203,7 @@ fn chromosome_neighbour_permutations_3() {
         genotype.chromosome_neighbour_permutations_size(),
         BigUint::from(27u32)
     );
-    let chromosomes = genotype.chromosome_neighbour_permutations(&chromosome, 1.0);
+    let chromosomes = genotype.chromosome_neighbour_permutations(&chromosome, None);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
         vec![
@@ -258,7 +258,7 @@ fn chromosome_neighbour_permutations_3_one_sided() {
         genotype.chromosome_neighbour_permutations_size(),
         BigUint::from(8u32)
     );
-    let chromosomes = genotype.chromosome_neighbour_permutations(&chromosome, 1.0);
+    let chromosomes = genotype.chromosome_neighbour_permutations(&chromosome, None);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
         vec![

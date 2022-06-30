@@ -143,14 +143,19 @@ impl IncrementalGenotype for MultiContinuous {
     fn chromosome_neighbours(
         &self,
         chromosome: &Chromosome<Self>,
-        scale: f32,
+        scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
         let range_diffs: Vec<Vec<ContinuousAllele>> = self
             .allele_multi_neighbour_range
             .as_ref()
             .unwrap()
             .iter()
-            .map(|range| vec![range.start * scale, range.end * scale])
+            .map(|range| {
+                vec![
+                    range.start * scale.unwrap_or(1.0),
+                    range.end * scale.unwrap_or(1.0),
+                ]
+            })
             .map(|range| {
                 range
                     .into_iter()
@@ -202,14 +207,20 @@ impl IncrementalGenotype for MultiContinuous {
     fn chromosome_neighbour_permutations(
         &self,
         chromosome: &Chromosome<Self>,
-        scale: f32,
+        scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
         let range_diffs: Vec<Vec<ContinuousAllele>> = self
             .allele_multi_neighbour_range
             .as_ref()
             .unwrap()
             .iter()
-            .map(|range| vec![range.start * scale, 0.0, range.end * scale])
+            .map(|range| {
+                vec![
+                    range.start * scale.unwrap_or(1.0),
+                    0.0,
+                    range.end * scale.unwrap_or(1.0),
+                ]
+            })
             .map(|range| range.into_iter().dedup().collect())
             .collect();
 
