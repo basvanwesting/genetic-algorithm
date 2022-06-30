@@ -96,3 +96,6 @@ pub trait PermutableGenotype: Genotype {
             .pow(self.genes_size() as u32)
     }
 }
+
+/// For genotypes that implement a neighbouring mutation and are therefore suitable for [HillClimb](crate::strategy::hill_climb::HillClimb)
+pub trait IncrementalGenotype: Genotype {}

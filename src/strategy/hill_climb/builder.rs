@@ -1,6 +1,6 @@
 use super::{HillClimb, HillClimbVariant, RandomChromosomeProbability};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::Genotype;
+use crate::genotype::IncrementalGenotype;
 use crate::strategy::Strategy;
 use rand::Rng;
 
@@ -9,7 +9,7 @@ pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an HillClimb struct.
 #[derive(Clone, Debug)]
-pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
+pub struct Builder<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     pub genotype: Option<G>,
     pub variant: Option<HillClimbVariant>,
     pub fitness: Option<F>,
@@ -19,7 +19,7 @@ pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub random_chromosome_probability: Option<RandomChromosomeProbability>,
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -125,7 +125,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
     fn default() -> Self {
         Self {
             genotype: None,

@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, PermutableGenotype};
+use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use factorial::Factorial;
 use itertools::Itertools;
@@ -132,6 +132,8 @@ impl<T: Clone + std::fmt::Debug> Genotype for Unique<T> {
         n.factorial() / (k.factorial() * (n - k).factorial())
     }
 }
+
+impl<T: Clone + std::fmt::Debug> IncrementalGenotype for Unique<T> {}
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for Unique<T> {
     //noop

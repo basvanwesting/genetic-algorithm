@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::Genotype;
+use super::{Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
@@ -161,6 +161,8 @@ impl Genotype for Continuous {
         BigUint::from(diffs.len() * self.genes_size())
     }
 }
+
+impl IncrementalGenotype for Continuous {}
 
 impl fmt::Display for Continuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

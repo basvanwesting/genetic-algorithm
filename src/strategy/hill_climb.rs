@@ -9,7 +9,7 @@ pub use self::builder::{
 use super::Strategy;
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::Genotype;
+use crate::genotype::IncrementalGenotype;
 use num::BigUint;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
@@ -72,7 +72,7 @@ pub enum HillClimbVariant {
 /// let best_chromosome = hill_climb.best_chromosome().unwrap();
 /// assert_eq!(best_chromosome.genes, vec![false; 16])
 /// ```
-pub struct HillClimb<G: Genotype, F: Fitness<Genotype = G>> {
+pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     genotype: G,
     fitness: F,
     variant: HillClimbVariant,
@@ -90,7 +90,7 @@ pub struct HillClimb<G: Genotype, F: Fitness<Genotype = G>> {
     pub neighbours_size: BigUint,
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.current_generation = 0;
         self.current_neighbour_scale = STEEPEST_SCALE_BASE;
@@ -154,7 +154,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     pub fn builder() -> HillClimbBuilder<G, F> {
         HillClimbBuilder::new()
     }
@@ -246,7 +246,9 @@ impl<G: Genotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<G, F>> for HillClimb<G, F> {
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<G, F>>
+    for HillClimb<G, F>
+{
     type Error = TryFromHillClimbBuilderError;
 
     fn try_from(builder: HillClimbBuilder<G, F>) -> Result<Self, Self::Error> {
@@ -288,7 +290,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<G, F>> for 
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>> fmt::Display for HillClimb<G, F> {
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClimb<G, F> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "hill_climb:")?;
         writeln!(f, "  genotype: {:?}", self.genotype)?;

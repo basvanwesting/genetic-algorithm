@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, PermutableGenotype};
+use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use factorial::Factorial;
 use itertools::Itertools;
@@ -188,6 +188,8 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiUnique<T> {
             .sum()
     }
 }
+
+impl<T: Clone + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {}
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
     //noop

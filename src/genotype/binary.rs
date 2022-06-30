@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, PermutableGenotype};
+use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use num::BigUint;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
@@ -90,6 +90,8 @@ impl Genotype for Binary {
         BigUint::from(self.genes_size())
     }
 }
+
+impl IncrementalGenotype for Binary {}
 
 impl PermutableGenotype for Binary {
     fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele> {

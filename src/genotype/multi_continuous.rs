@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::Genotype;
+use super::{Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
@@ -206,6 +206,8 @@ impl Genotype for MultiContinuous {
         range_diffs.iter().map(|v| BigUint::from(v.len())).sum()
     }
 }
+
+impl IncrementalGenotype for MultiContinuous {}
 
 impl fmt::Display for MultiContinuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
