@@ -37,9 +37,8 @@ fn main() {
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::Steepest)
-        .with_max_stale_generations(100000)
+        .with_max_stale_generations(10)
         .with_target_fitness_score(0)
-        .with_random_chromosome_probability(0.2)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(MILPFitness);
 
