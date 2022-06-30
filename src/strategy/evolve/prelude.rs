@@ -15,7 +15,7 @@ pub use crate::genotype::{
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
-pub use crate::mutate::{MutateNeighbour, MutateOnce, MutateRandom, MutateRandomOrNeighbour};
+pub use crate::mutate::MutateOnce;
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};
 #[doc(no_inline)]

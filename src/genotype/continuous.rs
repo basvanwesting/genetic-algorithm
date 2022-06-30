@@ -91,7 +91,9 @@ impl Genotype for Continuous {
         chromosome.genes[index] = self.allele_value_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
+}
 
+impl IncrementalGenotype for Continuous {
     /// defaults to allele_range if allele_neighbour_range is not provided
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let sampler = self
@@ -161,8 +163,6 @@ impl Genotype for Continuous {
         BigUint::from(diffs.len() * self.genes_size())
     }
 }
-
-impl IncrementalGenotype for Continuous {}
 
 impl fmt::Display for Continuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

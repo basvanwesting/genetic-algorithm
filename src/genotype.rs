@@ -39,22 +39,6 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     /// a random mutation of the chromosome
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
-    /// a neighbouring mutation of the chromosome (defaults to random mutation if not implemented)
-    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
-        self.mutate_chromosome_random(chromosome, rng);
-    }
-    /// all neighbouring mutations of the chromosome
-    fn chromosome_neighbours(
-        &self,
-        _chromosome: &Chromosome<Self>,
-        _scale: f32,
-    ) -> Vec<Chromosome<Self>> {
-        vec![]
-    }
-    /// chromosome neighbours size for the all possible neighbouring mutation combinations
-    fn chromosome_neighbours_size(&self) -> BigUint {
-        BigUint::from(0u8)
-    }
 
     /// to guard against invalid crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
@@ -98,4 +82,15 @@ pub trait PermutableGenotype: Genotype {
 }
 
 /// For genotypes that implement a neighbouring mutation and are therefore suitable for [HillClimb](crate::strategy::hill_climb::HillClimb)
-pub trait IncrementalGenotype: Genotype {}
+pub trait IncrementalGenotype: Genotype {
+    /// a neighbouring mutation of the chromosome (defaults to random mutation if not implemented)
+    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
+    /// all neighbouring mutations of the chromosome
+    fn chromosome_neighbours(
+        &self,
+        _chromosome: &Chromosome<Self>,
+        _scale: f32,
+    ) -> Vec<Chromosome<Self>>;
+    /// chromosome neighbours size for the all possible neighbouring mutation combinations
+    fn chromosome_neighbours_size(&self) -> BigUint;
+}

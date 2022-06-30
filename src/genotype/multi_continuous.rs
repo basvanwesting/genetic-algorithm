@@ -122,7 +122,9 @@ impl Genotype for MultiContinuous {
         chromosome.genes[index] = self.allele_value_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
+}
 
+impl IncrementalGenotype for MultiContinuous {
     /// defaults to allele_multi_range if allele_multi_neighbour_range is not provided
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
@@ -206,8 +208,6 @@ impl Genotype for MultiContinuous {
         range_diffs.iter().map(|v| BigUint::from(v.len())).sum()
     }
 }
-
-impl IncrementalGenotype for MultiContinuous {}
 
 impl fmt::Display for MultiContinuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

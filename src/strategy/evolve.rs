@@ -68,7 +68,7 @@ use std::ops::Range;
 ///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_crossover(CrossoverUniform(true)) // crossover all individual genes between 2 chromosomes for offspring
-///     .with_mutate(MutateRandom(0.2))         // mutate a single gene with a 20% probability per chromosome
+///     .with_mutate(MutateOnce(0.2))           // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite)             // sort the chromosomes by fitness to determine crossover order
 ///     .call(&mut rng)
 ///     .unwrap();

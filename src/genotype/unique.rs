@@ -104,7 +104,9 @@ impl<T: Clone + std::fmt::Debug> Genotype for Unique<T> {
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
+}
 
+impl<T: Clone + std::fmt::Debug> IncrementalGenotype for Unique<T> {
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         self.mutate_chromosome_random(chromosome, rng);
     }
@@ -132,8 +134,6 @@ impl<T: Clone + std::fmt::Debug> Genotype for Unique<T> {
         n.factorial() / (k.factorial() * (n - k).factorial())
     }
 }
-
-impl<T: Clone + std::fmt::Debug> IncrementalGenotype for Unique<T> {}
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for Unique<T> {
     //noop

@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
+use genetic_algorithm::genotype::{ContinuousGenotype, Genotype, IncrementalGenotype};
 
 #[test]
 fn general_random() {

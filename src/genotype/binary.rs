@@ -67,7 +67,9 @@ impl Genotype for Binary {
         chromosome.genes[index] = !chromosome.genes[index];
         chromosome.taint_fitness_score();
     }
+}
 
+impl IncrementalGenotype for Binary {
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         self.mutate_chromosome_random(chromosome, rng)
     }
@@ -90,8 +92,6 @@ impl Genotype for Binary {
         BigUint::from(self.genes_size())
     }
 }
-
-impl IncrementalGenotype for Binary {}
 
 impl PermutableGenotype for Binary {
     fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele> {

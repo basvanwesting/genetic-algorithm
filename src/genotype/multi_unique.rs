@@ -146,7 +146,9 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiUnique<T> {
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
+}
 
+impl<T: Clone + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
     fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         self.mutate_chromosome_random(chromosome, rng);
     }
@@ -188,8 +190,6 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiUnique<T> {
             .sum()
     }
 }
-
-impl<T: Clone + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {}
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
     //noop

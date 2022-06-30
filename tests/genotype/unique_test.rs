@@ -1,6 +1,8 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{Genotype, PermutableGenotype, UniqueGenotype};
+use genetic_algorithm::genotype::{
+    Genotype, IncrementalGenotype, PermutableGenotype, UniqueGenotype,
+};
 
 #[test]
 fn general() {
