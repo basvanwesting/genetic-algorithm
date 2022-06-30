@@ -34,9 +34,11 @@ fn main() {
         .build()
         .unwrap();
 
+    println!("genotype: {}", genotype);
+
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::Steepest)
+        .with_variant(HillClimbVariant::SteepestPermutation)
         .with_max_stale_generations(1000)
         .with_target_fitness_score(0)
         .with_random_chromosome_probability(0.2)

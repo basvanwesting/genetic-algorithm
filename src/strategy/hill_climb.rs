@@ -22,14 +22,19 @@ const STEEPEST_SCALE_FACTOR: f32 = 0.8;
 #[derive(Clone, Debug)]
 pub enum HillClimbVariant {
     Stochastic,
-    Steepest,
+    SteepestSingle,
+    SteepestPermutation,
 }
 
 /// There are 2 variants:
 /// * [HillClimbVariant::Stochastic]: does not examine all neighbors before deciding how to move.
 ///   Rather, it selects a neighbor at random, and decides (based on the amount of improvement in
 ///   that neighbor) whether to move to that neighbor or to examine another
-/// * [HillClimbVariant::Steepest]: all neighbours are compared and the closest to the solution is chosen
+/// * [HillClimbVariant::SteepestSingle]: all neighbours (with single mutation only) are compared and the closest to the solution is chosen
+///     * If it is a better chromosome than the current best the next round uses this chromosome as a starting
+///       point and the scale is reset
+///     * If there not, the scale is reduced by a factor to zoom in on the local solution
+/// * [HillClimbVariant::SteepestPermutation]: all neighbours (permutation of all neighbouring mutations) are compared and the closest to the solution is chosen
 ///     * If it is a better chromosome than the current best the next round uses this chromosome as a starting
 ///       point and the scale is reset
 ///     * If there not, the scale is reduced by a factor to zoom in on the local solution
@@ -115,10 +120,33 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                         self.fitness.call_for_chromosome(working_chromosome);
                         self.update_best_chromosome(working_chromosome);
                     }
-                    HillClimbVariant::Steepest => {
+                    HillClimbVariant::SteepestSingle => {
                         let working_chromosome = &mut self.best_chromosome().unwrap();
                         let mut working_chromosomes: Vec<Chromosome<G>> =
                             self.genotype.chromosome_neighbours(
+                                working_chromosome,
+                                self.current_neighbour_scale,
+                            );
+                        self.current_neighbour_scale *= STEEPEST_SCALE_FACTOR;
+                        working_chromosomes
+                            .iter_mut()
+                            .for_each(|chromosome| self.fitness.call_for_chromosome(chromosome));
+
+                        let best_working_chromosome = match self.fitness_ordering {
+                            FitnessOrdering::Maximize => working_chromosomes.iter().max(),
+                            FitnessOrdering::Minimize => working_chromosomes
+                                .iter()
+                                .filter(|c| c.fitness_score.is_some())
+                                .min(),
+                        };
+                        self.update_best_chromosome(
+                            best_working_chromosome.unwrap_or(working_chromosome),
+                        );
+                    }
+                    HillClimbVariant::SteepestPermutation => {
+                        let working_chromosome = &mut self.best_chromosome().unwrap();
+                        let mut working_chromosomes: Vec<Chromosome<G>> =
+                            self.genotype.chromosome_neighbour_permutations(
                                 working_chromosome,
                                 self.current_neighbour_scale,
                             );

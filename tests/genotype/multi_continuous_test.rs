@@ -100,3 +100,57 @@ fn chromosome_neighbours_3() {
         ]
     );
 }
+
+#[test]
+fn chromosome_neighbour_permutations_3() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiContinuousGenotype::builder()
+        .with_allele_multi_range(vec![0.0..1.0, 0.0..5.0, 10.0..20.0])
+        .with_allele_multi_neighbour_range(vec![-1.0..0.1, -0.5..0.5, -1.0..1.0])
+        .build()
+        .unwrap();
+
+    let chromosome = genotype.chromosome_factory(&mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![0.447325, 2.1957011, 19.798801]
+    );
+
+    assert_eq!(
+        genotype.chromosome_neighbour_permutations_size(),
+        BigUint::from(27u32)
+    );
+    let chromosomes = genotype.chromosome_neighbour_permutations(&chromosome, 1.0);
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![0.0, 1.6957011, 18.798801],
+            vec![0.0, 1.6957011, 19.798801],
+            vec![0.0, 1.6957011, 20.0],
+            vec![0.0, 2.1957011, 18.798801],
+            vec![0.0, 2.1957011, 19.798801],
+            vec![0.0, 2.1957011, 20.0],
+            vec![0.0, 2.6957011, 18.798801],
+            vec![0.0, 2.6957011, 19.798801],
+            vec![0.0, 2.6957011, 20.0],
+            vec![0.447325, 1.6957011, 18.798801],
+            vec![0.447325, 1.6957011, 19.798801],
+            vec![0.447325, 1.6957011, 20.0],
+            vec![0.447325, 2.1957011, 18.798801],
+            vec![0.447325, 2.1957011, 19.798801],
+            vec![0.447325, 2.1957011, 20.0],
+            vec![0.447325, 2.6957011, 18.798801],
+            vec![0.447325, 2.6957011, 19.798801],
+            vec![0.447325, 2.6957011, 20.0],
+            vec![0.547325, 1.6957011, 18.798801],
+            vec![0.547325, 1.6957011, 19.798801],
+            vec![0.547325, 1.6957011, 20.0],
+            vec![0.547325, 2.1957011, 18.798801],
+            vec![0.547325, 2.1957011, 19.798801],
+            vec![0.547325, 2.1957011, 20.0],
+            vec![0.547325, 2.6957011, 18.798801],
+            vec![0.547325, 2.6957011, 19.798801],
+            vec![0.547325, 2.6957011, 20.0],
+        ]
+    );
+}

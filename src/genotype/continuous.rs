@@ -152,6 +152,56 @@ impl IncrementalGenotype for Continuous {
 
         BigUint::from(diffs.len() * self.genes_size())
     }
+
+    fn chromosome_neighbour_permutations(
+        &self,
+        chromosome: &Chromosome<Self>,
+        scale: f32,
+    ) -> Vec<Chromosome<Self>> {
+        let diffs: Vec<ContinuousAllele> = vec![
+            self.allele_neighbour_range.as_ref().unwrap().start * scale,
+            0.0,
+            self.allele_neighbour_range.as_ref().unwrap().end * scale,
+        ]
+        .into_iter()
+        .dedup()
+        .collect();
+
+        chromosome
+            .genes
+            .iter()
+            .map(|gene| diffs.iter().map(|d| *gene + *d))
+            .multi_cartesian_product()
+            .map(|genes| {
+                genes
+                    .into_iter()
+                    .map(|gene| {
+                        if gene < self.allele_range.start {
+                            self.allele_range.start
+                        } else if gene > self.allele_range.end {
+                            self.allele_range.end
+                        } else {
+                            gene
+                        }
+                    })
+                    .collect()
+            })
+            .map(|genes| Chromosome::new(genes))
+            .collect()
+    }
+
+    fn chromosome_neighbour_permutations_size(&self) -> BigUint {
+        let diffs: Vec<ContinuousAllele> = vec![
+            self.allele_neighbour_range.as_ref().unwrap().start,
+            0.0,
+            self.allele_neighbour_range.as_ref().unwrap().end,
+        ]
+        .into_iter()
+        .dedup()
+        .collect();
+
+        BigUint::from(diffs.len()).pow(self.genes_size() as u32)
+    }
 }
 
 impl fmt::Display for Continuous {
@@ -164,6 +214,11 @@ impl fmt::Display for Continuous {
             f,
             "  chromosome_neighbours_size: {}",
             self.chromosome_neighbours_size()
+        )?;
+        writeln!(
+            f,
+            "  chromosome_neighbour_permutations_size: {}",
+            self.chromosome_neighbour_permutations_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }

@@ -182,3 +182,94 @@ fn chromosome_neighbours_3_one_sided() {
         ]
     );
 }
+
+#[test]
+fn chromosome_neighbour_permutations_3() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = ContinuousGenotype::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..1.0)
+        .with_allele_neighbour_range(-0.1..0.1)
+        .build()
+        .unwrap();
+
+    let chromosome = genotype.chromosome_factory(&mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![0.447325, 0.4391402, 0.9798802]
+    );
+
+    assert_eq!(
+        genotype.chromosome_neighbour_permutations_size(),
+        BigUint::from(27u32)
+    );
+    let chromosomes = genotype.chromosome_neighbour_permutations(&chromosome, 1.0);
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![0.347325, 0.3391402, 0.8798802],
+            vec![0.347325, 0.3391402, 0.9798802],
+            vec![0.347325, 0.3391402, 1.0],
+            vec![0.347325, 0.4391402, 0.8798802],
+            vec![0.347325, 0.4391402, 0.9798802],
+            vec![0.347325, 0.4391402, 1.0],
+            vec![0.347325, 0.5391402, 0.8798802],
+            vec![0.347325, 0.5391402, 0.9798802],
+            vec![0.347325, 0.5391402, 1.0],
+            vec![0.447325, 0.3391402, 0.8798802],
+            vec![0.447325, 0.3391402, 0.9798802],
+            vec![0.447325, 0.3391402, 1.0],
+            vec![0.447325, 0.4391402, 0.8798802],
+            vec![0.447325, 0.4391402, 0.9798802],
+            vec![0.447325, 0.4391402, 1.0],
+            vec![0.447325, 0.5391402, 0.8798802],
+            vec![0.447325, 0.5391402, 0.9798802],
+            vec![0.447325, 0.5391402, 1.0],
+            vec![0.547325, 0.3391402, 0.8798802],
+            vec![0.547325, 0.3391402, 0.9798802],
+            vec![0.547325, 0.3391402, 1.0],
+            vec![0.547325, 0.4391402, 0.8798802],
+            vec![0.547325, 0.4391402, 0.9798802],
+            vec![0.547325, 0.4391402, 1.0],
+            vec![0.547325, 0.5391402, 0.8798802],
+            vec![0.547325, 0.5391402, 0.9798802],
+            vec![0.547325, 0.5391402, 1.0]
+        ]
+    );
+}
+
+#[test]
+fn chromosome_neighbour_permutations_3_one_sided() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = ContinuousGenotype::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..1.0)
+        .with_allele_neighbour_range(0.0..0.1)
+        .build()
+        .unwrap();
+
+    let chromosome = genotype.chromosome_factory(&mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![0.447325, 0.4391402, 0.9798802]
+    );
+
+    assert_eq!(
+        genotype.chromosome_neighbour_permutations_size(),
+        BigUint::from(8u32)
+    );
+    let chromosomes = genotype.chromosome_neighbour_permutations(&chromosome, 1.0);
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![0.447325, 0.4391402, 0.9798802],
+            vec![0.447325, 0.4391402, 1.0],
+            vec![0.447325, 0.5391402, 0.9798802],
+            vec![0.447325, 0.5391402, 1.0],
+            vec![0.547325, 0.4391402, 0.9798802],
+            vec![0.547325, 0.4391402, 1.0],
+            vec![0.547325, 0.5391402, 0.9798802],
+            vec![0.547325, 0.5391402, 1.0],
+        ]
+    );
+}

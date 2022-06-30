@@ -133,6 +133,17 @@ impl<T: Clone + std::fmt::Debug> IncrementalGenotype for Unique<T> {
 
         n.factorial() / (k.factorial() * (n - k).factorial())
     }
+
+    fn chromosome_neighbour_permutations(
+        &self,
+        chromosome: &Chromosome<Self>,
+        scale: f32,
+    ) -> Vec<Chromosome<Self>> {
+        self.chromosome_neighbours(chromosome, scale)
+    }
+    fn chromosome_neighbour_permutations_size(&self) -> BigUint {
+        self.chromosome_neighbours_size()
+    }
 }
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for Unique<T> {
@@ -171,6 +182,11 @@ impl<T: Clone + std::fmt::Debug> fmt::Display for Unique<T> {
             f,
             "  chromosome_neighbours_size: {}",
             self.chromosome_neighbours_size()
+        )?;
+        writeln!(
+            f,
+            "  chromosome_neighbour_permutations_size: {}",
+            self.chromosome_neighbour_permutations_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
