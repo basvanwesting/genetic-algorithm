@@ -36,18 +36,15 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
         max_repeats: usize,
         rng: &mut R,
     ) -> Result<HillClimb<G, F>, TryFromBuilderError> {
-        let mut best_run: HillClimb<G, F> = self.clone().try_into()?;
-        best_run.call(rng);
-
-        if best_run.is_finished_by_target_fitness_score() {
-            Ok(best_run)
-        } else {
-            for _ in 1..max_repeats {
-                let contending_run = self.clone().call(rng).unwrap();
-                if contending_run.is_finished_by_target_fitness_score() {
-                    best_run = contending_run;
-                    break;
-                }
+        let mut best_hill_climb: Option<HillClimb<G, F>> = None;
+        for _i in 0..max_repeats {
+            let mut contending_run: HillClimb<G, F> = self.clone().try_into()?;
+            contending_run.call(rng);
+            if contending_run.is_finished_by_target_fitness_score() {
+                best_hill_climb = Some(contending_run);
+                break;
+            }
+            if let Some(best_run) = best_hill_climb.as_ref() {
                 match (
                     best_run.best_fitness_score(),
                     contending_run.best_fitness_score(),
@@ -55,26 +52,29 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
                     (None, None) => {}
                     (Some(_), None) => {}
                     (None, Some(_)) => {
-                        best_run = contending_run;
+                        best_hill_climb = Some(contending_run);
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match contending_run.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score >= current_fitness_score {
-                                    best_run = contending_run;
+                                    best_hill_climb = Some(contending_run);
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score <= current_fitness_score {
-                                    best_run = contending_run;
+                                    best_hill_climb = Some(contending_run);
                                 }
                             }
                         }
                     }
                 }
+            } else {
+                best_hill_climb = Some(contending_run);
             }
-            Ok(best_run)
         }
+
+        Ok(best_hill_climb.unwrap())
     }
 
     pub fn with_genotype(mut self, genotype: G) -> Self {
