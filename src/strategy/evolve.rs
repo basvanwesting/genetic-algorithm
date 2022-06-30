@@ -94,10 +94,10 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     degeneration_range: Option<Range<f32>>,
 
     pub current_iteration: usize,
-    current_generation: usize,
-    best_chromosome: Option<Chromosome<G>>,
-    degenerate: bool,
+    pub current_generation: usize,
+    pub degenerate: bool,
     pub best_generation: usize,
+    best_chromosome: Option<Chromosome<G>>,
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Strategy<G>

@@ -49,8 +49,8 @@ pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     fitness: F,
     fitness_ordering: FitnessOrdering,
 
-    best_chromosome: Option<Chromosome<G>>,
     pub population_size: BigUint,
+    best_chromosome: Option<Chromosome<G>>,
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Strategy<G> for Permutate<G, F> {

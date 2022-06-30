@@ -10,7 +10,6 @@ use super::Strategy;
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
-use num::BigUint;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 use std::fmt;
@@ -29,18 +28,17 @@ pub enum HillClimbVariant {
 ///   Rather, it selects a neighbor at random, and decides (based on the amount of improvement in
 ///   that neighbor) whether to move to that neighbor or to examine another
 /// * [HillClimbVariant::SteepestSingle]: all neighbours (with single mutation only) are compared and the closest to the solution is chosen
-///     * If it is a better chromosome than the current best the next round uses this chromosome as a starting
-///       point and the scale is reset
-///     * If there not, the scale is reduced by a factor to zoom in on the local solution
 /// * [HillClimbVariant::SteepestPermutation]: all neighbours (permutation of all neighbouring mutations) are compared and the closest to the solution is chosen
-///     * If it is a better chromosome than the current best the next round uses this chromosome as a starting
-///       point and the scale is reset
-///     * If there not, the scale is reduced by a factor to zoom in on the local solution
 ///
-/// The fitness is calculated each round.
-/// * If the fitness is worse, the mutation is undone and the next round is started
-/// * If the fitness is equal or better, the mutated chromosome is taken for the next round.
-///   It is important to update the best chromosome on equal fitness for diversity reasons
+/// The fitness is calculated each round:
+/// * If the fitness is worse
+///     * the mutation is ignored and the next round is started based on the current best chromosome
+///     * if the scaling is set, the scale is reduced to zoom in on the local solution
+///     * the stale generation counter is incremented (functionally)
+/// * If the fitness is equal or better
+///     * the mutated chromosome is taken for the next round.
+///     * if the scaling is set, the scale is reset to its base scale
+///     * the stale generation counter is reset (functionally)
 ///
 /// To avoid a local optimum, the `random_chromosome_probability` can be provided.
 /// It seems much more efficient to insert random chromosomes in a single [HillClimb] run, than to
@@ -91,11 +89,10 @@ pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     scaling: Option<(f32, f32)>,
 
     pub current_iteration: usize,
-    current_generation: usize,
-    current_scaling: Option<f32>,
-    best_chromosome: Option<Chromosome<G>>,
+    pub current_generation: usize,
+    pub current_scaling: Option<f32>,
     pub best_generation: usize,
-    pub neighbours_size: BigUint,
+    best_chromosome: Option<Chromosome<G>>,
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
@@ -206,6 +203,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
                                     } else {
                                         self.scale_down();
                                     }
+                                } else {
+                                    self.scale_down();
                                 }
                             }
                             FitnessOrdering::Minimize => {
@@ -217,6 +216,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
                                     } else {
                                         self.scale_down();
                                     }
+                                } else {
+                                    self.scale_down();
                                 }
                             }
                         }
@@ -256,10 +257,11 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     #[allow(dead_code)]
     fn report_round(&self) {
         println!(
-            "current generation: {}, best fitness score: {:?}, current fitness score: {:?}, genes: {:?}",
+            "current generation: {}, best fitness score: {:?}, current fitness score: {:?}, current scale: {:?}, genes: {:?}",
             self.current_generation,
             self.best_fitness_score(),
             self.best_chromosome.as_ref().map(|o| &o.fitness_score),
+            self.current_scaling.as_ref(),
             self.best_chromosome.as_ref().map(|o| &o.genes),
         );
     }
@@ -298,7 +300,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
             ))
         } else {
             let genotype = builder.genotype.unwrap();
-            let neighbours_size = genotype.chromosome_neighbours_size();
 
             Ok(Self {
                 genotype: genotype,
@@ -316,7 +317,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
                 current_scaling: None,
                 best_generation: 0,
                 best_chromosome: None,
-                neighbours_size: neighbours_size,
             })
         }
     }
@@ -335,7 +335,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClim
         )?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  neighbours_size: {}", self.neighbours_size)?;
 
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
