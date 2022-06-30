@@ -104,6 +104,33 @@ impl<T: Clone + std::fmt::Debug> Genotype for Unique<T> {
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
+
+    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+        self.mutate_chromosome_random(chromosome, rng);
+    }
+
+    fn chromosome_neighbours(
+        &self,
+        chromosome: &Chromosome<Self>,
+        _scale: f32,
+    ) -> Vec<Chromosome<Self>> {
+        (0..self.genes_size())
+            .combinations(2)
+            .map(|pair| {
+                let mut new_genes = chromosome.genes.clone();
+                new_genes.swap(pair[0], pair[1]);
+                new_genes
+            })
+            .map(|genes| Chromosome::new(genes))
+            .collect()
+    }
+
+    fn chromosome_neighbours_size(&self) -> BigUint {
+        let n = BigUint::from(self.allele_values.len());
+        let k = BigUint::from(2usize);
+
+        n.factorial() / (k.factorial() * (n - k).factorial())
+    }
 }
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for Unique<T> {
