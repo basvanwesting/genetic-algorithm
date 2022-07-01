@@ -194,61 +194,6 @@ impl<T: Clone + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
             })
             .sum()
     }
-
-    fn chromosome_neighbour_permutations(
-        &self,
-        chromosome: &Chromosome<Self>,
-        _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
-        let mut genes = chromosome.genes.clone();
-        let gene_sets: Vec<Vec<_>> =
-            self.allele_values_sizes
-                .iter()
-                .fold(vec![], |mut acc, allele_value_size| {
-                    acc.push(genes.drain(..allele_value_size).collect());
-                    acc
-                });
-
-        //println!("gene_sets: {:?}", gene_sets);
-
-        let gene_set_combinations: Vec<Vec<_>> = gene_sets
-            .iter()
-            .map(|gene_set| {
-                let mut combinations = (0..gene_set.len())
-                    .tuple_combinations()
-                    .map(|(first, second)| {
-                        let mut new_gene_set = gene_set.clone();
-                        new_gene_set.swap(first, second);
-                        new_gene_set
-                    })
-                    .collect::<Vec<Vec<_>>>();
-                combinations.push(gene_set.clone());
-                combinations
-            })
-            .collect();
-
-        //println!("gene_set_combinations: {:?}", gene_set_combinations);
-
-        gene_set_combinations
-            .into_iter()
-            .multi_cartesian_product()
-            //.inspect(|x| println!("after multi_cartesian_product: {:?}", x))
-            .map(|gene_sets| Chromosome::new(gene_sets.into_iter().concat()))
-            .collect()
-    }
-
-    fn chromosome_neighbour_permutations_size(&self) -> BigUint {
-        self.allele_values_sizes
-            .iter()
-            .filter(|allele_value_size| **allele_value_size > 1)
-            .map(|allele_value_size| {
-                let n = BigUint::from(*allele_value_size);
-                let k = BigUint::from(2usize);
-
-                n.factorial() / (k.factorial() * (n - k).factorial()) + BigUint::from(1usize)
-            })
-            .product()
-    }
 }
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
@@ -298,11 +243,6 @@ impl<T: Clone + std::fmt::Debug> fmt::Display for MultiUnique<T> {
             f,
             "  chromosome_neighbours_size: {}",
             self.chromosome_neighbours_size()
-        )?;
-        writeln!(
-            f,
-            "  chromosome_neighbour_permutations_size: {}",
-            self.chromosome_neighbour_permutations_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }

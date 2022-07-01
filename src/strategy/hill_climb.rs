@@ -19,23 +19,18 @@ pub type RandomChromosomeProbability = f64;
 #[derive(Clone, Debug)]
 pub enum HillClimbVariant {
     Stochastic,
-    SteepestSingle,
-    SteepestPermutation,
+    SteepestAscent,
 }
 
 /// The HillClimb strategy is an iterative algorithm that starts with an arbitrary solution to a
 /// problem, then attempts to find a better solution by making an incremental change to the
 /// solution
 ///
-/// There are 3 variants:
+/// There are 2 variants:
 /// * [HillClimbVariant::Stochastic]: does not examine all neighbors before deciding how to move.
 ///   Rather, it selects a neighbor at random, and decides (based on the amount of improvement in
 ///   that neighbor) whether to move to that neighbor or to examine another
-/// * [HillClimbVariant::SteepestSingle]: all neighbours (with single mutation only) are compared and the closest to the solution is chosen
-/// * [HillClimbVariant::SteepestPermutation]: all neighbours (permutation of all neighbouring mutations) are compared and the closest to the solution is chosen.
-///
-/// The `chromosome_neighbour_permutations_size` is subject to combinatorial explosion, so check the genotype
-/// for practical values before using the [HillClimbVariant::SteepestPermutation] variant.
+/// * [HillClimbVariant::SteepestAscent]: all neighbours are compared and the closest to the solution is chosen
 ///
 /// The ending conditions are one or more of the following:
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
@@ -80,7 +75,7 @@ pub enum HillClimbVariant {
 /// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
-///     .with_variant(HillClimbVariant::SteepestSingle) // check all single mutation neighbours for each round
+///     .with_variant(HillClimbVariant::SteepestAscent) // check all neighbours for each round
 ///     .with_fitness(SumContinuousGenotype(1e-5))  // sum the gene values of the chromosomes with precision 0.00001
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_scaling((1.0, 0.8, 1e-5))            // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale
@@ -137,33 +132,11 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                         self.fitness.call_for_chromosome(working_chromosome);
                         self.update_best_chromosome(working_chromosome);
                     }
-                    HillClimbVariant::SteepestSingle => {
+                    HillClimbVariant::SteepestAscent => {
                         let working_chromosome = &mut self.best_chromosome().unwrap();
                         let mut working_chromosomes: Vec<Chromosome<G>> = self
                             .genotype
                             .chromosome_neighbours(working_chromosome, self.current_scaling);
-                        working_chromosomes
-                            .iter_mut()
-                            .for_each(|chromosome| self.fitness.call_for_chromosome(chromosome));
-
-                        let best_working_chromosome = match self.fitness_ordering {
-                            FitnessOrdering::Maximize => working_chromosomes.iter().max(),
-                            FitnessOrdering::Minimize => working_chromosomes
-                                .iter()
-                                .filter(|c| c.fitness_score.is_some())
-                                .min(),
-                        };
-                        self.update_best_chromosome(
-                            best_working_chromosome.unwrap_or(working_chromosome),
-                        );
-                    }
-                    HillClimbVariant::SteepestPermutation => {
-                        let working_chromosome = &mut self.best_chromosome().unwrap();
-                        let mut working_chromosomes: Vec<Chromosome<G>> =
-                            self.genotype.chromosome_neighbour_permutations(
-                                working_chromosome,
-                                self.current_scaling,
-                            );
                         working_chromosomes
                             .iter_mut()
                             .for_each(|chromosome| self.fitness.call_for_chromosome(chromosome));
