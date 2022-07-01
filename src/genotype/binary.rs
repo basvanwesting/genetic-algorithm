@@ -24,7 +24,7 @@ pub type BinaryAllele = bool;
 pub struct Binary {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
-    allele_value_sampler: Bernoulli,
+    allele_sampler: Bernoulli,
     pub seed_genes: Option<Vec<BinaryAllele>>,
 }
 
@@ -38,7 +38,7 @@ impl TryFrom<Builder<Self>> for Binary {
             Ok(Self {
                 genes_size: builder.genes_size.unwrap(),
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
-                allele_value_sampler: Bernoulli::new(0.5).unwrap(),
+                allele_sampler: Bernoulli::new(0.5).unwrap(),
                 seed_genes: builder.seed_genes,
             })
         }
@@ -55,7 +55,7 @@ impl Genotype for Binary {
             Chromosome::new(seed_genes.clone())
         } else {
             let genes: Vec<Self::Allele> = (0..self.genes_size)
-                .map(|_| self.allele_value_sampler.sample(rng))
+                .map(|_| self.allele_sampler.sample(rng))
                 .collect();
             Chromosome::new(genes)
         }
@@ -69,7 +69,7 @@ impl Genotype for Binary {
 }
 
 impl PermutableGenotype for Binary {
-    fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
+    fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         vec![true, false]
     }
 }

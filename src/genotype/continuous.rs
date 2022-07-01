@@ -34,7 +34,7 @@ pub struct Continuous {
     pub allele_range: Range<ContinuousAllele>,
     pub allele_neighbour_range: Option<Range<ContinuousAllele>>,
     gene_index_sampler: Uniform<usize>,
-    allele_value_sampler: Uniform<ContinuousAllele>,
+    allele_sampler: Uniform<ContinuousAllele>,
     allele_neighbour_sampler: Option<Uniform<ContinuousAllele>>,
     pub seed_genes: Option<Vec<ContinuousAllele>>,
 }
@@ -60,7 +60,7 @@ impl TryFrom<Builder<Self>> for Continuous {
                 allele_range: allele_range.clone(),
                 allele_neighbour_range: builder.allele_neighbour_range.clone(),
                 gene_index_sampler: Uniform::from(0..genes_size),
-                allele_value_sampler: Uniform::from(allele_range.clone()),
+                allele_sampler: Uniform::from(allele_range.clone()),
                 allele_neighbour_sampler: builder
                     .allele_neighbour_range
                     .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
@@ -80,7 +80,7 @@ impl Genotype for Continuous {
             Chromosome::new(seed_genes.clone())
         } else {
             let genes: Vec<Self::Allele> = (0..self.genes_size)
-                .map(|_| self.allele_value_sampler.sample(rng))
+                .map(|_| self.allele_sampler.sample(rng))
                 .collect();
             Chromosome::new(genes)
         }
@@ -88,7 +88,7 @@ impl Genotype for Continuous {
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.allele_value_sampler.sample(rng);
+        chromosome.genes[index] = self.allele_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
 }

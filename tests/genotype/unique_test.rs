@@ -8,7 +8,7 @@ use genetic_algorithm::genotype::{
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = UniqueGenotype::builder()
-        .with_allele_values(vec![5, 2, 3, 4])
+        .with_allele_list(vec![5, 2, 3, 4])
         .build()
         .unwrap();
 
@@ -29,7 +29,7 @@ fn general() {
 #[test]
 fn chromosome_permutations() {
     let genotype = UniqueGenotype::builder()
-        .with_allele_values(vec![0, 1, 2, 3])
+        .with_allele_list(vec![0, 1, 2, 3])
         .build()
         .unwrap();
 
@@ -71,7 +71,7 @@ fn chromosome_permutations() {
 #[test]
 fn chromosome_permutations_genes_size_huge() {
     let genotype = UniqueGenotype::builder()
-        .with_allele_values((0..30).collect())
+        .with_allele_list((0..30).collect())
         .build()
         .unwrap();
     assert_eq!(
@@ -84,7 +84,7 @@ fn chromosome_permutations_genes_size_huge() {
 fn chromosome_neighbours_2() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = UniqueGenotype::builder()
-        .with_allele_values(vec![0, 1])
+        .with_allele_list(vec![0, 1])
         .build()
         .unwrap();
 
@@ -99,7 +99,7 @@ fn chromosome_neighbours_2() {
 fn chromosome_neighbours_4() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = UniqueGenotype::builder()
-        .with_allele_values(vec![0, 1, 2, 3])
+        .with_allele_list(vec![0, 1, 2, 3])
         .build()
         .unwrap();
 

@@ -76,7 +76,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &genes_size| {
                 let genotype = DiscreteGenotype::builder()
                     .with_genes_size(genes_size)
-                    .with_allele_values((0..10).collect())
+                    .with_allele_list((0..10).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -92,7 +92,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             genes_size,
             |b, &genes_size| {
                 let genotype = MultiContinuousGenotype::builder()
-                    .with_allele_multi_range((0..genes_size).map(|_| (0.0..1.0)).collect())
+                    .with_allele_ranges((0..genes_size).map(|_| (0.0..1.0)).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -104,8 +104,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             genes_size,
             |b, &genes_size| {
                 let genotype = MultiContinuousGenotype::builder()
-                    .with_allele_multi_range((0..genes_size).map(|_| (0.0..1.0)).collect())
-                    .with_allele_multi_neighbour_range(
+                    .with_allele_ranges((0..genes_size).map(|_| (0.0..1.0)).collect())
+                    .with_allele_neighbour_ranges(
                         (0..genes_size).map(|_| (-0.1..0.1)).collect(),
                     )
                     .build()
@@ -129,7 +129,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             genes_size,
             |b, &genes_size| {
                 let genotype = MultiDiscreteGenotype::builder()
-                    .with_allele_multi_values((0..genes_size).map(|_| (0..10).collect()).collect())
+                    .with_allele_lists((0..genes_size).map(|_| (0..10).collect()).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -146,7 +146,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &genes_size| {
                 let genotype = UniqueGenotype::builder()
                     .with_genes_size(genes_size)
-                    .with_allele_values((0..10).collect())
+                    .with_allele_list((0..10).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -159,7 +159,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &genes_size| {
                 let genotype = UniqueGenotype::builder()
                     .with_genes_size(genes_size)
-                    .with_allele_values((0..10).collect())
+                    .with_allele_list((0..10).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);

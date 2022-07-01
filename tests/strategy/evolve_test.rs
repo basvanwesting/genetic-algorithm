@@ -42,7 +42,7 @@ fn build_invalid_missing_ending_condition() {
 #[test]
 fn build_invalid_require_crossover_indexes() {
     let genotype = UniqueGenotype::builder()
-        .with_allele_values((0..10).collect())
+        .with_allele_list((0..10).collect())
         .build()
         .unwrap();
     let evolve = Evolve::builder()
@@ -66,7 +66,7 @@ fn build_invalid_require_crossover_indexes() {
 #[test]
 fn build_invalid_require_crossover_points() {
     let genotype = UniqueGenotype::builder()
-        .with_allele_values((0..10).collect())
+        .with_allele_list((0..10).collect())
         .build()
         .unwrap();
     let evolve = Evolve::builder()
@@ -267,7 +267,7 @@ fn call_continuous() {
 fn call_discrete() {
     let genotype = DiscreteGenotype::builder()
         .with_genes_size(10)
-        .with_allele_values((0..4).collect())
+        .with_allele_list((0..4).collect())
         .build()
         .unwrap();
 
@@ -296,7 +296,7 @@ fn call_discrete() {
 #[test]
 fn call_multi_discrete() {
     let genotype = MultiDiscreteGenotype::builder()
-        .with_allele_multi_values(vec![
+        .with_allele_lists(vec![
             vec![0, 1, 2, 3, 4],
             vec![0, 1],
             vec![0],

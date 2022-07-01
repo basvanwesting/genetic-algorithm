@@ -13,12 +13,12 @@ pub struct TryFromBuilderError(pub &'static str);
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {
     pub genes_size: Option<usize>,
-    pub allele_values: Option<Vec<<G as Genotype>::Allele>>,
-    pub allele_multi_values: Option<Vec<Vec<<G as Genotype>::Allele>>>,
+    pub allele_list: Option<Vec<<G as Genotype>::Allele>>,
+    pub allele_lists: Option<Vec<Vec<<G as Genotype>::Allele>>>,
     pub allele_range: Option<Range<<G as Genotype>::Allele>>,
-    pub allele_multi_range: Option<Vec<Range<<G as Genotype>::Allele>>>,
+    pub allele_ranges: Option<Vec<Range<<G as Genotype>::Allele>>>,
     pub allele_neighbour_range: Option<Range<<G as Genotype>::Allele>>,
-    pub allele_multi_neighbour_range: Option<Vec<Range<<G as Genotype>::Allele>>>,
+    pub allele_neighbour_ranges: Option<Vec<Range<<G as Genotype>::Allele>>>,
     pub seed_genes: Option<Vec<<G as Genotype>::Allele>>,
 }
 
@@ -32,16 +32,16 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
-    pub fn with_allele_values(mut self, allele_values: Vec<<G as Genotype>::Allele>) -> Self {
-        self.allele_values = Some(allele_values);
+    pub fn with_allele_list(mut self, allele_list: Vec<<G as Genotype>::Allele>) -> Self {
+        self.allele_list = Some(allele_list);
         self
     }
 
-    pub fn with_allele_multi_values(
+    pub fn with_allele_lists(
         mut self,
-        allele_multi_values: Vec<Vec<<G as Genotype>::Allele>>,
+        allele_lists: Vec<Vec<<G as Genotype>::Allele>>,
     ) -> Self {
-        self.allele_multi_values = Some(allele_multi_values);
+        self.allele_lists = Some(allele_lists);
         self
     }
 
@@ -50,11 +50,11 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
-    pub fn with_allele_multi_range(
+    pub fn with_allele_ranges(
         mut self,
-        allele_multi_range: Vec<Range<<G as Genotype>::Allele>>,
+        allele_ranges: Vec<Range<<G as Genotype>::Allele>>,
     ) -> Self {
-        self.allele_multi_range = Some(allele_multi_range);
+        self.allele_ranges = Some(allele_ranges);
         self
     }
 
@@ -66,11 +66,11 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
-    pub fn with_allele_multi_neighbour_range(
+    pub fn with_allele_neighbour_ranges(
         mut self,
-        allele_multi_neighbour_range: Vec<Range<<G as Genotype>::Allele>>,
+        allele_neighbour_ranges: Vec<Range<<G as Genotype>::Allele>>,
     ) -> Self {
-        self.allele_multi_neighbour_range = Some(allele_multi_neighbour_range);
+        self.allele_neighbour_ranges = Some(allele_neighbour_ranges);
         self
     }
 
@@ -88,12 +88,12 @@ impl<G: Genotype> Default for Builder<G> {
     fn default() -> Self {
         Self {
             genes_size: None,
-            allele_values: None,
-            allele_multi_values: None,
+            allele_list: None,
+            allele_lists: None,
             allele_range: None,
-            allele_multi_range: None,
+            allele_ranges: None,
             allele_neighbour_range: None,
-            allele_multi_neighbour_range: None,
+            allele_neighbour_ranges: None,
             seed_genes: None,
         }
     }

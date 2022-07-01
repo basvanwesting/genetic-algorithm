@@ -61,7 +61,7 @@ fn main() {
         //CompeteDispatch(Competes::Tournament, 8),
     ];
     let genotype = MultiContinuousGenotype::builder()
-        .with_allele_multi_range(vec![(-10.0..10.0), (0.0..10.0)])
+        .with_allele_ranges(vec![(-10.0..10.0), (0.0..10.0)])
         .build()
         .unwrap();
     let fitness = MILPFitness;

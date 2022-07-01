@@ -36,7 +36,7 @@ impl Fitness for NQueensFitness {
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let genotype = UniqueGenotype::builder()
-        .with_allele_values((0..64).collect())
+        .with_allele_list((0..64).collect())
         .build()
         .unwrap();
 

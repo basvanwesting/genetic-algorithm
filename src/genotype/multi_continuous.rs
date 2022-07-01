@@ -11,13 +11,13 @@ use std::ops::Range;
 pub type ContinuousAllele = f32;
 
 /// Genes are a list of f32, each individually taken from its own allele_range. The genes_size is
-/// derived to be the allele_multi_range length. On random initialization, each gene gets a value
+/// derived to be the allele_ranges length. On random initialization, each gene gets a value
 /// from its own allele_range with a uniform probability. Each gene has a weighted probability of
 /// mutating, depending on its allele_range size. If a gene mutates, a new values is taken from its
 /// own allele_range with a uniform probability. Duplicate allele values are allowed. Defaults to usize
 /// as item.
 ///
-/// Optionally an allele_multi_neighbour_range can be provided. When this is done the mutation is
+/// Optionally an allele_neighbour_ranges can be provided. When this is done the mutation is
 /// restricted to modify the existing value by a difference taken from allele_neighbour_range with a uniform probability.
 ///
 /// # Example:
@@ -25,13 +25,13 @@ pub type ContinuousAllele = f32;
 /// use genetic_algorithm::genotype::{Genotype, MultiContinuousGenotype};
 ///
 /// let genotype = MultiContinuousGenotype::builder()
-///     .with_allele_multi_range(vec![
+///     .with_allele_ranges(vec![
 ///        (0.0..10.0),
 ///        (5.0..20.0),
 ///        (0.0..5.0),
 ///        (10.0..30.0),
 ///     ])
-///     .with_allele_multi_neighbour_range(vec![
+///     .with_allele_neighbour_ranges(vec![
 ///        (-1.0..1.0),
 ///        (-2.0..2.0),
 ///        (-0.5..0.5),
@@ -43,10 +43,10 @@ pub type ContinuousAllele = f32;
 #[derive(Clone, Debug)]
 pub struct MultiContinuous {
     genes_size: usize,
-    pub allele_multi_range: Vec<Range<ContinuousAllele>>,
-    pub allele_multi_neighbour_range: Option<Vec<Range<ContinuousAllele>>>,
+    pub allele_ranges: Vec<Range<ContinuousAllele>>,
+    pub allele_neighbour_ranges: Option<Vec<Range<ContinuousAllele>>>,
     gene_index_sampler: WeightedIndex<ContinuousAllele>,
-    allele_value_samplers: Vec<Uniform<ContinuousAllele>>,
+    allele_samplers: Vec<Uniform<ContinuousAllele>>,
     allele_neighbour_samplers: Option<Vec<Uniform<ContinuousAllele>>>,
     pub seed_genes: Option<Vec<ContinuousAllele>>,
 }
@@ -55,39 +55,39 @@ impl TryFrom<Builder<Self>> for MultiContinuous {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.allele_multi_range.is_none() {
+        if builder.allele_ranges.is_none() {
             Err(TryFromBuilderError(
-                "MultiContinuousGenotype requires a allele_multi_range",
+                "MultiContinuousGenotype requires a allele_ranges",
             ))
         } else if builder
-            .allele_multi_range
+            .allele_ranges
             .as_ref()
             .map(|o| o.is_empty())
             .unwrap()
         {
             Err(TryFromBuilderError(
-                "MultiContinuousGenotype requires non-empty allele_multi_range",
+                "MultiContinuousGenotype requires non-empty allele_ranges",
             ))
         } else {
-            let allele_multi_range = builder.allele_multi_range.unwrap();
-            let genes_size = allele_multi_range.len();
-            let index_weights: Vec<ContinuousAllele> = allele_multi_range
+            let allele_ranges = builder.allele_ranges.unwrap();
+            let genes_size = allele_ranges.len();
+            let index_weights: Vec<ContinuousAllele> = allele_ranges
                 .iter()
                 .map(|allele_range| allele_range.end - allele_range.start)
                 .collect();
 
             Ok(Self {
                 genes_size: genes_size,
-                allele_multi_range: allele_multi_range.clone(),
-                allele_multi_neighbour_range: builder.allele_multi_neighbour_range.clone(),
+                allele_ranges: allele_ranges.clone(),
+                allele_neighbour_ranges: builder.allele_neighbour_ranges.clone(),
                 gene_index_sampler: WeightedIndex::new(index_weights).unwrap(),
-                allele_value_samplers: allele_multi_range
+                allele_samplers: allele_ranges
                     .iter()
                     .map(|allele_range| Uniform::from(allele_range.clone()))
                     .collect(),
-                allele_neighbour_samplers: builder.allele_multi_neighbour_range.map(
-                    |allele_multi_neighbour_range| {
-                        allele_multi_neighbour_range
+                allele_neighbour_samplers: builder.allele_neighbour_ranges.map(
+                    |allele_neighbour_ranges| {
+                        allele_neighbour_ranges
                             .iter()
                             .map(|allele_neighbour_range| {
                                 Uniform::from(allele_neighbour_range.clone())
@@ -111,7 +111,7 @@ impl Genotype for MultiContinuous {
             Chromosome::new(seed_genes.clone())
         } else {
             let genes: Vec<Self::Allele> = (0..self.genes_size)
-                .map(|index| self.allele_value_samplers[index].sample(rng))
+                .map(|index| self.allele_samplers[index].sample(rng))
                 .collect();
             Chromosome::new(genes)
         }
@@ -119,7 +119,7 @@ impl Genotype for MultiContinuous {
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.allele_value_samplers[index].sample(rng);
+        chromosome.genes[index] = self.allele_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
 }
@@ -132,14 +132,14 @@ impl IncrementalGenotype for MultiContinuous {
         rng: &mut R,
     ) {
         let index = self.gene_index_sampler.sample(rng);
-        let allele_multi_range = &self.allele_multi_range[index];
+        let allele_ranges = &self.allele_ranges[index];
         let new_value = chromosome.genes[index]
             + self.allele_neighbour_samplers.as_ref().unwrap()[index].sample(rng)
                 * scale.unwrap_or(1.0);
-        if new_value < allele_multi_range.start {
-            chromosome.genes[index] = allele_multi_range.start;
-        } else if new_value > allele_multi_range.end {
-            chromosome.genes[index] = allele_multi_range.end;
+        if new_value < allele_ranges.start {
+            chromosome.genes[index] = allele_ranges.start;
+        } else if new_value > allele_ranges.end {
+            chromosome.genes[index] = allele_ranges.end;
         } else {
             chromosome.genes[index] = new_value;
         }
@@ -152,7 +152,7 @@ impl IncrementalGenotype for MultiContinuous {
         scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
         let range_diffs: Vec<Vec<ContinuousAllele>> = self
-            .allele_multi_neighbour_range
+            .allele_neighbour_ranges
             .as_ref()
             .unwrap()
             .iter()
@@ -171,7 +171,7 @@ impl IncrementalGenotype for MultiContinuous {
             })
             .collect();
 
-        self.allele_multi_range
+        self.allele_ranges
             .iter()
             .enumerate()
             .flat_map(|(index, value_range)| {
@@ -200,7 +200,7 @@ impl fmt::Display for MultiContinuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  allele_multi_range: {:?}\n", self.allele_multi_range)?;
+        writeln!(f, "  allele_ranges: {:?}\n", self.allele_ranges)?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(
             f,

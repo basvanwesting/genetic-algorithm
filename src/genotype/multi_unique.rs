@@ -11,11 +11,11 @@ use std::fmt;
 pub type DefaultAllele = usize;
 
 /// Genes are a concatinated list of sets of unique values, each set taken from its own
-/// allele_values using clone(). The genes_size is derived to be the sum of the allele_values
-/// lengths. All allele_values have to be of the same type, but can have different values and
-/// lengths. On random initialization, the allele_values sets are internally suffled and
+/// allele_list using clone(). The genes_size is derived to be the sum of the allele_list
+/// lengths. All allele_list have to be of the same type, but can have different values and
+/// lengths. On random initialization, the allele_list sets are internally suffled and
 /// concatinated to form the genes, but the order of the sets is always the same. Each unique set
-/// has a weighted probability of mutating, depending on its allele_values length. If a set
+/// has a weighted probability of mutating, depending on its allele_list length. If a set
 /// mutates, the values for a pair of genes in the set are switched, ensuring the set remains
 /// unique. Duplicate allele values are allowed. Defaults to usize as item.
 ///
@@ -24,7 +24,7 @@ pub type DefaultAllele = usize;
 /// use genetic_algorithm::genotype::{Genotype, MultiUniqueGenotype};
 ///
 /// let genotype = MultiUniqueGenotype::builder()
-///     .with_allele_multi_values(vec![
+///     .with_allele_lists(vec![
 ///        (0..3).collect(),
 ///        (4..6).collect(),
 ///        (7..9).collect(),
@@ -45,7 +45,7 @@ pub type DefaultAllele = usize;
 /// struct Item(pub u16, pub u16);
 ///
 /// let genotype = MultiUniqueGenotype::builder()
-///     .with_allele_multi_values(vec![
+///     .with_allele_lists(vec![
 ///       vec![Item(1, 505), Item(2, 352), Item(3, 458)],
 ///       vec![Item(4, 505), Item(5, 352)],
 ///       vec![Item(6, 352), Item(7, 458), Item(8, 123)],
@@ -56,11 +56,11 @@ pub type DefaultAllele = usize;
 #[derive(Clone, Debug)]
 pub struct MultiUnique<T: Clone + std::fmt::Debug = DefaultAllele> {
     genes_size: usize,
-    allele_values_sizes: Vec<usize>,
-    allele_values_index_offsets: Vec<usize>,
-    pub allele_multi_values: Vec<Vec<T>>,
-    allele_values_index_sampler: WeightedIndex<usize>,
-    allele_values_index_samplers: Vec<Uniform<usize>>,
+    allele_list_sizes: Vec<usize>,
+    allele_list_index_offsets: Vec<usize>,
+    pub allele_lists: Vec<Vec<T>>,
+    allele_list_index_sampler: WeightedIndex<usize>,
+    allele_list_index_samplers: Vec<Uniform<usize>>,
     pub seed_genes: Option<Vec<T>>,
 }
 
@@ -68,36 +68,29 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for MultiUnique<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.allele_multi_values.is_none() {
+        if builder.allele_lists.is_none() {
             Err(TryFromBuilderError(
-                "MultiUniqueGenotype requires a allele_multi_values",
+                "MultiUniqueGenotype requires a allele_lists",
             ))
-        } else if builder
-            .allele_multi_values
-            .as_ref()
-            .map(|o| o.is_empty())
-            .unwrap()
-        {
+        } else if builder.allele_lists.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
-                "MultiUniqueGenotype requires non-empty allele_multi_values",
+                "MultiUniqueGenotype requires non-empty allele_lists",
             ))
         } else {
-            let allele_multi_values = builder.allele_multi_values.unwrap();
-            let allele_values_sizes: Vec<usize> =
-                allele_multi_values.iter().map(|v| v.len()).collect();
-            let allele_values_index_offsets =
-                allele_values_sizes.iter().fold(vec![0], |mut acc, size| {
+            let allele_lists = builder.allele_lists.unwrap();
+            let allele_list_sizes: Vec<usize> = allele_lists.iter().map(|v| v.len()).collect();
+            let allele_list_index_offsets =
+                allele_list_sizes.iter().fold(vec![0], |mut acc, size| {
                     acc.push(*acc.last().unwrap() + size);
                     acc
                 });
             Ok(Self {
-                genes_size: allele_values_sizes.iter().sum(),
-                allele_values_sizes: allele_values_sizes.clone(),
-                allele_values_index_offsets: allele_values_index_offsets,
-                allele_multi_values: allele_multi_values.clone(),
-                allele_values_index_sampler: WeightedIndex::new(allele_values_sizes.clone())
-                    .unwrap(),
-                allele_values_index_samplers: allele_values_sizes
+                genes_size: allele_list_sizes.iter().sum(),
+                allele_list_sizes: allele_list_sizes.clone(),
+                allele_list_index_offsets: allele_list_index_offsets,
+                allele_lists: allele_lists.clone(),
+                allele_list_index_sampler: WeightedIndex::new(allele_list_sizes.clone()).unwrap(),
+                allele_list_index_samplers: allele_list_sizes
                     .iter()
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
                     .collect(),
@@ -113,7 +106,7 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiUnique<T> {
         self.genes_size
     }
     fn crossover_points(&self) -> Vec<usize> {
-        let mut crossover_points = self.allele_values_sizes.clone();
+        let mut crossover_points = self.allele_list_sizes.clone();
         crossover_points.pop();
         crossover_points
     }
@@ -126,10 +119,10 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiUnique<T> {
             Chromosome::new(seed_genes.clone())
         } else {
             let genes: Vec<Self::Allele> = self
-                .allele_multi_values
+                .allele_lists
                 .iter()
-                .flat_map(|allele_values| {
-                    let mut genes = allele_values.clone();
+                .flat_map(|allele_list| {
+                    let mut genes = allele_list.clone();
                     genes.shuffle(rng);
                     genes
                 })
@@ -139,10 +132,10 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiUnique<T> {
     }
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
-        let index = self.allele_values_index_sampler.sample(rng);
-        let index_offset: usize = self.allele_values_index_offsets[index];
-        let index1 = index_offset + self.allele_values_index_samplers[index].sample(rng);
-        let index2 = index_offset + self.allele_values_index_samplers[index].sample(rng);
+        let index = self.allele_list_index_sampler.sample(rng);
+        let index_offset: usize = self.allele_list_index_offsets[index];
+        let index1 = index_offset + self.allele_list_index_samplers[index].sample(rng);
+        let index2 = index_offset + self.allele_list_index_samplers[index].sample(rng);
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
@@ -163,11 +156,11 @@ impl<T: Clone + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
         chromosome: &Chromosome<Self>,
         _scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
-        self.allele_values_sizes
+        self.allele_list_sizes
             .iter()
             .enumerate()
             .flat_map(|(index, allele_value_size)| {
-                let index_offset: usize = self.allele_values_index_offsets[index];
+                let index_offset: usize = self.allele_list_index_offsets[index];
 
                 (0..*allele_value_size)
                     .tuple_combinations()
@@ -183,7 +176,7 @@ impl<T: Clone + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
     }
 
     fn chromosome_neighbours_size(&self) -> BigUint {
-        self.allele_values_sizes
+        self.allele_list_sizes
             .iter()
             .filter(|allele_value_size| **allele_value_size > 1)
             .map(|allele_value_size| {
@@ -198,7 +191,7 @@ impl<T: Clone + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
     //noop
-    fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
+    fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         vec![]
     }
 
@@ -206,12 +199,12 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
         &'a self,
     ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
         Box::new(
-            self.allele_multi_values
+            self.allele_lists
                 .clone()
                 .into_iter()
-                .map(|allele_values| {
-                    let size = allele_values.len();
-                    allele_values.into_iter().permutations(size)
+                .map(|allele_list| {
+                    let size = allele_list.len();
+                    allele_list.into_iter().permutations(size)
                 })
                 .multi_cartesian_product()
                 .map(|gene_sets| Chromosome::new(gene_sets.into_iter().concat())),
@@ -219,11 +212,11 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {
-        self.allele_values_sizes
+        self.allele_list_sizes
             .iter()
             .map(|v| BigUint::from(*v))
-            .fold(BigUint::from(1u8), |acc, allele_values_size| {
-                acc * allele_values_size.factorial()
+            .fold(BigUint::from(1u8), |acc, allele_list_size| {
+                acc * allele_list_size.factorial()
             })
     }
 }
@@ -232,8 +225,8 @@ impl<T: Clone + std::fmt::Debug> fmt::Display for MultiUnique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}\n", self.genes_size)?;
-        writeln!(f, "  allele_values_sizes: {:?}", self.allele_values_sizes)?;
-        writeln!(f, "  allele_multi_values: {:?}", self.allele_multi_values)?;
+        writeln!(f, "  allele_list_sizes: {:?}", self.allele_list_sizes)?;
+        writeln!(f, "  allele_lists: {:?}", self.allele_lists)?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",

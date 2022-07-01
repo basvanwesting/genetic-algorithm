@@ -34,7 +34,7 @@ fn main() {
 
     let mut rng = SmallRng::from_entropy();
     let genotype = UniqueGenotype::builder()
-        .with_allele_values((0..BOARD_SIZE).collect())
+        .with_allele_list((0..BOARD_SIZE).collect())
         .build()
         .unwrap();
 

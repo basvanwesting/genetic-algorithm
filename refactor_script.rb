@@ -10,11 +10,13 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /table_setting/ => 'table_seating',
+  /allele_values/                => 'allele_list',
+  /allele_multi_values/          => 'allele_lists',
+  /allele_multi_range/           => 'allele_ranges',
+  /allele_multi_neighbour_range/ => 'allele_neighbour_ranges',
 }
 
 other_translations = {
-  /TableSetting/ => 'TableSeating',
 }
 
 #check:

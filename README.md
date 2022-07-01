@@ -111,9 +111,6 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Redo degeneration_range, as it is tricky to configure. Depends on how fitness behaves (expected spread per mutation).
   Maybe redo as degeneration_duration in term of generations to hold on to it, triggered by standard trigger when no variation in fitness score is left.
 * rename multi_range to ranges?
-* add interpolated neighbours back in (removed in commit 5eec5ce) as it perform much better for the MILP example
-* refactor chromosome_neighbour_permutations on MultiUniqueGenotype, remove intermediate variables
-* add warning about combinatory explision when using chromosome_neighbour_permutations
 
 ## MAYBE
 * Store age on chromosome?

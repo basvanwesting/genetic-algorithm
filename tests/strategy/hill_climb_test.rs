@@ -152,7 +152,7 @@ fn call_continuous_target_fitness_score_minimize() {
 //fn call_discrete() {
 //let genotype = DiscreteGenotype::builder()
 //.with_genes_size(10)
-//.with_allele_values((0..4).collect())
+//.with_allele_list((0..4).collect())
 //.build()
 //.unwrap();
 
@@ -177,7 +177,7 @@ fn call_continuous_target_fitness_score_minimize() {
 //#[test]
 //fn call_multi_discrete() {
 //let genotype = MultiDiscreteGenotype::builder()
-//.with_allele_multi_values(vec![
+//.with_allele_lists(vec![
 //vec![0, 1, 2, 3, 4],
 //vec![0, 1],
 //vec![0],

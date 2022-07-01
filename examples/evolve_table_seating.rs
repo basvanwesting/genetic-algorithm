@@ -66,7 +66,7 @@ fn main() {
         .iter()
         .map(|round| round.iter().map(|(h, _s)| *h).collect())
         .collect();
-    let allele_multi_values: Vec<Vec<Person>> = (0..number_of_rounds)
+    let allele_lists: Vec<Vec<Person>> = (0..number_of_rounds)
         .map(|i| {
             people
                 .iter()
@@ -78,7 +78,7 @@ fn main() {
 
     let mut rng = SmallRng::from_entropy();
     let genotype = MultiUniqueGenotype::builder()
-        .with_allele_multi_values(allele_multi_values)
+        .with_allele_lists(allele_lists)
         .build()
         .unwrap();
 

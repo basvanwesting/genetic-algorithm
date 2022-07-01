@@ -6,7 +6,7 @@ use genetic_algorithm::genotype::{Genotype, IncrementalGenotype, MultiContinuous
 fn general_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiContinuousGenotype::builder()
-        .with_allele_multi_range(vec![0.0..1.0, 0.0..5.0, 10.0..20.0])
+        .with_allele_ranges(vec![0.0..1.0, 0.0..5.0, 10.0..20.0])
         .build()
         .unwrap();
 
@@ -30,8 +30,8 @@ fn general_random() {
 fn general_neighbour() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiContinuousGenotype::builder()
-        .with_allele_multi_range(vec![0.0..1.0, 0.0..5.0, 10.0..20.0])
-        .with_allele_multi_neighbour_range(vec![-1.0..0.1, -0.5..0.5, -1.0..1.0])
+        .with_allele_ranges(vec![0.0..1.0, 0.0..5.0, 10.0..20.0])
+        .with_allele_neighbour_ranges(vec![-1.0..0.1, -0.5..0.5, -1.0..1.0])
         .build()
         .unwrap();
 
@@ -55,8 +55,8 @@ fn general_neighbour() {
 fn chromosome_neighbours_1() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiContinuousGenotype::builder()
-        .with_allele_multi_range(vec![0.0..1.0])
-        .with_allele_multi_neighbour_range(vec![-1.0..0.1])
+        .with_allele_ranges(vec![0.0..1.0])
+        .with_allele_neighbour_ranges(vec![-1.0..0.1])
         .build()
         .unwrap();
 
@@ -75,8 +75,8 @@ fn chromosome_neighbours_1() {
 fn chromosome_neighbours_3() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiContinuousGenotype::builder()
-        .with_allele_multi_range(vec![0.0..1.0, 0.0..5.0, 10.0..20.0])
-        .with_allele_multi_neighbour_range(vec![-1.0..0.1, -0.5..0.5, -1.0..1.0])
+        .with_allele_ranges(vec![0.0..1.0, 0.0..5.0, 10.0..20.0])
+        .with_allele_neighbour_ranges(vec![-1.0..0.1, -0.5..0.5, -1.0..1.0])
         .build()
         .unwrap();
 

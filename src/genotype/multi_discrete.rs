@@ -9,12 +9,12 @@ use std::fmt;
 
 pub type DefaultAllele = usize;
 
-/// Genes are a list of values, each individually taken from its own allele_values using clone(). The
-/// genes_size is derived to be the allele_multi_values length. All allele_values have to be of the same
+/// Genes are a list of values, each individually taken from its own allele_list using clone(). The
+/// genes_size is derived to be the allele_lists length. All allele_list have to be of the same
 /// type, but can have different values and lengths. On random initialization, each gene gets a
-/// value from its own allele_values with a uniform probability. Each gene has a weighted probability
-/// of mutating, depending on its allele_values length. If a gene mutates, a new values is taken from
-/// its own allele_values with a uniform probability (regardless of current value, which could
+/// value from its own allele_list with a uniform probability. Each gene has a weighted probability
+/// of mutating, depending on its allele_list length. If a gene mutates, a new values is taken from
+/// its own allele_list with a uniform probability (regardless of current value, which could
 /// therefore be assigned again, not mutating as a result). Duplicate allele values are allowed.
 /// Defaults to usize as item.
 ///
@@ -26,7 +26,7 @@ pub type DefaultAllele = usize;
 /// use genetic_algorithm::genotype::{Genotype, MultiDiscreteGenotype};
 ///
 /// let genotype = MultiDiscreteGenotype::builder()
-///     .with_allele_multi_values(vec![
+///     .with_allele_lists(vec![
 ///        (0..10).collect(),
 ///        (0..20).collect(),
 ///        (0..5).collect(),
@@ -46,7 +46,7 @@ pub type DefaultAllele = usize;
 /// let rain_probabilities = vec![0.0, 0.2, 0.4, 0.6, 0.8, 1.0];
 ///
 /// let genotype = MultiDiscreteGenotype::builder()
-///     .with_allele_multi_values(vec![
+///     .with_allele_lists(vec![
 ///        (0..cars.len()).collect(),
 ///        (0..drivers.len()).collect(),
 ///        (0..number_of_laps.len()).collect(),
@@ -68,7 +68,7 @@ pub type DefaultAllele = usize;
 /// struct Item(pub u16, pub u16);
 ///
 /// let genotype = MultiDiscreteGenotype::builder()
-///     .with_allele_multi_values(vec![
+///     .with_allele_lists(vec![
 ///       vec![Item(23, 505), Item(26, 352), Item(20, 458)],
 ///       vec![Item(23, 505), Item(26, 352)],
 ///       vec![Item(26, 352), Item(20, 458), Item(13, 123)],
@@ -79,10 +79,10 @@ pub type DefaultAllele = usize;
 #[derive(Clone, Debug)]
 pub struct MultiDiscrete<T: Clone + std::fmt::Debug = DefaultAllele> {
     genes_size: usize,
-    allele_values_sizes: Vec<usize>,
-    pub allele_multi_values: Vec<Vec<T>>,
+    allele_list_sizes: Vec<usize>,
+    pub allele_lists: Vec<Vec<T>>,
     gene_index_sampler: WeightedIndex<usize>,
-    allele_values_index_samplers: Vec<Uniform<usize>>,
+    allele_index_samplers: Vec<Uniform<usize>>,
     pub seed_genes: Option<Vec<T>>,
 }
 
@@ -90,29 +90,23 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for MultiDiscrete<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.allele_multi_values.is_none() {
+        if builder.allele_lists.is_none() {
             Err(TryFromBuilderError(
-                "MultiDiscreteGenotype requires a allele_multi_values",
+                "MultiDiscreteGenotype requires a allele_lists",
             ))
-        } else if builder
-            .allele_multi_values
-            .as_ref()
-            .map(|o| o.is_empty())
-            .unwrap()
-        {
+        } else if builder.allele_lists.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
-                "MultiDiscreteGenotype requires non-empty allele_multi_values",
+                "MultiDiscreteGenotype requires non-empty allele_lists",
             ))
         } else {
-            let allele_multi_values = builder.allele_multi_values.unwrap();
-            let allele_values_sizes: Vec<usize> =
-                allele_multi_values.iter().map(|v| v.len()).collect();
+            let allele_lists = builder.allele_lists.unwrap();
+            let allele_list_sizes: Vec<usize> = allele_lists.iter().map(|v| v.len()).collect();
             Ok(Self {
-                genes_size: allele_multi_values.len(),
-                allele_values_sizes: allele_values_sizes.clone(),
-                allele_multi_values: allele_multi_values.clone(),
-                gene_index_sampler: WeightedIndex::new(allele_values_sizes.clone()).unwrap(),
-                allele_values_index_samplers: allele_values_sizes
+                genes_size: allele_lists.len(),
+                allele_list_sizes: allele_list_sizes.clone(),
+                allele_lists: allele_lists.clone(),
+                gene_index_sampler: WeightedIndex::new(allele_list_sizes.clone()).unwrap(),
+                allele_index_samplers: allele_list_sizes
                     .iter()
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
                     .collect(),
@@ -132,11 +126,11 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiDiscrete<T> {
             Chromosome::new(seed_genes.clone())
         } else {
             let genes: Vec<Self::Allele> = self
-                .allele_multi_values
+                .allele_lists
                 .iter()
                 .enumerate()
-                .map(|(index, allele_values)| {
-                    allele_values[self.allele_values_index_samplers[index].sample(rng)].clone()
+                .map(|(index, allele_list)| {
+                    allele_list[self.allele_index_samplers[index].sample(rng)].clone()
                 })
                 .collect();
             Chromosome::new(genes)
@@ -145,16 +139,15 @@ impl<T: Clone + std::fmt::Debug> Genotype for MultiDiscrete<T> {
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.allele_multi_values[index]
-            [self.allele_values_index_samplers[index].sample(rng)]
-        .clone();
+        chromosome.genes[index] =
+            self.allele_lists[index][self.allele_index_samplers[index].sample(rng)].clone();
         chromosome.taint_fitness_score();
     }
 }
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiDiscrete<T> {
     //noop
-    fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
+    fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         vec![]
     }
 
@@ -162,7 +155,7 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiDiscrete<T> {
         &'a self,
     ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
         Box::new(
-            self.allele_multi_values
+            self.allele_lists
                 .clone()
                 .into_iter()
                 .multi_cartesian_product()
@@ -171,7 +164,7 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiDiscrete<T> {
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {
-        self.allele_values_sizes
+        self.allele_list_sizes
             .iter()
             .map(|v| BigUint::from(*v))
             .product()
@@ -182,8 +175,8 @@ impl<T: Clone + std::fmt::Debug> fmt::Display for MultiDiscrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}\n", self.genes_size)?;
-        writeln!(f, "  allele_values_sizes: {:?}", self.allele_values_sizes)?;
-        writeln!(f, "  allele_multi_values: {:?}", self.allele_multi_values)?;
+        writeln!(f, "  allele_list_sizes: {:?}", self.allele_list_sizes)?;
+        writeln!(f, "  allele_lists: {:?}", self.allele_lists)?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",

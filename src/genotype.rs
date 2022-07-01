@@ -62,7 +62,7 @@ pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<
 /// Not all genotypes are permutable, only countable ones (e.g. continuous genotypes cannot be permutated).
 pub trait PermutableGenotype: Genotype {
     /// used for default chromosome_permutations_into_iter implementation
-    fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele>;
+    fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele>;
 
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_into_iter<'a>(
@@ -70,7 +70,7 @@ pub trait PermutableGenotype: Genotype {
     ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
         Box::new(
             (0..self.genes_size())
-                .map(|_| self.allele_values_for_chromosome_permutations())
+                .map(|_| self.allele_list_for_chromosome_permutations())
                 .multi_cartesian_product()
                 .map(|genes| Chromosome::new(genes)),
         )
@@ -78,7 +78,7 @@ pub trait PermutableGenotype: Genotype {
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_size(&self) -> BigUint {
-        BigUint::from(self.allele_values_for_chromosome_permutations().len())
+        BigUint::from(self.allele_list_for_chromosome_permutations().len())
             .pow(self.genes_size() as u32)
     }
 }

@@ -66,7 +66,7 @@ fn call_binary_minimize() {
 fn call_discrete() {
     let genotype = DiscreteGenotype::builder()
         .with_genes_size(5)
-        .with_allele_values((0..10).collect())
+        .with_allele_list((0..10).collect())
         .build()
         .unwrap();
 
@@ -87,7 +87,7 @@ fn call_discrete() {
 #[test]
 fn call_multi_discrete() {
     let genotype = MultiDiscreteGenotype::builder()
-        .with_allele_multi_values(vec![
+        .with_allele_lists(vec![
             vec![0, 1, 2, 3, 4],
             vec![0, 1],
             vec![0],

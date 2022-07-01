@@ -7,10 +7,10 @@ use std::fmt;
 
 pub type DefaultAllele = usize;
 
-/// Genes are a list of values, each taken from the allele_values using clone(). On random
-/// initialization, each gene gets a value from the allele_values with a uniform probability. Each
+/// Genes are a list of values, each taken from the allele_list using clone(). On random
+/// initialization, each gene gets a value from the allele_list with a uniform probability. Each
 /// gene has an equal probability of mutating. If a gene mutates, a new values is taken from the
-/// allele_values with a uniform probability (regardless of current value, which could therefore be
+/// allele_list with a uniform probability (regardless of current value, which could therefore be
 /// assigned again, not mutating as a result). Duplicate allele values are allowed. Defaults to usize
 /// as item.
 ///
@@ -20,7 +20,7 @@ pub type DefaultAllele = usize;
 ///
 /// let genotype = DiscreteGenotype::builder()
 ///     .with_genes_size(100)
-///     .with_allele_values((0..10).collect())
+///     .with_allele_list((0..10).collect())
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -34,7 +34,7 @@ pub type DefaultAllele = usize;
 ///
 /// let genotype = DiscreteGenotype::builder()
 ///     .with_genes_size(100)
-///     .with_allele_values(vec![
+///     .with_allele_list(vec![
 ///         Item(23, 505),
 ///         Item(26, 352),
 ///         Item(20, 458),
@@ -45,9 +45,9 @@ pub type DefaultAllele = usize;
 #[derive(Debug, Clone)]
 pub struct Discrete<T: Clone + std::fmt::Debug = DefaultAllele> {
     pub genes_size: usize,
-    pub allele_values: Vec<T>,
+    pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
-    allele_value_index_sampler: Uniform<usize>,
+    allele_index_sampler: Uniform<usize>,
     pub seed_genes: Option<Vec<T>>,
 }
 
@@ -59,26 +59,19 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
             Err(TryFromBuilderError(
                 "DiscreteGenotype requires a genes_size",
             ))
-        } else if builder.allele_values.is_none() {
+        } else if builder.allele_list.is_none() {
+            Err(TryFromBuilderError("DiscreteGenotype requires allele_list"))
+        } else if builder.allele_list.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
-                "DiscreteGenotype requires allele_values",
-            ))
-        } else if builder
-            .allele_values
-            .as_ref()
-            .map(|o| o.is_empty())
-            .unwrap()
-        {
-            Err(TryFromBuilderError(
-                "DiscreteGenotype requires non-empty allele_values",
+                "DiscreteGenotype requires non-empty allele_list",
             ))
         } else {
-            let allele_values = builder.allele_values.unwrap();
+            let allele_list = builder.allele_list.unwrap();
             Ok(Self {
                 genes_size: builder.genes_size.unwrap(),
-                allele_values: allele_values.clone(),
+                allele_list: allele_list.clone(),
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
-                allele_value_index_sampler: Uniform::from(0..allele_values.len()),
+                allele_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes: builder.seed_genes,
             })
         }
@@ -95,7 +88,7 @@ impl<T: Clone + std::fmt::Debug> Genotype for Discrete<T> {
             Chromosome::new(seed_genes.clone())
         } else {
             let genes: Vec<Self::Allele> = (0..self.genes_size)
-                .map(|_| self.allele_values[self.allele_value_index_sampler.sample(rng)].clone())
+                .map(|_| self.allele_list[self.allele_index_sampler.sample(rng)].clone())
                 .collect();
             Chromosome::new(genes)
         }
@@ -103,15 +96,14 @@ impl<T: Clone + std::fmt::Debug> Genotype for Discrete<T> {
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] =
-            self.allele_values[self.allele_value_index_sampler.sample(rng)].clone();
+        chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)].clone();
         chromosome.taint_fitness_score();
     }
 }
 
 impl<T: Clone + std::fmt::Debug> PermutableGenotype for Discrete<T> {
-    fn allele_values_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
-        self.allele_values.clone()
+    fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
+        self.allele_list.clone()
     }
 }
 
@@ -119,7 +111,7 @@ impl<T: Clone + std::fmt::Debug> fmt::Display for Discrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  allele_values: {:?}", self.allele_values)?;
+        writeln!(f, "  allele_list: {:?}", self.allele_list)?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",

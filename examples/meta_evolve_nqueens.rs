@@ -42,7 +42,7 @@ fn main() {
     let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
     let competes = vec![CompeteDispatch(Competes::Elite, 0)];
     let genotype = UniqueGenotype::builder()
-        .with_allele_values((0..64).collect())
+        .with_allele_list((0..64).collect())
         .build()
         .unwrap();
     let fitness = NQueensFitness;
