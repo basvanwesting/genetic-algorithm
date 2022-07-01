@@ -18,6 +18,9 @@ use std::fmt;
 /// The fitness is calculated for each chromosome and the best is taken.
 /// For efficiency reasons the full population is never instantiated as a whole.
 ///
+/// The `chromosome_permutations_size` is subject to combinatorial explosion, so check the genotype
+/// for practical values before using the [Permutate] strategy.
+///
 /// See [PermutateBuilder] for initialization options.
 ///
 /// Example:

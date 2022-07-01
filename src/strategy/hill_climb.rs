@@ -1,4 +1,4 @@
-//! A solution strategy for finding the best chromosome, when crossover is impossible or inefficient
+//! A solution strategy for finding the best chromosome, when search space is convex with little local optima or crossover is impossible or inefficient
 mod builder;
 pub mod prelude;
 
@@ -23,19 +23,36 @@ pub enum HillClimbVariant {
     SteepestPermutation,
 }
 
-/// There are 2 variants:
+/// The HillClimb strategy is an iterative algorithm that starts with an arbitrary solution to a
+/// problem, then attempts to find a better solution by making an incremental change to the
+/// solution
+///
+/// There are 3 variants:
 /// * [HillClimbVariant::Stochastic]: does not examine all neighbors before deciding how to move.
 ///   Rather, it selects a neighbor at random, and decides (based on the amount of improvement in
 ///   that neighbor) whether to move to that neighbor or to examine another
 /// * [HillClimbVariant::SteepestSingle]: all neighbours (with single mutation only) are compared and the closest to the solution is chosen
-/// * [HillClimbVariant::SteepestPermutation]: all neighbours (permutation of all neighbouring mutations) are compared and the closest to the solution is chosen
+/// * [HillClimbVariant::SteepestPermutation]: all neighbours (permutation of all neighbouring mutations) are compared and the closest to the solution is chosen.
+///
+/// The `chromosome_neighbour_permutations_size` is subject to combinatorial explosion, so check the genotype
+/// for practical values before using the [HillClimbVariant::SteepestPermutation] variant.
+///
+/// The ending conditions are one or more of the following:
+/// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
+/// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
+///   threshold, or one wants a duration limitation next to the target_fitness_score
+/// * min_scale: when the scaling drops below the precision and further refining is useless
 ///
 /// The fitness is calculated each round:
 /// * If the fitness is worse
 ///     * the mutation is ignored and the next round is started based on the current best chromosome
 ///     * if the scaling is set, the scale is reduced to zoom in on the local solution
 ///     * the stale generation counter is incremented (functionally)
-/// * If the fitness is equal or better
+/// * If the fitness is equal
+///     * the mutated chromosome is taken for the next round.
+///     * if the scaling is set, the scale is reduced to zoom in on the local solution
+///     * the stale generation counter is incremented (functionally)
+/// * If the fitness is better
 ///     * the mutated chromosome is taken for the next round.
 ///     * if the scaling is set, the scale is reset to its base scale
 ///     * the stale generation counter is reset (functionally)
