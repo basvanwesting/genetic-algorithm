@@ -87,7 +87,12 @@ pub trait PermutableGenotype: Genotype {
 /// Need to implement a neighbouring mutation.
 pub trait IncrementalGenotype: Genotype {
     /// a neighbouring mutation of the chromosome
-    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
+    fn mutate_chromosome_neighbour<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self>,
+        _scale: Option<f32>,
+        rng: &mut R,
+    );
     /// all neighbouring mutations of the chromosome
     fn chromosome_neighbours(
         &self,

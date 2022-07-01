@@ -50,3 +50,7 @@ harness = false
 [[bench]]
 name = "evolve"
 harness = false
+
+[[bench]]
+name = "neighbours"
+harness = false

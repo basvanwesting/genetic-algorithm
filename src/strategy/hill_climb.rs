@@ -63,7 +63,7 @@ pub enum HillClimbVariant {
 /// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
-///     .with_variant(HillClimbVariant::Stochastic) // use a random neighbouring mutation variant
+///     .with_variant(HillClimbVariant::SteepestSingle) // check all single mutation neighbours for each round
 ///     .with_fitness(SumContinuousGenotype(1e-5))  // sum the gene values of the chromosomes with precision 0.00001
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_scaling((1.0, 0.8))                  // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale
@@ -75,7 +75,7 @@ pub enum HillClimbVariant {
 ///
 /// // it's all about the best chromosome after all
 /// let best_chromosome = hill_climb.best_chromosome().unwrap();
-/// assert_eq!(best_chromosome.genes, vec![0.0; 16])
+/// assert_eq!(best_chromosome.genes.into_iter().map(|v| v <= 1e-3).collect::<Vec<bool>>(), vec![true; 16])
 /// ```
 pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     genotype: G,
@@ -112,8 +112,11 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                 match self.variant {
                     HillClimbVariant::Stochastic => {
                         let working_chromosome = &mut self.best_chromosome().unwrap();
-                        self.genotype
-                            .mutate_chromosome_neighbour(working_chromosome, rng);
+                        self.genotype.mutate_chromosome_neighbour(
+                            working_chromosome,
+                            self.current_scaling,
+                            rng,
+                        );
                         self.fitness.call_for_chromosome(working_chromosome);
                         self.update_best_chromosome(working_chromosome);
                     }

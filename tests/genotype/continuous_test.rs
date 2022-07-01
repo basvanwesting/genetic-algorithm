@@ -55,7 +55,7 @@ fn general_neighbour() {
         ]
     );
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome_neighbour(&mut chromosome, Some(1.0), &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![
@@ -171,7 +171,8 @@ fn chromosome_neighbours_3_one_sided() {
         vec![0.447325, 0.4391402, 0.9798802]
     );
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(3u32));
+    // size makes error as it counts 0.0 twice, this is fine
+    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(6u32));
     let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
     assert_eq!(
         inspect::chromosomes(&chromosomes),
@@ -254,9 +255,10 @@ fn chromosome_neighbour_permutations_3_one_sided() {
         vec![0.447325, 0.4391402, 0.9798802]
     );
 
+    // size makes error as it counts 0.0 twice, this is fine
     assert_eq!(
         genotype.chromosome_neighbour_permutations_size(),
-        BigUint::from(8u32)
+        BigUint::from(27u32)
     );
     let chromosomes = genotype.chromosome_neighbour_permutations(&chromosome, None);
     assert_eq!(

@@ -125,11 +125,17 @@ impl Genotype for MultiContinuous {
 }
 
 impl IncrementalGenotype for MultiContinuous {
-    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_neighbour<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self>,
+        scale: Option<f32>,
+        rng: &mut R,
+    ) {
         let index = self.gene_index_sampler.sample(rng);
         let allele_multi_range = &self.allele_multi_range[index];
         let new_value = chromosome.genes[index]
-            + self.allele_neighbour_samplers.as_ref().unwrap()[index].sample(rng);
+            + self.allele_neighbour_samplers.as_ref().unwrap()[index].sample(rng)
+                * scale.unwrap_or(1.0);
         if new_value < allele_multi_range.start {
             chromosome.genes[index] = allele_multi_range.start;
         } else if new_value > allele_multi_range.end {
@@ -186,22 +192,7 @@ impl IncrementalGenotype for MultiContinuous {
     }
 
     fn chromosome_neighbours_size(&self) -> BigUint {
-        let range_diffs: Vec<Vec<ContinuousAllele>> = self
-            .allele_multi_neighbour_range
-            .as_ref()
-            .unwrap()
-            .iter()
-            .map(|range| vec![range.start, range.end])
-            .map(|range| {
-                range
-                    .into_iter()
-                    .dedup()
-                    .filter(|diff| *diff != 0.0)
-                    .collect()
-            })
-            .collect();
-
-        range_diffs.iter().map(|v| BigUint::from(v.len())).sum()
+        BigUint::from(2 * self.genes_size)
     }
 
     fn chromosome_neighbour_permutations(
@@ -249,16 +240,7 @@ impl IncrementalGenotype for MultiContinuous {
             .collect()
     }
     fn chromosome_neighbour_permutations_size(&self) -> BigUint {
-        let range_diffs: Vec<Vec<ContinuousAllele>> = self
-            .allele_multi_neighbour_range
-            .as_ref()
-            .unwrap()
-            .iter()
-            .map(|range| vec![range.start, 0.0, range.end])
-            .map(|range| range.into_iter().dedup().collect())
-            .collect();
-
-        range_diffs.iter().map(|v| BigUint::from(v.len())).product()
+        BigUint::from(3usize).pow(self.genes_size as u32)
     }
 }
 

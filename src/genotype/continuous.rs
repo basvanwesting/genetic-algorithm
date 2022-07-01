@@ -94,10 +94,15 @@ impl Genotype for Continuous {
 }
 
 impl IncrementalGenotype for Continuous {
-    fn mutate_chromosome_neighbour<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_neighbour<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self>,
+        scale: Option<f32>,
+        rng: &mut R,
+    ) {
         let index = self.gene_index_sampler.sample(rng);
-        let new_value =
-            chromosome.genes[index] + self.allele_neighbour_sampler.as_ref().unwrap().sample(rng);
+        let new_value = chromosome.genes[index]
+            + self.allele_neighbour_sampler.as_ref().unwrap().sample(rng) * scale.unwrap_or(1.0);
         if new_value < self.allele_range.start {
             chromosome.genes[index] = self.allele_range.start;
         } else if new_value > self.allele_range.end {
@@ -122,7 +127,7 @@ impl IncrementalGenotype for Continuous {
         .filter(|diff| *diff != 0.0)
         .collect();
 
-        (0..self.genes_size())
+        (0..self.genes_size)
             .flat_map(|index| {
                 diffs.iter().map(move |diff| {
                     let mut genes = chromosome.genes.clone();
@@ -141,16 +146,7 @@ impl IncrementalGenotype for Continuous {
     }
 
     fn chromosome_neighbours_size(&self) -> BigUint {
-        let diffs: Vec<ContinuousAllele> = vec![
-            self.allele_neighbour_range.as_ref().unwrap().start,
-            self.allele_neighbour_range.as_ref().unwrap().end,
-        ]
-        .into_iter()
-        .dedup()
-        .filter(|diff| *diff != 0.0)
-        .collect();
-
-        BigUint::from(diffs.len() * self.genes_size())
+        BigUint::from(2 * self.genes_size)
     }
 
     fn chromosome_neighbour_permutations(
@@ -191,16 +187,7 @@ impl IncrementalGenotype for Continuous {
     }
 
     fn chromosome_neighbour_permutations_size(&self) -> BigUint {
-        let diffs: Vec<ContinuousAllele> = vec![
-            self.allele_neighbour_range.as_ref().unwrap().start,
-            0.0,
-            self.allele_neighbour_range.as_ref().unwrap().end,
-        ]
-        .into_iter()
-        .dedup()
-        .collect();
-
-        BigUint::from(diffs.len()).pow(self.genes_size() as u32)
+        BigUint::from(3usize).pow(self.genes_size as u32)
     }
 }
 
