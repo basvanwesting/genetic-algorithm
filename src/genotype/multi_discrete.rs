@@ -79,10 +79,10 @@ pub type DefaultAllele = usize;
 #[derive(Clone, Debug)]
 pub struct MultiDiscrete<T: Clone + std::fmt::Debug = DefaultAllele> {
     genes_size: usize,
-    allele_list_sizes: Vec<usize>,
     pub allele_lists: Vec<Vec<T>>,
     gene_index_sampler: WeightedIndex<usize>,
     allele_index_samplers: Vec<Uniform<usize>>,
+    allele_list_sizes: Vec<usize>,
     pub seed_genes: Option<Vec<T>>,
 }
 
@@ -174,8 +174,7 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiDiscrete<T> {
 impl<T: Clone + std::fmt::Debug> fmt::Display for MultiDiscrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
-        writeln!(f, "  genes_size: {}\n", self.genes_size)?;
-        writeln!(f, "  allele_list_sizes: {:?}", self.allele_list_sizes)?;
+        writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  allele_lists: {:?}", self.allele_lists)?;
         writeln!(
             f,

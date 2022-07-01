@@ -155,6 +155,11 @@ impl fmt::Display for Continuous {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  allele_range: {:?}", self.allele_range)?;
+        writeln!(
+            f,
+            "  allele_neighbour_range: {:?}",
+            self.allele_neighbour_range
+        )?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(
             f,

@@ -200,7 +200,12 @@ impl fmt::Display for MultiContinuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  allele_ranges: {:?}\n", self.allele_ranges)?;
+        writeln!(f, "  allele_ranges: {:?}", self.allele_ranges)?;
+        writeln!(
+            f,
+            "  allele_neighbour_ranges: {:?}",
+            self.allele_neighbour_ranges
+        )?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(
             f,

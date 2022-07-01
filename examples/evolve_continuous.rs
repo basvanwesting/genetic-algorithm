@@ -13,6 +13,8 @@ fn main() {
 
     println!("{}", genotype);
 
+    let now = std::time::Instant::now();
+
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_population_size(1000)
@@ -26,5 +28,8 @@ fn main() {
         .call(&mut rng)
         .unwrap();
 
+    let duration = now.elapsed();
+
     println!("{}", evolve);
+    println!("duration: {:?}", duration);
 }

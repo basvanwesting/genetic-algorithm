@@ -224,8 +224,7 @@ impl<T: Clone + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
 impl<T: Clone + std::fmt::Debug> fmt::Display for MultiUnique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
-        writeln!(f, "  genes_size: {}\n", self.genes_size)?;
-        writeln!(f, "  allele_list_sizes: {:?}", self.allele_list_sizes)?;
+        writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  allele_lists: {:?}", self.allele_lists)?;
         writeln!(
             f,
