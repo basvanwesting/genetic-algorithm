@@ -180,6 +180,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 
     fn update_best_chromosome(&mut self, contending_best_chromosome: &Chromosome<G>) {
+        self.scale_down();
         match self.best_chromosome.as_ref() {
             None => {
                 self.best_chromosome = Some(contending_best_chromosome.clone());
@@ -194,6 +195,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
                     (None, Some(_)) => {
                         self.best_chromosome = Some(contending_best_chromosome.clone());
                         self.best_generation = self.current_generation;
+                        self.reset_scaling();
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match self.fitness_ordering {
@@ -203,11 +205,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
                                     if contending_fitness_score > current_fitness_score {
                                         self.best_generation = self.current_generation;
                                         self.reset_scaling();
-                                    } else {
-                                        self.scale_down();
                                     }
-                                } else {
-                                    self.scale_down();
                                 }
                             }
                             FitnessOrdering::Minimize => {
@@ -216,11 +214,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
                                     if contending_fitness_score < current_fitness_score {
                                         self.best_generation = self.current_generation;
                                         self.reset_scaling();
-                                    } else {
-                                        self.scale_down();
                                     }
-                                } else {
-                                    self.scale_down();
                                 }
                             }
                         }
