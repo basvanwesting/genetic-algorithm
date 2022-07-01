@@ -66,7 +66,7 @@ pub enum HillClimbVariant {
 ///     .with_variant(HillClimbVariant::SteepestSingle) // check all single mutation neighbours for each round
 ///     .with_fitness(SumContinuousGenotype(1e-5))  // sum the gene values of the chromosomes with precision 0.00001
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
-///     .with_scaling((1.0, 0.8))                  // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale
+///     .with_scaling((1.0, 0.8, 1e-5))            // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale
 ///     .with_target_fitness_score(0)              // goal is 16 times <= 0.00001 in the best chromosome
 ///     .with_max_stale_generations(1000)          // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_random_chromosome_probability(0.1)   // try a random chromosome with probability 0.1 to avoid local optimum
@@ -86,7 +86,7 @@ pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
     random_chromosome_probability: RandomChromosomeProbability,
-    scaling: Option<(f32, f32)>,
+    scaling: Option<(f32, f32, f32)>,
 
     pub current_iteration: usize,
     pub current_generation: usize,
@@ -231,7 +231,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 
     fn is_finished(&self) -> bool {
-        self.is_finished_by_max_stale_generations() || self.is_finished_by_target_fitness_score()
+        self.is_finished_by_max_stale_generations()
+            || self.is_finished_by_target_fitness_score()
+            || self.is_finished_by_min_scale()
     }
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
@@ -257,6 +259,14 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
         }
     }
 
+    fn is_finished_by_min_scale(&self) -> bool {
+        if let Some(current_scaling) = self.current_scaling {
+            current_scaling < self.scaling.as_ref().unwrap().2
+        } else {
+            false
+        }
+    }
+
     #[allow(dead_code)]
     fn report_round(&self) {
         println!(
@@ -265,7 +275,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
             self.best_fitness_score(),
             self.best_chromosome.as_ref().map(|o| &o.fitness_score),
             self.current_scaling.as_ref(),
-            self.best_chromosome.as_ref().map(|o| &o.genes),
+            false,
+            //self.best_chromosome.as_ref().map(|o| &o.genes),
         );
     }
 
@@ -274,7 +285,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 
     fn reset_scaling(&mut self) {
-        self.current_scaling = self.scaling.map(|(base, _factor)| base);
+        self.current_scaling = self.scaling.map(|(base, _factor, _min)| base);
     }
 
     fn scale_down(&mut self) {
@@ -296,10 +307,12 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
             ))
         } else if builder.fitness.is_none() {
             Err(TryFromHillClimbBuilderError("HillClimb requires a Fitness"))
-        } else if builder.max_stale_generations.is_none() && builder.target_fitness_score.is_none()
+        } else if builder.max_stale_generations.is_none()
+            && builder.target_fitness_score.is_none()
+            && builder.scaling.is_none()
         {
             Err(TryFromHillClimbBuilderError(
-                "HillClimb requires at least a max_stale_generations or target_fitness_score ending condition",
+                "HillClimb requires at least a max_stale_generations, target_fitness_score or scaling ending condition",
             ))
         } else {
             let genotype = builder.genotype.unwrap();
@@ -338,7 +351,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClim
         )?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-
+        writeln!(f, "  scaling: {:?}", self.scaling)?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
