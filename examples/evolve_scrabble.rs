@@ -19,23 +19,18 @@ enum Orientation {
 struct WordPosition(pub Row, pub Column, pub Orientation);
 
 #[derive(Clone, Debug)]
-struct ScrabbleFitness(
-    pub Vec<&'static str>,
-    pub Vec<isize>,
-    pub Vec<isize>,
-    pub bool,
-);
+struct ScrabbleFitness {
+    pub words: Vec<&'static str>,
+    pub row_scores: Vec<isize>,
+    pub column_scores: Vec<isize>,
+    pub debug: bool,
+}
 impl Fitness for ScrabbleFitness {
     type Genotype = MultiDiscreteGenotype<WordPosition>;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
-        let words = &self.0;
-        let row_scores = &self.1;
-        let column_scores = &self.2;
-        let debug = self.3;
-
         let mut position_map: HashMap<(usize, usize), Vec<(usize, char)>> = HashMap::new();
 
         chromosome
@@ -43,7 +38,7 @@ impl Fitness for ScrabbleFitness {
             .iter()
             .enumerate()
             .for_each(|(index, value)| {
-                let word = words[index];
+                let word = self.words[index];
                 match *value {
                     WordPosition(row, column, Orientation::Horizontal) => {
                         word.chars().enumerate().for_each(|(char_index, char)| {
@@ -65,7 +60,8 @@ impl Fitness for ScrabbleFitness {
             });
 
         let mut score: isize = 0;
-        let mut related_word_ids: HashMap<usize, HashSet<usize>> = words
+        let mut related_word_ids: HashMap<usize, HashSet<usize>> = self
+            .words
             .iter()
             .enumerate()
             .map(|(index, _)| (index, HashSet::new()))
@@ -78,12 +74,12 @@ impl Fitness for ScrabbleFitness {
                 [] => {}
                 [(_index, char)] => {
                     letter_board[row][column] = *char;
-                    score += row_scores[row] + column_scores[column];
+                    score += self.row_scores[row] + self.column_scores[column];
                 }
                 [(first_index, first_char), (second_index, second_char)] => {
                     if *first_char == *second_char {
                         letter_board[row][column] = *first_char;
-                        score += 3 * row_scores[row] + 3 * column_scores[column];
+                        score += 3 * self.row_scores[row] + 3 * self.column_scores[column];
                         related_word_ids
                             .get_mut(first_index)
                             .unwrap()
@@ -101,14 +97,14 @@ impl Fitness for ScrabbleFitness {
         }
 
         let mut touching_word_ids: HashSet<usize> = HashSet::new();
-        let starting_set = related_word_ids.values().nth(0).unwrap().clone();
+        let starting_set = related_word_ids.values().nth(0).unwrap();
         ScrabbleFitness::recursive_touching_sets(
             starting_set,
             &related_word_ids,
             &mut touching_word_ids,
         );
 
-        words.iter().enumerate().for_each(|(index, word)| {
+        self.words.iter().enumerate().for_each(|(index, word)| {
             if !touching_word_ids.contains(&index) {
                 score -= (ROWS * COLUMNS * word.len()) as isize
             }
@@ -120,9 +116,12 @@ impl Fitness for ScrabbleFitness {
                 .split_ascii_whitespace()
                 .filter(|str| str.len() > 1)
                 .for_each(|str| {
-                    let known = words.iter().find(|word| word.eq_ignore_ascii_case(str));
+                    let known = self
+                        .words
+                        .iter()
+                        .find(|word| word.eq_ignore_ascii_case(str));
                     if known.is_none() {
-                        if debug {
+                        if self.debug {
                             println!("invalid horizontal string: {}", str);
                         }
                         score -= (ROWS * COLUMNS * str.len()) as isize;
@@ -136,9 +135,12 @@ impl Fitness for ScrabbleFitness {
                 .split_ascii_whitespace()
                 .filter(|str| str.len() > 1)
                 .for_each(|str| {
-                    let known = words.iter().find(|word| word.eq_ignore_ascii_case(str));
+                    let known = self
+                        .words
+                        .iter()
+                        .find(|word| word.eq_ignore_ascii_case(str));
                     if known.is_none() {
-                        if debug {
+                        if self.debug {
                             println!("invalid vertical string: {}", str);
                         }
                         score -= (ROWS * COLUMNS * str.len()) as isize;
@@ -152,14 +154,14 @@ impl Fitness for ScrabbleFitness {
 
 impl ScrabbleFitness {
     pub fn recursive_touching_sets(
-        set: HashSet<usize>,
+        set: &HashSet<usize>,
         data: &HashMap<usize, HashSet<usize>>,
         acc: &mut HashSet<usize>,
     ) {
         set.iter().for_each(|index| {
             if acc.insert(*index) {
                 if let Some(next_set) = data.get(index) {
-                    ScrabbleFitness::recursive_touching_sets(next_set.clone(), data, acc);
+                    ScrabbleFitness::recursive_touching_sets(next_set, data, acc);
                 }
             }
         })
@@ -208,12 +210,12 @@ fn main() {
         .with_genotype(genotype)
         .with_population_size(100)
         .with_max_stale_generations(10000)
-        .with_fitness(ScrabbleFitness(
-            words.clone(),
-            row_scores.clone(),
-            column_scores.clone(),
-            false,
-        ))
+        .with_fitness(ScrabbleFitness {
+            words: words.clone(),
+            row_scores: row_scores.clone(),
+            column_scores: column_scores.clone(),
+            debug: false,
+        })
         .with_mutate(MutateOnce(0.2))
         .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
@@ -231,12 +233,12 @@ fn main() {
             let mut letter_board: [[char; COLUMNS]; ROWS] = [['.'; COLUMNS]; ROWS];
 
             // debug info
-            ScrabbleFitness(
-                words.clone(),
-                row_scores.clone(),
-                column_scores.clone(),
-                true,
-            )
+            ScrabbleFitness {
+                words: words.clone(),
+                row_scores: row_scores.clone(),
+                column_scores: column_scores.clone(),
+                debug: true,
+            }
             .calculate_for_chromosome(&best_chromosome);
 
             best_chromosome
