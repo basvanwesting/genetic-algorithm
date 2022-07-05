@@ -1,4 +1,4 @@
-use genetic_algorithm::strategy::evolve::prelude::*;
+use genetic_algorithm::strategy::permutate::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use std::collections::{HashMap, HashSet};
@@ -241,28 +241,42 @@ fn main() {
 
     println!("{}", genotype);
 
-    let evolve_builder = Evolve::builder()
+    let mut permutate = Permutate::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
-        .with_max_stale_generations(10000)
-        .with_mutate(MutateOnce(0.2))
-        .with_crossover(CrossoverUniform(true))
-        .with_compete(CompeteTournament(4))
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
             row_scores.clone(),
             column_scores.clone(),
             false,
-        ));
+        ))
+        .build()
+        .unwrap();
 
     let now = std::time::Instant::now();
-    let evolve = evolve_builder.call_repeatedly(10, &mut rng).unwrap();
+
+    if true {
+        let guard = pprof::ProfilerGuardBuilder::default()
+            .frequency(1000)
+            .blocklist(&["libc", "libgcc", "pthread", "vdso"])
+            .build()
+            .unwrap();
+
+        permutate.call(&mut rng);
+
+        if let Ok(report) = guard.report().build() {
+            let file = std::fs::File::create("flamegraph_scrabble.svg").unwrap();
+            report.flamegraph(file).unwrap();
+        };
+    } else {
+        permutate.call(&mut rng);
+    }
+
     let duration = now.elapsed();
     println!("{:?}", duration);
 
-    println!("{}", evolve);
+    println!("{}", permutate);
 
-    if let Some(best_chromosome) = evolve.best_chromosome() {
+    if let Some(best_chromosome) = permutate.best_chromosome() {
         if let Some(_fitness_score) = best_chromosome.fitness_score {
             let mut letter_board: [[char; COLUMNS]; ROWS] = [['.'; COLUMNS]; ROWS];
 
