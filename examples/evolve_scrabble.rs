@@ -15,17 +15,17 @@ enum Orientation {
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-struct NamePosition(pub Row, pub Column, pub Orientation);
+struct WordPosition(pub Row, pub Column, pub Orientation);
 
 #[derive(Clone, Debug)]
-struct NamesFitness(pub Vec<&'static str>, pub bool);
-impl Fitness for NamesFitness {
-    type Genotype = MultiDiscreteGenotype<NamePosition>;
+struct ScrabbleFitness(pub Vec<&'static str>, pub bool);
+impl Fitness for ScrabbleFitness {
+    type Genotype = MultiDiscreteGenotype<WordPosition>;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
-        let names = &self.0;
+        let words = &self.0;
         let debug = self.1;
 
         let mut board: [[char; COLUMNS]; ROWS] = [[' '; COLUMNS]; ROWS];
@@ -36,10 +36,10 @@ impl Fitness for NamesFitness {
             .iter()
             .enumerate()
             .for_each(|(index, value)| {
-                let name = names[index];
+                let word = words[index];
                 match *value {
-                    NamePosition(row, column, Orientation::Horizontal) => {
-                        name.chars().enumerate().for_each(|(char_index, char)| {
+                    WordPosition(row, column, Orientation::Horizontal) => {
+                        word.chars().enumerate().for_each(|(char_index, char)| {
                             if column + char_index < COLUMNS {
                                 let current_char = board[row][column + char_index];
                                 if current_char == ' ' {
@@ -54,8 +54,8 @@ impl Fitness for NamesFitness {
                             }
                         })
                     }
-                    NamePosition(row, column, Orientation::Vertical) => {
-                        name.chars().enumerate().for_each(|(char_index, char)| {
+                    WordPosition(row, column, Orientation::Vertical) => {
+                        word.chars().enumerate().for_each(|(char_index, char)| {
                             if row + char_index < ROWS {
                                 let current_char = board[row + char_index][column];
                                 if current_char == ' ' {
@@ -79,7 +79,7 @@ impl Fitness for NamesFitness {
                 .split_ascii_whitespace()
                 .filter(|str| str.len() > 1)
                 .for_each(|str| {
-                    let known = names.iter().find(|name| name.eq_ignore_ascii_case(str));
+                    let known = words.iter().find(|word| word.eq_ignore_ascii_case(str));
                     if known.is_none() {
                         if debug {
                             println!("invalid horizontal string: {}", str);
@@ -95,7 +95,7 @@ impl Fitness for NamesFitness {
                 .split_ascii_whitespace()
                 .filter(|str| str.len() > 1)
                 .for_each(|str| {
-                    let known = names.iter().find(|name| name.eq_ignore_ascii_case(str));
+                    let known = words.iter().find(|word| word.eq_ignore_ascii_case(str));
                     if known.is_none() {
                         if debug {
                             println!("invalid vertical string: {}", str);
@@ -110,13 +110,13 @@ impl Fitness for NamesFitness {
 }
 
 fn main() {
-    let names: Vec<&'static str> = vec!["damian", "jerald", "ava", "amir", "lenard"];
-    let mut allele_lists: Vec<Vec<NamePosition>> = vec![vec![]; names.len()];
-    names.iter().enumerate().for_each(|(index, name)| {
-        for row in 0..=(ROWS - name.len()) {
-            for column in 0..=(COLUMNS - name.len()) {
-                allele_lists[index].push(NamePosition(row, column, Orientation::Horizontal));
-                allele_lists[index].push(NamePosition(row, column, Orientation::Vertical));
+    let words: Vec<&'static str> = vec!["damian", "jerald", "ava", "amir", "lenard"];
+    let mut allele_lists: Vec<Vec<WordPosition>> = vec![vec![]; words.len()];
+    words.iter().enumerate().for_each(|(index, word)| {
+        for row in 0..=(ROWS - word.len()) {
+            for column in 0..=(COLUMNS - word.len()) {
+                allele_lists[index].push(WordPosition(row, column, Orientation::Horizontal));
+                allele_lists[index].push(WordPosition(row, column, Orientation::Vertical));
             }
         }
     });
@@ -133,7 +133,7 @@ fn main() {
         .with_genotype(genotype)
         .with_population_size(100)
         .with_max_stale_generations(10000)
-        .with_fitness(NamesFitness(names.clone(), false))
+        .with_fitness(ScrabbleFitness(words.clone(), false))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateOnce(0.2))
         .with_crossover(CrossoverUniform(true))
@@ -152,22 +152,22 @@ fn main() {
             let mut board: [[char; COLUMNS]; ROWS] = [['.'; COLUMNS]; ROWS];
 
             // debug info
-            NamesFitness(names.clone(), true).calculate_for_chromosome(&best_chromosome);
+            ScrabbleFitness(words.clone(), true).calculate_for_chromosome(&best_chromosome);
 
             best_chromosome
                 .genes
                 .iter()
                 .enumerate()
                 .for_each(|(index, value)| {
-                    let name = names[index];
+                    let word = words[index];
                     match *value {
-                        NamePosition(row, column, Orientation::Horizontal) => {
-                            name.chars().enumerate().for_each(|(char_index, char)| {
+                        WordPosition(row, column, Orientation::Horizontal) => {
+                            word.chars().enumerate().for_each(|(char_index, char)| {
                                 board[row][column + char_index] = char;
                             })
                         }
-                        NamePosition(row, column, Orientation::Vertical) => {
-                            name.chars().enumerate().for_each(|(char_index, char)| {
+                        WordPosition(row, column, Orientation::Vertical) => {
+                            word.chars().enumerate().for_each(|(char_index, char)| {
                                 board[row + char_index][column] = char;
                             })
                         }
