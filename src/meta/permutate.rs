@@ -5,12 +5,12 @@ use crate::strategy::permutate;
 use crate::strategy::Strategy;
 use std::fmt;
 
-pub struct Permutate<'a, G: Genotype, F: Fitness<Genotype = G>> {
+pub struct Permutate<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> {
     pub config: &'a MetaConfig<G, F>,
     pub inner_permutate: Option<permutate::Permutate<MultiDiscreteGenotype, MetaFitness<'a, G, F>>>,
 }
 
-impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
+impl<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> Permutate<'a, G, F> {
     pub fn new(config: &'a MetaConfig<G, F>) -> Self {
         Self {
             config,
@@ -45,7 +45,7 @@ impl<'a, G: Genotype, F: Fitness<Genotype = G>> Permutate<'a, G, F> {
     }
 }
 
-impl<'a, G: Genotype, F: Fitness<Genotype = G>> fmt::Display for Permutate<'a, G, F> {
+impl<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> fmt::Display for Permutate<'a, G, F> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(inner_permutate) = &self.inner_permutate {
             writeln!(f, "inner-{}", inner_permutate)?;

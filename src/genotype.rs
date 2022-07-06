@@ -33,8 +33,10 @@ use std::fmt;
 
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
-pub trait Genotype: Clone + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>> {
-    type Allele: Clone + std::fmt::Debug;
+pub trait Genotype:
+    Clone + Send + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>>
+{
+    type Allele: Clone + Send + std::fmt::Debug;
     fn genes_size(&self) -> usize;
     /// a random chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;

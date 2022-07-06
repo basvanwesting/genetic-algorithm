@@ -43,7 +43,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Debug, Clone)]
-pub struct Discrete<T: Clone + std::fmt::Debug = DefaultAllele> {
+pub struct Discrete<T: Clone + Send + std::fmt::Debug = DefaultAllele> {
     pub genes_size: usize,
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
@@ -51,7 +51,7 @@ pub struct Discrete<T: Clone + std::fmt::Debug = DefaultAllele> {
     pub seed_genes: Option<Vec<T>>,
 }
 
-impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
+impl<T: Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -78,7 +78,7 @@ impl<T: Clone + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
     }
 }
 
-impl<T: Clone + std::fmt::Debug> Genotype for Discrete<T> {
+impl<T: Clone + Send + std::fmt::Debug> Genotype for Discrete<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -101,13 +101,13 @@ impl<T: Clone + std::fmt::Debug> Genotype for Discrete<T> {
     }
 }
 
-impl<T: Clone + std::fmt::Debug> PermutableGenotype for Discrete<T> {
+impl<T: Clone + Send + std::fmt::Debug> PermutableGenotype for Discrete<T> {
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         self.allele_list.clone()
     }
 }
 
-impl<T: Clone + std::fmt::Debug> fmt::Display for Discrete<T> {
+impl<T: Clone + Send + std::fmt::Debug> fmt::Display for Discrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;

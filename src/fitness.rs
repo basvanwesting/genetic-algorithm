@@ -11,6 +11,7 @@ pub mod prelude;
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
+use std::sync::{Arc, Mutex};
 
 /// Use isize for easy handling of scores (ordering, comparing) as floats are tricky in that regard.
 pub type FitnessValue = isize;
@@ -42,7 +43,7 @@ pub enum FitnessOrdering {
 ///     }
 /// }
 /// ```
-pub trait Fitness: Clone + std::fmt::Debug {
+pub trait Fitness: Clone + Send + std::fmt::Debug {
     type Genotype: Genotype;
     fn call_for_population(&mut self, population: &mut Population<Self::Genotype>, threads: usize) {
         if threads > 1 {
@@ -61,13 +62,37 @@ pub trait Fitness: Clone + std::fmt::Debug {
     fn call_for_population_multi_thread(
         &mut self,
         population: &mut Population<Self::Genotype>,
-        _threads: usize,
+        threads: usize,
     ) {
-        population
-            .chromosomes
-            .iter_mut()
-            .filter(|c| c.fitness_score.is_none())
-            .for_each(|c| self.call_for_chromosome(c));
+        crossbeam::scope(|s| {
+            let mut handles = vec![];
+            let mutex = Arc::new(Mutex::new(
+                population
+                    .chromosomes
+                    .iter_mut()
+                    .filter(|c| c.fitness_score.is_none()),
+            ));
+
+            for _i in 0..threads {
+                let mutex = Arc::clone(&mutex);
+                let mut fitness = self.clone();
+                //println!("spawn thread {}", i);
+                let handle = s.spawn(move |_| {
+                    while let Some(chromosome) = mutex.lock().unwrap().next() {
+                        //println!("call for chromosome in thread {}", i);
+                        fitness.call_for_chromosome(chromosome);
+                    }
+                });
+                handles.push(handle);
+            }
+
+            //println!("before joins");
+            for handle in handles {
+                handle.join().unwrap();
+            }
+            //println!("after joins");
+        })
+        .unwrap();
     }
     fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Genotype>) {
         chromosome.fitness_score = self.calculate_for_chromosome(chromosome);

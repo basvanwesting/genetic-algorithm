@@ -20,6 +20,7 @@ itertools = "0.10.3"
 streaming-stats = "0.2.3"
 factorial = "0.2.1"
 num = "0.4.0"
+crossbeam = "0.8"
 
 [dev-dependencies]
 lru = "0.7.5"

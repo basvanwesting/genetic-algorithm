@@ -10,10 +10,12 @@ use rand::rngs::SmallRng;
 use std::time::Instant;
 
 #[derive(Clone, Debug)]
-pub struct Fitness<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> {
+pub struct Fitness<'a, G: Genotype + Sync, F: fitness::Fitness<Genotype = G> + Sync> {
     pub config: &'a Config<G, F>,
 }
-impl<'a, G: Genotype, F: fitness::Fitness<Genotype = G>> fitness::Fitness for Fitness<'a, G, F> {
+impl<'a, G: Genotype + Sync, F: fitness::Fitness<Genotype = G> + Sync> fitness::Fitness
+    for Fitness<'a, G, F>
+{
     type Genotype = MultiDiscreteGenotype;
     fn calculate_for_chromosome(
         &mut self,
