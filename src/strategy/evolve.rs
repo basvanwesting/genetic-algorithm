@@ -91,6 +91,7 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
     fitness_ordering: FitnessOrdering,
+    fitness_threads: usize,
     degeneration_range: Option<Range<f32>>,
 
     pub current_iteration: usize,
@@ -112,11 +113,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         while !self.is_finished() {
             if self.toggle_degenerate(population) {
                 self.mutate.call(&self.genotype, population, rng);
-                self.fitness.call_for_population(population);
+                self.fitness
+                    .call_for_population(population, self.fitness_threads);
             } else {
                 self.crossover.call(&self.genotype, population, rng);
                 self.mutate.call(&self.genotype, population, rng);
-                self.fitness.call_for_population(population);
+                self.fitness
+                    .call_for_population(population, self.fitness_threads);
                 self.compete
                     .call(population, self.fitness_ordering, self.population_size, rng);
             }
@@ -317,6 +320,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 max_stale_generations: builder.max_stale_generations,
                 target_fitness_score: builder.target_fitness_score,
                 fitness_ordering: builder.fitness_ordering,
+                fitness_threads: builder.fitness_threads,
                 degeneration_range: builder.degeneration_range,
 
                 current_iteration: 0,
@@ -348,6 +352,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         )?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
+        writeln!(f, "  fitness_threads: {:?}", self.fitness_threads)?;
         writeln!(f, "  degeneration_range: {:?}", self.degeneration_range)?;
 
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;

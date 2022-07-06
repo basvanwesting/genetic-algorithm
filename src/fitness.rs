@@ -44,7 +44,25 @@ pub enum FitnessOrdering {
 /// ```
 pub trait Fitness: Clone + std::fmt::Debug {
     type Genotype: Genotype;
-    fn call_for_population(&mut self, population: &mut Population<Self::Genotype>) {
+    fn call_for_population(&mut self, population: &mut Population<Self::Genotype>, threads: usize) {
+        if threads > 1 {
+            self.call_for_population_multi_thread(population, threads);
+        } else {
+            self.call_for_population_single_thread(population);
+        }
+    }
+    fn call_for_population_single_thread(&mut self, population: &mut Population<Self::Genotype>) {
+        population
+            .chromosomes
+            .iter_mut()
+            .filter(|c| c.fitness_score.is_none())
+            .for_each(|c| self.call_for_chromosome(c));
+    }
+    fn call_for_population_multi_thread(
+        &mut self,
+        population: &mut Population<Self::Genotype>,
+        _threads: usize,
+    ) {
         population
             .chromosomes
             .iter_mut()
