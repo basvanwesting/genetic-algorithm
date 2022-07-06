@@ -2,7 +2,6 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
-use stats::stddev;
 
 #[derive(Clone, Debug)]
 pub struct Population<T: Genotype> {
@@ -42,7 +41,13 @@ impl<T: Genotype> Population<T> {
     }
 
     pub fn fitness_score_stddev(&self) -> f32 {
-        stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
+        stats::stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
+    }
+    pub fn fitness_score_median(&self) -> Option<isize> {
+        stats::median(self.chromosomes.iter().filter_map(|c| c.fitness_score)).map(|v| v as isize)
+    }
+    pub fn fitness_score_mean(&self) -> f32 {
+        stats::mean(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
     }
 
     pub fn fitness_score_count(&self) -> usize {

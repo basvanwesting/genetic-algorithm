@@ -229,10 +229,12 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     #[allow(dead_code)]
     fn report_round(&self, population: &Population<G>) {
         println!(
-            "current generation: {}, best fitness score: {:?}, fitness score count: {}, fitness score stddev: {}, degenerate: {}",
+            "current generation: {}, best fitness score: {:?}, fitness score (count/median/mean/stddev): {} / {:?} / {:.0} / {:.0}, degenerate: {}",
             self.current_generation,
             self.best_fitness_score(),
             population.fitness_score_count(),
+            population.fitness_score_median(),
+            population.fitness_score_mean(),
             population.fitness_score_stddev(),
             self.degenerate,
         );
