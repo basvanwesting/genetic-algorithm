@@ -11,7 +11,7 @@ pub mod prelude;
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
-use std::sync::{Arc, Mutex};
+use crossbeam::channel::unbounded;
 
 /// Use isize for easy handling of scores (ordering, comparing) as floats are tricky in that regard.
 pub type FitnessValue = isize;
@@ -65,32 +65,27 @@ pub trait Fitness: Clone + Send + std::fmt::Debug {
         threads: usize,
     ) {
         crossbeam::scope(|s| {
-            let mut handles = vec![];
-            let mutex = Arc::new(Mutex::new(
+            let (sender, receiver) = unbounded();
+
+            s.spawn(|_| {
                 population
                     .chromosomes
                     .iter_mut()
-                    .filter(|c| c.fitness_score.is_none()),
-            ));
+                    .filter(|c| c.fitness_score.is_none())
+                    .for_each(|c| sender.send(c).unwrap());
+
+                drop(sender);
+            });
 
             for _i in 0..threads {
-                let mutex = Arc::clone(&mutex);
                 let mut fitness = self.clone();
-                //println!("spawn thread {}", i);
-                let handle = s.spawn(move |_| {
-                    while let Some(chromosome) = mutex.lock().unwrap().next() {
-                        //println!("call for chromosome in thread {}", i);
+                let receiver = receiver.clone();
+                s.spawn(move |_| {
+                    for chromosome in receiver {
                         fitness.call_for_chromosome(chromosome);
                     }
                 });
-                handles.push(handle);
             }
-
-            //println!("before joins");
-            for handle in handles {
-                handle.join().unwrap();
-            }
-            //println!("after joins");
         })
         .unwrap();
     }
