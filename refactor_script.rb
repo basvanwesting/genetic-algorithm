@@ -10,10 +10,7 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /allele_values/                => 'allele_list',
-  /allele_multi_values/          => 'allele_lists',
-  /allele_multi_range/           => 'allele_ranges',
-  /allele_multi_neighbour_range/ => 'allele_neighbour_ranges',
+  /chromosome_neighbours/ => 'neighbouring_population',
 }
 
 other_translations = {

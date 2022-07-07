@@ -11,7 +11,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     let mut rng = SmallRng::from_entropy();
 
-    group.bench_function("mult-continues-chromosome_neighbours", |b| {
+    group.bench_function("mult-continues-neighbouring_population", |b| {
         let genotype = MultiContinuousGenotype::builder()
             .with_allele_ranges(vec![(-100.0..100.0), (0.0..100.0)])
             .with_allele_neighbour_ranges(vec![(-1.0..1.0), (-1.0..1.0)])
@@ -20,7 +20,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
         b.iter_batched(
             || genotype.chromosome_factory(&mut rng),
-            |c| genotype.chromosome_neighbours(&c, Some(1.0)),
+            |c| genotype.neighbouring_population(&c, Some(1.0)),
             BatchSize::SmallInput,
         );
     });

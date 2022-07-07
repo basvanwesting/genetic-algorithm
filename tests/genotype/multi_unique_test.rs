@@ -120,7 +120,7 @@ fn chromosome_permutations_genes_size_huge() {
 }
 
 #[test]
-fn chromosome_neighbours_4() {
+fn neighbouring_population_4() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1]])
@@ -133,10 +133,9 @@ fn chromosome_neighbours_4() {
         vec![0, 0, 1, 2, 0, 1, 0, 1]
     );
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(5u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(5u32));
     assert_eq!(
-        inspect::chromosomes(&chromosomes),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
         vec![
             vec![0, 1, 0, 2, 0, 1, 0, 1],
             vec![0, 0, 1, 0, 2, 1, 0, 1],

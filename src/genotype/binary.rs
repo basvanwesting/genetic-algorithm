@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
+use crate::population::Population;
 use num::BigUint;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
@@ -79,21 +80,22 @@ impl IncrementalGenotype for Binary {
         self.mutate_chromosome_random(chromosome, rng);
     }
 
-    fn chromosome_neighbours(
+    fn neighbouring_population(
         &self,
         chromosome: &Chromosome<Self>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Population<Self> {
         (0..self.genes_size)
             .map(|index| {
                 let mut genes = chromosome.genes.clone();
                 genes[index] = !genes[index];
                 Chromosome::new(genes)
             })
-            .collect()
+            .collect::<Vec<_>>()
+            .into()
     }
 
-    fn chromosome_neighbours_size(&self) -> BigUint {
+    fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(self.genes_size)
     }
 }
@@ -115,8 +117,8 @@ impl fmt::Display for Binary {
         )?;
         writeln!(
             f,
-            "  chromosome_neighbours_size: {}",
-            self.chromosome_neighbours_size()
+            "  neighbouring_population_size: {}",
+            self.neighbouring_population_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }

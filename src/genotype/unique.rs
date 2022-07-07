@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
+use crate::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
 use num::BigUint;
@@ -111,11 +112,11 @@ impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for Unique<T> {
         self.mutate_chromosome_random(chromosome, rng);
     }
 
-    fn chromosome_neighbours(
+    fn neighbouring_population(
         &self,
         chromosome: &Chromosome<Self>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Population<Self> {
         (0..self.genes_size())
             .tuple_combinations()
             .map(|(first, second)| {
@@ -124,10 +125,11 @@ impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for Unique<T> {
                 new_genes
             })
             .map(|genes| Chromosome::new(genes))
-            .collect()
+            .collect::<Vec<_>>()
+            .into()
     }
 
-    fn chromosome_neighbours_size(&self) -> BigUint {
+    fn neighbouring_population_size(&self) -> BigUint {
         let n = BigUint::from(self.allele_list.len());
         let k = BigUint::from(2usize);
 
@@ -169,8 +171,8 @@ impl<T: Clone + Send + std::fmt::Debug> fmt::Display for Unique<T> {
         )?;
         writeln!(
             f,
-            "  chromosome_neighbours_size: {}",
-            self.chromosome_neighbours_size()
+            "  neighbouring_population_size: {}",
+            self.neighbouring_population_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }

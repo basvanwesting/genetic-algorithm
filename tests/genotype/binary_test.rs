@@ -42,7 +42,7 @@ fn general() {
 }
 
 #[test]
-fn chromosome_neighbours() {
+fn neighbouring_population() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
@@ -55,9 +55,12 @@ fn chromosome_neighbours() {
         vec![true, true, false, true, false, false, false, true, true, false]
     );
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(10u32));
     assert_eq!(
-        inspect::chromosomes(&genotype.chromosome_neighbours(&chromosome, None)),
+        genotype.neighbouring_population_size(),
+        BigUint::from(10u32)
+    );
+    assert_eq!(
+        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
         vec![
             vec![false, true, false, true, false, false, false, true, true, false],
             vec![true, false, false, true, false, false, false, true, true, false],

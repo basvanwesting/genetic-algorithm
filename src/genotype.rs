@@ -23,6 +23,7 @@ pub use self::continuous::ContinuousAllele as ContinuousGenotypeAllele;
 pub use self::multi_continuous::ContinuousAllele as MultiContinuousGenotypeAllele;
 
 use crate::chromosome::Chromosome;
+use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
@@ -72,13 +73,13 @@ pub trait IncrementalGenotype: Genotype {
         rng: &mut R,
     );
     /// all neighbouring mutations of the chromosome
-    fn chromosome_neighbours(
+    fn neighbouring_population(
         &self,
         _chromosome: &Chromosome<Self>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>>;
+    ) -> Population<Self>;
     /// chromosome neighbours size for the all possible neighbouring mutation combinations
-    fn chromosome_neighbours_size(&self) -> BigUint;
+    fn neighbouring_population_size(&self) -> BigUint;
 }
 
 /// Genotype suitable for [Permutate](crate::strategy::permutate::Permutate).

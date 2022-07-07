@@ -72,7 +72,7 @@ fn general_neighbour() {
 }
 
 #[test]
-fn chromosome_neighbours_1() {
+fn neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(1)
@@ -84,22 +84,20 @@ fn chromosome_neighbours_1() {
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![0.447325]);
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(2u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
     assert_eq!(
-        inspect::chromosomes(&chromosomes),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
         vec![vec![0.347325], vec![0.547325],]
     );
 
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, Some(0.5));
     assert_eq!(
-        inspect::chromosomes(&chromosomes),
+        inspect::population(&genotype.neighbouring_population(&chromosome, Some(0.5))),
         vec![vec![0.39732498], vec![0.497325]]
     );
 }
 
 #[test]
-fn chromosome_neighbours_2() {
+fn neighbouring_population_2() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(2)
@@ -111,10 +109,9 @@ fn chromosome_neighbours_2() {
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![0.447325, 0.4391402]);
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(4u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
     assert_eq!(
-        inspect::chromosomes(&chromosomes),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
         vec![
             vec![0.347325, 0.4391402],
             vec![0.547325, 0.4391402],
@@ -125,7 +122,7 @@ fn chromosome_neighbours_2() {
 }
 
 #[test]
-fn chromosome_neighbours_3() {
+fn neighbouring_population_3() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(3)
@@ -140,10 +137,9 @@ fn chromosome_neighbours_3() {
         vec![0.447325, 0.4391402, 0.9798802]
     );
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(6u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
     assert_eq!(
-        inspect::chromosomes(&chromosomes),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
         vec![
             vec![0.347325, 0.4391402, 0.9798802],
             vec![0.547325, 0.4391402, 0.9798802],
@@ -156,7 +152,7 @@ fn chromosome_neighbours_3() {
 }
 
 #[test]
-fn chromosome_neighbours_3_one_sided() {
+fn neighbouring_population_3_one_sided() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(3)
@@ -172,10 +168,9 @@ fn chromosome_neighbours_3_one_sided() {
     );
 
     // size makes error as it counts 0.0 twice, this is fine
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(6u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
     assert_eq!(
-        inspect::chromosomes(&chromosomes),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
         vec![
             vec![0.547325, 0.4391402, 0.9798802],
             vec![0.447325, 0.5391402, 0.9798802],

@@ -84,7 +84,7 @@ fn chromosome_permutations_genes_size_huge() {
 }
 
 #[test]
-fn chromosome_neighbours_2() {
+fn neighbouring_population_2() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![0, 1])
@@ -94,12 +94,14 @@ fn chromosome_neighbours_2() {
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![0, 1]);
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(1u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
-    assert_eq!(inspect::chromosomes(&chromosomes), vec![vec![1, 0]]);
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(1u32));
+    assert_eq!(
+        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
+        vec![vec![1, 0]]
+    );
 }
 #[test]
-fn chromosome_neighbours_4() {
+fn neighbouring_population_4() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![0, 1, 2, 3])
@@ -109,10 +111,10 @@ fn chromosome_neighbours_4() {
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![3, 0, 1, 2]);
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(6u32));
-    let chromosomes = genotype.chromosome_neighbours(&chromosome, None);
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
+
     assert_eq!(
-        inspect::chromosomes(&chromosomes),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
         vec![
             vec![0, 3, 1, 2],
             vec![1, 0, 3, 2],

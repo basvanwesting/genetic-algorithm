@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
+use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform};
@@ -113,11 +114,11 @@ impl IncrementalGenotype for Continuous {
         chromosome.taint_fitness_score();
     }
 
-    fn chromosome_neighbours(
+    fn neighbouring_population(
         &self,
         chromosome: &Chromosome<Self>,
         scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Population<Self> {
         let diffs: Vec<ContinuousAllele> = vec![
             self.allele_neighbour_range.as_ref().unwrap().start * scale.unwrap_or(1.0),
             self.allele_neighbour_range.as_ref().unwrap().end * scale.unwrap_or(1.0),
@@ -142,10 +143,11 @@ impl IncrementalGenotype for Continuous {
                     Chromosome::new(genes)
                 })
             })
-            .collect()
+            .collect::<Vec<_>>()
+            .into()
     }
 
-    fn chromosome_neighbours_size(&self) -> BigUint {
+    fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(2 * self.genes_size)
     }
 }
@@ -163,8 +165,8 @@ impl fmt::Display for Continuous {
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(
             f,
-            "  chromosome_neighbours_size: {}",
-            self.chromosome_neighbours_size()
+            "  neighbouring_population_size: {}",
+            self.neighbouring_population_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }

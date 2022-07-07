@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
+use crate::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
 use num::BigUint;
@@ -151,11 +152,11 @@ impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
         self.mutate_chromosome_random(chromosome, rng);
     }
 
-    fn chromosome_neighbours(
+    fn neighbouring_population(
         &self,
         chromosome: &Chromosome<Self>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Population<Self> {
         self.allele_list_sizes
             .iter()
             .enumerate()
@@ -170,12 +171,13 @@ impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
                         new_genes
                     })
                     .map(|genes| Chromosome::new(genes))
-                    .collect::<Vec<Chromosome<Self>>>()
+                    .collect::<Vec<_>>()
             })
-            .collect::<Vec<Chromosome<Self>>>()
+            .collect::<Vec<_>>()
+            .into()
     }
 
-    fn chromosome_neighbours_size(&self) -> BigUint {
+    fn neighbouring_population_size(&self) -> BigUint {
         self.allele_list_sizes
             .iter()
             .filter(|allele_value_size| **allele_value_size > 1)
@@ -233,8 +235,8 @@ impl<T: Clone + Send + std::fmt::Debug> fmt::Display for MultiUnique<T> {
         )?;
         writeln!(
             f,
-            "  chromosome_neighbours_size: {}",
-            self.chromosome_neighbours_size()
+            "  neighbouring_population_size: {}",
+            self.neighbouring_population_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }

@@ -134,22 +134,15 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                     }
                     HillClimbVariant::SteepestAscent => {
                         let working_chromosome = &mut self.best_chromosome().unwrap();
-                        let mut working_chromosomes: Vec<Chromosome<G>> = self
+                        let working_population = &mut self
                             .genotype
-                            .chromosome_neighbours(working_chromosome, self.current_scaling);
-                        working_chromosomes
-                            .iter_mut()
-                            .for_each(|chromosome| self.fitness.call_for_chromosome(chromosome));
+                            .neighbouring_population(working_chromosome, self.current_scaling);
 
-                        let best_working_chromosome = match self.fitness_ordering {
-                            FitnessOrdering::Maximize => working_chromosomes.iter().max(),
-                            FitnessOrdering::Minimize => working_chromosomes
-                                .iter()
-                                .filter(|c| c.fitness_score.is_some())
-                                .min(),
-                        };
+                        self.fitness.call_for_population(working_population, 1);
                         self.update_best_chromosome(
-                            best_working_chromosome.unwrap_or(working_chromosome),
+                            working_population
+                                .best_chromosome(self.fitness_ordering)
+                                .unwrap_or(working_chromosome),
                         );
                     }
                 }

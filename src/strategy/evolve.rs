@@ -247,7 +247,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G> {
         (0..self.population_size)
             .map(|_| self.genotype.chromosome_factory(rng))
-            .collect::<Vec<Chromosome<G>>>()
+            .collect::<Vec<_>>()
             .into()
     }
 }

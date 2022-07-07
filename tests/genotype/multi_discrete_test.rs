@@ -35,7 +35,7 @@ fn general() {
 }
 
 #[test]
-fn chromosome_neighbours_size() {
+fn neighbouring_population_size() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiDiscreteGenotype::builder()
         .with_allele_lists(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1, 2, 3]])
@@ -45,9 +45,9 @@ fn chromosome_neighbours_size() {
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![0, 0, 2, 1]);
 
-    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(6u32));
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
     assert_eq!(
-        inspect::chromosomes(&genotype.chromosome_neighbours(&chromosome, None)),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
         vec![
             vec![0, 1, 2, 1],
             vec![0, 0, 0, 1],

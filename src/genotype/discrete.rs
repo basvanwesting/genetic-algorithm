@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
+use crate::population::Population;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
@@ -112,11 +113,11 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> IncrementalGenotype for Disc
         self.mutate_chromosome_random(chromosome, rng);
     }
 
-    fn chromosome_neighbours(
+    fn neighbouring_population(
         &self,
         chromosome: &Chromosome<Self>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Population<Self> {
         (0..self.genes_size)
             .flat_map(|index| {
                 self.allele_list.iter().filter_map(move |allele_value| {
@@ -129,10 +130,11 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> IncrementalGenotype for Disc
                     }
                 })
             })
-            .collect()
+            .collect::<Vec<_>>()
+            .into()
     }
 
-    fn chromosome_neighbours_size(&self) -> BigUint {
+    fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from((self.allele_list.len() - 1) * self.genes_size)
     }
 }
@@ -155,8 +157,8 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> fmt::Display for Discrete<T>
         )?;
         writeln!(
             f,
-            "  chromosome_neighbours_size: {}",
-            self.chromosome_neighbours_size()
+            "  neighbouring_population_size: {}",
+            self.neighbouring_population_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
