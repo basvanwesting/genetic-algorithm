@@ -95,6 +95,7 @@ pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     variant: HillClimbVariant,
 
     fitness_ordering: FitnessOrdering,
+    fitness_threads: usize,
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
     random_chromosome_probability: RandomChromosomeProbability,
@@ -138,7 +139,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                             .genotype
                             .neighbouring_population(working_chromosome, self.current_scaling);
 
-                        self.fitness.call_for_population(working_population, 1);
+                        self.fitness
+                            .call_for_population(working_population, self.fitness_threads);
                         self.update_best_chromosome(
                             working_population
                                 .best_chromosome(self.fitness_ordering)
@@ -300,6 +302,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
                 variant: builder.variant.unwrap_or(HillClimbVariant::Stochastic),
 
                 fitness_ordering: builder.fitness_ordering,
+                fitness_threads: builder.fitness_threads,
                 max_stale_generations: builder.max_stale_generations,
                 target_fitness_score: builder.target_fitness_score,
                 random_chromosome_probability: builder.random_chromosome_probability.unwrap_or(0.0),
@@ -328,6 +331,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClim
         )?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
+        writeln!(f, "  fitness_threads: {:?}", self.fitness_threads)?;
         writeln!(f, "  scaling: {:?}", self.scaling)?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
