@@ -110,7 +110,6 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Set report_round behaviour through debug level in Evolve/HillClimb/Permutate
 * Redo degeneration_range, as it is tricky to configure. Depends on how fitness behaves (expected spread per mutation).
   Maybe redo as degeneration_duration in term of generations to hold on to it, triggered by standard trigger when no variation in fitness score is left.
-* current multi threaded fitness calculation in Evolve & HillClimb is inefficient, as it throws away the threads after each generation. Better to keep a pool alive
 
 ## MAYBE
 * Store age on chromosome?

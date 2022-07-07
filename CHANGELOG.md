@@ -4,6 +4,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.5.0] - 2022-07-07
+### Added
+* Add `IncrementalGenotype` Trait with neighbouring chromosome implementations
+* Implement `IncrementalGenotype` for all `Genotype`s
+* Add `allele_neighbour_range` to `ContinuousGenotype`
+* Add `allele_neighbour_ranges` for `MultiContinuousGenotype`
+* Add `HillClimbVariant::Stochastic` and `HillClimbVariant::SteepestAscent`
+* Add `HillClimb` scaling (for `ContinuousGenotype` & `MultiContinuousGenotype`) to scale down neighbours on each round and use as ending condition
+* Add `random_chromosome_probability` to `HillClimb` to avoid local optima
+* Add multithreading to `Permutate` (parallel processing of chromosome generator)
+* Add multithreading to `Evolve` (fitness execution for population)
+* Add multithreading to `HillClimb` (fitness execution for `HillClimbVariant::SteepestAscent` population only)
+* Add `call_repeatedly` for `EvolveBuilder` and `HillClimbBuilder`
+* Add examples/evolve_milp.rs
+* Add examples/evolve_scrabble.rs
+* Add examples/hill_climb_scrabble.rs
+* Add examples/hill_climb_milp.rs
+* Add examples/permutate_scrabble.rs
+
+### Changed
+* Require `IncrementalGenotype` for `HillClimb` strategy
+* Refactor `allele_values` to `allele_list`
+* Refactor `allele_multi_values` to `allele_lists`
+* Refactor `allele_multi_range` to `allele_ranges`
+* Add median/mean/stddev to `report_round` in `Evolve` and `HillClimb`
+* Add precision to `SumContinuousGenotype` and `SumMultiContinuousGenotype` placeholders for better handling of decimal changes on cast to isize
+
 ## [0.4.1] - 2022-06-14
 ### Documentation
 * Use SPDX license in Cargo.toml as the existing LICENSE file (MIT) was marked as non-standard by crates.io

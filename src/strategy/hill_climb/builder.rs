@@ -129,6 +129,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.random_chromosome_probability = Some(random_chromosome_probability);
         self
     }
+
+    /// scaling: (initial-scaling, scale-down-factor, min-scale)
     pub fn with_scaling(mut self, scaling: (f32, f32, f32)) -> Self {
         self.scaling = Some(scaling);
         self

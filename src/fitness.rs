@@ -47,6 +47,7 @@ pub enum FitnessOrdering {
 /// ```
 pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: Genotype;
+    /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,
         population: &mut Population<Self::Genotype>,
@@ -65,8 +66,9 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             .filter(|c| c.fitness_score.is_none())
             .for_each(|c| self.call_for_chromosome(c));
     }
+    /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population_multi_thread(
-        &mut self,
+        &self,
         population: &mut Population<Self::Genotype>,
         thread_local: &ThreadLocal<RefCell<Self>>,
     ) {

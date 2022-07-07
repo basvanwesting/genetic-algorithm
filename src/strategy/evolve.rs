@@ -115,7 +115,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.multithreading {
-            fitness_thread_local = Some(ThreadLocal::new())
+            fitness_thread_local = Some(ThreadLocal::new());
         }
 
         while !self.is_finished() {
