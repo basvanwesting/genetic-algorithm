@@ -57,3 +57,9 @@ impl<T: Genotype> Population<T> {
             .count()
     }
 }
+
+impl<T: Genotype> From<Vec<Chromosome<T>>> for Population<T> {
+    fn from(chromosomes: Vec<Chromosome<T>>) -> Self {
+        Self::new(chromosomes)
+    }
+}

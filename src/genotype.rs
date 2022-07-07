@@ -60,6 +60,27 @@ pub trait Genotype:
 
 //Evolvable is implicit, until proven otherwise
 //pub trait EvolvableGenotype: Genotype {}
+
+/// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb).
+/// Need to implement a neighbouring mutation.
+pub trait IncrementalGenotype: Genotype {
+    /// a neighbouring mutation of the chromosome
+    fn mutate_chromosome_neighbour<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self>,
+        _scale: Option<f32>,
+        rng: &mut R,
+    );
+    /// all neighbouring mutations of the chromosome
+    fn chromosome_neighbours(
+        &self,
+        _chromosome: &Chromosome<Self>,
+        _scale: Option<f32>,
+    ) -> Vec<Chromosome<Self>>;
+    /// chromosome neighbours size for the all possible neighbouring mutation combinations
+    fn chromosome_neighbours_size(&self) -> BigUint;
+}
+
 /// Genotype suitable for [Permutate](crate::strategy::permutate::Permutate).
 /// Not all genotypes are permutable, only countable ones (e.g. continuous genotypes cannot be permutated).
 pub trait PermutableGenotype: Genotype {
@@ -83,24 +104,4 @@ pub trait PermutableGenotype: Genotype {
         BigUint::from(self.allele_list_for_chromosome_permutations().len())
             .pow(self.genes_size() as u32)
     }
-}
-
-/// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb).
-/// Need to implement a neighbouring mutation.
-pub trait IncrementalGenotype: Genotype {
-    /// a neighbouring mutation of the chromosome
-    fn mutate_chromosome_neighbour<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self>,
-        _scale: Option<f32>,
-        rng: &mut R,
-    );
-    /// all neighbouring mutations of the chromosome
-    fn chromosome_neighbours(
-        &self,
-        _chromosome: &Chromosome<Self>,
-        _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>>;
-    /// chromosome neighbours size for the all possible neighbouring mutation combinations
-    fn chromosome_neighbours_size(&self) -> BigUint;
 }
