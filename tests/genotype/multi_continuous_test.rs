@@ -22,8 +22,8 @@ fn general_random() {
         vec![0.447325, 2.1957011, 18.970789]
     );
 
-    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<usize>>());
-    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<usize>>());
+    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
+    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<_>>());
 }
 
 #[test]
@@ -47,8 +47,8 @@ fn general_neighbour() {
         vec![0.447325, 2.1957011, 20.0]
     );
 
-    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<usize>>());
-    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<usize>>());
+    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
+    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<_>>());
 }
 
 #[test]

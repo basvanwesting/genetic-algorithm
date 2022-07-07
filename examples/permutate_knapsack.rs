@@ -93,10 +93,7 @@ fn main() {
             .iter()
             .enumerate()
             .filter_map(|(i, v)| if *v { Some(&items[i]) } else { None });
-        println!(
-            "selected items: {:?}",
-            selected_items.collect::<Vec<&Item>>()
-        );
+        println!("selected items: {:?}", selected_items.collect::<Vec<_>>());
     }
     println!("{:?}", duration);
 }

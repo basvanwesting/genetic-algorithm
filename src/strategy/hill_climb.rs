@@ -88,7 +88,7 @@ pub enum HillClimbVariant {
 ///
 /// // it's all about the best chromosome after all
 /// let best_chromosome = hill_climb.best_chromosome().unwrap();
-/// assert_eq!(best_chromosome.genes.into_iter().map(|v| v <= 1e-3).collect::<Vec<bool>>(), vec![true; 16])
+/// assert_eq!(best_chromosome.genes.into_iter().map(|v| v <= 1e-3).collect::<Vec<_>>(), vec![true; 16])
 /// ```
 pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     genotype: G,

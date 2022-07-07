@@ -30,8 +30,8 @@ fn general() {
         genotype.chromosome_permutations_size(),
         BigUint::from(120u32)
     );
-    assert_eq!(genotype.crossover_indexes(), (0..4).collect::<Vec<usize>>());
-    assert_eq!(genotype.crossover_points(), (0..4).collect::<Vec<usize>>());
+    assert_eq!(genotype.crossover_indexes(), (0..4).collect::<Vec<_>>());
+    assert_eq!(genotype.crossover_points(), (0..4).collect::<Vec<_>>());
 }
 
 #[test]

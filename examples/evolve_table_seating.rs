@@ -72,7 +72,7 @@ fn main() {
                 .iter()
                 .filter(|person| !hosts_per_round[i].contains(person))
                 .map(|p| *p)
-                .collect::<Vec<Person>>()
+                .collect::<Vec<_>>()
         })
         .collect();
 
