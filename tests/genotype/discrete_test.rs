@@ -1,9 +1,11 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{DiscreteGenotype, Genotype, PermutableGenotype};
+use genetic_algorithm::genotype::{
+    DiscreteGenotype, Genotype, IncrementalGenotype, PermutableGenotype,
+};
 
 #[test]
-fn general() {
+fn general_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = DiscreteGenotype::builder()
         .with_genes_size(5)
@@ -23,6 +25,64 @@ fn general() {
     );
     assert_eq!(genotype.crossover_indexes(), (0..5).collect::<Vec<usize>>());
     assert_eq!(genotype.crossover_points(), (0..5).collect::<Vec<usize>>());
+}
+
+#[test]
+fn general_neighbour() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = DiscreteGenotype::builder()
+        .with_genes_size(5)
+        .with_allele_list(vec![5, 2, 3, 4])
+        .build()
+        .unwrap();
+
+    let mut chromosome = genotype.chromosome_factory(&mut rng);
+    assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 4]);
+
+    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 3]);
+
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::from(1024u32)
+    );
+    assert_eq!(genotype.crossover_indexes(), (0..5).collect::<Vec<usize>>());
+    assert_eq!(genotype.crossover_points(), (0..5).collect::<Vec<usize>>());
+}
+
+#[test]
+fn chromosome_neighbours() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = DiscreteGenotype::builder()
+        .with_genes_size(5)
+        .with_allele_list(vec![5, 2, 3, 4])
+        .build()
+        .unwrap();
+
+    let chromosome = genotype.chromosome_factory(&mut rng);
+    assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 4, 2, 4]);
+
+    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(15u32));
+    assert_eq!(
+        inspect::chromosomes(&genotype.chromosome_neighbours(&chromosome, None)),
+        vec![
+            vec![5, 2, 4, 2, 4],
+            vec![3, 2, 4, 2, 4],
+            vec![4, 2, 4, 2, 4],
+            vec![2, 5, 4, 2, 4],
+            vec![2, 3, 4, 2, 4],
+            vec![2, 4, 4, 2, 4],
+            vec![2, 2, 5, 2, 4],
+            vec![2, 2, 2, 2, 4],
+            vec![2, 2, 3, 2, 4],
+            vec![2, 2, 4, 5, 4],
+            vec![2, 2, 4, 3, 4],
+            vec![2, 2, 4, 4, 4],
+            vec![2, 2, 4, 2, 5],
+            vec![2, 2, 4, 2, 2],
+            vec![2, 2, 4, 2, 3],
+        ]
+    );
 }
 
 #[test]

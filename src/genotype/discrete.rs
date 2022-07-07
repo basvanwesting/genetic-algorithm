@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, PermutableGenotype};
+use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
+use num::BigUint;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
@@ -29,7 +30,7 @@ pub type DefaultAllele = usize;
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, DiscreteGenotype};
 ///
-/// #[derive(Clone, Debug)]
+/// #[derive(PartialEq, Clone, Debug)]
 /// struct Item(pub u16, pub u16);
 ///
 /// let genotype = DiscreteGenotype::builder()
@@ -43,7 +44,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Debug, Clone)]
-pub struct Discrete<T: Clone + Send + std::fmt::Debug = DefaultAllele> {
+pub struct Discrete<T: PartialEq + Clone + Send + std::fmt::Debug = DefaultAllele> {
     pub genes_size: usize,
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
@@ -51,7 +52,7 @@ pub struct Discrete<T: Clone + Send + std::fmt::Debug = DefaultAllele> {
     pub seed_genes: Option<Vec<T>>,
 }
 
-impl<T: Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
+impl<T: PartialEq + Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -78,7 +79,7 @@ impl<T: Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
     }
 }
 
-impl<T: Clone + Send + std::fmt::Debug> Genotype for Discrete<T> {
+impl<T: PartialEq + Clone + Send + std::fmt::Debug> Genotype for Discrete<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -101,13 +102,48 @@ impl<T: Clone + Send + std::fmt::Debug> Genotype for Discrete<T> {
     }
 }
 
-impl<T: Clone + Send + std::fmt::Debug> PermutableGenotype for Discrete<T> {
+impl<T: PartialEq + Clone + Send + std::fmt::Debug> IncrementalGenotype for Discrete<T> {
+    fn mutate_chromosome_neighbour<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self>,
+        _scale: Option<f32>,
+        rng: &mut R,
+    ) {
+        self.mutate_chromosome_random(chromosome, rng);
+    }
+
+    fn chromosome_neighbours(
+        &self,
+        chromosome: &Chromosome<Self>,
+        _scale: Option<f32>,
+    ) -> Vec<Chromosome<Self>> {
+        (0..self.genes_size)
+            .flat_map(|index| {
+                self.allele_list.iter().filter_map(move |allele_value| {
+                    if chromosome.genes[index] == *allele_value {
+                        None
+                    } else {
+                        let mut genes = chromosome.genes.clone();
+                        genes[index] = allele_value.clone();
+                        Some(Chromosome::new(genes))
+                    }
+                })
+            })
+            .collect()
+    }
+
+    fn chromosome_neighbours_size(&self) -> BigUint {
+        BigUint::from((self.allele_list.len() - 1) * self.genes_size)
+    }
+}
+
+impl<T: PartialEq + Clone + Send + std::fmt::Debug> PermutableGenotype for Discrete<T> {
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         self.allele_list.clone()
     }
 }
 
-impl<T: Clone + Send + std::fmt::Debug> fmt::Display for Discrete<T> {
+impl<T: PartialEq + Clone + Send + std::fmt::Debug> fmt::Display for Discrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
