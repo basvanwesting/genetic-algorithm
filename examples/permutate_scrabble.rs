@@ -112,7 +112,11 @@ impl Fitness for ScrabbleFitness {
         }
 
         let mut touching_word_ids: HashSet<usize> = HashSet::with_capacity(self.words.len());
-        let starting_set = self.related_word_ids.values().nth(0).unwrap();
+        let starting_set = self
+            .related_word_ids
+            .values()
+            .max_by_key(|set| set.len())
+            .unwrap();
         ScrabbleFitness::recursive_touching_sets(
             starting_set,
             &self.related_word_ids,
@@ -236,7 +240,8 @@ fn main() {
     println!("{:?}", row_scores);
     println!("{:?}", column_scores);
 
-    let words: Vec<&'static str> = vec!["ada", "aad", "bas"];
+    //let words: Vec<&'static str> = vec!["ada", "aad", "bas"];
+    let words: Vec<&'static str> = vec!["bean", "glee", "edge", "light", "note"];
     let mut allele_lists: Vec<Vec<WordPosition>> = vec![vec![]; words.len()];
     words.iter().enumerate().for_each(|(index, word)| {
         for row in 0..rows {
@@ -269,12 +274,13 @@ fn main() {
             column_scores.clone(),
             false,
         ))
+        .with_fitness_threads(6)
         .build()
         .unwrap();
 
     let now = std::time::Instant::now();
 
-    if true {
+    if false {
         let guard = pprof::ProfilerGuardBuilder::default()
             .frequency(1000)
             .blocklist(&["libc", "libgcc", "pthread", "vdso"])

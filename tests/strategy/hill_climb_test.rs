@@ -148,6 +148,45 @@ fn call_continuous_target_fitness_score_minimize() {
     );
 }
 
+#[test]
+fn call_continuous_multi_thread() {
+    let genotype = ContinuousGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..1.0)
+        .with_allele_neighbour_range(-0.1..0.1)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_fitness_threads(2)
+        .with_target_fitness_score(1000)
+        .with_fitness(SumContinuousGenotype(1e-3))
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = hill_climb.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(998));
+    assert_eq!(
+        inspect::chromosome(&best_chromosome),
+        vec![
+            0.0,
+            0.0,
+            0.019872978,
+            0.0,
+            0.11975294,
+            0.6136266,
+            0.0,
+            0.0,
+            0.0,
+            0.24557132
+        ]
+    );
+}
+
 //#[test]
 //fn call_discrete() {
 //let genotype = DiscreteGenotype::builder()

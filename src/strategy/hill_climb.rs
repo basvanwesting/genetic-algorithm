@@ -78,6 +78,7 @@ pub enum HillClimbVariant {
 ///     .with_variant(HillClimbVariant::SteepestAscent) // check all neighbours for each round
 ///     .with_fitness(SumContinuousGenotype(1e-5))  // sum the gene values of the chromosomes with precision 0.00001
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
+///     .with_fitness_threads(4)                   // use 4 threads for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
 ///     .with_scaling((1.0, 0.8, 1e-5))            // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale
 ///     .with_target_fitness_score(0)              // goal is 16 times <= 0.00001 in the best chromosome
 ///     .with_max_stale_generations(1000)          // stop searching if there is no improvement in fitness score for 1000 generations

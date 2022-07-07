@@ -324,6 +324,37 @@ fn call_multi_discrete() {
 }
 
 #[test]
+fn call_multi_thread() {
+    let genotype = DiscreteGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_list((0..4).collect())
+        .build()
+        .unwrap();
+
+    let mut rng = SmallRng::seed_from_u64(0);
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_population_size(100)
+        .with_max_stale_generations(20)
+        .with_mutate(MutateOnce(0.1))
+        .with_fitness(SumDiscreteGenotype)
+        .with_fitness_threads(2)
+        .with_crossover(CrossoverSingleGene(true))
+        .with_compete(CompeteTournament(4))
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = evolve.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(30));
+    assert_eq!(
+        inspect::chromosome(&best_chromosome),
+        vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+    );
+}
+
+#[test]
 fn population_factory_binary() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(4)

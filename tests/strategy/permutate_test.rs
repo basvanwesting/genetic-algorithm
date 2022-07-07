@@ -109,3 +109,26 @@ fn call_multi_discrete() {
     assert_eq!(best_chromosome.fitness_score, Some(8));
     assert_eq!(inspect::chromosome(&best_chromosome), vec![4, 1, 0, 3]);
 }
+
+#[test]
+fn call_multi_thread() {
+    let genotype = DiscreteGenotype::builder()
+        .with_genes_size(5)
+        .with_allele_list((0..10).collect())
+        .build()
+        .unwrap();
+
+    let mut rng = rand::thread_rng();
+    let permutate = Permutate::builder()
+        .with_genotype(genotype)
+        .with_fitness(SumDiscreteGenotype)
+        .with_fitness_threads(2)
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = permutate.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(45));
+    assert_eq!(inspect::chromosome(&best_chromosome), vec![9, 9, 9, 9, 9]);
+}

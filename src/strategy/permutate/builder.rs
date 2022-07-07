@@ -13,6 +13,7 @@ pub struct Builder<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     pub genotype: Option<G>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
+    pub fitness_threads: usize,
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
@@ -37,6 +38,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.fitness_ordering = fitness_ordering;
         self
     }
+    pub fn with_fitness_threads(mut self, fitness_threads: usize) -> Self {
+        self.fitness_threads = fitness_threads;
+        self
+    }
     pub fn with_fitness(mut self, fitness: F) -> Self {
         self.fitness = Some(fitness);
         self
@@ -48,6 +53,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F> 
         Self {
             genotype: None,
             fitness_ordering: FitnessOrdering::Maximize,
+            fitness_threads: 1,
             fitness: None,
         }
     }
