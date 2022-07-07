@@ -160,7 +160,7 @@ fn call_continuous_multi_thread() {
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_fitness_threads(2)
+        .with_multithreading(true)
         .with_target_fitness_score(1000)
         .with_fitness(SumContinuousGenotype(1e-3))
         .call(&mut rng)

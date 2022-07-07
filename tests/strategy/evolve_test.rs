@@ -338,7 +338,7 @@ fn call_multi_thread() {
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce(0.1))
         .with_fitness(SumDiscreteGenotype)
-        .with_fitness_threads(2)
+        .with_multithreading(true)
         .with_crossover(CrossoverSingleGene(true))
         .with_compete(CompeteTournament(4))
         .call(&mut rng)

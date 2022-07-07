@@ -19,7 +19,7 @@ pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossove
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
-    pub fitness_threads: usize,
+    pub multithreading: bool,
     pub degeneration_range: Option<Range<f32>>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -123,8 +123,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.fitness_ordering = fitness_ordering;
         self
     }
-    pub fn with_fitness_threads(mut self, fitness_threads: usize) -> Self {
-        self.fitness_threads = fitness_threads;
+    pub fn with_multithreading(mut self, multithreading: bool) -> Self {
+        self.multithreading = multithreading;
         self
     }
     pub fn with_degeneration_range(mut self, degeneration_range: Range<f32>) -> Self {
@@ -170,7 +170,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             max_stale_generations: None,
             target_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
-            fitness_threads: 1,
+            multithreading: false,
             degeneration_range: None,
             mutate: None,
             fitness: None,

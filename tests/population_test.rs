@@ -21,7 +21,7 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        CountTrue.call_for_population(population, 1);
+        CountTrue.call_for_population(population, None);
         assert_eq!(population.fitness_score_stddev(), 0.8660254);
 
         let population = &mut build::population::<BinaryGenotype>(vec![
@@ -36,7 +36,7 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        CountTrue.call_for_population(population, 1);
+        CountTrue.call_for_population(population, None);
         assert_eq!(population.fitness_score_stddev(), 0.3307189);
     }
 

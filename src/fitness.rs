@@ -11,7 +11,9 @@ pub mod prelude;
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crossbeam::channel::unbounded;
+use rayon::prelude::*;
+use std::cell::RefCell;
+use thread_local::ThreadLocal;
 
 /// Use isize for easy handling of scores (ordering, comparing) as floats are tricky in that regard.
 pub type FitnessValue = isize;
@@ -43,11 +45,15 @@ pub enum FitnessOrdering {
 ///     }
 /// }
 /// ```
-pub trait Fitness: Clone + Send + std::fmt::Debug {
+pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: Genotype;
-    fn call_for_population(&mut self, population: &mut Population<Self::Genotype>, threads: usize) {
-        if threads > 1 {
-            self.call_for_population_multi_thread(population, threads);
+    fn call_for_population(
+        &mut self,
+        population: &mut Population<Self::Genotype>,
+        thread_local: Option<&ThreadLocal<RefCell<Self>>>,
+    ) {
+        if let Some(thread_local) = thread_local {
+            self.call_for_population_multi_thread(population, thread_local);
         } else {
             self.call_for_population_single_thread(population);
         }
@@ -62,32 +68,16 @@ pub trait Fitness: Clone + Send + std::fmt::Debug {
     fn call_for_population_multi_thread(
         &mut self,
         population: &mut Population<Self::Genotype>,
-        threads: usize,
+        thread_local: &ThreadLocal<RefCell<Self>>,
     ) {
-        crossbeam::scope(|s| {
-            let (sender, receiver) = unbounded();
-
-            s.spawn(|_| {
-                population
-                    .chromosomes
-                    .iter_mut()
-                    .filter(|c| c.fitness_score.is_none())
-                    .for_each(|c| sender.send(c).unwrap());
-
-                drop(sender);
+        population
+            .chromosomes
+            .par_iter_mut()
+            .filter(|c| c.fitness_score.is_none())
+            .for_each(|chromosome| {
+                let fitness = thread_local.get_or(|| std::cell::RefCell::new(self.clone()));
+                fitness.borrow_mut().call_for_chromosome(chromosome);
             });
-
-            for _i in 0..threads {
-                let mut fitness = self.clone();
-                let receiver = receiver.clone();
-                s.spawn(move |_| {
-                    for chromosome in receiver {
-                        fitness.call_for_chromosome(chromosome);
-                    }
-                });
-            }
-        })
-        .unwrap();
     }
     fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Genotype>) {
         chromosome.fitness_score = self.calculate_for_chromosome(chromosome);

@@ -12,7 +12,9 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
+use std::cell::RefCell;
 use std::fmt;
+use thread_local::ThreadLocal;
 
 pub type RandomChromosomeProbability = f64;
 
@@ -78,7 +80,7 @@ pub enum HillClimbVariant {
 ///     .with_variant(HillClimbVariant::SteepestAscent) // check all neighbours for each round
 ///     .with_fitness(SumContinuousGenotype(1e-5))  // sum the gene values of the chromosomes with precision 0.00001
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
-///     .with_fitness_threads(4)                   // use 4 threads for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
+///     .with_multithreading(true)                 // use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
 ///     .with_scaling((1.0, 0.8, 1e-5))            // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale
 ///     .with_target_fitness_score(0)              // goal is 16 times <= 0.00001 in the best chromosome
 ///     .with_max_stale_generations(1000)          // stop searching if there is no improvement in fitness score for 1000 generations
@@ -96,7 +98,7 @@ pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     variant: HillClimbVariant,
 
     fitness_ordering: FitnessOrdering,
-    fitness_threads: usize,
+    multithreading: bool,
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
     random_chromosome_probability: RandomChromosomeProbability,
@@ -116,6 +118,11 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
         self.best_generation = 0;
         self.best_chromosome = Some(self.genotype.chromosome_factory(rng));
         let random_chromosome_sampler = Bernoulli::new(self.random_chromosome_probability).unwrap();
+
+        let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
+        if self.multithreading {
+            fitness_thread_local = Some(ThreadLocal::new())
+        }
 
         while !self.is_finished() {
             if random_chromosome_sampler.sample(rng) {
@@ -141,7 +148,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                             .neighbouring_population(working_chromosome, self.current_scaling);
 
                         self.fitness
-                            .call_for_population(working_population, self.fitness_threads);
+                            .call_for_population(working_population, fitness_thread_local.as_ref());
                         self.update_best_chromosome(
                             working_population
                                 .best_chromosome(self.fitness_ordering)
@@ -303,7 +310,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
                 variant: builder.variant.unwrap_or(HillClimbVariant::Stochastic),
 
                 fitness_ordering: builder.fitness_ordering,
-                fitness_threads: builder.fitness_threads,
+                multithreading: builder.multithreading,
                 max_stale_generations: builder.max_stale_generations,
                 target_fitness_score: builder.target_fitness_score,
                 random_chromosome_probability: builder.random_chromosome_probability.unwrap_or(0.0),
@@ -332,7 +339,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClim
         )?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  fitness_threads: {:?}", self.fitness_threads)?;
+        writeln!(f, "  multithreading: {:?}", self.multithreading)?;
         writeln!(f, "  scaling: {:?}", self.scaling)?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;

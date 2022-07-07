@@ -19,7 +19,7 @@ fn maximize_population_surplus() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(population, 1);
+    CountTrue.call_for_population(population, None);
     CompeteTournament(4).call(population, FitnessOrdering::Maximize, 4, &mut rng);
 
     assert_eq!(
@@ -41,7 +41,7 @@ fn maximize_population_shortage() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(population, 1);
+    CountTrue.call_for_population(population, None);
     CompeteTournament(4).call(population, FitnessOrdering::Maximize, 4, &mut rng);
 
     assert_eq!(
@@ -64,7 +64,7 @@ fn minimize_population_surplus() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(population, 1);
+    CountTrue.call_for_population(population, None);
     CompeteTournament(4).call(population, FitnessOrdering::Minimize, 4, &mut rng);
 
     assert_eq!(
@@ -86,7 +86,7 @@ fn minimize_population_shortage() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(population, 1);
+    CountTrue.call_for_population(population, None);
     CompeteTournament(4).call(population, FitnessOrdering::Minimize, 4, &mut rng);
 
     assert_eq!(

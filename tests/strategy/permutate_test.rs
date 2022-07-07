@@ -122,7 +122,7 @@ fn call_multi_thread() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumDiscreteGenotype)
-        .with_fitness_threads(2)
+        .with_multithreading(true)
         .call(&mut rng)
         .unwrap();
 

@@ -42,7 +42,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .map(|_| genotype.chromosome_factory(&mut rng))
                 .collect();
             let population = &mut Population::new(chromosomes);
-            CountTrue.call_for_population(population, 1);
+            CountTrue.call_for_population(population, None);
 
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}-{}", compete.0, compete.1), population_size),

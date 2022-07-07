@@ -14,7 +14,7 @@ pub struct Builder<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     pub variant: Option<HillClimbVariant>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
-    pub fitness_threads: usize,
+    pub multithreading: bool,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub random_chromosome_probability: Option<RandomChromosomeProbability>,
@@ -92,8 +92,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.fitness_ordering = fitness_ordering;
         self
     }
-    pub fn with_fitness_threads(mut self, fitness_threads: usize) -> Self {
-        self.fitness_threads = fitness_threads;
+    pub fn with_multithreading(mut self, multithreading: bool) -> Self {
+        self.multithreading = multithreading;
         self
     }
     pub fn with_fitness(mut self, fitness: F) -> Self {
@@ -142,7 +142,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F>
             variant: None,
             fitness: None,
             fitness_ordering: FitnessOrdering::Maximize,
-            fitness_threads: 1,
+            multithreading: false,
             max_stale_generations: None,
             target_fitness_score: None,
             random_chromosome_probability: None,

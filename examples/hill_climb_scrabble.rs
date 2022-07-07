@@ -262,14 +262,14 @@ fn main() {
         .build()
         .unwrap();
 
-    //println!("{}", genotype);
+    println!("{}", genotype);
 
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscent)
-        .with_max_stale_generations(100)
+        .with_max_stale_generations(1000)
         //.with_random_chromosome_probability(0.5)
-        .with_fitness_threads(6)
+        .with_multithreading(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
             rows,

@@ -274,7 +274,7 @@ fn main() {
             column_scores.clone(),
             false,
         ))
-        .with_fitness_threads(6)
+        .with_multithreading(true)
         .build()
         .unwrap();
 

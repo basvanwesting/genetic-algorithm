@@ -271,7 +271,7 @@ fn main() {
         .with_mutate(MutateOnce(0.2))
         .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
-        .with_fitness_threads(6)
+        .with_multithreading(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
             rows,

@@ -15,8 +15,10 @@ use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
 use rand::Rng;
+use std::cell::RefCell;
 use std::fmt;
 use std::ops::Range;
+use thread_local::ThreadLocal;
 
 /// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
 /// seeds specific genes to start with).
@@ -70,7 +72,7 @@ use std::ops::Range;
 ///     .with_degeneration_range(0.005..0.995)  // simulate cambrian explosion when reaching a local optimum
 ///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .with_fitness_threads(4)                // use 4 threads for calculating the fitness of the population
+///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
 ///     .with_crossover(CrossoverUniform(true)) // crossover all individual genes between 2 chromosomes for offspring
 ///     .with_mutate(MutateOnce(0.2))           // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite)             // sort the chromosomes by fitness to determine crossover order
@@ -92,7 +94,7 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
     fitness_ordering: FitnessOrdering,
-    fitness_threads: usize,
+    multithreading: bool,
     degeneration_range: Option<Range<f32>>,
 
     pub current_iteration: usize,
@@ -111,16 +113,21 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.best_generation = 0;
         let population = &mut self.population_factory(rng);
 
+        let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
+        if self.multithreading {
+            fitness_thread_local = Some(ThreadLocal::new())
+        }
+
         while !self.is_finished() {
             if self.toggle_degenerate(population) {
                 self.mutate.call(&self.genotype, population, rng);
                 self.fitness
-                    .call_for_population(population, self.fitness_threads);
+                    .call_for_population(population, fitness_thread_local.as_ref());
             } else {
                 self.crossover.call(&self.genotype, population, rng);
                 self.mutate.call(&self.genotype, population, rng);
                 self.fitness
-                    .call_for_population(population, self.fitness_threads);
+                    .call_for_population(population, fitness_thread_local.as_ref());
                 self.compete
                     .call(population, self.fitness_ordering, self.population_size, rng);
             }
@@ -323,7 +330,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 max_stale_generations: builder.max_stale_generations,
                 target_fitness_score: builder.target_fitness_score,
                 fitness_ordering: builder.fitness_ordering,
-                fitness_threads: builder.fitness_threads,
+                multithreading: builder.multithreading,
                 degeneration_range: builder.degeneration_range,
 
                 current_iteration: 0,
@@ -355,7 +362,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         )?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  fitness_threads: {:?}", self.fitness_threads)?;
+        writeln!(f, "  multithreading: {:?}", self.multithreading)?;
         writeln!(f, "  degeneration_range: {:?}", self.degeneration_range)?;
 
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
