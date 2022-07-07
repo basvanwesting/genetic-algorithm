@@ -1,6 +1,8 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype, PermutableGenotype};
+use genetic_algorithm::genotype::{
+    BinaryGenotype, Genotype, IncrementalGenotype, PermutableGenotype,
+};
 
 #[test]
 fn general() {
@@ -22,6 +24,12 @@ fn general() {
         vec![true, true, true, true, false, false, false, true, true, false]
     );
 
+    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![true, true, true, true, false, false, false, true, true, true]
+    );
+
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::from(1024u32)
@@ -31,6 +39,38 @@ fn general() {
         (0..10).collect::<Vec<usize>>()
     );
     assert_eq!(genotype.crossover_points(), (0..10).collect::<Vec<usize>>());
+}
+
+#[test]
+fn chromosome_neighbours() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
+    let chromosome = genotype.chromosome_factory(&mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![true, true, false, true, false, false, false, true, true, false]
+    );
+
+    assert_eq!(genotype.chromosome_neighbours_size(), BigUint::from(10u32));
+    assert_eq!(
+        inspect::chromosomes(&genotype.chromosome_neighbours(&chromosome, None)),
+        vec![
+            vec![false, true, false, true, false, false, false, true, true, false],
+            vec![true, false, false, true, false, false, false, true, true, false],
+            vec![true, true, true, true, false, false, false, true, true, false],
+            vec![true, true, false, false, false, false, false, true, true, false],
+            vec![true, true, false, true, true, false, false, true, true, false],
+            vec![true, true, false, true, false, true, false, true, true, false],
+            vec![true, true, false, true, false, false, true, true, true, false],
+            vec![true, true, false, true, false, false, false, false, true, false],
+            vec![true, true, false, true, false, false, false, true, false, false],
+            vec![true, true, false, true, false, false, false, true, true, true],
+        ]
+    );
 }
 
 #[test]
