@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{
 };
 
 #[test]
-fn general_random() {
+fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiDiscreteGenotype::builder()
         .with_allele_lists(vec![
@@ -23,32 +23,8 @@ fn general_random() {
     genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 7]);
 
-    assert_eq!(
-        genotype.chromosome_permutations_size(),
-        BigUint::from(120u32)
-    );
-    assert_eq!(genotype.crossover_indexes(), (0..4).collect::<Vec<usize>>());
-    assert_eq!(genotype.crossover_points(), (0..4).collect::<Vec<usize>>());
-}
-
-#[test]
-fn general_neighbour() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = MultiDiscreteGenotype::builder()
-        .with_allele_lists(vec![
-            vec![0, 1, 2, 3, 4],
-            vec![0, 1],
-            vec![0, 1, 2],
-            vec![4, 5, 6, 7],
-        ])
-        .build()
-        .unwrap();
-
-    let mut chromosome = genotype.chromosome_factory(&mut rng);
-    assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 5]);
-
     genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
-    assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 7]);
+    assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 1, 7]);
 
     assert_eq!(
         genotype.chromosome_permutations_size(),

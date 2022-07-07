@@ -18,6 +18,9 @@ fn general() {
     genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 3, 2]);
 
+    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    assert_eq!(inspect::chromosome(&chromosome), vec![2, 5, 3, 4]);
+
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::from(24u32)

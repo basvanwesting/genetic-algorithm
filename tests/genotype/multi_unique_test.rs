@@ -30,6 +30,12 @@ fn general() {
         vec![0, 1, 6, 7, 4, 5, 2, 1, 0]
     );
 
+    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![0, 1, 6, 5, 4, 7, 2, 1, 0]
+    );
+
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::from(288u32)
