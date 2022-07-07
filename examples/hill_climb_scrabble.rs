@@ -1,4 +1,4 @@
-use genetic_algorithm::strategy::evolve::prelude::*;
+use genetic_algorithm::strategy::hill_climb::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use std::collections::{HashMap, HashSet};
@@ -264,14 +264,10 @@ fn main() {
 
     //println!("{}", genotype);
 
-    let evolve_builder = Evolve::builder()
+    let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
-        .with_population_size(1000)
-        .with_max_stale_generations(500)
-        .with_mutate(MutateOnce(0.2))
-        .with_crossover(CrossoverUniform(true))
-        .with_compete(CompeteTournament(4))
-        .with_fitness_threads(6)
+        .with_variant(HillClimbVariant::SteepestAscent)
+        .with_max_stale_generations(100)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
             rows,
@@ -282,13 +278,13 @@ fn main() {
         ));
 
     let now = std::time::Instant::now();
-    let evolve = evolve_builder.call_repeatedly(10, &mut rng).unwrap();
+    let hill_climb = hill_climb_builder.call_repeatedly(10, &mut rng).unwrap();
     let duration = now.elapsed();
     println!("{:?}", duration);
 
-    //println!("{}", evolve);
+    //println!("{}", hill_climb);
 
-    if let Some(best_chromosome) = evolve.best_chromosome() {
+    if let Some(best_chromosome) = hill_climb.best_chromosome() {
         if let Some(_fitness_score) = best_chromosome.fitness_score {
             let mut fitness = ScrabbleFitness::new(
                 words.clone(),

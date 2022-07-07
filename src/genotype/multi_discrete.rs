@@ -212,11 +212,16 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> fmt::Display for MultiDiscre
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  allele_lists: {:?}", self.allele_lists)?;
+        //writeln!(f, "  allele_lists: {:?}", self.allele_lists)?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
             self.chromosome_permutations_size()
+        )?;
+        writeln!(
+            f,
+            "  chromosome_neighbours_size: {}",
+            self.chromosome_neighbours_size()
         )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes)
     }
