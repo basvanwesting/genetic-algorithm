@@ -3,7 +3,7 @@ use genetic_algorithm::strategy::hill_climb::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use statrs::statistics::Statistics;
-use std::collections::HashMap;
+use std::collections::{HashMap, HashSet};
 
 const NO_ASSIGN_PENALTY: isize = 1000;
 const INVALID_ASSIGN_PENALTY: isize = 1000;
@@ -14,26 +14,31 @@ struct Adult {
     pub name: String,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
+    pub number_of_times: usize,
     pub monday: bool,
     pub tuesday: bool,
     pub wednesday: bool,
     pub thursday: bool,
     pub friday: bool,
-    pub times: usize,
 }
 
 impl Adult {
-    pub fn new(name: String, start_date: NaiveDate, end_date: NaiveDate) -> Adult {
+    pub fn new(
+        name: String,
+        start_date: NaiveDate,
+        end_date: NaiveDate,
+        number_of_times: usize,
+    ) -> Adult {
         Self {
             name,
             start_date,
             end_date,
+            number_of_times,
             monday: true,
             tuesday: true,
             wednesday: true,
             thursday: true,
             friday: true,
-            times: 0,
         }
     }
     pub fn allow_weekday(&self, weekday: Weekday) -> bool {
@@ -51,7 +56,7 @@ impl Adult {
 #[derive(Clone, Debug)]
 struct RecessFitness<'a>(pub &'a Vec<Adult>, pub &'a Vec<NaiveDate>, pub bool);
 impl<'a> Fitness for RecessFitness<'a> {
-    type Genotype = DiscreteGenotype;
+    type Genotype = UniqueGenotype;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
@@ -117,37 +122,71 @@ impl<'a> Fitness for RecessFitness<'a> {
 }
 
 fn main() {
+    // INIT
     let default_start_date = NaiveDate::from_ymd(2022, 1, 1);
     let default_end_date = NaiveDate::from_ymd(2022, 12, 31);
     let adults: Vec<Adult> = vec![
-        Adult::new("A".to_string(), default_start_date, default_end_date),
-        Adult::new("B".to_string(), default_start_date, default_end_date),
-        Adult::new("C".to_string(), default_start_date, default_end_date),
-        Adult::new("D".to_string(), default_start_date, default_end_date),
-        Adult::new("E".to_string(), default_start_date, default_end_date),
-    ];
-    let dates: Vec<NaiveDate> = vec![
-        NaiveDate::from_ymd(2022, 1, 3),
-        NaiveDate::from_ymd(2022, 1, 4),
-        NaiveDate::from_ymd(2022, 1, 5),
-        NaiveDate::from_ymd(2022, 1, 6),
-        NaiveDate::from_ymd(2022, 1, 7),
-        NaiveDate::from_ymd(2022, 1, 10),
-        NaiveDate::from_ymd(2022, 1, 11),
-        NaiveDate::from_ymd(2022, 1, 12),
-        NaiveDate::from_ymd(2022, 1, 13),
-        NaiveDate::from_ymd(2022, 1, 14),
-        NaiveDate::from_ymd(2022, 1, 17),
-        NaiveDate::from_ymd(2022, 1, 18),
-        NaiveDate::from_ymd(2022, 1, 19),
-        NaiveDate::from_ymd(2022, 1, 20),
-        NaiveDate::from_ymd(2022, 1, 21),
+        Adult::new("A".to_string(), default_start_date, default_end_date, 6),
+        Adult::new("B".to_string(), default_start_date, default_end_date, 5),
+        Adult::new("C".to_string(), default_start_date, default_end_date, 5),
+        Adult::new("D".to_string(), default_start_date, default_end_date, 5),
+        Adult::new("E".to_string(), default_start_date, default_end_date, 5),
     ];
 
+    let periods = vec![
+        (
+            NaiveDate::from_ymd(2022, 1, 3),
+            NaiveDate::from_ymd(2022, 1, 21),
+        ),
+        (
+            NaiveDate::from_ymd(2022, 2, 3),
+            NaiveDate::from_ymd(2022, 2, 21),
+        ),
+    ];
+
+    let exceptions = vec![
+        NaiveDate::from_ymd(2022, 1, 4),
+        NaiveDate::from_ymd(2022, 2, 4),
+    ];
+
+    // SETUP
+    let exceptions_set = exceptions
+        .into_iter()
+        .fold(HashSet::new(), |mut acc, date| {
+            acc.insert(date);
+            acc
+        });
+
+    let mut dates: Vec<NaiveDate> = vec![];
+    periods.iter().for_each(|(start_date, end_date)| {
+        let num_days = (*end_date - *start_date).num_days() as usize + 1;
+        start_date
+            .iter_days()
+            .take(num_days)
+            .for_each(|date| match date.weekday() {
+                Weekday::Sat => (),
+                Weekday::Sun => (),
+                _ => {
+                    if !exceptions_set.contains(&date) {
+                        dates.push(date)
+                    }
+                }
+            });
+    });
+
+    println!("number of dates to plan: {}", dates.len());
+
+    // RUN
+
     let mut rng = SmallRng::from_entropy();
-    let genotype = DiscreteGenotype::builder()
-        .with_genes_size(dates.len())
-        .with_allele_list((0..adults.len()).collect())
+    let genotype = UniqueGenotype::builder()
+        .with_allele_list(
+            adults
+                .iter()
+                .enumerate()
+                .flat_map(|(index, adult)| vec![index; adult.number_of_times])
+                .collect(),
+        )
         .build()
         .unwrap();
 
@@ -156,7 +195,7 @@ fn main() {
     let mut hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::Stochastic)
-        .with_max_stale_generations(10000)
+        .with_max_stale_generations(100000)
         .with_fitness(RecessFitness(&adults, &dates, false))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .build()
@@ -168,11 +207,12 @@ fn main() {
 
     println!("{}", hill_climb);
 
+    // REPORT
+
     if let Some(best_chromosome) = hill_climb.best_chromosome() {
         if let Some(fitness_score) = best_chromosome.fitness_score {
             println!("Solution with fitness score: {}", fitness_score);
 
-            let mut adult_counts = HashMap::new();
             best_chromosome
                 .genes
                 .iter()
@@ -181,16 +221,7 @@ fn main() {
                     let date = &dates[index];
                     let adult = &adults[*value];
                     println!("{}: {}", date, adult.name);
-
-                    adult_counts
-                        .entry(adult)
-                        .and_modify(|count| *count += 1)
-                        .or_insert(1);
                 });
-
-            adult_counts.iter().for_each(|(adult, count)| {
-                println!("{}: {}", adult.name, count);
-            });
 
             RecessFitness(&adults, &dates, true).calculate_for_chromosome(&best_chromosome);
         }
