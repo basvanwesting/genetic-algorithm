@@ -29,6 +29,8 @@ lru = "0.7.5"
 criterion = "0.3"
 pprof = { version = "0.7", features = ["criterion", "flamegraph"] }
 distance = "0.4.0"
+chrono = "0.4.22"
+statrs = "0.16.0"
 
 # for profiling and flamegraph
 #[profile.release]
