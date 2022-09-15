@@ -9,7 +9,7 @@ use std::hash::{Hash, Hasher};
 
 const INVALID_ASSIGN_PENALTY: f64 = 1_000_000.0;
 const MIN_ALLOWED_INTERVAL: f64 = 21.0;
-const MEAN_MULTIPLIER: f64 = 100.0;
+//const MEAN_MULTIPLIER: f64 = 100.0;
 const STD_DEV_MULTIPLIER: f64 = 1000.0;
 
 #[derive(Debug)]
