@@ -1,19 +1,22 @@
 use chrono::{Datelike, NaiveDate, Weekday};
 use genetic_algorithm::strategy::hill_climb::prelude::*;
+use itertools::Itertools;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use statrs::statistics::Statistics;
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
+use std::hash::{Hash, Hasher};
 
-const NO_ASSIGN_PENALTY: isize = 1000;
-const INVALID_ASSIGN_PENALTY: isize = 1000;
-const STD_DEV_MULTIPLIER: f64 = 10.0;
+const INVALID_ASSIGN_PENALTY: f64 = 100_000.0;
+const MEAN_MULTIPLIER: f64 = 100.0;
+const STD_DEV_MULTIPLIER: f64 = 1000.0;
 
-#[derive(Debug, Eq, PartialEq, Hash)]
+#[derive(Debug)]
 struct Adult {
     pub name: String,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
+    pub weight: f64,
     pub number_of_times: usize,
     pub monday: bool,
     pub tuesday: bool,
@@ -23,17 +26,13 @@ struct Adult {
 }
 
 impl Adult {
-    pub fn new(
-        name: String,
-        start_date: NaiveDate,
-        end_date: NaiveDate,
-        number_of_times: usize,
-    ) -> Adult {
+    pub fn new(name: String, start_date: NaiveDate, end_date: NaiveDate) -> Adult {
         Self {
             name,
             start_date,
             end_date,
-            number_of_times,
+            weight: 0.0,
+            number_of_times: 0,
             monday: true,
             tuesday: true,
             wednesday: true,
@@ -52,9 +51,20 @@ impl Adult {
         }
     }
 }
+impl PartialEq for Adult {
+    fn eq(&self, other: &Self) -> bool {
+        self.name == other.name
+    }
+}
+impl Eq for Adult {}
+impl Hash for Adult {
+    fn hash<H: Hasher>(&self, state: &mut H) {
+        self.name.hash(state);
+    }
+}
 
 #[derive(Clone, Debug)]
-struct RecessFitness<'a>(pub &'a Vec<Adult>, pub &'a Vec<NaiveDate>, pub bool);
+struct RecessFitness<'a>(pub &'a Vec<Adult>, pub &'a Vec<NaiveDate>);
 impl<'a> Fitness for RecessFitness<'a> {
     type Genotype = UniqueGenotype;
     fn calculate_for_chromosome(
@@ -63,8 +73,7 @@ impl<'a> Fitness for RecessFitness<'a> {
     ) -> Option<FitnessValue> {
         let adults = self.0;
         let dates = self.1;
-        let debug = self.2;
-        let mut score = 0;
+        let mut score = 0.0;
 
         let mut assigns: HashMap<&Adult, Vec<&NaiveDate>> = HashMap::new();
         chromosome
@@ -90,57 +99,70 @@ impl<'a> Fitness for RecessFitness<'a> {
             });
 
         let mut intervals: Vec<f64> = vec![];
-        adults.iter().for_each(|adult| match assigns.get(adult) {
-            Some(dates) => {
-                dates.windows(2).for_each(|pair| {
-                    let duration = *pair[1] - *pair[0];
-                    intervals.push(duration.num_days() as f64);
-                });
-            }
-            None => {
-                score += NO_ASSIGN_PENALTY;
-            }
+        adults.iter().for_each(|adult| {
+            assigns.get(adult).unwrap().windows(2).for_each(|pair| {
+                let duration = *pair[1] - *pair[0];
+                intervals.push(duration.num_days() as f64);
+            });
         });
 
-        let min = Statistics::min(&intervals);
-        score -= min as isize; // maximize min
-        let max = Statistics::max(&intervals);
-        score += max as isize; // minimize max
         let mean = Statistics::mean(&intervals);
-        score -= mean as isize; // maximize mean
-        let std_dev = Statistics::std_dev(&intervals);
-        score += (STD_DEV_MULTIPLIER * std_dev) as isize; // minimize std_dev
+        score -= MEAN_MULTIPLIER * mean; // maximize mean
+        let std_dev = Statistics::population_std_dev(&intervals);
+        score += STD_DEV_MULTIPLIER * std_dev; // minimize std_dev
 
-        if debug {
-            println!(
-                "interval in days, min: {}, max: {}, mean: {}, std_dev: {}",
-                min, max, mean, std_dev
-            );
-        }
-        Some(score)
+        Some(score as isize)
     }
 }
 
 fn main() {
-    // INIT
+    // INPUT
     let default_start_date = NaiveDate::from_ymd(2022, 1, 1);
+    let alt_start_date = NaiveDate::from_ymd(2022, 6, 1);
     let default_end_date = NaiveDate::from_ymd(2022, 12, 31);
-    let adults: Vec<Adult> = vec![
-        Adult::new("A".to_string(), default_start_date, default_end_date, 6),
-        Adult::new("B".to_string(), default_start_date, default_end_date, 5),
-        Adult::new("C".to_string(), default_start_date, default_end_date, 5),
-        Adult::new("D".to_string(), default_start_date, default_end_date, 5),
-        Adult::new("E".to_string(), default_start_date, default_end_date, 5),
+    let mut adults: Vec<Adult> = vec![
+        Adult::new("A".to_string(), alt_start_date, default_end_date),
+        Adult::new("B".to_string(), alt_start_date, default_end_date),
+        Adult::new("C".to_string(), alt_start_date, default_end_date),
+        Adult::new("D".to_string(), alt_start_date, default_end_date),
+        Adult::new("E".to_string(), alt_start_date, default_end_date),
+        Adult::new("F".to_string(), alt_start_date, default_end_date),
+        Adult::new("G".to_string(), alt_start_date, default_end_date),
+        Adult::new("H".to_string(), alt_start_date, default_end_date),
+        Adult::new("I".to_string(), alt_start_date, default_end_date),
+        Adult::new("J".to_string(), default_start_date, default_end_date),
+        Adult::new("K".to_string(), default_start_date, default_end_date),
+        Adult::new("L".to_string(), default_start_date, default_end_date),
+        Adult::new("M".to_string(), default_start_date, default_end_date),
+        Adult::new("N".to_string(), default_start_date, default_end_date),
+        Adult::new("O".to_string(), default_start_date, default_end_date),
+        Adult::new("P".to_string(), default_start_date, default_end_date),
+        Adult::new("Q".to_string(), default_start_date, default_end_date),
+        Adult::new("R".to_string(), default_start_date, default_end_date),
+        Adult::new("S".to_string(), default_start_date, default_end_date),
+        Adult::new("T".to_string(), default_start_date, default_end_date),
+        Adult::new("U".to_string(), default_start_date, default_end_date),
+        Adult::new("V".to_string(), default_start_date, default_end_date),
+        Adult::new("W".to_string(), default_start_date, default_end_date),
+        Adult::new("X".to_string(), default_start_date, default_end_date),
     ];
 
     let periods = vec![
         (
-            NaiveDate::from_ymd(2022, 1, 3),
-            NaiveDate::from_ymd(2022, 1, 21),
+            NaiveDate::from_ymd(2022, 1, 1),
+            NaiveDate::from_ymd(2022, 3, 1),
         ),
         (
-            NaiveDate::from_ymd(2022, 2, 3),
-            NaiveDate::from_ymd(2022, 2, 21),
+            NaiveDate::from_ymd(2022, 4, 1),
+            NaiveDate::from_ymd(2022, 6, 1),
+        ),
+        (
+            NaiveDate::from_ymd(2022, 7, 1),
+            NaiveDate::from_ymd(2022, 9, 1),
+        ),
+        (
+            NaiveDate::from_ymd(2022, 10, 1),
+            NaiveDate::from_ymd(2022, 12, 1),
         ),
     ];
 
@@ -150,12 +172,6 @@ fn main() {
     ];
 
     // SETUP
-    let exceptions_set = exceptions
-        .into_iter()
-        .fold(HashSet::new(), |mut acc, date| {
-            acc.insert(date);
-            acc
-        });
 
     let mut dates: Vec<NaiveDate> = vec![];
     periods.iter().for_each(|(start_date, end_date)| {
@@ -164,17 +180,42 @@ fn main() {
             .iter_days()
             .take(num_days)
             .for_each(|date| match date.weekday() {
-                Weekday::Sat => (),
-                Weekday::Sun => (),
-                _ => {
-                    if !exceptions_set.contains(&date) {
-                        dates.push(date)
+                Weekday::Mon | Weekday::Tue | Weekday::Thu => {
+                    if !exceptions.contains(&date) {
+                        dates.push(date);
+                        adults.iter_mut().for_each(|adult| {
+                            if adult.start_date <= date && adult.end_date >= date {
+                                adult.weight += 1.0
+                            }
+                        });
                     }
                 }
+                _ => (),
             });
     });
+    let mut number_of_dates_to_assign = dates.len();
 
-    println!("number of dates to plan: {}", dates.len());
+    let total_weight: f64 = adults.iter().map(|adult| adult.weight).sum();
+    adults.iter_mut().for_each(|adult| {
+        adult.weight /= total_weight; // normalize weight
+        adult.weight *= dates.len() as f64; // weight in terms of fractional dates
+
+        // assign modulo of fractional dates
+        let assign_dates = adult.weight.floor();
+        adult.number_of_times += assign_dates as usize;
+        adult.weight -= assign_dates;
+        number_of_dates_to_assign -= assign_dates as usize;
+    });
+
+    // assign remainder of fractional dates
+    adults
+        .iter_mut()
+        .sorted_by(|b, a| a.weight.partial_cmp(&b.weight).unwrap())
+        .take(number_of_dates_to_assign)
+        .for_each(|adult| {
+            adult.weight -= 1.0;
+            adult.number_of_times += 1;
+        });
 
     // RUN
 
@@ -196,7 +237,7 @@ fn main() {
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::Stochastic)
         .with_max_stale_generations(100000)
-        .with_fitness(RecessFitness(&adults, &dates, false))
+        .with_fitness(RecessFitness(&adults, &dates))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .build()
         .unwrap();
@@ -213,6 +254,8 @@ fn main() {
         if let Some(fitness_score) = best_chromosome.fitness_score {
             println!("Solution with fitness score: {}", fitness_score);
 
+            let mut assigns: HashMap<&Adult, Vec<&NaiveDate>> = HashMap::new();
+            let mut all_intervals: Vec<f64> = vec![];
             best_chromosome
                 .genes
                 .iter()
@@ -220,10 +263,48 @@ fn main() {
                 .for_each(|(index, value)| {
                     let date = &dates[index];
                     let adult = &adults[*value];
+                    assigns
+                        .entry(adult)
+                        .and_modify(|dates| dates.push(date))
+                        .or_insert(vec![date]);
+
                     println!("{}: {}", date, adult.name);
                 });
 
-            RecessFitness(&adults, &dates, true).calculate_for_chromosome(&best_chromosome);
+            adults.iter().for_each(|adult| {
+                let dates = assigns.get(adult).unwrap();
+
+                let mut intervals: Vec<f64> = vec![];
+                dates.windows(2).for_each(|pair| {
+                    let interval = (*pair[1] - *pair[0]).num_days() as f64;
+                    intervals.push(interval);
+                    all_intervals.push(interval);
+                });
+
+                let count = dates.len();
+                let max = Statistics::max(&intervals);
+                let min = Statistics::min(&intervals);
+                let mean = Statistics::mean(&intervals);
+                let std_dev = Statistics::population_std_dev(&intervals);
+
+                println!("{:?}", adult);
+                println!(
+                    "number_of_times: {}, interval in days, min: {}, max: {}, mean: {}, std_dev: {}",
+                    count, min, max, mean, std_dev
+                );
+            });
+
+            let count = dates.len();
+            let max = Statistics::max(&all_intervals);
+            let min = Statistics::min(&all_intervals);
+            let mean = Statistics::mean(&all_intervals);
+            let std_dev = Statistics::population_std_dev(&all_intervals);
+
+            println!("=== OVERALL ===");
+            println!(
+                "number_of_times: {}, interval in days, min: {}, max: {}, mean: {}, std_dev: {}",
+                count, min, max, mean, std_dev
+            );
         }
     } else {
         println!("Invalid solution with fitness score: None");
