@@ -8,6 +8,7 @@ use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
 const INVALID_ASSIGN_PENALTY: f64 = 100_000.0;
+const MIN_ALLOWED_INTERVAL: f64 = 21.0;
 const MEAN_MULTIPLIER: f64 = 100.0;
 const STD_DEV_MULTIPLIER: f64 = 1000.0;
 
@@ -16,39 +17,29 @@ struct Adult {
     pub name: String,
     pub start_date: NaiveDate,
     pub end_date: NaiveDate,
-    pub weight: f64,
-    pub number_of_times: usize,
-    pub monday: bool,
-    pub tuesday: bool,
-    pub wednesday: bool,
-    pub thursday: bool,
-    pub friday: bool,
+    pub allowed_weekdays: Vec<Weekday>,
+    pub weight_to_assign: f64,
+    pub number_of_assigns: usize,
 }
 
 impl Adult {
-    pub fn new(name: String, start_date: NaiveDate, end_date: NaiveDate) -> Adult {
+    pub fn new(
+        name: String,
+        start_date: NaiveDate,
+        end_date: NaiveDate,
+        allowed_weekdays: Vec<Weekday>,
+    ) -> Adult {
         Self {
             name,
             start_date,
             end_date,
-            weight: 0.0,
-            number_of_times: 0,
-            monday: true,
-            tuesday: true,
-            wednesday: true,
-            thursday: true,
-            friday: true,
+            allowed_weekdays,
+            weight_to_assign: 0.0,
+            number_of_assigns: 0,
         }
     }
     pub fn allow_weekday(&self, weekday: Weekday) -> bool {
-        match weekday {
-            Weekday::Mon => self.monday,
-            Weekday::Tue => self.tuesday,
-            Weekday::Wed => self.wednesday,
-            Weekday::Thu => self.thursday,
-            Weekday::Fri => self.friday,
-            _ => false,
-        }
+        self.allowed_weekdays.contains(&weekday)
     }
 }
 impl PartialEq for Adult {
@@ -101,8 +92,11 @@ impl<'a> Fitness for RecessFitness<'a> {
         let mut intervals: Vec<f64> = vec![];
         adults.iter().for_each(|adult| {
             assigns.get(adult).unwrap().windows(2).for_each(|pair| {
-                let duration = *pair[1] - *pair[0];
-                intervals.push(duration.num_days() as f64);
+                let interval = (*pair[1] - *pair[0]).num_days() as f64;
+                if interval < MIN_ALLOWED_INTERVAL {
+                    score += INVALID_ASSIGN_PENALTY;
+                }
+                intervals.push(interval);
             });
         });
 
@@ -118,33 +112,155 @@ impl<'a> Fitness for RecessFitness<'a> {
 fn main() {
     // INPUT
     let default_start_date = NaiveDate::from_ymd(2022, 1, 1);
-    let alt_start_date = NaiveDate::from_ymd(2022, 6, 1);
     let default_end_date = NaiveDate::from_ymd(2022, 12, 31);
+    let default_allowed_weekdays = vec![Weekday::Mon, Weekday::Tue, Weekday::Thu];
+    let alt_start_date = NaiveDate::from_ymd(2022, 6, 1);
+    let alt_allowed_weekdays = vec![Weekday::Mon, Weekday::Tue];
     let mut adults: Vec<Adult> = vec![
-        Adult::new("A".to_string(), alt_start_date, default_end_date),
-        Adult::new("B".to_string(), alt_start_date, default_end_date),
-        Adult::new("C".to_string(), alt_start_date, default_end_date),
-        Adult::new("D".to_string(), alt_start_date, default_end_date),
-        Adult::new("E".to_string(), alt_start_date, default_end_date),
-        Adult::new("F".to_string(), alt_start_date, default_end_date),
-        Adult::new("G".to_string(), alt_start_date, default_end_date),
-        Adult::new("H".to_string(), alt_start_date, default_end_date),
-        Adult::new("I".to_string(), alt_start_date, default_end_date),
-        Adult::new("J".to_string(), default_start_date, default_end_date),
-        Adult::new("K".to_string(), default_start_date, default_end_date),
-        Adult::new("L".to_string(), default_start_date, default_end_date),
-        Adult::new("M".to_string(), default_start_date, default_end_date),
-        Adult::new("N".to_string(), default_start_date, default_end_date),
-        Adult::new("O".to_string(), default_start_date, default_end_date),
-        Adult::new("P".to_string(), default_start_date, default_end_date),
-        Adult::new("Q".to_string(), default_start_date, default_end_date),
-        Adult::new("R".to_string(), default_start_date, default_end_date),
-        Adult::new("S".to_string(), default_start_date, default_end_date),
-        Adult::new("T".to_string(), default_start_date, default_end_date),
-        Adult::new("U".to_string(), default_start_date, default_end_date),
-        Adult::new("V".to_string(), default_start_date, default_end_date),
-        Adult::new("W".to_string(), default_start_date, default_end_date),
-        Adult::new("X".to_string(), default_start_date, default_end_date),
+        Adult::new(
+            "A".to_string(),
+            alt_start_date,
+            default_end_date,
+            alt_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "B".to_string(),
+            alt_start_date,
+            default_end_date,
+            alt_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "C".to_string(),
+            alt_start_date,
+            default_end_date,
+            alt_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "D".to_string(),
+            alt_start_date,
+            default_end_date,
+            alt_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "E".to_string(),
+            alt_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "F".to_string(),
+            alt_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "G".to_string(),
+            alt_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "H".to_string(),
+            alt_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "I".to_string(),
+            alt_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "J".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "K".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "L".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "M".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "N".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "O".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "P".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "Q".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "R".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "S".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "T".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "U".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "V".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "W".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
+        Adult::new(
+            "X".to_string(),
+            default_start_date,
+            default_end_date,
+            default_allowed_weekdays.clone(),
+        ),
     ];
 
     let periods = vec![
@@ -185,7 +301,7 @@ fn main() {
                         dates.push(date);
                         adults.iter_mut().for_each(|adult| {
                             if adult.start_date <= date && adult.end_date >= date {
-                                adult.weight += 1.0
+                                adult.weight_to_assign += 1.0
                             }
                         });
                     }
@@ -195,26 +311,26 @@ fn main() {
     });
     let mut number_of_dates_to_assign = dates.len();
 
-    let total_weight: f64 = adults.iter().map(|adult| adult.weight).sum();
+    let total_weight_to_assign: f64 = adults.iter().map(|adult| adult.weight_to_assign).sum();
     adults.iter_mut().for_each(|adult| {
-        adult.weight /= total_weight; // normalize weight
-        adult.weight *= dates.len() as f64; // weight in terms of fractional dates
+        adult.weight_to_assign /= total_weight_to_assign; // normalize weight_to_assign
+        adult.weight_to_assign *= dates.len() as f64; // weight_to_assign in terms of fractional dates
 
         // assign modulo of fractional dates
-        let assign_dates = adult.weight.floor();
-        adult.number_of_times += assign_dates as usize;
-        adult.weight -= assign_dates;
+        let assign_dates = adult.weight_to_assign.floor();
+        adult.number_of_assigns += assign_dates as usize;
+        adult.weight_to_assign -= assign_dates;
         number_of_dates_to_assign -= assign_dates as usize;
     });
 
     // assign remainder of fractional dates
     adults
         .iter_mut()
-        .sorted_by(|b, a| a.weight.partial_cmp(&b.weight).unwrap())
+        .sorted_by(|b, a| a.weight_to_assign.partial_cmp(&b.weight_to_assign).unwrap())
         .take(number_of_dates_to_assign)
         .for_each(|adult| {
-            adult.weight -= 1.0;
-            adult.number_of_times += 1;
+            adult.weight_to_assign -= 1.0;
+            adult.number_of_assigns += 1;
         });
 
     // RUN
@@ -225,7 +341,7 @@ fn main() {
             adults
                 .iter()
                 .enumerate()
-                .flat_map(|(index, adult)| vec![index; adult.number_of_times])
+                .flat_map(|(index, adult)| vec![index; adult.number_of_assigns])
                 .collect(),
         )
         .build()
@@ -233,17 +349,18 @@ fn main() {
 
     println!("{}", genotype);
 
-    let mut hill_climb = HillClimb::builder()
+    let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::Stochastic)
-        .with_max_stale_generations(100000)
+        .with_max_stale_generations(100_000)
+        //.with_variant(HillClimbVariant::SteepestAscent)
+        //.with_max_stale_generations(1000)
+        //.with_multithreading(true)
         .with_fitness(RecessFitness(&adults, &dates))
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .build()
-        .unwrap();
+        .with_fitness_ordering(FitnessOrdering::Minimize);
 
     let now = std::time::Instant::now();
-    hill_climb.call(&mut rng);
+    let hill_climb = hill_climb_builder.call_repeatedly(5, &mut rng).unwrap();
     let duration = now.elapsed();
 
     println!("{}", hill_climb);
@@ -252,59 +369,64 @@ fn main() {
 
     if let Some(best_chromosome) = hill_climb.best_chromosome() {
         if let Some(fitness_score) = best_chromosome.fitness_score {
-            println!("Solution with fitness score: {}", fitness_score);
+            if fitness_score >= INVALID_ASSIGN_PENALTY as isize {
+                println!("Invalid solution with fitness score: {}", fitness_score);
+            } else {
+                println!("Solution with fitness score: {}", fitness_score);
 
-            let mut assigns: HashMap<&Adult, Vec<&NaiveDate>> = HashMap::new();
-            let mut all_intervals: Vec<f64> = vec![];
-            best_chromosome
-                .genes
-                .iter()
-                .enumerate()
-                .for_each(|(index, value)| {
-                    let date = &dates[index];
-                    let adult = &adults[*value];
-                    assigns
-                        .entry(adult)
-                        .and_modify(|dates| dates.push(date))
-                        .or_insert(vec![date]);
+                let mut assigns: HashMap<&Adult, Vec<&NaiveDate>> = HashMap::new();
+                let mut all_intervals: Vec<f64> = vec![];
+                best_chromosome
+                    .genes
+                    .iter()
+                    .enumerate()
+                    .for_each(|(index, value)| {
+                        let date = &dates[index];
+                        let adult = &adults[*value];
+                        assigns
+                            .entry(adult)
+                            .and_modify(|dates| dates.push(date))
+                            .or_insert(vec![date]);
 
-                    println!("{}: {}", date, adult.name);
-                });
+                        println!("{}: {}", date, adult.name);
+                    });
 
-            adults.iter().for_each(|adult| {
-                let dates = assigns.get(adult).unwrap();
+                adults.iter().for_each(|adult| {
+                    let dates = assigns.get(adult).unwrap();
 
-                let mut intervals: Vec<f64> = vec![];
-                dates.windows(2).for_each(|pair| {
-                    let interval = (*pair[1] - *pair[0]).num_days() as f64;
-                    intervals.push(interval);
-                    all_intervals.push(interval);
+                    let mut intervals: Vec<f64> = vec![];
+                    dates.windows(2).for_each(|pair| {
+                        let interval = (*pair[1] - *pair[0]).num_days() as f64;
+                        intervals.push(interval);
+                        all_intervals.push(interval);
+                    });
+
+                    let count = dates.len();
+                    let max = Statistics::max(&intervals);
+                    let min = Statistics::min(&intervals);
+                    let mean = Statistics::mean(&intervals);
+                    let std_dev = Statistics::population_std_dev(&intervals);
+
+                    println!("{:?}", adult);
+                    println!("{}", dates.iter().map(|date| format!("{} {}", date.weekday(), date)).join(", "));
+                    println!(
+                        "number_of_assigns: {}, interval in days, min: {}, max: {}, mean: {}, std_dev: {}",
+                        count, min, max, mean, std_dev
+                    );
                 });
 
                 let count = dates.len();
-                let max = Statistics::max(&intervals);
-                let min = Statistics::min(&intervals);
-                let mean = Statistics::mean(&intervals);
-                let std_dev = Statistics::population_std_dev(&intervals);
+                let max = Statistics::max(&all_intervals);
+                let min = Statistics::min(&all_intervals);
+                let mean = Statistics::mean(&all_intervals);
+                let std_dev = Statistics::population_std_dev(&all_intervals);
 
-                println!("{:?}", adult);
+                println!("=== OVERALL ===");
                 println!(
-                    "number_of_times: {}, interval in days, min: {}, max: {}, mean: {}, std_dev: {}",
+                    "number_of_assigns: {}, interval in days, min: {}, max: {}, mean: {}, std_dev: {}",
                     count, min, max, mean, std_dev
                 );
-            });
-
-            let count = dates.len();
-            let max = Statistics::max(&all_intervals);
-            let min = Statistics::min(&all_intervals);
-            let mean = Statistics::mean(&all_intervals);
-            let std_dev = Statistics::population_std_dev(&all_intervals);
-
-            println!("=== OVERALL ===");
-            println!(
-                "number_of_times: {}, interval in days, min: {}, max: {}, mean: {}, std_dev: {}",
-                count, min, max, mean, std_dev
-            );
+            }
         }
     } else {
         println!("Invalid solution with fitness score: None");
