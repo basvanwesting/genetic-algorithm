@@ -7,10 +7,8 @@ use statrs::statistics::Statistics;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
 
-const INVALID_ASSIGN_PENALTY: f64 = 1_000_000.0;
-const MIN_ALLOWED_INTERVAL: f64 = 21.0;
-//const MEAN_MULTIPLIER: f64 = 100.0;
-const STD_DEV_MULTIPLIER: f64 = 1000.0;
+const INVALID_ASSIGN_PENALTY: FitnessValue = 1_000_000;
+const MIN_ALLOWED_INTERVAL: i64 = 21;
 
 #[derive(Debug)]
 struct Adult {
@@ -67,7 +65,7 @@ impl<'a> Fitness for RecessFitness<'a> {
     ) -> Option<FitnessValue> {
         let adults = self.0;
         let dates = self.1;
-        let mut score = 0.0;
+        let mut score = 0;
 
         let mut assigns: HashMap<&Adult, Vec<&NaiveDate>> = HashMap::new();
         chromosome
@@ -78,10 +76,10 @@ impl<'a> Fitness for RecessFitness<'a> {
                 let date = &dates[index];
                 let adult = &adults[*value];
                 if !adult.allow_weekday(date.weekday()) {
-                    score += INVALID_ASSIGN_PENALTY;
+                    score -= INVALID_ASSIGN_PENALTY;
                 }
                 if adult.start_date > *date || adult.end_date < *date {
-                    score += INVALID_ASSIGN_PENALTY;
+                    score -= INVALID_ASSIGN_PENALTY;
                 }
                 assigns
                     .entry(adult)
@@ -89,25 +87,23 @@ impl<'a> Fitness for RecessFitness<'a> {
                     .or_insert(vec![date]);
             });
 
-        let mut intervals: Vec<f64> = vec![];
+        let mut min_interval: i64 = 999_999;
         adults.iter().for_each(|adult| {
             if let Some(dates) = assigns.get(adult) {
                 dates.windows(2).for_each(|pair| {
-                    let interval = (*pair[1] - *pair[0]).num_days() as f64;
+                    let interval = (*pair[1] - *pair[0]).num_days();
                     if interval < MIN_ALLOWED_INTERVAL {
-                        score += INVALID_ASSIGN_PENALTY;
+                        score -= INVALID_ASSIGN_PENALTY;
                     }
-                    intervals.push(interval);
+                    if min_interval > interval {
+                        min_interval = interval;
+                    }
                 });
             }
         });
 
-        //let mean = Statistics::mean(&intervals);
-        //score -= MEAN_MULTIPLIER * mean; // maximize mean
-        let std_dev = Statistics::population_std_dev(&intervals);
-        score += STD_DEV_MULTIPLIER * std_dev; // minimize std_dev
-
-        Some(score as isize)
+        score += min_interval as FitnessValue;
+        Some(score as FitnessValue)
     }
 }
 
@@ -117,7 +113,7 @@ fn main() {
     let default_end_date = NaiveDate::from_ymd(2022, 12, 31);
     let default_allowed_weekdays = vec![Weekday::Mon, Weekday::Tue, Weekday::Thu];
     let alt_start_date = NaiveDate::from_ymd(2022, 6, 1);
-    let alt_allowed_weekdays = vec![Weekday::Mon, Weekday::Tue];
+    let alt_allowed_weekdays = vec![Weekday::Mon, Weekday::Tue, Weekday::Thu];
     let mut adults: Vec<Adult> = vec![
         Adult::new(
             "A".to_string(),
@@ -383,13 +379,13 @@ fn main() {
 
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
-        //.with_variant(HillClimbVariant::Stochastic)
-        //.with_max_stale_generations(100_000)
-        .with_variant(HillClimbVariant::SteepestAscent)
-        .with_max_stale_generations(1000)
+        .with_variant(HillClimbVariant::Stochastic)
+        .with_max_stale_generations(100_000)
+        //.with_variant(HillClimbVariant::SteepestAscent)
+        //.with_max_stale_generations(1000)
         .with_multithreading(true)
         .with_fitness(RecessFitness(&adults, &dates))
-        .with_fitness_ordering(FitnessOrdering::Minimize);
+        .with_fitness_ordering(FitnessOrdering::Maximize);
 
     let now = std::time::Instant::now();
     let hill_climb = hill_climb_builder.call_repeatedly(1, &mut rng).unwrap();
