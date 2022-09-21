@@ -11,6 +11,7 @@ use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use rand::distributions::{Bernoulli, Distribution};
+use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::cell::RefCell;
 use std::fmt;
@@ -146,6 +147,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                         let working_population = &mut self
                             .genotype
                             .neighbouring_population(working_chromosome, self.current_scaling);
+
+                        // shuffle, so we don't repeatedly take the same best chromosome
+                        working_population.chromosomes.shuffle(rng);
 
                         self.fitness
                             .call_for_population(working_population, fitness_thread_local.as_ref());
