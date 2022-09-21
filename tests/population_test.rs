@@ -61,4 +61,19 @@ mod population_tests {
             Some(0)
         );
     }
+
+    #[test]
+    fn fitness_score_prevalence() {
+        let population = &mut build::population_with_fitness_scores::<BinaryGenotype>(vec![
+            (vec![false, false, false], Some(0)),
+            (vec![false, false, true], Some(2)),
+            (vec![false, true, true], Some(2)),
+            (vec![true, true, true], Some(3)),
+            (vec![true, true, false], None),
+        ]);
+
+        assert_eq!(population.fitness_score_prevalence(Some(0)), 1);
+        assert_eq!(population.fitness_score_prevalence(Some(2)), 2);
+        assert_eq!(population.fitness_score_prevalence(None), 1);
+    }
 }
