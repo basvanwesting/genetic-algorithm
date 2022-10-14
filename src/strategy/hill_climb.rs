@@ -11,14 +11,11 @@ use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::population::Population;
-use rand::distributions::{Bernoulli, Distribution};
 use rand::prelude::SliceRandom;
 use rand::Rng;
 use std::cell::RefCell;
 use std::fmt;
 use thread_local::ThreadLocal;
-
-pub type RandomChromosomeProbability = f64;
 
 #[derive(Clone, Debug)]
 pub enum HillClimbVariant {
@@ -56,10 +53,6 @@ pub enum HillClimbVariant {
 ///     * if the scaling is set, the scale is reset to its base scale
 ///     * the stale generation counter is reset (functionally)
 ///
-/// To avoid a local optimum, the `random_chromosome_probability` can be provided.
-/// It seems much more efficient to insert random chromosomes in a single [HillClimb] run, than to
-/// `call_repeatedly` from the [HillClimbBuilder].
-///
 /// See [HillClimbBuilder] for initialization options.
 ///
 /// Example:
@@ -87,7 +80,6 @@ pub enum HillClimbVariant {
 ///     .with_target_fitness_score(10)             // ending condition if sum of genes is <= 0.00010 in the best chromosome
 ///     .with_valid_fitness_score(100)             // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)          // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_random_chromosome_probability(0.1)   // try a random chromosome with probability 0.1 to avoid local optimum
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -105,7 +97,6 @@ pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
     valid_fitness_score: Option<FitnessValue>,
-    random_chromosome_probability: RandomChromosomeProbability,
     scaling: Option<(f32, f32, f32)>,
 
     pub current_iteration: usize,
@@ -124,7 +115,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
         let mut seed_chromosome = self.genotype.chromosome_seed(rng);
         self.fitness.call_for_chromosome(&mut seed_chromosome);
         self.best_chromosome = Some(seed_chromosome);
-        let random_chromosome_sampler = Bernoulli::new(self.random_chromosome_probability).unwrap();
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.multithreading {
@@ -133,41 +123,35 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
 
         while !self.is_finished() {
             self.current_generation += 1;
-            if random_chromosome_sampler.sample(rng) {
-                let working_chromosome = &mut self.genotype.chromosome_factory(rng);
-                self.fitness.call_for_chromosome(working_chromosome);
-                self.update_best_chromosome(working_chromosome);
-            } else {
-                match self.variant {
-                    HillClimbVariant::Stochastic => {
-                        let working_chromosome = &mut self.best_chromosome().unwrap();
-                        self.genotype.mutate_chromosome_neighbour(
-                            working_chromosome,
-                            self.current_scaling,
-                            rng,
-                        );
-                        self.fitness.call_for_chromosome(working_chromosome);
-                        self.update_best_chromosome(working_chromosome);
-                        self.report_working_chromosome(working_chromosome);
-                    }
-                    HillClimbVariant::SteepestAscent => {
-                        let working_chromosome = &mut self.best_chromosome().unwrap();
-                        let working_population = &mut self
-                            .genotype
-                            .neighbouring_population(working_chromosome, self.current_scaling);
+            match self.variant {
+                HillClimbVariant::Stochastic => {
+                    let working_chromosome = &mut self.best_chromosome().unwrap();
+                    self.genotype.mutate_chromosome_neighbour(
+                        working_chromosome,
+                        self.current_scaling,
+                        rng,
+                    );
+                    self.fitness.call_for_chromosome(working_chromosome);
+                    self.update_best_chromosome(working_chromosome);
+                    self.report_working_chromosome(working_chromosome);
+                }
+                HillClimbVariant::SteepestAscent => {
+                    let working_chromosome = &mut self.best_chromosome().unwrap();
+                    let working_population = &mut self
+                        .genotype
+                        .neighbouring_population(working_chromosome, self.current_scaling);
 
-                        self.fitness
-                            .call_for_population(working_population, fitness_thread_local.as_ref());
-                        self.report_neighbouring_population(working_population);
+                    self.fitness
+                        .call_for_population(working_population, fitness_thread_local.as_ref());
+                    self.report_neighbouring_population(working_population);
 
-                        // shuffle, so we don't repeatedly take the same best chromosome
-                        working_population.chromosomes.shuffle(rng);
-                        self.update_best_chromosome(
-                            working_population
-                                .best_chromosome(self.fitness_ordering)
-                                .unwrap_or(working_chromosome),
-                        );
-                    }
+                    // shuffle, so we don't repeatedly take the same best chromosome
+                    working_population.chromosomes.shuffle(rng);
+                    self.update_best_chromosome(
+                        working_population
+                            .best_chromosome(self.fitness_ordering)
+                            .unwrap_or(working_chromosome),
+                    );
                 }
             }
             self.report_round();
@@ -363,7 +347,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
                 max_stale_generations: builder.max_stale_generations,
                 target_fitness_score: builder.target_fitness_score,
                 valid_fitness_score: builder.valid_fitness_score,
-                random_chromosome_probability: builder.random_chromosome_probability.unwrap_or(0.0),
                 scaling: builder.scaling,
 
                 current_iteration: 0,

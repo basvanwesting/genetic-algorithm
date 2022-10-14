@@ -1,4 +1,4 @@
-use super::{HillClimb, HillClimbVariant, RandomChromosomeProbability};
+use super::{HillClimb, HillClimbVariant};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::Strategy;
@@ -18,7 +18,6 @@ pub struct Builder<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub random_chromosome_probability: Option<RandomChromosomeProbability>,
     pub scaling: Option<(f32, f32, f32)>,
 }
 
@@ -134,14 +133,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.valid_fitness_score = valid_fitness_score_option;
         self
     }
-    pub fn with_random_chromosome_probability(
-        mut self,
-        random_chromosome_probability: RandomChromosomeProbability,
-    ) -> Self {
-        self.random_chromosome_probability = Some(random_chromosome_probability);
-        self
-    }
-
     /// scaling: (initial-scaling, scale-down-factor, min-scale)
     pub fn with_scaling(mut self, scaling: (f32, f32, f32)) -> Self {
         self.scaling = Some(scaling);
@@ -160,7 +151,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F>
             max_stale_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
-            random_chromosome_probability: None,
             scaling: None,
         }
     }

@@ -56,7 +56,6 @@ fn main() {
         .with_scaling((1.0, 0.5, 1e-5))
         .with_max_stale_generations(100)
         //.with_target_fitness_score(TARGET_SCORE)
-        //.with_random_chromosome_probability(0.5)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(MILPFitness);
 

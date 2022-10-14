@@ -268,7 +268,6 @@ fn main() {
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(1000)
-        //.with_random_chromosome_probability(0.5)
         .with_multithreading(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),

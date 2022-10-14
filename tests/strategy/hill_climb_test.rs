@@ -40,7 +40,7 @@ fn call_continuous_max_stale_generations_maximize() {
     let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
-        .with_max_stale_generations(100)
+        .with_max_stale_generations(1000)
         .with_fitness(SumContinuousGenotype(1e-3))
         .call(&mut rng)
         .unwrap();
@@ -102,7 +102,7 @@ fn call_continuous_max_stale_generations_and_valid_fitness_score_maximize() {
     let best_chromosome = hill_climb.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(82120));
+    assert_eq!(best_chromosome.fitness_score, Some(76681));
 }
 
 #[test]
@@ -126,7 +126,7 @@ fn call_continuous_max_stale_generations_and_valid_fitness_score_minimize() {
     let best_chromosome = hill_climb.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(21187));
+    assert_eq!(best_chromosome.fitness_score, Some(24930));
 }
 
 #[test]
@@ -148,11 +148,11 @@ fn call_continuous_target_fitness_score_maximize() {
     let best_chromosome = hill_climb.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(8032));
+    assert_eq!(best_chromosome.fitness_score, Some(8088));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
         vec![
-            0.69105303, 0.6415004, 1.0, 0.7007805, 1.0, 1.0, 0.7997122, 0.69759524, 0.5018855, 1.0,
+            0.673274, 0.62921375, 1.0, 0.7220475, 1.0, 1.0, 0.73748976, 0.7359946, 0.5902894, 1.0,
         ]
     );
 }
@@ -177,20 +177,20 @@ fn call_continuous_target_fitness_score_minimize() {
     let best_chromosome = hill_climb.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(969));
+    assert_eq!(best_chromosome.fitness_score, Some(964));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
         vec![
             0.0,
             0.0,
-            0.019872978,
+            0.17363752,
             0.0,
-            0.11975294,
-            0.6136266,
+            0.62618715,
+            0.0061164834,
             0.0,
             0.0,
             0.0,
-            0.21666789,
+            0.15902928,
         ]
     );
 }
@@ -216,20 +216,20 @@ fn call_continuous_multi_thread() {
     let best_chromosome = hill_climb.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(969));
+    assert_eq!(best_chromosome.fitness_score, Some(964));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
         vec![
             0.0,
             0.0,
-            0.019872978,
+            0.17363752,
             0.0,
-            0.11975294,
-            0.6136266,
+            0.62618715,
+            0.0061164834,
             0.0,
             0.0,
             0.0,
-            0.21666789,
+            0.15902928,
         ]
     );
 }
