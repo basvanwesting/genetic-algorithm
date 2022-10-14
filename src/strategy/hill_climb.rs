@@ -80,11 +80,12 @@ pub enum HillClimbVariant {
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
 ///     .with_variant(HillClimbVariant::SteepestAscent) // check all neighbours for each round
-///     .with_fitness(SumContinuousGenotype(1e-5))  // sum the gene values of the chromosomes with precision 0.00001
+///     .with_fitness(SumContinuousGenotype(1e-5))      // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_multithreading(true)                 // use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
 ///     .with_scaling((1.0, 0.8, 1e-5))            // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale
-///     .with_target_fitness_score(0)              // goal is 16 times <= 0.00001 in the best chromosome
+///     .with_target_fitness_score(10)             // ending condition if sum of genes is <= 0.00010 in the best chromosome
+///     .with_valid_fitness_score(100)             // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)          // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_random_chromosome_probability(0.1)   // try a random chromosome with probability 0.1 to avoid local optimum
 ///     .call(&mut rng)
@@ -103,6 +104,7 @@ pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     multithreading: bool,
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
+    valid_fitness_score: Option<FitnessValue>,
     random_chromosome_probability: RandomChromosomeProbability,
     scaling: Option<(f32, f32, f32)>,
 
@@ -224,9 +226,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 
     fn is_finished(&self) -> bool {
-        self.is_finished_by_max_stale_generations()
-            || self.is_finished_by_target_fitness_score()
-            || self.is_finished_by_min_scale()
+        self.allow_finished_by_valid_fitness_score()
+            && (self.is_finished_by_max_stale_generations()
+                || self.is_finished_by_target_fitness_score()
+                || self.is_finished_by_min_scale())
     }
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
@@ -249,6 +252,21 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
             }
         } else {
             false
+        }
+    }
+
+    fn allow_finished_by_valid_fitness_score(&self) -> bool {
+        if let Some(valid_fitness_score) = self.valid_fitness_score {
+            if let Some(fitness_score) = self.best_fitness_score() {
+                match self.fitness_ordering {
+                    FitnessOrdering::Maximize => fitness_score >= valid_fitness_score,
+                    FitnessOrdering::Minimize => fitness_score <= valid_fitness_score,
+                }
+            } else {
+                true
+            }
+        } else {
+            true
         }
     }
 
@@ -341,6 +359,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
                 multithreading: builder.multithreading,
                 max_stale_generations: builder.max_stale_generations,
                 target_fitness_score: builder.target_fitness_score,
+                valid_fitness_score: builder.valid_fitness_score,
                 random_chromosome_probability: builder.random_chromosome_probability.unwrap_or(0.0),
                 scaling: builder.scaling,
 
@@ -365,6 +384,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClim
             "  max_stale_generations: {:?}",
             self.max_stale_generations
         )?;
+        writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  multithreading: {:?}", self.multithreading)?;

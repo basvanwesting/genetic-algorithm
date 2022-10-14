@@ -17,6 +17,7 @@ pub struct Builder<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     pub multithreading: bool,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
+    pub valid_fitness_score: Option<FitnessValue>,
     pub random_chromosome_probability: Option<RandomChromosomeProbability>,
     pub scaling: Option<(f32, f32, f32)>,
 }
@@ -122,6 +123,17 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.target_fitness_score = target_fitness_score_option;
         self
     }
+    pub fn with_valid_fitness_score(mut self, valid_fitness_score: FitnessValue) -> Self {
+        self.valid_fitness_score = Some(valid_fitness_score);
+        self
+    }
+    pub fn with_valid_fitness_score_option(
+        mut self,
+        valid_fitness_score_option: Option<FitnessValue>,
+    ) -> Self {
+        self.valid_fitness_score = valid_fitness_score_option;
+        self
+    }
     pub fn with_random_chromosome_probability(
         mut self,
         random_chromosome_probability: RandomChromosomeProbability,
@@ -147,6 +159,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F>
             multithreading: false,
             max_stale_generations: None,
             target_fitness_score: None,
+            valid_fitness_score: None,
             random_chromosome_probability: None,
             scaling: None,
         }

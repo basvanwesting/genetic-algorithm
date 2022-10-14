@@ -67,7 +67,8 @@ use thread_local::ThreadLocal;
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
 ///     .with_population_size(100)              // evolve with 100 chromosomes
-///     .with_target_fitness_score(0)           // goal is 0 times true in the best chromosome
+///     .with_target_fitness_score(0)           // ending condition if 0 times true in the best chromosome
+///     .with_valid_fitness_score(10)           // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_degeneration_range(0.005..0.995)  // simulate cambrian explosion when reaching a local optimum
 ///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
@@ -93,6 +94,7 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     population_size: usize,
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
+    valid_fitness_score: Option<FitnessValue>,
     fitness_ordering: FitnessOrdering,
     multithreading: bool,
     degeneration_range: Option<Range<f32>>,
@@ -206,7 +208,9 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     }
 
     fn is_finished(&self) -> bool {
-        self.is_finished_by_max_stale_generations() || self.is_finished_by_target_fitness_score()
+        self.allow_finished_by_valid_fitness_score()
+            && (self.is_finished_by_max_stale_generations()
+                || self.is_finished_by_target_fitness_score())
     }
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
@@ -229,6 +233,21 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             }
         } else {
             false
+        }
+    }
+
+    fn allow_finished_by_valid_fitness_score(&self) -> bool {
+        if let Some(valid_fitness_score) = self.valid_fitness_score {
+            if let Some(fitness_score) = self.best_fitness_score() {
+                match self.fitness_ordering {
+                    FitnessOrdering::Maximize => fitness_score >= valid_fitness_score,
+                    FitnessOrdering::Minimize => fitness_score <= valid_fitness_score,
+                }
+            } else {
+                true
+            }
+        } else {
+            true
         }
     }
 
@@ -335,6 +354,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 population_size: builder.population_size,
                 max_stale_generations: builder.max_stale_generations,
                 target_fitness_score: builder.target_fitness_score,
+                valid_fitness_score: builder.valid_fitness_score,
                 fitness_ordering: builder.fitness_ordering,
                 multithreading: builder.multithreading,
                 degeneration_range: builder.degeneration_range,
@@ -366,6 +386,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             "  max_stale_generations: {:?}",
             self.max_stale_generations
         )?;
+        writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  multithreading: {:?}", self.multithreading)?;

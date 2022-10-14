@@ -18,6 +18,7 @@ pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossove
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
+    pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
     pub degeneration_range: Option<Range<f32>>,
@@ -119,6 +120,17 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.target_fitness_score = target_fitness_score_option;
         self
     }
+    pub fn with_valid_fitness_score(mut self, valid_fitness_score: FitnessValue) -> Self {
+        self.valid_fitness_score = Some(valid_fitness_score);
+        self
+    }
+    pub fn with_valid_fitness_score_option(
+        mut self,
+        valid_fitness_score_option: Option<FitnessValue>,
+    ) -> Self {
+        self.valid_fitness_score = valid_fitness_score_option;
+        self
+    }
     pub fn with_fitness_ordering(mut self, fitness_ordering: FitnessOrdering) -> Self {
         self.fitness_ordering = fitness_ordering;
         self
@@ -169,6 +181,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             population_size: 0,
             max_stale_generations: None,
             target_fitness_score: None,
+            valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
             degeneration_range: None,

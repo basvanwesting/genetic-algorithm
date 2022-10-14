@@ -83,6 +83,53 @@ fn call_continuous_max_stale_generations_minimize() {
 }
 
 #[test]
+fn call_continuous_max_stale_generations_and_valid_fitness_score_maximize() {
+    let genotype = ContinuousGenotype::builder()
+        .with_genes_size(100)
+        .with_allele_range(0.0..1.0)
+        .with_allele_neighbour_range(-0.1..0.1)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_max_stale_generations(10)
+        .with_valid_fitness_score(75000)
+        .with_fitness(SumContinuousGenotype(1e-3))
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = hill_climb.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(82120));
+}
+
+#[test]
+fn call_continuous_max_stale_generations_and_valid_fitness_score_minimize() {
+    let genotype = ContinuousGenotype::builder()
+        .with_genes_size(100)
+        .with_allele_range(0.0..1.0)
+        .with_allele_neighbour_range(-0.1..0.1)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_max_stale_generations(10)
+        .with_valid_fitness_score(25000)
+        .with_fitness(SumContinuousGenotype(1e-3))
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = hill_climb.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(21187));
+}
+
+#[test]
 fn call_continuous_target_fitness_score_maximize() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)

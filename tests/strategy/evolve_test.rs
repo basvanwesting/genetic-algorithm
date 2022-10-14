@@ -146,6 +146,56 @@ fn call_binary_max_stale_generations_minimize() {
 }
 
 #[test]
+fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(100)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_population_size(4)
+        .with_max_stale_generations(2)
+        .with_valid_fitness_score(75)
+        .with_mutate(MutateOnce(0.1))
+        .with_fitness(CountTrue)
+        .with_crossover(CrossoverSingleGene(true))
+        .with_compete(CompeteTournament(4))
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = evolve.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+    assert_eq!(best_chromosome.fitness_score, Some(75));
+}
+
+#[test]
+fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(100)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_population_size(4)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_max_stale_generations(2)
+        .with_valid_fitness_score(25)
+        .with_mutate(MutateOnce(0.1))
+        .with_fitness(CountTrue)
+        .with_crossover(CrossoverSingleGene(true))
+        .with_compete(CompeteTournament(4))
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = evolve.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(25));
+}
+
+#[test]
 fn call_binary_target_fitness_score_maximize() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
