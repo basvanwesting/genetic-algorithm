@@ -119,6 +119,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         }
 
         while !self.is_finished() {
+            self.current_generation += 1;
             if self.toggle_degenerate(population) {
                 self.mutate.call(&self.genotype, population, rng);
                 self.fitness
@@ -131,10 +132,9 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 self.compete
                     .call(population, self.fitness_ordering, self.population_size, rng);
             }
-
             self.update_best_chromosome(population);
-            //self.report_round(population);
-            self.current_generation += 1;
+            self.report_round(population);
+            self.report_best_chromosome();
         }
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
@@ -196,10 +196,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         if let Some(degeneration_range) = self.degeneration_range.as_ref() {
             let fitness_score_stddev = population.fitness_score_stddev();
             if self.degenerate && fitness_score_stddev > degeneration_range.end {
-                //println!("### turn degeneration off");
+                log::debug!("### turn degeneration off");
                 self.degenerate = false;
             } else if !self.degenerate && fitness_score_stddev < degeneration_range.start {
-                //println!("### turn degeneration on");
+                log::debug!("### turn degeneration on");
                 self.degenerate = true;
             }
         }
@@ -233,17 +233,27 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         }
     }
 
-    #[allow(dead_code)]
     fn report_round(&self, population: &Population<G>) {
-        println!(
-            "current generation: {}, best fitness score: {:?}, fitness score (count/median/mean/stddev): {} / {:?} / {:.0} / {:.0}, degenerate: {}",
+        log::debug!(
+            "generation (current/best): {}/{}, fitness score (best/count/median/mean/stddev): {:?} / {} / {:?} / {:.0} / {:.0}, degenerate: {}",
             self.current_generation,
+            self.best_generation,
             self.best_fitness_score(),
             population.fitness_score_count(),
             population.fitness_score_median(),
             population.fitness_score_mean(),
             population.fitness_score_stddev(),
             self.degenerate,
+        );
+    }
+
+    fn report_best_chromosome(&self) {
+        log::trace!(
+            "fitness score: {:?}, genes: {:?}",
+            self.best_fitness_score(),
+            self.best_chromosome
+                .as_ref()
+                .map_or(vec![], |c| c.genes.clone()),
         );
     }
 

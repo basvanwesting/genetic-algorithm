@@ -10,6 +10,7 @@ use super::Strategy;
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
+use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::prelude::SliceRandom;
 use rand::Rng;
@@ -126,6 +127,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
         }
 
         while !self.is_finished() {
+            self.current_generation += 1;
             if random_chromosome_sampler.sample(rng) {
                 let working_chromosome = &mut self.genotype.chromosome_factory(rng);
                 self.fitness.call_for_chromosome(working_chromosome);
@@ -141,6 +143,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                         );
                         self.fitness.call_for_chromosome(working_chromosome);
                         self.update_best_chromosome(working_chromosome);
+                        self.report_chromosome(working_chromosome);
                     }
                     HillClimbVariant::SteepestAscent => {
                         let working_chromosome = &mut self.best_chromosome().unwrap();
@@ -158,12 +161,11 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                                 .best_chromosome(self.fitness_ordering)
                                 .unwrap_or(working_chromosome),
                         );
+                        self.report_population(working_population);
                     }
                 }
             }
-
-            //self.report_round();
-            self.current_generation += 1;
+            self.report_round();
         }
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
@@ -258,17 +260,32 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
         }
     }
 
-    #[allow(dead_code)]
     fn report_round(&self) {
-        println!(
-            "current generation: {}, best fitness score: {:?}, current fitness score: {:?}, current scale: {:?}, genes: {:?}",
+        log::debug!(
+            "generation (current/best): {}/{}, fitness score (best): {:?}, current scale: {:?}",
             self.current_generation,
+            self.best_generation,
             self.best_fitness_score(),
-            self.best_chromosome.as_ref().map(|o| &o.fitness_score),
             self.current_scaling.as_ref(),
-            false,
-            //self.best_chromosome.as_ref().map(|o| &o.genes),
         );
+    }
+
+    fn report_chromosome(&self, chromosome: &Chromosome<G>) {
+        log::trace!(
+            "fitness score: {:?}, genes: {:?}",
+            chromosome.fitness_score,
+            chromosome.genes,
+        );
+    }
+
+    fn report_population(&self, population: &Population<G>) {
+        population.chromosomes.iter().for_each(|chromosome| {
+            log::trace!(
+                "fitness score: {:?}, genes: {:?}",
+                chromosome.fitness_score,
+                chromosome.genes,
+            );
+        })
     }
 
     fn best_fitness_score(&self) -> Option<FitnessValue> {

@@ -25,7 +25,7 @@ impl<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> Permutate<'a, G, F
         };
         let fitness_ordering = self.config.evolve_builder.fitness_ordering;
 
-        println!(
+        log::info!(
             "meta-permutate population_size: {}",
             genotype.chromosome_permutations_size()
         );

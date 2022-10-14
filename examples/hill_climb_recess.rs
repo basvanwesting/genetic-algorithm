@@ -108,6 +108,8 @@ impl<'a> Fitness for RecessFitness<'a> {
 }
 
 fn main() {
+    env_logger::init();
+
     // INPUT
     let default_start_date = NaiveDate::from_ymd(2022, 1, 1);
     let default_end_date = NaiveDate::from_ymd(2022, 12, 31);
@@ -379,10 +381,10 @@ fn main() {
 
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::Stochastic)
-        .with_max_stale_generations(100_000)
-        //.with_variant(HillClimbVariant::SteepestAscent)
-        //.with_max_stale_generations(1000)
+        //.with_variant(HillClimbVariant::Stochastic)
+        //.with_max_stale_generations(100)
+        .with_variant(HillClimbVariant::SteepestAscent)
+        .with_max_stale_generations(1)
         .with_multithreading(true)
         .with_fitness(RecessFitness(&adults, &dates))
         .with_fitness_ordering(FitnessOrdering::Maximize);
