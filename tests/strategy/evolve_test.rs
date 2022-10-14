@@ -405,7 +405,7 @@ fn call_multi_thread() {
 }
 
 #[test]
-fn population_seed_binary() {
+fn population_factory_binary() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(4)
         .build()
@@ -422,7 +422,7 @@ fn population_seed_binary() {
         .build()
         .unwrap();
 
-    let population = evolve.population_seed(&mut rng);
+    let population = evolve.population_factory(&mut rng);
     println!("{:#?}", population);
 
     assert_eq!(

@@ -112,7 +112,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
         self.reset_scaling();
         self.best_generation = 0;
 
-        let mut seed_chromosome = self.genotype.chromosome_seed(rng);
+        let mut seed_chromosome = self.genotype.chromosome_factory(rng);
         self.fitness.call_for_chromosome(&mut seed_chromosome);
         self.best_chromosome = Some(seed_chromosome);
 
@@ -145,7 +145,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                         .call_for_population(working_population, fitness_thread_local.as_ref());
                     self.report_neighbouring_population(working_population);
 
-                    // shuffle, so we don't repeatedly take the same best chromosome
+                    // shuffle, so we don't repeatedly take the same best chromosome in sideways move
                     working_population.chromosomes.shuffle(rng);
                     self.update_best_chromosome(
                         working_population

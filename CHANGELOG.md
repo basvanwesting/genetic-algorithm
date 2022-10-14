@@ -5,10 +5,12 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.6.0] - 2022-10-14
+### Changed
+* Calculate initial chromosome fitness in `HillClimb` to lock in on original seed if present
 
-## [0.5.5] - TBD
 ### Removed
-* Add `random_chromosome_probability` to `HillClimb` to avoid local optima
+* Remove `random_chromosome_probability` to `HillClimb` as it was hackish
 
 ## [0.5.4] - 2022-10-14
 ### Added

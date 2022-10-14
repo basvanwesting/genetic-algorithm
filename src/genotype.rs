@@ -39,8 +39,6 @@ pub trait Genotype:
 {
     type Allele: Clone + Send + std::fmt::Debug;
     fn genes_size(&self) -> usize;
-    /// a special chromosome factory returning unmutated seed_genes if present
-    fn chromosome_seed<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     /// a random chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     /// a random mutation of the chromosome

@@ -142,33 +142,6 @@ fn chromosome_permutations_genes_size_3() {
 }
 
 #[test]
-fn chromosome_seed_with_seed_genes() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(4)
-        .with_seed_genes(vec![true, true, false, false])
-        .build()
-        .unwrap();
-    let chromosomes = vec![
-        genotype.chromosome_seed(&mut rng),
-        genotype.chromosome_seed(&mut rng),
-        genotype.chromosome_seed(&mut rng),
-    ];
-    println!("{:#?}", chromosomes);
-    assert_eq!(
-        inspect::chromosome(&chromosomes[0]),
-        vec![true, true, false, false]
-    );
-    assert_eq!(
-        inspect::chromosome(&chromosomes[1]),
-        vec![true, true, false, false]
-    );
-    assert_eq!(
-        inspect::chromosome(&chromosomes[2]),
-        vec![true, true, false, false]
-    );
-}
-#[test]
 fn chromosome_factory_with_seed_genes() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = BinaryGenotype::builder()
@@ -184,14 +157,14 @@ fn chromosome_factory_with_seed_genes() {
     println!("{:#?}", chromosomes);
     assert_eq!(
         inspect::chromosome(&chromosomes[0]),
-        vec![true, false, false, false]
+        vec![true, true, false, false]
     );
     assert_eq!(
         inspect::chromosome(&chromosomes[1]),
-        vec![true, false, false, false]
+        vec![true, true, false, false]
     );
     assert_eq!(
         inspect::chromosome(&chromosomes[2]),
-        vec![true, true, false, true]
+        vec![true, true, false, false]
     );
 }

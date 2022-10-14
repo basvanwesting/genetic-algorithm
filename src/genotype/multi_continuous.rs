@@ -107,18 +107,9 @@ impl Genotype for MultiContinuous {
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn chromosome_seed<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        if let Some(seed_genes) = self.seed_genes.as_ref() {
-            Chromosome::new(seed_genes.clone())
-        } else {
-            self.chromosome_factory(rng)
-        }
-    }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
-            let mut chromosome = Chromosome::new(seed_genes.clone());
-            self.mutate_chromosome_random(&mut chromosome, rng);
-            chromosome
+            Chromosome::new(seed_genes.clone())
         } else {
             let genes: Vec<Self::Allele> = (0..self.genes_size)
                 .map(|index| self.allele_samplers[index].sample(rng))
