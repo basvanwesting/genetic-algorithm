@@ -1,6 +1,6 @@
 [package]
 name = "genetic_algorithm"
-version = "0.5.2"
+version = "0.5.3"
 edition = "2021"
 readme = "README.md"
 rust-version = "1.60"
