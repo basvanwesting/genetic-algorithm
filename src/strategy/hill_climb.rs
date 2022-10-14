@@ -120,7 +120,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
         self.current_generation = 0;
         self.reset_scaling();
         self.best_generation = 0;
-        self.best_chromosome = Some(self.genotype.chromosome_factory(rng));
+
+        let mut seed_chromosome = self.genotype.chromosome_seed(rng);
+        self.fitness.call_for_chromosome(&mut seed_chromosome);
+        self.best_chromosome = Some(seed_chromosome);
         let random_chromosome_sampler = Bernoulli::new(self.random_chromosome_probability).unwrap();
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;

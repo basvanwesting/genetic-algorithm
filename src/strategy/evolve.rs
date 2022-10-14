@@ -113,7 +113,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
-        let population = &mut self.population_factory(rng);
+        let population = &mut self.population_seed(rng);
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.multithreading {
@@ -276,9 +276,9 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 
-    pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G> {
+    pub fn population_seed<R: Rng>(&mut self, rng: &mut R) -> Population<G> {
         (0..self.population_size)
-            .map(|_| self.genotype.chromosome_factory(rng))
+            .map(|_| self.genotype.chromosome_seed(rng))
             .collect::<Vec<_>>()
             .into()
     }

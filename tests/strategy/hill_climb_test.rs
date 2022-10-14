@@ -177,7 +177,7 @@ fn call_continuous_target_fitness_score_minimize() {
     let best_chromosome = hill_climb.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(998));
+    assert_eq!(best_chromosome.fitness_score, Some(969));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
         vec![
@@ -190,7 +190,7 @@ fn call_continuous_target_fitness_score_minimize() {
             0.0,
             0.0,
             0.0,
-            0.24557132
+            0.21666789,
         ]
     );
 }
@@ -216,7 +216,7 @@ fn call_continuous_multi_thread() {
     let best_chromosome = hill_climb.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(998));
+    assert_eq!(best_chromosome.fitness_score, Some(969));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
         vec![
@@ -229,7 +229,7 @@ fn call_continuous_multi_thread() {
             0.0,
             0.0,
             0.0,
-            0.24557132
+            0.21666789,
         ]
     );
 }
