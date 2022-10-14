@@ -143,7 +143,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                         );
                         self.fitness.call_for_chromosome(working_chromosome);
                         self.update_best_chromosome(working_chromosome);
-                        self.report_chromosome(working_chromosome);
+                        self.report_working_chromosome(working_chromosome);
                     }
                     HillClimbVariant::SteepestAscent => {
                         let working_chromosome = &mut self.best_chromosome().unwrap();
@@ -151,17 +151,17 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                             .genotype
                             .neighbouring_population(working_chromosome, self.current_scaling);
 
-                        // shuffle, so we don't repeatedly take the same best chromosome
-                        working_population.chromosomes.shuffle(rng);
-
                         self.fitness
                             .call_for_population(working_population, fitness_thread_local.as_ref());
+                        self.report_neighbouring_population(working_population);
+
+                        // shuffle, so we don't repeatedly take the same best chromosome
+                        working_population.chromosomes.shuffle(rng);
                         self.update_best_chromosome(
                             working_population
                                 .best_chromosome(self.fitness_ordering)
                                 .unwrap_or(working_chromosome),
                         );
-                        self.report_population(working_population);
                     }
                 }
             }
@@ -268,20 +268,27 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
             self.best_fitness_score(),
             self.current_scaling.as_ref(),
         );
+        log::trace!(
+            "best - fitness score: {:?}, genes: {:?}",
+            self.best_fitness_score(),
+            self.best_chromosome
+                .as_ref()
+                .map_or(vec![], |c| c.genes.clone()),
+        );
     }
 
-    fn report_chromosome(&self, chromosome: &Chromosome<G>) {
+    fn report_working_chromosome(&self, chromosome: &Chromosome<G>) {
         log::trace!(
-            "fitness score: {:?}, genes: {:?}",
+            "working - fitness score: {:?}, genes: {:?}",
             chromosome.fitness_score,
             chromosome.genes,
         );
     }
 
-    fn report_population(&self, population: &Population<G>) {
+    fn report_neighbouring_population(&self, population: &Population<G>) {
         population.chromosomes.iter().for_each(|chromosome| {
             log::trace!(
-                "fitness score: {:?}, genes: {:?}",
+                "neighbour - fitness score: {:?}, genes: {:?}",
                 chromosome.fitness_score,
                 chromosome.genes,
             );

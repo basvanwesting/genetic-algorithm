@@ -134,7 +134,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             }
             self.update_best_chromosome(population);
             self.report_round(population);
-            self.report_best_chromosome();
         }
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
@@ -245,11 +244,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             population.fitness_score_stddev(),
             self.degenerate,
         );
-    }
-
-    fn report_best_chromosome(&self) {
         log::trace!(
-            "fitness score: {:?}, genes: {:?}",
+            "best - fitness score: {:?}, genes: {:?}",
             self.best_fitness_score(),
             self.best_chromosome
                 .as_ref()
