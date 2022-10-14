@@ -5,6 +5,13 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.5.2] - 2022-10-14
+### Added
+* Add env_logger and some INFO/DEBUG/TRACE logging
+
+### Changed
+* count generation zero based
+
 ## [0.5.1] - 2022-09-10
 ### Fixed
 * Solve lock-in to single best chromosome in stale `HillClimbVariant::SteepestAscent` by shuffling chromosomes before taking best
