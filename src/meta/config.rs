@@ -22,6 +22,7 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub max_stale_generations_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub degeneration_range_options: Vec<Option<Range<f32>>>,
+    pub mass_extinction_options: Vec<Option<(f32, f32)>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
     pub competes: Vec<CompeteDispatch>,
@@ -45,9 +46,10 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
             .with_max_stale_generations_option(self.max_stale_generations_options[genes[1]])
             .with_target_fitness_score_option(self.target_fitness_score_options[genes[2]])
             .with_degeneration_range_option(self.degeneration_range_options[genes[3]].clone())
-            .with_mutate(self.mutates[genes[4]].clone())
-            .with_crossover(self.crossovers[genes[5]].clone())
-            .with_compete(self.competes[genes[6]].clone())
+            .with_mass_extinction_option(self.mass_extinction_options[genes[4]].clone())
+            .with_mutate(self.mutates[genes[5]].clone())
+            .with_crossover(self.crossovers[genes[6]].clone())
+            .with_compete(self.competes[genes[7]].clone())
     }
 
     // order matters so keep close to evolve_builder_for_chromosome
@@ -58,6 +60,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
                 (0..self.max_stale_generations_options.len()).collect(),
                 (0..self.target_fitness_score_options.len()).collect(),
                 (0..self.degeneration_range_options.len()).collect(),
+                (0..self.mass_extinction_options.len()).collect(),
                 (0..self.mutates.len()).collect(),
                 (0..self.crossovers.len()).collect(),
                 (0..self.competes.len()).collect(),
@@ -113,6 +116,10 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
             Err(TryFromConfigBuilderError(
                 "MetaConfig requires at least one degeneration_range_option, None is allowed",
             ))
+        } else if builder.mass_extinction_options.is_empty() {
+            Err(TryFromConfigBuilderError(
+                "MetaConfig requires at least one mass_extinction_option, None is allowed",
+            ))
         } else if builder.mutates.is_empty() {
             Err(TryFromConfigBuilderError(
                 "MetaConfig requires at least one Mutate strategy",
@@ -135,6 +142,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
                 max_stale_generations_options: builder.max_stale_generations_options,
                 target_fitness_score_options: builder.target_fitness_score_options,
                 degeneration_range_options: builder.degeneration_range_options,
+                mass_extinction_options: builder.mass_extinction_options,
                 mutates: builder.mutates,
                 crossovers: builder.crossovers,
                 competes: builder.competes,

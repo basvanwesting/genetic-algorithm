@@ -34,6 +34,7 @@ fn main() {
     let max_stale_generations_options = vec![Some(10000)];
     let target_fitness_score_options = vec![Some(0)];
     let degeneration_range_options = vec![None, Some(0.001..0.999)];
+    let mass_extinction_options = vec![None, Some((0.9, 0.1))];
     let mutates = vec![
         MutateDispatch(Mutates::Once, 0.1),
         MutateDispatch(Mutates::Once, 0.2),
@@ -61,6 +62,7 @@ fn main() {
         .with_max_stale_generations_options(max_stale_generations_options)
         .with_target_fitness_score_options(target_fitness_score_options)
         .with_degeneration_range_options(degeneration_range_options)
+        .with_mass_extinction_options(mass_extinction_options)
         .with_mutates(mutates)
         .with_crossovers(crossovers)
         .with_competes(competes)

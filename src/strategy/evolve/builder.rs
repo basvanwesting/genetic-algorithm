@@ -161,6 +161,17 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.mass_extinction_survival_rate = Some(survival_rate);
         self
     }
+    pub fn with_mass_extinction_option(mut self, params: Option<(f32, f32)>) -> Self {
+        match params {
+            Some((uniformity_threshold, survival_rate)) => {
+                self.mass_extinction_uniformity_threshold = Some(uniformity_threshold);
+                self.mass_extinction_survival_rate = Some(survival_rate);
+            }
+            _ => (),
+        }
+
+        self
+    }
     pub fn with_mutate(mut self, mutate: M) -> Self {
         self.mutate = Some(mutate);
         self

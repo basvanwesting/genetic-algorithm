@@ -20,6 +20,7 @@ pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub max_stale_generations_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub degeneration_range_options: Vec<Option<Range<f32>>>,
+    pub mass_extinction_options: Vec<Option<(f32, f32)>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
     pub competes: Vec<CompeteDispatch>,
@@ -77,6 +78,13 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.degeneration_range_options = degeneration_range_options;
         self
     }
+    pub fn with_mass_extinction_options(
+        mut self,
+        mass_extinction_options: Vec<Option<(f32, f32)>>,
+    ) -> Self {
+        self.mass_extinction_options = mass_extinction_options;
+        self
+    }
     pub fn with_mutates(mut self, mutates: Vec<MutateDispatch>) -> Self {
         self.mutates = mutates;
         self
@@ -101,6 +109,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
             max_stale_generations_options: vec![None],
             target_fitness_score_options: vec![None],
             degeneration_range_options: vec![None],
+            mass_extinction_options: vec![None],
             mutates: vec![],
             crossovers: vec![],
             competes: vec![],

@@ -27,15 +27,21 @@ impl Fitness for MILPFitness {
 fn main() {
     let rounds = 10;
     let population_sizes = vec![
-        10, //20,
+        //10, //20,
         //50,
-        100, //200,
+        //100, //200,
         //500,
         1000,
     ];
     let max_stale_generations_options = vec![Some(1000)];
     let target_fitness_score_options = vec![Some(0)];
     let degeneration_range_options = vec![None];
+    let mass_extinction_options = vec![
+        None,
+        Some((0.9, 0.1)),
+        Some((0.99, 0.01)),
+        Some((0.99, 0.1)),
+    ];
     let mutates = vec![
         MutateDispatch(Mutates::Once, 0.05),
         //MutateDispatch(Mutates::Once, 0.1),
@@ -45,17 +51,17 @@ fn main() {
         //MutateDispatch(Mutates::Once, 0.5),
     ];
     let crossovers = vec![
-        CrossoverDispatch(Crossovers::Clone, false),
-        CrossoverDispatch(Crossovers::Clone, true),
-        CrossoverDispatch(Crossovers::SingleGene, false),
-        CrossoverDispatch(Crossovers::SingleGene, true),
-        CrossoverDispatch(Crossovers::SinglePoint, false),
-        CrossoverDispatch(Crossovers::SinglePoint, true),
-        CrossoverDispatch(Crossovers::Uniform, false),
+        //CrossoverDispatch(Crossovers::Clone, false),
+        //CrossoverDispatch(Crossovers::Clone, true),
+        //CrossoverDispatch(Crossovers::SingleGene, false),
+        //CrossoverDispatch(Crossovers::SingleGene, true),
+        //CrossoverDispatch(Crossovers::SinglePoint, false),
+        //CrossoverDispatch(Crossovers::SinglePoint, true),
+        //CrossoverDispatch(Crossovers::Uniform, false),
         CrossoverDispatch(Crossovers::Uniform, true),
     ];
     let competes = vec![
-        CompeteDispatch(Competes::Elite, 0),
+        //CompeteDispatch(Competes::Elite, 0),
         //CompeteDispatch(Competes::Tournament, 2),
         CompeteDispatch(Competes::Tournament, 4),
         //CompeteDispatch(Competes::Tournament, 8),
@@ -79,6 +85,7 @@ fn main() {
         .with_max_stale_generations_options(max_stale_generations_options)
         .with_target_fitness_score_options(target_fitness_score_options)
         .with_degeneration_range_options(degeneration_range_options)
+        .with_mass_extinction_options(mass_extinction_options)
         .with_mutates(mutates)
         .with_crossovers(crossovers)
         .with_competes(competes)
