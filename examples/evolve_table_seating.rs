@@ -94,6 +94,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_degeneration_range(0.005..6.0)
+        //.with_mass_extinction(0.95, 0.1)
         .with_mutate(MutateOnce(0.3))
         .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4));

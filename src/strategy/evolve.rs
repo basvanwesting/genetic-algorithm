@@ -46,6 +46,14 @@ use thread_local::ThreadLocal;
 /// as it depends on the fitness function behaviour (expected spread per mutation). So the higher
 /// bound is a case by case analysis.
 ///
+/// Optionally a mass_extinction uniformity_threshold and survival_rate can be set. When
+/// approacking a (local) optimum in the fitness score, the variation in the population goes down
+/// dramatically. This reduces the efficiency, but also has the risk of local optimum lock-in. Set
+/// this parameter to simulate a cambrian explosion triggered by a mass_extinction event. The
+/// controlling metric is fitness score uniformity in the population (a fraction of the population
+/// which has the same fitness score). When this uniformity passes the threshold, the population is
+/// randomly reduced using the survival_rate (fraction of population).
+///
 /// Can call_repeatedly from the [EvolveBuilder], when solution has tendency to get stuck in local
 /// optimum
 ///
