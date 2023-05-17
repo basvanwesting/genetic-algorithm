@@ -3,6 +3,7 @@ use crate::compete::Compete;
 use crate::crossover::Crossover;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
+use crate::mass_extinction::MassExtinction;
 use crate::mutate::Mutate;
 use crate::strategy::Strategy;
 use rand::Rng;
@@ -22,8 +23,7 @@ pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossove
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
     pub degeneration_range: Option<Range<f32>>,
-    pub mass_extinction_uniformity_threshold: Option<f32>,
-    pub mass_extinction_survival_rate: Option<f32>,
+    pub mass_extinction: Option<MassExtinction>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
     pub crossover: Option<S>,
@@ -156,20 +156,15 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.degeneration_range = degeneration_range_option;
         self
     }
-    pub fn with_mass_extinction(mut self, uniformity_threshold: f32, survival_rate: f32) -> Self {
-        self.mass_extinction_uniformity_threshold = Some(uniformity_threshold);
-        self.mass_extinction_survival_rate = Some(survival_rate);
+    pub fn with_mass_extinction(mut self, mass_extinction: MassExtinction) -> Self {
+        self.mass_extinction = Some(mass_extinction);
         self
     }
-    pub fn with_mass_extinction_option(mut self, params: Option<(f32, f32)>) -> Self {
-        match params {
-            Some((uniformity_threshold, survival_rate)) => {
-                self.mass_extinction_uniformity_threshold = Some(uniformity_threshold);
-                self.mass_extinction_survival_rate = Some(survival_rate);
-            }
-            _ => (),
-        }
-
+    pub fn with_mass_extinction_option(
+        mut self,
+        mass_extinction_option: Option<MassExtinction>,
+    ) -> Self {
+        self.mass_extinction = mass_extinction_option;
         self
     }
     pub fn with_mutate(mut self, mutate: M) -> Self {
@@ -203,8 +198,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
             degeneration_range: None,
-            mass_extinction_uniformity_threshold: None,
-            mass_extinction_survival_rate: None,
+            mass_extinction: None,
             mutate: None,
             fitness: None,
             crossover: None,

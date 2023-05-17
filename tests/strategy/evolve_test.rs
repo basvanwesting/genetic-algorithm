@@ -11,6 +11,7 @@ use genetic_algorithm::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
     UniqueGenotype,
 };
+use genetic_algorithm::mass_extinction::MassExtinction;
 use genetic_algorithm::mutate::MutateOnce;
 use genetic_algorithm::strategy::evolve::{Evolve, TryFromEvolveBuilderError};
 use genetic_algorithm::strategy::Strategy;
@@ -292,7 +293,7 @@ fn call_binary_mass_extinction() {
         .with_genotype(genotype)
         .with_population_size(100)
         .with_target_fitness_score(8)
-        .with_mass_extinction(0.9, 0.1)
+        .with_mass_extinction(MassExtinction::new(0.9, 0.1))
         .with_mutate(MutateOnce(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))

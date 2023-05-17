@@ -38,9 +38,9 @@ fn main() {
     let degeneration_range_options = vec![None];
     let mass_extinction_options = vec![
         None,
-        Some((0.9, 0.1)),
-        Some((0.99, 0.01)),
-        Some((0.99, 0.1)),
+        Some(MassExtinction::new(0.9, 0.1)),
+        Some(MassExtinction::new(0.99, 0.01)),
+        Some(MassExtinction::new(0.99, 0.1)),
     ];
     let mutates = vec![
         MutateDispatch(Mutates::Once, 0.05),

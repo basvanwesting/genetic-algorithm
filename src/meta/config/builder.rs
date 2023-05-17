@@ -2,6 +2,7 @@ use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::Genotype;
+use crate::mass_extinction::MassExtinction;
 use crate::meta::config::Config;
 use crate::mutate::MutateDispatch;
 use crate::strategy::evolve::EvolveBuilder;
@@ -20,7 +21,7 @@ pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub max_stale_generations_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub degeneration_range_options: Vec<Option<Range<f32>>>,
-    pub mass_extinction_options: Vec<Option<(f32, f32)>>,
+    pub mass_extinction_options: Vec<Option<MassExtinction>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
     pub competes: Vec<CompeteDispatch>,
@@ -80,7 +81,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
     }
     pub fn with_mass_extinction_options(
         mut self,
-        mass_extinction_options: Vec<Option<(f32, f32)>>,
+        mass_extinction_options: Vec<Option<MassExtinction>>,
     ) -> Self {
         self.mass_extinction_options = mass_extinction_options;
         self

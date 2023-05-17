@@ -26,13 +26,12 @@ impl<'a, G: Genotype + Sync, F: fitness::Fitness<Genotype = G> + Sync> fitness::
         let mut rng = SmallRng::from_entropy();
 
         log::info!(
-            "pop-size: {} | max-stale-gen: {:?} | target-fitness: {:?} | degen-range: {:?} | mass-extinction: {:?}, {:?} | {:?} | {:?} | {:?}",
+            "pop-size: {} | max-stale-gen: {:?} | target-fitness: {:?} | degen-range: {:?} | mass-extinction: {:?} | {:?} | {:?} | {:?}",
             evolve_builder.population_size,
             evolve_builder.max_stale_generations,
             evolve_builder.target_fitness_score,
             evolve_builder.degeneration_range,
-            evolve_builder.mass_extinction_uniformity_threshold,
-            evolve_builder.mass_extinction_survival_rate,
+            evolve_builder.mass_extinction,
             evolve_builder.mutate,
             evolve_builder.crossover,
             evolve_builder.compete

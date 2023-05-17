@@ -12,6 +12,7 @@ use crate::compete::Compete;
 use crate::crossover::Crossover;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
+use crate::mass_extinction::MassExtinction;
 use crate::mutate::Mutate;
 use crate::population::Population;
 use rand::Rng;
@@ -46,7 +47,7 @@ use thread_local::ThreadLocal;
 /// as it depends on the fitness function behaviour (expected spread per mutation). So the higher
 /// bound is a case by case analysis.
 ///
-/// Optionally a mass_extinction uniformity_threshold and survival_rate can be set. When
+/// Optionally a mass_extinction with uniformity_threshold and survival_rate can be set. When
 /// approacking a (local) optimum in the fitness score, the variation in the population goes down
 /// dramatically. This reduces the efficiency, but also has the risk of local optimum lock-in. Set
 /// this parameter to simulate a cambrian explosion triggered by a mass_extinction event. The
@@ -79,7 +80,7 @@ use thread_local::ThreadLocal;
 ///     .with_valid_fitness_score(10)           // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_degeneration_range(0.005..0.995)  // simulate cambrian explosion when reaching a local optimum
-///     .with_mass_extinction(0.9, 0.1)         // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
+///     .with_mass_extinction(MassExtinction::new(0.9, 0.1)) // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
 ///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
@@ -107,8 +108,7 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     fitness_ordering: FitnessOrdering,
     multithreading: bool,
     degeneration_range: Option<Range<f32>>,
-    mass_extinction_uniformity_threshold: Option<f32>,
-    mass_extinction_survival_rate: Option<f32>,
+    mass_extinction: Option<MassExtinction>,
 
     pub current_iteration: usize,
     pub current_generation: usize,
@@ -220,13 +220,11 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     }
 
     fn try_mass_extinction<R: Rng>(&mut self, population: &mut Population<G>, rng: &mut R) {
-        if let Some(uniformity_threshold) = self.mass_extinction_uniformity_threshold {
-            if let Some(survival_rate) = self.mass_extinction_survival_rate {
-                if population.size() == self.population_size {
-                    if population.fitness_score_uniformity() >= uniformity_threshold {
-                        log::debug!("### mass extinction event");
-                        population.trim(survival_rate, rng);
-                    }
+        if let Some(mass_extinction) = &self.mass_extinction {
+            if population.size() == self.population_size {
+                if population.fitness_score_uniformity() >= mass_extinction.uniformity_threshold {
+                    log::debug!("### mass extinction event");
+                    population.trim(mass_extinction.survival_rate, rng);
                 }
             }
         }
@@ -384,8 +382,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 fitness_ordering: builder.fitness_ordering,
                 multithreading: builder.multithreading,
                 degeneration_range: builder.degeneration_range,
-                mass_extinction_uniformity_threshold: builder.mass_extinction_uniformity_threshold,
-                mass_extinction_survival_rate: builder.mass_extinction_survival_rate,
+                mass_extinction: builder.mass_extinction,
 
                 current_iteration: 0,
                 current_generation: 0,
@@ -419,16 +416,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  multithreading: {:?}", self.multithreading)?;
         writeln!(f, "  degeneration_range: {:?}", self.degeneration_range)?;
-        writeln!(
-            f,
-            "  mass_extinction_uniformity_threshold: {:?}",
-            self.mass_extinction_uniformity_threshold
-        )?;
-        writeln!(
-            f,
-            "  mass_extinction_survival_rate: {:?}",
-            self.mass_extinction_survival_rate
-        )?;
+        writeln!(f, "  mass_extinction: {:?}", self.mass_extinction)?;
 
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;

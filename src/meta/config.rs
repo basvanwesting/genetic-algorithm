@@ -9,6 +9,7 @@ use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiDiscreteGenotype};
+use crate::mass_extinction::MassExtinction;
 use crate::mutate::MutateDispatch;
 use crate::strategy::evolve::EvolveBuilder;
 use std::ops::Range;
@@ -22,7 +23,7 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub max_stale_generations_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub degeneration_range_options: Vec<Option<Range<f32>>>,
-    pub mass_extinction_options: Vec<Option<(f32, f32)>>,
+    pub mass_extinction_options: Vec<Option<MassExtinction>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
     pub competes: Vec<CompeteDispatch>,

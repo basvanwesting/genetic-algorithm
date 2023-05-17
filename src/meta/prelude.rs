@@ -12,6 +12,7 @@ pub use crate::genotype::{
     MultiContinuousGenotype, MultiDiscreteGenotype, MultiUniqueGenotype,
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
+pub use crate::mass_extinction::MassExtinction;
 #[doc(no_inline)]
 pub use crate::meta::{
     MetaConfig, MetaConfigBuilder, MetaPermutate, TryFromMetaConfigBuilderError,

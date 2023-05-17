@@ -87,6 +87,7 @@ pub mod compete;
 pub mod crossover;
 pub mod fitness;
 pub mod genotype;
+pub mod mass_extinction;
 pub mod meta;
 pub mod mutate;
 pub mod population;
