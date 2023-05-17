@@ -2,6 +2,7 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
+use rand::prelude::*;
 
 #[derive(Clone, Debug)]
 pub struct Population<T: Genotype> {
@@ -25,6 +26,18 @@ impl<T: Genotype> Population<T> {
 
     pub fn size(&self) -> usize {
         self.chromosomes.len()
+    }
+
+    pub fn trim<R: Rng>(&mut self, remaining_percentage: f32, rng: &mut R) {
+        let remaining_size: usize = std::cmp::max(
+            (self.size() as f32 * remaining_percentage).ceil() as usize,
+            2,
+        );
+
+        if self.size() > remaining_size {
+            self.chromosomes.shuffle(rng);
+            self.chromosomes.drain(remaining_size..);
+        }
     }
 
     /// fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out

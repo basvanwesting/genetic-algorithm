@@ -89,4 +89,53 @@ mod population_tests {
 
         assert_eq!(population.fitness_score_uniformity(), 0.4);
     }
+
+    #[test]
+    fn trim() {
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = &mut build::population::<BinaryGenotype>(vec![
+            vec![false, true, true],
+            vec![false, true, false],
+            vec![false, false, true],
+            vec![false, false, false],
+            vec![true, true, true],
+            vec![true, true, false],
+            vec![true, false, true],
+            vec![true, false, false],
+        ]);
+
+        population.trim(0.75, &mut rng);
+        assert_eq!(
+            inspect::population(&population),
+            vec![
+                vec![true, true, true],
+                vec![false, true, false],
+                vec![false, true, true],
+                vec![true, true, false],
+                vec![false, false, true],
+                vec![false, false, false],
+            ]
+        );
+    }
+
+    #[test]
+    fn trim_never_less_than_two() {
+        let mut rng = SmallRng::seed_from_u64(0);
+        let population = &mut build::population::<BinaryGenotype>(vec![
+            vec![false, true, true],
+            vec![false, true, false],
+            vec![false, false, true],
+            vec![false, false, false],
+            vec![true, true, true],
+            vec![true, true, false],
+            vec![true, false, true],
+            vec![true, false, false],
+        ]);
+
+        population.trim(0.01, &mut rng);
+        assert_eq!(
+            inspect::population(&population),
+            vec![vec![true, true, true], vec![false, true, false],]
+        );
+    }
 }

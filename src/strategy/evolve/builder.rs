@@ -22,6 +22,8 @@ pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossove
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
     pub degeneration_range: Option<Range<f32>>,
+    pub mass_extinction_uniformity_threshold: Option<f32>,
+    pub mass_extinction_survival_rate: Option<f32>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
     pub crossover: Option<S>,
@@ -154,6 +156,11 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.degeneration_range = degeneration_range_option;
         self
     }
+    pub fn with_mass_extinction(mut self, uniformity_threshold: f32, survival_rate: f32) -> Self {
+        self.mass_extinction_uniformity_threshold = Some(uniformity_threshold);
+        self.mass_extinction_survival_rate = Some(survival_rate);
+        self
+    }
     pub fn with_mutate(mut self, mutate: M) -> Self {
         self.mutate = Some(mutate);
         self
@@ -185,6 +192,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
             degeneration_range: None,
+            mass_extinction_uniformity_threshold: None,
+            mass_extinction_survival_rate: None,
             mutate: None,
             fitness: None,
             crossover: None,

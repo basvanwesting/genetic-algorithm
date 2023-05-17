@@ -282,6 +282,35 @@ fn call_binary_degeneration_range() {
 }
 
 #[test]
+fn call_binary_mass_extinction() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_population_size(100)
+        .with_target_fitness_score(8)
+        .with_mass_extinction(0.9, 0.1)
+        .with_mutate(MutateOnce(0.1))
+        .with_fitness(CountTrue)
+        .with_crossover(CrossoverSingleGene(true))
+        .with_compete(CompeteTournament(4))
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = evolve.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(9));
+    assert_eq!(
+        inspect::chromosome(&best_chromosome),
+        vec![true, true, true, true, true, true, true, false, true, true]
+    );
+}
+
+#[test]
 fn call_continuous() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
