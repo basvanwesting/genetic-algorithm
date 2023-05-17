@@ -61,6 +61,14 @@ impl<T: Genotype> Population<T> {
             .filter(|c| c.fitness_score.is_some())
             .count()
     }
+    pub fn fitness_score_uniformity(&self) -> f32 {
+        let median_fitness_score = self.fitness_score_median();
+        if median_fitness_score.is_some() {
+            self.fitness_score_prevalence(median_fitness_score) as f32 / self.size() as f32
+        } else {
+            0.0
+        }
+    }
 }
 
 impl<T: Genotype> From<Vec<Chromosome<T>>> for Population<T> {
