@@ -364,12 +364,12 @@ fn call_continuous() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9976));
+    assert_eq!(best_chromosome.fitness_score, Some(9981));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
         vec![
-            0.9993049, 0.99938405, 0.99551475, 0.9943992, 0.9974326, 0.9998164, 0.99971354,
-            0.9940715, 0.99899554, 0.9975089
+            0.9989109, 0.99938405, 0.99926376, 0.99644506, 0.99663925, 0.9986967, 0.99971354,
+            0.9940715, 0.99907696, 0.9992342
         ]
     );
 }

@@ -62,6 +62,11 @@ impl<T: Genotype> Population<T> {
     pub fn fitness_score_mean(&self) -> f32 {
         stats::mean(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
     }
+    pub fn fitness_score_present(&self, fitness_score: Option<isize>) -> bool {
+        self.chromosomes
+            .iter()
+            .any(|c| c.fitness_score == fitness_score)
+    }
     pub fn fitness_score_prevalence(&self, fitness_score: Option<isize>) -> usize {
         self.chromosomes
             .iter()

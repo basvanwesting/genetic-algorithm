@@ -141,6 +141,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             self.compete
                 .call(population, self.fitness_ordering, self.population_size, rng);
             self.update_best_chromosome(population);
+            self.ensure_best_chromosome(population);
             self.report_round(population);
         }
     }
@@ -202,18 +203,20 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         }
     }
 
+    fn ensure_best_chromosome(&mut self, population: &mut Population<G>) {
+        if let Some(best_chromosome) = &self.best_chromosome {
+            if !population.fitness_score_present(best_chromosome.fitness_score) {
+                population.chromosomes.push(best_chromosome.clone());
+            }
+        }
+    }
+
     fn try_mass_degeneration<R: Rng>(&mut self, population: &mut Population<G>, rng: &mut R) {
         if let Some(mass_degeneration) = &self.mass_degeneration {
-            if population.fitness_score_median() == self.best_fitness_score()
-                && population.fitness_score_uniformity() >= mass_degeneration.uniformity_threshold
-            {
+            if population.fitness_score_uniformity() >= mass_degeneration.uniformity_threshold {
                 log::debug!("### mass degeneration event");
                 for _ in 0..mass_degeneration.number_of_rounds {
                     self.mutate.call(&self.genotype, population, rng);
-                }
-                // could have lost the best_chromosome, so insert it back in
-                if let Some(best_chromosome) = &self.best_chromosome {
-                    population.chromosomes.push(best_chromosome.clone());
                 }
             }
         }
@@ -221,21 +224,21 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 
     fn try_mass_extinction<R: Rng>(&mut self, population: &mut Population<G>, rng: &mut R) {
         if let Some(mass_extinction) = &self.mass_extinction {
-            if population.size() == self.population_size
-                && population.fitness_score_median() == self.best_fitness_score()
+            if population.size() >= self.population_size
                 && population.fitness_score_uniformity() >= mass_extinction.uniformity_threshold
             {
                 log::debug!("### mass extinction event");
                 population.trim(mass_extinction.survival_rate, rng);
+                //if let Some(best_chromosome) = &self.best_chromosome {
+                //population.chromosomes = vec![best_chromosome.clone(), best_chromosome.clone()]
+                //}
             }
         }
     }
 
     fn try_mass_invasion<R: Rng>(&mut self, population: &mut Population<G>, rng: &mut R) {
         if let Some(mass_invasion) = &self.mass_invasion {
-            if population.fitness_score_median() == self.best_fitness_score()
-                && population.fitness_score_uniformity() >= mass_invasion.uniformity_threshold
-            {
+            if population.fitness_score_uniformity() >= mass_invasion.uniformity_threshold {
                 log::debug!("### mass invasion event");
                 let bool_sampler = Bernoulli::new(mass_invasion.survival_rate as f64).unwrap();
                 for chromosome in &mut population.chromosomes {
@@ -294,7 +297,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 
     fn report_round(&self, population: &Population<G>) {
         log::debug!(
-            "generation (current/best): {}/{}, fitness score (best/count/median/mean/stddev/uniformity): {:?} / {} / {:?} / {:.0} / {:.0} / {:2.2}",
+            "generation (current/best): {}/{}, fitness score (best/count/median/mean/stddev/uniformity): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}",
             self.current_generation,
             self.best_generation,
             self.best_fitness_score(),
@@ -303,6 +306,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             population.fitness_score_mean(),
             population.fitness_score_stddev(),
             population.fitness_score_uniformity(),
+            population.fitness_score_prevalence(self.best_fitness_score()),
         );
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
