@@ -89,6 +89,7 @@ pub mod fitness;
 pub mod genotype;
 pub mod mass_degeneration;
 pub mod mass_extinction;
+pub mod mass_genesis;
 pub mod mass_invasion;
 pub mod meta;
 pub mod mutate;

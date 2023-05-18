@@ -14,6 +14,7 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mass_degeneration::MassDegeneration;
 use crate::mass_extinction::MassExtinction;
+use crate::mass_genesis::MassGenesis;
 use crate::mass_invasion::MassInvasion;
 use crate::mutate::Mutate;
 use crate::population::Population;
@@ -45,6 +46,8 @@ use thread_local::ThreadLocal;
 ///   fitness score uniformity in the population (a fraction of the population which has the same
 ///   fitness score). When this uniformity passes the threshold, the population is randomly reduced
 ///   using the survival_rate (fraction of population).
+/// * [mass-genesis](crate::mass_genesis): A version of mass-extinction, where only an adam and eve
+///   of current best chromosomes survive
 /// * [mass-invasion](crate::mass_invasion): A version of mass-extinction, where the extinct
 ///   population is replaced by a random population
 /// * [mass-degeneration](crate::mass_degeneration): Simulates a cambrian explosion. The controlling metric is fitness score
@@ -77,7 +80,8 @@ use thread_local::ThreadLocal;
 ///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_mass_degeneration(MassDegeneration::new(0.9, 10))  // simulate cambrian explosion by mass degeneration, when reaching 90% uniformity, apply 10 rounds of random mutation
 ///     .with_mass_extinction(MassExtinction::new(0.9, 0.1))     // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
-///     .with_mass_invasion(MassInvasion::new(0.9, 0.1))     // simulate cambrian explosion by mass invasion, when reaching 90% uniformity, trim to 10% of population and add 90% random population
+///     .with_mass_genesis(MassGenesis::new(0.9))                // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, only adam and eve of best_chromosome survive
+///     .with_mass_invasion(MassInvasion::new(0.9, 0.1))         // simulate cambrian explosion by mass invasion, when reaching 90% uniformity, trim to 10% of population and add 90% random population
 ///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
@@ -106,6 +110,7 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     multithreading: bool,
     mass_degeneration: Option<MassDegeneration>,
     mass_extinction: Option<MassExtinction>,
+    mass_genesis: Option<MassGenesis>,
     mass_invasion: Option<MassInvasion>,
 
     pub current_iteration: usize,
@@ -132,6 +137,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 
             self.try_mass_degeneration(population, rng);
             self.try_mass_extinction(population, rng);
+            self.try_mass_genesis(population, rng);
             self.try_mass_invasion(population, rng);
 
             self.crossover.call(&self.genotype, population, rng);
@@ -229,9 +235,19 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             {
                 log::debug!("### mass extinction event");
                 population.trim(mass_extinction.survival_rate, rng);
-                //if let Some(best_chromosome) = &self.best_chromosome {
-                //population.chromosomes = vec![best_chromosome.clone(), best_chromosome.clone()]
-                //}
+            }
+        }
+    }
+
+    fn try_mass_genesis<R: Rng>(&mut self, population: &mut Population<G>, _rng: &mut R) {
+        if let Some(mass_genesis) = &self.mass_genesis {
+            if population.size() >= self.population_size
+                && population.fitness_score_uniformity() >= mass_genesis.uniformity_threshold
+            {
+                log::debug!("### mass genesis event");
+                if let Some(best_chromosome) = &self.best_chromosome {
+                    population.chromosomes = vec![best_chromosome.clone(), best_chromosome.clone()]
+                }
             }
         }
     }
@@ -404,6 +420,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 multithreading: builder.multithreading,
                 mass_degeneration: builder.mass_degeneration,
                 mass_extinction: builder.mass_extinction,
+                mass_genesis: builder.mass_genesis,
                 mass_invasion: builder.mass_invasion,
 
                 current_iteration: 0,
@@ -438,6 +455,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         writeln!(f, "  multithreading: {:?}", self.multithreading)?;
         writeln!(f, "  mass_degeneration: {:?}", self.mass_degeneration)?;
         writeln!(f, "  mass_extinction: {:?}", self.mass_extinction)?;
+        writeln!(f, "  mass_genesis: {:?}", self.mass_genesis)?;
         writeln!(f, "  mass_invasion: {:?}", self.mass_invasion)?;
 
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;

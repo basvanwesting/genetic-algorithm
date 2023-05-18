@@ -47,6 +47,11 @@ fn main() {
         //Some(MassExtinction::new(0.99, 0.01)),
         //Some(MassExtinction::new(0.99, 0.1)),
     ];
+    let mass_genesis_options = vec![
+        None,
+        //Some(MassGenesis::new(0.9)),
+        //Some(MassGenesis::new(0.99)),
+    ];
     let mass_invasion_options = vec![
         None,
         Some(MassInvasion::new(0.9, 0.1)),
@@ -97,6 +102,7 @@ fn main() {
         .with_target_fitness_score_options(target_fitness_score_options)
         .with_mass_degeneration_options(mass_degeneration_options)
         .with_mass_extinction_options(mass_extinction_options)
+        .with_mass_genesis_options(mass_genesis_options)
         .with_mass_invasion_options(mass_invasion_options)
         .with_mutates(mutates)
         .with_crossovers(crossovers)

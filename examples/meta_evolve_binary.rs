@@ -8,6 +8,7 @@ fn main() {
     let target_fitness_score_options = vec![Some(0)];
     let mass_degeneration_options = vec![None, Some(MassDegeneration::new(0.9, 10))];
     let mass_extinction_options = vec![None, Some(MassExtinction::new(0.9, 0.1))];
+    let mass_genesis_options = vec![None, Some(MassGenesis::new(0.9))];
     let mass_invasion_options = vec![None, Some(MassInvasion::new(0.9, 0.1))];
     let mutates = vec![
         MutateDispatch(Mutates::Once, 0.05),
@@ -53,6 +54,7 @@ fn main() {
         .with_target_fitness_score_options(target_fitness_score_options)
         .with_mass_degeneration_options(mass_degeneration_options)
         .with_mass_extinction_options(mass_extinction_options)
+        .with_mass_genesis_options(mass_genesis_options)
         .with_mass_invasion_options(mass_invasion_options)
         .with_mutates(mutates)
         .with_crossovers(crossovers)

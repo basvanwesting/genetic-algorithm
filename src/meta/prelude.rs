@@ -14,6 +14,7 @@ pub use crate::genotype::{
 };
 pub use crate::mass_degeneration::MassDegeneration;
 pub use crate::mass_extinction::MassExtinction;
+pub use crate::mass_genesis::MassGenesis;
 pub use crate::mass_invasion::MassInvasion;
 #[doc(no_inline)]
 pub use crate::meta::{

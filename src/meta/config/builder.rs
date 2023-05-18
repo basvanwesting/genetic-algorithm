@@ -4,6 +4,7 @@ use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mass_degeneration::MassDegeneration;
 use crate::mass_extinction::MassExtinction;
+use crate::mass_genesis::MassGenesis;
 use crate::mass_invasion::MassInvasion;
 use crate::meta::config::Config;
 use crate::mutate::MutateDispatch;
@@ -23,6 +24,7 @@ pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub mass_degeneration_options: Vec<Option<MassDegeneration>>,
     pub mass_extinction_options: Vec<Option<MassExtinction>>,
+    pub mass_genesis_options: Vec<Option<MassGenesis>>,
     pub mass_invasion_options: Vec<Option<MassInvasion>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
@@ -88,6 +90,13 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.mass_extinction_options = mass_extinction_options;
         self
     }
+    pub fn with_mass_genesis_options(
+        mut self,
+        mass_genesis_options: Vec<Option<MassGenesis>>,
+    ) -> Self {
+        self.mass_genesis_options = mass_genesis_options;
+        self
+    }
     pub fn with_mass_invasion_options(
         mut self,
         mass_invasion_options: Vec<Option<MassInvasion>>,
@@ -120,6 +129,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
             target_fitness_score_options: vec![None],
             mass_degeneration_options: vec![None],
             mass_extinction_options: vec![None],
+            mass_genesis_options: vec![None],
             mass_invasion_options: vec![None],
             mutates: vec![],
             crossovers: vec![],

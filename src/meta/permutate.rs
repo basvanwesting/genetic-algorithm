@@ -82,6 +82,11 @@ impl<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> fmt::Display for P
                 )?;
                 writeln!(
                     f,
+                    "  best_mass_genesis: {:?}",
+                    best_evolve_builder.mass_genesis,
+                )?;
+                writeln!(
+                    f,
                     "  best_mass_invasion: {:?}",
                     best_evolve_builder.mass_invasion,
                 )?;
