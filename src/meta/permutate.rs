@@ -80,6 +80,11 @@ impl<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> fmt::Display for P
                     "  best_mass_extinction: {:?}",
                     best_evolve_builder.mass_extinction,
                 )?;
+                writeln!(
+                    f,
+                    "  best_mass_invasion: {:?}",
+                    best_evolve_builder.mass_invasion,
+                )?;
                 writeln!(f, "  best_mutate: {:?}", best_evolve_builder.mutate)?;
                 writeln!(f, "  best_crossover: {:?}", best_evolve_builder.crossover)?;
                 writeln!(f, "  best_compete: {:?}", best_evolve_builder.compete)

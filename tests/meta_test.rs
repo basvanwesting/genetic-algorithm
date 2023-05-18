@@ -8,6 +8,7 @@ mod meta_tests {
     use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
     use genetic_algorithm::mass_degeneration::MassDegeneration;
     use genetic_algorithm::mass_extinction::MassExtinction;
+    use genetic_algorithm::mass_invasion::MassInvasion;
     use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
     use genetic_algorithm::mutate::{MutateDispatch, Mutates};
     use genetic_algorithm::strategy::evolve::EvolveBuilder;
@@ -20,6 +21,7 @@ mod meta_tests {
         let max_stale_generations_options = vec![Some(10)];
         let mass_degeneration_options = vec![None, Some(MassDegeneration::new(0.9, 10))];
         let mass_extinction_options = vec![None, Some(MassExtinction::new(0.9, 0.1))];
+        let mass_invasion_options = vec![None, Some(MassInvasion::new(0.9, 0.1))];
         let mutates = vec![
             MutateDispatch(Mutates::Once, 0.1),
             MutateDispatch(Mutates::Once, 0.2),
@@ -52,6 +54,7 @@ mod meta_tests {
             .with_max_stale_generations_options(max_stale_generations_options)
             .with_mass_degeneration_options(mass_degeneration_options)
             .with_mass_extinction_options(mass_extinction_options)
+            .with_mass_invasion_options(mass_invasion_options)
             .with_mutates(mutates)
             .with_crossovers(crossovers)
             .with_competes(competes)

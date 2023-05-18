@@ -268,13 +268,14 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(1000)
+        .with_population_size(10000)
         .with_max_stale_generations(500)
         .with_mutate(MutateOnce(0.2))
         .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
         //.with_mass_degeneration(MassDegeneration::new(0.99, 100))
-        .with_mass_extinction(MassExtinction::new(0.99, 0.01))
+        //.with_mass_extinction(MassExtinction::new(0.99, 0.001))
+        .with_mass_invasion(MassInvasion::new(0.99, 0.10))
         .with_multithreading(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
@@ -286,7 +287,7 @@ fn main() {
         ));
 
     let now = std::time::Instant::now();
-    let evolve = evolve_builder.call_repeatedly(10, &mut rng).unwrap();
+    let evolve = evolve_builder.call_repeatedly(1, &mut rng).unwrap();
     let duration = now.elapsed();
     println!("{:?}", duration);
 

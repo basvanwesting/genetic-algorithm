@@ -13,6 +13,7 @@ use genetic_algorithm::genotype::{
 };
 use genetic_algorithm::mass_degeneration::MassDegeneration;
 use genetic_algorithm::mass_extinction::MassExtinction;
+use genetic_algorithm::mass_invasion::MassInvasion;
 use genetic_algorithm::mutate::MutateOnce;
 use genetic_algorithm::strategy::evolve::{Evolve, TryFromEvolveBuilderError};
 use genetic_algorithm::strategy::Strategy;
@@ -295,6 +296,35 @@ fn call_binary_mass_extinction() {
         .with_population_size(100)
         .with_target_fitness_score(8)
         .with_mass_extinction(MassExtinction::new(0.9, 0.1))
+        .with_mutate(MutateOnce(0.1))
+        .with_fitness(CountTrue)
+        .with_crossover(CrossoverSingleGene(true))
+        .with_compete(CompeteTournament(4))
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = evolve.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(9));
+    assert_eq!(
+        inspect::chromosome(&best_chromosome),
+        vec![true, true, true, true, true, true, true, false, true, true]
+    );
+}
+
+#[test]
+fn call_binary_mass_invasion() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_population_size(100)
+        .with_target_fitness_score(8)
+        .with_mass_invasion(MassInvasion::new(0.9, 0.1))
         .with_mutate(MutateOnce(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))

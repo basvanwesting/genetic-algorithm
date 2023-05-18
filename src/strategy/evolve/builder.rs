@@ -5,6 +5,7 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mass_degeneration::MassDegeneration;
 use crate::mass_extinction::MassExtinction;
+use crate::mass_invasion::MassInvasion;
 use crate::mutate::Mutate;
 use crate::strategy::Strategy;
 use rand::Rng;
@@ -24,6 +25,7 @@ pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossove
     pub multithreading: bool,
     pub mass_degeneration: Option<MassDegeneration>,
     pub mass_extinction: Option<MassExtinction>,
+    pub mass_invasion: Option<MassInvasion>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
     pub crossover: Option<S>,
@@ -163,6 +165,14 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.mass_extinction = mass_extinction_option;
         self
     }
+    pub fn with_mass_invasion(mut self, mass_invasion: MassInvasion) -> Self {
+        self.mass_invasion = Some(mass_invasion);
+        self
+    }
+    pub fn with_mass_invasion_option(mut self, mass_invasion_option: Option<MassInvasion>) -> Self {
+        self.mass_invasion = mass_invasion_option;
+        self
+    }
     pub fn with_mutate(mut self, mutate: M) -> Self {
         self.mutate = Some(mutate);
         self
@@ -195,6 +205,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             multithreading: false,
             mass_degeneration: None,
             mass_extinction: None,
+            mass_invasion: None,
             mutate: None,
             fitness: None,
             crossover: None,

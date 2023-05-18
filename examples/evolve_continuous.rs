@@ -24,6 +24,7 @@ fn main() {
         .with_target_fitness_score(99 * 100_000)
         //.with_mass_degeneration_option(MassDegeneration::new(0.95, 20))
         //.with_mass_extinction(MassExtinction::new(0.95, 0.05))
+        //.with_mass_invasion(MassInvasion::new(0.95, 0.05))
         .with_mutate(MutateOnce(0.2))
         .with_fitness(SumContinuousGenotype(1e-5))
         .with_crossover(CrossoverUniform(true))

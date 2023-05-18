@@ -11,6 +11,7 @@ use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiDiscreteGenotype};
 use crate::mass_degeneration::MassDegeneration;
 use crate::mass_extinction::MassExtinction;
+use crate::mass_invasion::MassInvasion;
 use crate::mutate::MutateDispatch;
 use crate::strategy::evolve::EvolveBuilder;
 
@@ -24,6 +25,7 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub mass_degeneration_options: Vec<Option<MassDegeneration>>,
     pub mass_extinction_options: Vec<Option<MassExtinction>>,
+    pub mass_invasion_options: Vec<Option<MassInvasion>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
     pub competes: Vec<CompeteDispatch>,
@@ -48,9 +50,10 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
             .with_target_fitness_score_option(self.target_fitness_score_options[genes[2]])
             .with_mass_degeneration_option(self.mass_degeneration_options[genes[3]].clone())
             .with_mass_extinction_option(self.mass_extinction_options[genes[4]].clone())
-            .with_mutate(self.mutates[genes[5]].clone())
-            .with_crossover(self.crossovers[genes[6]].clone())
-            .with_compete(self.competes[genes[7]].clone())
+            .with_mass_invasion_option(self.mass_invasion_options[genes[5]].clone())
+            .with_mutate(self.mutates[genes[6]].clone())
+            .with_crossover(self.crossovers[genes[7]].clone())
+            .with_compete(self.competes[genes[8]].clone())
     }
 
     // order matters so keep close to evolve_builder_for_chromosome
@@ -62,6 +65,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
                 (0..self.target_fitness_score_options.len()).collect(),
                 (0..self.mass_degeneration_options.len()).collect(),
                 (0..self.mass_extinction_options.len()).collect(),
+                (0..self.mass_invasion_options.len()).collect(),
                 (0..self.mutates.len()).collect(),
                 (0..self.crossovers.len()).collect(),
                 (0..self.competes.len()).collect(),
@@ -121,6 +125,10 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
             Err(TryFromConfigBuilderError(
                 "MetaConfig requires at least one mass_extinction_option, None is allowed",
             ))
+        } else if builder.mass_invasion_options.is_empty() {
+            Err(TryFromConfigBuilderError(
+                "MetaConfig requires at least one mass_invasion_option, None is allowed",
+            ))
         } else if builder.mutates.is_empty() {
             Err(TryFromConfigBuilderError(
                 "MetaConfig requires at least one Mutate strategy",
@@ -144,6 +152,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
                 target_fitness_score_options: builder.target_fitness_score_options,
                 mass_degeneration_options: builder.mass_degeneration_options,
                 mass_extinction_options: builder.mass_extinction_options,
+                mass_invasion_options: builder.mass_invasion_options,
                 mutates: builder.mutates,
                 crossovers: builder.crossovers,
                 competes: builder.competes,
