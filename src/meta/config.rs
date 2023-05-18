@@ -9,10 +9,10 @@ use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiDiscreteGenotype};
+use crate::mass_degeneration::MassDegeneration;
 use crate::mass_extinction::MassExtinction;
 use crate::mutate::MutateDispatch;
 use crate::strategy::evolve::EvolveBuilder;
-use std::ops::Range;
 
 #[derive(Clone, Debug)]
 pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
@@ -22,7 +22,7 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
-    pub degeneration_range_options: Vec<Option<Range<f32>>>,
+    pub mass_degeneration_options: Vec<Option<MassDegeneration>>,
     pub mass_extinction_options: Vec<Option<MassExtinction>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
@@ -46,7 +46,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
             .with_population_size(self.population_sizes[genes[0]])
             .with_max_stale_generations_option(self.max_stale_generations_options[genes[1]])
             .with_target_fitness_score_option(self.target_fitness_score_options[genes[2]])
-            .with_degeneration_range_option(self.degeneration_range_options[genes[3]].clone())
+            .with_mass_degeneration_option(self.mass_degeneration_options[genes[3]].clone())
             .with_mass_extinction_option(self.mass_extinction_options[genes[4]].clone())
             .with_mutate(self.mutates[genes[5]].clone())
             .with_crossover(self.crossovers[genes[6]].clone())
@@ -60,7 +60,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
                 (0..self.population_sizes.len()).collect(),
                 (0..self.max_stale_generations_options.len()).collect(),
                 (0..self.target_fitness_score_options.len()).collect(),
-                (0..self.degeneration_range_options.len()).collect(),
+                (0..self.mass_degeneration_options.len()).collect(),
                 (0..self.mass_extinction_options.len()).collect(),
                 (0..self.mutates.len()).collect(),
                 (0..self.crossovers.len()).collect(),
@@ -113,9 +113,9 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
             Err(TryFromConfigBuilderError(
                 "MetaConfig requires at least one max_stale_generations_option or target_fitness_score_option that is not None",
             ))
-        } else if builder.degeneration_range_options.is_empty() {
+        } else if builder.mass_degeneration_options.is_empty() {
             Err(TryFromConfigBuilderError(
-                "MetaConfig requires at least one degeneration_range_option, None is allowed",
+                "MetaConfig requires at least one mass_degeneration_option, None is allowed",
             ))
         } else if builder.mass_extinction_options.is_empty() {
             Err(TryFromConfigBuilderError(
@@ -142,7 +142,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
                 population_sizes: builder.population_sizes,
                 max_stale_generations_options: builder.max_stale_generations_options,
                 target_fitness_score_options: builder.target_fitness_score_options,
-                degeneration_range_options: builder.degeneration_range_options,
+                mass_degeneration_options: builder.mass_degeneration_options,
                 mass_extinction_options: builder.mass_extinction_options,
                 mutates: builder.mutates,
                 crossovers: builder.crossovers,

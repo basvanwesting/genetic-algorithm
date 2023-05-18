@@ -4,6 +4,7 @@ pub use crate::chromosome::{Chromosome, GenesKey};
 pub use crate::compete::{CompeteDispatch, Competes};
 #[doc(no_inline)]
 pub use crate::crossover::{CrossoverDispatch, Crossovers};
+pub use crate::mass_degeneration::MassDegeneration;
 #[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]

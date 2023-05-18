@@ -12,13 +12,13 @@ use crate::compete::Compete;
 use crate::crossover::Crossover;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
+use crate::mass_degeneration::MassDegeneration;
 use crate::mass_extinction::MassExtinction;
 use crate::mutate::Mutate;
 use crate::population::Population;
 use rand::Rng;
 use std::cell::RefCell;
 use std::fmt;
-use std::ops::Range;
 use thread_local::ThreadLocal;
 
 /// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
@@ -36,7 +36,7 @@ use thread_local::ThreadLocal;
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
-/// Optionally a degeneration_range can be set. When approacking a (local) optimum in the fitness
+/// Optionally a mass_degeneration can be set. When approacking a (local) optimum in the fitness
 /// score, the variation in the population goes down dramatically. This reduces the efficiency, but
 /// also has the risk of local optimum lock-in. Set this parameter to simulate a cambrian
 /// explosion, where there is only mutation until the population diversity is large enough again.
@@ -79,7 +79,7 @@ use thread_local::ThreadLocal;
 ///     .with_target_fitness_score(0)           // ending condition if 0 times true in the best chromosome
 ///     .with_valid_fitness_score(10)           // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_degeneration_range(0.005..0.995)  // simulate cambrian explosion when reaching a local optimum
+///     .with_mass_degeneration(MassDegeneration::new(0.005, 0.995))  // simulate cambrian explosion when reaching a local optimum
 ///     .with_mass_extinction(MassExtinction::new(0.9, 0.1)) // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
 ///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
@@ -107,7 +107,7 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     valid_fitness_score: Option<FitnessValue>,
     fitness_ordering: FitnessOrdering,
     multithreading: bool,
-    degeneration_range: Option<Range<f32>>,
+    mass_degeneration: Option<MassDegeneration>,
     mass_extinction: Option<MassExtinction>,
 
     pub current_iteration: usize,
@@ -206,12 +206,15 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     }
 
     fn toggle_degenerate(&mut self, population: &Population<G>) -> bool {
-        if let Some(degeneration_range) = self.degeneration_range.as_ref() {
+        if let Some(mass_degeneration) = &self.mass_degeneration {
             let fitness_score_stddev = population.fitness_score_stddev();
-            if self.degenerate && fitness_score_stddev > degeneration_range.end {
+            if self.degenerate && fitness_score_stddev > mass_degeneration.max_fitness_score_stddev
+            {
                 log::debug!("### turn degeneration off");
                 self.degenerate = false;
-            } else if !self.degenerate && fitness_score_stddev < degeneration_range.start {
+            } else if !self.degenerate
+                && fitness_score_stddev < mass_degeneration.min_fitness_score_stddev
+            {
                 log::debug!("### turn degeneration on");
                 self.degenerate = true;
             }
@@ -381,7 +384,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 valid_fitness_score: builder.valid_fitness_score,
                 fitness_ordering: builder.fitness_ordering,
                 multithreading: builder.multithreading,
-                degeneration_range: builder.degeneration_range,
+                mass_degeneration: builder.mass_degeneration,
                 mass_extinction: builder.mass_extinction,
 
                 current_iteration: 0,
@@ -415,7 +418,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  multithreading: {:?}", self.multithreading)?;
-        writeln!(f, "  degeneration_range: {:?}", self.degeneration_range)?;
+        writeln!(f, "  mass_degeneration: {:?}", self.mass_degeneration)?;
         writeln!(f, "  mass_extinction: {:?}", self.mass_extinction)?;
 
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;

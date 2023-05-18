@@ -72,8 +72,8 @@ impl<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> fmt::Display for P
                 )?;
                 writeln!(
                     f,
-                    "  best_degeneration_range: {:?}",
-                    best_evolve_builder.degeneration_range
+                    "  best_mass_degeneration: {:?}",
+                    best_evolve_builder.mass_degeneration
                 )?;
                 writeln!(
                     f,

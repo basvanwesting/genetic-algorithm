@@ -11,6 +11,7 @@ use genetic_algorithm::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
     UniqueGenotype,
 };
+use genetic_algorithm::mass_degeneration::MassDegeneration;
 use genetic_algorithm::mass_extinction::MassExtinction;
 use genetic_algorithm::mutate::MutateOnce;
 use genetic_algorithm::strategy::evolve::{Evolve, TryFromEvolveBuilderError};
@@ -254,7 +255,7 @@ fn call_binary_target_fitness_score_minimize() {
 }
 
 #[test]
-fn call_binary_degeneration_range() {
+fn call_binary_mass_degeneration() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
@@ -264,7 +265,7 @@ fn call_binary_degeneration_range() {
         .with_genotype(genotype)
         .with_population_size(100)
         .with_target_fitness_score(8)
-        .with_degeneration_range(0.0001..1.0000)
+        .with_mass_degeneration(MassDegeneration::new(0.0001, 1.0000))
         .with_mutate(MutateOnce(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))

@@ -30,7 +30,7 @@ impl<'a, G: Genotype + Sync, F: fitness::Fitness<Genotype = G> + Sync> fitness::
             evolve_builder.population_size,
             evolve_builder.max_stale_generations,
             evolve_builder.target_fitness_score,
-            evolve_builder.degeneration_range,
+            evolve_builder.mass_degeneration,
             evolve_builder.mass_extinction,
             evolve_builder.mutate,
             evolve_builder.crossover,

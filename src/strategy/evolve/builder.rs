@@ -3,11 +3,11 @@ use crate::compete::Compete;
 use crate::crossover::Crossover;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
+use crate::mass_degeneration::MassDegeneration;
 use crate::mass_extinction::MassExtinction;
 use crate::mutate::Mutate;
 use crate::strategy::Strategy;
 use rand::Rng;
-use std::ops::Range;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -22,7 +22,7 @@ pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossove
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
-    pub degeneration_range: Option<Range<f32>>,
+    pub mass_degeneration: Option<MassDegeneration>,
     pub mass_extinction: Option<MassExtinction>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -141,19 +141,15 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.multithreading = multithreading;
         self
     }
-    pub fn with_degeneration_range(mut self, degeneration_range: Range<f32>) -> Self {
-        if degeneration_range.is_empty() {
-            self.degeneration_range = None;
-        } else {
-            self.degeneration_range = Some(degeneration_range);
-        }
+    pub fn with_mass_degeneration(mut self, mass_degeneration: MassDegeneration) -> Self {
+        self.mass_degeneration = Some(mass_degeneration);
         self
     }
-    pub fn with_degeneration_range_option(
+    pub fn with_mass_degeneration_option(
         mut self,
-        degeneration_range_option: Option<Range<f32>>,
+        mass_degeneration_option: Option<MassDegeneration>,
     ) -> Self {
-        self.degeneration_range = degeneration_range_option;
+        self.mass_degeneration = mass_degeneration_option;
         self
     }
     pub fn with_mass_extinction(mut self, mass_extinction: MassExtinction) -> Self {
@@ -197,7 +193,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
-            degeneration_range: None,
+            mass_degeneration: None,
             mass_extinction: None,
             mutate: None,
             fitness: None,

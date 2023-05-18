@@ -14,6 +14,7 @@ pub use crate::genotype::{
     MultiContinuousGenotype, MultiDiscreteGenotype, MultiUniqueGenotype,
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
+pub use crate::mass_degeneration::MassDegeneration;
 pub use crate::mass_extinction::MassExtinction;
 #[doc(no_inline)]
 pub use crate::mutate::MutateOnce;
