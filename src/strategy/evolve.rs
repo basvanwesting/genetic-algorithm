@@ -36,24 +36,16 @@ use thread_local::ThreadLocal;
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
-/// Optionally a mass_degeneration can be set. When approacking a (local) optimum in the fitness
-/// score, the variation in the population goes down dramatically. This reduces the efficiency, but
-/// also has the risk of local optimum lock-in. Set this parameter to simulate a cambrian
-/// explosion, where there is only mutation until the population diversity is large enough again.
-/// The controlling metric is fitness score standard deviation in the population. The degeneration
-/// has a hysteresis switch, where the degeneration is activated at the start bound of the range,
-/// and deactivated at the end bound of the range. The lower bound should be around zero or slightly
-/// above (meaning no variation left in population). The higher bound is more difficult to configure,
-/// as it depends on the fitness function behaviour (expected spread per mutation). So the higher
-/// bound is a case by case analysis.
-///
-/// Optionally a mass_extinction with uniformity_threshold and survival_rate can be set. When
-/// approacking a (local) optimum in the fitness score, the variation in the population goes down
-/// dramatically. This reduces the efficiency, but also has the risk of local optimum lock-in. Set
-/// this parameter to simulate a cambrian explosion triggered by a mass_extinction event. The
-/// controlling metric is fitness score uniformity in the population (a fraction of the population
-/// which has the same fitness score). When this uniformity passes the threshold, the population is
-/// randomly reduced using the survival_rate (fraction of population).
+/// When approacking a (local) optimum in the fitness score, the variation in the population goes
+/// down dramatically. This reduces the efficiency, but also has the risk of local optimum lock-in.
+/// To increase the variation in the population, one of the following mechanisms can optionally be used:
+/// * [mass-extinction](crate::mass_extinction): Simulates a cambrian explosion. The controlling metric is
+///   fitness score uniformity in the population (a fraction of the population which has the same
+///   fitness score). When this uniformity passes the threshold, the population is randomly reduced
+///   using the survival_rate (fraction of population).
+/// * [mass-degeneration](crate::mass_degeneration): Simulates a cambrian explosion. The controlling metric is fitness score
+///   uniformity in the population (a fraction of the population which has the same fitness score).
+///   When this uniformity passes the threshold, the population is randomly mutated N number of rounds.
 ///
 /// Can call_repeatedly from the [EvolveBuilder], when solution has tendency to get stuck in local
 /// optimum
@@ -79,8 +71,8 @@ use thread_local::ThreadLocal;
 ///     .with_target_fitness_score(0)           // ending condition if 0 times true in the best chromosome
 ///     .with_valid_fitness_score(10)           // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_mass_degeneration(MassDegeneration::new(0.005, 0.995))  // simulate cambrian explosion when reaching a local optimum
-///     .with_mass_extinction(MassExtinction::new(0.9, 0.1)) // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
+///     .with_mass_degeneration(MassDegeneration::new(0.9, 10))  // simulate cambrian explosion by mass degeneration, when reaching 90% uniformity, apply 10 rounds of random mutation
+///     .with_mass_extinction(MassExtinction::new(0.9, 0.1))     // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
 ///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
@@ -112,7 +104,6 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
 
     pub current_iteration: usize,
     pub current_generation: usize,
-    pub degenerate: bool,
     pub best_generation: usize,
     best_chromosome: Option<Chromosome<G>>,
 }
@@ -121,7 +112,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     for Evolve<G, M, F, S, C>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.degenerate = false;
         self.current_generation = 0;
         self.best_generation = 0;
         let population = &mut self.population_factory(rng);
@@ -133,19 +123,16 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 
         while !self.is_finished() {
             self.current_generation += 1;
+
+            self.try_mass_degeneration(population, rng);
             self.try_mass_extinction(population, rng);
-            if self.toggle_degenerate(population) {
-                self.mutate.call(&self.genotype, population, rng);
-                self.fitness
-                    .call_for_population(population, fitness_thread_local.as_ref());
-            } else {
-                self.crossover.call(&self.genotype, population, rng);
-                self.mutate.call(&self.genotype, population, rng);
-                self.fitness
-                    .call_for_population(population, fitness_thread_local.as_ref());
-                self.compete
-                    .call(population, self.fitness_ordering, self.population_size, rng);
-            }
+
+            self.crossover.call(&self.genotype, population, rng);
+            self.mutate.call(&self.genotype, population, rng);
+            self.fitness
+                .call_for_population(population, fitness_thread_local.as_ref());
+            self.compete
+                .call(population, self.fitness_ordering, self.population_size, rng);
             self.update_best_chromosome(population);
             self.report_round(population);
         }
@@ -205,21 +192,15 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         }
     }
 
-    fn toggle_degenerate(&mut self, population: &Population<G>) -> bool {
+    fn try_mass_degeneration<R: Rng>(&mut self, population: &mut Population<G>, rng: &mut R) {
         if let Some(mass_degeneration) = &self.mass_degeneration {
-            let fitness_score_stddev = population.fitness_score_stddev();
-            if self.degenerate && fitness_score_stddev > mass_degeneration.max_fitness_score_stddev
-            {
-                log::debug!("### turn degeneration off");
-                self.degenerate = false;
-            } else if !self.degenerate
-                && fitness_score_stddev < mass_degeneration.min_fitness_score_stddev
-            {
-                log::debug!("### turn degeneration on");
-                self.degenerate = true;
+            if population.fitness_score_uniformity() >= mass_degeneration.uniformity_threshold {
+                log::debug!("### mass degeneration event");
+                for _ in 0..mass_degeneration.number_of_rounds {
+                    self.mutate.call(&self.genotype, population, rng);
+                }
             }
         }
-        self.degenerate
     }
 
     fn try_mass_extinction<R: Rng>(&mut self, population: &mut Population<G>, rng: &mut R) {
@@ -279,7 +260,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 
     fn report_round(&self, population: &Population<G>) {
         log::debug!(
-            "generation (current/best): {}/{}, fitness score (best/count/median/mean/stddev/uniformity): {:?} / {} / {:?} / {:.0} / {:.0} / {:2.2}, degenerate: {}",
+            "generation (current/best): {}/{}, fitness score (best/count/median/mean/stddev/uniformity): {:?} / {} / {:?} / {:.0} / {:.0} / {:2.2}",
             self.current_generation,
             self.best_generation,
             self.best_fitness_score(),
@@ -288,7 +269,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             population.fitness_score_mean(),
             population.fitness_score_stddev(),
             population.fitness_score_uniformity(),
-            self.degenerate,
         );
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
@@ -391,7 +371,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 current_generation: 0,
                 best_generation: 0,
                 best_chromosome: None,
-                degenerate: false,
             })
         }
     }

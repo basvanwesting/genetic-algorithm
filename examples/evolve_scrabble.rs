@@ -224,6 +224,8 @@ impl ScrabbleFitness {
 }
 
 fn main() {
+    env_logger::init();
+
     let rows = 10;
     let columns = 10;
     let row_scores: Vec<isize> = (0..rows)
@@ -271,6 +273,7 @@ fn main() {
         .with_mutate(MutateOnce(0.2))
         .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
+        //.with_mass_degeneration(MassDegeneration::new(0.99, 100))
         .with_mass_extinction(MassExtinction::new(0.99, 0.01))
         .with_multithreading(true)
         .with_fitness(ScrabbleFitness::new(

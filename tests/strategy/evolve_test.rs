@@ -265,7 +265,7 @@ fn call_binary_mass_degeneration() {
         .with_genotype(genotype)
         .with_population_size(100)
         .with_target_fitness_score(8)
-        .with_mass_degeneration(MassDegeneration::new(0.0001, 1.0000))
+        .with_mass_degeneration(MassDegeneration::new(0.95, 10))
         .with_mutate(MutateOnce(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))

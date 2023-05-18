@@ -53,6 +53,8 @@ impl Fitness for TableSeatingFitness {
 }
 
 fn main() {
+    env_logger::init();
+
     let people: Vec<Person> = (0..24).collect();
     let hosts_with_table_sizes_per_round: HostsWithTableSizesPerRound = vec![
         vec![(0, 5), (1, 5), (2, 5), (3, 5), (4, 4)],
@@ -93,7 +95,7 @@ fn main() {
         ))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_mass_degeneration(MassDegeneration::new(0.005, 6.0))
+        .with_mass_degeneration(MassDegeneration::new(0.95, 10))
         //.with_mass_extinction(MassExtinction::new(0.95, 0.1))
         .with_mutate(MutateOnce(0.3))
         .with_crossover(CrossoverSinglePoint(true))

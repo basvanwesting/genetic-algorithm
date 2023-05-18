@@ -3,15 +3,15 @@ use std::fmt;
 
 #[derive(Clone, Debug)]
 pub struct MassDegeneration {
-    pub min_fitness_score_stddev: f32,
-    pub max_fitness_score_stddev: f32,
+    pub uniformity_threshold: f32,
+    pub number_of_rounds: usize,
 }
 
 impl MassDegeneration {
-    pub fn new(min_fitness_score_stddev: f32, max_fitness_score_stddev: f32) -> Self {
+    pub fn new(uniformity_threshold: f32, number_of_rounds: usize) -> Self {
         Self {
-            min_fitness_score_stddev,
-            max_fitness_score_stddev,
+            uniformity_threshold,
+            number_of_rounds,
         }
     }
 }
@@ -20,8 +20,8 @@ impl fmt::Display for MassDegeneration {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         write!(
             f,
-            "fitness_score_stddev, min: {:3.3}, max: {:3.3}",
-            self.min_fitness_score_stddev, self.max_fitness_score_stddev
+            "uniformity_threshold: {:3.3}, number_of_rounds: {}",
+            self.uniformity_threshold, self.number_of_rounds
         )
     }
 }
