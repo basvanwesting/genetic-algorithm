@@ -209,6 +209,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 for _ in 0..mass_degeneration.number_of_rounds {
                     self.mutate.call(&self.genotype, population, rng);
                 }
+                // could have lost the best_chromosome, so insert it back in
+                if let Some(best_chromosome) = &self.best_chromosome {
+                    population.chromosomes.push(best_chromosome.clone());
+                }
             }
         }
     }

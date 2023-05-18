@@ -102,7 +102,6 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 Run with `cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
 
 ## TODO
-* Maybe seed best_chromosome back into population after degenerate?
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Make fitness/simple_sum generic
 * Does Fitness need an associated trait for Genotype? Can this be made more lightweight?
