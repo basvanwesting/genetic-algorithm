@@ -25,6 +25,8 @@ impl Fitness for MILPFitness {
 }
 
 fn main() {
+    env_logger::init();
+
     let rounds = 10;
     let population_sizes = vec![
         //10, //20,

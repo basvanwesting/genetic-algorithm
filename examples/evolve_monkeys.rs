@@ -27,6 +27,8 @@ impl Fitness for MonkeyFitness {
 }
 
 fn main() {
+    env_logger::init();
+
     let mut rng = SmallRng::from_entropy();
     let genotype = DiscreteGenotype::builder()
         .with_genes_size(TARGET_TEXT.len())

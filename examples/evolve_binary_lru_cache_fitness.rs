@@ -68,6 +68,8 @@ impl Clone for CachedExpensiveCount {
 }
 
 fn main() {
+    env_logger::init();
+
     let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)

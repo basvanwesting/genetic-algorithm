@@ -24,6 +24,8 @@ impl Fitness for MonkeyFitness {
 }
 
 fn main() {
+    env_logger::init();
+
     let rounds = 10;
     let population_sizes = vec![20, 50, 100];
     let max_stale_generations_options = vec![Some(10000)];

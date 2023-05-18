@@ -2,6 +2,8 @@ use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::meta::prelude::*;
 
 fn main() {
+    env_logger::init();
+
     let rounds = 10;
     let population_sizes = vec![1, 2, 3, 4, 5, 10];
     let max_stale_generations_options = vec![Some(100)];

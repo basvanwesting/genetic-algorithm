@@ -53,6 +53,8 @@ impl Fitness for TableSeatingFitness {
 }
 
 fn main() {
+    env_logger::init();
+
     let people: Vec<Person> = (0..24).collect();
     let hosts_with_table_sizes_per_round: HostsWithTableSizesPerRound = vec![
         vec![(0, 5), (1, 5), (2, 5), (3, 5), (4, 4)],

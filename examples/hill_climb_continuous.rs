@@ -4,6 +4,8 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 
 fn main() {
+    env_logger::init();
+
     let mut rng = SmallRng::from_entropy();
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(100)

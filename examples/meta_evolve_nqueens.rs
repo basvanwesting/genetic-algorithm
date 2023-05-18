@@ -29,6 +29,8 @@ impl Fitness for NQueensFitness {
 }
 
 fn main() {
+    env_logger::init();
+
     let rounds = 100;
     let population_sizes = vec![20];
     let max_stale_generations_options = vec![Some(10000)];

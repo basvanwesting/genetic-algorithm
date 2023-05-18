@@ -224,6 +224,8 @@ impl ScrabbleFitness {
 }
 
 fn main() {
+    env_logger::init();
+
     let rows = 10;
     let columns = 10;
     let row_scores: Vec<isize> = (0..rows)

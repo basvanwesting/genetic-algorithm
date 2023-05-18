@@ -51,6 +51,8 @@ impl Fitness for KnapsackFitness<'_> {
 }
 
 fn main() {
+    env_logger::init();
+
     let items: Vec<Item> = vec![
         Item(23, 505),
         Item(26, 352),
