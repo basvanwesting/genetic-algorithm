@@ -95,7 +95,7 @@ fn main() {
         ))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_mass_degeneration(MassDegeneration::new(0.95, 10))
+        //.with_mass_degeneration(MassDegeneration::new(0.95, 10))
         //.with_mass_extinction(MassExtinction::new(0.95, 0.1))
         //.with_mass_genesis(MassGenesis::new(0.95))
         //.with_mass_invasion(MassInvasion::new(0.95, 0.1))
