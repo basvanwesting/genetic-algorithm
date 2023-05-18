@@ -70,6 +70,9 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Strategy<G> for Permutate<
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.best_chromosome.clone()
     }
+    fn best_generation(&self) -> usize {
+        0
+    }
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {

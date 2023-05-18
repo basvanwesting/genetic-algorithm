@@ -160,6 +160,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.best_chromosome.clone()
     }
+    fn best_generation(&self) -> usize {
+        self.best_generation
+    }
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {

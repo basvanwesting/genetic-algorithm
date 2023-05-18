@@ -10,4 +10,5 @@ use rand::Rng;
 pub trait Strategy<G: Genotype> {
     fn call<R: Rng>(&mut self, rng: &mut R);
     fn best_chromosome(&self) -> Option<Chromosome<G>>;
+    fn best_generation(&self) -> usize;
 }
