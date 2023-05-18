@@ -122,19 +122,20 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> Genotype for MultiDiscrete<T
     fn genes_size(&self) -> usize {
         self.genes_size
     }
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
+        self.allele_lists
+            .iter()
+            .enumerate()
+            .map(|(index, allele_list)| {
+                allele_list[self.allele_index_samplers[index].sample(rng)].clone()
+            })
+            .collect()
+    }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
             Chromosome::new(seed_genes.clone())
         } else {
-            let genes: Vec<Self::Allele> = self
-                .allele_lists
-                .iter()
-                .enumerate()
-                .map(|(index, allele_list)| {
-                    allele_list[self.allele_index_samplers[index].sample(rng)].clone()
-                })
-                .collect();
-            Chromosome::new(genes)
+            Chromosome::new(self.random_genes_factory(rng))
         }
     }
 

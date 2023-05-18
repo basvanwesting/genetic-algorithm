@@ -84,13 +84,16 @@ impl<T: Clone + Send + std::fmt::Debug> Genotype for Unique<T> {
     fn crossover_indexes(&self) -> Vec<usize> {
         vec![]
     }
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
+        let mut genes = self.allele_list.clone();
+        genes.shuffle(rng);
+        genes
+    }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         if let Some(seed_genes) = self.seed_genes.as_ref() {
             Chromosome::new(seed_genes.clone())
         } else {
-            let mut genes = self.allele_list.clone();
-            genes.shuffle(rng);
-            Chromosome::new(genes)
+            Chromosome::new(self.random_genes_factory(rng))
         }
     }
 

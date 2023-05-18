@@ -39,8 +39,11 @@ pub trait Genotype:
 {
     type Allele: Clone + Send + std::fmt::Debug;
     fn genes_size(&self) -> usize;
-    /// a random chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
+    /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
+    /// random genes unless seed genes are provided
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
+    /// a random genes factory (ignores seed_genes)
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
     /// a random mutation of the chromosome
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
 

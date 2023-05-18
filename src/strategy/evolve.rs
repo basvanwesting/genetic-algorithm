@@ -229,16 +229,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             if population.size() == self.population_size {
                 if population.fitness_score_uniformity() >= mass_invasion.uniformity_threshold {
                     log::debug!("### mass invasion event");
-
                     let bool_sampler = Bernoulli::new(mass_invasion.survival_rate as f64).unwrap();
-                    population.trim(mass_invasion.survival_rate, rng);
-
-                    let mut invasion: Population<G> = (population.size()..self.population_size)
-                        .map(|_| self.genotype.chromosome_factory(rng))
-                        .collect::<Vec<_>>()
-                        .into();
-
-                    population.chromosomes.append(&mut invasion.chromosomes);
+                    for chromosome in &mut population.chromosomes {
+                        if !bool_sampler.sample(rng) {
+                            chromosome.genes = self.genotype.random_genes_factory(rng);
+                            chromosome.taint_fitness_score();
+                        }
+                    }
                 }
             }
         }
