@@ -22,6 +22,8 @@ pub use crate::meta::{
     MetaConfig, MetaConfigBuilder, MetaPermutate, TryFromMetaConfigBuilderError,
 };
 #[doc(no_inline)]
-pub use crate::mutate::{MutateDispatch, MutateDynamicOnce, MutateOnce, Mutates};
+pub use crate::mutate::{
+    MutateDispatch, MutateDynamicOnce, MutateDynamicRounds, MutateOnce, Mutates,
+};
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};

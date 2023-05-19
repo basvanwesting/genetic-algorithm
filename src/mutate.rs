@@ -2,9 +2,11 @@
 //! as it degenerates the population too much if overused. Use a mutation probability generally between
 //! 5% and 20%.
 mod dynamic_once;
+mod dynamic_rounds;
 mod once;
 
 pub use self::dynamic_once::DynamicOnce as MutateDynamicOnce;
+pub use self::dynamic_rounds::DynamicRounds as MutateDynamicRounds;
 pub use self::once::Once as MutateOnce;
 
 use crate::genotype::Genotype;
@@ -25,6 +27,7 @@ pub enum Mutates {
     #[default]
     Once,
     DynamicOnce,
+    DynamicRounds,
 }
 
 /// Wrapper for use in [meta analysis](crate::meta)
@@ -48,6 +51,10 @@ impl Mutate for MutateDispatch {
             }
             Mutates::DynamicOnce => {
                 MutateDynamicOnce::new(self.mutation_probability_step, self.target_uniformity)
+                    .call(genotype, population, rng)
+            }
+            Mutates::DynamicRounds => {
+                MutateDynamicRounds::new(self.mutation_probability, self.target_uniformity)
                     .call(genotype, population, rng)
             }
         }
