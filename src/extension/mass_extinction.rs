@@ -1,23 +1,35 @@
 use super::{Extension, ExtensionDispatch, Extensions};
+use crate::compete::Compete;
+use crate::crossover::Crossover;
+use crate::fitness::Fitness;
 use crate::genotype::Genotype;
+use crate::mutate::Mutate;
 use crate::population::Population;
+use crate::strategy::evolve::Evolve;
 use rand::Rng;
 
 #[derive(Debug, Clone)]
 pub struct MassExtinction {
     pub uniformity_threshold: f32,
     pub survival_rate: f32,
-    pub minimal_population_size: usize,
 }
 
 impl Extension for MassExtinction {
-    fn call<T: Genotype, R: Rng>(
+    fn call<
+        G: Genotype,
+        M: Mutate,
+        F: Fitness<Genotype = G>,
+        S: Crossover,
+        C: Compete,
+        E: Extension,
+        R: Rng,
+    >(
         &self,
-        _genotype: &T,
-        population: &mut Population<T>,
+        evolve: &Evolve<G, M, F, S, C, E>,
+        population: &mut Population<G>,
         rng: &mut R,
     ) {
-        if population.size() >= self.minimal_population_size
+        if population.size() >= evolve.population_size
             && population.fitness_score_uniformity() >= self.uniformity_threshold
         {
             log::debug!("### extension, mass extinction event");
@@ -27,28 +39,18 @@ impl Extension for MassExtinction {
 }
 
 impl MassExtinction {
-    pub fn new(
-        uniformity_threshold: f32,
-        survival_rate: f32,
-        minimal_population_size: usize,
-    ) -> Self {
+    pub fn new(uniformity_threshold: f32, survival_rate: f32) -> Self {
         Self {
             uniformity_threshold,
             survival_rate,
-            minimal_population_size,
         }
     }
 
-    pub fn new_dispatch(
-        uniformity_threshold: f32,
-        survival_rate: f32,
-        minimal_population_size: usize,
-    ) -> ExtensionDispatch {
+    pub fn new_dispatch(uniformity_threshold: f32, survival_rate: f32) -> ExtensionDispatch {
         ExtensionDispatch {
             extension: Extensions::MassExtinction,
             uniformity_threshold,
             survival_rate,
-            minimal_population_size,
             ..Default::default()
         }
     }

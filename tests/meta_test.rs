@@ -40,7 +40,7 @@ mod meta_tests {
         ];
         let extensions = vec![
             ExtensionNoop::new_dispatch(),
-            ExtensionMassExtinction::new_dispatch(0.9, 0.1, 5),
+            ExtensionMassExtinction::new_dispatch(0.9, 0.1),
         ];
         let genotype = BinaryGenotype::builder()
             .with_genes_size(10)

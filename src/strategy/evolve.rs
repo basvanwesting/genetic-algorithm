@@ -113,7 +113,7 @@ pub struct Evolve<
     compete: C,
     extension: E,
 
-    population_size: usize,
+    pub population_size: usize,
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
     valid_fitness_score: Option<FitnessValue>,
@@ -150,7 +150,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             self.try_mass_extinction(population, rng);
             self.try_mass_genesis(population, rng);
             self.try_mass_invasion(population, rng);
-            self.extension.call(&self.genotype, population, rng);
+            self.extension.call(&self, population, rng);
 
             self.crossover.call(&self.genotype, population, rng);
             self.mutate.call(&self.genotype, population, rng);
