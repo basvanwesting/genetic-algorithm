@@ -42,7 +42,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_max_stale_generations(1000)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_mutate(MutateOnce(0.2))
+        .with_mutate(MutateOnce::new(0.2))
         .with_fitness(MonkeyFitness)
         .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4))

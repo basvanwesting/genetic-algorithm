@@ -64,7 +64,7 @@ use thread_local::ThreadLocal;
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
 ///     .with_crossover(CrossoverUniform(true)) // crossover all individual genes between 2 chromosomes for offspring
-///     .with_mutate(MutateOnce(0.2))           // mutate a single gene with a 20% probability per chromosome
+///     .with_mutate(MutateOnce::new(0.2))      // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite)             // sort the chromosomes by fitness to determine crossover order
 ///     .with_extension(ExtensionMassExtinction::new(0.9, 0.1))  // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
 ///     .call(&mut rng)

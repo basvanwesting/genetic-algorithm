@@ -1,11 +1,11 @@
-use super::{Mutate, MutateDispatch, Mutates, MutationProbability, TargetUniformity};
+use super::{Mutate, MutateDispatch, Mutates};
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the provided
-/// [MutationProbability]. Then mutates the selected chromosomes once using random mutation. The
+/// mutation_probability. Then mutates the selected chromosomes once using random mutation. The
 /// mutation probability is dynamically increased or decreased to achieve a target population uniformity
 #[derive(Debug, Clone, Default)]
 pub struct DynamicOnce {
@@ -13,6 +13,7 @@ pub struct DynamicOnce {
     mutation_probability_step: f32,
     target_uniformity: f32,
 }
+
 impl Mutate for DynamicOnce {
     fn call<T: Genotype, R: Rng>(
         &mut self,

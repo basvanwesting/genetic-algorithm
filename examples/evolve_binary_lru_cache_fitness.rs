@@ -83,7 +83,7 @@ fn main() {
         .with_population_size(100)
         .with_max_stale_generations(1000)
         .with_target_fitness_score(100)
-        .with_mutate(MutateOnce(0.05))
+        .with_mutate(MutateOnce::new(0.05))
         //.with_fitness(ExpensiveCount::new(1000))
         .with_fitness(CachedExpensiveCount::new(1000, 1500))
         .with_crossover(CrossoverClone(true))

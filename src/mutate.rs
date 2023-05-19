@@ -26,8 +26,6 @@ pub enum Mutates {
     Once,
     DynamicOnce,
 }
-pub type MutationProbability = f32;
-pub type TargetUniformity = f32;
 
 /// Wrapper for use in [meta analysis](crate::meta)
 #[derive(Clone, Debug, Default)]
@@ -45,7 +43,9 @@ impl Mutate for MutateDispatch {
         rng: &mut R,
     ) {
         match self.mutate {
-            Mutates::Once => MutateOnce(self.mutation_probability).call(genotype, population, rng),
+            Mutates::Once => {
+                MutateOnce::new(self.mutation_probability).call(genotype, population, rng)
+            }
             Mutates::DynamicOnce => {
                 MutateDynamicOnce::new(self.mutation_probability_step, self.target_uniformity)
                     .call(genotype, population, rng)

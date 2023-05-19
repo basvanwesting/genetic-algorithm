@@ -95,7 +95,7 @@ fn main() {
         ))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_mutate(MutateOnce(0.3))
+        .with_mutate(MutateOnce::new(0.3))
         .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4))
         .with_extension(ExtensionNoop);

@@ -270,7 +270,7 @@ fn main() {
         .with_genotype(genotype)
         .with_population_size(10000)
         .with_max_stale_generations(500)
-        //.with_mutate(MutateOnce(0.2))
+        //.with_mutate(MutateOnce::new(0.2))
         .with_mutate(MutateDynamicOnce::new(0.01, 0.50))
         .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
