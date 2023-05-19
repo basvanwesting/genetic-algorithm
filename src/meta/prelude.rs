@@ -5,7 +5,10 @@ pub use crate::compete::{CompeteDispatch, Competes};
 #[doc(no_inline)]
 pub use crate::crossover::{CrossoverDispatch, Crossovers};
 #[doc(no_inline)]
-pub use crate::extension::{ExtensionDispatch, ExtensionNoop, Extensions};
+pub use crate::extension::{
+    ExtensionDispatch, ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
+    ExtensionMassInvasion, ExtensionNoop, Extensions,
+};
 #[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]

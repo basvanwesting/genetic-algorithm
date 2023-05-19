@@ -7,7 +7,10 @@ pub use crate::crossover::{
     CrossoverClone, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
 };
 #[doc(no_inline)]
-pub use crate::extension::{ExtensionMassExtinction, ExtensionNoop};
+pub use crate::extension::{
+    ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
+    ExtensionMassInvasion, ExtensionNoop,
+};
 #[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]
