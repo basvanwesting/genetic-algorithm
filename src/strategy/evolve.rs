@@ -10,6 +10,7 @@ use super::Strategy;
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
+use crate::extension::Extension;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mass_degeneration::MassDegeneration;
@@ -31,6 +32,7 @@ use thread_local::ThreadLocal;
 /// * [mutate](crate::mutate) a subset of chromosomes to add some additional diversity
 /// * calculate [fitness](crate::fitness) for all chromosomes
 /// * [compete](crate::compete) to pair up chromosomes for crossover in next generation and drop excess chromosomes
+/// * [extension](crate::extension) an optional additional step (e.g. MassExtinction)
 /// * store best chromosome
 /// * check ending conditions
 ///
@@ -88,6 +90,7 @@ use thread_local::ThreadLocal;
 ///     .with_crossover(CrossoverUniform(true)) // crossover all individual genes between 2 chromosomes for offspring
 ///     .with_mutate(MutateOnce(0.2))           // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite)             // sort the chromosomes by fitness to determine crossover order
+///     .with_extension(ExtensionNoop)          // extension step, disabled
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -95,12 +98,20 @@ use thread_local::ThreadLocal;
 /// let best_chromosome = evolve.best_chromosome().unwrap();
 /// assert_eq!(best_chromosome.genes, vec![false; 100])
 /// ```
-pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> {
+pub struct Evolve<
+    G: Genotype,
+    M: Mutate,
+    F: Fitness<Genotype = G>,
+    S: Crossover,
+    C: Compete,
+    E: Extension,
+> {
     genotype: G,
     mutate: M,
     fitness: F,
     crossover: S,
     compete: C,
+    extension: E,
 
     population_size: usize,
     max_stale_generations: Option<usize>,
@@ -119,8 +130,8 @@ pub struct Evolve<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover
     best_chromosome: Option<Chromosome<G>>,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Strategy<G>
-    for Evolve<G, M, F, S, C>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
+    Strategy<G> for Evolve<G, M, F, S, C, E>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.current_generation = 0;
@@ -139,6 +150,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             self.try_mass_extinction(population, rng);
             self.try_mass_genesis(population, rng);
             self.try_mass_invasion(population, rng);
+            self.extension.call(&self.genotype, population, rng);
 
             self.crossover.call(&self.genotype, population, rng);
             self.mutate.call(&self.genotype, population, rng);
@@ -159,10 +171,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
-    Evolve<G, M, F, S, C>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
+    Evolve<G, M, F, S, C, E>
 {
-    pub fn builder() -> EvolveBuilder<G, M, F, S, C> {
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C, E> {
         EvolveBuilder::new()
     }
 
@@ -345,12 +357,12 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
-    TryFrom<EvolveBuilder<G, M, F, S, C>> for Evolve<G, M, F, S, C>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
+    TryFrom<EvolveBuilder<G, M, F, S, C, E>> for Evolve<G, M, F, S, C, E>
 {
     type Error = TryFromEvolveBuilderError;
 
-    fn try_from(builder: EvolveBuilder<G, M, F, S, C>) -> Result<Self, Self::Error> {
+    fn try_from(builder: EvolveBuilder<G, M, F, S, C, E>) -> Result<Self, Self::Error> {
         if builder.genotype.is_none() {
             Err(TryFromEvolveBuilderError("Evolve requires a Genotype"))
         } else if builder.fitness.is_none() {
@@ -411,6 +423,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
                 fitness: builder.fitness.unwrap(),
                 crossover: builder.crossover.unwrap(),
                 compete: builder.compete.unwrap(),
+                extension: builder.extension.unwrap(),
 
                 population_size: builder.population_size,
                 max_stale_generations: builder.max_stale_generations,
@@ -432,8 +445,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> fmt::Display
-    for Evolve<G, M, F, S, C>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
+    fmt::Display for Evolve<G, M, F, S, C, E>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve:")?;
@@ -442,6 +455,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         writeln!(f, "  fitness: {:?}", self.fitness)?;
         writeln!(f, "  crossover: {:?}", self.crossover)?;
         writeln!(f, "  compete: {:?}", self.compete)?;
+        writeln!(f, "  extension: {:?}", self.extension)?;
 
         writeln!(f, "  population_size: {}", self.population_size)?;
         writeln!(

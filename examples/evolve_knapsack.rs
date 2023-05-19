@@ -91,6 +91,7 @@ fn main() {
         .with_mutate(MutateOnce(0.2))
         .with_crossover(CrossoverSinglePoint(true))
         .with_compete(CompeteTournament(4))
+        .with_extension(ExtensionNoop)
         .build()
         .unwrap();
 

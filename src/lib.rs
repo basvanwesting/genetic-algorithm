@@ -50,6 +50,7 @@
 //!     .with_crossover(CrossoverUniform(true)) // crossover all individual genes between 2 chromosomes for offspring
 //!     .with_mutate(MutateOnce(0.2))    // mutate a single gene with a 20% probability per chromosome
 //!     .with_compete(CompeteElite)      // sort the chromosomes by fitness to determine crossover order
+//!     .with_extension(ExtensionNoop)   // extension step, disabled
 //!     .call(&mut rng)
 //!     .unwrap();
 //!
@@ -85,6 +86,7 @@
 pub mod chromosome;
 pub mod compete;
 pub mod crossover;
+pub mod extension;
 pub mod fitness;
 pub mod genotype;
 pub mod mass_degeneration;

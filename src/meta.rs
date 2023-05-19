@@ -50,6 +50,9 @@
 //!     CompeteDispatch(Competes::Tournament, 3),
 //!     CompeteDispatch(Competes::Tournament, 4),
 //! ];
+//! let extensions = vec![
+//!     ExtensionNoop::new_dispatch(),
+//! ];
 //!
 //! let genotype = BinaryGenotype::builder()
 //!     .with_genes_size(10)
@@ -76,6 +79,7 @@
 //!     .with_mutates(mutates)
 //!     .with_crossovers(crossovers)
 //!     .with_competes(competes)
+//!     .with_extensions(extensions)
 //!     .build()
 //!     .unwrap();
 //!
@@ -98,6 +102,7 @@
 //! //   best_mutate: Some(MutateDispatch(Random, 0.4))
 //! //   best_crossover: Some(CrossoverDispatch(Clone, true))
 //! //   best_compete: Some(CompeteDispatch(Elite, 0))
+//! //   best_extension: Some(ExtensionDispatch(Noop))
 //! ```
 
 mod config;

@@ -273,9 +273,11 @@ fn main() {
         .with_mutate(MutateOnce(0.2))
         .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
+        //.with_extension(ExtensionNoop)
+        .with_extension(ExtensionMassExtinction::new(0.99, 0.001, 10000))
         //.with_mass_degeneration(MassDegeneration::new(0.99, 100))
         //.with_mass_extinction(MassExtinction::new(0.99, 0.001))
-        .with_mass_genesis(MassGenesis::new(0.99))
+        //.with_mass_genesis(MassGenesis::new(0.99))
         //.with_mass_invasion(MassInvasion::new(0.99, 0.10))
         .with_multithreading(true)
         .with_fitness(ScrabbleFitness::new(

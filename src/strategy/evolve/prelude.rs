@@ -7,6 +7,8 @@ pub use crate::crossover::{
     CrossoverClone, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
 };
 #[doc(no_inline)]
+pub use crate::extension::{ExtensionMassExtinction, ExtensionNoop};
+#[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]
 pub use crate::genotype::{
@@ -14,9 +16,13 @@ pub use crate::genotype::{
     MultiContinuousGenotype, MultiDiscreteGenotype, MultiUniqueGenotype,
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
+#[doc(no_inline)]
 pub use crate::mass_degeneration::MassDegeneration;
+#[doc(no_inline)]
 pub use crate::mass_extinction::MassExtinction;
+#[doc(no_inline)]
 pub use crate::mass_genesis::MassGenesis;
+#[doc(no_inline)]
 pub use crate::mass_invasion::MassInvasion;
 #[doc(no_inline)]
 pub use crate::mutate::MutateOnce;

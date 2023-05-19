@@ -1,5 +1,6 @@
 use crate::compete::CompeteDispatch;
 use crate::crossover::CrossoverDispatch;
+use crate::extension::ExtensionDispatch;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mass_degeneration::MassDegeneration;
@@ -15,8 +16,9 @@ pub struct TryFromBuilderError(pub &'static str);
 
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
-    pub evolve_builder:
-        Option<EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>>,
+    pub evolve_builder: Option<
+        EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch, ExtensionDispatch>,
+    >,
     pub evolve_fitness_to_micro_second_factor: FitnessValue,
     pub rounds: usize,
     pub population_sizes: Vec<usize>,
@@ -29,6 +31,7 @@ pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
     pub competes: Vec<CompeteDispatch>,
+    pub extensions: Vec<ExtensionDispatch>,
 }
 
 impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
@@ -42,7 +45,14 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
 
     pub fn with_evolve_builder(
         mut self,
-        evolve_builder: EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch>,
+        evolve_builder: EvolveBuilder<
+            G,
+            MutateDispatch,
+            F,
+            CrossoverDispatch,
+            CompeteDispatch,
+            ExtensionDispatch,
+        >,
     ) -> Self {
         self.evolve_builder = Some(evolve_builder);
         self
@@ -116,6 +126,10 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.competes = competes;
         self
     }
+    pub fn with_extensions(mut self, extensions: Vec<ExtensionDispatch>) -> Self {
+        self.extensions = extensions;
+        self
+    }
 }
 
 impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
@@ -134,6 +148,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
             mutates: vec![],
             crossovers: vec![],
             competes: vec![],
+            extensions: vec![],
         }
     }
 }

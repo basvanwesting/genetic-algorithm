@@ -4,6 +4,7 @@ mod support;
 mod meta_tests {
     use genetic_algorithm::compete::{CompeteDispatch, Competes};
     use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
+    use genetic_algorithm::extension::{ExtensionMassExtinction, ExtensionNoop};
     use genetic_algorithm::fitness::placeholders::CountTrue;
     use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
     use genetic_algorithm::mass_degeneration::MassDegeneration;
@@ -37,6 +38,10 @@ mod meta_tests {
             CompeteDispatch(Competes::Elite, 0),
             CompeteDispatch(Competes::Tournament, 4),
         ];
+        let extensions = vec![
+            ExtensionNoop::new_dispatch(),
+            ExtensionMassExtinction::new_dispatch(0.9, 0.1, 5),
+        ];
         let genotype = BinaryGenotype::builder()
             .with_genes_size(10)
             .build()
@@ -61,6 +66,7 @@ mod meta_tests {
             .with_mutates(mutates)
             .with_crossovers(crossovers)
             .with_competes(competes)
+            .with_extensions(extensions)
             .build()
             .unwrap();
 

@@ -101,7 +101,8 @@ fn main() {
         //.with_mass_invasion(MassInvasion::new(0.95, 0.1))
         .with_mutate(MutateOnce(0.3))
         .with_crossover(CrossoverSinglePoint(true))
-        .with_compete(CompeteTournament(4));
+        .with_compete(CompeteTournament(4))
+        .with_extension(ExtensionNoop);
 
     //let now = std::time::Instant::now();
     //let evolve = evolve_builder.call(&mut rng).unwrap();

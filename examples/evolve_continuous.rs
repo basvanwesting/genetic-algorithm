@@ -30,6 +30,7 @@ fn main() {
         .with_fitness(SumContinuousGenotype(1e-5))
         .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
+        .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
 

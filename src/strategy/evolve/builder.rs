@@ -1,6 +1,7 @@
 use super::Evolve;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
+use crate::extension::Extension;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mass_degeneration::MassDegeneration;
@@ -16,7 +17,14 @@ pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an Evolve struct.
 #[derive(Clone, Debug)]
-pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> {
+pub struct Builder<
+    G: Genotype,
+    M: Mutate,
+    F: Fitness<Genotype = G>,
+    S: Crossover,
+    C: Compete,
+    E: Extension,
+> {
     pub genotype: Option<G>,
     pub population_size: usize,
     pub max_stale_generations: Option<usize>,
@@ -32,21 +40,25 @@ pub struct Builder<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossove
     pub fitness: Option<F>,
     pub crossover: Option<S>,
     pub compete: Option<C>,
+    pub extension: Option<E>,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
-    Builder<G, M, F, S, C>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
+    Builder<G, M, F, S, C, E>
 {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn build(self) -> Result<Evolve<G, M, F, S, C>, TryFromBuilderError> {
+    pub fn build(self) -> Result<Evolve<G, M, F, S, C, E>, TryFromBuilderError> {
         self.try_into()
     }
 
-    pub fn call<R: Rng>(self, rng: &mut R) -> Result<Evolve<G, M, F, S, C>, TryFromBuilderError> {
-        let mut evolve: Evolve<G, M, F, S, C> = self.try_into()?;
+    pub fn call<R: Rng>(
+        self,
+        rng: &mut R,
+    ) -> Result<Evolve<G, M, F, S, C, E>, TryFromBuilderError> {
+        let mut evolve: Evolve<G, M, F, S, C, E> = self.try_into()?;
         evolve.call(rng);
         Ok(evolve)
     }
@@ -54,10 +66,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self,
         max_repeats: usize,
         rng: &mut R,
-    ) -> Result<Evolve<G, M, F, S, C>, TryFromBuilderError> {
-        let mut best_evolve: Option<Evolve<G, M, F, S, C>> = None;
+    ) -> Result<Evolve<G, M, F, S, C, E>, TryFromBuilderError> {
+        let mut best_evolve: Option<Evolve<G, M, F, S, C, E>> = None;
         for iteration in 0..max_repeats {
-            let mut contending_run: Evolve<G, M, F, S, C> = self.clone().try_into()?;
+            let mut contending_run: Evolve<G, M, F, S, C, E> = self.clone().try_into()?;
             contending_run.current_iteration = iteration;
             contending_run.call(rng);
             if contending_run.is_finished_by_target_fitness_score() {
@@ -199,10 +211,14 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         self.compete = Some(compete);
         self
     }
+    pub fn with_extension(mut self, extension: E) -> Self {
+        self.extension = Some(extension);
+        self
+    }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Default
-    for Builder<G, M, F, S, C>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
+    Default for Builder<G, M, F, S, C, E>
 {
     fn default() -> Self {
         Self {
@@ -221,6 +237,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             fitness: None,
             crossover: None,
             compete: None,
+            extension: None,
         }
     }
 }

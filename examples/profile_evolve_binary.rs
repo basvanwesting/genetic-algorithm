@@ -22,7 +22,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateOnce(0.2))
         .with_crossover(CrossoverSinglePoint(true))
-        .with_compete(CompeteTournament(4));
+        .with_compete(CompeteTournament(4))
+        .with_extension(ExtensionNoop);
 
     c.bench_function("profile_evolve_binary", |b| {
         b.iter_batched(

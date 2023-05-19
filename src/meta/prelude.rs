@@ -5,6 +5,8 @@ pub use crate::compete::{CompeteDispatch, Competes};
 #[doc(no_inline)]
 pub use crate::crossover::{CrossoverDispatch, Crossovers};
 #[doc(no_inline)]
+pub use crate::extension::{ExtensionDispatch, ExtensionNoop, Extensions};
+#[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]
 pub use crate::genotype::{
@@ -12,9 +14,13 @@ pub use crate::genotype::{
     MultiContinuousGenotype, MultiDiscreteGenotype, MultiUniqueGenotype,
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
+#[doc(no_inline)]
 pub use crate::mass_degeneration::MassDegeneration;
+#[doc(no_inline)]
 pub use crate::mass_extinction::MassExtinction;
+#[doc(no_inline)]
 pub use crate::mass_genesis::MassGenesis;
+#[doc(no_inline)]
 pub use crate::mass_invasion::MassInvasion;
 #[doc(no_inline)]
 pub use crate::meta::{

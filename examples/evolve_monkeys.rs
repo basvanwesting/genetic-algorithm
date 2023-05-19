@@ -52,6 +52,7 @@ fn main() {
         .with_mutate(MutateOnce(0.3))
         .with_crossover(CrossoverClone(true))
         .with_compete(CompeteElite)
+        .with_extension(ExtensionNoop)
         .build()
         .unwrap();
 
