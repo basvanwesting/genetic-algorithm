@@ -26,7 +26,7 @@ impl Mutate for DynamicOnce {
         } else if self.mutation_probability > self.mutation_probability_step {
             self.mutation_probability -= self.mutation_probability_step;
         }
-        log::debug!(
+        log::trace!(
             "### dynamic_once mutation probability: {}",
             self.mutation_probability
         );
@@ -37,6 +37,9 @@ impl Mutate for DynamicOnce {
                 genotype.mutate_chromosome_random(chromosome, rng);
             }
         }
+    }
+    fn report(&self) -> String {
+        format!("once: {:2.2}", self.mutation_probability)
     }
 }
 

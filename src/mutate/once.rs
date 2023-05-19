@@ -25,6 +25,9 @@ impl Mutate for Once {
             }
         }
     }
+    fn report(&self) -> String {
+        format!("once: {:2.2}", self.mutation_probability)
+    }
 }
 
 impl Once {

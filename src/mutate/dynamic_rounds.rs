@@ -27,7 +27,7 @@ impl Mutate for DynamicRounds {
         } else if self.number_of_rounds > 0 {
             self.number_of_rounds -= 1
         }
-        log::debug!(
+        log::trace!(
             "### dynamic_rounds mutation probability: {}, rounds: {}",
             self.mutation_probability,
             self.number_of_rounds
@@ -41,6 +41,9 @@ impl Mutate for DynamicRounds {
                 }
             }
         }
+    }
+    fn report(&self) -> String {
+        format!("rounds: {}", self.number_of_rounds)
     }
 }
 

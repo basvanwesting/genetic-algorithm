@@ -20,6 +20,7 @@ pub trait Mutate: Clone + std::fmt::Debug {
         population: &mut Population<T>,
         rng: &mut R,
     );
+    fn report(&self) -> String;
 }
 
 #[derive(Clone, Debug, Default)]
@@ -58,5 +59,8 @@ impl Mutate for MutateDispatch {
                     .call(genotype, population, rng)
             }
         }
+    }
+    fn report(&self) -> String {
+        "dispatch".to_string()
     }
 }

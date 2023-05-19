@@ -242,7 +242,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 
     fn report_round(&self, population: &Population<G>) {
         log::debug!(
-            "generation (current/best): {}/{}, fitness score (best/count/median/mean/stddev/uniformity/best-prevalence): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}",
+            "generation (current/best): {}/{}, fitness score (best/count/median/mean/stddev/uniformity/best-prevalence): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}, mutation: {:?}",
             self.current_generation,
             self.best_generation,
             self.best_fitness_score(),
@@ -252,6 +252,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             population.fitness_score_stddev(),
             population.fitness_score_uniformity(),
             population.fitness_score_prevalence(self.best_fitness_score()),
+            self.mutate.report(),
         );
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
