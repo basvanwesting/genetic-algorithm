@@ -4,10 +4,6 @@ use crate::crossover::Crossover;
 use crate::extension::Extension;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
-use crate::mass_degeneration::MassDegeneration;
-use crate::mass_extinction::MassExtinction;
-use crate::mass_genesis::MassGenesis;
-use crate::mass_invasion::MassInvasion;
 use crate::mutate::Mutate;
 use crate::strategy::Strategy;
 use rand::Rng;
@@ -32,10 +28,6 @@ pub struct Builder<
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
-    pub mass_degeneration: Option<MassDegeneration>,
-    pub mass_extinction: Option<MassExtinction>,
-    pub mass_genesis: Option<MassGenesis>,
-    pub mass_invasion: Option<MassInvasion>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
     pub crossover: Option<S>,
@@ -157,44 +149,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self.multithreading = multithreading;
         self
     }
-    pub fn with_mass_degeneration(mut self, mass_degeneration: MassDegeneration) -> Self {
-        self.mass_degeneration = Some(mass_degeneration);
-        self
-    }
-    pub fn with_mass_degeneration_option(
-        mut self,
-        mass_degeneration_option: Option<MassDegeneration>,
-    ) -> Self {
-        self.mass_degeneration = mass_degeneration_option;
-        self
-    }
-    pub fn with_mass_extinction(mut self, mass_extinction: MassExtinction) -> Self {
-        self.mass_extinction = Some(mass_extinction);
-        self
-    }
-    pub fn with_mass_extinction_option(
-        mut self,
-        mass_extinction_option: Option<MassExtinction>,
-    ) -> Self {
-        self.mass_extinction = mass_extinction_option;
-        self
-    }
-    pub fn with_mass_genesis(mut self, mass_genesis: MassGenesis) -> Self {
-        self.mass_genesis = Some(mass_genesis);
-        self
-    }
-    pub fn with_mass_genesis_option(mut self, mass_genesis_option: Option<MassGenesis>) -> Self {
-        self.mass_genesis = mass_genesis_option;
-        self
-    }
-    pub fn with_mass_invasion(mut self, mass_invasion: MassInvasion) -> Self {
-        self.mass_invasion = Some(mass_invasion);
-        self
-    }
-    pub fn with_mass_invasion_option(mut self, mass_invasion_option: Option<MassInvasion>) -> Self {
-        self.mass_invasion = mass_invasion_option;
-        self
-    }
     pub fn with_mutate(mut self, mutate: M) -> Self {
         self.mutate = Some(mutate);
         self
@@ -229,10 +183,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
-            mass_degeneration: None,
-            mass_extinction: None,
-            mass_genesis: None,
-            mass_invasion: None,
             mutate: None,
             fitness: None,
             crossover: None,

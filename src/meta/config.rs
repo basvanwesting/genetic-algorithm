@@ -10,10 +10,6 @@ use crate::crossover::CrossoverDispatch;
 use crate::extension::ExtensionDispatch;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Genotype, MultiDiscreteGenotype};
-use crate::mass_degeneration::MassDegeneration;
-use crate::mass_extinction::MassExtinction;
-use crate::mass_genesis::MassGenesis;
-use crate::mass_invasion::MassInvasion;
 use crate::mutate::MutateDispatch;
 use crate::strategy::evolve::EvolveBuilder;
 
@@ -26,10 +22,6 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
-    pub mass_degeneration_options: Vec<Option<MassDegeneration>>,
-    pub mass_extinction_options: Vec<Option<MassExtinction>>,
-    pub mass_genesis_options: Vec<Option<MassGenesis>>,
-    pub mass_invasion_options: Vec<Option<MassInvasion>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
     pub competes: Vec<CompeteDispatch>,
@@ -58,10 +50,6 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
             .with_extension(self.extensions[genes[4]].clone())
             .with_max_stale_generations_option(self.max_stale_generations_options[genes[5]])
             .with_target_fitness_score_option(self.target_fitness_score_options[genes[6]])
-            .with_mass_degeneration_option(self.mass_degeneration_options[genes[7]].clone())
-            .with_mass_extinction_option(self.mass_extinction_options[genes[8]].clone())
-            .with_mass_genesis_option(self.mass_genesis_options[genes[9]].clone())
-            .with_mass_invasion_option(self.mass_invasion_options[genes[10]].clone())
     }
 
     // order matters so keep close to evolve_builder_for_chromosome
@@ -75,10 +63,6 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
                 (0..self.extensions.len()).collect(),
                 (0..self.max_stale_generations_options.len()).collect(),
                 (0..self.target_fitness_score_options.len()).collect(),
-                (0..self.mass_degeneration_options.len()).collect(),
-                (0..self.mass_extinction_options.len()).collect(),
-                (0..self.mass_genesis_options.len()).collect(),
-                (0..self.mass_invasion_options.len()).collect(),
             ])
             .build()
             .unwrap()
@@ -127,22 +111,6 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
             Err(TryFromConfigBuilderError(
                 "MetaConfig requires at least one max_stale_generations_option or target_fitness_score_option that is not None",
             ))
-        } else if builder.mass_degeneration_options.is_empty() {
-            Err(TryFromConfigBuilderError(
-                "MetaConfig requires at least one mass_degeneration_option, None is allowed",
-            ))
-        } else if builder.mass_extinction_options.is_empty() {
-            Err(TryFromConfigBuilderError(
-                "MetaConfig requires at least one mass_extinction_option, None is allowed",
-            ))
-        } else if builder.mass_genesis_options.is_empty() {
-            Err(TryFromConfigBuilderError(
-                "MetaConfig requires at least one mass_genesis_option, None is allowed",
-            ))
-        } else if builder.mass_invasion_options.is_empty() {
-            Err(TryFromConfigBuilderError(
-                "MetaConfig requires at least one mass_invasion_option, None is allowed",
-            ))
         } else if builder.mutates.is_empty() {
             Err(TryFromConfigBuilderError(
                 "MetaConfig requires at least one Mutate strategy",
@@ -168,10 +136,6 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
                 population_sizes: builder.population_sizes,
                 max_stale_generations_options: builder.max_stale_generations_options,
                 target_fitness_score_options: builder.target_fitness_score_options,
-                mass_degeneration_options: builder.mass_degeneration_options,
-                mass_extinction_options: builder.mass_extinction_options,
-                mass_genesis_options: builder.mass_genesis_options,
-                mass_invasion_options: builder.mass_invasion_options,
                 mutates: builder.mutates,
                 crossovers: builder.crossovers,
                 competes: builder.competes,

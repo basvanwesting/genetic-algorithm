@@ -1,4 +1,6 @@
-//! The extension strategy, useful for avoiding local optimum lock-in, but generic in nature
+//! When approacking a (local) optimum in the fitness score, the variation in the population goes
+//! down dramatically. This reduces the efficiency, but also has the risk of local optimum lock-in.
+//! To increase the variation in the population, an [extension](crate::extension) mechanisms can optionally be used
 mod mass_degeneration;
 mod mass_extinction;
 mod mass_genesis;

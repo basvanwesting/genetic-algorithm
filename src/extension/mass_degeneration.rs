@@ -8,6 +8,9 @@ use crate::population::Population;
 use crate::strategy::evolve::Evolve;
 use rand::Rng;
 
+/// Simulates a cambrian explosion. The controlling metric is fitness score uniformity in the
+/// population (a fraction of the population which has the same fitness score). When this
+/// uniformity passes the threshold, the population is randomly mutated N number of rounds.
 #[derive(Debug, Clone)]
 pub struct MassDegeneration {
     pub uniformity_threshold: f32,

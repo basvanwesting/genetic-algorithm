@@ -13,13 +13,8 @@ use crate::crossover::Crossover;
 use crate::extension::Extension;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
-use crate::mass_degeneration::MassDegeneration;
-use crate::mass_extinction::MassExtinction;
-use crate::mass_genesis::MassGenesis;
-use crate::mass_invasion::MassInvasion;
 use crate::mutate::Mutate;
 use crate::population::Population;
-use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 use std::cell::RefCell;
 use std::fmt;
@@ -32,29 +27,14 @@ use thread_local::ThreadLocal;
 /// * [mutate](crate::mutate) a subset of chromosomes to add some additional diversity
 /// * calculate [fitness](crate::fitness) for all chromosomes
 /// * [compete](crate::compete) to pair up chromosomes for crossover in next generation and drop excess chromosomes
-/// * [extension](crate::extension) an optional additional step (e.g. MassExtinction)
 /// * store best chromosome
 /// * check ending conditions
+/// * [extension](crate::extension) an optional additional step (e.g. [MassExtinction](crate::extension::ExtensionMassExtinction))
 ///
 /// The ending conditions are one or more of the following:
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
-///
-/// When approacking a (local) optimum in the fitness score, the variation in the population goes
-/// down dramatically. This reduces the efficiency, but also has the risk of local optimum lock-in.
-/// To increase the variation in the population, one of the following mechanisms can optionally be used:
-/// * [mass-extinction](crate::mass_extinction): Simulates a cambrian explosion. The controlling metric is
-///   fitness score uniformity in the population (a fraction of the population which has the same
-///   fitness score). When this uniformity passes the threshold, the population is randomly reduced
-///   using the survival_rate (fraction of population).
-/// * [mass-genesis](crate::mass_genesis): A version of mass-extinction, where only an adam and eve
-///   of current best chromosomes survive
-/// * [mass-invasion](crate::mass_invasion): A version of mass-extinction, where the extinct
-///   population is replaced by a random population
-/// * [mass-degeneration](crate::mass_degeneration): Simulates a cambrian explosion. The controlling metric is fitness score
-///   uniformity in the population (a fraction of the population which has the same fitness score).
-///   When this uniformity passes the threshold, the population is randomly mutated N number of rounds.
 ///
 /// Can call_repeatedly from the [EvolveBuilder], when solution has tendency to get stuck in local
 /// optimum
@@ -80,17 +60,13 @@ use thread_local::ThreadLocal;
 ///     .with_target_fitness_score(0)           // ending condition if 0 times true in the best chromosome
 ///     .with_valid_fitness_score(10)           // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_mass_degeneration(MassDegeneration::new(0.9, 10))  // simulate cambrian explosion by mass degeneration, when reaching 90% uniformity, apply 10 rounds of random mutation
-///     .with_mass_extinction(MassExtinction::new(0.9, 0.1))     // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
-///     .with_mass_genesis(MassGenesis::new(0.9))                // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, only adam and eve of best_chromosome survive
-///     .with_mass_invasion(MassInvasion::new(0.9, 0.1))         // simulate cambrian explosion by mass invasion, when reaching 90% uniformity, trim to 10% of population and add 90% random population
 ///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
 ///     .with_crossover(CrossoverUniform(true)) // crossover all individual genes between 2 chromosomes for offspring
 ///     .with_mutate(MutateOnce(0.2))           // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite)             // sort the chromosomes by fitness to determine crossover order
-///     .with_extension(ExtensionNoop)          // extension step, disabled
+///     .with_extension(ExtensionMassExtinction::new(0.9, 0.1))  // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -119,10 +95,6 @@ pub struct Evolve<
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
-    mass_degeneration: Option<MassDegeneration>,
-    mass_extinction: Option<MassExtinction>,
-    mass_genesis: Option<MassGenesis>,
-    mass_invasion: Option<MassInvasion>,
 
     pub current_iteration: usize,
     pub current_generation: usize,
@@ -146,12 +118,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         while !self.is_finished() {
             self.current_generation += 1;
 
-            self.try_mass_degeneration(population, rng);
-            self.try_mass_extinction(population, rng);
-            self.try_mass_genesis(population, rng);
-            self.try_mass_invasion(population, rng);
             self.extension.call(&self, population, rng);
-
             self.crossover.call(&self.genotype, population, rng);
             self.mutate.call(&self.genotype, population, rng);
             self.fitness
@@ -225,56 +192,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         if let Some(best_chromosome) = &self.best_chromosome {
             if !population.fitness_score_present(best_chromosome.fitness_score) {
                 population.chromosomes.push(best_chromosome.clone());
-            }
-        }
-    }
-
-    fn try_mass_degeneration<R: Rng>(&mut self, population: &mut Population<G>, rng: &mut R) {
-        if let Some(mass_degeneration) = &self.mass_degeneration {
-            if population.fitness_score_uniformity() >= mass_degeneration.uniformity_threshold {
-                log::debug!("### mass degeneration event");
-                for _ in 0..mass_degeneration.number_of_rounds {
-                    self.mutate.call(&self.genotype, population, rng);
-                }
-            }
-        }
-    }
-
-    fn try_mass_extinction<R: Rng>(&mut self, population: &mut Population<G>, rng: &mut R) {
-        if let Some(mass_extinction) = &self.mass_extinction {
-            if population.size() >= self.population_size
-                && population.fitness_score_uniformity() >= mass_extinction.uniformity_threshold
-            {
-                log::debug!("### mass extinction event");
-                population.trim(mass_extinction.survival_rate, rng);
-            }
-        }
-    }
-
-    fn try_mass_genesis<R: Rng>(&mut self, population: &mut Population<G>, _rng: &mut R) {
-        if let Some(mass_genesis) = &self.mass_genesis {
-            if population.size() >= self.population_size
-                && population.fitness_score_uniformity() >= mass_genesis.uniformity_threshold
-            {
-                log::debug!("### mass genesis event");
-                if let Some(best_chromosome) = &self.best_chromosome {
-                    population.chromosomes = vec![best_chromosome.clone(), best_chromosome.clone()]
-                }
-            }
-        }
-    }
-
-    fn try_mass_invasion<R: Rng>(&mut self, population: &mut Population<G>, rng: &mut R) {
-        if let Some(mass_invasion) = &self.mass_invasion {
-            if population.fitness_score_uniformity() >= mass_invasion.uniformity_threshold {
-                log::debug!("### mass invasion event");
-                let bool_sampler = Bernoulli::new(mass_invasion.survival_rate as f64).unwrap();
-                for chromosome in &mut population.chromosomes {
-                    if !bool_sampler.sample(rng) {
-                        chromosome.genes = self.genotype.random_genes_factory(rng);
-                        chromosome.taint_fitness_score();
-                    }
-                }
             }
         }
     }
@@ -431,10 +348,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 valid_fitness_score: builder.valid_fitness_score,
                 fitness_ordering: builder.fitness_ordering,
                 multithreading: builder.multithreading,
-                mass_degeneration: builder.mass_degeneration,
-                mass_extinction: builder.mass_extinction,
-                mass_genesis: builder.mass_genesis,
-                mass_invasion: builder.mass_invasion,
 
                 current_iteration: 0,
                 current_generation: 0,
@@ -467,10 +380,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  multithreading: {:?}", self.multithreading)?;
-        writeln!(f, "  mass_degeneration: {:?}", self.mass_degeneration)?;
-        writeln!(f, "  mass_extinction: {:?}", self.mass_extinction)?;
-        writeln!(f, "  mass_genesis: {:?}", self.mass_genesis)?;
-        writeln!(f, "  mass_invasion: {:?}", self.mass_invasion)?;
 
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;

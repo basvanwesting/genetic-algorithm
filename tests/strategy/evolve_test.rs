@@ -2,7 +2,10 @@
 use crate::support::*;
 use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::{CrossoverSingleGene, CrossoverSinglePoint};
-use genetic_algorithm::extension::ExtensionNoop;
+use genetic_algorithm::extension::{
+    ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
+    ExtensionMassInvasion, ExtensionNoop,
+};
 use genetic_algorithm::fitness::placeholders::{
     CountTrue, SumContinuousGenotype, SumDiscreteGenotype, SumMultiDiscreteGenotype,
     SumUniqueGenotype,
@@ -12,10 +15,6 @@ use genetic_algorithm::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
     UniqueGenotype,
 };
-use genetic_algorithm::mass_degeneration::MassDegeneration;
-use genetic_algorithm::mass_extinction::MassExtinction;
-use genetic_algorithm::mass_genesis::MassGenesis;
-use genetic_algorithm::mass_invasion::MassInvasion;
 use genetic_algorithm::mutate::MutateOnce;
 use genetic_algorithm::strategy::evolve::{Evolve, TryFromEvolveBuilderError};
 use genetic_algorithm::strategy::Strategy;
@@ -277,12 +276,11 @@ fn call_binary_mass_degeneration() {
         .with_genotype(genotype)
         .with_population_size(100)
         .with_target_fitness_score(8)
-        .with_mass_degeneration(MassDegeneration::new(0.95, 10))
         .with_mutate(MutateOnce(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
         .with_compete(CompeteTournament(4))
-        .with_extension(ExtensionNoop)
+        .with_extension(ExtensionMassDegeneration::new(0.95, 10))
         .call(&mut rng)
         .unwrap();
 
@@ -307,12 +305,11 @@ fn call_binary_mass_extinction() {
         .with_genotype(genotype)
         .with_population_size(100)
         .with_target_fitness_score(8)
-        .with_mass_extinction(MassExtinction::new(0.9, 0.1))
         .with_mutate(MutateOnce(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
         .with_compete(CompeteTournament(4))
-        .with_extension(ExtensionNoop)
+        .with_extension(ExtensionMassExtinction::new(0.9, 0.1))
         .call(&mut rng)
         .unwrap();
 
@@ -337,12 +334,11 @@ fn call_binary_mass_genesis() {
         .with_genotype(genotype)
         .with_population_size(100)
         .with_target_fitness_score(8)
-        .with_mass_genesis(MassGenesis::new(0.9))
         .with_mutate(MutateOnce(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
         .with_compete(CompeteTournament(4))
-        .with_extension(ExtensionNoop)
+        .with_extension(ExtensionMassGenesis::new(0.9))
         .call(&mut rng)
         .unwrap();
 
@@ -367,12 +363,11 @@ fn call_binary_mass_invasion() {
         .with_genotype(genotype)
         .with_population_size(100)
         .with_target_fitness_score(8)
-        .with_mass_invasion(MassInvasion::new(0.9, 0.1))
         .with_mutate(MutateOnce(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
         .with_compete(CompeteTournament(4))
-        .with_extension(ExtensionNoop)
+        .with_extension(ExtensionMassInvasion::new(0.9, 0.1))
         .call(&mut rng)
         .unwrap();
 

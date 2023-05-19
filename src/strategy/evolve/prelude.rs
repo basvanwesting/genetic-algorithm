@@ -20,14 +20,6 @@ pub use crate::genotype::{
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
-pub use crate::mass_degeneration::MassDegeneration;
-#[doc(no_inline)]
-pub use crate::mass_extinction::MassExtinction;
-#[doc(no_inline)]
-pub use crate::mass_genesis::MassGenesis;
-#[doc(no_inline)]
-pub use crate::mass_invasion::MassInvasion;
-#[doc(no_inline)]
 pub use crate::mutate::MutateOnce;
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};

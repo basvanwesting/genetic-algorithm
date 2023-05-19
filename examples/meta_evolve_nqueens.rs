@@ -35,10 +35,6 @@ fn main() {
     let population_sizes = vec![20];
     let max_stale_generations_options = vec![Some(10000)];
     let target_fitness_score_options = vec![Some(0)];
-    let mass_degeneration_options = vec![None, Some(MassDegeneration::new(0.9, 10))];
-    let mass_extinction_options = vec![None, Some(MassExtinction::new(0.9, 0.1))];
-    let mass_genesis_options = vec![None, Some(MassGenesis::new(0.9))];
-    let mass_invasion_options = vec![None, Some(MassInvasion::new(0.9, 0.1))];
     let mutates = vec![
         MutateDispatch(Mutates::Once, 0.1),
         MutateDispatch(Mutates::Once, 0.2),
@@ -46,6 +42,13 @@ fn main() {
     ];
     let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
     let competes = vec![CompeteDispatch(Competes::Elite, 0)];
+    let extensions = vec![
+        ExtensionNoop::new_dispatch(),
+        //ExtensionMassDegeneration::new_dispatch(0.9, 10),
+        //ExtensionMassExtinction::new_dispatch(0.9, 0.1),
+        //ExtensionMassGenesis::new_dispatch(0.9),
+        //ExtensionMassInvasion::new_dispatch(0.9, 0.1),
+    ];
     let genotype = UniqueGenotype::builder()
         .with_allele_list((0..64).collect())
         .build()
@@ -65,13 +68,10 @@ fn main() {
         .with_population_sizes(population_sizes)
         .with_max_stale_generations_options(max_stale_generations_options)
         .with_target_fitness_score_options(target_fitness_score_options)
-        .with_mass_degeneration_options(mass_degeneration_options)
-        .with_mass_extinction_options(mass_extinction_options)
-        .with_mass_genesis_options(mass_genesis_options)
-        .with_mass_invasion_options(mass_invasion_options)
         .with_mutates(mutates)
         .with_crossovers(crossovers)
         .with_competes(competes)
+        .with_extensions(extensions)
         .build()
         .unwrap();
 

@@ -9,6 +9,7 @@ use crate::strategy::evolve::Evolve;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
+/// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where the extinct population is replaced by a random population
 #[derive(Debug, Clone)]
 pub struct MassInvasion {
     pub uniformity_threshold: f32,

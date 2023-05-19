@@ -8,6 +8,7 @@ use crate::population::Population;
 use crate::strategy::evolve::Evolve;
 use rand::Rng;
 
+/// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where only an adam and eve of current best chromosomes survive
 #[derive(Debug, Clone)]
 pub struct MassGenesis {
     pub uniformity_threshold: f32,

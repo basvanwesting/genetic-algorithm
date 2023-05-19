@@ -8,6 +8,7 @@ use crate::population::Population;
 use crate::strategy::evolve::Evolve;
 use rand::Rng;
 
+/// The placeholder for when no extension present
 #[derive(Debug, Clone)]
 pub struct Noop;
 

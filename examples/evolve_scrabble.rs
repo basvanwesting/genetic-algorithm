@@ -277,10 +277,6 @@ fn main() {
         //.with_extension(ExtensionMassExtinction::new(0.99, 0.001))
         .with_extension(ExtensionMassGenesis::new(0.99))
         //.with_extension(ExtensionMassDegeneration::new(0.99, 100))
-        //.with_mass_degeneration(MassDegeneration::new(0.99, 100))
-        //.with_mass_extinction(MassExtinction::new(0.99, 0.001))
-        //.with_mass_genesis(MassGenesis::new(0.99))
-        //.with_mass_invasion(MassInvasion::new(0.99, 0.10))
         .with_multithreading(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),

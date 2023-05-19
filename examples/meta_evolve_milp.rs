@@ -37,34 +37,11 @@ fn main() {
     ];
     let max_stale_generations_options = vec![Some(1000)];
     let target_fitness_score_options = vec![Some(0)];
-    let mass_degeneration_options = vec![
-        None,
-        //Some(MassDegeneration::new(0.9, 10)),
-        //Some(MassDegeneration::new(0.99, 100)),
-        //Some(MassDegeneration::new(0.99, 10)),
-    ];
-    let mass_extinction_options = vec![
-        None,
-        //Some(MassExtinction::new(0.9, 0.1)),
-        //Some(MassExtinction::new(0.99, 0.01)),
-        //Some(MassExtinction::new(0.99, 0.1)),
-    ];
-    let mass_genesis_options = vec![
-        None,
-        //Some(MassGenesis::new(0.9)),
-        //Some(MassGenesis::new(0.99)),
-    ];
-    let mass_invasion_options = vec![
-        None,
-        Some(MassInvasion::new(0.9, 0.1)),
-        Some(MassInvasion::new(0.99, 0.01)),
-        Some(MassInvasion::new(0.99, 0.1)),
-    ];
     let mutates = vec![
         //MutateDispatch(Mutates::Once, 0.05),
-        MutateDispatch(Mutates::Once, 0.1),
+        //MutateDispatch(Mutates::Once, 0.1),
         MutateDispatch(Mutates::Once, 0.2),
-        MutateDispatch(Mutates::Once, 0.3),
+        //MutateDispatch(Mutates::Once, 0.3),
         //MutateDispatch(Mutates::Once, 0.4),
         //MutateDispatch(Mutates::Once, 0.5),
     ];
@@ -84,6 +61,13 @@ fn main() {
         CompeteDispatch(Competes::Tournament, 4),
         //CompeteDispatch(Competes::Tournament, 8),
     ];
+    let extensions = vec![
+        ExtensionNoop::new_dispatch(),
+        ExtensionMassDegeneration::new_dispatch(0.99, 100),
+        ExtensionMassExtinction::new_dispatch(0.99, 0.01),
+        ExtensionMassGenesis::new_dispatch(0.99),
+        ExtensionMassInvasion::new_dispatch(0.99, 0.01),
+    ];
     let genotype = MultiContinuousGenotype::builder()
         .with_allele_ranges(vec![(-10.0..10.0), (0.0..10.0)])
         .build()
@@ -102,13 +86,10 @@ fn main() {
         .with_population_sizes(population_sizes)
         .with_max_stale_generations_options(max_stale_generations_options)
         .with_target_fitness_score_options(target_fitness_score_options)
-        .with_mass_degeneration_options(mass_degeneration_options)
-        .with_mass_extinction_options(mass_extinction_options)
-        .with_mass_genesis_options(mass_genesis_options)
-        .with_mass_invasion_options(mass_invasion_options)
         .with_mutates(mutates)
         .with_crossovers(crossovers)
         .with_competes(competes)
+        .with_extensions(extensions)
         .build()
         .unwrap();
 

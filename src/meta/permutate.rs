@@ -70,29 +70,10 @@ impl<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> fmt::Display for P
                     "  best_target_fitness_score: {:?}",
                     best_evolve_builder.target_fitness_score
                 )?;
-                writeln!(
-                    f,
-                    "  best_mass_degeneration: {:?}",
-                    best_evolve_builder.mass_degeneration
-                )?;
-                writeln!(
-                    f,
-                    "  best_mass_extinction: {:?}",
-                    best_evolve_builder.mass_extinction,
-                )?;
-                writeln!(
-                    f,
-                    "  best_mass_genesis: {:?}",
-                    best_evolve_builder.mass_genesis,
-                )?;
-                writeln!(
-                    f,
-                    "  best_mass_invasion: {:?}",
-                    best_evolve_builder.mass_invasion,
-                )?;
                 writeln!(f, "  best_mutate: {:?}", best_evolve_builder.mutate)?;
                 writeln!(f, "  best_crossover: {:?}", best_evolve_builder.crossover)?;
-                writeln!(f, "  best_compete: {:?}", best_evolve_builder.compete)
+                writeln!(f, "  best_compete: {:?}", best_evolve_builder.compete)?;
+                writeln!(f, "  best_extension: {:?}", best_evolve_builder.extension)
             } else {
                 write!(f, "meta-permutate: no best chromosome")
             }
