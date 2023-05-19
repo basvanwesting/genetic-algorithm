@@ -82,7 +82,8 @@ impl<T: Genotype> Population<T> {
     pub fn fitness_score_uniformity(&self) -> f32 {
         let median_fitness_score = self.fitness_score_median();
         if median_fitness_score.is_some() {
-            self.fitness_score_prevalence(median_fitness_score) as f32 / self.size() as f32
+            self.fitness_score_prevalence(median_fitness_score) as f32
+                / self.fitness_score_count() as f32
         } else {
             0.0
         }

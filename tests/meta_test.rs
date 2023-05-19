@@ -11,7 +11,7 @@ mod meta_tests {
     use genetic_algorithm::fitness::placeholders::CountTrue;
     use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
     use genetic_algorithm::meta::{MetaConfig, MetaPermutate};
-    use genetic_algorithm::mutate::{MutateDispatch, Mutates};
+    use genetic_algorithm::mutate::{MutateDynamicOnce, MutateOnce};
     use genetic_algorithm::strategy::evolve::EvolveBuilder;
     use genetic_algorithm::strategy::Strategy;
 
@@ -21,8 +21,9 @@ mod meta_tests {
         let population_sizes = vec![1, 2, 3, 4, 5];
         let max_stale_generations_options = vec![Some(10)];
         let mutates = vec![
-            MutateDispatch(Mutates::Once, 0.1),
-            MutateDispatch(Mutates::Once, 0.2),
+            MutateOnce::new_dispatch(0.1),
+            MutateOnce::new_dispatch(0.2),
+            MutateDynamicOnce::new_dispatch(0.2, 0.25),
         ];
         let crossovers = vec![
             CrossoverDispatch(Crossovers::SingleGene, true),

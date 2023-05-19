@@ -30,9 +30,9 @@
 //! let max_stale_generations_options = vec![Some(10)];
 //! let target_fitness_score_options = vec![Some(0)];
 //! let mutates = vec![
-//!     MutateDispatch(Mutates::Once, 0.05),
-//!     MutateDispatch(Mutates::Once, 0.2),
-//!     MutateDispatch(Mutates::Once, 0.4),
+//!     MutateOnce::new_dispatch(0.05),
+//!     MutateOnce::new_dispatch(0.2),
+//!     MutateOnce::new_dispatch(0.4),
 //! ];
 //! let crossovers = vec![
 //!     CrossoverDispatch(Crossovers::Clone, true),

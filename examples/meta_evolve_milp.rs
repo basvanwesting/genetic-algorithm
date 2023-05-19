@@ -38,12 +38,12 @@ fn main() {
     let max_stale_generations_options = vec![Some(1000)];
     let target_fitness_score_options = vec![Some(0)];
     let mutates = vec![
-        //MutateDispatch(Mutates::Once, 0.05),
-        //MutateDispatch(Mutates::Once, 0.1),
-        MutateDispatch(Mutates::Once, 0.2),
-        //MutateDispatch(Mutates::Once, 0.3),
-        //MutateDispatch(Mutates::Once, 0.4),
-        //MutateDispatch(Mutates::Once, 0.5),
+        //MutateOnce::new_dispatch(0.05),
+        //MutateOnce::new_dispatch(0.1),
+        MutateOnce::new_dispatch(0.2),
+        //MutateOnce::new_dispatch(0.3),
+        //MutateOnce::new_dispatch(0.4),
+        //MutateOnce::new_dispatch(0.5),
     ];
     let crossovers = vec![
         //CrossoverDispatch(Crossovers::Clone, false),

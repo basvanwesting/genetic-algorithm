@@ -87,7 +87,7 @@ mod population_tests {
             (vec![true, true, false], None),
         ]);
 
-        assert_eq!(population.fitness_score_uniformity(), 0.4);
+        assert_eq!(population.fitness_score_uniformity(), 0.5);
     }
 
     #[test]

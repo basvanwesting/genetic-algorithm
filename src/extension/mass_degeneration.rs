@@ -6,6 +6,7 @@ use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
 use crate::strategy::evolve::Evolve;
+use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
 /// Simulates a cambrian explosion. The controlling metric is fitness score uniformity in the
@@ -34,8 +35,14 @@ impl Extension for MassDegeneration {
     ) {
         if population.fitness_score_uniformity() >= self.uniformity_threshold {
             log::debug!("### mass degeneration event");
+
+            let bool_sampler = Bernoulli::new(0.2 as f64).unwrap();
             for _ in 0..self.number_of_rounds {
-                evolve.mutate.call(&evolve.genotype, population, rng);
+                for chromosome in &mut population.chromosomes {
+                    if bool_sampler.sample(rng) {
+                        evolve.genotype.mutate_chromosome_random(chromosome, rng);
+                    }
+                }
             }
         }
     }

@@ -36,9 +36,9 @@ fn main() {
     let max_stale_generations_options = vec![Some(10000)];
     let target_fitness_score_options = vec![Some(0)];
     let mutates = vec![
-        MutateDispatch(Mutates::Once, 0.1),
-        MutateDispatch(Mutates::Once, 0.2),
-        MutateDispatch(Mutates::Once, 0.3),
+        MutateOnce::new_dispatch(0.1),
+        MutateOnce::new_dispatch(0.2),
+        MutateOnce::new_dispatch(0.3),
     ];
     let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
     let competes = vec![CompeteDispatch(Competes::Elite, 0)];
