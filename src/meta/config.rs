@@ -19,7 +19,7 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
         EvolveBuilder<G, MutateDispatch, F, CrossoverDispatch, CompeteDispatch, ExtensionDispatch>,
     pub evolve_fitness_to_micro_second_factor: FitnessValue,
     pub rounds: usize,
-    pub population_sizes: Vec<usize>,
+    pub target_population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub mutates: Vec<MutateDispatch>,
@@ -43,7 +43,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
 
         self.evolve_builder
             .clone()
-            .with_population_size(self.population_sizes[genes[0]])
+            .with_target_population_size(self.target_population_sizes[genes[0]])
             .with_mutate(self.mutates[genes[1]].clone())
             .with_crossover(self.crossovers[genes[2]].clone())
             .with_compete(self.competes[genes[3]].clone())
@@ -56,7 +56,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
     pub fn build_genotype(&self) -> MultiDiscreteGenotype {
         MultiDiscreteGenotype::builder()
             .with_allele_lists(vec![
-                (0..self.population_sizes.len()).collect(),
+                (0..self.target_population_sizes.len()).collect(),
                 (0..self.mutates.len()).collect(),
                 (0..self.crossovers.len()).collect(),
                 (0..self.competes.len()).collect(),
@@ -95,9 +95,9 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
             Err(TryFromConfigBuilderError(
                 "MetaConfig's EvolveBuilder requires a Fitness",
             ))
-        } else if builder.population_sizes.is_empty() {
+        } else if builder.target_population_sizes.is_empty() {
             Err(TryFromConfigBuilderError(
-                "MetaConfig requires at least one population_size",
+                "MetaConfig requires at least one target_population_size",
             ))
         } else if builder
             .max_stale_generations_options
@@ -133,7 +133,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
                 evolve_fitness_to_micro_second_factor: builder
                     .evolve_fitness_to_micro_second_factor,
                 rounds: builder.rounds,
-                population_sizes: builder.population_sizes,
+                target_population_sizes: builder.target_population_sizes,
                 max_stale_generations_options: builder.max_stale_generations_options,
                 target_fitness_score_options: builder.target_fitness_score_options,
                 mutates: builder.mutates,

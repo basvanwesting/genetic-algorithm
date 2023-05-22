@@ -22,7 +22,7 @@ pub struct Builder<
     E: Extension,
 > {
     pub genotype: Option<G>,
-    pub population_size: usize,
+    pub target_population_size: usize,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
@@ -104,8 +104,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self.genotype = Some(genotype);
         self
     }
-    pub fn with_population_size(mut self, population_size: usize) -> Self {
-        self.population_size = population_size;
+    pub fn with_target_population_size(mut self, target_population_size: usize) -> Self {
+        self.target_population_size = target_population_size;
         self
     }
     pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
@@ -177,7 +177,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     fn default() -> Self {
         Self {
             genotype: None,
-            population_size: 0,
+            target_population_size: 0,
             max_stale_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,

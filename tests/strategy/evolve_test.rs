@@ -27,7 +27,7 @@ fn build_invalid_missing_ending_condition() {
         .unwrap();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
@@ -52,7 +52,7 @@ fn build_invalid_require_crossover_indexes() {
         .unwrap();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumUniqueGenotype)
@@ -77,7 +77,7 @@ fn build_invalid_require_crossover_points() {
         .unwrap();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumUniqueGenotype)
@@ -104,7 +104,7 @@ fn call_binary_max_stale_generations_maximize() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
@@ -133,7 +133,7 @@ fn call_binary_max_stale_generations_minimize() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce::new(0.1))
@@ -163,7 +163,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(4)
+        .with_target_population_size(4)
         .with_max_stale_generations(2)
         .with_valid_fitness_score(75)
         .with_mutate(MutateOnce::new(0.1))
@@ -188,7 +188,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(4)
+        .with_target_population_size(4)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(2)
         .with_valid_fitness_score(25)
@@ -215,7 +215,7 @@ fn call_binary_target_fitness_score_maximize() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_target_fitness_score(8)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
@@ -244,7 +244,7 @@ fn call_binary_target_fitness_score_minimize() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce::new(0.1))
@@ -274,7 +274,7 @@ fn call_binary_mass_degeneration() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_target_fitness_score(8)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
@@ -303,7 +303,7 @@ fn call_binary_mass_extinction() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_target_fitness_score(8)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
@@ -332,7 +332,7 @@ fn call_binary_mass_genesis() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_target_fitness_score(8)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
@@ -361,7 +361,7 @@ fn call_binary_mass_invasion() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_target_fitness_score(8)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
@@ -391,7 +391,7 @@ fn call_continuous() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumContinuousGenotype(1e-3))
@@ -425,7 +425,7 @@ fn call_discrete() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumDiscreteGenotype)
@@ -459,7 +459,7 @@ fn call_multi_discrete() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumMultiDiscreteGenotype)
@@ -487,7 +487,7 @@ fn call_multi_thread() {
     let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(100)
+        .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumDiscreteGenotype)
@@ -517,7 +517,7 @@ fn population_factory_binary() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(8)
+        .with_target_population_size(8)
         .with_max_stale_generations(20)
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)

@@ -56,7 +56,7 @@ use thread_local::ThreadLocal;
 /// let mut rng = rand::thread_rng();           // a randomness provider implementing Trait rand::Rng
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
-///     .with_population_size(100)              // evolve with 100 chromosomes
+///     .with_target_population_size(100)       // evolve with 100 chromosomes
 ///     .with_target_fitness_score(0)           // ending condition if 0 times true in the best chromosome
 ///     .with_valid_fitness_score(10)           // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
@@ -89,7 +89,7 @@ pub struct Evolve<
     pub compete: C,
     pub extension: E,
 
-    pub population_size: usize,
+    pub target_population_size: usize,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
@@ -123,8 +123,12 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             self.mutate.call(&self.genotype, population, rng);
             self.fitness
                 .call_for_population(population, fitness_thread_local.as_ref());
-            self.compete
-                .call(population, self.fitness_ordering, self.population_size, rng);
+            self.compete.call(
+                population,
+                self.fitness_ordering,
+                self.target_population_size,
+                rng,
+            );
             self.update_best_chromosome(population);
             self.ensure_best_chromosome(population);
             self.report_round(population);
@@ -268,7 +272,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     }
 
     pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G> {
-        (0..self.population_size)
+        (0..self.target_population_size)
             .map(|_| self.genotype.chromosome_factory(rng))
             .collect::<Vec<_>>()
             .into()
@@ -325,9 +329,9 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             Err(TryFromEvolveBuilderError(
                 "The provided Crossover strategy requires crossover_points, which the provided Genotype does not provide",
             ))
-        } else if !(builder.population_size > 0) {
+        } else if !(builder.target_population_size > 0) {
             Err(TryFromEvolveBuilderError(
-                "Evolve requires a population_size > 0",
+                "Evolve requires a target_population_size > 0",
             ))
         } else if builder.max_stale_generations.is_none() && builder.target_fitness_score.is_none()
         {
@@ -343,7 +347,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 compete: builder.compete.unwrap(),
                 extension: builder.extension.unwrap(),
 
-                population_size: builder.population_size,
+                target_population_size: builder.target_population_size,
                 max_stale_generations: builder.max_stale_generations,
                 target_fitness_score: builder.target_fitness_score,
                 valid_fitness_score: builder.valid_fitness_score,
@@ -371,7 +375,11 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         writeln!(f, "  compete: {:?}", self.compete)?;
         writeln!(f, "  extension: {:?}", self.extension)?;
 
-        writeln!(f, "  population_size: {}", self.population_size)?;
+        writeln!(
+            f,
+            "  target_population_size: {}",
+            self.target_population_size
+        )?;
         writeln!(
             f,
             "  max_stale_generations: {:?}",

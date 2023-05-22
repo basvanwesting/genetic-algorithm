@@ -10,7 +10,7 @@ fn main() {
         .unwrap();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(1000)
+        .with_target_population_size(1000)
         .with_mutate(MutateOnce::new(0.2))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))

@@ -17,7 +17,7 @@ pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     >,
     pub evolve_fitness_to_micro_second_factor: FitnessValue,
     pub rounds: usize,
-    pub population_sizes: Vec<usize>,
+    pub target_population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub mutates: Vec<MutateDispatch>,
@@ -60,8 +60,8 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.evolve_fitness_to_micro_second_factor = evolve_fitness_to_micro_second_factor;
         self
     }
-    pub fn with_population_sizes(mut self, population_sizes: Vec<usize>) -> Self {
-        self.population_sizes = population_sizes;
+    pub fn with_target_population_sizes(mut self, target_population_sizes: Vec<usize>) -> Self {
+        self.target_population_sizes = target_population_sizes;
         self
     }
     pub fn with_max_stale_generations_options(
@@ -102,7 +102,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
             evolve_builder: None,
             evolve_fitness_to_micro_second_factor: 1_000_000,
             rounds: 0,
-            population_sizes: vec![],
+            target_population_sizes: vec![],
             max_stale_generations_options: vec![None],
             target_fitness_score_options: vec![None],
             mutates: vec![],

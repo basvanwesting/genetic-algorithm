@@ -88,7 +88,7 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(20)
+        .with_target_population_size(20)
         .with_max_stale_generations(10000)
         .with_fitness(TableSeatingFitness(
             hosts_with_table_sizes_per_round.clone(),

@@ -51,7 +51,7 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(1000)
+        .with_target_population_size(1000)
         .with_max_stale_generations(100)
         .with_target_fitness_score(TARGET_SCORE)
         .with_fitness_ordering(FitnessOrdering::Minimize)

@@ -26,7 +26,7 @@
 //! use genetic_algorithm::meta::prelude::*;
 //!
 //! let rounds = 10;
-//! let population_sizes = vec![2, 4, 8];
+//! let target_population_sizes = vec![2, 4, 8];
 //! let max_stale_generations_options = vec![Some(10)];
 //! let target_fitness_score_options = vec![Some(0)];
 //! let mutates = vec![
@@ -69,7 +69,7 @@
 //!     .with_evolve_builder(evolve_builder)
 //!     .with_evolve_fitness_to_micro_second_factor(evolve_fitness_to_micro_second_factor)
 //!     .with_rounds(rounds)
-//!     .with_population_sizes(population_sizes)
+//!     .with_target_population_sizes(target_population_sizes)
 //!     .with_max_stale_generations_options(max_stale_generations_options)
 //!     .with_target_fitness_score_options(target_fitness_score_options)
 //!     .with_mutates(mutates)
@@ -88,7 +88,7 @@
 //! // [...]
 //!
 //! // meta-permutate:
-//! //   best_population_size: 2
+//! //   best_target_population_size: 2
 //! //   best_max_stale_generations: Some(10)
 //! //   best_target_fitness_score: Some(0)
 //! //   best_mutate: Some(MutateDispatch(Random, 0.4))

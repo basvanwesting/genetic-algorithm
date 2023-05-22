@@ -28,7 +28,7 @@ fn main() {
     env_logger::init();
 
     let rounds = 10;
-    let population_sizes = vec![
+    let target_population_sizes = vec![
         //10, //20,
         //50,
         //100, //200,
@@ -83,7 +83,7 @@ fn main() {
         .with_evolve_builder(evolve_builder)
         .with_evolve_fitness_to_micro_second_factor(evolve_fitness_to_micro_second_factor)
         .with_rounds(rounds)
-        .with_population_sizes(population_sizes)
+        .with_target_population_sizes(target_population_sizes)
         .with_max_stale_generations_options(max_stale_generations_options)
         .with_target_fitness_score_options(target_fitness_score_options)
         .with_mutates(mutates)

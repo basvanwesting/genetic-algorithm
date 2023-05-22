@@ -57,8 +57,8 @@ impl<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> fmt::Display for P
                 writeln!(f, "meta-permutate:")?;
                 writeln!(
                     f,
-                    "  best_population_size: {:?}",
-                    best_evolve_builder.population_size
+                    "  best_target_population_size: {:?}",
+                    best_evolve_builder.target_population_size
                 )?;
                 writeln!(
                     f,

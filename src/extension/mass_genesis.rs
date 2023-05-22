@@ -29,7 +29,7 @@ impl Extension for MassGenesis {
         population: &mut Population<G>,
         _rng: &mut R,
     ) {
-        if population.size() >= evolve.population_size
+        if population.size() >= evolve.target_population_size
             && population.fitness_score_uniformity() >= self.uniformity_threshold
         {
             log::debug!("### mass genesis event");

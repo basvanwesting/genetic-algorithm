@@ -26,8 +26,8 @@ impl<'a, G: Genotype + Sync, F: fitness::Fitness<Genotype = G> + Sync> fitness::
         let mut rng = SmallRng::from_entropy();
 
         log::info!(
-            "pop-size: {} | max-stale-gen: {:?} | target-fitness: {:?} | {:?} | {:?} | {:?} | {:?}",
-            evolve_builder.population_size,
+            "target-pop-size: {} | max-stale-gen: {:?} | target-fitness: {:?} | {:?} | {:?} | {:?} | {:?}",
+            evolve_builder.target_population_size,
             evolve_builder.max_stale_generations,
             evolve_builder.target_fitness_score,
             evolve_builder.mutate,

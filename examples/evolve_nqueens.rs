@@ -44,7 +44,7 @@ fn main() {
 
     let mut evolve = Evolve::builder()
         .with_genotype(genotype)
-        .with_population_size(20)
+        .with_target_population_size(20)
         .with_max_stale_generations(10000)
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)

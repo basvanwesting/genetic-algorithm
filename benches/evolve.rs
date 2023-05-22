@@ -8,7 +8,7 @@ use std::time::Duration;
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let genes_size = 100;
-    let population_size = 100;
+    let target_population_size = 100;
     let max_stale_generations = 100;
 
     let mut group = c.benchmark_group("evolve");
@@ -20,7 +20,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function(
         format!(
             "binary-{}-pop{}-gen{}",
-            genes_size, population_size, max_stale_generations
+            genes_size, target_population_size, max_stale_generations
         ),
         |b| {
             let genotype = BinaryGenotype::builder()
@@ -30,7 +30,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
             let evolve_builder = Evolve::builder()
                 .with_genotype(genotype)
-                .with_population_size(population_size)
+                .with_target_population_size(target_population_size)
                 .with_max_stale_generations(max_stale_generations)
                 .with_mutate(MutateOnce::new(0.2))
                 .with_fitness(Zero::new())
@@ -49,7 +49,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function(
         format!(
             "discrete-{}-pop{}-gen{}",
-            genes_size, population_size, max_stale_generations
+            genes_size, target_population_size, max_stale_generations
         ),
         |b| {
             let genotype = DiscreteGenotype::builder()
@@ -60,7 +60,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
             let evolve_builder = Evolve::builder()
                 .with_genotype(genotype)
-                .with_population_size(population_size)
+                .with_target_population_size(target_population_size)
                 .with_max_stale_generations(max_stale_generations)
                 .with_mutate(MutateOnce::new(0.2))
                 .with_fitness(Zero::new())
