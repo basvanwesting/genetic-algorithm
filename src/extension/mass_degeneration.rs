@@ -1,11 +1,7 @@
 use super::{Extension, ExtensionDispatch, Extensions};
-use crate::compete::Compete;
-use crate::crossover::Crossover;
-use crate::fitness::Fitness;
 use crate::genotype::Genotype;
-use crate::mutate::Mutate;
 use crate::population::Population;
-use crate::strategy::evolve::Evolve;
+use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
@@ -19,17 +15,11 @@ pub struct MassDegeneration {
 }
 
 impl Extension for MassDegeneration {
-    fn call<
-        G: Genotype,
-        M: Mutate,
-        F: Fitness<Genotype = G>,
-        S: Crossover,
-        C: Compete,
-        E: Extension,
-        R: Rng,
-    >(
+    fn call<G: Genotype, R: Rng>(
         &self,
-        evolve: &Evolve<G, M, F, S, C, E>,
+        genotype: &G,
+        _evolve_config: &EvolveConfig,
+        _evolve_state: &EvolveState<G>,
         population: &mut Population<G>,
         rng: &mut R,
     ) {
@@ -40,7 +30,7 @@ impl Extension for MassDegeneration {
             for _ in 0..self.number_of_rounds {
                 for chromosome in &mut population.chromosomes {
                     if bool_sampler.sample(rng) {
-                        evolve.genotype.mutate_chromosome_random(chromosome, rng);
+                        genotype.mutate_chromosome_random(chromosome, rng);
                     }
                 }
             }

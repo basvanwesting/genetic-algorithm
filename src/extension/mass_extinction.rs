@@ -1,11 +1,7 @@
 use super::{Extension, ExtensionDispatch, Extensions};
-use crate::compete::Compete;
-use crate::crossover::Crossover;
-use crate::fitness::Fitness;
 use crate::genotype::Genotype;
-use crate::mutate::Mutate;
 use crate::population::Population;
-use crate::strategy::evolve::Evolve;
+use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use rand::Rng;
 
 /// Simulates a cambrian explosion. The controlling metric is fitness score uniformity in the
@@ -19,21 +15,15 @@ pub struct MassExtinction {
 }
 
 impl Extension for MassExtinction {
-    fn call<
-        G: Genotype,
-        M: Mutate,
-        F: Fitness<Genotype = G>,
-        S: Crossover,
-        C: Compete,
-        E: Extension,
-        R: Rng,
-    >(
+    fn call<G: Genotype, R: Rng>(
         &self,
-        evolve: &Evolve<G, M, F, S, C, E>,
+        _genotype: &G,
+        evolve_config: &EvolveConfig,
+        _evolve_state: &EvolveState<G>,
         population: &mut Population<G>,
         rng: &mut R,
     ) {
-        if population.size() >= evolve.config.target_population_size
+        if population.size() >= evolve_config.target_population_size
             && population.fitness_score_uniformity() >= self.uniformity_threshold
         {
             log::debug!("### extension, mass extinction event");

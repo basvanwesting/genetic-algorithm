@@ -125,7 +125,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         while !self.is_finished() {
             self.state.current_generation += 1;
 
-            self.extension.call(&self, population, rng);
+            self.extension
+                .call(&self.genotype, &self.config, &self.state, population, rng);
             self.crossover.call(&self.genotype, population, rng);
             self.mutate.call(&self.genotype, population, rng);
             self.fitness

@@ -13,27 +13,17 @@ pub use self::mass_genesis::MassGenesis as ExtensionMassGenesis;
 pub use self::mass_invasion::MassInvasion as ExtensionMassInvasion;
 pub use self::noop::Noop as ExtensionNoop;
 
-use crate::compete::Compete;
-use crate::crossover::Crossover;
-use crate::fitness::Fitness;
 use crate::genotype::Genotype;
-use crate::mutate::Mutate;
 use crate::population::Population;
-use crate::strategy::evolve::Evolve;
+use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use rand::Rng;
 
 pub trait Extension: Clone + std::fmt::Debug {
-    fn call<
-        G: Genotype,
-        M: Mutate,
-        F: Fitness<Genotype = G>,
-        S: Crossover,
-        C: Compete,
-        E: Extension,
-        R: Rng,
-    >(
+    fn call<G: Genotype, R: Rng>(
         &self,
-        evolve: &Evolve<G, M, F, S, C, E>,
+        genotype: &G,
+        evolve_config: &EvolveConfig,
+        evolve_state: &EvolveState<G>,
         population: &mut Population<G>,
         rng: &mut R,
     );
@@ -59,17 +49,11 @@ pub struct ExtensionDispatch {
 }
 
 impl Extension for ExtensionDispatch {
-    fn call<
-        G: Genotype,
-        M: Mutate,
-        F: Fitness<Genotype = G>,
-        S: Crossover,
-        C: Compete,
-        E: Extension,
-        R: Rng,
-    >(
+    fn call<G: Genotype, R: Rng>(
         &self,
-        evolve: &Evolve<G, M, F, S, C, E>,
+        genotype: &G,
+        evolve_config: &EvolveConfig,
+        evolve_state: &EvolveState<G>,
         population: &mut Population<G>,
         rng: &mut R,
     ) {
@@ -78,21 +62,21 @@ impl Extension for ExtensionDispatch {
                 uniformity_threshold: self.uniformity_threshold,
                 survival_rate: self.survival_rate,
             }
-            .call(evolve, population, rng),
+            .call(genotype, evolve_config, evolve_state, population, rng),
             Extensions::MassGenesis => ExtensionMassGenesis {
                 uniformity_threshold: self.uniformity_threshold,
             }
-            .call(evolve, population, rng),
+            .call(genotype, evolve_config, evolve_state, population, rng),
             Extensions::MassInvasion => ExtensionMassInvasion {
                 uniformity_threshold: self.uniformity_threshold,
                 survival_rate: self.survival_rate,
             }
-            .call(evolve, population, rng),
+            .call(genotype, evolve_config, evolve_state, population, rng),
             Extensions::MassDegeneration => ExtensionMassDegeneration {
                 uniformity_threshold: self.uniformity_threshold,
                 number_of_rounds: self.number_of_rounds,
             }
-            .call(evolve, population, rng),
+            .call(genotype, evolve_config, evolve_state, population, rng),
             Extensions::Noop => {}
         }
     }
