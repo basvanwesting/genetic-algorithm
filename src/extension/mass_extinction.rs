@@ -33,7 +33,7 @@ impl Extension for MassExtinction {
         population: &mut Population<G>,
         rng: &mut R,
     ) {
-        if population.size() >= evolve.target_population_size
+        if population.size() >= evolve.config.target_population_size
             && population.fitness_score_uniformity() >= self.uniformity_threshold
         {
             log::debug!("### extension, mass extinction event");

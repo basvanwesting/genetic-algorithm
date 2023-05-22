@@ -41,7 +41,7 @@ impl<'a, G: Genotype + Sync, F: fitness::Fitness<Genotype = G> + Sync> fitness::
             evolve.call(&mut rng);
 
             stats.durations.push(now.elapsed());
-            stats.best_generations.push(evolve.best_generation);
+            stats.best_generations.push(evolve.best_generation());
             stats.best_fitness_scores.push(evolve.best_fitness_score());
         }
         log::info!("  {}", stats);

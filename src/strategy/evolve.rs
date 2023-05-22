@@ -89,13 +89,20 @@ pub struct Evolve<
     pub compete: C,
     pub extension: E,
 
+    pub config: EvolveConfig,
+    pub state: EvolveState<G>,
+}
+
+pub struct EvolveConfig {
     pub target_population_size: usize,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
+}
 
+pub struct EvolveState<G: Genotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub best_generation: usize,
@@ -106,17 +113,17 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     Strategy<G> for Evolve<G, M, F, S, C, E>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.current_generation = 0;
-        self.best_generation = 0;
+        self.state = EvolveState::default();
+
         let population = &mut self.population_factory(rng);
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
-        if self.multithreading {
+        if self.config.multithreading {
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
         while !self.is_finished() {
-            self.current_generation += 1;
+            self.state.current_generation += 1;
 
             self.extension.call(&self, population, rng);
             self.crossover.call(&self.genotype, population, rng);
@@ -125,8 +132,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 .call_for_population(population, fitness_thread_local.as_ref());
             self.compete.call(
                 population,
-                self.fitness_ordering,
-                self.target_population_size,
+                self.config.fitness_ordering,
+                self.config.target_population_size,
                 rng,
             );
             self.update_best_chromosome(population);
@@ -135,10 +142,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         }
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
-        self.best_chromosome.clone()
+        self.state.best_chromosome.clone()
     }
     fn best_generation(&self) -> usize {
-        self.best_generation
+        self.state.best_generation
     }
 }
 
@@ -151,14 +158,14 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 
     fn update_best_chromosome(&mut self, population: &Population<G>) {
         match (
-            self.best_chromosome.as_ref(),
-            population.best_chromosome(self.fitness_ordering),
+            self.state.best_chromosome.as_ref(),
+            population.best_chromosome(self.config.fitness_ordering),
         ) {
             (None, None) => {}
             (Some(_), None) => {}
             (None, Some(contending_best_chromosome)) => {
-                self.best_chromosome = Some(contending_best_chromosome.clone());
-                self.best_generation = self.current_generation;
+                self.state.best_chromosome = Some(contending_best_chromosome.clone());
+                self.state.best_generation = self.state.current_generation;
             }
             (Some(current_best_chromosome), Some(contending_best_chromosome)) => {
                 match (
@@ -168,21 +175,23 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                     (None, None) => {}
                     (Some(_), None) => {}
                     (None, Some(_)) => {
-                        self.best_chromosome = Some(contending_best_chromosome.clone());
-                        self.best_generation = self.current_generation;
+                        self.state.best_chromosome = Some(contending_best_chromosome.clone());
+                        self.state.best_generation = self.state.current_generation;
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match self.fitness_ordering {
+                        match self.config.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
-                                    self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    self.best_generation = self.current_generation;
+                                    self.state.best_chromosome =
+                                        Some(contending_best_chromosome.clone());
+                                    self.state.best_generation = self.state.current_generation;
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
-                                    self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    self.best_generation = self.current_generation;
+                                    self.state.best_chromosome =
+                                        Some(contending_best_chromosome.clone());
+                                    self.state.best_generation = self.state.current_generation;
                                 }
                             }
                         }
@@ -193,7 +202,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     }
 
     fn ensure_best_chromosome(&mut self, population: &mut Population<G>) {
-        if let Some(best_chromosome) = &self.best_chromosome {
+        if let Some(best_chromosome) = &self.state.best_chromosome {
             if !population.fitness_score_present(best_chromosome.fitness_score) {
                 population.chromosomes.push(best_chromosome.clone());
             }
@@ -207,17 +216,17 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     }
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
-        if let Some(max_stale_generations) = self.max_stale_generations {
-            self.current_generation - self.best_generation >= max_stale_generations
+        if let Some(max_stale_generations) = self.config.max_stale_generations {
+            self.state.current_generation - self.state.best_generation >= max_stale_generations
         } else {
             false
         }
     }
 
     fn is_finished_by_target_fitness_score(&self) -> bool {
-        if let Some(target_fitness_score) = self.target_fitness_score {
+        if let Some(target_fitness_score) = self.config.target_fitness_score {
             if let Some(fitness_score) = self.best_fitness_score() {
-                match self.fitness_ordering {
+                match self.config.fitness_ordering {
                     FitnessOrdering::Maximize => fitness_score >= target_fitness_score,
                     FitnessOrdering::Minimize => fitness_score <= target_fitness_score,
                 }
@@ -230,9 +239,9 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     }
 
     fn allow_finished_by_valid_fitness_score(&self) -> bool {
-        if let Some(valid_fitness_score) = self.valid_fitness_score {
+        if let Some(valid_fitness_score) = self.config.valid_fitness_score {
             if let Some(fitness_score) = self.best_fitness_score() {
-                match self.fitness_ordering {
+                match self.config.fitness_ordering {
                     FitnessOrdering::Maximize => fitness_score >= valid_fitness_score,
                     FitnessOrdering::Minimize => fitness_score <= valid_fitness_score,
                 }
@@ -247,8 +256,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     fn report_round(&self, population: &Population<G>) {
         log::debug!(
             "generation (current/best): {}/{}, fitness score (best/count/median/mean/stddev/uniformity/best-prevalence): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}, mutation: {:?}",
-            self.current_generation,
-            self.best_generation,
+            self.state.current_generation,
+            self.state.best_generation,
             self.best_fitness_score(),
             population.fitness_score_count(),
             population.fitness_score_median(),
@@ -261,21 +270,31 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
             self.best_fitness_score(),
-            self.best_chromosome
+            self.state
+                .best_chromosome
                 .as_ref()
                 .map_or(vec![], |c| c.genes.clone()),
         );
     }
 
     pub fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+        self.state
+            .best_chromosome
+            .as_ref()
+            .and_then(|c| c.fitness_score)
     }
 
     pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G> {
-        (0..self.target_population_size)
+        (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_factory(rng))
             .collect::<Vec<_>>()
             .into()
+    }
+}
+
+impl<G: Genotype> EvolveState<G> {
+    pub fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 }
 
@@ -347,18 +366,28 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 compete: builder.compete.unwrap(),
                 extension: builder.extension.unwrap(),
 
-                target_population_size: builder.target_population_size,
-                max_stale_generations: builder.max_stale_generations,
-                target_fitness_score: builder.target_fitness_score,
-                valid_fitness_score: builder.valid_fitness_score,
-                fitness_ordering: builder.fitness_ordering,
-                multithreading: builder.multithreading,
+                config: EvolveConfig {
+                    target_population_size: builder.target_population_size,
+                    max_stale_generations: builder.max_stale_generations,
+                    target_fitness_score: builder.target_fitness_score,
+                    valid_fitness_score: builder.valid_fitness_score,
+                    fitness_ordering: builder.fitness_ordering,
+                    multithreading: builder.multithreading,
+                },
 
-                current_iteration: 0,
-                current_generation: 0,
-                best_generation: 0,
-                best_chromosome: None,
+                state: EvolveState::default(),
             })
+        }
+    }
+}
+
+impl<G: Genotype> Default for EvolveState<G> {
+    fn default() -> Self {
+        Self {
+            current_iteration: 0,
+            current_generation: 0,
+            best_generation: 0,
+            best_chromosome: None,
         }
     }
 }
@@ -375,6 +404,14 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         writeln!(f, "  compete: {:?}", self.compete)?;
         writeln!(f, "  extension: {:?}", self.extension)?;
 
+        writeln!(f, "{}", self.config)?;
+        writeln!(f, "{}", self.state)
+    }
+}
+
+impl fmt::Display for EvolveConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "evolve_config:")?;
         writeln!(
             f,
             "  target_population_size: {}",
@@ -388,8 +425,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  multithreading: {:?}", self.multithreading)?;
+        writeln!(f, "  multithreading: {:?}", self.multithreading)
+    }
+}
 
+impl<G: Genotype> fmt::Display for EvolveState<G> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "evolve_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;

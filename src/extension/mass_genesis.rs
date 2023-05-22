@@ -29,11 +29,11 @@ impl Extension for MassGenesis {
         population: &mut Population<G>,
         _rng: &mut R,
     ) {
-        if population.size() >= evolve.target_population_size
+        if population.size() >= evolve.config.target_population_size
             && population.fitness_score_uniformity() >= self.uniformity_threshold
         {
             log::debug!("### mass genesis event");
-            if let Some(best_chromosome) = &evolve.best_chromosome {
+            if let Some(best_chromosome) = &evolve.state.best_chromosome {
                 population.chromosomes = vec![best_chromosome.clone(), best_chromosome.clone()]
             }
         }

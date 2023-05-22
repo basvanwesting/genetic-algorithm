@@ -62,7 +62,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         let mut best_evolve: Option<Evolve<G, M, F, S, C, E>> = None;
         for iteration in 0..max_repeats {
             let mut contending_run: Evolve<G, M, F, S, C, E> = self.clone().try_into()?;
-            contending_run.current_iteration = iteration;
+            contending_run.state.current_iteration = iteration;
             contending_run.call(rng);
             if contending_run.is_finished_by_target_fitness_score() {
                 best_evolve = Some(contending_run);
@@ -79,7 +79,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                         best_evolve = Some(contending_run);
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match contending_run.fitness_ordering {
+                        match contending_run.config.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score >= current_fitness_score {
                                     best_evolve = Some(contending_run);
