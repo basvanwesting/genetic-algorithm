@@ -4,6 +4,7 @@ use genetic_algorithm::compete::{Compete, CompeteTournament};
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::BinaryGenotype;
+use genetic_algorithm::strategy::evolve::EvolveConfig;
 
 #[test]
 fn maximize_population_surplus() {
@@ -20,7 +21,12 @@ fn maximize_population_surplus() {
 
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(population, None);
-    CompeteTournament(4).call(population, FitnessOrdering::Maximize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Maximize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteTournament(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -42,7 +48,12 @@ fn maximize_population_shortage() {
 
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(population, None);
-    CompeteTournament(4).call(population, FitnessOrdering::Maximize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Maximize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteTournament(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -65,7 +76,12 @@ fn minimize_population_surplus() {
 
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(population, None);
-    CompeteTournament(4).call(population, FitnessOrdering::Minimize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteTournament(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -87,7 +103,12 @@ fn minimize_population_shortage() {
 
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(population, None);
-    CompeteTournament(4).call(population, FitnessOrdering::Minimize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteTournament(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -109,7 +130,12 @@ fn minimize_population_surplus_with_none_fitness() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CompeteTournament(4).call(population, FitnessOrdering::Minimize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteTournament(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(population),
@@ -131,7 +157,12 @@ fn minimize_population_shortage_with_none_fitness() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CompeteTournament(4).call(population, FitnessOrdering::Minimize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteTournament(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(population),

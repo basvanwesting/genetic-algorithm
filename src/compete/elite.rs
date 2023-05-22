@@ -2,6 +2,7 @@ use super::Compete;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::population::Population;
+use crate::strategy::evolve::EvolveConfig;
 use rand::prelude::*;
 use std::cmp::Reverse;
 
@@ -14,11 +15,10 @@ impl Compete for Elite {
     fn call<T: Genotype, R: Rng>(
         &self,
         population: &mut Population<T>,
-        fitness_ordering: FitnessOrdering,
-        target_population_size: usize,
+        evolve_config: &EvolveConfig,
         _rng: &mut R,
     ) {
-        match fitness_ordering {
+        match evolve_config.fitness_ordering {
             FitnessOrdering::Maximize => population
                 .chromosomes
                 .sort_unstable_by_key(|c| c.fitness_score),
@@ -31,8 +31,8 @@ impl Compete for Elite {
                     })
             }
         }
-        if population.size() > target_population_size {
-            let to_drain_from_first = population.size() - target_population_size;
+        if population.size() > evolve_config.target_population_size {
+            let to_drain_from_first = population.size() - evolve_config.target_population_size;
             population.chromosomes.drain(..to_drain_from_first);
         }
     }

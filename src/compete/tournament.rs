@@ -4,6 +4,7 @@ use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
 use crate::population::Population;
+use crate::strategy::evolve::EvolveConfig;
 use rand::prelude::*;
 use std::cmp::Reverse;
 
@@ -19,13 +20,15 @@ impl Compete for Tournament {
     fn call<T: Genotype, R: Rng>(
         &self,
         population: &mut Population<T>,
-        fitness_ordering: FitnessOrdering,
-        target_population_size: usize,
+        evolve_config: &EvolveConfig,
         rng: &mut R,
     ) {
         let mut working_population_size = population.size();
         let tournament_size = std::cmp::min(self.0, working_population_size);
-        let target_population_size = std::cmp::min(target_population_size, working_population_size);
+        let target_population_size = std::cmp::min(
+            evolve_config.target_population_size,
+            working_population_size,
+        );
 
         let mut target_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(target_population_size);
         let mut tournament_chromosomes: Vec<(usize, Option<FitnessValue>)> =
@@ -40,7 +43,7 @@ impl Compete for Tournament {
                 ));
             }
 
-            match fitness_ordering {
+            match evolve_config.fitness_ordering {
                 FitnessOrdering::Maximize => tournament_chromosomes.sort_unstable_by_key(|a| a.1),
                 FitnessOrdering::Minimize => {
                     tournament_chromosomes.sort_unstable_by_key(|a| match a.1 {

@@ -4,6 +4,7 @@ use genetic_algorithm::compete::{Compete, CompeteElite};
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::BinaryGenotype;
+use genetic_algorithm::strategy::evolve::EvolveConfig;
 
 #[test]
 fn maximize_population_surplus() {
@@ -20,7 +21,12 @@ fn maximize_population_surplus() {
 
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(population, None);
-    CompeteElite.call(population, FitnessOrdering::Maximize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Maximize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteElite.call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -43,7 +49,12 @@ fn maximize_population_shortage() {
 
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(population, None);
-    CompeteElite.call(population, FitnessOrdering::Maximize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Maximize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteElite.call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -70,7 +81,12 @@ fn minimize_population_surplus() {
 
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(population, None);
-    CompeteElite.call(population, FitnessOrdering::Minimize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteElite.call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -93,7 +109,12 @@ fn minimize_population_shortage() {
 
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(population, None);
-    CompeteElite.call(population, FitnessOrdering::Minimize, 4, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    CompeteElite.call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -116,7 +137,12 @@ fn fitness_ordering_with_none_fitness() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CompeteElite.call(population, FitnessOrdering::Maximize, 5, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Maximize,
+        target_population_size: 5,
+        ..Default::default()
+    };
+    CompeteElite.call(population, &evolve_config, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(population),
         vec![
@@ -128,7 +154,12 @@ fn fitness_ordering_with_none_fitness() {
         ]
     );
 
-    CompeteElite.call(population, FitnessOrdering::Minimize, 5, &mut rng);
+    let evolve_config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 5,
+        ..Default::default()
+    };
+    CompeteElite.call(population, &evolve_config, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(population),
         vec![

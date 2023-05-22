@@ -131,12 +131,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             self.mutate.call(&self.genotype, population, rng);
             self.fitness
                 .call_for_population(population, fitness_thread_local.as_ref());
-            self.compete.call(
-                population,
-                self.config.fitness_ordering,
-                self.config.target_population_size,
-                rng,
-            );
+            self.compete.call(population, &self.config, rng);
             self.update_best_chromosome(population);
             self.ensure_best_chromosome(population);
             self.report_round(population);
@@ -378,6 +373,19 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 
                 state: EvolveState::default(),
             })
+        }
+    }
+}
+
+impl Default for EvolveConfig {
+    fn default() -> Self {
+        Self {
+            target_population_size: 0,
+            max_stale_generations: None,
+            target_fitness_score: None,
+            valid_fitness_score: None,
+            fitness_ordering: FitnessOrdering::Maximize,
+            multithreading: false,
         }
     }
 }
