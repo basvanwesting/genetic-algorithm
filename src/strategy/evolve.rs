@@ -83,14 +83,18 @@ pub struct Evolve<
     E: Extension,
 > {
     pub genotype: G,
-    pub mutate: M,
     pub fitness: F,
+
+    pub plugins: EvolvePlugins<M, S, C, E>,
+    pub config: EvolveConfig,
+    pub state: EvolveState<G>,
+}
+
+pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Compete, E: Extension> {
+    pub mutate: M,
     pub crossover: S,
     pub compete: C,
     pub extension: E,
-
-    pub config: EvolveConfig,
-    pub state: EvolveState<G>,
 }
 
 pub struct EvolveConfig {
@@ -125,13 +129,14 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         while !self.is_finished() {
             self.state.current_generation += 1;
 
-            self.extension
+            self.plugins
+                .extension
                 .call(&self.genotype, &self.config, &self.state, population, rng);
-            self.crossover.call(&self.genotype, population, rng);
-            self.mutate.call(&self.genotype, population, rng);
+            self.plugins.crossover.call(&self.genotype, population, rng);
+            self.plugins.mutate.call(&self.genotype, population, rng);
             self.fitness
                 .call_for_population(population, fitness_thread_local.as_ref());
-            self.compete.call(population, &self.config, rng);
+            self.plugins.compete.call(population, &self.config, rng);
             self.update_best_chromosome(population);
             self.ensure_best_chromosome(population);
             self.report_round(population);
@@ -261,7 +266,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             population.fitness_score_stddev(),
             population.fitness_score_uniformity(),
             population.fitness_score_prevalence(self.best_fitness_score()),
-            self.mutate.report(),
+            self.plugins.mutate.report(),
         );
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
@@ -356,12 +361,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         } else {
             Ok(Self {
                 genotype: builder.genotype.unwrap(),
-                mutate: builder.mutate.unwrap(),
                 fitness: builder.fitness.unwrap(),
-                crossover: builder.crossover.unwrap(),
-                compete: builder.compete.unwrap(),
-                extension: builder.extension.unwrap(),
-
+                plugins: EvolvePlugins {
+                    mutate: builder.mutate.unwrap(),
+                    crossover: builder.crossover.unwrap(),
+                    compete: builder.compete.unwrap(),
+                    extension: builder.extension.unwrap(),
+                },
                 config: EvolveConfig {
                     target_population_size: builder.target_population_size,
                     max_stale_generations: builder.max_stale_generations,
@@ -370,7 +376,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                     fitness_ordering: builder.fitness_ordering,
                     multithreading: builder.multithreading,
                 },
-
                 state: EvolveState::default(),
             })
         }
@@ -407,14 +412,21 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve:")?;
         writeln!(f, "  genotype: {:?}", self.genotype)?;
-        writeln!(f, "  mutate: {:?}", self.mutate)?;
         writeln!(f, "  fitness: {:?}", self.fitness)?;
-        writeln!(f, "  crossover: {:?}", self.crossover)?;
-        writeln!(f, "  compete: {:?}", self.compete)?;
-        writeln!(f, "  extension: {:?}", self.extension)?;
 
+        writeln!(f, "{}", self.plugins)?;
         writeln!(f, "{}", self.config)?;
         writeln!(f, "{}", self.state)
+    }
+}
+
+impl<M: Mutate, S: Crossover, C: Compete, E: Extension> fmt::Display for EvolvePlugins<M, S, C, E> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "evolve_plugis:")?;
+        writeln!(f, "  mutate: {:?}", self.mutate)?;
+        writeln!(f, "  crossover: {:?}", self.crossover)?;
+        writeln!(f, "  compete: {:?}", self.compete)?;
+        writeln!(f, "  extension: {:?}", self.extension)
     }
 }
 
