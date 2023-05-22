@@ -163,6 +163,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
     fn best_generation(&self) -> usize {
         self.best_generation
     }
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+    }
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
@@ -301,10 +304,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
                 chromosome.genes,
             );
         })
-    }
-
-    fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 
     fn reset_scaling(&mut self) {

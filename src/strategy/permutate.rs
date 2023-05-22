@@ -73,6 +73,9 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Strategy<G> for Permutate<
     fn best_generation(&self) -> usize {
         0
     }
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+    }
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
@@ -153,10 +156,6 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
                 }
             }
         }
-    }
-
-    fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 }
 

@@ -148,6 +148,9 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     fn best_generation(&self) -> usize {
         self.state.best_generation
     }
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.state.best_fitness_score()
+    }
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
@@ -276,13 +279,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 .as_ref()
                 .map_or(vec![], |c| c.genes.clone()),
         );
-    }
-
-    pub fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.state
-            .best_chromosome
-            .as_ref()
-            .and_then(|c| c.fitness_score)
     }
 
     pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G> {

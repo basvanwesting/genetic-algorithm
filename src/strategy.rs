@@ -4,6 +4,7 @@ pub mod hill_climb;
 pub mod permutate;
 
 use crate::chromosome::Chromosome;
+use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
 use rand::Rng;
 
@@ -11,4 +12,5 @@ pub trait Strategy<G: Genotype> {
     fn call<R: Rng>(&mut self, rng: &mut R);
     fn best_chromosome(&self) -> Option<Chromosome<G>>;
     fn best_generation(&self) -> usize;
+    fn best_fitness_score(&self) -> Option<FitnessValue>;
 }
