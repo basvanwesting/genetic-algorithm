@@ -2,6 +2,7 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
+use crate::strategy::evolve::EvolveConfig;
 use rand::prelude::*;
 
 #[derive(Clone, Debug)]
@@ -31,8 +32,19 @@ impl<T: Genotype> Population<T> {
     pub fn reset_age(&mut self) {
         self.chromosomes.iter_mut().for_each(|c| c.age = 0);
     }
-    pub fn increment_age(&mut self) {
-        self.chromosomes.iter_mut().for_each(|c| c.age += 1);
+    pub fn increment_and_filter_age(&mut self, evolve_config: &EvolveConfig) {
+        if let Some(max_chromosome_age) = evolve_config.max_chromosome_age {
+            self.chromosomes.retain_mut(|chromosome| {
+                if chromosome.age < max_chromosome_age {
+                    chromosome.age += 1;
+                    true
+                } else {
+                    false
+                }
+            });
+        } else {
+            self.chromosomes.iter_mut().for_each(|c| c.age += 1);
+        }
     }
 
     pub fn trim<R: Rng>(&mut self, remaining_percentage: f32, rng: &mut R) {
