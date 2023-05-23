@@ -10,7 +10,7 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::hill_climb::{
-    HillClimb, HillClimbBuilder, HillClimbVariant, TryFromHillClimbBuilderError,
+    HillClimb, HillClimbBuilder, HillClimbVariant, Scaling, TryFromHillClimbBuilderError,
 };
 #[doc(no_inline)]
 pub use crate::strategy::Strategy;

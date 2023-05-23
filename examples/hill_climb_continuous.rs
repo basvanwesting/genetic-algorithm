@@ -22,7 +22,7 @@ fn main() {
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::Stochastic)
         .with_target_fitness_score(99 * 100_000)
-        .with_scaling((1.0, 0.8, 1e-5))
+        .with_scaling(Scaling::new(1.0, 0.8, 1e-5))
         .with_fitness(SumContinuousGenotype(1e-5))
         .call(&mut rng)
         .unwrap();

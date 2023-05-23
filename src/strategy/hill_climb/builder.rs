@@ -1,4 +1,4 @@
-use super::{HillClimb, HillClimbVariant};
+use super::{HillClimb, HillClimbVariant, Scaling};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::Strategy;
@@ -18,7 +18,7 @@ pub struct Builder<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub scaling: Option<(f32, f32, f32)>,
+    pub scaling: Option<Scaling>,
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
@@ -133,8 +133,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.valid_fitness_score = valid_fitness_score_option;
         self
     }
-    /// scaling: (initial-scaling, scale-down-factor, min-scale)
-    pub fn with_scaling(mut self, scaling: (f32, f32, f32)) -> Self {
+    pub fn with_scaling(mut self, scaling: Scaling) -> Self {
         self.scaling = Some(scaling);
         self
     }

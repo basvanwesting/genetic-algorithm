@@ -23,6 +23,13 @@ pub enum HillClimbVariant {
     SteepestAscent,
 }
 
+#[derive(Clone, Debug)]
+pub struct Scaling {
+    pub base_scale: f32,
+    pub scale_factor: f32,
+    pub min_scale: f32,
+}
+
 /// The HillClimb strategy is an iterative algorithm that starts with an arbitrary solution to a
 /// problem, then attempts to find a better solution by making an incremental change to the
 /// solution
@@ -76,7 +83,7 @@ pub enum HillClimbVariant {
 ///     .with_fitness(SumContinuousGenotype(1e-5))      // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_multithreading(true)                 // use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
-///     .with_scaling((1.0, 0.8, 1e-5))            // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale
+///     .with_scaling(Scaling::new(1.0, 0.8, 1e-5))  // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale
 ///     .with_target_fitness_score(10)             // ending condition if sum of genes is <= 0.00010 in the best chromosome
 ///     .with_valid_fitness_score(100)             // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)          // stop searching if there is no improvement in fitness score for 1000 generations
@@ -97,11 +104,11 @@ pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     max_stale_generations: Option<usize>,
     target_fitness_score: Option<FitnessValue>,
     valid_fitness_score: Option<FitnessValue>,
-    scaling: Option<(f32, f32, f32)>,
+    scaling: Option<Scaling>,
 
     pub current_iteration: usize,
     pub current_generation: usize,
-    pub current_scaling: Option<f32>,
+    pub current_scale: Option<f32>,
     pub best_generation: usize,
     best_chromosome: Option<Chromosome<G>>,
 }
@@ -128,7 +135,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                     let working_chromosome = &mut self.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_neighbour(
                         working_chromosome,
-                        self.current_scaling,
+                        self.current_scale,
                         rng,
                     );
                     self.fitness.call_for_chromosome(working_chromosome);
@@ -139,7 +146,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                     let working_chromosome = &mut self.best_chromosome().unwrap();
                     let working_population = &mut self
                         .genotype
-                        .neighbouring_population(working_chromosome, self.current_scaling);
+                        .neighbouring_population(working_chromosome, self.current_scale);
 
                     self.fitness
                         .call_for_population(working_population, fitness_thread_local.as_ref());
@@ -264,8 +271,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 
     fn is_finished_by_min_scale(&self) -> bool {
-        if let Some(current_scaling) = self.current_scaling {
-            current_scaling < self.scaling.as_ref().unwrap().2
+        if let Some(current_scale) = self.current_scale {
+            current_scale < self.scaling.as_ref().unwrap().min_scale
         } else {
             false
         }
@@ -277,7 +284,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
             self.current_generation,
             self.best_generation,
             self.best_fitness_score(),
-            self.current_scaling.as_ref(),
+            self.current_scale.as_ref(),
         );
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
@@ -307,12 +314,12 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 
     fn reset_scaling(&mut self) {
-        self.current_scaling = self.scaling.map(|(base, _factor, _min)| base);
+        self.current_scale = self.scaling.as_ref().map(|s| s.base_scale);
     }
 
     fn scale_down(&mut self) {
-        if let Some(current_scaling) = self.current_scaling {
-            self.current_scaling = Some(current_scaling * self.scaling.as_ref().unwrap().1);
+        if let Some(current_scale) = self.current_scale {
+            self.current_scale = Some(current_scale * self.scaling.as_ref().unwrap().scale_factor);
         }
     }
 }
@@ -353,7 +360,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
 
                 current_iteration: 0,
                 current_generation: 0,
-                current_scaling: None,
+                current_scale: None,
                 best_generation: 0,
                 best_chromosome: None,
             })
@@ -381,5 +388,15 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClim
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
         writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
+    }
+}
+
+impl Scaling {
+    pub fn new(base_scale: f32, scale_factor: f32, min_scale: f32) -> Self {
+        Self {
+            base_scale,
+            scale_factor,
+            min_scale,
+        }
     }
 }
