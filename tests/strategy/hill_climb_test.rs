@@ -258,6 +258,27 @@ fn call_binary_stochastic() {
 }
 
 #[test]
+fn call_binary_stochastic_double() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(100)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_variant(HillClimbVariant::StochasticDouble)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_target_fitness_score(0)
+        .with_fitness(CountTrue)
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = hill_climb.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+    assert_eq!(best_chromosome.fitness_score, Some(0));
+}
+
+#[test]
 fn call_binary_steepest_ascent() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)

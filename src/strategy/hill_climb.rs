@@ -20,6 +20,7 @@ use thread_local::ThreadLocal;
 #[derive(Clone, Debug)]
 pub enum HillClimbVariant {
     Stochastic,
+    StochasticDouble,
     SteepestAscent,
     SteepestAscentDouble,
 }
@@ -35,11 +36,16 @@ pub struct Scaling {
 /// problem, then attempts to find a better solution by making an incremental change to the
 /// solution
 ///
-/// There are 2 variants:
+/// There are 4 variants:
 /// * [HillClimbVariant::Stochastic]: does not examine all neighbors before deciding how to move.
 ///   Rather, it selects a neighbor at random, and decides (based on the amount of improvement in
 ///   that neighbor) whether to move to that neighbor or to examine another
 /// * [HillClimbVariant::SteepestAscent]: all neighbours are compared and the closest to the solution is chosen
+/// * [HillClimbVariant::StochasticDouble]: like Stochastic, but also randomly tries a random neighbour of the neighbour
+/// * [HillClimbVariant::SteepestAscentDouble]: like SteepestAscent, but also neighbours of
+///   neighbours are in scope. This is O(n^2) with regards to the SteepestAscent variant, but some
+///   problem spaces require "swap"-like behaviour in the genes, when a UniqueGenotype doesn't map
+///   well.
 ///
 /// The ending conditions are one or more of the following:
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
@@ -142,6 +148,27 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                     self.fitness.call_for_chromosome(working_chromosome);
                     self.update_best_chromosome(working_chromosome);
                     self.report_working_chromosome(working_chromosome);
+                }
+                HillClimbVariant::StochasticDouble => {
+                    let working_chromosome_primary = &mut self.best_chromosome().unwrap();
+                    self.genotype.mutate_chromosome_neighbour(
+                        working_chromosome_primary,
+                        self.current_scale,
+                        rng,
+                    );
+                    self.fitness.call_for_chromosome(working_chromosome_primary);
+                    self.update_best_chromosome(working_chromosome_primary);
+                    self.report_working_chromosome(working_chromosome_primary);
+
+                    let working_chromosome_double = &mut working_chromosome_primary.clone();
+                    self.genotype.mutate_chromosome_neighbour(
+                        working_chromosome_double,
+                        self.current_scale,
+                        rng,
+                    );
+                    self.fitness.call_for_chromosome(working_chromosome_double);
+                    self.update_best_chromosome(working_chromosome_double);
+                    self.report_working_chromosome(working_chromosome_double);
                 }
                 HillClimbVariant::SteepestAscent => {
                     let working_chromosome = &mut self.best_chromosome().unwrap();
