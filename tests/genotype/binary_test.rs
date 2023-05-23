@@ -142,14 +142,18 @@ fn chromosome_permutations_genes_size_3() {
 }
 
 #[test]
-fn chromosome_factory_with_seed_genes() {
+fn chromosome_factory_with_seed_genes_list() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = BinaryGenotype::builder()
         .with_genes_size(4)
-        .with_seed_genes(vec![true, true, false, false])
+        .with_seed_genes_list(vec![
+            vec![true, true, false, false],
+            vec![false, false, true, true],
+        ])
         .build()
         .unwrap();
     let chromosomes = vec![
+        genotype.chromosome_factory(&mut rng),
         genotype.chromosome_factory(&mut rng),
         genotype.chromosome_factory(&mut rng),
         genotype.chromosome_factory(&mut rng),
@@ -157,7 +161,7 @@ fn chromosome_factory_with_seed_genes() {
     println!("{:#?}", chromosomes);
     assert_eq!(
         inspect::chromosome(&chromosomes[0]),
-        vec![true, true, false, false]
+        vec![false, false, true, true]
     );
     assert_eq!(
         inspect::chromosome(&chromosomes[1]),
@@ -165,6 +169,10 @@ fn chromosome_factory_with_seed_genes() {
     );
     assert_eq!(
         inspect::chromosome(&chromosomes[2]),
+        vec![false, false, true, true]
+    );
+    assert_eq!(
+        inspect::chromosome(&chromosomes[3]),
         vec![true, true, false, false]
     );
 }

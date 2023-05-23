@@ -37,7 +37,7 @@ pub struct Continuous {
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<ContinuousAllele>,
     allele_neighbour_sampler: Option<Uniform<ContinuousAllele>>,
-    pub seed_genes: Option<Vec<ContinuousAllele>>,
+    pub seed_genes_list: Vec<Vec<ContinuousAllele>>,
 }
 
 impl TryFrom<Builder<Self>> for Continuous {
@@ -65,7 +65,7 @@ impl TryFrom<Builder<Self>> for Continuous {
                 allele_neighbour_sampler: builder
                     .allele_neighbour_range
                     .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
-                seed_genes: builder.seed_genes,
+                seed_genes_list: builder.seed_genes_list,
             })
         }
     }
@@ -83,10 +83,10 @@ impl Genotype for Continuous {
             .collect()
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        if let Some(seed_genes) = self.seed_genes.as_ref() {
-            Chromosome::new(seed_genes.clone())
-        } else {
+        if self.seed_genes_list.is_empty() {
             Chromosome::new(self.random_genes_factory(rng))
+        } else {
+            Chromosome::new(self.seed_genes_list.choose(rng).unwrap().clone())
         }
     }
 
@@ -171,6 +171,6 @@ impl fmt::Display for Continuous {
             "  neighbouring_population_size: {}",
             self.neighbouring_population_size()
         )?;
-        writeln!(f, "  seed_genes: {:?}", self.seed_genes)
+        writeln!(f, "  seed_genes_list: {:?}", self.seed_genes_list)
     }
 }

@@ -4,7 +4,7 @@ use crate::chromosome::Chromosome;
 use crate::population::Population;
 use num::BigUint;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
-use rand::Rng;
+use rand::prelude::*;
 use std::fmt;
 
 pub type BinaryAllele = bool;
@@ -27,7 +27,7 @@ pub struct Binary {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Bernoulli,
-    pub seed_genes: Option<Vec<BinaryAllele>>,
+    pub seed_genes_list: Vec<Vec<BinaryAllele>>,
 }
 
 impl TryFrom<Builder<Self>> for Binary {
@@ -41,7 +41,7 @@ impl TryFrom<Builder<Self>> for Binary {
                 genes_size: builder.genes_size.unwrap(),
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
                 allele_sampler: Bernoulli::new(0.5).unwrap(),
-                seed_genes: builder.seed_genes,
+                seed_genes_list: builder.seed_genes_list,
             })
         }
     }
@@ -58,10 +58,10 @@ impl Genotype for Binary {
             .collect()
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        if let Some(seed_genes) = self.seed_genes.as_ref() {
-            Chromosome::new(seed_genes.clone())
-        } else {
+        if self.seed_genes_list.is_empty() {
             Chromosome::new(self.random_genes_factory(rng))
+        } else {
+            Chromosome::new(self.seed_genes_list.choose(rng).unwrap().clone())
         }
     }
 
@@ -122,6 +122,6 @@ impl fmt::Display for Binary {
             "  neighbouring_population_size: {}",
             self.neighbouring_population_size()
         )?;
-        writeln!(f, "  seed_genes: {:?}", self.seed_genes)
+        writeln!(f, "  seed_genes_list: {:?}", self.seed_genes_list)
     }
 }

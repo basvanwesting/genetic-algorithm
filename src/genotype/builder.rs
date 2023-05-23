@@ -7,8 +7,9 @@ pub struct TryFromBuilderError(pub &'static str);
 /// The builder for a Genotype struct
 ///
 /// Shared initialization options for all Genotypes:
-/// * Builder `with_seed_genes(Vec<_>)`, optional, start genes of all chromosomes in the population
-///   (instead of the default random genes). Sometimes it is efficient to start with a certain population
+/// * Builder `with_seed_genes_list(Vec<Vec<_>>)`, optional, list of start genes of all chromosomes
+///   which are distributed randomly in the population (instead of the default random genes).
+///   Sometimes it is efficient to start with a certain population
 ///
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {
@@ -19,7 +20,7 @@ pub struct Builder<G: Genotype> {
     pub allele_ranges: Option<Vec<Range<<G as Genotype>::Allele>>>,
     pub allele_neighbour_range: Option<Range<<G as Genotype>::Allele>>,
     pub allele_neighbour_ranges: Option<Vec<Range<<G as Genotype>::Allele>>>,
-    pub seed_genes: Option<Vec<<G as Genotype>::Allele>>,
+    pub seed_genes_list: Vec<Vec<<G as Genotype>::Allele>>,
 }
 
 impl<G: Genotype> Builder<G> {
@@ -37,10 +38,7 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
-    pub fn with_allele_lists(
-        mut self,
-        allele_lists: Vec<Vec<<G as Genotype>::Allele>>,
-    ) -> Self {
+    pub fn with_allele_lists(mut self, allele_lists: Vec<Vec<<G as Genotype>::Allele>>) -> Self {
         self.allele_lists = Some(allele_lists);
         self
     }
@@ -74,8 +72,11 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
-    pub fn with_seed_genes(mut self, seed_genes: Vec<<G as Genotype>::Allele>) -> Self {
-        self.seed_genes = Some(seed_genes);
+    pub fn with_seed_genes_list(
+        mut self,
+        seed_genes_list: Vec<Vec<<G as Genotype>::Allele>>,
+    ) -> Self {
+        self.seed_genes_list = seed_genes_list;
         self
     }
 
@@ -94,7 +95,7 @@ impl<G: Genotype> Default for Builder<G> {
             allele_ranges: None,
             allele_neighbour_range: None,
             allele_neighbour_ranges: None,
-            seed_genes: None,
+            seed_genes_list: vec![],
         }
     }
 }

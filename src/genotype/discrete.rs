@@ -50,7 +50,7 @@ pub struct Discrete<T: PartialEq + Clone + Send + std::fmt::Debug = DefaultAllel
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     allele_index_sampler: Uniform<usize>,
-    pub seed_genes: Option<Vec<T>>,
+    pub seed_genes_list: Vec<Vec<T>>,
 }
 
 impl<T: PartialEq + Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
@@ -74,7 +74,7 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for D
                 allele_list: allele_list.clone(),
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
                 allele_index_sampler: Uniform::from(0..allele_list.len()),
-                seed_genes: builder.seed_genes,
+                seed_genes_list: builder.seed_genes_list,
             })
         }
     }
@@ -91,10 +91,10 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> Genotype for Discrete<T> {
             .collect()
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        if let Some(seed_genes) = self.seed_genes.as_ref() {
-            Chromosome::new(seed_genes.clone())
-        } else {
+        if self.seed_genes_list.is_empty() {
             Chromosome::new(self.random_genes_factory(rng))
+        } else {
+            Chromosome::new(self.seed_genes_list.choose(rng).unwrap().clone())
         }
     }
 
@@ -162,6 +162,6 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> fmt::Display for Discrete<T>
             "  neighbouring_population_size: {}",
             self.neighbouring_population_size()
         )?;
-        writeln!(f, "  seed_genes: {:?}", self.seed_genes)
+        writeln!(f, "  seed_genes_list: {:?}", self.seed_genes_list)
     }
 }

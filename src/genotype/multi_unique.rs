@@ -62,7 +62,7 @@ pub struct MultiUnique<T: Clone + Send + std::fmt::Debug = DefaultAllele> {
     pub allele_lists: Vec<Vec<T>>,
     allele_list_index_sampler: WeightedIndex<usize>,
     allele_list_index_samplers: Vec<Uniform<usize>>,
-    pub seed_genes: Option<Vec<T>>,
+    pub seed_genes_list: Vec<Vec<T>>,
 }
 
 impl<T: Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for MultiUnique<T> {
@@ -95,7 +95,7 @@ impl<T: Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for MultiUnique<T
                     .iter()
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
                     .collect(),
-                seed_genes: builder.seed_genes,
+                seed_genes_list: builder.seed_genes_list,
             })
         }
     }
@@ -126,10 +126,10 @@ impl<T: Clone + Send + std::fmt::Debug> Genotype for MultiUnique<T> {
             .collect()
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        if let Some(seed_genes) = self.seed_genes.as_ref() {
-            Chromosome::new(seed_genes.clone())
-        } else {
+        if self.seed_genes_list.is_empty() {
             Chromosome::new(self.random_genes_factory(rng))
+        } else {
+            Chromosome::new(self.seed_genes_list.choose(rng).unwrap().clone())
         }
     }
 
@@ -239,6 +239,6 @@ impl<T: Clone + Send + std::fmt::Debug> fmt::Display for MultiUnique<T> {
             "  neighbouring_population_size: {}",
             self.neighbouring_population_size()
         )?;
-        writeln!(f, "  seed_genes: {:?}", self.seed_genes)
+        writeln!(f, "  seed_genes_list: {:?}", self.seed_genes_list)
     }
 }
