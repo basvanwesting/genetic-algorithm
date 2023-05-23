@@ -77,11 +77,19 @@ pub trait IncrementalGenotype: Genotype {
         rng: &mut R,
     );
     /// all neighbouring mutations of the chromosome
-    fn neighbouring_population(
+    fn neighbouring_chromosomes(
         &self,
         _chromosome: &Chromosome<Self>,
         _scale: Option<f32>,
-    ) -> Population<Self>;
+    ) -> Vec<Chromosome<Self>>;
+
+    fn neighbouring_population(
+        &self,
+        chromosome: &Chromosome<Self>,
+        scale: Option<f32>,
+    ) -> Population<Self> {
+        self.neighbouring_chromosomes(chromosome, scale).into()
+    }
     /// chromosome neighbours size for the all possible neighbouring mutation combinations
     fn neighbouring_population_size(&self) -> BigUint;
 }

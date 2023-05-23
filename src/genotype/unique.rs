@@ -1,7 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
-use crate::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
 use num::BigUint;
@@ -118,11 +117,11 @@ impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for Unique<T> {
         self.mutate_chromosome_random(chromosome, rng);
     }
 
-    fn neighbouring_population(
+    fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,
         _scale: Option<f32>,
-    ) -> Population<Self> {
+    ) -> Vec<Chromosome<Self>> {
         (0..self.genes_size())
             .tuple_combinations()
             .map(|(first, second)| {
@@ -132,7 +131,6 @@ impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for Unique<T> {
             })
             .map(|genes| Chromosome::new(genes))
             .collect::<Vec<_>>()
-            .into()
     }
 
     fn neighbouring_population_size(&self) -> BigUint {

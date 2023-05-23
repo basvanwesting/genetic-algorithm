@@ -1,7 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
-use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
@@ -152,11 +151,11 @@ impl IncrementalGenotype for MultiContinuous {
         chromosome.taint_fitness_score();
     }
 
-    fn neighbouring_population(
+    fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,
         scale: Option<f32>,
-    ) -> Population<Self> {
+    ) -> Vec<Chromosome<Self>> {
         let range_diffs: Vec<Vec<ContinuousAllele>> = self
             .allele_neighbour_ranges
             .as_ref()
@@ -195,7 +194,6 @@ impl IncrementalGenotype for MultiContinuous {
                 })
             })
             .collect::<Vec<_>>()
-            .into()
     }
 
     fn neighbouring_population_size(&self) -> BigUint {

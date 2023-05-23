@@ -1,7 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
-use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
@@ -160,11 +159,11 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> IncrementalGenotype for Mult
         self.mutate_chromosome_random(chromosome, rng);
     }
 
-    fn neighbouring_population(
+    fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,
         _scale: Option<f32>,
-    ) -> Population<Self> {
+    ) -> Vec<Chromosome<Self>> {
         (0..self.genes_size)
             .flat_map(|index| {
                 self.allele_lists[index]
@@ -180,7 +179,6 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> IncrementalGenotype for Mult
                     })
             })
             .collect::<Vec<_>>()
-            .into()
     }
 
     fn neighbouring_population_size(&self) -> BigUint {
