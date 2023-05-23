@@ -139,7 +139,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 .call_for_population(population, fitness_thread_local.as_ref());
             self.plugins.compete.call(population, &self.config, rng);
             self.state.update_best_chromosome(population, &self.config);
-            self.ensure_best_chromosome(population);
+            //self.ensure_best_chromosome(population);
             self.report_round(population);
         }
     }
@@ -215,9 +215,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 
     fn report_round(&self, population: &Population<G>) {
         log::debug!(
-            "generation (current/best): {}/{}, fitness score (best/count/median/mean/stddev/uniformity/best-prevalence): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}, mutation: {:?}",
+            "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/uniformity/best-prevalence): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}, mutation: {:?}",
             self.state.current_generation,
             self.state.best_generation,
+            population.age_mean(),
             self.best_fitness_score(),
             population.fitness_score_count(),
             population.fitness_score_median(),

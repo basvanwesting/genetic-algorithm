@@ -60,6 +60,9 @@ impl<T: Genotype> Population<T> {
         }
     }
 
+    pub fn age_mean(&self) -> f32 {
+        stats::mean(self.chromosomes.iter().map(|c| c.age)) as f32
+    }
     pub fn fitness_score_stddev(&self) -> f32 {
         stats::stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
     }
