@@ -191,23 +191,21 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                 }
                 HillClimbVariant::SteepestAscentSecondary => {
                     let working_chromosome = &mut self.best_chromosome().unwrap();
-                    let mut neighbouring_chromosomes = vec![working_chromosome.clone()];
+                    let mut working_chromosomes = self
+                        .genotype
+                        .neighbouring_chromosomes(working_chromosome, self.current_scale);
 
-                    for _ in 0..2 {
-                        neighbouring_chromosomes.append(
-                            &mut neighbouring_chromosomes
-                                .iter()
-                                .flat_map(|neighbouring_chromosome| {
-                                    self.genotype.neighbouring_chromosomes(
-                                        neighbouring_chromosome,
-                                        self.current_scale,
-                                    )
-                                })
-                                .collect(),
-                        );
-                    }
+                    working_chromosomes.append(
+                        &mut working_chromosomes
+                            .iter()
+                            .flat_map(|chromosome| {
+                                self.genotype
+                                    .neighbouring_chromosomes(chromosome, self.current_scale)
+                            })
+                            .collect(),
+                    );
 
-                    let working_population = &mut Population::new(neighbouring_chromosomes);
+                    let working_population = &mut Population::new(working_chromosomes);
 
                     self.fitness
                         .call_for_population(working_population, fitness_thread_local.as_ref());
