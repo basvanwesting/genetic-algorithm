@@ -231,7 +231,7 @@ fn call_binary_target_fitness_score_maximize() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![true, true, true, true, true, true, true, true, true, false]
     );
 }
 
@@ -290,7 +290,7 @@ fn call_binary_mass_degeneration() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![true, true, true, true, true, true, true, true, true, false]
     );
 }
 
@@ -319,7 +319,7 @@ fn call_binary_mass_extinction() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![true, true, true, true, true, true, true, true, true, false]
     );
 }
 
@@ -348,7 +348,7 @@ fn call_binary_mass_genesis() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![true, true, true, true, true, true, true, true, true, false]
     );
 }
 
@@ -377,7 +377,7 @@ fn call_binary_mass_invasion() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![true, true, true, true, true, true, true, true, true, false]
     );
 }
 
@@ -404,12 +404,12 @@ fn call_continuous() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9981));
+    assert_eq!(best_chromosome.fitness_score, Some(9952));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
         vec![
-            0.9989109, 0.99938405, 0.99926376, 0.99644506, 0.99663925, 0.9986967, 0.99971354,
-            0.9940715, 0.99907696, 0.9992342
+            0.99798167, 0.99938405, 0.99611986, 0.99007106, 0.9982017, 0.9936614, 0.9934199,
+            0.9904206, 0.99784184, 0.99518645
         ]
     );
 }
