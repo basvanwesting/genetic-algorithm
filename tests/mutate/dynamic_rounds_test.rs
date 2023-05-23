@@ -45,16 +45,16 @@ fn binary_genotype() {
     assert_eq!(
         inspect::population(population),
         vec![
-            vec![false, true, true],
-            vec![true, true, true],
             vec![true, true, true],
             vec![true, true, false],
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
+            vec![false, true, false],
             vec![true, true, true],
-            vec![true, true, true],
-            vec![true, true, true],
+            vec![true, true, false],
+            vec![true, false, true],
+            vec![true, false, true],
         ]
     );
 }

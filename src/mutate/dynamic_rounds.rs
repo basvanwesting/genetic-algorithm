@@ -34,9 +34,9 @@ impl Mutate for DynamicRounds {
         );
 
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
-        for _ in 0..self.number_of_rounds {
-            for chromosome in &mut population.chromosomes {
-                if chromosome.age == 0 && bool_sampler.sample(rng) {
+        for chromosome in population.chromosomes.iter_mut().filter(|c| c.age == 0) {
+            for _ in 0..self.number_of_rounds {
+                if bool_sampler.sample(rng) {
                     genotype.mutate_chromosome_random(chromosome, rng);
                 }
             }

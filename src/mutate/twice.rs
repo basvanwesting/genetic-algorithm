@@ -22,8 +22,8 @@ impl Mutate for Twice {
         rng: &mut R,
     ) {
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
-        for chromosome in &mut population.chromosomes {
-            if chromosome.age == 0 && bool_sampler.sample(rng) {
+        for chromosome in population.chromosomes.iter_mut().filter(|c| c.age == 0) {
+            if bool_sampler.sample(rng) {
                 genotype.mutate_chromosome_random(chromosome, rng);
                 genotype.mutate_chromosome_random(chromosome, rng);
             }
