@@ -6,9 +6,9 @@ use rand::Rng;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the provided
 /// mutation_probability. Then mutates the selected chromosomes twice using random mutation. Useful
-/// when a single mutation would generally not leed to improvement, because the problem space
-/// behaves more like a UniqueGenotype where genes must be swapped (but the UniqueGenotype doesn't
-/// map to the problem space well)
+/// when a single mutation would generally not lead to improvement, because the problem space
+/// behaves more like a [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be
+/// swapped (but the UniqueGenotype doesn't map to the problem space well)
 #[derive(Debug, Clone)]
 pub struct Twice {
     pub mutation_probability: f32,

@@ -40,12 +40,16 @@ pub struct Scaling {
 /// * [HillClimbVariant::Stochastic]: does not examine all neighbors before deciding how to move.
 ///   Rather, it selects a neighbor at random, and decides (based on the amount of improvement in
 ///   that neighbor) whether to move to that neighbor or to examine another
-/// * [HillClimbVariant::SteepestAscent]: all neighbours are compared and the closest to the solution is chosen
-/// * [HillClimbVariant::StochasticSecondary]: like Stochastic, but also randomly tries a random neighbour of the neighbour
+/// * [HillClimbVariant::SteepestAscent]: all neighbours are compared and the closest to the
+///   solution is chosen
+/// * [HillClimbVariant::StochasticSecondary]: like Stochastic, but also randomly tries a random
+///   neighbour of the neighbour. Useful when a single mutation would generally not lead to
+///   improvement, because the problem space behaves more like a
+///   [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be swapped (but the
+///   UniqueGenotype doesn't map to the problem space well)
 /// * [HillClimbVariant::SteepestAscentSecondary]: like SteepestAscent, but also neighbours of
-///   neighbours are in scope. This is O(n^2) with regards to the SteepestAscent variant, but some
-///   problem spaces require "swap"-like behaviour in the genes, when a UniqueGenotype doesn't map
-///   well.
+///   neighbours are in scope. This is O(n^2) with regards to the SteepestAscent variant, so use
+///   with caution.
 ///
 /// The ending conditions are one or more of the following:
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
