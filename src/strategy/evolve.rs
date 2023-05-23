@@ -128,6 +128,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 
         while !self.is_finished() {
             self.state.current_generation += 1;
+            population.increment_age();
 
             self.plugins
                 .extension

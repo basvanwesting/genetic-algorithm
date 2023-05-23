@@ -18,6 +18,7 @@ impl Crossover for Clone {
     ) {
         if self.0 {
             let mut clones = population.clone();
+            clones.reset_age();
             population.merge(&mut clones);
         }
     }

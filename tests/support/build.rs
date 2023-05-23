@@ -16,6 +16,7 @@ pub fn chromosome_with_fitness_score<T: Genotype>(
     Chromosome {
         genes,
         fitness_score,
+        age: 0,
     }
 }
 

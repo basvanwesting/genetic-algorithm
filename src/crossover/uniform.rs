@@ -41,7 +41,6 @@ impl Crossover for Uniform {
                     child_chromosomes.push(Chromosome::new(child_mother_genes));
                 }
             }
-
             population.chromosomes.append(&mut child_chromosomes);
         } else {
             for chunk in population.chromosomes.chunks_mut(2) {

@@ -17,6 +17,7 @@ pub type GenesKey = u64;
 pub struct Chromosome<T: Genotype> {
     pub genes: Vec<T::Allele>,
     pub fitness_score: Option<FitnessValue>,
+    pub age: usize,
 }
 
 // Cannot Hash ContinuousAllele
@@ -36,11 +37,13 @@ impl<T: Genotype> Chromosome<T> {
         Self {
             genes,
             fitness_score: None,
+            age: 0,
         }
     }
 
     /// Reset fitness_score for recalculation
     pub fn taint_fitness_score(&mut self) {
+        self.age = 0;
         self.fitness_score = None;
     }
 }

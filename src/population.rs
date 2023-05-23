@@ -28,6 +28,13 @@ impl<T: Genotype> Population<T> {
         self.chromosomes.len()
     }
 
+    pub fn reset_age(&mut self) {
+        self.chromosomes.iter_mut().for_each(|c| c.age = 0);
+    }
+    pub fn increment_age(&mut self) {
+        self.chromosomes.iter_mut().for_each(|c| c.age += 1);
+    }
+
     pub fn trim<R: Rng>(&mut self, remaining_percentage: f32, rng: &mut R) {
         let remaining_size: usize = std::cmp::max(
             (self.size() as f32 * remaining_percentage).ceil() as usize,
