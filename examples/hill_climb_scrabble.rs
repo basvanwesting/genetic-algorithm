@@ -281,7 +281,7 @@ fn main() {
         ));
 
     let now = std::time::Instant::now();
-    let hill_climb = hill_climb_builder.call_repeatedly(10, &mut rng).unwrap();
+    let hill_climb = hill_climb_builder.call_repeatedly(1, &mut rng).unwrap();
     let duration = now.elapsed();
     println!("{:?}", duration);
 

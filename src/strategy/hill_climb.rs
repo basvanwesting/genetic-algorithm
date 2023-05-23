@@ -21,6 +21,7 @@ use thread_local::ThreadLocal;
 pub enum HillClimbVariant {
     Stochastic,
     SteepestAscent,
+    SteepestAscentDouble,
 }
 
 #[derive(Clone, Debug)]
@@ -147,6 +148,38 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                     let working_population = &mut self
                         .genotype
                         .neighbouring_population(working_chromosome, self.current_scale);
+
+                    self.fitness
+                        .call_for_population(working_population, fitness_thread_local.as_ref());
+                    self.report_neighbouring_population(working_population);
+
+                    // shuffle, so we don't repeatedly take the same best chromosome in sideways move
+                    working_population.chromosomes.shuffle(rng);
+                    self.update_best_chromosome(
+                        working_population
+                            .best_chromosome(self.fitness_ordering)
+                            .unwrap_or(working_chromosome),
+                    );
+                }
+                HillClimbVariant::SteepestAscentDouble => {
+                    let working_chromosome = &mut self.best_chromosome().unwrap();
+                    let mut neighbouring_chromosomes = vec![working_chromosome.clone()];
+
+                    for _ in 0..2 {
+                        neighbouring_chromosomes.append(
+                            &mut neighbouring_chromosomes
+                                .iter()
+                                .flat_map(|neighbouring_chromosome| {
+                                    self.genotype.neighbouring_chromosomes(
+                                        neighbouring_chromosome,
+                                        self.current_scale,
+                                    )
+                                })
+                                .collect(),
+                        );
+                    }
+
+                    let working_population = &mut Population::new(neighbouring_chromosomes);
 
                     self.fitness
                         .call_for_population(working_population, fitness_thread_local.as_ref());
@@ -373,6 +406,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClim
         writeln!(f, "hill_climb:")?;
         writeln!(f, "  genotype: {:?}", self.genotype)?;
         writeln!(f, "  fitness: {:?}", self.fitness)?;
+        writeln!(f, "  variant: {:?}", self.variant)?;
 
         writeln!(
             f,

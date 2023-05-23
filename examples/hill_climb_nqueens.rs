@@ -32,7 +32,7 @@ impl Fitness for NQueensFitness {
 fn main() {
     env_logger::init();
 
-    const BOARD_SIZE: u8 = 64;
+    const BOARD_SIZE: u8 = 32;
 
     let mut rng = SmallRng::from_entropy();
     let genotype = UniqueGenotype::builder()
@@ -44,7 +44,7 @@ fn main() {
 
     let mut hill_climb = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::Stochastic)
+        .with_variant(HillClimbVariant::SteepestAscentDouble)
         .with_max_stale_generations(10000)
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)

@@ -1,9 +1,11 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::SumContinuousGenotype;
+use genetic_algorithm::fitness::placeholders::{CountTrue, SumContinuousGenotype};
 use genetic_algorithm::fitness::FitnessOrdering;
-use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
-use genetic_algorithm::strategy::hill_climb::{HillClimb, TryFromHillClimbBuilderError};
+use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, Genotype};
+use genetic_algorithm::strategy::hill_climb::{
+    HillClimb, HillClimbVariant, TryFromHillClimbBuilderError,
+};
 use genetic_algorithm::strategy::Strategy;
 
 #[test]
@@ -234,54 +236,65 @@ fn call_continuous_multi_thread() {
     );
 }
 
-//#[test]
-//fn call_discrete() {
-//let genotype = DiscreteGenotype::builder()
-//.with_genes_size(10)
-//.with_allele_list((0..4).collect())
-//.build()
-//.unwrap();
+#[test]
+fn call_binary_stochastic() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(100)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_variant(HillClimbVariant::Stochastic)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_target_fitness_score(0)
+        .with_fitness(CountTrue)
+        .call(&mut rng)
+        .unwrap();
 
-//let mut rng = SmallRng::seed_from_u64(0);
-//let hill_climb = HillClimb::builder()
-//.with_genotype(genotype)
-//.with_max_stale_generations(100)
-//.with_fitness(SumDiscreteGenotype)
-//.call(&mut rng)
-//.unwrap();
+    let best_chromosome = hill_climb.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+    assert_eq!(best_chromosome.fitness_score, Some(0));
+}
 
-//let best_chromosome = hill_climb.best_chromosome().unwrap();
-//println!("{:#?}", best_chromosome);
+#[test]
+fn call_binary_steepest_ascent() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(100)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_target_fitness_score(0)
+        .with_fitness(CountTrue)
+        .call(&mut rng)
+        .unwrap();
 
-//assert_eq!(best_chromosome.fitness_score, Some(30));
-//assert_eq!(
-//inspect::chromosome(&best_chromosome),
-//vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
-//);
-//}
+    let best_chromosome = hill_climb.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+    assert_eq!(best_chromosome.fitness_score, Some(0));
+}
 
-//#[test]
-//fn call_multi_discrete() {
-//let genotype = MultiDiscreteGenotype::builder()
-//.with_allele_lists(vec![
-//vec![0, 1, 2, 3, 4],
-//vec![0, 1],
-//vec![0],
-//vec![0, 1, 2, 3],
-//])
-//.build()
-//.unwrap();
-//let mut rng = SmallRng::seed_from_u64(0);
-//let hill_climb = HillClimb::builder()
-//.with_genotype(genotype)
-//.with_max_stale_generations(100)
-//.with_fitness(SumMultiDiscreteGenotype)
-//.call(&mut rng)
-//.unwrap();
+#[test]
+fn call_binary_steepest_ascent_double() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(50)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscentDouble)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_target_fitness_score(0)
+        .with_fitness(CountTrue)
+        .call(&mut rng)
+        .unwrap();
 
-//let best_chromosome = hill_climb.best_chromosome().unwrap();
-//println!("{:#?}", best_chromosome);
-
-//assert_eq!(best_chromosome.fitness_score, Some(8));
-//assert_eq!(inspect::chromosome(&best_chromosome), vec![4, 1, 0, 3]);
-//}
+    let best_chromosome = hill_climb.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+    assert_eq!(best_chromosome.fitness_score, Some(0));
+}
