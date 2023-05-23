@@ -41,7 +41,7 @@ fn main() {
         MutateOnce::new_dispatch(0.3),
     ];
     let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
-    let competes = vec![CompeteDispatch(Competes::Elite, 0)];
+    let competes = vec![CompeteElite::new_dispatch()];
     let extensions = vec![
         ExtensionNoop::new_dispatch(),
         //ExtensionMassDegeneration::new_dispatch(0.9, 10),

@@ -86,7 +86,7 @@ fn main() {
         .with_fitness(fitness)
         .with_mutate(MutateOnce::new(0.2))
         .with_crossover(CrossoverSinglePoint(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .build()
         .unwrap();

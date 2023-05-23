@@ -21,16 +21,19 @@ pub trait Compete: Clone + std::fmt::Debug {
     );
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub enum Competes {
+    #[default]
     Elite,
     Tournament,
 }
-pub type TournamentSize = usize;
 
 /// Wrapper for use in [meta analysis](crate::meta)
-#[derive(Clone, Debug)]
-pub struct CompeteDispatch(pub Competes, pub TournamentSize);
+#[derive(Clone, Debug, Default)]
+pub struct CompeteDispatch {
+    pub compete: Competes,
+    pub tournament_size: usize,
+}
 impl Compete for CompeteDispatch {
     fn call<T: Genotype, R: Rng>(
         &self,
@@ -38,9 +41,11 @@ impl Compete for CompeteDispatch {
         evolve_config: &EvolveConfig,
         rng: &mut R,
     ) {
-        match self.0 {
-            Competes::Elite => CompeteElite.call(population, evolve_config, rng),
-            Competes::Tournament => CompeteTournament(self.1).call(population, evolve_config, rng),
+        match self.compete {
+            Competes::Elite => CompeteElite::new().call(population, evolve_config, rng),
+            Competes::Tournament => {
+                CompeteTournament::new(self.tournament_size).call(population, evolve_config, rng)
+            }
         }
     }
 }

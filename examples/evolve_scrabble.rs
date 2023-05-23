@@ -276,7 +276,7 @@ fn main() {
         //.with_mutate(MutateDynamicRounds::new(0.1, 0.5))
         //.with_crossover(CrossoverSinglePoint(true))
         .with_crossover(CrossoverUniform(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         //.with_compete(CompeteElite)
         .with_extension(ExtensionNoop)
         //.with_extension(ExtensionMassExtinction::new(0.99, 0.001))

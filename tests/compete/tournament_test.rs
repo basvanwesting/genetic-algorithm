@@ -26,7 +26,7 @@ fn maximize_population_surplus() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -53,7 +53,7 @@ fn maximize_population_shortage() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -81,7 +81,7 @@ fn minimize_population_surplus() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -108,7 +108,7 @@ fn minimize_population_shortage() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -135,7 +135,7 @@ fn minimize_population_surplus_with_none_fitness() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(population),
@@ -162,7 +162,7 @@ fn minimize_population_shortage_with_none_fitness() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(population),

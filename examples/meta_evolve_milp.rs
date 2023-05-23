@@ -56,10 +56,10 @@ fn main() {
         CrossoverDispatch(Crossovers::Uniform, true),
     ];
     let competes = vec![
-        //CompeteDispatch(Competes::Elite, 0),
-        //CompeteDispatch(Competes::Tournament, 2),
-        CompeteDispatch(Competes::Tournament, 4),
-        //CompeteDispatch(Competes::Tournament, 8),
+        CompeteElite::new_dispatch(),
+        CompeteTournament::new_dispatch(2),
+        CompeteTournament::new_dispatch(4),
+        CompeteTournament::new_dispatch(8),
     ];
     let extensions = vec![
         ExtensionNoop::new_dispatch(),

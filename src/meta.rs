@@ -12,7 +12,7 @@
 //! `MultiDiscreteGenotype<usize>` indices of external vectors of arbitrary types, which should
 //! then be retrieved in the fitness function. Only one type is allowed per external vector, so the
 //! Crossover/Mutate/Compete strategies all have a Dispatch implementation forwarding to the
-//! underlying types (e.g. `CompeteDispatch(Competes::Tournament, 4)`)
+//! underlying types (e.g. `CompeteTournament::new_dispatch(4)`)
 //!
 //! See example meta_evolve_binary for an meta analysis of the evolution strategy:
 //!
@@ -43,9 +43,9 @@
 //!     CrossoverDispatch(Crossovers::Uniform, true),
 //! ];
 //! let competes = vec![
-//!     CompeteDispatch(Competes::Elite, 0),
-//!     CompeteDispatch(Competes::Tournament, 3),
-//!     CompeteDispatch(Competes::Tournament, 4),
+//!     CompeteElite::new_dispatch(),
+//!     CompeteTournament::new_dispatch(3),
+//!     CompeteTournament::new_dispatch(4),
 //! ];
 //! let extensions = vec![
 //!     ExtensionNoop::new_dispatch(),

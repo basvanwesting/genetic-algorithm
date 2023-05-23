@@ -31,7 +31,7 @@ fn build_invalid_missing_ending_condition() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .build();
 
@@ -57,7 +57,7 @@ fn build_invalid_require_crossover_indexes() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumUniqueGenotype)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .build();
 
@@ -82,7 +82,7 @@ fn build_invalid_require_crossover_points() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumUniqueGenotype)
         .with_crossover(CrossoverSinglePoint(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .build();
 
@@ -109,7 +109,7 @@ fn call_binary_max_stale_generations_maximize() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -139,7 +139,7 @@ fn call_binary_max_stale_generations_minimize() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -169,7 +169,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -195,7 +195,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -220,7 +220,7 @@ fn call_binary_target_fitness_score_maximize() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -250,7 +250,7 @@ fn call_binary_target_fitness_score_minimize() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -279,7 +279,7 @@ fn call_binary_mass_degeneration() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassDegeneration::new(0.95, 10))
         .call(&mut rng)
         .unwrap();
@@ -308,7 +308,7 @@ fn call_binary_mass_extinction() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassExtinction::new(0.9, 0.1))
         .call(&mut rng)
         .unwrap();
@@ -337,7 +337,7 @@ fn call_binary_mass_genesis() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassGenesis::new(0.9))
         .call(&mut rng)
         .unwrap();
@@ -366,7 +366,7 @@ fn call_binary_mass_invasion() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassInvasion::new(0.9, 0.1))
         .call(&mut rng)
         .unwrap();
@@ -396,7 +396,7 @@ fn call_continuous() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumContinuousGenotype(1e-3))
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -430,7 +430,7 @@ fn call_discrete() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumDiscreteGenotype)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -464,7 +464,7 @@ fn call_multi_discrete() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(SumMultiDiscreteGenotype)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -493,7 +493,7 @@ fn call_multi_thread() {
         .with_fitness(SumDiscreteGenotype)
         .with_multithreading(true)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();
@@ -522,7 +522,7 @@ fn population_factory_binary() {
         .with_mutate(MutateOnce::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .build()
         .unwrap();

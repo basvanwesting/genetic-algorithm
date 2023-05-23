@@ -2,7 +2,7 @@ mod support;
 
 #[cfg(test)]
 mod meta_tests {
-    use genetic_algorithm::compete::{CompeteDispatch, Competes};
+    use genetic_algorithm::compete::{CompeteElite, CompeteTournament};
     use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
     use genetic_algorithm::extension::{
         ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
@@ -31,8 +31,8 @@ mod meta_tests {
             CrossoverDispatch(Crossovers::SinglePoint, true),
         ];
         let competes = vec![
-            CompeteDispatch(Competes::Elite, 0),
-            CompeteDispatch(Competes::Tournament, 4),
+            CompeteElite::new_dispatch(),
+            CompeteTournament::new_dispatch(4),
         ];
         let extensions = vec![
             ExtensionNoop::new_dispatch(),

@@ -25,7 +25,7 @@ fn main() {
         .with_mutate(MutateOnce::new(0.2))
         .with_fitness(SumContinuousGenotype(1e-5))
         .with_crossover(CrossoverUniform(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)
         .unwrap();

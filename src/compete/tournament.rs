@@ -1,4 +1,4 @@
-use super::{Compete, TournamentSize};
+use super::{Compete, CompeteDispatch, Competes};
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
@@ -15,7 +15,10 @@ use std::cmp::Reverse;
 ///
 /// Excess chromosomes, beyond the target_population_size, are dropped.
 #[derive(Clone, Debug)]
-pub struct Tournament(pub TournamentSize);
+pub struct Tournament {
+    pub tournament_size: usize,
+}
+
 impl Compete for Tournament {
     fn call<T: Genotype, R: Rng>(
         &self,
@@ -24,7 +27,7 @@ impl Compete for Tournament {
         rng: &mut R,
     ) {
         let mut working_population_size = population.size();
-        let tournament_size = std::cmp::min(self.0, working_population_size);
+        let tournament_size = std::cmp::min(self.tournament_size, working_population_size);
         let target_population_size = std::cmp::min(
             evolve_config.target_population_size,
             working_population_size,
@@ -63,5 +66,18 @@ impl Compete for Tournament {
         }
 
         population.chromosomes = target_chromosomes;
+    }
+}
+
+impl Tournament {
+    pub fn new(tournament_size: usize) -> Self {
+        Self { tournament_size }
+    }
+    pub fn new_dispatch(tournament_size: usize) -> CompeteDispatch {
+        CompeteDispatch {
+            compete: Competes::Tournament,
+            tournament_size,
+            ..Default::default()
+        }
     }
 }

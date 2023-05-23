@@ -1,4 +1,4 @@
-use super::Compete;
+use super::{Compete, CompeteDispatch, Competes};
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -34,6 +34,18 @@ impl Compete for Elite {
         if population.size() > evolve_config.target_population_size {
             let to_drain_from_first = population.size() - evolve_config.target_population_size;
             population.chromosomes.drain(..to_drain_from_first);
+        }
+    }
+}
+
+impl Elite {
+    pub fn new() -> Self {
+        Self
+    }
+    pub fn new_dispatch() -> CompeteDispatch {
+        CompeteDispatch {
+            compete: Competes::Elite,
+            ..Default::default()
         }
     }
 }

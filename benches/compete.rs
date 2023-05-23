@@ -14,10 +14,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let fitness_ordering = FitnessOrdering::Maximize;
 
     let competes = vec![
-        CompeteDispatch(Competes::Elite, 0),
-        CompeteDispatch(Competes::Tournament, 2),
-        CompeteDispatch(Competes::Tournament, 4),
-        CompeteDispatch(Competes::Tournament, 8),
+        CompeteElite::new_dispatch(),
+        CompeteTournament::new_dispatch(2),
+        CompeteTournament::new_dispatch(4),
+        CompeteTournament::new_dispatch(8),
     ];
 
     let mut group = c.benchmark_group("competes");

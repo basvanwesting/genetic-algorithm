@@ -42,8 +42,8 @@ fn main() {
         CrossoverDispatch(Crossovers::Clone, true),
     ];
     let competes = vec![
-        CompeteDispatch(Competes::Elite, 0),
-        CompeteDispatch(Competes::Tournament, 4),
+        CompeteElite::new_dispatch(),
+        CompeteTournament::new_dispatch(4),
     ];
     let extensions = vec![
         ExtensionNoop::new_dispatch(),

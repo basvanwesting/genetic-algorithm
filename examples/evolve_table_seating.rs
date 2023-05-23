@@ -97,7 +97,7 @@ fn main() {
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce::new(0.3))
         .with_crossover(CrossoverSinglePoint(true))
-        .with_compete(CompeteTournament(4))
+        .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop);
 
     //let now = std::time::Instant::now();
