@@ -132,9 +132,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             self.state.current_generation += 1;
             population.increment_and_filter_age(&self.config);
 
-            self.plugins
-                .extension
-                .call(&self.genotype, &self.config, &self.state, population, rng);
             self.plugins.crossover.call(&self.genotype, population, rng);
             self.plugins.mutate.call(&self.genotype, population, rng);
             self.fitness
@@ -143,6 +140,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             self.state.update_best_chromosome(population, &self.config);
             //self.ensure_best_chromosome(population);
             self.report_round(population);
+
+            self.plugins
+                .extension
+                .call(&self.genotype, &self.config, &self.state, population, rng);
         }
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
