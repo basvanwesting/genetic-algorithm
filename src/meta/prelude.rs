@@ -23,7 +23,7 @@ pub use crate::meta::{
 };
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateDispatch, MutateDynamicOnce, MutateDynamicRounds, MutateOnce, Mutates,
+    MutateDispatch, MutateDynamicOnce, MutateDynamicRounds, MutateOnce, MutateTwice, Mutates,
 };
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};

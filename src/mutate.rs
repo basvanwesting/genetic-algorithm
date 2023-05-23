@@ -4,10 +4,12 @@
 mod dynamic_once;
 mod dynamic_rounds;
 mod once;
+mod twice;
 
 pub use self::dynamic_once::DynamicOnce as MutateDynamicOnce;
 pub use self::dynamic_rounds::DynamicRounds as MutateDynamicRounds;
 pub use self::once::Once as MutateOnce;
+pub use self::twice::Twice as MutateTwice;
 
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -27,6 +29,7 @@ pub trait Mutate: Clone + std::fmt::Debug {
 pub enum Mutates {
     #[default]
     Once,
+    Twice,
     DynamicOnce,
     DynamicRounds,
 }
@@ -49,6 +52,9 @@ impl Mutate for MutateDispatch {
         match self.mutate {
             Mutates::Once => {
                 MutateOnce::new(self.mutation_probability).call(genotype, population, rng)
+            }
+            Mutates::Twice => {
+                MutateTwice::new(self.mutation_probability).call(genotype, population, rng)
             }
             Mutates::DynamicOnce => {
                 MutateDynamicOnce::new(self.mutation_probability_step, self.target_uniformity)
