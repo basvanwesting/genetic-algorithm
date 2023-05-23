@@ -258,7 +258,7 @@ fn call_binary_stochastic() {
 }
 
 #[test]
-fn call_binary_stochastic_double() {
+fn call_binary_stochastic_secondary() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
@@ -266,7 +266,7 @@ fn call_binary_stochastic_double() {
     let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::StochasticDouble)
+        .with_variant(HillClimbVariant::StochasticSecondary)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_fitness(CountTrue)
@@ -300,7 +300,7 @@ fn call_binary_steepest_ascent() {
 }
 
 #[test]
-fn call_binary_steepest_ascent_double() {
+fn call_binary_steepest_ascent_secondary() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(50)
         .build()
@@ -308,7 +308,7 @@ fn call_binary_steepest_ascent_double() {
     let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::SteepestAscentDouble)
+        .with_variant(HillClimbVariant::SteepestAscentSecondary)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_fitness(CountTrue)
