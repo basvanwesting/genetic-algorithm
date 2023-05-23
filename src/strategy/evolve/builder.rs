@@ -63,6 +63,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     ) -> Result<Evolve<G, M, F, S, C, E>, TryFromBuilderError> {
         let mut best_evolve: Option<Evolve<G, M, F, S, C, E>> = None;
         for iteration in 0..max_repeats {
+            log::info!("### repeated round: {}", iteration);
             let mut contending_run: Evolve<G, M, F, S, C, E> = self.clone().try_into()?;
             contending_run.state.current_iteration = iteration;
             contending_run.call(rng);
@@ -108,17 +109,20 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     ) -> Result<Evolve<G, M, F, S, C, E>, TryFromBuilderError> {
         let best_chromosomes: Vec<Chromosome<G>> = (0..number_of_species)
             .filter_map(|iteration| {
+                log::info!("### speciated round: {}", iteration);
                 let mut species_run: Evolve<G, M, F, S, C, E> = self.clone().try_into().ok()?;
                 species_run.state.current_iteration = iteration;
                 species_run.call(rng);
                 species_run.best_chromosome()
             })
             .collect();
+
+        log::info!("### speciated final run");
         let seed_genes_list = best_chromosomes
             .iter()
             .map(|best_chromosome| best_chromosome.genes.clone())
             .collect();
-
+        log::debug!("### seed_genes_list: {:?}", seed_genes_list);
         let mut final_genotype = self.genotype.clone().unwrap();
         final_genotype.set_seed_genes_list(seed_genes_list);
         let mut final_run: Evolve<G, M, F, S, C, E> =
