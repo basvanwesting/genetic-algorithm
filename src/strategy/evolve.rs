@@ -137,13 +137,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             self.fitness
                 .call_for_population(population, fitness_thread_local.as_ref());
             self.plugins.compete.call(population, &self.config, rng);
-            self.update_best_chromosome(population);
+            self.state.update_best_chromosome(population, &self.config);
             self.ensure_best_chromosome(population);
             self.report_round(population);
         }
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
-        self.state.best_chromosome.clone()
+        self.state.best_chromosome()
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -158,51 +158,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 {
     pub fn builder() -> EvolveBuilder<G, M, F, S, C, E> {
         EvolveBuilder::new()
-    }
-
-    fn update_best_chromosome(&mut self, population: &Population<G>) {
-        match (
-            self.state.best_chromosome.as_ref(),
-            population.best_chromosome(self.config.fitness_ordering),
-        ) {
-            (None, None) => {}
-            (Some(_), None) => {}
-            (None, Some(contending_best_chromosome)) => {
-                self.state.best_chromosome = Some(contending_best_chromosome.clone());
-                self.state.best_generation = self.state.current_generation;
-            }
-            (Some(current_best_chromosome), Some(contending_best_chromosome)) => {
-                match (
-                    current_best_chromosome.fitness_score,
-                    contending_best_chromosome.fitness_score,
-                ) {
-                    (None, None) => {}
-                    (Some(_), None) => {}
-                    (None, Some(_)) => {
-                        self.state.best_chromosome = Some(contending_best_chromosome.clone());
-                        self.state.best_generation = self.state.current_generation;
-                    }
-                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match self.config.fitness_ordering {
-                            FitnessOrdering::Maximize => {
-                                if contending_fitness_score > current_fitness_score {
-                                    self.state.best_chromosome =
-                                        Some(contending_best_chromosome.clone());
-                                    self.state.best_generation = self.state.current_generation;
-                                }
-                            }
-                            FitnessOrdering::Minimize => {
-                                if contending_fitness_score < current_fitness_score {
-                                    self.state.best_chromosome =
-                                        Some(contending_best_chromosome.clone());
-                                    self.state.best_generation = self.state.current_generation;
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     fn ensure_best_chromosome(&mut self, population: &mut Population<G>) {
@@ -290,8 +245,58 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 }
 
 impl<G: Genotype> EvolveState<G> {
+    pub fn best_chromosome(&self) -> Option<Chromosome<G>> {
+        self.best_chromosome.clone()
+    }
     pub fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+    }
+
+    pub fn update_best_chromosome(
+        &mut self,
+        population: &Population<G>,
+        evolve_config: &EvolveConfig,
+    ) {
+        match (
+            self.best_chromosome.as_ref(),
+            population.best_chromosome(evolve_config.fitness_ordering),
+        ) {
+            (None, None) => {}
+            (Some(_), None) => {}
+            (None, Some(contending_best_chromosome)) => {
+                self.best_chromosome = Some(contending_best_chromosome.clone());
+                self.best_generation = self.current_generation;
+            }
+            (Some(current_best_chromosome), Some(contending_best_chromosome)) => {
+                match (
+                    current_best_chromosome.fitness_score,
+                    contending_best_chromosome.fitness_score,
+                ) {
+                    (None, None) => {}
+                    (Some(_), None) => {}
+                    (None, Some(_)) => {
+                        self.best_chromosome = Some(contending_best_chromosome.clone());
+                        self.best_generation = self.current_generation;
+                    }
+                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
+                        match evolve_config.fitness_ordering {
+                            FitnessOrdering::Maximize => {
+                                if contending_fitness_score > current_fitness_score {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    self.best_generation = self.current_generation;
+                                }
+                            }
+                            FitnessOrdering::Minimize => {
+                                if contending_fitness_score < current_fitness_score {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    self.best_generation = self.current_generation;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }
 
@@ -418,7 +423,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
 
 impl<M: Mutate, S: Crossover, C: Compete, E: Extension> fmt::Display for EvolvePlugins<M, S, C, E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        writeln!(f, "evolve_plugis:")?;
+        writeln!(f, "evolve_plugins:")?;
         writeln!(f, "  mutate: {:?}", self.mutate)?;
         writeln!(f, "  crossover: {:?}", self.crossover)?;
         writeln!(f, "  compete: {:?}", self.compete)?;
