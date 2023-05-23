@@ -1,4 +1,5 @@
 use super::Evolve;
+use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
 use crate::extension::Extension;
@@ -99,6 +100,32 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             }
         }
         Ok(best_evolve.unwrap())
+    }
+    pub fn call_speciated<R: Rng>(
+        self,
+        number_of_species: usize,
+        rng: &mut R,
+    ) -> Result<Evolve<G, M, F, S, C, E>, TryFromBuilderError> {
+        let best_chromosomes: Vec<Chromosome<G>> = (0..number_of_species)
+            .filter_map(|iteration| {
+                let mut species_run: Evolve<G, M, F, S, C, E> = self.clone().try_into().ok()?;
+                species_run.state.current_iteration = iteration;
+                species_run.call(rng);
+                species_run.best_chromosome()
+            })
+            .collect();
+        let seed_genes_list = best_chromosomes
+            .iter()
+            .map(|best_chromosome| best_chromosome.genes.clone())
+            .collect();
+
+        let mut final_genotype = self.genotype.clone().unwrap();
+        final_genotype.set_seed_genes_list(seed_genes_list);
+        let mut final_run: Evolve<G, M, F, S, C, E> =
+            self.clone().with_genotype(final_genotype).try_into()?;
+
+        final_run.call(rng);
+        Ok(final_run)
     }
 
     pub fn with_genotype(mut self, genotype: G) -> Self {

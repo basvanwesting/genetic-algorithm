@@ -70,6 +70,9 @@ impl Genotype for Binary {
         chromosome.genes[index] = !chromosome.genes[index];
         chromosome.taint_fitness_score();
     }
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<BinaryAllele>>) {
+        self.seed_genes_list = seed_genes_list;
+    }
 }
 
 impl IncrementalGenotype for Binary {

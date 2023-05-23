@@ -125,6 +125,9 @@ impl Genotype for MultiContinuous {
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<ContinuousAllele>>) {
+        self.seed_genes_list = seed_genes_list;
+    }
 }
 
 impl IncrementalGenotype for MultiContinuous {

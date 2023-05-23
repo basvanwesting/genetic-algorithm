@@ -268,18 +268,18 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        .with_target_population_size(10000)
-        .with_max_stale_generations(100)
+        .with_target_population_size(1000)
+        .with_max_stale_generations(250)
         .with_max_chromosome_age(10)
-        .with_mutate(MutateTwice::new(0.2))
+        //.with_mutate(MutateTwice::new(0.2))
         //.with_mutate(MutateDynamicOnce::new(0.01, 0.25))
-        //.with_mutate(MutateDynamicRounds::new(0.1, 0.5))
+        .with_mutate(MutateDynamicRounds::new(0.1, 0.5))
         //.with_crossover(CrossoverSinglePoint(true))
         .with_crossover(CrossoverUniform(true))
         .with_compete(CompeteTournament(4))
         //.with_compete(CompeteElite)
-        .with_extension(ExtensionNoop)
-        //.with_extension(ExtensionMassExtinction::new(0.99, 0.001))
+        //.with_extension(ExtensionNoop)
+        .with_extension(ExtensionMassExtinction::new(0.99, 0.001))
         //.with_extension(ExtensionMassInvasion::new(0.99, 0.1))
         //.with_extension(ExtensionMassGenesis::new(0.99))
         //.with_extension(ExtensionMassDegeneration::new(0.99, 100))
@@ -294,7 +294,7 @@ fn main() {
         ));
 
     let now = std::time::Instant::now();
-    let evolve = evolve_builder.call_repeatedly(1, &mut rng).unwrap();
+    let evolve = evolve_builder.call_speciated(10, &mut rng).unwrap();
     let duration = now.elapsed();
     println!("{:?}", duration);
 

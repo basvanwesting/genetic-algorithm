@@ -145,6 +145,9 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> Genotype for MultiDiscrete<T
             self.allele_lists[index][self.allele_index_samplers[index].sample(rng)].clone();
         chromosome.taint_fitness_score();
     }
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
+        self.seed_genes_list = seed_genes_list;
+    }
 }
 
 impl<T: PartialEq + Clone + Send + std::fmt::Debug> IncrementalGenotype for MultiDiscrete<T> {

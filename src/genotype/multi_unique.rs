@@ -141,6 +141,9 @@ impl<T: Clone + Send + std::fmt::Debug> Genotype for MultiUnique<T> {
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
+        self.seed_genes_list = seed_genes_list;
+    }
 }
 
 impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {

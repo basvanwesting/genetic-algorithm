@@ -60,6 +60,7 @@ pub trait Genotype:
     fn builder() -> GenotypeBuilder<Self> {
         GenotypeBuilder::<Self>::default()
     }
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<Self::Allele>>);
 }
 
 //Evolvable is implicit, until proven otherwise
