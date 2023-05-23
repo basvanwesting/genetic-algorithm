@@ -17,8 +17,9 @@ use std::cell::RefCell;
 use std::fmt;
 use thread_local::ThreadLocal;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, Default)]
 pub enum HillClimbVariant {
+    #[default]
     Stochastic,
     StochasticSecondary,
     SteepestAscent,
@@ -108,78 +109,86 @@ pub struct Scaling {
 pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     genotype: G,
     fitness: F,
-    variant: HillClimbVariant,
+    pub config: HillClimbConfig,
+    pub state: HillClimbState<G>,
+}
 
-    fitness_ordering: FitnessOrdering,
-    multithreading: bool,
-    max_stale_generations: Option<usize>,
-    target_fitness_score: Option<FitnessValue>,
-    valid_fitness_score: Option<FitnessValue>,
-    scaling: Option<Scaling>,
+pub struct HillClimbConfig {
+    pub variant: HillClimbVariant,
+    pub fitness_ordering: FitnessOrdering,
+    pub multithreading: bool,
+    pub max_stale_generations: Option<usize>,
+    pub target_fitness_score: Option<FitnessValue>,
+    pub valid_fitness_score: Option<FitnessValue>,
+    pub scaling: Option<Scaling>,
+}
 
+pub struct HillClimbState<G: IncrementalGenotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub current_scale: Option<f32>,
     pub best_generation: usize,
-    best_chromosome: Option<Chromosome<G>>,
+    pub best_chromosome: Option<Chromosome<G>>,
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb<G, F> {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.current_generation = 0;
-        self.reset_scaling();
-        self.best_generation = 0;
+        self.state = HillClimbState::default();
+        self.state.reset_scaling(&self.config);
 
         let mut seed_chromosome = self.genotype.chromosome_factory(rng);
         self.fitness.call_for_chromosome(&mut seed_chromosome);
-        self.best_chromosome = Some(seed_chromosome);
+        self.state.best_chromosome = Some(seed_chromosome);
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
-        if self.multithreading {
+        if self.config.multithreading {
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
         while !self.is_finished() {
-            self.current_generation += 1;
-            match self.variant {
+            self.state.current_generation += 1;
+            match self.config.variant {
                 HillClimbVariant::Stochastic => {
                     let working_chromosome = &mut self.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_neighbour(
                         working_chromosome,
-                        self.current_scale,
+                        self.state.current_scale,
                         rng,
                     );
                     self.fitness.call_for_chromosome(working_chromosome);
-                    self.update_best_chromosome(working_chromosome);
+                    self.state
+                        .update_best_chromosome(working_chromosome, &self.config);
                     self.report_working_chromosome(working_chromosome);
                 }
                 HillClimbVariant::StochasticSecondary => {
                     let working_chromosome_primary = &mut self.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_neighbour(
                         working_chromosome_primary,
-                        self.current_scale,
+                        self.state.current_scale,
                         rng,
                     );
                     self.fitness.call_for_chromosome(working_chromosome_primary);
-                    self.update_best_chromosome(working_chromosome_primary);
+                    self.state
+                        .update_best_chromosome(working_chromosome_primary, &self.config);
                     self.report_working_chromosome(working_chromosome_primary);
 
                     let working_chromosome_secondary = &mut working_chromosome_primary.clone();
                     self.genotype.mutate_chromosome_neighbour(
                         working_chromosome_secondary,
-                        self.current_scale,
+                        self.state.current_scale,
                         rng,
                     );
                     self.fitness
                         .call_for_chromosome(working_chromosome_secondary);
-                    self.update_best_chromosome(working_chromosome_secondary);
+                    self.state
+                        .update_best_chromosome(working_chromosome_secondary, &self.config);
                     self.report_working_chromosome(working_chromosome_secondary);
                 }
                 HillClimbVariant::SteepestAscent => {
                     let working_chromosome = &mut self.best_chromosome().unwrap();
                     let working_population = &mut self
                         .genotype
-                        .neighbouring_population(working_chromosome, self.current_scale);
+                        .neighbouring_population(working_chromosome, self.state.current_scale);
 
                     self.fitness
                         .call_for_population(working_population, fitness_thread_local.as_ref());
@@ -187,24 +196,25 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
 
                     // shuffle, so we don't repeatedly take the same best chromosome in sideways move
                     working_population.chromosomes.shuffle(rng);
-                    self.update_best_chromosome(
+                    self.state.update_best_chromosome(
                         working_population
-                            .best_chromosome(self.fitness_ordering)
+                            .best_chromosome(self.config.fitness_ordering)
                             .unwrap_or(working_chromosome),
+                        &self.config,
                     );
                 }
                 HillClimbVariant::SteepestAscentSecondary => {
                     let working_chromosome = &mut self.best_chromosome().unwrap();
                     let mut working_chromosomes = self
                         .genotype
-                        .neighbouring_chromosomes(working_chromosome, self.current_scale);
+                        .neighbouring_chromosomes(working_chromosome, self.state.current_scale);
 
                     working_chromosomes.append(
                         &mut working_chromosomes
                             .iter()
                             .flat_map(|chromosome| {
                                 self.genotype
-                                    .neighbouring_chromosomes(chromosome, self.current_scale)
+                                    .neighbouring_chromosomes(chromosome, self.state.current_scale)
                             })
                             .collect(),
                     );
@@ -217,10 +227,11 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
 
                     // shuffle, so we don't repeatedly take the same best chromosome in sideways move
                     working_population.chromosomes.shuffle(rng);
-                    self.update_best_chromosome(
+                    self.state.update_best_chromosome(
                         working_population
-                            .best_chromosome(self.fitness_ordering)
+                            .best_chromosome(self.config.fitness_ordering)
                             .unwrap_or(working_chromosome),
+                        &self.config,
                     );
                 }
             }
@@ -228,64 +239,19 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
         }
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
-        self.best_chromosome.clone()
+        self.state.best_chromosome()
     }
     fn best_generation(&self) -> usize {
-        self.best_generation
+        self.state.best_generation
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+        self.state.best_fitness_score()
     }
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     pub fn builder() -> HillClimbBuilder<G, F> {
         HillClimbBuilder::new()
-    }
-
-    fn update_best_chromosome(&mut self, contending_best_chromosome: &Chromosome<G>) {
-        self.scale_down();
-        match self.best_chromosome.as_ref() {
-            None => {
-                self.best_chromosome = Some(contending_best_chromosome.clone());
-            }
-            Some(current_best_chromosome) => {
-                match (
-                    current_best_chromosome.fitness_score,
-                    contending_best_chromosome.fitness_score,
-                ) {
-                    (None, None) => {}
-                    (Some(_), None) => {}
-                    (None, Some(_)) => {
-                        self.best_chromosome = Some(contending_best_chromosome.clone());
-                        self.best_generation = self.current_generation;
-                        self.reset_scaling();
-                    }
-                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match self.fitness_ordering {
-                            FitnessOrdering::Maximize => {
-                                if contending_fitness_score >= current_fitness_score {
-                                    self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    if contending_fitness_score > current_fitness_score {
-                                        self.best_generation = self.current_generation;
-                                        self.reset_scaling();
-                                    }
-                                }
-                            }
-                            FitnessOrdering::Minimize => {
-                                if contending_fitness_score <= current_fitness_score {
-                                    self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    if contending_fitness_score < current_fitness_score {
-                                        self.best_generation = self.current_generation;
-                                        self.reset_scaling();
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
     }
 
     fn is_finished(&self) -> bool {
@@ -296,17 +262,17 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
-        if let Some(max_stale_generations) = self.max_stale_generations {
-            self.current_generation - self.best_generation >= max_stale_generations
+        if let Some(max_stale_generations) = self.config.max_stale_generations {
+            self.state.current_generation - self.state.best_generation >= max_stale_generations
         } else {
             false
         }
     }
 
     fn is_finished_by_target_fitness_score(&self) -> bool {
-        if let Some(target_fitness_score) = self.target_fitness_score {
+        if let Some(target_fitness_score) = self.config.target_fitness_score {
             if let Some(fitness_score) = self.best_fitness_score() {
-                match self.fitness_ordering {
+                match self.config.fitness_ordering {
                     FitnessOrdering::Maximize => fitness_score >= target_fitness_score,
                     FitnessOrdering::Minimize => fitness_score <= target_fitness_score,
                 }
@@ -319,9 +285,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 
     fn allow_finished_by_valid_fitness_score(&self) -> bool {
-        if let Some(valid_fitness_score) = self.valid_fitness_score {
+        if let Some(valid_fitness_score) = self.config.valid_fitness_score {
             if let Some(fitness_score) = self.best_fitness_score() {
-                match self.fitness_ordering {
+                match self.config.fitness_ordering {
                     FitnessOrdering::Maximize => fitness_score >= valid_fitness_score,
                     FitnessOrdering::Minimize => fitness_score <= valid_fitness_score,
                 }
@@ -334,8 +300,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 
     fn is_finished_by_min_scale(&self) -> bool {
-        if let Some(current_scale) = self.current_scale {
-            current_scale < self.scaling.as_ref().unwrap().min_scale
+        if let Some(current_scale) = self.state.current_scale {
+            current_scale < self.config.scaling.as_ref().unwrap().min_scale
         } else {
             false
         }
@@ -344,15 +310,16 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     fn report_round(&self) {
         log::debug!(
             "generation (current/best): {}/{}, fitness score (best): {:?}, current scale: {:?}",
-            self.current_generation,
-            self.best_generation,
+            self.state.current_generation,
+            self.state.best_generation,
             self.best_fitness_score(),
-            self.current_scale.as_ref(),
+            self.state.current_scale.as_ref(),
         );
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
             self.best_fitness_score(),
-            self.best_chromosome
+            self.state
+                .best_chromosome
                 .as_ref()
                 .map_or(vec![], |c| c.genes.clone()),
         );
@@ -375,14 +342,73 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
             );
         })
     }
+}
 
-    fn reset_scaling(&mut self) {
-        self.current_scale = self.scaling.as_ref().map(|s| s.base_scale);
+impl<G: IncrementalGenotype> HillClimbState<G> {
+    pub fn best_chromosome(&self) -> Option<Chromosome<G>> {
+        self.best_chromosome.clone()
+    }
+    pub fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
 
-    fn scale_down(&mut self) {
+    fn update_best_chromosome(
+        &mut self,
+        contending_best_chromosome: &Chromosome<G>,
+        hill_climb_config: &HillClimbConfig,
+    ) {
+        self.scale_down(hill_climb_config);
+        match self.best_chromosome.as_ref() {
+            None => {
+                self.best_chromosome = Some(contending_best_chromosome.clone());
+            }
+            Some(current_best_chromosome) => {
+                match (
+                    current_best_chromosome.fitness_score,
+                    contending_best_chromosome.fitness_score,
+                ) {
+                    (None, None) => {}
+                    (Some(_), None) => {}
+                    (None, Some(_)) => {
+                        self.best_chromosome = Some(contending_best_chromosome.clone());
+                        self.best_generation = self.current_generation;
+                        self.reset_scaling(hill_climb_config);
+                    }
+                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
+                        match hill_climb_config.fitness_ordering {
+                            FitnessOrdering::Maximize => {
+                                if contending_fitness_score >= current_fitness_score {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    if contending_fitness_score > current_fitness_score {
+                                        self.best_generation = self.current_generation;
+                                        self.reset_scaling(hill_climb_config);
+                                    }
+                                }
+                            }
+                            FitnessOrdering::Minimize => {
+                                if contending_fitness_score <= current_fitness_score {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    if contending_fitness_score < current_fitness_score {
+                                        self.best_generation = self.current_generation;
+                                        self.reset_scaling(hill_climb_config);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    fn reset_scaling(&mut self, hill_climb_config: &HillClimbConfig) {
+        self.current_scale = hill_climb_config.scaling.as_ref().map(|s| s.base_scale);
+    }
+
+    fn scale_down(&mut self, hill_climb_config: &HillClimbConfig) {
         if let Some(current_scale) = self.current_scale {
-            self.current_scale = Some(current_scale * self.scaling.as_ref().unwrap().scale_factor);
+            self.current_scale =
+                Some(current_scale * hill_climb_config.scaling.as_ref().unwrap().scale_factor);
         }
     }
 }
@@ -407,26 +433,56 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> TryFrom<HillClimbBuilder<
                 "HillClimb requires at least a max_stale_generations, target_fitness_score or scaling ending condition",
             ))
         } else {
-            let genotype = builder.genotype.unwrap();
-
             Ok(Self {
-                genotype: genotype,
+                genotype: builder.genotype.unwrap(),
                 fitness: builder.fitness.unwrap(),
-                variant: builder.variant.unwrap_or(HillClimbVariant::Stochastic),
-
-                fitness_ordering: builder.fitness_ordering,
-                multithreading: builder.multithreading,
-                max_stale_generations: builder.max_stale_generations,
-                target_fitness_score: builder.target_fitness_score,
-                valid_fitness_score: builder.valid_fitness_score,
-                scaling: builder.scaling,
-
-                current_iteration: 0,
-                current_generation: 0,
-                current_scale: None,
-                best_generation: 0,
-                best_chromosome: None,
+                config: HillClimbConfig {
+                    variant: builder.variant.unwrap_or(HillClimbVariant::Stochastic),
+                    fitness_ordering: builder.fitness_ordering,
+                    multithreading: builder.multithreading,
+                    max_stale_generations: builder.max_stale_generations,
+                    target_fitness_score: builder.target_fitness_score,
+                    valid_fitness_score: builder.valid_fitness_score,
+                    scaling: builder.scaling,
+                },
+                state: HillClimbState::default(),
             })
+        }
+    }
+}
+
+impl Default for HillClimbConfig {
+    fn default() -> Self {
+        Self {
+            variant: HillClimbVariant::default(),
+            fitness_ordering: FitnessOrdering::Maximize,
+            multithreading: false,
+            max_stale_generations: None,
+            target_fitness_score: None,
+            valid_fitness_score: None,
+            scaling: None,
+        }
+    }
+}
+
+impl<G: IncrementalGenotype> Default for HillClimbState<G> {
+    fn default() -> Self {
+        Self {
+            current_iteration: 0,
+            current_generation: 0,
+            current_scale: None,
+            best_generation: 0,
+            best_chromosome: None,
+        }
+    }
+}
+
+impl Scaling {
+    pub fn new(base_scale: f32, scale_factor: f32, min_scale: f32) -> Self {
+        Self {
+            base_scale,
+            scale_factor,
+            min_scale,
         }
     }
 }
@@ -436,6 +492,15 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClim
         writeln!(f, "hill_climb:")?;
         writeln!(f, "  genotype: {:?}", self.genotype)?;
         writeln!(f, "  fitness: {:?}", self.fitness)?;
+
+        writeln!(f, "{}", self.config)?;
+        writeln!(f, "{}", self.state)
+    }
+}
+
+impl fmt::Display for HillClimbConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "hill_climb_config:")?;
         writeln!(f, "  variant: {:?}", self.variant)?;
 
         writeln!(
@@ -447,20 +512,17 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> fmt::Display for HillClim
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  multithreading: {:?}", self.multithreading)?;
-        writeln!(f, "  scaling: {:?}", self.scaling)?;
-        writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
-        writeln!(f, "  current generation: {:?}", self.current_generation)?;
-        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
-        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
+        writeln!(f, "  scaling: {:?}", self.scaling)
     }
 }
 
-impl Scaling {
-    pub fn new(base_scale: f32, scale_factor: f32, min_scale: f32) -> Self {
-        Self {
-            base_scale,
-            scale_factor,
-            min_scale,
-        }
+impl<G: IncrementalGenotype> fmt::Display for HillClimbState<G> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "hill_climb_state:")?;
+        writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
+        writeln!(f, "  current generation: {:?}", self.current_generation)?;
+        writeln!(f, "  current scale: {:?}", self.current_scale)?;
+        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
+        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
     }
 }

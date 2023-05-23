@@ -85,7 +85,6 @@ pub struct Evolve<
 > {
     pub genotype: G,
     pub fitness: F,
-
     pub plugins: EvolvePlugins<M, S, C, E>,
     pub config: EvolveConfig,
     pub state: EvolveState<G>,

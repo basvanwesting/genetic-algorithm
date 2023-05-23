@@ -42,7 +42,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         let mut best_hill_climb: Option<HillClimb<G, F>> = None;
         for iteration in 0..max_repeats {
             let mut contending_run: HillClimb<G, F> = self.clone().try_into()?;
-            contending_run.current_iteration = iteration;
+            contending_run.state.current_iteration = iteration;
             contending_run.call(rng);
             if contending_run.is_finished_by_target_fitness_score() {
                 best_hill_climb = Some(contending_run);
@@ -59,7 +59,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
                         best_hill_climb = Some(contending_run);
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match contending_run.fitness_ordering {
+                        match contending_run.config.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score >= current_fitness_score {
                                     best_hill_climb = Some(contending_run);
