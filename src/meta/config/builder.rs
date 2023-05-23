@@ -19,6 +19,7 @@ pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub rounds: usize,
     pub target_population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
+    pub max_chromosome_age_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
@@ -71,6 +72,13 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.max_stale_generations_options = max_stale_generations_options;
         self
     }
+    pub fn with_max_chromosome_age_options(
+        mut self,
+        max_chromosome_age_options: Vec<Option<usize>>,
+    ) -> Self {
+        self.max_chromosome_age_options = max_chromosome_age_options;
+        self
+    }
     pub fn with_target_fitness_score_options(
         mut self,
         target_fitness_score_options: Vec<Option<FitnessValue>>,
@@ -104,6 +112,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
             rounds: 0,
             target_population_sizes: vec![],
             max_stale_generations_options: vec![None],
+            max_chromosome_age_options: vec![None],
             target_fitness_score_options: vec![None],
             mutates: vec![],
             crossovers: vec![],

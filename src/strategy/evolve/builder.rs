@@ -24,6 +24,7 @@ pub struct Builder<
     pub genotype: Option<G>,
     pub target_population_size: usize,
     pub max_stale_generations: Option<usize>,
+    pub max_chromosome_age: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
@@ -119,6 +120,17 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         self.max_stale_generations = max_stale_generations_option;
         self
     }
+    pub fn with_max_chromosome_age(mut self, max_chromosome_age: usize) -> Self {
+        self.max_chromosome_age = Some(max_chromosome_age);
+        self
+    }
+    pub fn with_max_chromosome_age_option(
+        mut self,
+        max_chromosome_age_option: Option<usize>,
+    ) -> Self {
+        self.max_chromosome_age = max_chromosome_age_option;
+        self
+    }
     pub fn with_target_fitness_score(mut self, target_fitness_score: FitnessValue) -> Self {
         self.target_fitness_score = Some(target_fitness_score);
         self
@@ -179,6 +191,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             genotype: None,
             target_population_size: 0,
             max_stale_generations: None,
+            max_chromosome_age: None,
             target_fitness_score: None,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,

@@ -67,6 +67,11 @@ impl<'a, G: Genotype + Sync, F: Fitness<Genotype = G> + Sync> fmt::Display for P
                 )?;
                 writeln!(
                     f,
+                    "  best_max_chromosome_age: {:?}",
+                    best_evolve_builder.max_chromosome_age
+                )?;
+                writeln!(
+                    f,
                     "  best_target_fitness_score: {:?}",
                     best_evolve_builder.target_fitness_score
                 )?;

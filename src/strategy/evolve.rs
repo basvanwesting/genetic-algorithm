@@ -60,6 +60,7 @@ use thread_local::ThreadLocal;
 ///     .with_target_fitness_score(0)           // ending condition if 0 times true in the best chromosome
 ///     .with_valid_fitness_score(10)           // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_max_chromosome_age(10)            // kill chromosomes after 10 generations
 ///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
@@ -100,6 +101,7 @@ pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Compete, E: Extension> {
 pub struct EvolveConfig {
     pub target_population_size: usize,
     pub max_stale_generations: Option<usize>,
+    pub max_chromosome_age: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
@@ -374,6 +376,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 config: EvolveConfig {
                     target_population_size: builder.target_population_size,
                     max_stale_generations: builder.max_stale_generations,
+                    max_chromosome_age: builder.max_chromosome_age,
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
                     fitness_ordering: builder.fitness_ordering,
@@ -390,6 +393,7 @@ impl Default for EvolveConfig {
         Self {
             target_population_size: 0,
             max_stale_generations: None,
+            max_chromosome_age: None,
             target_fitness_score: None,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
@@ -446,6 +450,7 @@ impl fmt::Display for EvolveConfig {
             "  max_stale_generations: {:?}",
             self.max_stale_generations
         )?;
+        writeln!(f, "  max_chromosome_age: {:?}", self.max_chromosome_age)?;
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;

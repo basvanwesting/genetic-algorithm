@@ -28,6 +28,7 @@
 //! let rounds = 10;
 //! let target_population_sizes = vec![2, 4, 8];
 //! let max_stale_generations_options = vec![Some(10)];
+//! let max_chromosome_age_options = vec![Some(10)];
 //! let target_fitness_score_options = vec![Some(0)];
 //! let mutates = vec![
 //!     MutateOnce::new_dispatch(0.05),
@@ -71,6 +72,7 @@
 //!     .with_rounds(rounds)
 //!     .with_target_population_sizes(target_population_sizes)
 //!     .with_max_stale_generations_options(max_stale_generations_options)
+//!     .with_max_chromosome_age_options(max_chromosome_age_options)
 //!     .with_target_fitness_score_options(target_fitness_score_options)
 //!     .with_mutates(mutates)
 //!     .with_crossovers(crossovers)
@@ -90,6 +92,7 @@
 //! // meta-permutate:
 //! //   best_target_population_size: 2
 //! //   best_max_stale_generations: Some(10)
+//! //   best_max_chromosome_age: Some(10)
 //! //   best_target_fitness_score: Some(0)
 //! //   best_mutate: Some(MutateDispatch(Random, 0.4))
 //! //   best_crossover: Some(CrossoverDispatch(Clone, true))

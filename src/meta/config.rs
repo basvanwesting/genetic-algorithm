@@ -21,6 +21,7 @@ pub struct Config<G: Genotype, F: Fitness<Genotype = G>> {
     pub rounds: usize,
     pub target_population_sizes: Vec<usize>,
     pub max_stale_generations_options: Vec<Option<usize>>,
+    pub max_chromosome_age_options: Vec<Option<usize>>,
     pub target_fitness_score_options: Vec<Option<FitnessValue>>,
     pub mutates: Vec<MutateDispatch>,
     pub crossovers: Vec<CrossoverDispatch>,
@@ -49,7 +50,8 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
             .with_compete(self.competes[genes[3]].clone())
             .with_extension(self.extensions[genes[4]].clone())
             .with_max_stale_generations_option(self.max_stale_generations_options[genes[5]])
-            .with_target_fitness_score_option(self.target_fitness_score_options[genes[6]])
+            .with_max_chromosome_age_option(self.max_chromosome_age_options[genes[6]])
+            .with_target_fitness_score_option(self.target_fitness_score_options[genes[7]])
     }
 
     // order matters so keep close to evolve_builder_for_chromosome
@@ -62,6 +64,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> Config<G, F> {
                 (0..self.competes.len()).collect(),
                 (0..self.extensions.len()).collect(),
                 (0..self.max_stale_generations_options.len()).collect(),
+                (0..self.max_chromosome_age_options.len()).collect(),
                 (0..self.target_fitness_score_options.len()).collect(),
             ])
             .build()
@@ -135,6 +138,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>> TryFrom<ConfigBuilder<G, F>> for Con
                 rounds: builder.rounds,
                 target_population_sizes: builder.target_population_sizes,
                 max_stale_generations_options: builder.max_stale_generations_options,
+                max_chromosome_age_options: builder.max_chromosome_age_options,
                 target_fitness_score_options: builder.target_fitness_score_options,
                 mutates: builder.mutates,
                 crossovers: builder.crossovers,
