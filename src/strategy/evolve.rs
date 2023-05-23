@@ -164,6 +164,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         EvolveBuilder::new()
     }
 
+    #[allow(dead_code)]
     fn ensure_best_chromosome(&mut self, population: &mut Population<G>) {
         if let Some(best_chromosome) = &self.state.best_chromosome {
             if !population.fitness_score_present(best_chromosome.fitness_score) {
