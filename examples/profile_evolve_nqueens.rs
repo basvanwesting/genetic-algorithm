@@ -48,7 +48,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce::new(0.2))
         .with_fitness(NQueensFitness)
-        .with_crossover(CrossoverClone(true))
+        .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteElite)
         .with_extension(ExtensionNoop);
 

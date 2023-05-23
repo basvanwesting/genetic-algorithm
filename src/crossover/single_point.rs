@@ -1,4 +1,4 @@
-use super::{Crossover, KeepParent};
+use super::{Crossover, CrossoverDispatch, Crossovers};
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -11,7 +11,9 @@ use rand::Rng;
 ///
 /// Not allowed for unique genotypes as it would not preserve the gene uniqueness in the children.
 #[derive(Clone, Debug)]
-pub struct SinglePoint(pub KeepParent);
+pub struct SinglePoint {
+    pub keep_parent: bool,
+}
 impl Crossover for SinglePoint {
     fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R) {
         if population.size() < 2 {
@@ -20,7 +22,7 @@ impl Crossover for SinglePoint {
 
         let crossover_points = genotype.crossover_points();
         let crossover_point_sampler = Slice::new(&crossover_points).unwrap();
-        if self.0 {
+        if self.keep_parent {
             let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
 
             for chunk in population.chromosomes.chunks(2) {
@@ -61,5 +63,18 @@ impl Crossover for SinglePoint {
     }
     fn require_crossover_points(&self) -> bool {
         true
+    }
+}
+
+impl SinglePoint {
+    pub fn new(keep_parent: bool) -> Self {
+        Self { keep_parent }
+    }
+    pub fn new_dispatch(keep_parent: bool) -> CrossoverDispatch {
+        CrossoverDispatch {
+            crossover: Crossovers::SinglePoint,
+            keep_parent,
+            ..Default::default()
+        }
     }
 }

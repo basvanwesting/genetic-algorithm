@@ -18,7 +18,7 @@ fn population_even() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform(false).call(&genotype, population, &mut rng);
+    CrossoverUniform::new(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -47,7 +47,7 @@ fn population_odd() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform(false).call(&genotype, population, &mut rng);
+    CrossoverUniform::new(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -76,7 +76,7 @@ fn population_even_keep_parent() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform(true).call(&genotype, population, &mut rng);
+    CrossoverUniform::new(true).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),

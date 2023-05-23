@@ -85,7 +85,7 @@ fn main() {
         .with_max_stale_generations(100)
         .with_fitness(fitness)
         .with_mutate(MutateOnce::new(0.2))
-        .with_crossover(CrossoverSinglePoint(true))
+        .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .build()

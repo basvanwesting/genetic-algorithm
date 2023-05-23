@@ -36,11 +36,11 @@
 //!     MutateOnce::new_dispatch(0.4),
 //! ];
 //! let crossovers = vec![
-//!     CrossoverDispatch(Crossovers::Clone, true),
-//!     CrossoverDispatch(Crossovers::SingleGene, false),
-//!     CrossoverDispatch(Crossovers::SingleGene, true),
-//!     CrossoverDispatch(Crossovers::SinglePoint, true),
-//!     CrossoverDispatch(Crossovers::Uniform, true),
+//!     CrossoverClone::new_dispatch(true),
+//!     CrossoverSingleGene::new_dispatch(false),
+//!     CrossoverSingleGene::new_dispatch(true),
+//!     CrossoverSinglePoint::new_dispatch(true),
+//!     CrossoverUniform::new_dispatch(true),
 //! ];
 //! let competes = vec![
 //!     CompeteElite::new_dispatch(),

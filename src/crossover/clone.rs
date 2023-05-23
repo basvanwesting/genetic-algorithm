@@ -1,4 +1,4 @@
-use super::{Crossover, KeepParent};
+use super::{Crossover, CrossoverDispatch, Crossovers};
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::Rng;
@@ -8,7 +8,9 @@ use rand::Rng;
 ///
 /// Allowed for unique genotypes.
 #[derive(Clone, Debug)]
-pub struct Clone(pub KeepParent);
+pub struct Clone {
+    pub keep_parent: bool,
+}
 impl Crossover for Clone {
     fn call<T: Genotype, R: Rng>(
         &self,
@@ -16,7 +18,7 @@ impl Crossover for Clone {
         population: &mut Population<T>,
         _rng: &mut R,
     ) {
-        if self.0 {
+        if self.keep_parent {
             let mut clones = population.clone();
             clones.reset_age();
             population.merge(&mut clones);
@@ -28,5 +30,18 @@ impl Crossover for Clone {
     }
     fn require_crossover_points(&self) -> bool {
         false
+    }
+}
+
+impl Clone {
+    pub fn new(keep_parent: bool) -> Self {
+        Self { keep_parent }
+    }
+    pub fn new_dispatch(keep_parent: bool) -> CrossoverDispatch {
+        CrossoverDispatch {
+            crossover: Crossovers::Clone,
+            keep_parent,
+            ..Default::default()
+        }
     }
 }

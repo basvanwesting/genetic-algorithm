@@ -86,7 +86,7 @@ fn main() {
         .with_mutate(MutateOnce::new(0.05))
         //.with_fitness(ExpensiveCount::new(1000))
         .with_fitness(CachedExpensiveCount::new(1000, 1500))
-        .with_crossover(CrossoverClone(true))
+        .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop)
         .call(&mut rng)

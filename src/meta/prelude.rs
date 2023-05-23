@@ -3,7 +3,10 @@ pub use crate::chromosome::{Chromosome, GenesKey};
 #[doc(no_inline)]
 pub use crate::compete::{CompeteDispatch, CompeteElite, CompeteTournament, Competes};
 #[doc(no_inline)]
-pub use crate::crossover::{CrossoverDispatch, Crossovers};
+pub use crate::crossover::{
+    CrossoverClone, CrossoverDispatch, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
+    Crossovers,
+};
 #[doc(no_inline)]
 pub use crate::extension::{
     ExtensionDispatch, ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,

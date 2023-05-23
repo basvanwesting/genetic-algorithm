@@ -18,7 +18,7 @@ fn population_even() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSinglePoint(false).call(&genotype, population, &mut rng);
+    CrossoverSinglePoint::new(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -46,7 +46,7 @@ fn population_even_keep_parents() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSinglePoint(true).call(&genotype, population, &mut rng);
+    CrossoverSinglePoint::new(true).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),

@@ -30,14 +30,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let genes_sizes = vec![10, 100, 1000, 10000];
 
     let crossovers = vec![
-        CrossoverDispatch(Crossovers::SingleGene, true),
-        CrossoverDispatch(Crossovers::SingleGene, false),
-        CrossoverDispatch(Crossovers::Uniform, true),
-        CrossoverDispatch(Crossovers::Uniform, false),
-        CrossoverDispatch(Crossovers::SinglePoint, true),
-        CrossoverDispatch(Crossovers::SinglePoint, false),
-        CrossoverDispatch(Crossovers::Clone, true),
-        //CrossoverDispatch(Crossovers::Clone, false), //noop
+        CrossoverSingleGene::new_dispatch(true),
+        CrossoverSingleGene::new_dispatch(false),
+        CrossoverUniform::new_dispatch(true),
+        CrossoverUniform::new_dispatch(false),
+        CrossoverSinglePoint::new_dispatch(true),
+        CrossoverSinglePoint::new_dispatch(false),
+        CrossoverClone::new_dispatch(true),
+        //CrossoverClone::new_dispatch(false), //noop
     ];
 
     let mut group = c.benchmark_group(format!("crossovers-pop{}", population_size));

@@ -57,7 +57,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateOnce::new(0.4))
         .with_fitness(MILPFitness)
-        .with_crossover(CrossoverSingleGene(true))
+        .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteElite)
         .with_extension(ExtensionNoop);
 

@@ -21,7 +21,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_fitness(CountTrue)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateOnce::new(0.2))
-        .with_crossover(CrossoverSinglePoint(true))
+        .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop);
 

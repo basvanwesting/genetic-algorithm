@@ -40,7 +40,7 @@ fn main() {
         MutateOnce::new_dispatch(0.2),
         MutateOnce::new_dispatch(0.3),
     ];
-    let crossovers = vec![CrossoverDispatch(Crossovers::Clone, true)];
+    let crossovers = vec![CrossoverClone::new_dispatch(true)];
     let competes = vec![CompeteElite::new_dispatch()];
     let extensions = vec![
         ExtensionNoop::new_dispatch(),

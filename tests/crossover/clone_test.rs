@@ -17,7 +17,7 @@ fn population_odd() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverClone(false).call(&genotype, population, &mut rng);
+    CrossoverClone::new(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -43,7 +43,7 @@ fn population_odd_keep_parents() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverClone(true).call(&genotype, population, &mut rng);
+    CrossoverClone::new(true).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -68,7 +68,7 @@ fn population_size_one() {
     let population = &mut build::population(vec![vec![true, false, true, false, true]]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverClone(false).call(&genotype, population, &mut rng);
+    CrossoverClone::new(false).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),

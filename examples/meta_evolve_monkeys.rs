@@ -36,10 +36,10 @@ fn main() {
         MutateOnce::new_dispatch(0.3),
     ];
     let crossovers = vec![
-        CrossoverDispatch(Crossovers::SinglePoint, true),
-        CrossoverDispatch(Crossovers::SinglePoint, false),
-        CrossoverDispatch(Crossovers::SingleGene, false),
-        CrossoverDispatch(Crossovers::Clone, true),
+        CrossoverSinglePoint::new_dispatch(true),
+        CrossoverSinglePoint::new_dispatch(false),
+        CrossoverSingleGene::new_dispatch(false),
+        CrossoverClone::new_dispatch(true),
     ];
     let competes = vec![
         CompeteElite::new_dispatch(),

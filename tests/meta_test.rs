@@ -3,7 +3,7 @@ mod support;
 #[cfg(test)]
 mod meta_tests {
     use genetic_algorithm::compete::{CompeteElite, CompeteTournament};
-    use genetic_algorithm::crossover::{CrossoverDispatch, Crossovers};
+    use genetic_algorithm::crossover::{CrossoverSingleGene, CrossoverSinglePoint};
     use genetic_algorithm::extension::{
         ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
         ExtensionMassInvasion, ExtensionNoop,
@@ -26,9 +26,9 @@ mod meta_tests {
             MutateDynamicRounds::new_dispatch(0.1, 0.25),
         ];
         let crossovers = vec![
-            CrossoverDispatch(Crossovers::SingleGene, true),
-            CrossoverDispatch(Crossovers::SingleGene, false),
-            CrossoverDispatch(Crossovers::SinglePoint, true),
+            CrossoverSingleGene::new_dispatch(true),
+            CrossoverSingleGene::new_dispatch(false),
+            CrossoverSinglePoint::new_dispatch(true),
         ];
         let competes = vec![
             CompeteElite::new_dispatch(),
