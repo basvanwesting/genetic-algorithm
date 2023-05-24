@@ -36,8 +36,13 @@ use thread_local::ThreadLocal;
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
-/// Can call_repeatedly from the [EvolveBuilder], when solution has tendency to get stuck in local
-/// optimum
+/// At the [EvolveBuilder] level, there are two additional mechanisms:
+/// * [call_repeatedly](EvolveBuilder::call_repeatedly): this runs multiple independent evolve
+///   strategies and returns the best one (or short circuits when the target_fitness_score is
+///   reached)
+/// * [call_speciated](EvolveBuilder::call_speciated): this runs multiple independent
+///   evolve strategies and then competes their best results against each other in one final evolve
+///   strategy
 ///
 /// See [EvolveBuilder] for initialization options.
 ///
@@ -53,21 +58,21 @@ use thread_local::ThreadLocal;
 ///     .unwrap();
 ///
 /// // the search strategy
-/// let mut rng = rand::thread_rng();           // a randomness provider implementing Trait rand::Rng
+/// let mut rng = rand::thread_rng(); // a randomness provider implementing Trait rand::Rng
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
-///     .with_target_population_size(100)       // evolve with 100 chromosomes
-///     .with_target_fitness_score(0)           // ending condition if 0 times true in the best chromosome
-///     .with_valid_fitness_score(10)           // block ending conditions until at most a 10 times true in the best chromosome
-///     .with_max_stale_generations(1000)       // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_max_chromosome_age(10)            // kill chromosomes after 10 generations
-///     .with_fitness(CountTrue)                // count the number of true values in the chromosomes
+///     .with_target_population_size(100) // evolve with 100 chromosomes
+///     .with_target_fitness_score(0)     // ending condition if 0 times true in the best chromosome
+///     .with_valid_fitness_score(10)     // block ending conditions until at most a 10 times true in the best chromosome
+///     .with_max_stale_generations(1000) // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_max_chromosome_age(10)      // kill chromosomes after 10 generations
+///     .with_fitness(CountTrue)          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
 ///     .with_crossover(CrossoverUniform::new(true)) // crossover all individual genes between 2 chromosomes for offspring
 ///     .with_mutate(MutateOnce::new(0.2))      // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite::new())      // sort the chromosomes by fitness to determine crossover order
-///     .with_extension(ExtensionMassExtinction::new(0.9, 0.1))  // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
+///     .with_extension(ExtensionMassExtinction::new(0.9, 0.1)) // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
