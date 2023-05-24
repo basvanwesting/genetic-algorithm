@@ -51,7 +51,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             group.throughput(Throughput::Elements(population_size as u64));
             let (genotype, population) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
-                BenchmarkId::new(format!("{:?}-{}", crossover.0, crossover.1), genes_size),
+                BenchmarkId::new(
+                    format!("{:?}-{}", crossover.crossover, crossover.keep_parent),
+                    genes_size,
+                ),
                 genes_size,
                 |b, &_genes_size| {
                     b.iter_batched(

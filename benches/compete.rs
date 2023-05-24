@@ -4,13 +4,14 @@ use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
+use genetic_algorithm::strategy::evolve::EvolveConfig;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    let population_sizes = vec![10, 100, 1000, 10000];
+    let population_sizes: Vec<usize> = vec![10, 100, 1000, 10000];
     let fitness_ordering = FitnessOrdering::Maximize;
 
     let competes = vec![
@@ -38,6 +39,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             let target_population_size = population_size;
             let source_population_size = population_size * 2;
 
+            let evolve_config = EvolveConfig {
+                target_population_size: *target_population_size,
+                fitness_ordering,
+                ..Default::default()
+            };
+
             let chromosomes = (0..source_population_size)
                 .map(|_| genotype.chromosome_factory(&mut rng))
                 .collect();
@@ -45,19 +52,15 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             CountTrue.call_for_population(population, None);
 
             group.bench_with_input(
-                BenchmarkId::new(format!("{:?}-{}", compete.0, compete.1), population_size),
+                BenchmarkId::new(
+                    format!("{:?}-{}", compete.compete, compete.tournament_size),
+                    population_size,
+                ),
                 population_size,
                 |b, &_population_size| {
                     b.iter_batched(
                         || population.clone(),
-                        |mut data| {
-                            compete.call(
-                                &mut data,
-                                fitness_ordering,
-                                *target_population_size,
-                                &mut rng,
-                            )
-                        },
+                        |mut data| compete.call(&mut data, &evolve_config, &mut rng),
                         BatchSize::SmallInput,
                     )
                 },
