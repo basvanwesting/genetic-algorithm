@@ -51,8 +51,8 @@ fn main() {
         .with_target_fitness_score(0)
         .with_mutate(MutateOnce::new(0.2))
         .with_crossover(CrossoverClone::new(true))
-        .with_compete(CompeteElite)
-        .with_extension(ExtensionNoop)
+        .with_compete(CompeteElite::new())
+        .with_extension(ExtensionNoop::new())
         .build()
         .unwrap();
 

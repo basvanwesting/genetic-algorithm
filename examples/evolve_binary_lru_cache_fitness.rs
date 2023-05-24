@@ -88,7 +88,7 @@ fn main() {
         .with_fitness(CachedExpensiveCount::new(1000, 1500))
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionNoop)
+        .with_extension(ExtensionNoop::new())
         .call(&mut rng)
         .unwrap();
 

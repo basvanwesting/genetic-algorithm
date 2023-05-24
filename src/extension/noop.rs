@@ -21,6 +21,9 @@ impl Extension for Noop {
 }
 
 impl Noop {
+    pub fn new() -> Self {
+        Self
+    }
     pub fn new_dispatch() -> ExtensionDispatch {
         ExtensionDispatch {
             extension: Extensions::Noop,

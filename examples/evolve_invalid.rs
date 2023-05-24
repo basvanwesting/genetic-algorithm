@@ -15,7 +15,7 @@ fn main() {
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionNoop)
+        .with_extension(ExtensionNoop::new())
         .build();
 
     match evolve {

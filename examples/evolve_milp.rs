@@ -58,8 +58,8 @@ fn main() {
         .with_mutate(MutateOnce::new(0.4))
         .with_fitness(MILPFitness)
         .with_crossover(CrossoverSingleGene::new(true))
-        .with_compete(CompeteElite)
-        .with_extension(ExtensionNoop);
+        .with_compete(CompeteElite::new())
+        .with_extension(ExtensionNoop::new());
 
     for _ in 0..10 {
         let now = std::time::Instant::now();
