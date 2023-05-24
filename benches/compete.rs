@@ -18,8 +18,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         CompeteElite::new_dispatch(),
         CompeteTournament::new_dispatch(4),
         CompeteTournament::new_dispatch(8),
-        CompeteTournamentClone::new_dispatch(4),
-        CompeteTournamentClone::new_dispatch(8),
     ];
 
     let mut group = c.benchmark_group("competes");

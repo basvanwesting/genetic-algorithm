@@ -3,11 +3,9 @@
 //! are dropped.
 mod elite;
 mod tournament;
-mod tournament_clone;
 
 pub use self::elite::Elite as CompeteElite;
 pub use self::tournament::Tournament as CompeteTournament;
-pub use self::tournament_clone::TournamentClone as CompeteTournamentClone;
 
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -28,7 +26,6 @@ pub enum Competes {
     #[default]
     Elite,
     Tournament,
-    TournamentClone,
 }
 
 /// Wrapper for use in [meta analysis](crate::meta)
@@ -49,11 +46,6 @@ impl Compete for CompeteDispatch {
             Competes::Tournament => {
                 CompeteTournament::new(self.tournament_size).call(population, evolve_config, rng)
             }
-            Competes::TournamentClone => CompeteTournamentClone::new(self.tournament_size).call(
-                population,
-                evolve_config,
-                rng,
-            ),
         }
     }
 }
