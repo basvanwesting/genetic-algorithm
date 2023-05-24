@@ -9,7 +9,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     //let genes_sizes = vec![10, 100, 1000, 10000];
     let genes_sizes = vec![100];
 
-    let mut group = c.benchmark_group("genotype-mutate");
+    let mut group = c.benchmark_group("genotype-mutation");
     //group.warm_up_time(Duration::from_secs(3));
     //group.measurement_time(Duration::from_secs(3));
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
@@ -105,9 +105,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &genes_size| {
                 let genotype = MultiContinuousGenotype::builder()
                     .with_allele_ranges((0..genes_size).map(|_| (0.0..1.0)).collect())
-                    .with_allele_neighbour_ranges(
-                        (0..genes_size).map(|_| (-0.1..0.1)).collect(),
-                    )
+                    .with_allele_neighbour_ranges((0..genes_size).map(|_| (-0.1..0.1)).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
