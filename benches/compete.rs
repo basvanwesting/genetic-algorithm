@@ -12,13 +12,14 @@ use rand::rngs::SmallRng;
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let population_sizes = vec![250, 500, 1000, 2000];
-    let fitness_ordering = FitnessOrdering::Maximize;
+    let fitness_ordering = FitnessOrdering::Minimize;
 
     let competes = vec![
         CompeteElite::new_dispatch(),
-        CompeteTournament::new_dispatch(2),
         CompeteTournament::new_dispatch(4),
         CompeteTournament::new_dispatch(8),
+        CompeteTournamentClone::new_dispatch(4),
+        CompeteTournamentClone::new_dispatch(8),
     ];
 
     let mut group = c.benchmark_group("competes");

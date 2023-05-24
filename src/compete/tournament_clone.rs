@@ -5,6 +5,7 @@ use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::EvolveConfig;
+use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 
 /// Run tournaments with randomly chosen chromosomes and pick a single winner. Do this
@@ -14,18 +15,18 @@ use rand::prelude::*;
 ///
 /// Excess chromosomes, beyond the target_population_size, are dropped.
 #[derive(Clone, Debug)]
-pub struct Tournament {
+pub struct TournamentClone {
     pub tournament_size: usize,
 }
 
-impl Compete for Tournament {
+impl Compete for TournamentClone {
     fn call<T: Genotype, R: Rng>(
         &self,
         population: &mut Population<T>,
         evolve_config: &EvolveConfig,
         rng: &mut R,
     ) {
-        let mut working_population_size = population.size();
+        let working_population_size = population.size();
         let tournament_size = std::cmp::min(self.tournament_size, working_population_size);
         let target_population_size = std::cmp::min(
             evolve_config.target_population_size,
@@ -33,60 +34,55 @@ impl Compete for Tournament {
         );
 
         let mut target_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(target_population_size);
-        let mut sample_index: usize;
+        let index_sampler = Uniform::from(0..working_population_size);
+        let mut winning_fitness_score: FitnessValue;
         let mut winning_index: usize;
-        let mut sample_fitness_value: FitnessValue;
-        let mut winning_fitness_value: FitnessValue;
+        let mut sample_index: usize;
 
         for _ in 0..target_population_size {
             winning_index = 0;
             match evolve_config.fitness_ordering {
-                FitnessOrdering::Maximize => winning_fitness_value = FitnessValue::MIN,
-                FitnessOrdering::Minimize => winning_fitness_value = FitnessValue::MAX,
+                FitnessOrdering::Maximize => winning_fitness_score = FitnessValue::MIN,
+                FitnessOrdering::Minimize => winning_fitness_score = FitnessValue::MAX,
             };
 
             for _ in 0..tournament_size {
-                sample_index = rng.gen_range(0..working_population_size);
+                sample_index = index_sampler.sample(rng);
                 match evolve_config.fitness_ordering {
                     FitnessOrdering::Maximize => {
-                        sample_fitness_value = population.chromosomes[sample_index]
+                        if population.chromosomes[sample_index]
                             .fitness_score
-                            .unwrap_or(FitnessValue::MIN);
-
-                        if sample_fitness_value >= winning_fitness_value {
+                            .unwrap_or(FitnessValue::MIN)
+                            >= winning_fitness_score
+                        {
                             winning_index = sample_index;
-                            winning_fitness_value = sample_fitness_value;
                         }
                     }
                     FitnessOrdering::Minimize => {
-                        sample_fitness_value = population.chromosomes[sample_index]
+                        if population.chromosomes[sample_index]
                             .fitness_score
-                            .unwrap_or(FitnessValue::MAX);
-
-                        if sample_fitness_value <= winning_fitness_value {
+                            .unwrap_or(FitnessValue::MAX)
+                            <= winning_fitness_score
+                        {
                             winning_index = sample_index;
-                            winning_fitness_value = sample_fitness_value;
                         }
                     }
                 }
             }
-
-            let chromosome = population.chromosomes.swap_remove(winning_index);
-            target_chromosomes.push(chromosome);
-            working_population_size -= 1;
+            target_chromosomes.push(population.chromosomes[winning_index].clone());
         }
 
         population.chromosomes = target_chromosomes;
     }
 }
 
-impl Tournament {
+impl TournamentClone {
     pub fn new(tournament_size: usize) -> Self {
         Self { tournament_size }
     }
     pub fn new_dispatch(tournament_size: usize) -> CompeteDispatch {
         CompeteDispatch {
-            compete: Competes::Tournament,
+            compete: Competes::TournamentClone,
             tournament_size,
             ..Default::default()
         }

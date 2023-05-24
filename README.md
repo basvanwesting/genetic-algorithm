@@ -109,7 +109,6 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Add simulated annealing strategy
 
 ## MAYBE
-* Add Tournament competition with duplicates (needs cloning)
 * Add Roulette competition with and without duplicates (with fitness ordering)
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for ContinuousGenotype?

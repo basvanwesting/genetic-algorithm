@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::compete::{Compete, CompeteTournament};
+use genetic_algorithm::compete::{Compete, CompeteTournamentClone};
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::BinaryGenotype;
@@ -26,7 +26,7 @@ fn maximize_population_surplus() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournamentClone::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -53,7 +53,7 @@ fn maximize_population_shortage() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournamentClone::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -81,15 +81,15 @@ fn minimize_population_surplus() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournamentClone::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
         vec![
             vec![false, false, false],
-            vec![false, true, false],
             vec![false, false, true],
-            vec![true, false, false]
+            vec![true, false, false],
+            vec![true, true, false],
         ]
     );
 }
@@ -108,7 +108,7 @@ fn minimize_population_shortage() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournamentClone::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -135,7 +135,7 @@ fn minimize_population_surplus_with_none_fitness() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournamentClone::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(population),
@@ -162,7 +162,7 @@ fn minimize_population_shortage_with_none_fitness() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournamentClone::new(4).call(population, &evolve_config, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(population),
