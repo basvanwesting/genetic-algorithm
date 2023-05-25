@@ -1,4 +1,3 @@
-use super::Mutate;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
@@ -15,8 +14,8 @@ pub struct DynamicRounds {
     pub target_uniformity: f32,
 }
 
-impl Mutate for DynamicRounds {
-    fn call<T: Genotype, R: Rng>(
+impl DynamicRounds {
+    pub fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
         population: &mut Population<T>,
@@ -42,12 +41,9 @@ impl Mutate for DynamicRounds {
             }
         }
     }
-    fn report(&self) -> String {
+    pub fn report(&self) -> String {
         format!("rounds: {}", self.number_of_rounds)
     }
-}
-
-impl DynamicRounds {
     pub fn new(mutation_probability: f32, target_uniformity: f32) -> Self {
         Self {
             mutation_probability,

@@ -1,4 +1,3 @@
-use super::Mutate;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
@@ -14,8 +13,8 @@ pub struct DynamicOnce {
     pub target_uniformity: f32,
 }
 
-impl Mutate for DynamicOnce {
-    fn call<T: Genotype, R: Rng>(
+impl DynamicOnce {
+    pub fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
         population: &mut Population<T>,
@@ -38,12 +37,9 @@ impl Mutate for DynamicOnce {
             }
         }
     }
-    fn report(&self) -> String {
+    pub fn report(&self) -> String {
         format!("once: {:2.2}", self.mutation_probability)
     }
-}
-
-impl DynamicOnce {
     pub fn new(mutation_probability_step: f32, target_uniformity: f32) -> Self {
         Self {
             mutation_probability_step,

@@ -1,4 +1,3 @@
-use super::Mutate;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
@@ -14,8 +13,8 @@ pub struct Twice {
     pub mutation_probability: f32,
 }
 
-impl Mutate for Twice {
-    fn call<T: Genotype, R: Rng>(
+impl Twice {
+    pub fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
         population: &mut Population<T>,
@@ -29,12 +28,9 @@ impl Mutate for Twice {
             }
         }
     }
-    fn report(&self) -> String {
+    pub fn report(&self) -> String {
         format!("twice: {:2.2}", self.mutation_probability)
     }
-}
-
-impl Twice {
     pub fn new(mutation_probability: f32) -> Self {
         Self {
             mutation_probability,

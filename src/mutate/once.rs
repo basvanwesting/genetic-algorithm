@@ -1,4 +1,3 @@
-use super::Mutate;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
@@ -11,8 +10,8 @@ pub struct Once {
     pub mutation_probability: f32,
 }
 
-impl Mutate for Once {
-    fn call<T: Genotype, R: Rng>(
+impl Once {
+    pub fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
         population: &mut Population<T>,
@@ -25,12 +24,9 @@ impl Mutate for Once {
             }
         }
     }
-    fn report(&self) -> String {
+    pub fn report(&self) -> String {
         format!("once: {:2.2}", self.mutation_probability)
     }
-}
-
-impl Once {
     pub fn new(mutation_probability: f32) -> Self {
         Self {
             mutation_probability,
