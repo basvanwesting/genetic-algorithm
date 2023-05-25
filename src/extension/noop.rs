@@ -1,4 +1,3 @@
-use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
@@ -8,8 +7,8 @@ use rand::Rng;
 #[derive(Debug, Clone)]
 pub struct Noop;
 
-impl Extension for Noop {
-    fn call<G: Genotype, R: Rng>(
+impl Noop {
+    pub fn call<G: Genotype, R: Rng>(
         &mut self,
         _genotype: &G,
         _evolve_config: &EvolveConfig,
@@ -18,9 +17,6 @@ impl Extension for Noop {
         _rng: &mut R,
     ) {
     }
-}
-
-impl Noop {
     pub fn new() -> Self {
         Self
     }

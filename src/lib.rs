@@ -50,7 +50,7 @@
 //!     .with_crossover(CrossoverUniform::new(true).into()) // crossover all individual genes between 2 chromosomes for offspring
 //!     .with_mutate(MutateOnce::new(0.2).into())    // mutate a single gene with a 20% probability per chromosome
 //!     .with_compete(CompeteElite::new().into())    // sort the chromosomes by fitness to determine crossover order
-//!     .with_extension(ExtensionNoop::new()) // extension step, disabled
+//!     .with_extension(ExtensionNoop::new().into()) // extension step, disabled
 //!     .call(&mut rng)
 //!     .unwrap();
 //!

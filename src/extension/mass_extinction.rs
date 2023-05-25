@@ -1,4 +1,3 @@
-use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
@@ -14,8 +13,8 @@ pub struct MassExtinction {
     pub survival_rate: f32,
 }
 
-impl Extension for MassExtinction {
-    fn call<G: Genotype, R: Rng>(
+impl MassExtinction {
+    pub fn call<G: Genotype, R: Rng>(
         &mut self,
         _genotype: &G,
         evolve_config: &EvolveConfig,
@@ -30,9 +29,6 @@ impl Extension for MassExtinction {
             population.trim(self.survival_rate, rng);
         }
     }
-}
-
-impl MassExtinction {
     pub fn new(uniformity_threshold: f32, survival_rate: f32) -> Self {
         Self {
             uniformity_threshold,

@@ -14,7 +14,7 @@ pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an Evolve struct.
 #[derive(Clone, Debug)]
-pub struct Builder<G: Genotype, F: Fitness<Genotype = G>, E: Extension> {
+pub struct Builder<G: Genotype, F: Fitness<Genotype = G>> {
     pub genotype: Option<G>,
     pub target_population_size: usize,
     pub max_stale_generations: Option<usize>,
@@ -27,20 +27,20 @@ pub struct Builder<G: Genotype, F: Fitness<Genotype = G>, E: Extension> {
     pub fitness: Option<F>,
     pub crossover: Option<Crossover>,
     pub compete: Option<Compete>,
-    pub extension: Option<E>,
+    pub extension: Option<Extension>,
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>, E: Extension> Builder<G, F, E> {
+impl<G: Genotype, F: Fitness<Genotype = G>> Builder<G, F> {
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn build(self) -> Result<Evolve<G, F, E>, TryFromBuilderError> {
+    pub fn build(self) -> Result<Evolve<G, F>, TryFromBuilderError> {
         self.try_into()
     }
 
-    pub fn call<R: Rng>(self, rng: &mut R) -> Result<Evolve<G, F, E>, TryFromBuilderError> {
-        let mut evolve: Evolve<G, F, E> = self.try_into()?;
+    pub fn call<R: Rng>(self, rng: &mut R) -> Result<Evolve<G, F>, TryFromBuilderError> {
+        let mut evolve: Evolve<G, F> = self.try_into()?;
         evolve.call(rng);
         Ok(evolve)
     }
@@ -48,11 +48,11 @@ impl<G: Genotype, F: Fitness<Genotype = G>, E: Extension> Builder<G, F, E> {
         self,
         max_repeats: usize,
         rng: &mut R,
-    ) -> Result<Evolve<G, F, E>, TryFromBuilderError> {
-        let mut best_evolve: Option<Evolve<G, F, E>> = None;
+    ) -> Result<Evolve<G, F>, TryFromBuilderError> {
+        let mut best_evolve: Option<Evolve<G, F>> = None;
         for iteration in 0..max_repeats {
             log::info!("### repeated round: {}", iteration);
-            let mut contending_run: Evolve<G, F, E> = self.clone().try_into()?;
+            let mut contending_run: Evolve<G, F> = self.clone().try_into()?;
             contending_run.state.current_iteration = iteration;
             contending_run.call(rng);
             if contending_run.is_finished_by_target_fitness_score() {
@@ -94,11 +94,11 @@ impl<G: Genotype, F: Fitness<Genotype = G>, E: Extension> Builder<G, F, E> {
         self,
         number_of_species: usize,
         rng: &mut R,
-    ) -> Result<Evolve<G, F, E>, TryFromBuilderError> {
+    ) -> Result<Evolve<G, F>, TryFromBuilderError> {
         let best_chromosomes: Vec<Chromosome<G>> = (0..number_of_species)
             .filter_map(|iteration| {
                 log::info!("### speciated round: {}", iteration);
-                let mut species_run: Evolve<G, F, E> = self.clone().try_into().ok()?;
+                let mut species_run: Evolve<G, F> = self.clone().try_into().ok()?;
                 species_run.state.current_iteration = iteration;
                 species_run.call(rng);
                 species_run.best_chromosome()
@@ -113,8 +113,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>, E: Extension> Builder<G, F, E> {
         log::debug!("### seed_genes_list: {:?}", seed_genes_list);
         let mut final_genotype = self.genotype.clone().unwrap();
         final_genotype.set_seed_genes_list(seed_genes_list);
-        let mut final_run: Evolve<G, F, E> =
-            self.clone().with_genotype(final_genotype).try_into()?;
+        let mut final_run: Evolve<G, F> = self.clone().with_genotype(final_genotype).try_into()?;
 
         final_run.call(rng);
         Ok(final_run)
@@ -196,13 +195,13 @@ impl<G: Genotype, F: Fitness<Genotype = G>, E: Extension> Builder<G, F, E> {
         self.compete = Some(compete);
         self
     }
-    pub fn with_extension(mut self, extension: E) -> Self {
+    pub fn with_extension(mut self, extension: Extension) -> Self {
         self.extension = Some(extension);
         self
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>, E: Extension> Default for Builder<G, F, E> {
+impl<G: Genotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
     fn default() -> Self {
         Self {
             genotype: None,

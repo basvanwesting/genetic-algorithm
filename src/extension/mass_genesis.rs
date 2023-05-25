@@ -1,4 +1,3 @@
-use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
@@ -10,8 +9,8 @@ pub struct MassGenesis {
     pub uniformity_threshold: f32,
 }
 
-impl Extension for MassGenesis {
-    fn call<G: Genotype, R: Rng>(
+impl MassGenesis {
+    pub fn call<G: Genotype, R: Rng>(
         &mut self,
         _genotype: &G,
         evolve_config: &EvolveConfig,
@@ -28,9 +27,6 @@ impl Extension for MassGenesis {
             }
         }
     }
-}
-
-impl MassGenesis {
     pub fn new(uniformity_threshold: f32) -> Self {
         Self {
             uniformity_threshold,

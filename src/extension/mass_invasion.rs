@@ -1,4 +1,3 @@
-use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
@@ -12,8 +11,8 @@ pub struct MassInvasion {
     pub survival_rate: f32,
 }
 
-impl Extension for MassInvasion {
-    fn call<G: Genotype, R: Rng>(
+impl MassInvasion {
+    pub fn call<G: Genotype, R: Rng>(
         &mut self,
         genotype: &G,
         _evolve_config: &EvolveConfig,
@@ -32,9 +31,6 @@ impl Extension for MassInvasion {
             }
         }
     }
-}
-
-impl MassInvasion {
     pub fn new(uniformity_threshold: f32, survival_rate: f32) -> Self {
         Self {
             uniformity_threshold,

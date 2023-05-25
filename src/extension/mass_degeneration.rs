@@ -1,4 +1,3 @@
-use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
@@ -14,8 +13,8 @@ pub struct MassDegeneration {
     pub number_of_rounds: usize,
 }
 
-impl Extension for MassDegeneration {
-    fn call<G: Genotype, R: Rng>(
+impl MassDegeneration {
+    pub fn call<G: Genotype, R: Rng>(
         &mut self,
         genotype: &G,
         _evolve_config: &EvolveConfig,
@@ -36,9 +35,6 @@ impl Extension for MassDegeneration {
             }
         }
     }
-}
-
-impl MassDegeneration {
     pub fn new(uniformity_threshold: f32, number_of_rounds: usize) -> Self {
         Self {
             uniformity_threshold,

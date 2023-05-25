@@ -8,7 +8,7 @@ pub use crate::crossover::{
 };
 #[doc(no_inline)]
 pub use crate::extension::{
-    ExtensionDispatch, ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
+    ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
     ExtensionMassInvasion, ExtensionNoop,
 };
 #[doc(no_inline)]
