@@ -15,7 +15,7 @@ use genetic_algorithm::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
     UniqueGenotype,
 };
-use genetic_algorithm::mutate::MutateOnce;
+use genetic_algorithm::mutate::Mutate;
 use genetic_algorithm::strategy::evolve::{Evolve, TryFromEvolveBuilderError};
 use genetic_algorithm::strategy::Strategy;
 
@@ -28,7 +28,9 @@ fn build_invalid_missing_ending_condition() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -54,7 +56,9 @@ fn build_invalid_require_crossover_indexes() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(20)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(SumUniqueGenotype)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -79,7 +83,9 @@ fn build_invalid_require_crossover_points() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(20)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(SumUniqueGenotype)
         .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -106,7 +112,9 @@ fn call_binary_max_stale_generations_maximize() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(20)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -136,7 +144,9 @@ fn call_binary_max_stale_generations_minimize() {
         .with_target_population_size(100)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(20)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -166,7 +176,9 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_target_population_size(4)
         .with_max_stale_generations(2)
         .with_valid_fitness_score(75)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -192,7 +204,9 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(2)
         .with_valid_fitness_score(25)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -217,7 +231,9 @@ fn call_binary_target_fitness_score_maximize() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_target_fitness_score(8)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -247,7 +263,9 @@ fn call_binary_target_fitness_score_minimize() {
         .with_target_population_size(100)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -276,7 +294,9 @@ fn call_binary_mass_degeneration() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_target_fitness_score(8)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -305,7 +325,9 @@ fn call_binary_mass_extinction() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_target_fitness_score(8)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -334,7 +356,9 @@ fn call_binary_mass_genesis() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_target_fitness_score(8)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -363,7 +387,9 @@ fn call_binary_mass_invasion() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_target_fitness_score(8)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -393,7 +419,9 @@ fn call_continuous() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(20)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(SumContinuousGenotype(1e-3))
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -427,7 +455,9 @@ fn call_discrete() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(20)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(SumDiscreteGenotype)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -461,7 +491,9 @@ fn call_multi_discrete() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(20)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(SumMultiDiscreteGenotype)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -489,7 +521,9 @@ fn call_multi_thread() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(20)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(SumDiscreteGenotype)
         .with_multithreading(true)
         .with_crossover(CrossoverSingleGene::new(true))
@@ -519,7 +553,9 @@ fn population_factory_binary() {
         .with_genotype(genotype)
         .with_target_population_size(8)
         .with_max_stale_generations(20)
-        .with_mutate(MutateOnce::new(0.1))
+        .with_mutate(Mutate::Once {
+            mutation_probability: 0.1,
+        })
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))

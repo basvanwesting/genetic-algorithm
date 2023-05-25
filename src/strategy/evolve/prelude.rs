@@ -20,9 +20,7 @@ pub use crate::genotype::{
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
-pub use crate::mutate::{
-    MutateDispatch, MutateDynamicOnce, MutateDynamicRounds, MutateOnce, MutateTwice,
-};
+pub use crate::mutate::Mutate;
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};
 #[doc(no_inline)]

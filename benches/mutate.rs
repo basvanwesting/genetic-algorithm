@@ -14,9 +14,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     let mutates = vec![
         MutateOnce::new(0.2).into(),
-        MutateTwice::new(0.2).into(),
-        MutateDynamicOnce::new(0.2, 0.5).into(),
-        MutateDynamicRounds::new(0.2, 0.5).into(),
+        Mutate::Twice::new(0.2).into(),
+        Mutate::DynamicOnce::new(0.2, 0.5).into(),
+        Mutate::DynamicRounds::new(0.2, 0.5).into(),
     ];
 
     let mut group = c.benchmark_group("mutates");
