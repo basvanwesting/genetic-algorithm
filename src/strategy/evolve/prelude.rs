@@ -4,7 +4,7 @@ pub use crate::chromosome::{Chromosome, GenesKey};
 pub use crate::compete::{CompeteElite, CompeteTournament};
 #[doc(no_inline)]
 pub use crate::crossover::{
-    CrossoverClone, CrossoverDispatch, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
+    CrossoverClone, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
 };
 #[doc(no_inline)]
 pub use crate::extension::{

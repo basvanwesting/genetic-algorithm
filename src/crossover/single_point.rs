@@ -1,4 +1,3 @@
-use super::Crossover;
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -14,8 +13,8 @@ use rand::Rng;
 pub struct SinglePoint {
     pub keep_parent: bool,
 }
-impl Crossover for SinglePoint {
-    fn call<T: Genotype, R: Rng>(
+impl SinglePoint {
+    pub fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
         population: &mut Population<T>,
@@ -63,15 +62,12 @@ impl Crossover for SinglePoint {
             }
         }
     }
-    fn require_crossover_indexes(&self) -> bool {
+    pub fn require_crossover_indexes(&self) -> bool {
         false
     }
-    fn require_crossover_points(&self) -> bool {
+    pub fn require_crossover_points(&self) -> bool {
         true
     }
-}
-
-impl SinglePoint {
     pub fn new(keep_parent: bool) -> Self {
         Self { keep_parent }
     }

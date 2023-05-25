@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::crossover::{Crossover, CrossoverClone};
+use genetic_algorithm::crossover::CrossoverClone;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 
 #[test]

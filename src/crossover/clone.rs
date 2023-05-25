@@ -1,4 +1,3 @@
-use super::Crossover;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::Rng;
@@ -11,8 +10,8 @@ use rand::Rng;
 pub struct Clone {
     pub keep_parent: bool,
 }
-impl Crossover for Clone {
-    fn call<T: Genotype, R: Rng>(
+impl Clone {
+    pub fn call<T: Genotype, R: Rng>(
         &mut self,
         _genotype: &T,
         population: &mut Population<T>,
@@ -25,15 +24,12 @@ impl Crossover for Clone {
         }
     }
 
-    fn require_crossover_indexes(&self) -> bool {
+    pub fn require_crossover_indexes(&self) -> bool {
         false
     }
-    fn require_crossover_points(&self) -> bool {
+    pub fn require_crossover_points(&self) -> bool {
         false
     }
-}
-
-impl Clone {
     pub fn new(keep_parent: bool) -> Self {
         Self { keep_parent }
     }

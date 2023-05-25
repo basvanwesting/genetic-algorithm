@@ -1,4 +1,3 @@
-use super::Crossover;
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -13,8 +12,8 @@ use rand::Rng;
 pub struct Uniform {
     pub keep_parent: bool,
 }
-impl Crossover for Uniform {
-    fn call<T: Genotype, R: Rng>(
+impl Uniform {
+    pub fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
         population: &mut Population<T>,
@@ -63,15 +62,12 @@ impl Crossover for Uniform {
             }
         }
     }
-    fn require_crossover_indexes(&self) -> bool {
+    pub fn require_crossover_indexes(&self) -> bool {
         true
     }
-    fn require_crossover_points(&self) -> bool {
+    pub fn require_crossover_points(&self) -> bool {
         false
     }
-}
-
-impl Uniform {
     pub fn new(keep_parent: bool) -> Self {
         Self { keep_parent }
     }
