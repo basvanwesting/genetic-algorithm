@@ -12,7 +12,7 @@ pub struct MassGenesis {
 
 impl Extension for MassGenesis {
     fn call<G: Genotype, R: Rng>(
-        &self,
+        &mut self,
         _genotype: &G,
         evolve_config: &EvolveConfig,
         evolve_state: &EvolveState<G>,

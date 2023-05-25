@@ -20,7 +20,7 @@ use rand::Rng;
 
 pub trait Extension: Clone + std::fmt::Debug {
     fn call<G: Genotype, R: Rng>(
-        &self,
+        &mut self,
         genotype: &G,
         evolve_config: &EvolveConfig,
         evolve_state: &EvolveState<G>,
@@ -50,7 +50,7 @@ pub struct ExtensionDispatch {
 
 impl Extension for ExtensionDispatch {
     fn call<G: Genotype, R: Rng>(
-        &self,
+        &mut self,
         genotype: &G,
         evolve_config: &EvolveConfig,
         evolve_state: &EvolveState<G>,

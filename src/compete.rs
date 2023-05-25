@@ -14,7 +14,7 @@ use rand::prelude::*;
 
 pub trait Compete: Clone + std::fmt::Debug {
     fn call<T: Genotype, R: Rng>(
-        &self,
+        &mut self,
         population: &mut Population<T>,
         evolve_config: &EvolveConfig,
         rng: &mut R,
@@ -36,7 +36,7 @@ pub struct CompeteDispatch {
 }
 impl Compete for CompeteDispatch {
     fn call<T: Genotype, R: Rng>(
-        &self,
+        &mut self,
         population: &mut Population<T>,
         evolve_config: &EvolveConfig,
         rng: &mut R,

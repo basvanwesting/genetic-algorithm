@@ -14,7 +14,12 @@ pub struct Uniform {
     pub keep_parent: bool,
 }
 impl Crossover for Uniform {
-    fn call<T: Genotype, R: Rng>(&self, genotype: &T, population: &mut Population<T>, rng: &mut R) {
+    fn call<T: Genotype, R: Rng>(
+        &mut self,
+        genotype: &T,
+        population: &mut Population<T>,
+        rng: &mut R,
+    ) {
         if population.size() < 2 {
             return;
         }

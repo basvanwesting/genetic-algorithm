@@ -16,7 +16,7 @@ pub struct MassDegeneration {
 
 impl Extension for MassDegeneration {
     fn call<G: Genotype, R: Rng>(
-        &self,
+        &mut self,
         genotype: &G,
         _evolve_config: &EvolveConfig,
         _evolve_state: &EvolveState<G>,

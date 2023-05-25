@@ -13,7 +13,7 @@ use std::cmp::Reverse;
 pub struct Elite;
 impl Compete for Elite {
     fn call<T: Genotype, R: Rng>(
-        &self,
+        &mut self,
         population: &mut Population<T>,
         evolve_config: &EvolveConfig,
         _rng: &mut R,

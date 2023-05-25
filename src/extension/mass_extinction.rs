@@ -16,7 +16,7 @@ pub struct MassExtinction {
 
 impl Extension for MassExtinction {
     fn call<G: Genotype, R: Rng>(
-        &self,
+        &mut self,
         _genotype: &G,
         evolve_config: &EvolveConfig,
         _evolve_state: &EvolveState<G>,

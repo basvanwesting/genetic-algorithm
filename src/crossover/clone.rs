@@ -13,7 +13,7 @@ pub struct Clone {
 }
 impl Crossover for Clone {
     fn call<T: Genotype, R: Rng>(
-        &self,
+        &mut self,
         _genotype: &T,
         population: &mut Population<T>,
         _rng: &mut R,

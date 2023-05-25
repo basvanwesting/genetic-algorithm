@@ -10,7 +10,7 @@ pub struct Noop;
 
 impl Extension for Noop {
     fn call<G: Genotype, R: Rng>(
-        &self,
+        &mut self,
         _genotype: &G,
         _evolve_config: &EvolveConfig,
         _evolve_state: &EvolveState<G>,

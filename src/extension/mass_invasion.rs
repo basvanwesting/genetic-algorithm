@@ -14,7 +14,7 @@ pub struct MassInvasion {
 
 impl Extension for MassInvasion {
     fn call<G: Genotype, R: Rng>(
-        &self,
+        &mut self,
         genotype: &G,
         _evolve_config: &EvolveConfig,
         _evolve_state: &EvolveState<G>,
