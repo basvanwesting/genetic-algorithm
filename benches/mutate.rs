@@ -12,7 +12,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let population_sizes = vec![250, 500, 1000, 2000];
 
-    let mutates = vec![
+    let mutates: Vec<MutateDispatch> = vec![
         MutateOnce::new(0.2).into(),
         MutateTwice::new(0.2).into(),
         MutateDynamicOnce::new(0.2, 0.5).into(),
@@ -44,7 +44,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 BenchmarkId::new(
                     format!(
                         "{:?}-{:2.2}-{:2.2}-{:3.3}",
-                        mutate.mutate,
+                        mutate.implementation,
                         mutate.mutation_probability,
                         mutate.mutation_probability_step,
                         mutate.target_uniformity

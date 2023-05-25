@@ -113,3 +113,6 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for ContinuousGenotype?
 * Rename Continuous to Real?
+
+## ISSUES
+* MutateDynamicOnce and MutateDynamicRounds are mutable, but the MutateDispatch reinitializes each round. Fix in feature/enum_plugins branch

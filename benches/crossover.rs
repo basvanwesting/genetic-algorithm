@@ -29,7 +29,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let population_size: usize = 1000;
     let genes_sizes = vec![10, 100, 1000, 10000];
 
-    let crossovers = vec![
+    let crossovers: Vec<CrossoverDispatch> = vec![
         CrossoverSingleGene::new(true).into(),
         CrossoverSingleGene::new(false).into(),
         CrossoverUniform::new(true).into(),
@@ -46,13 +46,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    for crossover in crossovers {
+    for mut crossover in crossovers {
         for genes_size in &genes_sizes {
             group.throughput(Throughput::Elements(population_size as u64));
             let (genotype, population) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
                 BenchmarkId::new(
-                    format!("{:?}-{}", crossover.crossover, crossover.keep_parent),
+                    format!("{:?}-{}", crossover.implementation, crossover.keep_parent),
                     genes_size,
                 ),
                 genes_size,

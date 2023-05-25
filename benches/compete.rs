@@ -14,7 +14,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let population_sizes = vec![250, 500, 1000, 2000];
     let fitness_ordering = FitnessOrdering::Minimize;
 
-    let competes = vec![
+    let competes: Vec<CompeteDispatch> = vec![
         CompeteElite::new().into(),
         CompeteTournament::new(4).into(),
         CompeteTournament::new(8).into(),
@@ -31,7 +31,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .build()
         .unwrap();
 
-    for compete in competes {
+    for mut compete in competes {
         for population_size in &population_sizes {
             group.throughput(Throughput::Elements(*population_size as u64));
 
@@ -52,7 +52,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
             group.bench_with_input(
                 BenchmarkId::new(
-                    format!("{:?}-{}", compete.compete, compete.tournament_size),
+                    format!("{:?}-{}", compete.implementation, compete.tournament_size),
                     population_size,
                 ),
                 population_size,
