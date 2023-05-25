@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::compete::{Compete, CompeteElite};
+use genetic_algorithm::compete::CompeteElite;
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::BinaryGenotype;

@@ -71,7 +71,7 @@ use thread_local::ThreadLocal;
 ///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
 ///     .with_crossover(CrossoverUniform::new(true)) // crossover all individual genes between 2 chromosomes for offspring
 ///     .with_mutate(MutateOnce::new(0.2).into())    // mutate a single gene with a 20% probability per chromosome
-///     .with_compete(CompeteElite::new())      // sort the chromosomes by fitness to determine crossover order
+///     .with_compete(CompeteElite::new().into())      // sort the chromosomes by fitness to determine crossover order
 ///     .with_extension(ExtensionMassExtinction::new(0.9, 0.1)) // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
 ///     .call(&mut rng)
 ///     .unwrap();
@@ -80,18 +80,18 @@ use thread_local::ThreadLocal;
 /// let best_chromosome = evolve.best_chromosome().unwrap();
 /// assert_eq!(best_chromosome.genes, vec![false; 100])
 /// ```
-pub struct Evolve<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension> {
+pub struct Evolve<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, E: Extension> {
     pub genotype: G,
     pub fitness: F,
-    pub plugins: EvolvePlugins<S, C, E>,
+    pub plugins: EvolvePlugins<S, E>,
     pub config: EvolveConfig,
     pub state: EvolveState<G>,
 }
 
-pub struct EvolvePlugins<S: Crossover, C: Compete, E: Extension> {
+pub struct EvolvePlugins<S: Crossover, E: Extension> {
     pub mutate: Mutate,
     pub crossover: S,
-    pub compete: C,
+    pub compete: Compete,
     pub extension: E,
 }
 
@@ -112,8 +112,8 @@ pub struct EvolveState<G: Genotype> {
     pub best_chromosome: Option<Chromosome<G>>,
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension> Strategy<G>
-    for Evolve<G, F, S, C, E>
+impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, E: Extension> Strategy<G>
+    for Evolve<G, F, S, E>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.state = EvolveState::default();
@@ -154,10 +154,8 @@ impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extensi
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
-    Evolve<G, F, S, C, E>
-{
-    pub fn builder() -> EvolveBuilder<G, F, S, C, E> {
+impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, E: Extension> Evolve<G, F, S, E> {
+    pub fn builder() -> EvolveBuilder<G, F, S, E> {
         EvolveBuilder::new()
     }
 
@@ -303,12 +301,12 @@ impl<G: Genotype> EvolveState<G> {
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
-    TryFrom<EvolveBuilder<G, F, S, C, E>> for Evolve<G, F, S, C, E>
+impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, E: Extension>
+    TryFrom<EvolveBuilder<G, F, S, E>> for Evolve<G, F, S, E>
 {
     type Error = TryFromEvolveBuilderError;
 
-    fn try_from(builder: EvolveBuilder<G, F, S, C, E>) -> Result<Self, Self::Error> {
+    fn try_from(builder: EvolveBuilder<G, F, S, E>) -> Result<Self, Self::Error> {
         if builder.genotype.is_none() {
             Err(TryFromEvolveBuilderError("Evolve requires a Genotype"))
         } else if builder.fitness.is_none() {
@@ -412,8 +410,8 @@ impl<G: Genotype> Default for EvolveState<G> {
     }
 }
 
-impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension> fmt::Display
-    for Evolve<G, F, S, C, E>
+impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, E: Extension> fmt::Display
+    for Evolve<G, F, S, E>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve:")?;
@@ -426,7 +424,7 @@ impl<G: Genotype, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extensi
     }
 }
 
-impl<S: Crossover, C: Compete, E: Extension> fmt::Display for EvolvePlugins<S, C, E> {
+impl<S: Crossover, E: Extension> fmt::Display for EvolvePlugins<S, E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve_plugins:")?;
         writeln!(f, "  mutate: {:?}", self.mutate)?;

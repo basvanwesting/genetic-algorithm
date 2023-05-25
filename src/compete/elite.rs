@@ -1,4 +1,3 @@
-use super::Compete;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -11,8 +10,8 @@ use std::cmp::Reverse;
 /// Excess chromosomes, beyond the target_population_size, are dropped.
 #[derive(Clone, Debug)]
 pub struct Elite;
-impl Compete for Elite {
-    fn call<T: Genotype, R: Rng>(
+impl Elite {
+    pub fn call<T: Genotype, R: Rng>(
         &mut self,
         population: &mut Population<T>,
         evolve_config: &EvolveConfig,
@@ -36,9 +35,6 @@ impl Compete for Elite {
             population.chromosomes.drain(..to_drain_from_first);
         }
     }
-}
-
-impl Elite {
     pub fn new() -> Self {
         Self
     }

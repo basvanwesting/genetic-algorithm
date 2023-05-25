@@ -1,4 +1,3 @@
-use super::Compete;
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
@@ -18,8 +17,8 @@ pub struct Tournament {
     pub tournament_size: usize,
 }
 
-impl Compete for Tournament {
-    fn call<T: Genotype, R: Rng>(
+impl Tournament {
+    pub fn call<T: Genotype, R: Rng>(
         &mut self,
         population: &mut Population<T>,
         evolve_config: &EvolveConfig,
@@ -78,9 +77,6 @@ impl Compete for Tournament {
 
         population.chromosomes = target_chromosomes;
     }
-}
-
-impl Tournament {
     pub fn new(tournament_size: usize) -> Self {
         Self { tournament_size }
     }
