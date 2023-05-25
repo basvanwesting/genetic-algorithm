@@ -5,6 +5,40 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.7.0] - 2023-05-25
+### Added
+* Add `Mutate` implementations:
+  * `MutateTwice`, support some form of swap-like behaviour where `UniqueGenotype` doesn't match with the problem space
+  * `MutateDynamicOnce`, increase mutation probability when population uniformity is above threshold and vice versa
+  * `MutateDynamicRounds`, increase mutation rounds when population uniformity is above threshold and vice versa
+* Add `HillClimbVariant::StochasticSecondary` and `HillClimbVariant::SteepestAscentSecondary` as well for the same reasons as `MutateTwice`
+* Add `call_speciated` next to the existing `call_repeatedly` in `EvolveBuilder`. This runs multiple independent
+  evolve strategies and then competes their best chromosomes as starting population against each other in one final evolve strategy
+* Add `Chromosome` age and optional `with_max_chromosome_age` to `EvolveBuilder`. Filtering chromosomes past the maximum age from the next generation
+* Add `best_generation()` and `best_fitness_score()` to `Strategy`, so client implementation can report and switch more easily over different strategies.
+  Return zero for `Permutate::best_generation()` as there is no concept of best generation there
+* Add `Extension` step to `Evolve`, adding `with_extension` to `EvolveBuilder`, with several implementations:
+  * `ExtensionNoop`, for no extension
+  * `ExtensionMassExtinction`, trigger mass extinction to allow for cambrian explosion (no competition for a while, which allows for more diversity)
+  * `ExtensionMassGenesis`, like `ExtensionMassExtinction`, but only a pair of best chromosomes (adam and eve) are taken as the start for the next generations
+  * `ExtensionMassInvasion`, like `ExtensionMassExtinction`, but replace extinct population with random population (respecting seed_genes if present)
+  * `ExtensionMassDegeneration`, simulate cambrian explosion by apply several rounds of uncontrolled mutation directly
+* Add `Population::fitness_score_unformity()` as measure for uniformity (fraction between 0 and 1). Use as triggers for `MutateDynamic*` and `Extension`
+* Add dispatch `From` to `Evolve` plugins for use in `MetaConfigBuilder`, instead of manual wrapping (e.g. `MutateOnce::new(0.2).into()` instead of `MutateDispatch(MutateOnce::new(0.2)`)
+
+### Changed
+* Refactor `Compete`, `Crossover` and `Mutate` from tuple structs to struct, initialize with `::new()`, because the structs now have some mutable internal properties (e.g. `MutateDynamicOnce`). Make all plugins mutable for consistency
+* Split off internal config and state structs for `Evolve` and `HillClimb`, leave `Permutate` untouched weighing overkill v. symmetry different there
+* Split off internal plugins for `Evolve` (i.e. `Mutate`/`Crossover`/`Compete`/`Extension`)
+* Change `seed_genes` to `seed_genes_list` to allow for multiple seed genes taken randomly (used in `call_speciated`)
+* Only mutate children in the `Mutate` step, in earlier versions parents and children were mutated equally
+* Refactor `Evolve` `population_size` property to `target_population_size`, thus also replacing `with_population_size` with `with_target_population_size`
+* Add `env_logger::init()` to all examples, so the `RUST_LOG` environment variable works as expected
+* Change `HillClimbBuilder::with_scaling` parameter from tuple to struct `Scaling`
+
+### Removed
+* Phase out the `with_mass_degeneration` in `EvolveBuilder` as it is replaced by `ExtensionMassDegeneration`
+
 ## [0.6.0] - 2022-10-14
 ### Changed
 * Calculate initial chromosome fitness in `HillClimb` to lock in on original seed if present
