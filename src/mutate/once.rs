@@ -1,4 +1,4 @@
-use super::{Mutate, MutateDispatch, Mutates};
+use super::Mutate;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
@@ -34,13 +34,6 @@ impl Once {
     pub fn new(mutation_probability: f32) -> Self {
         Self {
             mutation_probability,
-        }
-    }
-    pub fn new_dispatch(mutation_probability: f32) -> MutateDispatch {
-        MutateDispatch {
-            mutate: Mutates::Once,
-            mutation_probability,
-            ..Default::default()
         }
     }
 }

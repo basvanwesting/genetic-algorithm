@@ -1,16 +1,15 @@
 #[doc(no_inline)]
 pub use crate::chromosome::{Chromosome, GenesKey};
 #[doc(no_inline)]
-pub use crate::compete::{CompeteDispatch, CompeteElite, CompeteTournament, Competes};
+pub use crate::compete::{CompeteElite, CompeteTournament};
 #[doc(no_inline)]
 pub use crate::crossover::{
-    CrossoverClone, CrossoverDispatch, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
-    Crossovers,
+    CrossoverClone, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
 };
 #[doc(no_inline)]
 pub use crate::extension::{
     ExtensionDispatch, ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
-    ExtensionMassInvasion, ExtensionNoop, Extensions,
+    ExtensionMassInvasion, ExtensionNoop,
 };
 #[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
@@ -26,7 +25,7 @@ pub use crate::meta::{
 };
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateDispatch, MutateDynamicOnce, MutateDynamicRounds, MutateOnce, MutateTwice, Mutates,
+    MutateDispatch, MutateDynamicOnce, MutateDynamicRounds, MutateOnce, MutateTwice,
 };
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};

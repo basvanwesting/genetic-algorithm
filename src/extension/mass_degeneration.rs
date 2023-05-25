@@ -1,4 +1,4 @@
-use super::{Extension, ExtensionDispatch, Extensions};
+use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
@@ -43,15 +43,6 @@ impl MassDegeneration {
         Self {
             uniformity_threshold,
             number_of_rounds,
-        }
-    }
-
-    pub fn new_dispatch(uniformity_threshold: f32, number_of_rounds: usize) -> ExtensionDispatch {
-        ExtensionDispatch {
-            extension: Extensions::MassDegeneration,
-            uniformity_threshold,
-            number_of_rounds,
-            ..Default::default()
         }
     }
 }

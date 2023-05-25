@@ -1,4 +1,4 @@
-use super::{Extension, ExtensionDispatch, Extensions};
+use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
@@ -34,14 +34,6 @@ impl MassGenesis {
     pub fn new(uniformity_threshold: f32) -> Self {
         Self {
             uniformity_threshold,
-        }
-    }
-
-    pub fn new_dispatch(uniformity_threshold: f32) -> ExtensionDispatch {
-        ExtensionDispatch {
-            extension: Extensions::MassGenesis,
-            uniformity_threshold,
-            ..Default::default()
         }
     }
 }

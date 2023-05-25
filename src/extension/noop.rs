@@ -1,4 +1,4 @@
-use super::{Extension, ExtensionDispatch, Extensions};
+use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
@@ -23,11 +23,5 @@ impl Extension for Noop {
 impl Noop {
     pub fn new() -> Self {
         Self
-    }
-    pub fn new_dispatch() -> ExtensionDispatch {
-        ExtensionDispatch {
-            extension: Extensions::Noop,
-            ..Default::default()
-        }
     }
 }

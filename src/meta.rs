@@ -12,7 +12,7 @@
 //! `MultiDiscreteGenotype<usize>` indices of external vectors of arbitrary types, which should
 //! then be retrieved in the fitness function. Only one type is allowed per external vector, so the
 //! Crossover/Mutate/Compete strategies all have a Dispatch implementation forwarding to the
-//! underlying types (e.g. `CompeteTournament::new_dispatch(4)`)
+//! underlying types (e.g. `CompeteTournament::new(4).into()`)
 //!
 //! See example meta_evolve_binary for an meta analysis of the evolution strategy:
 //!
@@ -31,28 +31,28 @@
 //! let max_chromosome_age_options = vec![Some(10)];
 //! let target_fitness_score_options = vec![Some(0)];
 //! let mutates = vec![
-//!     MutateOnce::new_dispatch(0.05),
-//!     MutateOnce::new_dispatch(0.2),
-//!     MutateOnce::new_dispatch(0.4),
+//!     MutateOnce::new(0.05).into(),
+//!     MutateOnce::new(0.2).into(),
+//!     MutateOnce::new(0.4).into(),
 //! ];
 //! let crossovers = vec![
-//!     CrossoverClone::new_dispatch(true),
-//!     CrossoverSingleGene::new_dispatch(false),
-//!     CrossoverSingleGene::new_dispatch(true),
-//!     CrossoverSinglePoint::new_dispatch(true),
-//!     CrossoverUniform::new_dispatch(true),
+//!     CrossoverClone::new(true).into(),
+//!     CrossoverSingleGene::new(false).into(),
+//!     CrossoverSingleGene::new(true).into(),
+//!     CrossoverSinglePoint::new(true).into(),
+//!     CrossoverUniform::new(true).into(),
 //! ];
 //! let competes = vec![
-//!     CompeteElite::new_dispatch(),
-//!     CompeteTournament::new_dispatch(3),
-//!     CompeteTournament::new_dispatch(4),
+//!     CompeteElite::new().into(),
+//!     CompeteTournament::new(3).into(),
+//!     CompeteTournament::new(4).into(),
 //! ];
 //! let extensions = vec![
-//!     ExtensionNoop::new_dispatch(),
-//!     ExtensionMassExtinction::new_dispatch(0.9, 0.1),
-//!     ExtensionMassGenesis::new_dispatch(0.9),
-//!     ExtensionMassInvasion::new_dispatch(0.9, 0.1),
-//!     ExtensionMassDegeneration::new_dispatch(0.9, 10),
+//!     ExtensionNoop::new().into(),
+//!     ExtensionMassExtinction::new(0.9, 0.1).into(),
+//!     ExtensionMassGenesis::new(0.9).into(),
+//!     ExtensionMassInvasion::new(0.9, 0.1).into(),
+//!     ExtensionMassDegeneration::new(0.9, 10).into(),
 //! ];
 //!
 //! let genotype = BinaryGenotype::builder()

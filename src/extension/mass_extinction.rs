@@ -1,4 +1,4 @@
-use super::{Extension, ExtensionDispatch, Extensions};
+use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
@@ -37,15 +37,6 @@ impl MassExtinction {
         Self {
             uniformity_threshold,
             survival_rate,
-        }
-    }
-
-    pub fn new_dispatch(uniformity_threshold: f32, survival_rate: f32) -> ExtensionDispatch {
-        ExtensionDispatch {
-            extension: Extensions::MassExtinction,
-            uniformity_threshold,
-            survival_rate,
-            ..Default::default()
         }
     }
 }

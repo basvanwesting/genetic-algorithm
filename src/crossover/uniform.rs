@@ -1,4 +1,4 @@
-use super::{Crossover, CrossoverDispatch, Crossovers};
+use super::Crossover;
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -74,12 +74,5 @@ impl Crossover for Uniform {
 impl Uniform {
     pub fn new(keep_parent: bool) -> Self {
         Self { keep_parent }
-    }
-    pub fn new_dispatch(keep_parent: bool) -> CrossoverDispatch {
-        CrossoverDispatch {
-            crossover: Crossovers::Uniform,
-            keep_parent,
-            ..Default::default()
-        }
     }
 }

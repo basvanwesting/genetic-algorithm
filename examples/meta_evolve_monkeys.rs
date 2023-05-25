@@ -31,26 +31,23 @@ fn main() {
     let max_stale_generations_options = vec![Some(10000)];
     let target_fitness_score_options = vec![Some(0)];
     let mutates = vec![
-        MutateOnce::new_dispatch(0.1),
-        MutateOnce::new_dispatch(0.2),
-        MutateOnce::new_dispatch(0.3),
+        MutateOnce::new(0.1).into(),
+        MutateOnce::new(0.2).into(),
+        MutateOnce::new(0.3).into(),
     ];
     let crossovers = vec![
-        CrossoverSinglePoint::new_dispatch(true),
-        CrossoverSinglePoint::new_dispatch(false),
-        CrossoverSingleGene::new_dispatch(false),
-        CrossoverClone::new_dispatch(true),
+        CrossoverSinglePoint::new(true).into(),
+        CrossoverSinglePoint::new(false).into(),
+        CrossoverSingleGene::new(false).into(),
+        CrossoverClone::new(true).into(),
     ];
-    let competes = vec![
-        CompeteElite::new_dispatch(),
-        CompeteTournament::new_dispatch(4),
-    ];
+    let competes = vec![CompeteElite::new().into(), CompeteTournament::new(4).into()];
     let extensions = vec![
-        ExtensionNoop::new_dispatch(),
-        //ExtensionMassDegeneration::new_dispatch(0.9, 10),
-        //ExtensionMassExtinction::new_dispatch(0.9, 0.1),
-        //ExtensionMassGenesis::new_dispatch(0.9),
-        //ExtensionMassInvasion::new_dispatch(0.9, 0.1),
+        ExtensionNoop::new().into(),
+        //ExtensionMassDegeneration::new(0.9, 10).into(),
+        //ExtensionMassExtinction::new(0.9, 0.1).into(),
+        //ExtensionMassGenesis::new(0.9).into(),
+        //ExtensionMassInvasion::new(0.9, 0.1).into(),
     ];
     let genotype = DiscreteGenotype::builder()
         .with_genes_size(TARGET_TEXT.len())

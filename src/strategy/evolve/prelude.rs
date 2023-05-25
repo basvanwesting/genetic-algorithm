@@ -1,14 +1,14 @@
 #[doc(no_inline)]
 pub use crate::chromosome::{Chromosome, GenesKey};
 #[doc(no_inline)]
-pub use crate::compete::{CompeteElite, CompeteTournament};
+pub use crate::compete::{CompeteDispatch, CompeteElite, CompeteTournament};
 #[doc(no_inline)]
 pub use crate::crossover::{
-    CrossoverClone, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
+    CrossoverClone, CrossoverDispatch, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
 };
 #[doc(no_inline)]
 pub use crate::extension::{
-    ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
+    ExtensionDispatch, ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
     ExtensionMassInvasion, ExtensionNoop,
 };
 #[doc(no_inline)]
@@ -20,7 +20,9 @@ pub use crate::genotype::{
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
-pub use crate::mutate::{MutateDynamicOnce, MutateDynamicRounds, MutateOnce, MutateTwice};
+pub use crate::mutate::{
+    MutateDispatch, MutateDynamicOnce, MutateDynamicRounds, MutateOnce, MutateTwice,
+};
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};
 #[doc(no_inline)]

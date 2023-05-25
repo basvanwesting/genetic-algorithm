@@ -1,4 +1,4 @@
-use super::{Crossover, CrossoverDispatch, Crossovers};
+use super::Crossover;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::Rng;
@@ -36,12 +36,5 @@ impl Crossover for Clone {
 impl Clone {
     pub fn new(keep_parent: bool) -> Self {
         Self { keep_parent }
-    }
-    pub fn new_dispatch(keep_parent: bool) -> CrossoverDispatch {
-        CrossoverDispatch {
-            crossover: Crossovers::Clone,
-            keep_parent,
-            ..Default::default()
-        }
     }
 }

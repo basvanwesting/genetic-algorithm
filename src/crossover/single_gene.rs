@@ -1,4 +1,4 @@
-use super::{Crossover, CrossoverDispatch, Crossovers};
+use super::Crossover;
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -68,12 +68,5 @@ impl Crossover for SingleGene {
 impl SingleGene {
     pub fn new(keep_parent: bool) -> Self {
         Self { keep_parent }
-    }
-    pub fn new_dispatch(keep_parent: bool) -> CrossoverDispatch {
-        CrossoverDispatch {
-            crossover: Crossovers::SingleGene,
-            keep_parent,
-            ..Default::default()
-        }
     }
 }

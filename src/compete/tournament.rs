@@ -1,4 +1,4 @@
-use super::{Compete, CompeteDispatch, Competes};
+use super::Compete;
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
@@ -83,12 +83,5 @@ impl Compete for Tournament {
 impl Tournament {
     pub fn new(tournament_size: usize) -> Self {
         Self { tournament_size }
-    }
-    pub fn new_dispatch(tournament_size: usize) -> CompeteDispatch {
-        CompeteDispatch {
-            compete: Competes::Tournament,
-            tournament_size,
-            ..Default::default()
-        }
     }
 }

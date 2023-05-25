@@ -36,18 +36,18 @@ fn main() {
     let max_stale_generations_options = vec![Some(10000)];
     let target_fitness_score_options = vec![Some(0)];
     let mutates = vec![
-        MutateOnce::new_dispatch(0.1),
-        MutateOnce::new_dispatch(0.2),
-        MutateOnce::new_dispatch(0.3),
+        MutateOnce::new(0.1).into(),
+        MutateOnce::new(0.2).into(),
+        MutateOnce::new(0.3).into(),
     ];
-    let crossovers = vec![CrossoverClone::new_dispatch(true)];
-    let competes = vec![CompeteElite::new_dispatch()];
+    let crossovers = vec![CrossoverClone::new(true).into()];
+    let competes = vec![CompeteElite::new().into()];
     let extensions = vec![
-        ExtensionNoop::new_dispatch(),
-        //ExtensionMassDegeneration::new_dispatch(0.9, 10),
-        //ExtensionMassExtinction::new_dispatch(0.9, 0.1),
-        //ExtensionMassGenesis::new_dispatch(0.9),
-        //ExtensionMassInvasion::new_dispatch(0.9, 0.1),
+        ExtensionNoop::new().into(),
+        //ExtensionMassDegeneration::new(0.9, 10).into(),
+        //ExtensionMassExtinction::new(0.9, 0.1).into(),
+        //ExtensionMassGenesis::new(0.9).into(),
+        //ExtensionMassInvasion::new(0.9, 0.1).into(),
     ];
     let genotype = UniqueGenotype::builder()
         .with_allele_list((0..64).collect())

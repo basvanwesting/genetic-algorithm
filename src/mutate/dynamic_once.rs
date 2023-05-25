@@ -1,4 +1,4 @@
-use super::{Mutate, MutateDispatch, Mutates};
+use super::Mutate;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
@@ -10,8 +10,8 @@ use rand::Rng;
 #[derive(Debug, Clone, Default)]
 pub struct DynamicOnce {
     pub mutation_probability: f32,
-    mutation_probability_step: f32,
-    target_uniformity: f32,
+    pub mutation_probability_step: f32,
+    pub target_uniformity: f32,
 }
 
 impl Mutate for DynamicOnce {
@@ -46,15 +46,6 @@ impl Mutate for DynamicOnce {
 impl DynamicOnce {
     pub fn new(mutation_probability_step: f32, target_uniformity: f32) -> Self {
         Self {
-            mutation_probability_step,
-            target_uniformity,
-            ..Default::default()
-        }
-    }
-
-    pub fn new_dispatch(mutation_probability_step: f32, target_uniformity: f32) -> MutateDispatch {
-        MutateDispatch {
-            mutate: Mutates::DynamicOnce,
             mutation_probability_step,
             target_uniformity,
             ..Default::default()

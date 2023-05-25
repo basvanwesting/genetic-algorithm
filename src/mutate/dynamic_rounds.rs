@@ -1,4 +1,4 @@
-use super::{Mutate, MutateDispatch, Mutates};
+use super::Mutate;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
@@ -12,7 +12,7 @@ use rand::Rng;
 pub struct DynamicRounds {
     pub mutation_probability: f32,
     pub number_of_rounds: usize,
-    target_uniformity: f32,
+    pub target_uniformity: f32,
 }
 
 impl Mutate for DynamicRounds {
@@ -50,15 +50,6 @@ impl Mutate for DynamicRounds {
 impl DynamicRounds {
     pub fn new(mutation_probability: f32, target_uniformity: f32) -> Self {
         Self {
-            mutation_probability,
-            target_uniformity,
-            ..Default::default()
-        }
-    }
-
-    pub fn new_dispatch(mutation_probability: f32, target_uniformity: f32) -> MutateDispatch {
-        MutateDispatch {
-            mutate: Mutates::DynamicRounds,
             mutation_probability,
             target_uniformity,
             ..Default::default()

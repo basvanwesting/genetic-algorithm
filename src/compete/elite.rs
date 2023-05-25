@@ -1,4 +1,4 @@
-use super::{Compete, CompeteDispatch, Competes};
+use super::Compete;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -41,11 +41,5 @@ impl Compete for Elite {
 impl Elite {
     pub fn new() -> Self {
         Self
-    }
-    pub fn new_dispatch() -> CompeteDispatch {
-        CompeteDispatch {
-            compete: Competes::Elite,
-            ..Default::default()
-        }
     }
 }

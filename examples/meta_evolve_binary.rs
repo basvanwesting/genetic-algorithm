@@ -9,35 +9,35 @@ fn main() {
     let max_stale_generations_options = vec![Some(100)];
     let target_fitness_score_options = vec![Some(0)];
     let mutates = vec![
-        MutateOnce::new_dispatch(0.05),
-        MutateOnce::new_dispatch(0.1),
-        MutateOnce::new_dispatch(0.2),
-        MutateOnce::new_dispatch(0.3),
-        MutateOnce::new_dispatch(0.4),
-        MutateOnce::new_dispatch(0.5),
+        MutateOnce::new(0.05).into(),
+        MutateOnce::new(0.1).into(),
+        MutateOnce::new(0.2).into(),
+        MutateOnce::new(0.3).into(),
+        MutateOnce::new(0.4).into(),
+        MutateOnce::new(0.5).into(),
     ];
     let crossovers = vec![
-        CrossoverClone::new_dispatch(false),
-        CrossoverClone::new_dispatch(true),
-        CrossoverSingleGene::new_dispatch(false),
-        CrossoverSingleGene::new_dispatch(true),
-        CrossoverSinglePoint::new_dispatch(false),
-        CrossoverSinglePoint::new_dispatch(true),
-        CrossoverUniform::new_dispatch(false),
-        CrossoverUniform::new_dispatch(true),
+        CrossoverClone::new(false).into(),
+        CrossoverClone::new(true).into(),
+        CrossoverSingleGene::new(false).into(),
+        CrossoverSingleGene::new(true).into(),
+        CrossoverSinglePoint::new(false).into(),
+        CrossoverSinglePoint::new(true).into(),
+        CrossoverUniform::new(false).into(),
+        CrossoverUniform::new(true).into(),
     ];
     let competes = vec![
-        CompeteElite::new_dispatch(),
-        CompeteTournament::new_dispatch(2),
-        CompeteTournament::new_dispatch(4),
-        CompeteTournament::new_dispatch(8),
+        CompeteElite::new().into(),
+        CompeteTournament::new(2).into(),
+        CompeteTournament::new(4).into(),
+        CompeteTournament::new(8).into(),
     ];
     let extensions = vec![
-        ExtensionNoop::new_dispatch(),
-        ExtensionMassDegeneration::new_dispatch(0.9, 10),
-        ExtensionMassExtinction::new_dispatch(0.9, 0.1),
-        ExtensionMassGenesis::new_dispatch(0.9),
-        ExtensionMassInvasion::new_dispatch(0.9, 0.1),
+        ExtensionNoop::new().into(),
+        ExtensionMassDegeneration::new(0.9, 10).into(),
+        ExtensionMassExtinction::new(0.9, 0.1).into(),
+        ExtensionMassGenesis::new(0.9).into(),
+        ExtensionMassInvasion::new(0.9, 0.1).into(),
     ];
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)

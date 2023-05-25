@@ -21,25 +21,22 @@ mod meta_tests {
         let target_population_sizes = vec![1, 2, 3, 4, 5];
         let max_stale_generations_options = vec![Some(10)];
         let mutates = vec![
-            MutateOnce::new_dispatch(0.2),
-            MutateDynamicOnce::new_dispatch(0.2, 0.25),
-            MutateDynamicRounds::new_dispatch(0.1, 0.25),
+            MutateOnce::new(0.2).into(),
+            MutateDynamicOnce::new(0.2, 0.25).into(),
+            MutateDynamicRounds::new(0.1, 0.25).into(),
         ];
         let crossovers = vec![
-            CrossoverSingleGene::new_dispatch(true),
-            CrossoverSingleGene::new_dispatch(false),
-            CrossoverSinglePoint::new_dispatch(true),
+            CrossoverSingleGene::new(true).into(),
+            CrossoverSingleGene::new(false).into(),
+            CrossoverSinglePoint::new(true).into(),
         ];
-        let competes = vec![
-            CompeteElite::new_dispatch(),
-            CompeteTournament::new_dispatch(4),
-        ];
+        let competes = vec![CompeteElite::new().into(), CompeteTournament::new(4).into()];
         let extensions = vec![
-            ExtensionNoop::new_dispatch(),
-            ExtensionMassDegeneration::new_dispatch(0.9, 10),
-            ExtensionMassExtinction::new_dispatch(0.9, 0.1),
-            ExtensionMassGenesis::new_dispatch(0.9),
-            ExtensionMassInvasion::new_dispatch(0.9, 0.1),
+            ExtensionNoop::new().into(),
+            ExtensionMassDegeneration::new(0.9, 10).into(),
+            ExtensionMassExtinction::new(0.9, 0.1).into(),
+            ExtensionMassGenesis::new(0.9).into(),
+            ExtensionMassInvasion::new(0.9, 0.1).into(),
         ];
         let genotype = BinaryGenotype::builder()
             .with_genes_size(10)
