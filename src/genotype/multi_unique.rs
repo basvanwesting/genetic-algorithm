@@ -115,21 +115,21 @@ impl<T: Clone + Send + std::fmt::Debug> Genotype for MultiUnique<T> {
         vec![]
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
-        self.allele_lists
-            .iter()
-            .flat_map(|allele_list| {
-                let mut genes = allele_list.clone();
-                genes.shuffle(rng);
-                genes
-            })
-            .collect()
+        if self.seed_genes_list.is_empty() {
+            self.allele_lists
+                .iter()
+                .flat_map(|allele_list| {
+                    let mut genes = allele_list.clone();
+                    genes.shuffle(rng);
+                    genes
+                })
+                .collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        if self.seed_genes_list.is_empty() {
-            Chromosome::new(self.random_genes_factory(rng))
-        } else {
-            Chromosome::new(self.seed_genes_list.choose(rng).unwrap().clone())
-        }
+        Chromosome::new(self.random_genes_factory(rng))
     }
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {

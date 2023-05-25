@@ -52,16 +52,16 @@ impl Genotype for Binary {
         self.genes_size
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
-        (0..self.genes_size)
-            .map(|_| self.allele_sampler.sample(rng))
-            .collect()
+        if self.seed_genes_list.is_empty() {
+            (0..self.genes_size)
+                .map(|_| self.allele_sampler.sample(rng))
+                .collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        if self.seed_genes_list.is_empty() {
-            Chromosome::new(self.random_genes_factory(rng))
-        } else {
-            Chromosome::new(self.seed_genes_list.choose(rng).unwrap().clone())
-        }
+        Chromosome::new(self.random_genes_factory(rng))
     }
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {

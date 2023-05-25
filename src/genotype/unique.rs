@@ -84,16 +84,16 @@ impl<T: Clone + Send + std::fmt::Debug> Genotype for Unique<T> {
         vec![]
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
-        let mut genes = self.allele_list.clone();
-        genes.shuffle(rng);
-        genes
+        if self.seed_genes_list.is_empty() {
+            let mut genes = self.allele_list.clone();
+            genes.shuffle(rng);
+            genes
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        if self.seed_genes_list.is_empty() {
-            Chromosome::new(self.random_genes_factory(rng))
-        } else {
-            Chromosome::new(self.seed_genes_list.choose(rng).unwrap().clone())
-        }
+        Chromosome::new(self.random_genes_factory(rng))
     }
 
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
