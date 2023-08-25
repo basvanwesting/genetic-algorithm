@@ -115,4 +115,5 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Rename Continuous to Real?
 
 ## ISSUES
+* permutate (and possibly others) with gene_size 0 panics. Maybe it should just return a empty chromosome?
 * MutateDynamicOnce and MutateDynamicRounds are mutable, but the MutateDispatch reinitializes each round. Fix in feature/enum_plugins branch
