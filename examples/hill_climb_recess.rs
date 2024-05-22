@@ -111,10 +111,10 @@ fn main() {
     env_logger::init();
 
     // INPUT
-    let default_start_date = NaiveDate::from_ymd(2022, 1, 1);
-    let default_end_date = NaiveDate::from_ymd(2022, 12, 31);
+    let default_start_date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
+    let default_end_date = NaiveDate::from_ymd_opt(2022, 12, 31).unwrap();
     let default_allowed_weekdays = vec![Weekday::Mon, Weekday::Tue, Weekday::Thu];
-    let alt_start_date = NaiveDate::from_ymd(2022, 6, 1);
+    let alt_start_date = NaiveDate::from_ymd_opt(2022, 6, 1).unwrap();
     let alt_allowed_weekdays = vec![Weekday::Mon, Weekday::Tue, Weekday::Thu];
     let mut adults: Vec<Adult> = vec![
         Adult::new(
@@ -289,26 +289,26 @@ fn main() {
 
     let periods = vec![
         (
-            NaiveDate::from_ymd(2022, 1, 1),
-            NaiveDate::from_ymd(2022, 3, 1),
+            NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2022, 3, 1).unwrap(),
         ),
         (
-            NaiveDate::from_ymd(2022, 4, 1),
-            NaiveDate::from_ymd(2022, 6, 1),
+            NaiveDate::from_ymd_opt(2022, 4, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2022, 6, 1).unwrap(),
         ),
         (
-            NaiveDate::from_ymd(2022, 7, 1),
-            NaiveDate::from_ymd(2022, 9, 1),
+            NaiveDate::from_ymd_opt(2022, 7, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2022, 9, 1).unwrap(),
         ),
         (
-            NaiveDate::from_ymd(2022, 10, 1),
-            NaiveDate::from_ymd(2022, 12, 1),
+            NaiveDate::from_ymd_opt(2022, 10, 1).unwrap(),
+            NaiveDate::from_ymd_opt(2022, 12, 1).unwrap(),
         ),
     ];
 
     let exceptions = vec![
-        NaiveDate::from_ymd(2022, 1, 4),
-        NaiveDate::from_ymd(2022, 2, 4),
+        NaiveDate::from_ymd_opt(2022, 1, 4).unwrap(),
+        NaiveDate::from_ymd_opt(2022, 2, 4).unwrap(),
     ];
 
     // SETUP
