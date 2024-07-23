@@ -3,7 +3,6 @@ name = "genetic_algorithm"
 version = "0.7.0"
 edition = "2021"
 readme = "README.md"
-rust-version = "1.65"
 description = "A genetic algorithm implementation"
 repository = "https://github.com/basvanwesting/genetic-algorithm.git"
 homepage = "https://github.com/basvanwesting/genetic-algorithm.git"
@@ -11,6 +10,7 @@ documentation = "https://docs.rs/genetic_algorithm/latest/genetic_algorithm"
 license = "MIT OR Apache-2.0"
 keywords = ["genetic", "ga"]
 exclude = ["/.projections.json", "/performance.txt", "/refactor_script.rb", "/workspace.txt"]
+rust-version = "1.71.1"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -28,8 +28,8 @@ env_logger = "0.11.3"
 
 [dev-dependencies]
 lru = "0.7.5"
-criterion = "0.3"
-pprof = { version = "0.7", features = ["criterion", "flamegraph"] }
+criterion = "0.5"
+pprof = { version = "0.13", features = ["criterion", "flamegraph"] }
 distance = "0.4.0"
 chrono = "0.4.22"
 statrs = "0.16.0"
