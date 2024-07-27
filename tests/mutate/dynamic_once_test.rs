@@ -40,7 +40,7 @@ fn binary_genotype() {
     assert_eq!(mutate.mutation_probability, 0.1);
     fitness.call_for_population_single_thread(population);
     mutate.call(&genotype, population, &mut rng);
-    assert_eq!(mutate.mutation_probability, 0.1);
+    assert_eq!(mutate.mutation_probability, 0.0);
 
     assert_eq!(
         inspect::population(population),
@@ -51,7 +51,7 @@ fn binary_genotype() {
             vec![true, true, false],
             vec![true, true, true],
             vec![true, true, true],
-            vec![true, true, true],
+            vec![true, true, false],
             vec![true, true, true],
             vec![true, true, true],
             vec![true, false, true],

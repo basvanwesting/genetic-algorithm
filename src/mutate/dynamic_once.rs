@@ -22,9 +22,11 @@ impl Mutate for DynamicOnce {
         rng: &mut R,
     ) {
         if population.fitness_score_uniformity() > self.target_uniformity {
-            self.mutation_probability += self.mutation_probability_step;
-        } else if self.mutation_probability > self.mutation_probability_step {
-            self.mutation_probability -= self.mutation_probability_step;
+            self.mutation_probability =
+                (self.mutation_probability + self.mutation_probability_step).min(1.0);
+        } else {
+            self.mutation_probability =
+                (self.mutation_probability - self.mutation_probability_step).max(0.0);
         }
         log::trace!(
             "### dynamic_once mutation probability: {}",
@@ -39,7 +41,7 @@ impl Mutate for DynamicOnce {
         }
     }
     fn report(&self) -> String {
-        format!("once: {:2.2}", self.mutation_probability)
+        format!("dynamic-once: {:2.2}", self.mutation_probability)
     }
 }
 

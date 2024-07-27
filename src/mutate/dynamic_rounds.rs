@@ -43,7 +43,7 @@ impl Mutate for DynamicRounds {
         }
     }
     fn report(&self) -> String {
-        format!("rounds: {}", self.number_of_rounds)
+        format!("dynamic-rounds: {}", self.number_of_rounds)
     }
 }
 
