@@ -6,12 +6,14 @@ mod dynamic_once;
 mod dynamic_rounds;
 mod once;
 mod twice;
+mod wrapper;
 
 pub use self::dispatch::Dispatch as MutateDispatch;
 pub use self::dynamic_once::DynamicOnce as MutateDynamicOnce;
 pub use self::dynamic_rounds::DynamicRounds as MutateDynamicRounds;
 pub use self::once::Once as MutateOnce;
 pub use self::twice::Twice as MutateTwice;
+pub use self::wrapper::Wrapper as MutateWrapper;
 
 use crate::genotype::Genotype;
 use crate::population::Population;

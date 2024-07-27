@@ -8,12 +8,14 @@ mod dispatch;
 mod single_gene;
 mod single_point;
 mod uniform;
+mod wrapper;
 
 pub use self::clone::Clone as CrossoverClone;
 pub use self::dispatch::Dispatch as CrossoverDispatch;
 pub use self::single_gene::SingleGene as CrossoverSingleGene;
 pub use self::single_point::SinglePoint as CrossoverSinglePoint;
 pub use self::uniform::Uniform as CrossoverUniform;
+pub use self::wrapper::Wrapper as CrossoverWrapper;
 
 use crate::genotype::Genotype;
 use crate::population::Population;

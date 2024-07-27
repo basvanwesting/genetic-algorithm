@@ -12,7 +12,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let population_sizes = vec![250, 500, 1000, 2000];
 
-    let mutates: Vec<MutateDispatch> = vec![
+    let mutates: Vec<MutateWrapper> = vec![
         MutateOnce::new(0.2).into(),
         MutateTwice::new(0.2).into(),
         MutateDynamicOnce::new(0.2, 0.5).into(),
@@ -41,16 +41,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             CountTrue.call_for_population(population, None);
 
             group.bench_with_input(
-                BenchmarkId::new(
-                    format!(
-                        "{:?}-{:2.2}-{:2.2}-{:3.3}",
-                        mutate.implementation,
-                        mutate.mutation_probability,
-                        mutate.mutation_probability_step,
-                        mutate.target_uniformity
-                    ),
-                    population_size,
-                ),
+                BenchmarkId::new(format!("{:?}", mutate), population_size),
                 population_size,
                 |b, &_population_size| {
                     b.iter_batched(

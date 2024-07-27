@@ -4,10 +4,12 @@
 mod dispatch;
 mod elite;
 mod tournament;
+mod wrapper;
 
 pub use self::dispatch::Dispatch as CompeteDispatch;
 pub use self::elite::Elite as CompeteElite;
 pub use self::tournament::Tournament as CompeteTournament;
+pub use self::wrapper::Wrapper as CompeteWrapper;
 
 use crate::genotype::Genotype;
 use crate::population::Population;
