@@ -18,7 +18,7 @@ pub type DefaultAllele = usize;
 /// therefore be assigned again, not mutating as a result). Duplicate allele values are allowed.
 /// Defaults to usize as item.
 ///
-/// This genotype is also used in the [meta analysis](crate::meta), to hold the indices of the
+/// This genotype is also used in the [meta analysis](https://github.com/basvanwesting/genetic-algorithm-meta.git), to hold the indices of the
 /// different [Evolve](crate::strategy::evolve::Evolve) configuration values (defined outside of the genotype).
 ///
 /// # Example (usize, default):

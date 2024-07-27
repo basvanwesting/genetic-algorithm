@@ -89,7 +89,6 @@ pub mod crossover;
 pub mod extension;
 pub mod fitness;
 pub mod genotype;
-pub mod meta;
 pub mod mutate;
 pub mod population;
 pub mod strategy;

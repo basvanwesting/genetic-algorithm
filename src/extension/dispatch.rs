@@ -20,7 +20,7 @@ pub enum Implementations {
     MassDegeneration,
 }
 
-/// Wrapper for use in [meta analysis](crate::meta)
+/// Wrapper for use in benchmarks or [meta analysis](https://github.com/basvanwesting/genetic-algorithm-meta.git)
 #[derive(Clone, Debug, Default)]
 pub struct Dispatch {
     pub implementation: Implementations,
