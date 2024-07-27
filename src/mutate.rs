@@ -1,14 +1,12 @@
 //! The mutation strategy, very important for avoiding local optimum lock-in. But don't overdo it,
 //! as it degenerates the population too much if overused. Use a mutation probability generally between
 //! 5% and 20%.
-mod dispatch;
 mod dynamic_once;
 mod dynamic_rounds;
 mod once;
 mod twice;
 mod wrapper;
 
-pub use self::dispatch::Dispatch as MutateDispatch;
 pub use self::dynamic_once::DynamicOnce as MutateDynamicOnce;
 pub use self::dynamic_rounds::DynamicRounds as MutateDynamicRounds;
 pub use self::once::Once as MutateOnce;
