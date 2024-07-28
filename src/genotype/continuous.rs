@@ -94,6 +94,11 @@ impl Genotype for Continuous {
         chromosome.genes[index] = self.allele_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
+    fn mutate_chromosome_distance<R: Rng>(&self, chromosome: &mut Chromosome<Self>, distance: ContinuousAllele, rng: &mut R) {
+        let index = self.gene_index_sampler.sample(rng);
+        chromosome.genes[index] += distance;
+        chromosome.taint_fitness_score();
+    }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<ContinuousAllele>>) {
         self.seed_genes_list = seed_genes_list;
     }

@@ -4,12 +4,14 @@
 mod dynamic_once;
 mod dynamic_rounds;
 mod once;
+mod single_gene_distance;
 mod twice;
 mod wrapper;
 
 pub use self::dynamic_once::DynamicOnce as MutateDynamicOnce;
 pub use self::dynamic_rounds::DynamicRounds as MutateDynamicRounds;
 pub use self::once::Once as MutateOnce;
+pub use self::single_gene_distance::SingleGeneDistance as MutateSingleGeneDistance;
 pub use self::twice::Twice as MutateTwice;
 pub use self::wrapper::Wrapper as MutateWrapper;
 

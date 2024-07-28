@@ -21,7 +21,8 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateDynamicOnce, MutateDynamicRounds, MutateOnce, MutateTwice, MutateWrapper,
+    MutateDynamicOnce, MutateDynamicRounds, MutateOnce, MutateSingleGeneDistance, MutateTwice,
+    MutateWrapper,
 };
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};

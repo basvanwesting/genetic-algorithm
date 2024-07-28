@@ -1,6 +1,7 @@
 pub use super::dynamic_once::DynamicOnce as MutateDynamicOnce;
 pub use super::dynamic_rounds::DynamicRounds as MutateDynamicRounds;
 pub use super::once::Once as MutateOnce;
+pub use super::single_gene_distance::SingleGeneDistance as MutateSingleGeneDistance;
 pub use super::twice::Twice as MutateTwice;
 pub use super::Mutate;
 
@@ -14,6 +15,7 @@ pub enum Wrapper {
     Twice(MutateTwice),
     DynamicOnce(MutateDynamicOnce),
     DynamicRounds(MutateDynamicRounds),
+    SingleGeneDistance(MutateSingleGeneDistance),
 }
 
 impl Mutate for Wrapper {
@@ -28,6 +30,7 @@ impl Mutate for Wrapper {
             Wrapper::Twice(mutate) => mutate.call(genotype, population, rng),
             Wrapper::DynamicOnce(mutate) => mutate.call(genotype, population, rng),
             Wrapper::DynamicRounds(mutate) => mutate.call(genotype, population, rng),
+            Wrapper::SingleGeneDistance(mutate) => mutate.call(genotype, population, rng),
         }
     }
     fn report(&self) -> String {
@@ -36,6 +39,7 @@ impl Mutate for Wrapper {
             Wrapper::Twice(mutate) => mutate.report(),
             Wrapper::DynamicOnce(mutate) => mutate.report(),
             Wrapper::DynamicRounds(mutate) => mutate.report(),
+            Wrapper::SingleGeneDistance(mutate) => mutate.report(),
         }
     }
 }
@@ -58,5 +62,10 @@ impl From<MutateDynamicOnce> for Wrapper {
 impl From<MutateDynamicRounds> for Wrapper {
     fn from(mutate: MutateDynamicRounds) -> Self {
         Wrapper::DynamicRounds(mutate)
+    }
+}
+impl From<MutateSingleGeneDistance> for Wrapper {
+    fn from(mutate: MutateSingleGeneDistance) -> Self {
+        Wrapper::SingleGeneDistance(mutate)
     }
 }
