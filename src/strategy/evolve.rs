@@ -145,8 +145,11 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             if let Some(contending_best_chromosome) =
                 population.best_chromosome(self.config.fitness_ordering)
             {
-                self.state
-                    .update_best_chromosome(contending_best_chromosome, &self.config, false);
+                self.state.update_best_chromosome(
+                    contending_best_chromosome,
+                    &self.config.fitness_ordering,
+                    false,
+                );
             }
             //self.ensure_best_chromosome(population);
             self.report_round(population);
@@ -269,7 +272,7 @@ impl StrategyConfig for EvolveConfig {
     }
 }
 
-impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
+impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.best_chromosome.clone()
     }
@@ -294,7 +297,7 @@ impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
     fn update_best_chromosome(
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
-        config: &EvolveConfig,
+        fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> bool {
         match self.best_chromosome.as_ref() {
@@ -310,7 +313,7 @@ impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
                         return self.set_best_chromosome(contending_best_chromosome, true)
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match config.fitness_ordering {
+                        match fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
                                     return self

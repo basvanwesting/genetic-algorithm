@@ -97,7 +97,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
             self.state.current_generation += 1;
             self.fitness.call_for_chromosome(&mut chromosome);
             self.state
-                .update_best_chromosome(&chromosome, &self.config, false);
+                .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false);
         }
     }
     fn call_multi_thread<R: Rng>(&mut self, _rng: &mut R) {
@@ -131,8 +131,11 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
             s.spawn(|_| {
                 for chromosome in processed_chromosome_receiver {
                     self.state.current_generation += 1;
-                    self.state
-                        .update_best_chromosome(&chromosome, &self.config, false);
+                    self.state.update_best_chromosome(
+                        &chromosome,
+                        &self.config.fitness_ordering,
+                        false,
+                    );
                 }
             });
         })
@@ -149,7 +152,7 @@ impl StrategyConfig for PermutateConfig {
     }
 }
 
-impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState<G> {
+impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.best_chromosome.clone()
     }
@@ -174,7 +177,7 @@ impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState
     fn update_best_chromosome(
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
-        config: &PermutateConfig,
+        fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> bool {
         match self.best_chromosome.as_ref() {
@@ -190,7 +193,7 @@ impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState
                         return self.set_best_chromosome(contending_best_chromosome, true)
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match config.fitness_ordering {
+                        match fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
                                     return self

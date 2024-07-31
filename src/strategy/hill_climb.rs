@@ -355,7 +355,7 @@ impl StrategyConfig for HillClimbConfig {
     }
 }
 
-impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbState<G> {
+impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.best_chromosome.clone()
     }
@@ -380,7 +380,7 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
     fn update_best_chromosome(
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
-        config: &HillClimbConfig,
+        fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> bool {
         match self.best_chromosome.as_ref() {
@@ -396,7 +396,7 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
                         return self.set_best_chromosome(contending_best_chromosome, true)
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match config.fitness_ordering {
+                        match fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
                                     return self
@@ -435,7 +435,7 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
         config: &HillClimbConfig,
     ) {
         self.scale_down(config);
-        if self.update_best_chromosome(contending_best_chromosome, config, true) {
+        if self.update_best_chromosome(contending_best_chromosome, &config.fitness_ordering, true) {
             self.reset_scaling(config);
         }
     }
