@@ -63,6 +63,7 @@ pub struct PermutateConfig {
 }
 
 pub struct PermutateState<G: PermutableGenotype> {
+    pub current_iteration: usize,
     pub current_generation: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<G>>,
@@ -93,6 +94,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     }
     fn call_single_thread<R: Rng>(&mut self, _rng: &mut R) {
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
+            self.state.current_generation += 1;
             self.fitness.call_for_chromosome(&mut chromosome);
             self.state.update_best_chromosome(&chromosome, &self.config);
         }
@@ -127,6 +129,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
 
             s.spawn(|_| {
                 for chromosome in processed_chromosome_receiver {
+                    self.state.current_generation += 1;
                     self.state.update_best_chromosome(&chromosome, &self.config);
                 }
             });
@@ -151,6 +154,7 @@ impl<G: PermutableGenotype> PermutateState<G> {
         match self.best_chromosome.as_ref() {
             None => {
                 self.best_chromosome = Some(contending_best_chromosome.clone());
+                self.best_generation = self.current_generation;
             }
             Some(current_best_chromosome) => {
                 match (
@@ -161,17 +165,20 @@ impl<G: PermutableGenotype> PermutateState<G> {
                     (Some(_), None) => {}
                     (None, Some(_)) => {
                         self.best_chromosome = Some(contending_best_chromosome.clone());
+                        self.best_generation = self.current_generation;
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match permutate_config.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    self.best_generation = self.current_generation;
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    self.best_generation = self.current_generation;
                                 }
                             }
                         }
@@ -226,6 +233,7 @@ impl Default for PermutateConfig {
 impl<G: PermutableGenotype> Default for PermutateState<G> {
     fn default() -> Self {
         Self {
+            current_iteration: 0,
             current_generation: 0,
             best_generation: 0,
             best_chromosome: None,
@@ -256,6 +264,7 @@ impl fmt::Display for PermutateConfig {
 impl<G: PermutableGenotype> fmt::Display for PermutateState<G> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_state:")?;
+        writeln!(f, "  current iteration: -")?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
         writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
