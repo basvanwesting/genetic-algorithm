@@ -365,6 +365,17 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
     fn best_generation(&self) -> usize {
         self.best_generation
     }
+    fn set_best_chromosome(
+        &mut self,
+        best_chromosome: &Chromosome<G>,
+        set_best_generation: bool,
+    ) -> bool {
+        self.best_chromosome = Some(best_chromosome.clone());
+        if set_best_generation {
+            self.best_generation = self.current_generation;
+        }
+        true
+    }
 
     fn update_best_chromosome(
         &mut self,
@@ -373,11 +384,7 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
         replace_on_equal_fitness: bool,
     ) -> bool {
         match self.best_chromosome.as_ref() {
-            None => {
-                self.best_chromosome = Some(contending_best_chromosome.clone());
-                self.best_generation = self.current_generation;
-                return true;
-            }
+            None => return self.set_best_chromosome(contending_best_chromosome, true),
             Some(current_best_chromosome) => {
                 match (
                     current_best_chromosome.fitness_score,
@@ -386,34 +393,30 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
                     (None, None) => {}
                     (Some(_), None) => {}
                     (None, Some(_)) => {
-                        self.best_chromosome = Some(contending_best_chromosome.clone());
-                        self.best_generation = self.current_generation;
-                        return true;
+                        return self.set_best_chromosome(contending_best_chromosome, true)
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match config.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
-                                    self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    self.best_generation = self.current_generation;
-                                    return true;
+                                    return self
+                                        .set_best_chromosome(contending_best_chromosome, true);
                                 } else if replace_on_equal_fitness
                                     && contending_fitness_score == current_fitness_score
                                 {
-                                    self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    return true;
+                                    return self
+                                        .set_best_chromosome(contending_best_chromosome, false);
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
-                                    self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    self.best_generation = self.current_generation;
-                                    return true;
+                                    return self
+                                        .set_best_chromosome(contending_best_chromosome, true);
                                 } else if replace_on_equal_fitness
                                     && contending_fitness_score == current_fitness_score
                                 {
-                                    self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    return true;
+                                    return self
+                                        .set_best_chromosome(contending_best_chromosome, false);
                                 }
                             }
                         }

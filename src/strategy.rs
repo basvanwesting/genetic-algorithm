@@ -24,7 +24,11 @@ pub trait StrategyState<G: Genotype, C: StrategyConfig> {
     fn best_chromosome(&self) -> Option<Chromosome<G>>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
-    // fn set_best_chromosome(&mut self, best_chromosome: &Chromosome<G>) -> bool;
+    fn set_best_chromosome(
+        &mut self,
+        best_chromosome: &Chromosome<G>,
+        set_best_generation: bool,
+    ) -> bool;
     fn update_best_chromosome(
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
