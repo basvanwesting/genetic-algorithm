@@ -146,7 +146,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 population.best_chromosome(self.config.fitness_ordering)
             {
                 self.state
-                    .update_best_chromosome(contending_best_chromosome, &self.config);
+                    .update_best_chromosome(contending_best_chromosome, &self.config, false);
             }
             //self.ensure_best_chromosome(population);
             self.report_round(population);
@@ -284,6 +284,7 @@ impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
         config: &EvolveConfig,
+        replace_on_equal_fitness: bool,
     ) -> bool {
         match self.best_chromosome.as_ref() {
             None => {
@@ -310,12 +311,22 @@ impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     self.best_generation = self.current_generation;
                                     return true;
+                                } else if replace_on_equal_fitness
+                                    && contending_fitness_score == current_fitness_score
+                                {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    return true;
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     self.best_generation = self.current_generation;
+                                    return true;
+                                } else if replace_on_equal_fitness
+                                    && contending_fitness_score == current_fitness_score
+                                {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
                                     return true;
                                 }
                             }

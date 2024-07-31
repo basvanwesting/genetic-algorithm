@@ -370,6 +370,7 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
         config: &HillClimbConfig,
+        replace_on_equal_fitness: bool,
     ) -> bool {
         match self.best_chromosome.as_ref() {
             None => {
@@ -392,20 +393,26 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match config.fitness_ordering {
                             FitnessOrdering::Maximize => {
-                                if contending_fitness_score >= current_fitness_score {
+                                if contending_fitness_score > current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    if contending_fitness_score > current_fitness_score {
-                                        self.best_generation = self.current_generation;
-                                    }
+                                    self.best_generation = self.current_generation;
+                                    return true;
+                                } else if replace_on_equal_fitness
+                                    && contending_fitness_score == current_fitness_score
+                                {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
                                     return true;
                                 }
                             }
                             FitnessOrdering::Minimize => {
-                                if contending_fitness_score <= current_fitness_score {
+                                if contending_fitness_score < current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
-                                    if contending_fitness_score < current_fitness_score {
-                                        self.best_generation = self.current_generation;
-                                    }
+                                    self.best_generation = self.current_generation;
+                                    return true;
+                                } else if replace_on_equal_fitness
+                                    && contending_fitness_score == current_fitness_score
+                                {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
                                     return true;
                                 }
                             }
@@ -425,7 +432,7 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
         config: &HillClimbConfig,
     ) {
         self.scale_down(config);
-        if self.update_best_chromosome(contending_best_chromosome, config) {
+        if self.update_best_chromosome(contending_best_chromosome, config, true) {
             self.reset_scaling(config);
         }
     }

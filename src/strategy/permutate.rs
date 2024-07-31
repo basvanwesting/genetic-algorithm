@@ -96,7 +96,8 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
             self.state.current_generation += 1;
             self.fitness.call_for_chromosome(&mut chromosome);
-            self.state.update_best_chromosome(&chromosome, &self.config);
+            self.state
+                .update_best_chromosome(&chromosome, &self.config, false);
         }
     }
     fn call_multi_thread<R: Rng>(&mut self, _rng: &mut R) {
@@ -130,7 +131,8 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
             s.spawn(|_| {
                 for chromosome in processed_chromosome_receiver {
                     self.state.current_generation += 1;
-                    self.state.update_best_chromosome(&chromosome, &self.config);
+                    self.state
+                        .update_best_chromosome(&chromosome, &self.config, false);
                 }
             });
         })
@@ -162,6 +164,7 @@ impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
         config: &PermutateConfig,
+        replace_on_equal_fitness: bool,
     ) -> bool {
         match self.best_chromosome.as_ref() {
             None => {
@@ -188,12 +191,22 @@ impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     self.best_generation = self.current_generation;
                                     return true;
+                                } else if replace_on_equal_fitness
+                                    && contending_fitness_score == current_fitness_score
+                                {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
+                                    return true;
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     self.best_generation = self.current_generation;
+                                    return true;
+                                } else if replace_on_equal_fitness
+                                    && contending_fitness_score == current_fitness_score
+                                {
+                                    self.best_chromosome = Some(contending_best_chromosome.clone());
                                     return true;
                                 }
                             }
