@@ -52,29 +52,38 @@ use std::fmt;
 pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>> {
     genotype: G,
     fitness: F,
-    fitness_ordering: FitnessOrdering,
-    multithreading: bool,
+    pub config: PermutateConfig,
+    pub state: PermutateState<G>,
+}
 
+pub struct PermutateConfig {
     pub population_size: BigUint,
-    best_chromosome: Option<Chromosome<G>>,
+    pub fitness_ordering: FitnessOrdering,
+    pub multithreading: bool,
+}
+
+pub struct PermutateState<G: PermutableGenotype> {
+    pub current_generation: usize,
+    pub best_generation: usize,
+    pub best_chromosome: Option<Chromosome<G>>,
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Strategy<G> for Permutate<G, F> {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        if self.multithreading {
+        if self.config.multithreading {
             self.call_multi_thread(rng)
         } else {
             self.call_single_thread(rng)
         }
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
-        self.best_chromosome.clone()
+        self.state.best_chromosome()
     }
     fn best_generation(&self) -> usize {
-        0
+        self.state.best_generation
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+        self.state.best_fitness_score()
     }
 }
 
@@ -85,7 +94,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     fn call_single_thread<R: Rng>(&mut self, _rng: &mut R) {
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
             self.fitness.call_for_chromosome(&mut chromosome);
-            self.update_best_chromosome(&chromosome);
+            self.state.update_best_chromosome(&chromosome, &self.config);
         }
     }
     fn call_multi_thread<R: Rng>(&mut self, _rng: &mut R) {
@@ -118,13 +127,27 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
 
             s.spawn(|_| {
                 for chromosome in processed_chromosome_receiver {
-                    self.update_best_chromosome(&chromosome);
+                    self.state.update_best_chromosome(&chromosome, &self.config);
                 }
             });
         })
         .unwrap();
     }
-    fn update_best_chromosome(&mut self, contending_best_chromosome: &Chromosome<G>) {
+}
+
+impl<G: PermutableGenotype> PermutateState<G> {
+    pub fn best_chromosome(&self) -> Option<Chromosome<G>> {
+        self.best_chromosome.clone()
+    }
+    pub fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+    }
+
+    fn update_best_chromosome(
+        &mut self,
+        contending_best_chromosome: &Chromosome<G>,
+        permutate_config: &PermutateConfig,
+    ) {
         match self.best_chromosome.as_ref() {
             None => {
                 self.best_chromosome = Some(contending_best_chromosome.clone());
@@ -140,7 +163,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
                         self.best_chromosome = Some(contending_best_chromosome.clone());
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match self.fitness_ordering {
+                        match permutate_config.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
@@ -176,15 +199,36 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> TryFrom<PermutateBuilder<G
             let population_size = genotype.chromosome_permutations_size();
 
             Ok(Self {
-                genotype: genotype,
+                genotype,
                 fitness: builder.fitness.unwrap(),
 
-                fitness_ordering: builder.fitness_ordering,
-                multithreading: builder.multithreading,
-
-                best_chromosome: None,
-                population_size: population_size,
+                config: PermutateConfig {
+                    population_size,
+                    fitness_ordering: builder.fitness_ordering,
+                    multithreading: builder.multithreading,
+                },
+                state: PermutateState::default(),
             })
+        }
+    }
+}
+
+impl Default for PermutateConfig {
+    fn default() -> Self {
+        Self {
+            population_size: BigUint::default(),
+            fitness_ordering: FitnessOrdering::Maximize,
+            multithreading: false,
+        }
+    }
+}
+
+impl<G: PermutableGenotype> Default for PermutateState<G> {
+    fn default() -> Self {
+        Self {
+            current_generation: 0,
+            best_generation: 0,
+            best_chromosome: None,
         }
     }
 }
@@ -195,10 +239,24 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> fmt::Display for Permutate
         writeln!(f, "  genotype: {:?}", self.genotype)?;
         writeln!(f, "  fitness: {:?}", self.fitness)?;
 
+        writeln!(f, "{}", self.config)?;
+        writeln!(f, "{}", self.state)
+    }
+}
+
+impl fmt::Display for PermutateConfig {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "permutate_config:")?;
         writeln!(f, "  population_size: {}", self.population_size)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  multithreading: {:?}", self.multithreading)?;
+        writeln!(f, "  multithreading: {:?}", self.multithreading)
+    }
+}
 
+impl<G: PermutableGenotype> fmt::Display for PermutateState<G> {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        writeln!(f, "permutate_state:")?;
+        writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
         writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
     }
