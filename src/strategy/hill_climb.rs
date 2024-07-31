@@ -359,6 +359,9 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.best_chromosome.clone()
     }
+    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<G>> {
+        self.best_chromosome.as_ref()
+    }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
@@ -375,56 +378,6 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
             self.best_generation = self.current_generation;
         }
         true
-    }
-
-    fn update_best_chromosome(
-        &mut self,
-        contending_best_chromosome: &Chromosome<G>,
-        fitness_ordering: &FitnessOrdering,
-        replace_on_equal_fitness: bool,
-    ) -> bool {
-        match self.best_chromosome.as_ref() {
-            None => return self.set_best_chromosome(contending_best_chromosome, true),
-            Some(current_best_chromosome) => {
-                match (
-                    current_best_chromosome.fitness_score,
-                    contending_best_chromosome.fitness_score,
-                ) {
-                    (None, None) => {}
-                    (Some(_), None) => {}
-                    (None, Some(_)) => {
-                        return self.set_best_chromosome(contending_best_chromosome, true)
-                    }
-                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match fitness_ordering {
-                            FitnessOrdering::Maximize => {
-                                if contending_fitness_score > current_fitness_score {
-                                    return self
-                                        .set_best_chromosome(contending_best_chromosome, true);
-                                } else if replace_on_equal_fitness
-                                    && contending_fitness_score == current_fitness_score
-                                {
-                                    return self
-                                        .set_best_chromosome(contending_best_chromosome, false);
-                                }
-                            }
-                            FitnessOrdering::Minimize => {
-                                if contending_fitness_score < current_fitness_score {
-                                    return self
-                                        .set_best_chromosome(contending_best_chromosome, true);
-                                } else if replace_on_equal_fitness
-                                    && contending_fitness_score == current_fitness_score
-                                {
-                                    return self
-                                        .set_best_chromosome(contending_best_chromosome, false);
-                                }
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        false
     }
 }
 

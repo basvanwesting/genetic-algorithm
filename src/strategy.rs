@@ -21,6 +21,7 @@ pub trait StrategyConfig {
 }
 
 pub trait StrategyState<G: Genotype> {
+    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<G>>;
     fn best_chromosome(&self) -> Option<Chromosome<G>>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
@@ -34,5 +35,48 @@ pub trait StrategyState<G: Genotype> {
         contending_best_chromosome: &Chromosome<G>,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
-    ) -> bool;
+    ) -> bool {
+        match self.best_chromosome_as_ref() {
+            None => return self.set_best_chromosome(contending_best_chromosome, true),
+            Some(current_best_chromosome) => {
+                match (
+                    current_best_chromosome.fitness_score,
+                    contending_best_chromosome.fitness_score,
+                ) {
+                    (None, None) => {}
+                    (Some(_), None) => {}
+                    (None, Some(_)) => {
+                        return self.set_best_chromosome(contending_best_chromosome, true)
+                    }
+                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
+                        match fitness_ordering {
+                            FitnessOrdering::Maximize => {
+                                if contending_fitness_score > current_fitness_score {
+                                    return self
+                                        .set_best_chromosome(contending_best_chromosome, true);
+                                } else if replace_on_equal_fitness
+                                    && contending_fitness_score == current_fitness_score
+                                {
+                                    return self
+                                        .set_best_chromosome(contending_best_chromosome, false);
+                                }
+                            }
+                            FitnessOrdering::Minimize => {
+                                if contending_fitness_score < current_fitness_score {
+                                    return self
+                                        .set_best_chromosome(contending_best_chromosome, true);
+                                } else if replace_on_equal_fitness
+                                    && contending_fitness_score == current_fitness_score
+                                {
+                                    return self
+                                        .set_best_chromosome(contending_best_chromosome, false);
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        false
+    }
 }
