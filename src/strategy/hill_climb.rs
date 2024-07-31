@@ -6,7 +6,7 @@ pub use self::builder::{
     Builder as HillClimbBuilder, TryFromBuilderError as TryFromHillClimbBuilderError,
 };
 
-use super::Strategy;
+use super::{Strategy, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
@@ -344,20 +344,32 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F> {
     }
 }
 
-impl<G: IncrementalGenotype> HillClimbState<G> {
-    pub fn best_chromosome(&self) -> Option<Chromosome<G>> {
+impl StrategyConfig for HillClimbConfig {
+    fn fitness_ordering(&self) -> FitnessOrdering {
+        self.fitness_ordering
+    }
+    fn multithreading(&self) -> bool {
+        self.multithreading
+    }
+}
+
+impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbState<G> {
+    fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.best_chromosome.clone()
     }
-    pub fn best_fitness_score(&self) -> Option<FitnessValue> {
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+    }
+    fn best_generation(&self) -> usize {
+        self.best_generation
     }
 
     fn update_best_chromosome(
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
-        hill_climb_config: &HillClimbConfig,
+        config: &HillClimbConfig,
     ) {
-        self.scale_down(hill_climb_config);
+        self.scale_down(config);
         match self.best_chromosome.as_ref() {
             None => {
                 self.best_chromosome = Some(contending_best_chromosome.clone());
@@ -372,16 +384,16 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
                     (None, Some(_)) => {
                         self.best_chromosome = Some(contending_best_chromosome.clone());
                         self.best_generation = self.current_generation;
-                        self.reset_scaling(hill_climb_config);
+                        self.reset_scaling(config);
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match hill_climb_config.fitness_ordering {
+                        match config.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score >= current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     if contending_fitness_score > current_fitness_score {
                                         self.best_generation = self.current_generation;
-                                        self.reset_scaling(hill_climb_config);
+                                        self.reset_scaling(config);
                                     }
                                 }
                             }
@@ -390,7 +402,7 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     if contending_fitness_score < current_fitness_score {
                                         self.best_generation = self.current_generation;
-                                        self.reset_scaling(hill_climb_config);
+                                        self.reset_scaling(config);
                                     }
                                 }
                             }
@@ -400,7 +412,9 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
             }
         }
     }
+}
 
+impl<G: IncrementalGenotype> HillClimbState<G> {
     fn reset_scaling(&mut self, hill_climb_config: &HillClimbConfig) {
         self.current_scale = hill_climb_config.scaling.as_ref().map(|s| s.base_scale);
     }

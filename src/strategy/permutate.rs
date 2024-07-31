@@ -6,7 +6,7 @@ pub use self::builder::{
     Builder as PermutateBuilder, TryFromBuilderError as TryFromPermutateBuilderError,
 };
 
-use super::Strategy;
+use super::{Strategy, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
@@ -138,18 +138,30 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
     }
 }
 
-impl<G: PermutableGenotype> PermutateState<G> {
-    pub fn best_chromosome(&self) -> Option<Chromosome<G>> {
+impl StrategyConfig for PermutateConfig {
+    fn fitness_ordering(&self) -> FitnessOrdering {
+        self.fitness_ordering
+    }
+    fn multithreading(&self) -> bool {
+        self.multithreading
+    }
+}
+
+impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState<G> {
+    fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.best_chromosome.clone()
     }
-    pub fn best_fitness_score(&self) -> Option<FitnessValue> {
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
+    }
+    fn best_generation(&self) -> usize {
+        self.best_generation
     }
 
     fn update_best_chromosome(
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
-        permutate_config: &PermutateConfig,
+        config: &PermutateConfig,
     ) {
         match self.best_chromosome.as_ref() {
             None => {
@@ -168,7 +180,7 @@ impl<G: PermutableGenotype> PermutateState<G> {
                         self.best_generation = self.current_generation;
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match permutate_config.fitness_ordering {
+                        match config.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());

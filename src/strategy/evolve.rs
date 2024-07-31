@@ -6,7 +6,7 @@ pub use self::builder::{
     Builder as EvolveBuilder, TryFromBuilderError as TryFromEvolveBuilderError,
 };
 
-use super::Strategy;
+use super::{Strategy, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
@@ -141,7 +141,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             self.fitness
                 .call_for_population(population, fitness_thread_local.as_ref());
             self.plugins.compete.call(population, &self.config, rng);
-            self.state.update_best_chromosome(population, &self.config);
+
+            if let Some(contending_best_chromosome) =
+                population.best_chromosome(self.config.fitness_ordering)
+            {
+                self.state
+                    .update_best_chromosome(contending_best_chromosome, &self.config);
+            }
             //self.ensure_best_chromosome(population);
             self.report_round(population);
 
@@ -254,30 +260,37 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     }
 }
 
-impl<G: Genotype> EvolveState<G> {
-    pub fn best_chromosome(&self) -> Option<Chromosome<G>> {
+impl StrategyConfig for EvolveConfig {
+    fn fitness_ordering(&self) -> FitnessOrdering {
+        self.fitness_ordering
+    }
+    fn multithreading(&self) -> bool {
+        self.multithreading
+    }
+}
+
+impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
+    fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.best_chromosome.clone()
     }
-    pub fn best_fitness_score(&self) -> Option<FitnessValue> {
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
+    fn best_generation(&self) -> usize {
+        self.best_generation
+    }
 
-    pub fn update_best_chromosome(
+    fn update_best_chromosome(
         &mut self,
-        population: &Population<G>,
-        evolve_config: &EvolveConfig,
+        contending_best_chromosome: &Chromosome<G>,
+        config: &EvolveConfig,
     ) {
-        match (
-            self.best_chromosome.as_ref(),
-            population.best_chromosome(evolve_config.fitness_ordering),
-        ) {
-            (None, None) => {}
-            (Some(_), None) => {}
-            (None, Some(contending_best_chromosome)) => {
+        match self.best_chromosome.as_ref() {
+            None => {
                 self.best_chromosome = Some(contending_best_chromosome.clone());
                 self.best_generation = self.current_generation;
             }
-            (Some(current_best_chromosome), Some(contending_best_chromosome)) => {
+            Some(current_best_chromosome) => {
                 match (
                     current_best_chromosome.fitness_score,
                     contending_best_chromosome.fitness_score,
@@ -289,7 +302,7 @@ impl<G: Genotype> EvolveState<G> {
                         self.best_generation = self.current_generation;
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match evolve_config.fitness_ordering {
+                        match config.fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
