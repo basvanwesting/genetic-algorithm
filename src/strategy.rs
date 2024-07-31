@@ -37,39 +37,37 @@ pub trait StrategyState<G: Genotype> {
         replace_on_equal_fitness: bool,
     ) -> bool {
         match self.best_chromosome_as_ref() {
-            None => return self.set_best_chromosome(contending_best_chromosome, true),
+            None => self.set_best_chromosome(contending_best_chromosome, true),
             Some(current_best_chromosome) => {
                 match (
                     current_best_chromosome.fitness_score,
                     contending_best_chromosome.fitness_score,
                 ) {
-                    (None, None) => {}
-                    (Some(_), None) => {}
-                    (None, Some(_)) => {
-                        return self.set_best_chromosome(contending_best_chromosome, true)
-                    }
+                    (None, None) => false,
+                    (Some(_), None) => false,
+                    (None, Some(_)) => self.set_best_chromosome(contending_best_chromosome, true),
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
-                                    return self
-                                        .set_best_chromosome(contending_best_chromosome, true);
+                                    self.set_best_chromosome(contending_best_chromosome, true)
                                 } else if replace_on_equal_fitness
                                     && contending_fitness_score == current_fitness_score
                                 {
-                                    return self
-                                        .set_best_chromosome(contending_best_chromosome, false);
+                                    self.set_best_chromosome(contending_best_chromosome, false)
+                                } else {
+                                    false
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
-                                    return self
-                                        .set_best_chromosome(contending_best_chromosome, true);
+                                    self.set_best_chromosome(contending_best_chromosome, true)
                                 } else if replace_on_equal_fitness
                                     && contending_fitness_score == current_fitness_score
                                 {
-                                    return self
-                                        .set_best_chromosome(contending_best_chromosome, false);
+                                    self.set_best_chromosome(contending_best_chromosome, false)
+                                } else {
+                                    false
                                 }
                             }
                         }
@@ -77,6 +75,5 @@ pub trait StrategyState<G: Genotype> {
                 }
             }
         }
-        false
     }
 }
