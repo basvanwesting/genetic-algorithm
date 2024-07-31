@@ -157,7 +157,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                     );
                     self.fitness.call_for_chromosome(working_chromosome);
                     self.state
-                        .update_best_chromosome(working_chromosome, &self.config);
+                        .update_best_chromosome_and_scale(working_chromosome, &self.config);
                     self.report_working_chromosome(working_chromosome);
                 }
                 HillClimbVariant::StochasticSecondary => {
@@ -169,7 +169,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                     );
                     self.fitness.call_for_chromosome(working_chromosome_primary);
                     self.state
-                        .update_best_chromosome(working_chromosome_primary, &self.config);
+                        .update_best_chromosome_and_scale(working_chromosome_primary, &self.config);
                     self.report_working_chromosome(working_chromosome_primary);
 
                     let working_chromosome_secondary = &mut working_chromosome_primary.clone();
@@ -180,8 +180,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
                     );
                     self.fitness
                         .call_for_chromosome(working_chromosome_secondary);
-                    self.state
-                        .update_best_chromosome(working_chromosome_secondary, &self.config);
+                    self.state.update_best_chromosome_and_scale(
+                        working_chromosome_secondary,
+                        &self.config,
+                    );
                     self.report_working_chromosome(working_chromosome_secondary);
                 }
                 HillClimbVariant::SteepestAscent => {
@@ -196,7 +198,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
 
                     // shuffle, so we don't repeatedly take the same best chromosome in sideways move
                     working_population.chromosomes.shuffle(rng);
-                    self.state.update_best_chromosome(
+                    self.state.update_best_chromosome_and_scale(
                         working_population
                             .best_chromosome(self.config.fitness_ordering)
                             .unwrap_or(working_chromosome),
@@ -227,7 +229,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Strategy<G> for HillClimb
 
                     // shuffle, so we don't repeatedly take the same best chromosome in sideways move
                     working_population.chromosomes.shuffle(rng);
-                    self.state.update_best_chromosome(
+                    self.state.update_best_chromosome_and_scale(
                         working_population
                             .best_chromosome(self.config.fitness_ordering)
                             .unwrap_or(working_chromosome),
@@ -368,11 +370,12 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
         config: &HillClimbConfig,
-    ) {
-        self.scale_down(config);
+    ) -> bool {
         match self.best_chromosome.as_ref() {
             None => {
                 self.best_chromosome = Some(contending_best_chromosome.clone());
+                self.best_generation = self.current_generation;
+                return true;
             }
             Some(current_best_chromosome) => {
                 match (
@@ -384,7 +387,7 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
                     (None, Some(_)) => {
                         self.best_chromosome = Some(contending_best_chromosome.clone());
                         self.best_generation = self.current_generation;
-                        self.reset_scaling(config);
+                        return true;
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match config.fitness_ordering {
@@ -393,8 +396,8 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     if contending_fitness_score > current_fitness_score {
                                         self.best_generation = self.current_generation;
-                                        self.reset_scaling(config);
                                     }
+                                    return true;
                                 }
                             }
                             FitnessOrdering::Minimize => {
@@ -402,8 +405,8 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     if contending_fitness_score < current_fitness_score {
                                         self.best_generation = self.current_generation;
-                                        self.reset_scaling(config);
                                     }
+                                    return true;
                                 }
                             }
                         }
@@ -411,10 +414,22 @@ impl<G: IncrementalGenotype> StrategyState<G, HillClimbConfig> for HillClimbStat
                 }
             }
         }
+        false
     }
 }
 
 impl<G: IncrementalGenotype> HillClimbState<G> {
+    fn update_best_chromosome_and_scale(
+        &mut self,
+        contending_best_chromosome: &Chromosome<G>,
+        config: &HillClimbConfig,
+    ) {
+        self.scale_down(config);
+        if self.update_best_chromosome(contending_best_chromosome, config) {
+            self.reset_scaling(config);
+        }
+    }
+
     fn reset_scaling(&mut self, hill_climb_config: &HillClimbConfig) {
         self.current_scale = hill_climb_config.scaling.as_ref().map(|s| s.base_scale);
     }

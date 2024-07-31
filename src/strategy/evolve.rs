@@ -284,11 +284,12 @@ impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
         config: &EvolveConfig,
-    ) {
+    ) -> bool {
         match self.best_chromosome.as_ref() {
             None => {
                 self.best_chromosome = Some(contending_best_chromosome.clone());
                 self.best_generation = self.current_generation;
+                return true;
             }
             Some(current_best_chromosome) => {
                 match (
@@ -300,6 +301,7 @@ impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
                     (None, Some(_)) => {
                         self.best_chromosome = Some(contending_best_chromosome.clone());
                         self.best_generation = self.current_generation;
+                        return true;
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match config.fitness_ordering {
@@ -307,12 +309,14 @@ impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
                                 if contending_fitness_score > current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     self.best_generation = self.current_generation;
+                                    return true;
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     self.best_generation = self.current_generation;
+                                    return true;
                                 }
                             }
                         }
@@ -320,6 +324,7 @@ impl<G: Genotype> StrategyState<G, EvolveConfig> for EvolveState<G> {
                 }
             }
         }
+        false
     }
 }
 

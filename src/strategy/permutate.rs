@@ -162,11 +162,12 @@ impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState
         &mut self,
         contending_best_chromosome: &Chromosome<G>,
         config: &PermutateConfig,
-    ) {
+    ) -> bool {
         match self.best_chromosome.as_ref() {
             None => {
                 self.best_chromosome = Some(contending_best_chromosome.clone());
                 self.best_generation = self.current_generation;
+                return true;
             }
             Some(current_best_chromosome) => {
                 match (
@@ -178,6 +179,7 @@ impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState
                     (None, Some(_)) => {
                         self.best_chromosome = Some(contending_best_chromosome.clone());
                         self.best_generation = self.current_generation;
+                        return true;
                     }
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match config.fitness_ordering {
@@ -185,12 +187,14 @@ impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState
                                 if contending_fitness_score > current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     self.best_generation = self.current_generation;
+                                    return true;
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
                                     self.best_chromosome = Some(contending_best_chromosome.clone());
                                     self.best_generation = self.current_generation;
+                                    return true;
                                 }
                             }
                         }
@@ -198,6 +202,7 @@ impl<G: PermutableGenotype> StrategyState<G, PermutateConfig> for PermutateState
                 }
             }
         }
+        false
     }
 }
 
