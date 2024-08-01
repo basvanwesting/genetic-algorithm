@@ -78,7 +78,7 @@ pub trait StrategyState<G: Genotype> {
     }
 }
 
-pub trait StrategyReporter: Clone + Send + Sync + std::fmt::Debug {
+pub trait StrategyReporter: Clone + Send + Sync + std::fmt::Debug + Default {
     type Genotype: Genotype;
 
     fn on_start(&mut self, _state: &dyn StrategyState<Self::Genotype>) {}

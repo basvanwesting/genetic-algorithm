@@ -69,6 +69,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genot
             multithreading: false,
             fitness: None,
             reporter: None,
+            // reporter: Some(SR::default()),
         }
     }
 }
