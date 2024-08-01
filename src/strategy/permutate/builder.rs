@@ -9,11 +9,7 @@ pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an Permutate struct.
 #[derive(Clone, Debug)]
-pub struct Builder<
-    G: PermutableGenotype,
-    F: Fitness<Genotype = G>,
-    SR: StrategyReporter<Genotype = G>,
-> {
+pub struct Builder<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> {
     pub genotype: Option<G>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
@@ -21,9 +17,7 @@ pub struct Builder<
     pub reporter: Option<SR>,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
-    Builder<G, F, SR>
-{
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Builder<G, F, SR> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -59,7 +53,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genot
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>> Default
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Default
     for Builder<G, F, SR>
 {
     fn default() -> Self {

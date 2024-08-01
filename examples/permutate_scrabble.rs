@@ -223,6 +223,21 @@ impl ScrabbleFitness {
     }
 }
 
+#[derive(Clone)]
+pub struct CustomReporter(usize);
+impl StrategyReporter for CustomReporter {
+    fn on_new_generation<G: Genotype>(&mut self, state: &dyn StrategyState<G>) {
+        if state.current_generation() % self.0 == 0 {
+            println!(
+                "custom - current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
+                state.current_generation(),
+                state.best_generation(),
+                state.best_fitness_score(),
+            );
+        }
+    }
+}
+
 fn main() {
     env_logger::init();
 
@@ -277,8 +292,9 @@ fn main() {
             false,
         ))
         .with_multithreading(true)
-        // .with_reporter(NoopReporter::default())
-        .with_reporter(PermutateReporter::new(100_000))
+        // .with_reporter(NoopReporter)
+        // .with_reporter(PermutateReporter::new(100_000))
+        .with_reporter(CustomReporter(100_000))
         .build()
         .unwrap();
 
