@@ -25,6 +25,7 @@ pub trait StrategyState<G: Genotype> {
     fn best_chromosome(&self) -> Option<Chromosome<G>>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
+    fn current_generation(&self) -> usize;
     fn set_best_chromosome(
         &mut self,
         best_chromosome: &Chromosome<G>,
@@ -78,7 +79,7 @@ pub trait StrategyState<G: Genotype> {
     }
 }
 
-pub trait StrategyReporter: Clone + Send + Sync + std::fmt::Debug + Default {
+pub trait StrategyReporter: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: Genotype;
 
     fn on_start(&mut self, _state: &dyn StrategyState<Self::Genotype>) {}
@@ -88,7 +89,6 @@ pub trait StrategyReporter: Clone + Send + Sync + std::fmt::Debug + Default {
 }
 
 use std::marker::PhantomData;
-
 #[derive(Clone, Debug)]
 pub struct NoopReporter<T: Genotype>(PhantomData<T>);
 impl<T: Genotype> Default for NoopReporter<T> {

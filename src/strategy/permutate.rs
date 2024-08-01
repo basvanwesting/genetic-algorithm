@@ -75,6 +75,35 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub best_chromosome: Option<Chromosome<G>>,
 }
 
+use std::marker::PhantomData;
+#[derive(Clone, Debug, Default)]
+pub struct PermutateReporter<T: PermutableGenotype> {
+    pub frequency: usize,
+    _phantom: PhantomData<T>,
+}
+impl<T: PermutableGenotype> PermutateReporter<T> {
+    pub fn new(frequency: usize) -> Self {
+        Self {
+            frequency,
+            _phantom: PhantomData,
+        }
+    }
+}
+impl<T: PermutableGenotype + Sync> StrategyReporter for PermutateReporter<T> {
+    type Genotype = T;
+
+    fn on_new_generation(&mut self, state: &dyn StrategyState<Self::Genotype>) {
+        if state.current_generation() % self.frequency == 0 {
+            println!(
+                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
+                state.current_generation(),
+                state.best_generation(),
+                state.best_fitness_score(),
+            );
+        }
+    }
+}
+
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Strategy<G> for Permutate<G, F, SR>
 {
@@ -178,6 +207,9 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     }
     fn best_generation(&self) -> usize {
         self.best_generation
+    }
+    fn current_generation(&self) -> usize {
+        self.current_generation
     }
     fn set_best_chromosome(
         &mut self,

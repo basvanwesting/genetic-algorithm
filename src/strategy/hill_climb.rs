@@ -368,6 +368,9 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     fn best_generation(&self) -> usize {
         self.best_generation
     }
+    fn current_generation(&self) -> usize {
+        self.current_generation
+    }
     fn set_best_chromosome(
         &mut self,
         best_chromosome: &Chromosome<G>,
