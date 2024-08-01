@@ -277,6 +277,7 @@ fn main() {
             false,
         ))
         .with_multithreading(true)
+        .with_reporter(NoopReporter::default())
         .build()
         .unwrap();
 

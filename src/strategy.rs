@@ -77,3 +77,25 @@ pub trait StrategyState<G: Genotype> {
         }
     }
 }
+
+pub trait StrategyReporter: Clone + Send + Sync + std::fmt::Debug {
+    type Genotype: Genotype;
+
+    fn on_start(&mut self, _state: &dyn StrategyState<Self::Genotype>) {}
+    fn on_finish(&mut self, _state: &dyn StrategyState<Self::Genotype>) {}
+    fn on_new_generation(&mut self, _state: &dyn StrategyState<Self::Genotype>) {}
+    fn on_new_best_chromosome(&mut self, _state: &dyn StrategyState<Self::Genotype>) {}
+}
+
+use std::marker::PhantomData;
+
+#[derive(Clone, Debug)]
+pub struct NoopReporter<T: Genotype>(PhantomData<T>);
+impl<T: Genotype> Default for NoopReporter<T> {
+    fn default() -> Self {
+        Self(PhantomData)
+    }
+}
+impl<T: Genotype + Sync> StrategyReporter for NoopReporter<T> {
+    type Genotype = T;
+}

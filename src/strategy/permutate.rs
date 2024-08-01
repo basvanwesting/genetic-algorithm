@@ -6,7 +6,7 @@ pub use self::builder::{
     Builder as PermutateBuilder, TryFromBuilderError as TryFromPermutateBuilderError,
 };
 
-use super::{Strategy, StrategyConfig, StrategyState};
+use super::{Strategy, StrategyConfig, StrategyReporter, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
@@ -41,6 +41,7 @@ use std::fmt;
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
+///     .with_reporter(NoopReporter::default())           // no reporting
 ///     .with_multithreading(true)                        // use all cores
 ///     .call(&mut rng)
 ///     .unwrap();
@@ -49,11 +50,16 @@ use std::fmt;
 /// let best_chromosome = permutate.best_chromosome().unwrap();
 /// assert_eq!(best_chromosome.genes, vec![false; 16])
 /// ```
-pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>> {
+pub struct Permutate<
+    G: PermutableGenotype,
+    F: Fitness<Genotype = G>,
+    SR: StrategyReporter<Genotype = G>,
+> {
     genotype: G,
     fitness: F,
     pub config: PermutateConfig,
     pub state: PermutateState<G>,
+    reporter: SR,
 }
 
 pub struct PermutateConfig {
@@ -69,13 +75,17 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub best_chromosome: Option<Chromosome<G>>,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Strategy<G> for Permutate<G, F> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+    Strategy<G> for Permutate<G, F, SR>
+{
     fn call<R: Rng>(&mut self, rng: &mut R) {
+        self.reporter.on_start(&self.state);
         if self.config.multithreading {
             self.call_multi_thread(rng)
         } else {
             self.call_single_thread(rng)
         }
+        self.reporter.on_finish(&self.state);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.state.best_chromosome()
@@ -88,8 +98,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Strategy<G> for Permutate<
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
-    pub fn builder() -> PermutateBuilder<G, F> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+    Permutate<G, F, SR>
+{
+    pub fn builder() -> PermutateBuilder<G, F, SR> {
         PermutateBuilder::new()
     }
     fn call_single_thread<R: Rng>(&mut self, _rng: &mut R) {
@@ -98,6 +110,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
             self.fitness.call_for_chromosome(&mut chromosome);
             self.state
                 .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false);
+            self.reporter.on_new_generation(&self.state);
         }
     }
     fn call_multi_thread<R: Rng>(&mut self, _rng: &mut R) {
@@ -136,6 +149,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F> {
                         &self.config.fitness_ordering,
                         false,
                     );
+                    self.reporter.on_new_generation(&self.state);
                 }
             });
         })
@@ -178,12 +192,12 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> TryFrom<PermutateBuilder<G, F>>
-    for Permutate<G, F>
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+    TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
 {
     type Error = TryFromPermutateBuilderError;
 
-    fn try_from(builder: PermutateBuilder<G, F>) -> Result<Self, Self::Error> {
+    fn try_from(builder: PermutateBuilder<G, F, SR>) -> Result<Self, Self::Error> {
         if builder.genotype.is_none() {
             Err(TryFromPermutateBuilderError(
                 "Permutate requires a Genotype",
@@ -204,6 +218,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> TryFrom<PermutateBuilder<G
                     multithreading: builder.multithreading,
                 },
                 state: PermutateState::default(),
+                reporter: builder.reporter.unwrap(),
             })
         }
     }
@@ -230,7 +245,9 @@ impl<G: PermutableGenotype> Default for PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> fmt::Display for Permutate<G, F> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+    fmt::Display for Permutate<G, F, SR>
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate:")?;
         writeln!(f, "  genotype: {:?}", self.genotype)?;
