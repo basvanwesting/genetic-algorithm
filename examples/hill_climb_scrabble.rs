@@ -279,7 +279,8 @@ fn main() {
             column_scores.clone(),
             false,
         ))
-        .with_reporter(HillClimbReporterNoop::default());
+        // .with_reporter(HillClimbReporterNoop::default());
+        .with_reporter(HillClimbReporterSimple::new(100));
 
     let now = std::time::Instant::now();
     let hill_climb = hill_climb_builder.call_repeatedly(1, &mut rng).unwrap();

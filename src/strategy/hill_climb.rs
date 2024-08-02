@@ -140,6 +140,8 @@ pub struct HillClimbState<G: IncrementalGenotype> {
     pub current_scale: Option<f32>,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<G>>,
+    pub working_chromosome: Option<Chromosome<G>>,
+    pub working_population: Option<Population<G>>,
 }
 
 pub trait HillClimbReporter: Clone + Send {
@@ -172,67 +174,76 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
             self.state.current_generation += 1;
             match self.config.variant {
                 HillClimbVariant::Stochastic => {
-                    let working_chromosome = &mut self.best_chromosome().unwrap();
+                    let mut working_chromosome = self.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_neighbour(
-                        working_chromosome,
+                        &mut working_chromosome,
                         self.state.current_scale,
                         rng,
                     );
-                    self.fitness.call_for_chromosome(working_chromosome);
+                    self.fitness.call_for_chromosome(&mut working_chromosome);
                     self.state
-                        .update_best_chromosome_and_scale(working_chromosome, &self.config);
-                    self.report_working_chromosome(working_chromosome);
+                        .update_best_chromosome_and_scale(&working_chromosome, &self.config);
+                    self.report_working_chromosome(&working_chromosome);
+                    self.state.working_chromosome = Some(working_chromosome);
                 }
                 HillClimbVariant::StochasticSecondary => {
-                    let working_chromosome_primary = &mut self.best_chromosome().unwrap();
+                    let mut working_chromosome_primary = self.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_neighbour(
-                        working_chromosome_primary,
-                        self.state.current_scale,
-                        rng,
-                    );
-                    self.fitness.call_for_chromosome(working_chromosome_primary);
-                    self.state
-                        .update_best_chromosome_and_scale(working_chromosome_primary, &self.config);
-                    self.report_working_chromosome(working_chromosome_primary);
-
-                    let working_chromosome_secondary = &mut working_chromosome_primary.clone();
-                    self.genotype.mutate_chromosome_neighbour(
-                        working_chromosome_secondary,
+                        &mut working_chromosome_primary,
                         self.state.current_scale,
                         rng,
                     );
                     self.fitness
-                        .call_for_chromosome(working_chromosome_secondary);
+                        .call_for_chromosome(&mut working_chromosome_primary);
                     self.state.update_best_chromosome_and_scale(
-                        working_chromosome_secondary,
+                        &working_chromosome_primary,
                         &self.config,
                     );
-                    self.report_working_chromosome(working_chromosome_secondary);
+                    self.report_working_chromosome(&working_chromosome_primary);
+
+                    let mut working_chromosome_secondary = working_chromosome_primary.clone();
+                    self.genotype.mutate_chromosome_neighbour(
+                        &mut working_chromosome_secondary,
+                        self.state.current_scale,
+                        rng,
+                    );
+                    self.fitness
+                        .call_for_chromosome(&mut working_chromosome_secondary);
+                    self.state.update_best_chromosome_and_scale(
+                        &working_chromosome_secondary,
+                        &self.config,
+                    );
+                    self.report_working_chromosome(&working_chromosome_secondary);
+                    self.state.working_chromosome = Some(working_chromosome_secondary);
                 }
                 HillClimbVariant::SteepestAscent => {
-                    let working_chromosome = &mut self.best_chromosome().unwrap();
-                    let working_population = &mut self
+                    let working_chromosome = self.best_chromosome().unwrap();
+                    let mut working_population = self
                         .genotype
-                        .neighbouring_population(working_chromosome, self.state.current_scale);
+                        .neighbouring_population(&working_chromosome, self.state.current_scale);
 
-                    self.fitness
-                        .call_for_population(working_population, fitness_thread_local.as_ref());
-                    self.report_neighbouring_population(working_population);
+                    self.fitness.call_for_population(
+                        &mut working_population,
+                        fitness_thread_local.as_ref(),
+                    );
+                    self.report_neighbouring_population(&working_population);
 
                     // shuffle, so we don't repeatedly take the same best chromosome in sideways move
                     working_population.chromosomes.shuffle(rng);
                     self.state.update_best_chromosome_and_scale(
                         working_population
                             .best_chromosome(self.config.fitness_ordering)
-                            .unwrap_or(working_chromosome),
+                            .unwrap_or(&working_chromosome),
                         &self.config,
                     );
+                    self.state.working_chromosome = Some(working_chromosome);
+                    self.state.working_population = Some(working_population);
                 }
                 HillClimbVariant::SteepestAscentSecondary => {
-                    let working_chromosome = &mut self.best_chromosome().unwrap();
+                    let working_chromosome = self.best_chromosome().unwrap();
                     let mut working_chromosomes = self
                         .genotype
-                        .neighbouring_chromosomes(working_chromosome, self.state.current_scale);
+                        .neighbouring_chromosomes(&working_chromosome, self.state.current_scale);
 
                     working_chromosomes.append(
                         &mut working_chromosomes
@@ -244,20 +255,24 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                             .collect(),
                     );
 
-                    let working_population = &mut Population::new(working_chromosomes);
+                    let mut working_population = Population::new(working_chromosomes);
 
-                    self.fitness
-                        .call_for_population(working_population, fitness_thread_local.as_ref());
-                    self.report_neighbouring_population(working_population);
+                    self.fitness.call_for_population(
+                        &mut working_population,
+                        fitness_thread_local.as_ref(),
+                    );
+                    self.report_neighbouring_population(&working_population);
 
                     // shuffle, so we don't repeatedly take the same best chromosome in sideways move
                     working_population.chromosomes.shuffle(rng);
                     self.state.update_best_chromosome_and_scale(
                         working_population
                             .best_chromosome(self.config.fitness_ordering)
-                            .unwrap_or(working_chromosome),
+                            .unwrap_or(&working_chromosome),
                         &self.config,
                     );
+                    self.state.working_chromosome = Some(working_chromosome);
+                    self.state.working_population = Some(working_population);
                 }
             }
             self.reporter.on_new_generation(&self.state);
@@ -481,6 +496,8 @@ impl<G: IncrementalGenotype> Default for HillClimbState<G> {
             current_scale: None,
             best_generation: 0,
             best_chromosome: None,
+            working_chromosome: None,
+            working_population: None,
         }
     }
 }

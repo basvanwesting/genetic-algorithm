@@ -33,11 +33,13 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Simple<
     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
         if state.current_generation() % self.frequency == 0 {
             println!(
-                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}, current scale: {:?}",
+                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}, current scale: {:?}, working_fitness_score: {:?}, working_population_size: {}",
                 state.current_generation(),
                 state.best_generation(),
                 state.best_fitness_score(),
                 state.current_scale.as_ref(),
+                state.working_chromosome.as_ref().and_then(|c| c.fitness_score),
+                state.working_population.as_ref().map_or(0, |p| p.size()),
             );
         }
     }
@@ -62,8 +64,8 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Log<G> 
     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
         log::debug!(
             "generation (current/best): {}/{}, fitness score (best): {:?}, current scale: {:?}",
-            state.current_generation,
-            state.best_generation,
+            state.current_generation(),
+            state.best_generation(),
             state.best_fitness_score(),
             state.current_scale.as_ref(),
         );
@@ -71,8 +73,7 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Log<G> 
             "best - fitness score: {:?}, genes: {:?}",
             state.best_fitness_score(),
             state
-                .best_chromosome
-                .as_ref()
+                .best_chromosome_as_ref()
                 .map_or(vec![], |c| c.genes.clone()),
         );
     }
