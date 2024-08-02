@@ -107,6 +107,10 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make fitness/simple_sum generic
 * Does Fitness need an associated trait for Genotype? Can this be made more lightweight?
 * Add simulated annealing strategy
+* Check all log statements, and try to move them to Reporter events
+* Use log instread of env_logger as this is a library not an executable
+* Investigate implementing population uniformity as cardinality estimate
+* Implement defaults ReporterNoop en ExtensionNoop in builder
 
 ## MAYBE
 * Add Roulette competition with and without duplicates (with fitness ordering)
