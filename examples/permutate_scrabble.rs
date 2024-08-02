@@ -295,7 +295,7 @@ fn main() {
             false,
         ))
         .with_multithreading(true)
-        // .with_reporter(NoopReporter::new())
+        // .with_reporter(NoopReporter::default())
         // .with_reporter(PermutateReporter::new(100_000))
         .with_reporter(CustomReporter(100_000))
         .build()

@@ -92,8 +92,8 @@ pub trait StrategyReporter: Clone + Send {
 use std::marker::PhantomData;
 #[derive(Clone)]
 pub struct NoopReporter<T: Genotype, S: StrategyState<T>>(pub PhantomData<T>, pub PhantomData<S>);
-impl<T: Genotype, S: StrategyState<T>> NoopReporter<T, S> {
-    pub fn new() -> Self {
+impl<T: Genotype, S: StrategyState<T>> Default for NoopReporter<T, S> {
+    fn default() -> Self {
         Self(PhantomData, PhantomData)
     }
 }
