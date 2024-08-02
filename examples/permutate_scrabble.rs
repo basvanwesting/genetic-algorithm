@@ -241,6 +241,38 @@ impl StrategyReporter for CustomReporter {
     }
 }
 
+#[derive(Clone)]
+pub struct LogReporter(usize);
+impl StrategyReporter for LogReporter {
+    type Genotype = MultiDiscreteGenotype<WordPosition>;
+    type State = PermutateState<Self::Genotype>;
+
+    fn on_new_generation(&mut self, state: &Self::State) {
+        if state.current_generation() % self.0 == 0 {
+            log::info!(
+                "logger - current_generation: {}, best_fitness_score: {:?}",
+                state.current_generation(),
+                state.best_fitness_score(),
+            );
+        }
+        log::debug!(
+            "logger - current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
+            state.current_generation(),
+            state.best_generation(),
+            state.best_fitness_score(),
+        );
+        log::trace!(
+            "logger - current_generation: {}, best_generation: {}, best_fitness_score: {:?}, genes: {:?}",
+            state.current_generation(),
+            state.best_generation(),
+            state.best_fitness_score(),
+            state
+                .best_chromosome_as_ref()
+                .map_or(vec![], |c| c.genes.clone()),
+        );
+    }
+}
+
 fn main() {
     env_logger::init();
 
@@ -298,6 +330,7 @@ fn main() {
         // .with_reporter(NoopReporter::default())
         // .with_reporter(PermutateReporter::new(100_000))
         .with_reporter(CustomReporter(100_000))
+        // .with_reporter(LogReporter(100_000))
         .build()
         .unwrap();
 
