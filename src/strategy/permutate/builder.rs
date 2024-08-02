@@ -1,7 +1,7 @@
-use super::{Permutate, PermutateState};
+use super::{Permutate, PermutateReporter};
 use crate::fitness::{Fitness, FitnessOrdering};
 use crate::genotype::PermutableGenotype;
-use crate::strategy::{Strategy, StrategyReporter};
+use crate::strategy::Strategy;
 use rand::Rng;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
@@ -12,7 +12,7 @@ pub struct TryFromBuilderError(pub &'static str);
 pub struct Builder<
     G: PermutableGenotype,
     F: Fitness<Genotype = G>,
-    SR: StrategyReporter<State = PermutateState<G>>,
+    SR: PermutateReporter<Genotype = G>,
 > {
     pub genotype: Option<G>,
     pub fitness: Option<F>,
@@ -21,11 +21,8 @@ pub struct Builder<
     pub reporter: Option<SR>,
 }
 
-impl<
-        G: PermutableGenotype,
-        F: Fitness<Genotype = G>,
-        SR: StrategyReporter<State = PermutateState<G>>,
-    > Builder<G, F, SR>
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
+    Builder<G, F, SR>
 {
     pub fn new() -> Self {
         Self::default()
@@ -62,11 +59,8 @@ impl<
     }
 }
 
-impl<
-        G: PermutableGenotype,
-        F: Fitness<Genotype = G>,
-        SR: StrategyReporter<State = PermutateState<G>>,
-    > Default for Builder<G, F, SR>
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>> Default
+    for Builder<G, F, SR>
 {
     fn default() -> Self {
         Self {

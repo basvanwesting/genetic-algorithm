@@ -79,27 +79,27 @@ pub trait StrategyState<G: Genotype> {
     }
 }
 
-pub trait StrategyReporter: Clone + Send {
-    type Genotype: Genotype;
-    type State: StrategyState<Self::Genotype>;
-
-    fn on_start(&mut self, _state: &Self::State) {}
-    fn on_finish(&mut self, _state: &Self::State) {}
-    fn on_new_generation(&mut self, _state: &Self::State) {}
-    fn on_new_best_chromosome(&mut self, _state: &Self::State) {}
-}
-
-use std::marker::PhantomData;
-#[derive(Clone)]
-pub struct NoopReporter<T: Genotype, S: StrategyState<T>>(pub PhantomData<T>, pub PhantomData<S>);
-impl<T: Genotype, S: StrategyState<T>> Default for NoopReporter<T, S> {
-    fn default() -> Self {
-        Self(PhantomData, PhantomData)
-    }
-}
-impl<T: Genotype + Sync, S: StrategyState<T> + Clone + Send> StrategyReporter
-    for NoopReporter<T, S>
-{
-    type Genotype = T;
-    type State = S;
-}
+// pub trait StrategyReporter: Clone + Send {
+//     type Genotype: Genotype;
+//     type State: StrategyState<Self::Genotype>;
+//
+//     fn on_start(&mut self, _state: &Self::State) {}
+//     fn on_finish(&mut self, _state: &Self::State) {}
+//     fn on_new_generation(&mut self, _state: &Self::State) {}
+//     fn on_new_best_chromosome(&mut self, _state: &Self::State) {}
+// }
+//
+// use std::marker::PhantomData;
+// #[derive(Clone)]
+// pub struct NoopReporter<T: Genotype, S: StrategyState<T>>(pub PhantomData<T>, pub PhantomData<S>);
+// impl<T: Genotype, S: StrategyState<T>> Default for NoopReporter<T, S> {
+//     fn default() -> Self {
+//         Self(PhantomData, PhantomData)
+//     }
+// }
+// impl<T: Genotype + Sync, S: StrategyState<T> + Clone + Send> StrategyReporter
+//     for NoopReporter<T, S>
+// {
+//     type Genotype = T;
+//     type State = S;
+// }

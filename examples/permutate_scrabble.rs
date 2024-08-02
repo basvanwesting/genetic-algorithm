@@ -225,11 +225,10 @@ impl ScrabbleFitness {
 
 #[derive(Clone)]
 pub struct CustomReporter(usize);
-impl StrategyReporter for CustomReporter {
+impl PermutateReporter for CustomReporter {
     type Genotype = MultiDiscreteGenotype<WordPosition>;
-    type State = PermutateState<Self::Genotype>;
 
-    fn on_new_generation(&mut self, state: &Self::State) {
+    fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
         if state.current_generation() % self.0 == 0 {
             println!(
                 "custom - current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
@@ -243,11 +242,10 @@ impl StrategyReporter for CustomReporter {
 
 #[derive(Clone)]
 pub struct LogReporter(usize);
-impl StrategyReporter for LogReporter {
+impl PermutateReporter for LogReporter {
     type Genotype = MultiDiscreteGenotype<WordPosition>;
-    type State = PermutateState<Self::Genotype>;
 
-    fn on_new_generation(&mut self, state: &Self::State) {
+    fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
         if state.current_generation() % self.0 == 0 {
             log::info!(
                 "logger - current_generation: {}, best_fitness_score: {:?}",
@@ -327,8 +325,8 @@ fn main() {
             false,
         ))
         .with_multithreading(true)
-        // .with_reporter(NoopReporter::default())
-        // .with_reporter(PermutateReporter::new(100_000))
+        // .with_reporter(PermutateReporterNoop::default())
+        // .with_reporter(PermutateReporterSimple::new(100_000))
         .with_reporter(CustomReporter(100_000))
         // .with_reporter(LogReporter(100_000))
         .build()

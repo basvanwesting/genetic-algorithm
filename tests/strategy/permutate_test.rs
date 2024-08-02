@@ -7,8 +7,8 @@ use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
     BinaryGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
 };
-use genetic_algorithm::strategy::permutate::Permutate;
-use genetic_algorithm::strategy::{NoopReporter, Strategy};
+use genetic_algorithm::strategy::permutate::{Permutate, PermutateReporterNoop};
+use genetic_algorithm::strategy::Strategy;
 
 //#[test]
 //build_invalid cannot be tested because invalid doesn't even have a type
@@ -24,7 +24,7 @@ fn call_binary_maximize() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(CountTrue)
-        .with_reporter(NoopReporter::default())
+        .with_reporter(PermutateReporterNoop::default())
         .call(&mut rng)
         .unwrap();
 
@@ -50,7 +50,7 @@ fn call_binary_minimize() {
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(CountTrue)
-        .with_reporter(NoopReporter::default())
+        .with_reporter(PermutateReporterNoop::default())
         .call(&mut rng)
         .unwrap();
 
@@ -76,7 +76,7 @@ fn call_discrete() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumDiscreteGenotype)
-        .with_reporter(NoopReporter::default())
+        .with_reporter(PermutateReporterNoop::default())
         .call(&mut rng)
         .unwrap();
 
@@ -103,7 +103,7 @@ fn call_multi_discrete() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumMultiDiscreteGenotype)
-        .with_reporter(NoopReporter::default())
+        .with_reporter(PermutateReporterNoop::default())
         .call(&mut rng)
         .unwrap();
 
@@ -126,7 +126,7 @@ fn call_multi_thread() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumDiscreteGenotype)
-        .with_reporter(NoopReporter::default())
+        .with_reporter(PermutateReporterNoop::default())
         .with_multithreading(true)
         .call(&mut rng)
         .unwrap();
