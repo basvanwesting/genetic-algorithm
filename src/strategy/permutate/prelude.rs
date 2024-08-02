@@ -10,7 +10,7 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::permutate::{
-    Permutate, PermutateBuilder, PermutateReporter, TryFromPermutateBuilderError,
+    Permutate, PermutateBuilder, PermutateReporter, PermutateState, TryFromPermutateBuilderError,
 };
 #[doc(no_inline)]
 pub use crate::strategy::{NoopReporter, Strategy, StrategyReporter, StrategyState};

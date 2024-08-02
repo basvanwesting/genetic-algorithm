@@ -9,7 +9,7 @@ pub use self::builder::{
 use super::{Strategy, StrategyConfig, StrategyReporter, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::{Genotype, PermutableGenotype};
+use crate::genotype::PermutableGenotype;
 use crossbeam::channel::bounded;
 use num::BigUint;
 use rand::Rng;
@@ -41,7 +41,7 @@ use std::fmt;
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .with_reporter(NoopReporter)                      // no reporting
+///     .with_reporter(NoopReporter::new())               // no reporting
 ///     .with_multithreading(true)                        // use all cores
 ///     .call(&mut rng)
 ///     .unwrap();
@@ -50,7 +50,11 @@ use std::fmt;
 /// let best_chromosome = permutate.best_chromosome().unwrap();
 /// assert_eq!(best_chromosome.genes, vec![false; 16])
 /// ```
-pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> {
+pub struct Permutate<
+    G: PermutableGenotype,
+    F: Fitness<Genotype = G>,
+    SR: StrategyReporter<State = PermutateState<G>>,
+> {
     genotype: G,
     fitness: F,
     pub config: PermutateConfig,
@@ -64,6 +68,7 @@ pub struct PermutateConfig {
     pub multithreading: bool,
 }
 
+#[derive(Clone)]
 pub struct PermutateState<G: PermutableGenotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
@@ -71,18 +76,27 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub best_chromosome: Option<Chromosome<G>>,
 }
 
+use std::marker::PhantomData;
 #[derive(Clone)]
-pub struct PermutateReporter {
+pub struct PermutateReporter<G: PermutableGenotype> {
     pub frequency: usize,
+    _phantom: PhantomData<G>,
 }
-impl PermutateReporter {
+impl<G: PermutableGenotype> PermutateReporter<G> {
     pub fn new(frequency: usize) -> Self {
-        Self { frequency }
+        Self {
+            frequency,
+            _phantom: PhantomData,
+        }
     }
 }
-impl StrategyReporter for PermutateReporter {
-    fn on_new_generation<G: Genotype>(&mut self, state: &dyn StrategyState<G>) {
-        if state.current_generation() % self.frequency == 0 {
+impl<G: PermutableGenotype> StrategyReporter for PermutateReporter<G> {
+    type Genotype = G;
+    type State = PermutateState<G>;
+
+    fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
+        if <PermutateState<G> as StrategyState<G>>::current_generation(state) % self.frequency == 0
+        {
             println!(
                 "current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
                 state.current_generation(),
@@ -93,8 +107,11 @@ impl StrategyReporter for PermutateReporter {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Strategy<G>
-    for Permutate<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Genotype = G>,
+        SR: StrategyReporter<State = PermutateState<G>>,
+    > Strategy<G> for Permutate<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.reporter.on_start(&self.state);
@@ -116,7 +133,12 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Stra
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Permutate<G, F, SR> {
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Genotype = G>,
+        SR: StrategyReporter<State = PermutateState<G>>,
+    > Permutate<G, F, SR>
+{
     pub fn builder() -> PermutateBuilder<G, F, SR> {
         PermutateBuilder::new()
     }
@@ -211,8 +233,11 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter>
-    TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Genotype = G>,
+        SR: StrategyReporter<State = PermutateState<G>>,
+    > TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
 {
     type Error = TryFromPermutateBuilderError;
 
@@ -264,8 +289,11 @@ impl<G: PermutableGenotype> Default for PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> fmt::Display
-    for Permutate<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Genotype = G>,
+        SR: StrategyReporter<State = PermutateState<G>>,
+    > fmt::Display for Permutate<G, F, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate:")?;

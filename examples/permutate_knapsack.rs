@@ -80,7 +80,7 @@ fn main() {
     let mut permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(fitness)
-        .with_reporter(NoopReporter)
+        .with_reporter(NoopReporter::new())
         .build()
         .unwrap();
 

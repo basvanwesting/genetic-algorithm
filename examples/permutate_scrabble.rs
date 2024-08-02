@@ -7,13 +7,13 @@ type Row = usize;
 type Column = usize;
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-enum Orientation {
+pub enum Orientation {
     Horizontal,
     Vertical,
 }
 
 #[derive(Clone, Debug, Eq, PartialEq)]
-struct WordPosition(pub Row, pub Column, pub Orientation);
+pub struct WordPosition(pub Row, pub Column, pub Orientation);
 
 #[derive(Clone, Debug)]
 struct ScrabbleFitness {
@@ -226,7 +226,10 @@ impl ScrabbleFitness {
 #[derive(Clone)]
 pub struct CustomReporter(usize);
 impl StrategyReporter for CustomReporter {
-    fn on_new_generation<G: Genotype>(&mut self, state: &dyn StrategyState<G>) {
+    type Genotype = MultiDiscreteGenotype<WordPosition>;
+    type State = PermutateState<Self::Genotype>;
+
+    fn on_new_generation(&mut self, state: &Self::State) {
         if state.current_generation() % self.0 == 0 {
             println!(
                 "custom - current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
@@ -292,7 +295,7 @@ fn main() {
             false,
         ))
         .with_multithreading(true)
-        // .with_reporter(NoopReporter)
+        // .with_reporter(NoopReporter::new())
         // .with_reporter(PermutateReporter::new(100_000))
         .with_reporter(CustomReporter(100_000))
         .build()
