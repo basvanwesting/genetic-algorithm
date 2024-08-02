@@ -1,6 +1,7 @@
 //! A solution strategy for finding the best chromosome in case of small problem spaces (with a 100% guarantee)
 mod builder;
 pub mod prelude;
+mod reporter;
 
 pub use self::builder::{
     Builder as PermutateBuilder, TryFromBuilderError as TryFromPermutateBuilderError,
@@ -14,6 +15,9 @@ use crossbeam::channel::bounded;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
+
+pub use self::reporter::Noop as PermutateReporterNoop;
+pub use self::reporter::Simple as PermutateReporterSimple;
 
 /// All possible combinations of genes are iterated over as chromosomes.
 /// The fitness is calculated for each chromosome and the best is taken.
@@ -83,47 +87,6 @@ pub trait PermutateReporter: Clone + Send {
     fn on_finish(&mut self, _state: &PermutateState<Self::Genotype>) {}
     fn on_new_generation(&mut self, _state: &PermutateState<Self::Genotype>) {}
     fn on_new_best_chromosome(&mut self, _state: &PermutateState<Self::Genotype>) {}
-}
-
-use std::marker::PhantomData;
-#[derive(Clone)]
-pub struct PermutateReporterNoop<G: PermutableGenotype>(pub PhantomData<G>);
-impl<G: PermutableGenotype> Default for PermutateReporterNoop<G> {
-    fn default() -> Self {
-        Self(PhantomData)
-    }
-}
-impl<G: PermutableGenotype + Sync + Clone + Send> PermutateReporter for PermutateReporterNoop<G> {
-    type Genotype = G;
-}
-
-#[derive(Clone)]
-pub struct PermutateReporterSimple<G: PermutableGenotype> {
-    pub frequency: usize,
-    _phantom: PhantomData<G>,
-}
-impl<G: PermutableGenotype> PermutateReporterSimple<G> {
-    pub fn new(frequency: usize) -> Self {
-        Self {
-            frequency,
-            _phantom: PhantomData,
-        }
-    }
-}
-impl<G: PermutableGenotype + Sync + Clone + Send> PermutateReporter for PermutateReporterSimple<G> {
-    type Genotype = G;
-
-    fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
-        if <PermutateState<G> as StrategyState<G>>::current_generation(state) % self.frequency == 0
-        {
-            println!(
-                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
-                state.current_generation(),
-                state.best_generation(),
-                state.best_fitness_score(),
-            );
-        }
-    }
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
