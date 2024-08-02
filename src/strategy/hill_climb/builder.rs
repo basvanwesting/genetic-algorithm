@@ -1,4 +1,4 @@
-use super::{HillClimb, HillClimbVariant, Scaling};
+use super::{HillClimb, HillClimbReporter, HillClimbVariant, Scaling};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::Strategy;
@@ -9,7 +9,11 @@ pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an HillClimb struct.
 #[derive(Clone, Debug)]
-pub struct Builder<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
+pub struct Builder<
+    G: IncrementalGenotype,
+    F: Fitness<Genotype = G>,
+    SR: HillClimbReporter<Genotype = G>,
+> {
     pub genotype: Option<G>,
     pub variant: Option<HillClimbVariant>,
     pub fitness: Option<F>,
@@ -19,18 +23,21 @@ pub struct Builder<G: IncrementalGenotype, F: Fitness<Genotype = G>> {
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub scaling: Option<Scaling>,
+    pub reporter: Option<SR>,
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
+    Builder<G, F, SR>
+{
     pub fn new() -> Self {
         Self::default()
     }
 
-    pub fn build(self) -> Result<HillClimb<G, F>, TryFromBuilderError> {
+    pub fn build(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         self.try_into()
     }
-    pub fn call<R: Rng>(self, rng: &mut R) -> Result<HillClimb<G, F>, TryFromBuilderError> {
-        let mut hill_climb: HillClimb<G, F> = self.try_into()?;
+    pub fn call<R: Rng>(self, rng: &mut R) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
+        let mut hill_climb: HillClimb<G, F, SR> = self.try_into()?;
         hill_climb.call(rng);
         Ok(hill_climb)
     }
@@ -38,10 +45,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self,
         max_repeats: usize,
         rng: &mut R,
-    ) -> Result<HillClimb<G, F>, TryFromBuilderError> {
-        let mut best_hill_climb: Option<HillClimb<G, F>> = None;
+    ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
+        let mut best_hill_climb: Option<HillClimb<G, F, SR>> = None;
         for iteration in 0..max_repeats {
-            let mut contending_run: HillClimb<G, F> = self.clone().try_into()?;
+            let mut contending_run: HillClimb<G, F, SR> = self.clone().try_into()?;
             contending_run.state.current_iteration = iteration;
             contending_run.call(rng);
             if contending_run.is_finished_by_target_fitness_score() {
@@ -137,9 +144,15 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F> {
         self.scaling = Some(scaling);
         self
     }
+    pub fn with_reporter(mut self, reporter: SR) -> Self {
+        self.reporter = Some(reporter);
+        self
+    }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F> {
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>> Default
+    for Builder<G, F, SR>
+{
     fn default() -> Self {
         Self {
             genotype: None,
@@ -151,6 +164,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F>
             target_fitness_score: None,
             valid_fitness_score: None,
             scaling: None,
+            reporter: None,
         }
     }
 }

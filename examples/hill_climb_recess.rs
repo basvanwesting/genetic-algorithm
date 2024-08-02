@@ -387,7 +387,8 @@ fn main() {
         .with_max_stale_generations(1)
         .with_multithreading(true)
         .with_fitness(RecessFitness(&adults, &dates))
-        .with_fitness_ordering(FitnessOrdering::Maximize);
+        .with_fitness_ordering(FitnessOrdering::Maximize)
+        .with_reporter(HillClimbReporterNoop::default());
 
     let now = std::time::Instant::now();
     let hill_climb = hill_climb_builder.call_repeatedly(1, &mut rng).unwrap();

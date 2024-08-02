@@ -49,6 +49,8 @@ fn main() {
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
+        // .with_reporter(HillClimbReporterNoop::default())
+        .with_reporter(HillClimbReporterSimple::new(100))
         .build()
         .unwrap();
 

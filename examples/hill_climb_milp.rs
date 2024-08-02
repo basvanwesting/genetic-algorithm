@@ -59,7 +59,8 @@ fn main() {
         .with_max_stale_generations(100)
         //.with_target_fitness_score(TARGET_SCORE)
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_fitness(MILPFitness);
+        .with_fitness(MILPFitness)
+        .with_reporter(HillClimbReporterNoop::default());
 
     for _ in 0..10 {
         let now = std::time::Instant::now();

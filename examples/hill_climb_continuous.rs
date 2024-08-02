@@ -24,6 +24,8 @@ fn main() {
         .with_target_fitness_score(99 * 100_000)
         .with_scaling(Scaling::new(1.0, 0.8, 1e-5))
         .with_fitness(SumContinuousGenotype(1e-5))
+        // .with_reporter(HillClimbReporterNoop::default())
+        .with_reporter(HillClimbReporterSimple::new(100))
         .call(&mut rng)
         .unwrap();
 

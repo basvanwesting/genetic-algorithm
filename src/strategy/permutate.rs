@@ -221,6 +221,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             ))
         } else if builder.fitness.is_none() {
             Err(TryFromPermutateBuilderError("Permutate requires a Fitness"))
+        } else if builder.reporter.is_none() {
+            Err(TryFromPermutateBuilderError(
+                "Permutate requires a Reporter",
+            ))
         } else {
             let genotype = builder.genotype.unwrap();
             let population_size = genotype.chromosome_permutations_size();
