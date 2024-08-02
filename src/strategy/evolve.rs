@@ -1,6 +1,7 @@
 //! A solution strategy for finding the best chromosome using evolution
 mod builder;
 pub mod prelude;
+mod reporter;
 
 pub use self::builder::{
     Builder as EvolveBuilder, TryFromBuilderError as TryFromEvolveBuilderError,
@@ -19,6 +20,11 @@ use rand::Rng;
 use std::cell::RefCell;
 use std::fmt;
 use thread_local::ThreadLocal;
+
+// pub use self::reporter::Log as EvolveReporterLog;
+pub use self::reporter::Log as EvolveReporterLog;
+pub use self::reporter::Noop as EvolveReporterNoop;
+pub use self::reporter::Simple as EvolveReporterSimple;
 
 /// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
 /// seeds specific genes to start with).
@@ -73,6 +79,7 @@ use thread_local::ThreadLocal;
 ///     .with_mutate(MutateOnce::new(0.2))      // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite::new())      // sort the chromosomes by fitness to determine crossover order
 ///     .with_extension(ExtensionMassExtinction::new(0.9, 0.1)) // simulate cambrian explosion by mass extinction, when reaching 90% uniformity, trim to 10% of population
+///     .with_reporter(EvolveReporterNoop::default()) // no reporting
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -87,12 +94,14 @@ pub struct Evolve<
     S: Crossover,
     C: Compete,
     E: Extension,
+    SR: EvolveReporter<Genotype = G>,
 > {
     pub genotype: G,
     pub fitness: F,
     pub plugins: EvolvePlugins<M, S, C, E>,
     pub config: EvolveConfig,
     pub state: EvolveState<G>,
+    reporter: SR,
 }
 
 pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Compete, E: Extension> {
@@ -119,8 +128,24 @@ pub struct EvolveState<G: Genotype> {
     pub best_chromosome: Option<Chromosome<G>>,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
-    Strategy<G> for Evolve<G, M, F, S, C, E>
+pub trait EvolveReporter: Clone + Send {
+    type Genotype: Genotype;
+
+    fn on_start(&mut self, _state: &EvolveState<Self::Genotype>) {}
+    fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>) {}
+    fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>) {}
+    fn on_new_best_chromosome(&mut self, _state: &EvolveState<Self::Genotype>) {}
+}
+
+impl<
+        G: Genotype,
+        M: Mutate,
+        F: Fitness<Genotype = G>,
+        S: Crossover,
+        C: Compete,
+        E: Extension,
+        SR: EvolveReporter<Genotype = G>,
+    > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.state = EvolveState::default();
@@ -132,6 +157,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
+        self.reporter.on_start(&self.state);
         while !self.is_finished() {
             self.state.current_generation += 1;
             population.increment_and_filter_age(&self.config);
@@ -152,12 +178,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                 );
             }
             //self.ensure_best_chromosome(population);
-            self.report_round(population);
+            self.reporter.on_new_generation(&self.state);
 
             self.plugins
                 .extension
                 .call(&self.genotype, &self.config, &self.state, population, rng);
         }
+        self.reporter.on_finish(&self.state);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.state.best_chromosome()
@@ -170,10 +197,17 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
-    Evolve<G, M, F, S, C, E>
+impl<
+        G: Genotype,
+        M: Mutate,
+        F: Fitness<Genotype = G>,
+        S: Crossover,
+        C: Compete,
+        E: Extension,
+        SR: EvolveReporter<Genotype = G>,
+    > Evolve<G, M, F, S, C, E, SR>
 {
-    pub fn builder() -> EvolveBuilder<G, M, F, S, C, E> {
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C, E, SR> {
         EvolveBuilder::new()
     }
 
@@ -230,31 +264,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
         }
     }
 
-    fn report_round(&self, population: &Population<G>) {
-        log::debug!(
-            "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/uniformity/best-prevalence): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}, mutation: {:?}",
-            self.state.current_generation,
-            self.state.best_generation,
-            population.age_mean(),
-            self.best_fitness_score(),
-            population.fitness_score_count(),
-            population.fitness_score_median(),
-            population.fitness_score_mean(),
-            population.fitness_score_stddev(),
-            population.fitness_score_uniformity(),
-            population.fitness_score_prevalence(self.best_fitness_score()),
-            self.plugins.mutate.report(),
-        );
-        log::trace!(
-            "best - fitness score: {:?}, genes: {:?}",
-            self.best_fitness_score(),
-            self.state
-                .best_chromosome
-                .as_ref()
-                .map_or(vec![], |c| c.genes.clone()),
-        );
-    }
-
     pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G> {
         (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_factory(rng))
@@ -301,16 +310,25 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
-    TryFrom<EvolveBuilder<G, M, F, S, C, E>> for Evolve<G, M, F, S, C, E>
+impl<
+        G: Genotype,
+        M: Mutate,
+        F: Fitness<Genotype = G>,
+        S: Crossover,
+        C: Compete,
+        E: Extension,
+        SR: EvolveReporter<Genotype = G>,
+    > TryFrom<EvolveBuilder<G, M, F, S, C, E, SR>> for Evolve<G, M, F, S, C, E, SR>
 {
     type Error = TryFromEvolveBuilderError;
 
-    fn try_from(builder: EvolveBuilder<G, M, F, S, C, E>) -> Result<Self, Self::Error> {
+    fn try_from(builder: EvolveBuilder<G, M, F, S, C, E, SR>) -> Result<Self, Self::Error> {
         if builder.genotype.is_none() {
             Err(TryFromEvolveBuilderError("Evolve requires a Genotype"))
         } else if builder.fitness.is_none() {
             Err(TryFromEvolveBuilderError("Evolve requires a Fitness"))
+        } else if builder.reporter.is_none() {
+            Err(TryFromEvolveBuilderError("Evolve requires a Reporter"))
         } else if builder.mutate.is_none() {
             Err(TryFromEvolveBuilderError(
                 "Evolve requires a Mutate strategy",
@@ -380,6 +398,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
                     multithreading: builder.multithreading,
                 },
                 state: EvolveState::default(),
+                reporter: builder.reporter.unwrap(),
             })
         }
     }
@@ -410,8 +429,15 @@ impl<G: Genotype> Default for EvolveState<G> {
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
-    fmt::Display for Evolve<G, M, F, S, C, E>
+impl<
+        G: Genotype,
+        M: Mutate,
+        F: Fitness<Genotype = G>,
+        S: Crossover,
+        C: Compete,
+        E: Extension,
+        SR: EvolveReporter<Genotype = G>,
+    > fmt::Display for Evolve<G, M, F, S, C, E, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve:")?;

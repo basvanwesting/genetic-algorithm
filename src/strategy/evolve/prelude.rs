@@ -25,6 +25,9 @@ pub use crate::mutate::{
     MutateWrapper,
 };
 #[doc(no_inline)]
-pub use crate::strategy::evolve::{Evolve, EvolveBuilder, TryFromEvolveBuilderError};
+pub use crate::strategy::evolve::{
+    Evolve, EvolveBuilder, EvolveReporter, EvolveReporterLog, EvolveReporterNoop,
+    EvolveReporterSimple, TryFromEvolveBuilderError,
+};
 #[doc(no_inline)]
 pub use crate::strategy::Strategy;

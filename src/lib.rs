@@ -51,6 +51,7 @@
 //!     .with_mutate(MutateOnce::new(0.2))    // mutate a single gene with a 20% probability per chromosome
 //!     .with_compete(CompeteElite::new())    // sort the chromosomes by fitness to determine crossover order
 //!     .with_extension(ExtensionNoop::new()) // extension step, disabled
+//!     .with_reporter(EvolveReporterNoop::default()) // no reporter
 //!     .call(&mut rng)
 //!     .unwrap();
 //!

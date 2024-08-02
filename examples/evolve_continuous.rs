@@ -28,6 +28,7 @@ fn main() {
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
+        .with_reporter(EvolveReporterNoop::default())
         .call(&mut rng)
         .unwrap();
 

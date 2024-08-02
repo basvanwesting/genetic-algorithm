@@ -291,7 +291,9 @@ fn main() {
             row_scores.clone(),
             column_scores.clone(),
             false,
-        ));
+        ))
+        .with_reporter(EvolveReporterSimple::new(100));
+    // .with_reporter(EvolveReporterNoop::default());
 
     let now = std::time::Instant::now();
     let evolve = evolve_builder.call_speciated(10, &mut rng).unwrap();
