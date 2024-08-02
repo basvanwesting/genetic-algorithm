@@ -236,7 +236,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                             .unwrap_or(&working_chromosome),
                         &self.config,
                     );
-                    self.state.working_chromosome = Some(working_chromosome);
+                    // self.state.working_chromosome = Some(working_chromosome);
                     self.state.working_population = Some(working_population);
                 }
                 HillClimbVariant::SteepestAscentSecondary => {
@@ -271,7 +271,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                             .unwrap_or(&working_chromosome),
                         &self.config,
                     );
-                    self.state.working_chromosome = Some(working_chromosome);
+                    // self.state.working_chromosome = Some(working_chromosome);
                     self.state.working_population = Some(working_population);
                 }
             }
