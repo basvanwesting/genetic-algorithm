@@ -67,13 +67,13 @@ pub struct Permutate<
 }
 
 pub struct PermutateConfig {
-    pub population_size: BigUint,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
 }
 
 #[derive(Clone)]
 pub struct PermutateState<G: PermutableGenotype> {
+    pub total_population_size: BigUint,
     pub current_iteration: usize,
     pub current_generation: usize,
     pub best_generation: usize,
@@ -227,18 +227,20 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             ))
         } else {
             let genotype = builder.genotype.unwrap();
-            let population_size = genotype.chromosome_permutations_size();
+            let total_population_size = genotype.chromosome_permutations_size();
 
             Ok(Self {
                 genotype,
                 fitness: builder.fitness.unwrap(),
 
                 config: PermutateConfig {
-                    population_size,
                     fitness_ordering: builder.fitness_ordering,
                     multithreading: builder.multithreading,
                 },
-                state: PermutateState::default(),
+                state: PermutateState {
+                    total_population_size,
+                    ..Default::default()
+                },
                 reporter: builder.reporter.unwrap(),
             })
         }
@@ -248,7 +250,6 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
 impl Default for PermutateConfig {
     fn default() -> Self {
         Self {
-            population_size: BigUint::default(),
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
         }
@@ -258,6 +259,7 @@ impl Default for PermutateConfig {
 impl<G: PermutableGenotype> Default for PermutateState<G> {
     fn default() -> Self {
         Self {
+            total_population_size: BigUint::default(),
             current_iteration: 0,
             current_generation: 0,
             best_generation: 0,
@@ -282,7 +284,6 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
 impl fmt::Display for PermutateConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_config:")?;
-        writeln!(f, "  population_size: {}", self.population_size)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
         writeln!(f, "  multithreading: {:?}", self.multithreading)
     }
@@ -291,6 +292,7 @@ impl fmt::Display for PermutateConfig {
 impl<G: PermutableGenotype> fmt::Display for PermutateState<G> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_state:")?;
+        writeln!(f, "  total_population_size: {}", self.total_population_size)?;
         writeln!(f, "  current iteration: -")?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;

@@ -1,6 +1,7 @@
 use super::{PermutateReporter, PermutateState};
 use crate::genotype::PermutableGenotype;
 use crate::strategy::StrategyState;
+use num::BigUint;
 use std::marker::PhantomData;
 
 #[derive(Clone)]
@@ -33,7 +34,8 @@ impl<G: PermutableGenotype + Sync + Clone + Send> PermutateReporter for Simple<G
     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
         if state.current_generation() % self.frequency == 0 {
             println!(
-                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
+                "progress: {:2.2}%, current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
+                BigUint::from(state.current_generation() * 100) / &state.total_population_size,
                 state.current_generation(),
                 state.best_generation(),
                 state.best_fitness_score(),
