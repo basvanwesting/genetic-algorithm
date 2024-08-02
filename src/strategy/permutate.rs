@@ -76,14 +76,6 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub best_chromosome: Option<Chromosome<G>>,
 }
 
-// error[E0658]: associated type defaults are unstable
-// pub trait PermutateReporter: StrategyReporter
-// where
-//     <Self as StrategyReporter>::Genotype: PermutableGenotype,
-// {
-//     type State = PermutateState<Self::Genotype>;
-// }
-
 pub trait PermutateReporter: Clone + Send {
     type Genotype: PermutableGenotype;
 
