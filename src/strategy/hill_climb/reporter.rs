@@ -33,13 +33,13 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Simple<
     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
         if state.current_generation() % self.frequency == 0 {
             println!(
-                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}, current scale: {:?}, working_fitness_score: {:?}, working_population_size: {}",
+                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}, current scale: {:?}, contending_fitness_score: {:?}, neighbouring_population_size: {}",
                 state.current_generation(),
                 state.best_generation(),
                 state.best_fitness_score(),
                 state.current_scale.as_ref(),
-                state.working_chromosome.as_ref().and_then(|c| c.fitness_score),
-                state.working_population.as_ref().map_or(0, |p| p.size()),
+                state.contending_chromosome.as_ref().and_then(|c| c.fitness_score),
+                state.neighbouring_population.as_ref().map_or(0, |p| p.size()),
             );
         }
     }
@@ -69,12 +69,31 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Log<G> 
             state.best_fitness_score(),
             state.current_scale.as_ref(),
         );
-        log::trace!(
-            "best - fitness score: {:?}, genes: {:?}",
-            state.best_fitness_score(),
-            state
-                .best_chromosome_as_ref()
-                .map_or(vec![], |c| c.genes.clone()),
-        );
+
+        if log::log_enabled!(log::Level::Trace) {
+            log::trace!(
+                "best - fitness score: {:?}, genes: {:?}",
+                state.best_fitness_score(),
+                state
+                    .best_chromosome_as_ref()
+                    .map_or(vec![], |c| c.genes.clone()),
+            );
+            if let Some(chromosome) = state.contending_chromosome.as_ref() {
+                log::trace!(
+                    "contending - fitness score: {:?}, genes: {:?}",
+                    chromosome.fitness_score,
+                    chromosome.genes,
+                );
+            }
+            if let Some(population) = state.neighbouring_population.as_ref() {
+                population.chromosomes.iter().for_each(|chromosome| {
+                    log::trace!(
+                        "neighbour - fitness score: {:?}, genes: {:?}",
+                        chromosome.fitness_score,
+                        chromosome.genes,
+                    );
+                })
+            }
+        }
     }
 }
