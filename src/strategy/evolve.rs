@@ -185,11 +185,13 @@ impl<
                 .best_chromosome(self.config.fitness_ordering)
                 .cloned()
             {
-                self.state.update_best_chromosome(
+                if self.state.update_best_chromosome(
                     &contending_chromosome,
                     &self.config.fitness_ordering,
                     false,
-                );
+                ) {
+                    self.reporter.on_new_best_chromosome(&self.state);
+                }
             }
             //self.ensure_best_chromosome(population);
             self.reporter.on_new_generation(&self.state);

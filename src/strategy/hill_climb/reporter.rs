@@ -43,6 +43,15 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Simple<
             );
         }
     }
+
+    fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype>) {
+        println!(
+            "current_generation: {}, best_generation: now, best_fitness_score: {:?}, current scale: {:?}",
+            state.current_generation(),
+            state.best_fitness_score(),
+            state.current_scale.as_ref(),
+        );
+    }
 }
 
 #[derive(Clone)]

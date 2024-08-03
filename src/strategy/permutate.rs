@@ -122,8 +122,12 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
             self.state.current_generation += 1;
             self.fitness.call_for_chromosome(&mut chromosome);
-            self.state
-                .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false);
+            if self
+                .state
+                .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false)
+            {
+                self.reporter.on_new_best_chromosome(&self.state);
+            }
             self.reporter.on_new_generation(&self.state);
         }
     }
@@ -158,11 +162,13 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             s.spawn(|_| {
                 for chromosome in processed_chromosome_receiver {
                     self.state.current_generation += 1;
-                    self.state.update_best_chromosome(
+                    if self.state.update_best_chromosome(
                         &chromosome,
                         &self.config.fitness_ordering,
                         false,
-                    );
+                    ) {
+                        self.reporter.on_new_best_chromosome(&self.state);
+                    }
                     self.reporter.on_new_generation(&self.state);
                 }
             });

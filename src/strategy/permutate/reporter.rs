@@ -42,4 +42,13 @@ impl<G: PermutableGenotype + Sync + Clone + Send> PermutateReporter for Simple<G
             );
         }
     }
+
+    fn on_new_best_chromosome(&mut self, state: &PermutateState<Self::Genotype>) {
+        println!(
+            "progress: {:2.2}%, current_generation: {}, best_generation: now, best_fitness_score: {:?}",
+            BigUint::from(state.current_generation() * 100) / &state.total_population_size,
+            state.current_generation(),
+            state.best_fitness_score(),
+        );
+    }
 }

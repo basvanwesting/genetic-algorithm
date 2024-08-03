@@ -181,8 +181,12 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         rng,
                     );
                     self.fitness.call_for_chromosome(&mut contending_chromosome);
-                    self.state
-                        .update_best_chromosome_and_scale(&contending_chromosome, &self.config);
+                    if self
+                        .state
+                        .update_best_chromosome_and_scale(&contending_chromosome, &self.config)
+                    {
+                        self.reporter.on_new_best_chromosome(&self.state);
+                    }
                     self.state.contending_chromosome = Some(contending_chromosome);
                 }
                 HillClimbVariant::StochasticSecondary => {
@@ -194,10 +198,12 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     );
                     self.fitness
                         .call_for_chromosome(&mut contending_chromosome_primary);
-                    self.state.update_best_chromosome_and_scale(
+                    if self.state.update_best_chromosome_and_scale(
                         &contending_chromosome_primary,
                         &self.config,
-                    );
+                    ) {
+                        self.reporter.on_new_best_chromosome(&self.state);
+                    }
 
                     let mut contending_chromosome_secondary = contending_chromosome_primary.clone();
                     self.genotype.mutate_chromosome_neighbour(
@@ -207,10 +213,12 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     );
                     self.fitness
                         .call_for_chromosome(&mut contending_chromosome_secondary);
-                    self.state.update_best_chromosome_and_scale(
+                    if self.state.update_best_chromosome_and_scale(
                         &contending_chromosome_secondary,
                         &self.config,
-                    );
+                    ) {
+                        self.reporter.on_new_best_chromosome(&self.state);
+                    }
                     self.state.contending_chromosome = Some(contending_chromosome_secondary);
                 }
                 HillClimbVariant::SteepestAscent => {
@@ -229,8 +237,12 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     if let Some(contending_chromosome) =
                         neighbouring_population.best_chromosome(self.config.fitness_ordering)
                     {
-                        self.state
-                            .update_best_chromosome_and_scale(contending_chromosome, &self.config);
+                        if self
+                            .state
+                            .update_best_chromosome_and_scale(contending_chromosome, &self.config)
+                        {
+                            self.reporter.on_new_best_chromosome(&self.state);
+                        }
                         self.state.contending_chromosome = Some(contending_chromosome.clone());
                     }
                     self.state.neighbouring_population = Some(neighbouring_population);
@@ -263,8 +275,12 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     if let Some(contending_chromosome) =
                         neighbouring_population.best_chromosome(self.config.fitness_ordering)
                     {
-                        self.state
-                            .update_best_chromosome_and_scale(contending_chromosome, &self.config);
+                        if self
+                            .state
+                            .update_best_chromosome_and_scale(contending_chromosome, &self.config)
+                        {
+                            self.reporter.on_new_best_chromosome(&self.state);
+                        }
                         self.state.contending_chromosome = Some(contending_chromosome.clone());
                     }
                     self.state.neighbouring_population = Some(neighbouring_population);
@@ -389,10 +405,13 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
         &mut self,
         contending_chromosome: &Chromosome<G>,
         config: &HillClimbConfig,
-    ) {
+    ) -> bool {
         self.scale_down(config);
         if self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, true) {
             self.reset_scaling(config);
+            true
+        } else {
+            false
         }
     }
 

@@ -41,6 +41,15 @@ impl<G: Genotype + Sync + Clone + Send> EvolveReporter for Simple<G> {
             );
         }
     }
+
+    fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype>) {
+        println!(
+            "current_generation: {}, best_generation: now, best_fitness_score: {:?}, current_population_size: {}",
+            state.current_generation(),
+            state.best_fitness_score(),
+            state.population.size(),
+        );
+    }
 }
 
 #[derive(Clone)]
