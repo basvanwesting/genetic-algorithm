@@ -87,6 +87,8 @@ pub trait PermutateReporter: Clone + Send {
     fn on_finish(&mut self, _state: &PermutateState<Self::Genotype>) {}
     fn on_new_generation(&mut self, _state: &PermutateState<Self::Genotype>) {}
     fn on_new_best_chromosome(&mut self, _state: &PermutateState<Self::Genotype>) {}
+    // not really used as new_best_chromosome always implies new_best_generation, as there are no sideway moves
+    fn on_new_best_generation(&mut self, _state: &PermutateState<Self::Genotype>) {}
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
@@ -125,6 +127,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             if self
                 .state
                 .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false)
+                .0
             {
                 self.reporter.on_new_best_chromosome(&self.state);
             }
@@ -162,11 +165,11 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             s.spawn(|_| {
                 for chromosome in processed_chromosome_receiver {
                     self.state.current_generation += 1;
-                    if self.state.update_best_chromosome(
-                        &chromosome,
-                        &self.config.fitness_ordering,
-                        false,
-                    ) {
+                    if self
+                        .state
+                        .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false)
+                        .0
+                    {
                         self.reporter.on_new_best_chromosome(&self.state);
                     }
                     self.reporter.on_new_generation(&self.state);
@@ -206,12 +209,12 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
         &mut self,
         best_chromosome: &Chromosome<G>,
         set_best_generation: bool,
-    ) -> bool {
+    ) -> (bool, bool) {
         self.best_chromosome = Some(best_chromosome.clone());
         if set_best_generation {
             self.best_generation = self.current_generation;
         }
-        true
+        (true, set_best_generation)
     }
 }
 

@@ -26,17 +26,25 @@ pub trait StrategyState<G: Genotype> {
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
+
+    // return tuple (new_best_chomesome, new_best_generation). This way a sideways move in
+    // best_chromosome (which doesn't update the best_generation) can be distinguished for
+    // reporting purposes
     fn set_best_chromosome(
         &mut self,
         best_chromosome: &Chromosome<G>,
         set_best_generation: bool,
-    ) -> bool;
+    ) -> (bool, bool);
+
+    // return tuple (new_best_chomesome, new_best_generation). This way a sideways move in
+    // best_chromosome (which doesn't update the best_generation) can be distinguished for
+    // reporting purposes
     fn update_best_chromosome(
         &mut self,
         contending_chromosome: &Chromosome<G>,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
-    ) -> bool {
+    ) -> (bool, bool) {
         match self.best_chromosome_as_ref() {
             None => self.set_best_chromosome(contending_chromosome, true),
             Some(current_best_chromosome) => {
@@ -44,8 +52,8 @@ pub trait StrategyState<G: Genotype> {
                     current_best_chromosome.fitness_score,
                     contending_chromosome.fitness_score,
                 ) {
-                    (None, None) => false,
-                    (Some(_), None) => false,
+                    (None, None) => (false, false),
+                    (Some(_), None) => (false, false),
                     (None, Some(_)) => self.set_best_chromosome(contending_chromosome, true),
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match fitness_ordering {
@@ -57,7 +65,7 @@ pub trait StrategyState<G: Genotype> {
                                 {
                                     self.set_best_chromosome(contending_chromosome, false)
                                 } else {
-                                    false
+                                    (false, false)
                                 }
                             }
                             FitnessOrdering::Minimize => {
@@ -68,7 +76,7 @@ pub trait StrategyState<G: Genotype> {
                                 {
                                     self.set_best_chromosome(contending_chromosome, false)
                                 } else {
-                                    false
+                                    (false, false)
                                 }
                             }
                         }
@@ -95,4 +103,5 @@ pub trait StrategyReporter: Clone + Send {
     fn on_finish(&mut self, _state: &Self::State) {}
     fn on_new_generation(&mut self, _state: &Self::State) {}
     fn on_new_best_chromosome(&mut self, _state: &Self::State) {}
+    fn on_new_best_generation(&mut self, _state: &Self::State) {}
 }
