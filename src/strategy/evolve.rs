@@ -182,7 +182,7 @@ impl<
 
             self.plugins
                 .extension
-                .call(&self.genotype, &self.config, &self.state, population, rng);
+                .call(&self.genotype, &self.config, population, rng);
         }
         self.reporter.on_finish(&self.state);
     }

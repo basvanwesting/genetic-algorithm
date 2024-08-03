@@ -1,7 +1,7 @@
 use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use crate::strategy::evolve::EvolveConfig;
 use rand::Rng;
 
 /// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where only an adam and eve of current best chromosomes survive
@@ -15,7 +15,6 @@ impl Extension for MassGenesis {
         &mut self,
         _genotype: &G,
         evolve_config: &EvolveConfig,
-        evolve_state: &EvolveState<G>,
         population: &mut Population<G>,
         _rng: &mut R,
     ) {
@@ -23,7 +22,10 @@ impl Extension for MassGenesis {
             && population.fitness_score_uniformity() >= self.uniformity_threshold
         {
             log::debug!("### mass genesis event");
-            if let Some(best_chromosome) = &evolve_state.best_chromosome {
+
+            if let Some(best_chromosome) =
+                population.best_chromosome(evolve_config.fitness_ordering)
+            {
                 population.chromosomes = vec![best_chromosome.clone(), best_chromosome.clone()]
             }
         }

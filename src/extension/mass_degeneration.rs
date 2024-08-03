@@ -1,7 +1,7 @@
 use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use crate::strategy::evolve::EvolveConfig;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
@@ -19,7 +19,6 @@ impl Extension for MassDegeneration {
         &mut self,
         genotype: &G,
         _evolve_config: &EvolveConfig,
-        _evolve_state: &EvolveState<G>,
         population: &mut Population<G>,
         rng: &mut R,
     ) {

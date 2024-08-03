@@ -17,7 +17,7 @@ pub use self::wrapper::Wrapper as ExtensionWrapper;
 
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use crate::strategy::evolve::EvolveConfig;
 use rand::Rng;
 
 pub trait Extension: Clone + std::fmt::Debug {
@@ -25,7 +25,6 @@ pub trait Extension: Clone + std::fmt::Debug {
         &mut self,
         genotype: &G,
         evolve_config: &EvolveConfig,
-        evolve_state: &EvolveState<G>,
         population: &mut Population<G>,
         rng: &mut R,
     );

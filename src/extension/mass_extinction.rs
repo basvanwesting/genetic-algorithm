@@ -1,7 +1,7 @@
 use super::Extension;
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use crate::strategy::evolve::EvolveConfig;
 use rand::Rng;
 
 /// Simulates a cambrian explosion. The controlling metric is fitness score uniformity in the
@@ -19,7 +19,6 @@ impl Extension for MassExtinction {
         &mut self,
         _genotype: &G,
         evolve_config: &EvolveConfig,
-        _evolve_state: &EvolveState<G>,
         population: &mut Population<G>,
         rng: &mut R,
     ) {
