@@ -33,10 +33,11 @@ impl<G: Genotype + Sync + Clone + Send> EvolveReporter for Simple<G> {
     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
         if state.current_generation() % self.frequency == 0 {
             println!(
-                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
+                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}, current_population_size: {}",
                 state.current_generation(),
                 state.best_generation(),
                 state.best_fitness_score(),
+                state.population.size(),
             );
         }
     }
@@ -60,28 +61,27 @@ impl<G: Genotype + Sync + Clone + Send> EvolveReporter for Log<G> {
 
     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
         log::debug!(
-            "current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
+            "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/uniformity/best-prevalence): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}",
             state.current_generation(),
             state.best_generation(),
+            state.population.age_mean(),
             state.best_fitness_score(),
-            // "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/uniformity/best-prevalence): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}, mutation: {:?}",
-            // state.current_generation(),
-            // state.best_generation(),
-            // population.age_mean(),
-            // state.best_fitness_score(),
-            // population.fitness_score_count(),
-            // population.fitness_score_median(),
-            // population.fitness_score_mean(),
-            // population.fitness_score_stddev(),
-            // population.fitness_score_uniformity(),
-            // population.fitness_score_prevalence(self.best_fitness_score()),
+            state.population.fitness_score_count(),
+            state.population.fitness_score_median(),
+            state.population.fitness_score_mean(),
+            state.population.fitness_score_stddev(),
+            state.population.fitness_score_uniformity(),
+            state.population.fitness_score_prevalence(state.best_fitness_score()),
         );
-        log::trace!(
-            "best - fitness score: {:?}, genes: {:?}",
-            state.best_fitness_score(),
-            state
-                .best_chromosome_as_ref()
-                .map_or(vec![], |c| c.genes.clone()),
-        );
+
+        if log::log_enabled!(log::Level::Trace) {
+            log::trace!(
+                "best - fitness score: {:?}, genes: {:?}",
+                state.best_fitness_score(),
+                state
+                    .best_chromosome_as_ref()
+                    .map_or(vec![], |c| c.genes.clone()),
+            );
+        }
     }
 }

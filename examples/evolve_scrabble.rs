@@ -278,10 +278,10 @@ fn main() {
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
         //.with_compete(CompeteElite::new())
-        .with_extension(ExtensionNoop::new())
+        // .with_extension(ExtensionNoop::new())
         //.with_extension(ExtensionMassExtinction::new(0.99, 0.001))
         //.with_extension(ExtensionMassInvasion::new(0.99, 0.1))
-        //.with_extension(ExtensionMassGenesis::new(0.99))
+        .with_extension(ExtensionMassGenesis::new(0.99))
         //.with_extension(ExtensionMassDegeneration::new(0.99, 100))
         .with_multithreading(true)
         .with_fitness(ScrabbleFitness::new(

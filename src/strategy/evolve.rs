@@ -126,6 +126,7 @@ pub struct EvolveState<G: Genotype> {
     pub current_generation: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<G>>,
+    pub population: Population<G>,
 }
 
 pub trait EvolveReporter: Clone + Send {
@@ -148,9 +149,7 @@ impl<
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.state = EvolveState::default();
-
-        let population = &mut self.population_factory(rng);
+        self.state = EvolveState::new(self.population_factory(rng));
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.multithreading {
@@ -160,29 +159,40 @@ impl<
         self.reporter.on_start(&self.state);
         while !self.is_finished() {
             self.state.current_generation += 1;
-            population.increment_and_filter_age(&self.config);
+            self.state.population.increment_and_filter_age(&self.config);
 
-            self.plugins.crossover.call(&self.genotype, population, rng);
-            self.plugins.mutate.call(&self.genotype, population, rng);
+            self.plugins.extension.call(
+                &self.genotype,
+                &self.config,
+                &mut self.state.population,
+                rng,
+            );
+            self.plugins
+                .crossover
+                .call(&self.genotype, &mut self.state.population, rng);
+            self.plugins
+                .mutate
+                .call(&self.genotype, &mut self.state.population, rng);
             self.fitness
-                .call_for_population(population, fitness_thread_local.as_ref());
-            self.plugins.compete.call(population, &self.config, rng);
+                .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
+            self.plugins
+                .compete
+                .call(&mut self.state.population, &self.config, rng);
 
-            if let Some(contending_best_chromosome) =
-                population.best_chromosome(self.config.fitness_ordering)
+            if let Some(contending_best_chromosome) = self
+                .state
+                .population
+                .best_chromosome(self.config.fitness_ordering)
+                .cloned()
             {
                 self.state.update_best_chromosome(
-                    contending_best_chromosome,
+                    &contending_best_chromosome,
                     &self.config.fitness_ordering,
                     false,
                 );
             }
             //self.ensure_best_chromosome(population);
             self.reporter.on_new_generation(&self.state);
-
-            self.plugins
-                .extension
-                .call(&self.genotype, &self.config, population, rng);
         }
         self.reporter.on_finish(&self.state);
     }
@@ -425,6 +435,16 @@ impl<G: Genotype> Default for EvolveState<G> {
             current_generation: 0,
             best_generation: 0,
             best_chromosome: None,
+            population: Population::new_empty(),
+        }
+    }
+}
+
+impl<G: Genotype> EvolveState<G> {
+    pub fn new(population: Population<G>) -> Self {
+        Self {
+            population,
+            ..Default::default()
         }
     }
 }
