@@ -387,11 +387,11 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
 impl<G: IncrementalGenotype> HillClimbState<G> {
     fn update_best_chromosome_and_scale(
         &mut self,
-        contending_best_chromosome: &Chromosome<G>,
+        contending_chromosome: &Chromosome<G>,
         config: &HillClimbConfig,
     ) {
         self.scale_down(config);
-        if self.update_best_chromosome(contending_best_chromosome, &config.fitness_ordering, true) {
+        if self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, true) {
             self.reset_scaling(config);
         }
     }

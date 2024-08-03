@@ -33,40 +33,40 @@ pub trait StrategyState<G: Genotype> {
     ) -> bool;
     fn update_best_chromosome(
         &mut self,
-        contending_best_chromosome: &Chromosome<G>,
+        contending_chromosome: &Chromosome<G>,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> bool {
         match self.best_chromosome_as_ref() {
-            None => self.set_best_chromosome(contending_best_chromosome, true),
+            None => self.set_best_chromosome(contending_chromosome, true),
             Some(current_best_chromosome) => {
                 match (
                     current_best_chromosome.fitness_score,
-                    contending_best_chromosome.fitness_score,
+                    contending_chromosome.fitness_score,
                 ) {
                     (None, None) => false,
                     (Some(_), None) => false,
-                    (None, Some(_)) => self.set_best_chromosome(contending_best_chromosome, true),
+                    (None, Some(_)) => self.set_best_chromosome(contending_chromosome, true),
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
-                                    self.set_best_chromosome(contending_best_chromosome, true)
+                                    self.set_best_chromosome(contending_chromosome, true)
                                 } else if replace_on_equal_fitness
                                     && contending_fitness_score == current_fitness_score
                                 {
-                                    self.set_best_chromosome(contending_best_chromosome, false)
+                                    self.set_best_chromosome(contending_chromosome, false)
                                 } else {
                                     false
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
-                                    self.set_best_chromosome(contending_best_chromosome, true)
+                                    self.set_best_chromosome(contending_chromosome, true)
                                 } else if replace_on_equal_fitness
                                     && contending_fitness_score == current_fitness_score
                                 {
-                                    self.set_best_chromosome(contending_best_chromosome, false)
+                                    self.set_best_chromosome(contending_chromosome, false)
                                 } else {
                                     false
                                 }
@@ -79,8 +79,7 @@ pub trait StrategyState<G: Genotype> {
     }
 }
 
-
-// Supertrait StrategyReporter is not used, because of 
+// Supertrait StrategyReporter is not used, because of
 // error[E0658]: associated type defaults are unstable
 // pub trait PermutateReporter: StrategyReporter
 // where

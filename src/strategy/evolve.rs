@@ -179,14 +179,14 @@ impl<
                 .compete
                 .call(&mut self.state.population, &self.config, rng);
 
-            if let Some(contending_best_chromosome) = self
+            if let Some(contending_chromosome) = self
                 .state
                 .population
                 .best_chromosome(self.config.fitness_ordering)
                 .cloned()
             {
                 self.state.update_best_chromosome(
-                    &contending_best_chromosome,
+                    &contending_chromosome,
                     &self.config.fitness_ordering,
                     false,
                 );
