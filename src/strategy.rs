@@ -27,18 +27,18 @@ pub trait StrategyState<G: Genotype> {
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
 
-    // return tuple (new_best_chomesome, new_best_generation). This way a sideways move in
-    // best_chromosome (which doesn't update the best_generation) can be distinguished for
-    // reporting purposes
+    // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
+    // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
+    // distinguished for reporting purposes
     fn set_best_chromosome(
         &mut self,
         best_chromosome: &Chromosome<G>,
-        set_best_generation: bool,
+        improved_fitness: bool,
     ) -> (bool, bool);
 
-    // return tuple (new_best_chomesome, new_best_generation). This way a sideways move in
-    // best_chromosome (which doesn't update the best_generation) can be distinguished for
-    // reporting purposes
+    // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
+    // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
+    // distinguished for reporting purposes
     fn update_best_chromosome(
         &mut self,
         contending_chromosome: &Chromosome<G>,
@@ -103,5 +103,4 @@ pub trait StrategyReporter: Clone + Send {
     fn on_finish(&mut self, _state: &Self::State) {}
     fn on_new_generation(&mut self, _state: &Self::State) {}
     fn on_new_best_chromosome(&mut self, _state: &Self::State) {}
-    fn on_new_best_generation(&mut self, _state: &Self::State) {}
 }

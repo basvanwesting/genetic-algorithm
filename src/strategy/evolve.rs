@@ -136,8 +136,6 @@ pub trait EvolveReporter: Clone + Send {
     fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>) {}
     fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>) {}
     fn on_new_best_chromosome(&mut self, _state: &EvolveState<Self::Genotype>) {}
-    // not really used as new_best_chromosome always implies new_best_generation, as there are no sideway moves
-    fn on_new_best_generation(&mut self, _state: &EvolveState<Self::Genotype>) {}
 }
 
 impl<
@@ -314,13 +312,13 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     fn set_best_chromosome(
         &mut self,
         best_chromosome: &Chromosome<G>,
-        set_best_generation: bool,
+        improved_fitness: bool,
     ) -> (bool, bool) {
         self.best_chromosome = Some(best_chromosome.clone());
-        if set_best_generation {
+        if improved_fitness {
             self.best_generation = self.current_generation;
         }
-        (true, set_best_generation)
+        (true, improved_fitness)
     }
 }
 

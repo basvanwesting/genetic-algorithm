@@ -150,10 +150,10 @@ pub trait HillClimbReporter: Clone + Send {
     fn on_start(&mut self, _state: &HillClimbState<Self::Genotype>) {}
     fn on_finish(&mut self, _state: &HillClimbState<Self::Genotype>) {}
     fn on_new_generation(&mut self, _state: &HillClimbState<Self::Genotype>) {}
-    // used to report on sideways move (new best chromosome, but equal fitness)
+    // used to report on true improvement (new best chromosome with improved fitness)
     fn on_new_best_chromosome(&mut self, _state: &HillClimbState<Self::Genotype>) {}
-    // used to report on true improvement (new best chromosome, with improved fitness)
-    fn on_new_best_generation(&mut self, _state: &HillClimbState<Self::Genotype>) {}
+    // used to report on sideways move (new best chromosome with equal fitness)
+    fn on_new_best_chromosome_equal_fitness(&mut self, _state: &HillClimbState<Self::Genotype>) {}
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
@@ -188,8 +188,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         .state
                         .update_best_chromosome_and_scale(&contending_chromosome, &self.config)
                     {
-                        (true, true) => self.reporter.on_new_best_generation(&self.state),
-                        (true, false) => self.reporter.on_new_best_chromosome(&self.state),
+                        (true, true) => self.reporter.on_new_best_chromosome(&self.state),
+                        (true, false) => self
+                            .reporter
+                            .on_new_best_chromosome_equal_fitness(&self.state),
                         _ => (),
                     }
 
@@ -208,8 +210,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         &contending_chromosome_primary,
                         &self.config,
                     ) {
-                        (true, true) => self.reporter.on_new_best_generation(&self.state),
-                        (true, false) => self.reporter.on_new_best_chromosome(&self.state),
+                        (true, true) => self.reporter.on_new_best_chromosome(&self.state),
+                        (true, false) => self
+                            .reporter
+                            .on_new_best_chromosome_equal_fitness(&self.state),
                         _ => (),
                     }
 
@@ -225,8 +229,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         &contending_chromosome_secondary,
                         &self.config,
                     ) {
-                        (true, true) => self.reporter.on_new_best_generation(&self.state),
-                        (true, false) => self.reporter.on_new_best_chromosome(&self.state),
+                        (true, true) => self.reporter.on_new_best_chromosome(&self.state),
+                        (true, false) => self
+                            .reporter
+                            .on_new_best_chromosome_equal_fitness(&self.state),
                         _ => (),
                     }
                     self.state.contending_chromosome = Some(contending_chromosome_secondary);
@@ -251,8 +257,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                             .state
                             .update_best_chromosome_and_scale(contending_chromosome, &self.config)
                         {
-                            (true, true) => self.reporter.on_new_best_generation(&self.state),
-                            (true, false) => self.reporter.on_new_best_chromosome(&self.state),
+                            (true, true) => self.reporter.on_new_best_chromosome(&self.state),
+                            (true, false) => self
+                                .reporter
+                                .on_new_best_chromosome_equal_fitness(&self.state),
                             _ => (),
                         }
                         self.state.contending_chromosome = Some(contending_chromosome.clone());
@@ -291,8 +299,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                             .state
                             .update_best_chromosome_and_scale(contending_chromosome, &self.config)
                         {
-                            (true, true) => self.reporter.on_new_best_generation(&self.state),
-                            (true, false) => self.reporter.on_new_best_chromosome(&self.state),
+                            (true, true) => self.reporter.on_new_best_chromosome(&self.state),
+                            (true, false) => self
+                                .reporter
+                                .on_new_best_chromosome_equal_fitness(&self.state),
                             _ => (),
                         }
                         self.state.contending_chromosome = Some(contending_chromosome.clone());
@@ -404,13 +414,13 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     fn set_best_chromosome(
         &mut self,
         best_chromosome: &Chromosome<G>,
-        set_best_generation: bool,
+        improved_fitness: bool,
     ) -> (bool, bool) {
         self.best_chromosome = Some(best_chromosome.clone());
-        if set_best_generation {
+        if improved_fitness {
             self.best_generation = self.current_generation;
         }
-        (true, set_best_generation)
+        (true, improved_fitness)
     }
 }
 
