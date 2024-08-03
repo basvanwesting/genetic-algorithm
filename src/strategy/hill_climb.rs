@@ -162,7 +162,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
 
         let mut seed_chromosome = self.genotype.chromosome_factory(rng);
         self.fitness.call_for_chromosome(&mut seed_chromosome);
-        self.state.best_chromosome = Some(seed_chromosome);
+        self.state.set_best_chromosome(&seed_chromosome, true);
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.multithreading {
