@@ -8,23 +8,33 @@ use std::marker::PhantomData;
 /// an extra event hook for this situation.
 ///
 /// # Example:
-/// You are encouraged to roll your own.
+/// You are encouraged to roll your own, like the [HillClimbReporterSimple](Simple) implementation below
 /// ```rust
 /// use genetic_algorithm::strategy::hill_climb::prelude::*;
 ///
 /// #[derive(Clone)]
-/// pub struct CustomReporter(usize);
+/// pub struct CustomReporter { pub period: usize }
 /// impl HillClimbReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
+///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
+///         if state.current_generation() % self.period == 0 {
+///             println!(
+///                 "periodic - current_generation: {}, best_generation: {}, current_scale: {:?}",
+///                 state.current_generation(),
+///                 state.best_generation(),
+///                 state.current_scale.as_ref(),
+///             );
+///         }
+///     }
+///
 ///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype>) {
 ///         println!(
-///             "current_generation: {}, best_fitness_score: {:?}, genes: {:?}",
+///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale: {:?}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
-///             state
-///               .best_chromosome_as_ref()
-///               .map_or(vec![], |c| c.genes.clone()),
+///             state.best_chromosome_as_ref().map(|c| &c.genes),
+///             state.current_scale.as_ref(),
 ///         );
 ///     }
 /// }
@@ -74,22 +84,20 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Simple<G> {
     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
         if state.current_generation() % self.period == 0 {
             println!(
-                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}, current scale: {:?}, contending_fitness_score: {:?}, neighbouring_population_size: {}",
+                "periodic - current_generation: {}, best_generation: {}, current_scale: {:?}",
                 state.current_generation(),
                 state.best_generation(),
-                state.best_fitness_score(),
                 state.current_scale.as_ref(),
-                state.contending_chromosome.as_ref().and_then(|c| c.fitness_score),
-                state.neighbouring_population.as_ref().map_or(0, |p| p.size()),
             );
         }
     }
 
     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype>) {
         println!(
-            "current_generation: {}, best_generation: now, best_fitness_score: {:?}, current scale: {:?}",
+            "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
+            state.best_chromosome_as_ref().map(|c| &c.genes),
             state.current_scale.as_ref(),
         );
     }
@@ -119,9 +127,7 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Log<G> {
             log::trace!(
                 "best - fitness score: {:?}, genes: {:?}",
                 state.best_fitness_score(),
-                state
-                    .best_chromosome_as_ref()
-                    .map_or(vec![], |c| c.genes.clone()),
+                state.best_chromosome_as_ref().map(|c| &c.genes)
             );
             if let Some(chromosome) = state.contending_chromosome.as_ref() {
                 log::trace!(

@@ -8,23 +8,33 @@ use std::marker::PhantomData;
 /// A new generation is simply handling a single new chromosome from the total population
 ///
 /// # Example:
-/// You are encouraged to roll your own.
+/// You are encouraged to roll your own, like the [PermutateReporterSimple](Simple) implementation below
 /// ```rust
 /// use genetic_algorithm::strategy::permutate::prelude::*;
+/// use num::BigUint;
 ///
 /// #[derive(Clone)]
-/// pub struct CustomReporter(usize);
+/// pub struct CustomReporter { pub period: usize };
 /// impl PermutateReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
+///     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
+///         if state.current_generation() % self.period == 0 {
+///             println!(
+///                 "progress: {:2.2}%, current_generation: {}, best_generation: {}",
+///                 BigUint::from(state.current_generation() * 100) / &state.total_population_size,
+///                 state.current_generation(),
+///                 state.best_generation(),
+///             );
+///         }
+///     }
+///
 ///     fn on_new_best_chromosome(&mut self, state: &PermutateState<Self::Genotype>) {
 ///         println!(
-///             "current_generation: {}, best_fitness_score: {:?}, genes: {:?}",
+///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
-///             state
-///               .best_chromosome_as_ref()
-///               .map_or(vec![], |c| c.genes.clone()),
+///             state.best_chromosome_as_ref().map(|c| &c.genes),
 ///         );
 ///     }
 /// }
@@ -71,21 +81,20 @@ impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Simple<G> {
     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
         if state.current_generation() % self.period == 0 {
             println!(
-                "progress: {:2.2}%, current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
+                "progress: {:2.2}%, current_generation: {}, best_generation: {}",
                 BigUint::from(state.current_generation() * 100) / &state.total_population_size,
                 state.current_generation(),
                 state.best_generation(),
-                state.best_fitness_score(),
             );
         }
     }
 
     fn on_new_best_chromosome(&mut self, state: &PermutateState<Self::Genotype>) {
         println!(
-            "progress: {:2.2}%, current_generation: {}, best_generation: now, best_fitness_score: {:?}",
-            BigUint::from(state.current_generation() * 100) / &state.total_population_size,
+            "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
+            state.best_chromosome_as_ref().map(|c| &c.genes),
         );
     }
 }
@@ -114,9 +123,7 @@ impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Log<G> {
             log::trace!(
                 "best - fitness score: {:?}, genes: {:?}",
                 state.best_fitness_score(),
-                state
-                    .best_chromosome_as_ref()
-                    .map_or(vec![], |c| c.genes.clone()),
+                state.best_chromosome_as_ref().map(|c| &c.genes)
             );
         }
     }

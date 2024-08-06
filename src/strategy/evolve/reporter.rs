@@ -6,23 +6,33 @@ use std::marker::PhantomData;
 /// Reporter with event hooks in the Evolve process.
 ///
 /// # Example:
-/// You are encouraged to roll your own.
+/// You are encouraged to roll your own, like the [EvolveReporterSimple](Simple) implementation below
 /// ```rust
 /// use genetic_algorithm::strategy::evolve::prelude::*;
 ///
 /// #[derive(Clone)]
-/// pub struct CustomReporter(usize);
+/// pub struct CustomReporter { pub period: usize }
 /// impl EvolveReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
+///     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
+///         if state.current_generation() % self.period == 0 {
+///             println!(
+///                 "periodic - current_generation: {}, best_generation: {}, current_population_size: {}",
+///                 state.current_generation(),
+///                 state.best_generation(),
+///                 state.population.size(),
+///             );
+///         }
+///     }
+///
 ///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype>) {
 ///         println!(
-///             "current_generation: {}, best_fitness_score: {:?}, genes: {:?}",
+///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, population_size: {}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
-///             state
-///               .best_chromosome_as_ref()
-///               .map_or(vec![], |c| c.genes.clone()),
+///             state.best_chromosome_as_ref().map(|c| &c.genes),
+///             state.population.size(),
 ///         );
 ///     }
 /// }
@@ -69,10 +79,9 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Simple<G> {
     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
         if state.current_generation() % self.period == 0 {
             println!(
-                "current_generation: {}, best_generation: {}, best_fitness_score: {:?}, current_population_size: {}",
+                "periodic - current_generation: {}, best_generation: {}, current_population_size: {}",
                 state.current_generation(),
                 state.best_generation(),
-                state.best_fitness_score(),
                 state.population.size(),
             );
         }
@@ -80,9 +89,10 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Simple<G> {
 
     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype>) {
         println!(
-            "current_generation: {}, best_generation: now, best_fitness_score: {:?}, current_population_size: {}",
+            "new best - generation: {}, fitness_score: {:?}, genes: {:?}, population_size: {}",
             state.current_generation(),
             state.best_fitness_score(),
+            state.best_chromosome_as_ref().map(|c| &c.genes),
             state.population.size(),
         );
     }
@@ -118,9 +128,7 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Log<G> {
             log::trace!(
                 "best - fitness score: {:?}, genes: {:?}",
                 state.best_fitness_score(),
-                state
-                    .best_chromosome_as_ref()
-                    .map_or(vec![], |c| c.genes.clone()),
+                state.best_chromosome_as_ref().map(|c| &c.genes)
             );
         }
     }
