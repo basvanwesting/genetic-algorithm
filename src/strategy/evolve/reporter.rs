@@ -52,17 +52,12 @@ impl<G: Genotype + Sync + Clone + Send> EvolveReporter for Simple<G> {
     }
 }
 
+/// A log-level based reporter for debug and trace, runs on each generation
 #[derive(Clone)]
-pub struct Log<G: Genotype> {
-    pub frequency: usize,
-    _phantom: PhantomData<G>,
-}
-impl<G: Genotype> Log<G> {
-    pub fn new(frequency: usize) -> Self {
-        Self {
-            frequency,
-            _phantom: PhantomData,
-        }
+pub struct Log<G: Genotype>(pub PhantomData<G>);
+impl<G: Genotype> Default for Log<G> {
+    fn default() -> Self {
+        Self(PhantomData)
     }
 }
 impl<G: Genotype + Sync + Clone + Send> EvolveReporter for Log<G> {

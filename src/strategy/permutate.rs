@@ -16,6 +16,7 @@ use num::BigUint;
 use rand::Rng;
 use std::fmt;
 
+pub use self::reporter::Log as PermutateReporterLog;
 pub use self::reporter::Noop as PermutateReporterNoop;
 pub use self::reporter::Simple as PermutateReporterSimple;
 

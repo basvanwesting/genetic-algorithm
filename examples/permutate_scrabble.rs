@@ -241,8 +241,8 @@ impl PermutateReporter for CustomReporter {
 }
 
 #[derive(Clone)]
-pub struct LogReporter(usize);
-impl PermutateReporter for LogReporter {
+pub struct CustomLogReporter(usize);
+impl PermutateReporter for CustomLogReporter {
     type Genotype = MultiDiscreteGenotype<WordPosition>;
 
     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
@@ -327,8 +327,9 @@ fn main() {
         .with_multithreading(true)
         // .with_reporter(PermutateReporterNoop::default())
         // .with_reporter(PermutateReporterSimple::new(100_000))
+        // .with_reporter(PermutateReporterLog:default())
         .with_reporter(CustomReporter(100_000))
-        // .with_reporter(LogReporter(100_000))
+        // .with_reporter(CustomLogReporter(100_000))
         .build()
         .unwrap();
 

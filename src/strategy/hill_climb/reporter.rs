@@ -54,17 +54,12 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Simple<
     }
 }
 
+/// A log-level based reporter for debug and trace, runs on each generation
 #[derive(Clone)]
-pub struct Log<G: IncrementalGenotype> {
-    pub frequency: usize,
-    _phantom: PhantomData<G>,
-}
-impl<G: IncrementalGenotype> Log<G> {
-    pub fn new(frequency: usize) -> Self {
-        Self {
-            frequency,
-            _phantom: PhantomData,
-        }
+pub struct Log<G: IncrementalGenotype>(pub PhantomData<G>);
+impl<G: IncrementalGenotype> Default for Log<G> {
+    fn default() -> Self {
+        Self(PhantomData)
     }
 }
 impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Log<G> {
