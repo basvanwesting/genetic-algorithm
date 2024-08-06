@@ -18,6 +18,7 @@ use std::fmt;
 
 pub use self::reporter::Log as PermutateReporterLog;
 pub use self::reporter::Noop as PermutateReporterNoop;
+pub use self::reporter::Reporter as PermutateReporter;
 pub use self::reporter::Simple as PermutateReporterSimple;
 
 /// All possible combinations of genes are iterated over as chromosomes.
@@ -26,6 +27,10 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///
 /// The `chromosome_permutations_size` is subject to combinatorial explosion, so check the genotype
 /// for practical values before using the [Permutate] strategy.
+///
+/// There are reporting hooks in the loop receiving the [PermutateState], which can by handled by an
+/// [PermutateReporter] (e.g. [PermutateReporterNoop], [PermutateReporterSimple]). But you are encouraged to
+/// roll your own, see [PermutateReporter].
 ///
 /// See [PermutateBuilder] for initialization options.
 ///
@@ -72,22 +77,16 @@ pub struct PermutateConfig {
     pub multithreading: bool,
 }
 
-#[derive(Clone)]
+/// Stores the state of the Permutate strategy. Next to the expected general fields, the following
+/// strategy specific fields are added:
+/// * total_population_size: only the size as the full population is never instantiated simultaneously
 pub struct PermutateState<G: PermutableGenotype> {
-    pub total_population_size: BigUint,
     pub current_iteration: usize,
     pub current_generation: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<G>>,
-}
 
-pub trait PermutateReporter: Clone + Send {
-    type Genotype: PermutableGenotype;
-
-    fn on_start(&mut self, _state: &PermutateState<Self::Genotype>) {}
-    fn on_finish(&mut self, _state: &PermutateState<Self::Genotype>) {}
-    fn on_new_generation(&mut self, _state: &PermutateState<Self::Genotype>) {}
-    fn on_new_best_chromosome(&mut self, _state: &PermutateState<Self::Genotype>) {}
+    pub total_population_size: BigUint,
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
@@ -203,6 +202,9 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     }
     fn current_generation(&self) -> usize {
         self.current_generation
+    }
+    fn current_iteration(&self) -> usize {
+        self.current_iteration
     }
     fn set_best_chromosome(
         &mut self,

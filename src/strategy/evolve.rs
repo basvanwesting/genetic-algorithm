@@ -21,9 +21,9 @@ use std::cell::RefCell;
 use std::fmt;
 use thread_local::ThreadLocal;
 
-// pub use self::reporter::Log as EvolveReporterLog;
 pub use self::reporter::Log as EvolveReporterLog;
 pub use self::reporter::Noop as EvolveReporterNoop;
+pub use self::reporter::Reporter as EvolveReporter;
 pub use self::reporter::Simple as EvolveReporterSimple;
 
 /// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
@@ -41,6 +41,10 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
+///
+/// There are reporting hooks in the loop receiving the [EvolveState], which can by handled by an
+/// [EvolveReporter] (e.g. [EvolveReporterNoop], [EvolveReporterSimple]). But you are encouraged to
+/// roll your own, see [EvolveReporter].
 ///
 /// At the [EvolveBuilder] level, there are two additional mechanisms:
 /// * [call_repeatedly](EvolveBuilder::call_repeatedly): this runs multiple independent evolve
@@ -121,21 +125,16 @@ pub struct EvolveConfig {
     pub multithreading: bool,
 }
 
+/// Stores the state of the Evolve strategy. Next to the expected general fields, the following
+/// strategy specific fields are added:
+/// * population: the population of the current generation
 pub struct EvolveState<G: Genotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<G>>,
+
     pub population: Population<G>,
-}
-
-pub trait EvolveReporter: Clone + Send {
-    type Genotype: Genotype;
-
-    fn on_start(&mut self, _state: &EvolveState<Self::Genotype>) {}
-    fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>) {}
-    fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>) {}
-    fn on_new_best_chromosome(&mut self, _state: &EvolveState<Self::Genotype>) {}
 }
 
 impl<
@@ -185,11 +184,15 @@ impl<
                 .best_chromosome(self.config.fitness_ordering)
                 .cloned()
             {
-                if self.state.update_best_chromosome(
-                    &contending_chromosome,
-                    &self.config.fitness_ordering,
-                    false,
-                ).0 {
+                if self
+                    .state
+                    .update_best_chromosome(
+                        &contending_chromosome,
+                        &self.config.fitness_ordering,
+                        false,
+                    )
+                    .0
+                {
                     self.reporter.on_new_best_chromosome(&self.state);
                 }
             }
@@ -308,6 +311,9 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     }
     fn current_generation(&self) -> usize {
         self.current_generation
+    }
+    fn current_iteration(&self) -> usize {
+        self.current_iteration
     }
     fn set_best_chromosome(
         &mut self,

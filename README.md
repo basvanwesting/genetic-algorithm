@@ -79,14 +79,16 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * See [examples/evolve_monkeys](../main/examples/evolve_monkeys.rs)
     * `DiscreteGenotype<char>` 100 monkeys randomly typing characters in a loop
     * custom fitness using hamming distance
-* Custom Fitness function with LRU cache
-    * See [examples/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)
-    * _Note: doesn't help performance much in this case..._
 * Permutation strategy instead of Evolve strategy for small search spaces, with a 100% guarantee
     * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
 * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
     * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
     * See [examples/hill_climb_table_seating](../main/examples/hill_climb_table_seating.rs)
+* Custom Fitness function with LRU cache
+    * See [examples/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)
+    * _Note: doesn't help performance much in this case..._
+* Custom Reporting implementation
+    * See [examples/permutate_scrabble](../main/examples/permutate_scrabble.rs)
 
 
 ## Tests

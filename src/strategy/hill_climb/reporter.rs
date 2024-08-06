@@ -1,8 +1,47 @@
-use super::{HillClimbReporter, HillClimbState};
+use super::HillClimbState;
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::StrategyState;
 use std::marker::PhantomData;
 
+/// Reporter with event hooks in the HillClimb process.
+/// Since the HillClimb process sets a new best chromosome, even if the fitness is equal, there is
+/// an extra event hook for this situation.
+///
+/// # Example:
+/// You are encouraged to roll your own.
+/// ```rust
+/// use genetic_algorithm::strategy::hill_climb::prelude::*;
+///
+/// #[derive(Clone)]
+/// pub struct CustomReporter(usize);
+/// impl HillClimbReporter for CustomReporter {
+///     type Genotype = BinaryGenotype;
+///
+///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype>) {
+///         println!(
+///             "current_generation: {}, best_fitness_score: {:?}, genes: {:?}",
+///             state.current_generation(),
+///             state.best_fitness_score(),
+///             state
+///               .best_chromosome_as_ref()
+///               .map_or(vec![], |c| c.genes.clone()),
+///         );
+///     }
+/// }
+/// ```
+pub trait Reporter: Clone + Send {
+    type Genotype: IncrementalGenotype;
+
+    fn on_start(&mut self, _state: &HillClimbState<Self::Genotype>) {}
+    fn on_finish(&mut self, _state: &HillClimbState<Self::Genotype>) {}
+    fn on_new_generation(&mut self, _state: &HillClimbState<Self::Genotype>) {}
+    /// used to report on true improvement (new best chromosome with improved fitness)
+    fn on_new_best_chromosome(&mut self, _state: &HillClimbState<Self::Genotype>) {}
+    /// used to report on sideways move (new best chromosome with equal fitness)
+    fn on_new_best_chromosome_equal_fitness(&mut self, _state: &HillClimbState<Self::Genotype>) {}
+}
+
+/// The noop reporter, silences reporting
 #[derive(Clone)]
 pub struct Noop<G: IncrementalGenotype>(pub PhantomData<G>);
 impl<G: IncrementalGenotype> Default for Noop<G> {
@@ -10,28 +49,30 @@ impl<G: IncrementalGenotype> Default for Noop<G> {
         Self(PhantomData)
     }
 }
-impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Noop<G> {
+impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Noop<G> {
     type Genotype = G;
 }
 
+/// A Simple reporter generic over Genotype.
+/// A report is triggered every period generations
 #[derive(Clone)]
 pub struct Simple<G: IncrementalGenotype> {
-    pub frequency: usize,
+    pub period: usize,
     _phantom: PhantomData<G>,
 }
 impl<G: IncrementalGenotype> Simple<G> {
-    pub fn new(frequency: usize) -> Self {
+    pub fn new(period: usize) -> Self {
         Self {
-            frequency,
+            period,
             _phantom: PhantomData,
         }
     }
 }
-impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Simple<G> {
+impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Simple<G> {
     type Genotype = G;
 
     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
-        if state.current_generation() % self.frequency == 0 {
+        if state.current_generation() % self.period == 0 {
             println!(
                 "current_generation: {}, best_generation: {}, best_fitness_score: {:?}, current scale: {:?}, contending_fitness_score: {:?}, neighbouring_population_size: {}",
                 state.current_generation(),
@@ -62,7 +103,7 @@ impl<G: IncrementalGenotype> Default for Log<G> {
         Self(PhantomData)
     }
 }
-impl<G: IncrementalGenotype + Sync + Clone + Send> HillClimbReporter for Log<G> {
+impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Log<G> {
     type Genotype = G;
 
     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {

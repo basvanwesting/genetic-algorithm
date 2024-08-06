@@ -20,6 +20,7 @@ use thread_local::ThreadLocal;
 
 pub use self::reporter::Log as HillClimbReporterLog;
 pub use self::reporter::Noop as HillClimbReporterNoop;
+pub use self::reporter::Reporter as HillClimbReporter;
 pub use self::reporter::Simple as HillClimbReporterSimple;
 
 #[derive(Clone, Debug, Default)]
@@ -31,6 +32,10 @@ pub enum HillClimbVariant {
     SteepestAscentSecondary,
 }
 
+/// Defines the optional scaling of [ContinuousGenotype](crate::genotype::ContinuousGenotype) and
+/// [MultiContinuousGenotype](crate::genotype::MultiContinuousGenotype) neighbouring_chromosomes
+/// The base_scale is the starting scale which is steadily decreased to the min_scale by the scale
+/// factor when no better chromosomes can be found in the current scale.
 #[derive(Clone, Debug)]
 pub struct Scaling {
     pub base_scale: f32,
@@ -76,6 +81,10 @@ pub struct Scaling {
 ///     * the mutated chromosome is taken for the next round.
 ///     * if the scaling is set, the scale is reset to its base scale
 ///     * the stale generation counter is reset (functionally)
+///
+/// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
+/// [HillClimbReporter] (e.g. [HillClimbReporterNoop], [HillClimbReporterSimple]). But you are encouraged to
+/// roll your own, see [HillClimbReporter].
 ///
 /// See [HillClimbBuilder] for initialization options.
 ///
@@ -134,26 +143,20 @@ pub struct HillClimbConfig {
     pub scaling: Option<Scaling>,
 }
 
+/// Stores the state of the HillClimb strategy. Next to the expected general fields, the following
+/// strategy specific fields are added:
+/// * current_scale: see [Scaling]
+/// * contending_chromosome: available for all [variants](HillClimbVariant)
+/// * neighbouring_population: only available for SteepestAscent [variants](HillClimbVariant)
 pub struct HillClimbState<G: IncrementalGenotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
-    pub current_scale: Option<f32>,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<G>>,
+
+    pub current_scale: Option<f32>,
     pub contending_chromosome: Option<Chromosome<G>>,
     pub neighbouring_population: Option<Population<G>>,
-}
-
-pub trait HillClimbReporter: Clone + Send {
-    type Genotype: IncrementalGenotype;
-
-    fn on_start(&mut self, _state: &HillClimbState<Self::Genotype>) {}
-    fn on_finish(&mut self, _state: &HillClimbState<Self::Genotype>) {}
-    fn on_new_generation(&mut self, _state: &HillClimbState<Self::Genotype>) {}
-    // used to report on true improvement (new best chromosome with improved fitness)
-    fn on_new_best_chromosome(&mut self, _state: &HillClimbState<Self::Genotype>) {}
-    // used to report on sideways move (new best chromosome with equal fitness)
-    fn on_new_best_chromosome_equal_fitness(&mut self, _state: &HillClimbState<Self::Genotype>) {}
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
@@ -410,6 +413,9 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     }
     fn current_generation(&self) -> usize {
         self.current_generation
+    }
+    fn current_iteration(&self) -> usize {
+        self.current_iteration
     }
     fn set_best_chromosome(
         &mut self,

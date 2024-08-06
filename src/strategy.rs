@@ -20,12 +20,19 @@ pub trait StrategyConfig {
     fn multithreading(&self) -> bool;
 }
 
+/// Stores the state of the strategy.
+/// The expected general fields are:
+/// * current_iteration: `usize`
+/// * current_generation: `usize`
+/// * best_generation: `usize`
+/// * best_chromosome: `Option<Chromosome<G>>`
 pub trait StrategyState<G: Genotype> {
     fn best_chromosome_as_ref(&self) -> Option<&Chromosome<G>>;
     fn best_chromosome(&self) -> Option<Chromosome<G>>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
+    fn current_iteration(&self) -> usize;
 
     // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
     // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
@@ -87,14 +94,20 @@ pub trait StrategyState<G: Genotype> {
     }
 }
 
-// Supertrait StrategyReporter is not used, because of
-// error[E0658]: associated type defaults are unstable
-// pub trait PermutateReporter: StrategyReporter
-// where
-//     <Self as StrategyReporter>::Genotype: PermutableGenotype,
-// {
-//     type State = PermutateState<Self::Genotype>;
-// }
+/// Reporter with event hooks in the Strategy process
+///
+/// Supertrait StrategyReporter is not used, because of error
+/// [E0658: associated type defaults are unstable](https://github.com/rust-lang/rust/issues/29661)
+/// So it is only shadowed, as if it existed as a supertrait for now.
+///
+/// ```ignore
+/// pub trait PermutateReporter: StrategyReporter
+/// where
+///     <Self as StrategyReporter>::Genotype: PermutableGenotype,
+/// {
+///     type State = PermutateState<Self::Genotype>;
+/// }
+/// ```
 pub trait StrategyReporter: Clone + Send {
     type Genotype: Genotype;
     type State: StrategyState<Self::Genotype>;
