@@ -78,7 +78,7 @@ mod population_tests {
     }
 
     #[test]
-    fn fitness_score_unformity() {
+    fn fitness_score_uniformity() {
         let population = &mut build::population_with_fitness_scores::<BinaryGenotype>(vec![
             (vec![false, false, false], Some(0)),
             (vec![false, false, true], Some(2)),
@@ -88,6 +88,19 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_uniformity(), 0.5);
+    }
+
+    #[test]
+    fn fitness_score_cardinality() {
+        let population = &mut build::population_with_fitness_scores::<BinaryGenotype>(vec![
+            (vec![false, false, false], Some(0)),
+            (vec![false, false, true], Some(2)),
+            (vec![false, true, true], Some(2)),
+            (vec![true, true, true], Some(3)),
+            (vec![true, true, false], None),
+        ]);
+
+        assert_eq!(population.fitness_score_cardinality(), 3);
     }
 
     #[test]
@@ -106,7 +119,7 @@ mod population_tests {
 
         population.trim(0.75, &mut rng);
         assert_eq!(
-            inspect::population(&population),
+            inspect::population(population),
             vec![
                 vec![true, true, true],
                 vec![false, true, false],
@@ -134,7 +147,7 @@ mod population_tests {
 
         population.trim(0.01, &mut rng);
         assert_eq!(
-            inspect::population(&population),
+            inspect::population(population),
             vec![vec![true, true, true], vec![false, true, false],]
         );
     }

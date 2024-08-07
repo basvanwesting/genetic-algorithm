@@ -3,6 +3,7 @@ use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::EvolveConfig;
+use cardinality_estimator::CardinalityEstimator;
 use rand::prelude::*;
 
 #[derive(Clone, Debug)]
@@ -109,6 +110,15 @@ impl<T: Genotype> Population<T> {
         } else {
             0.0
         }
+    }
+
+    pub fn fitness_score_cardinality(&self) -> usize {
+        let mut estimator = CardinalityEstimator::<isize>::new();
+        self.chromosomes
+            .iter()
+            .filter_map(|c| c.fitness_score)
+            .for_each(|f| estimator.insert(&f));
+        estimator.estimate()
     }
 }
 
