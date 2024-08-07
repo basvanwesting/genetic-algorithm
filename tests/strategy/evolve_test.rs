@@ -289,7 +289,7 @@ fn call_binary_mass_degeneration() {
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionMassDegeneration::new(0.95, 10))
+        .with_extension(ExtensionMassDegeneration::new(10, 10))
         .with_reporter(EvolveReporterNoop::default())
         .call(&mut rng)
         .unwrap();
@@ -297,10 +297,10 @@ fn call_binary_mass_degeneration() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    assert_eq!(best_chromosome.fitness_score, Some(8));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, true, true, false]
+        vec![true, true, true, true, true, false, true, false, true, true]
     );
 }
 
@@ -319,7 +319,7 @@ fn call_binary_mass_extinction() {
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionMassExtinction::new(0.9, 0.1))
+        .with_extension(ExtensionMassExtinction::new(10, 0.1))
         .with_reporter(EvolveReporterNoop::default())
         .call(&mut rng)
         .unwrap();
@@ -327,10 +327,10 @@ fn call_binary_mass_extinction() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    assert_eq!(best_chromosome.fitness_score, Some(8));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, true, true, false]
+        vec![false, false, true, true, true, true, true, true, true, true]
     );
 }
 
@@ -349,7 +349,7 @@ fn call_binary_mass_genesis() {
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionMassGenesis::new(0.9))
+        .with_extension(ExtensionMassGenesis::new(10))
         .with_reporter(EvolveReporterNoop::default())
         .call(&mut rng)
         .unwrap();
@@ -357,10 +357,10 @@ fn call_binary_mass_genesis() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    assert_eq!(best_chromosome.fitness_score, Some(8));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, true, true, false]
+        vec![true, true, true, false, true, true, true, true, false, true]
     );
 }
 
@@ -379,7 +379,7 @@ fn call_binary_mass_invasion() {
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionMassInvasion::new(0.9, 0.1))
+        .with_extension(ExtensionMassInvasion::new(10, 0.1))
         .with_reporter(EvolveReporterNoop::default())
         .call(&mut rng)
         .unwrap();
@@ -390,7 +390,7 @@ fn call_binary_mass_invasion() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, true, true, false]
+        vec![true, true, true, false, true, true, true, true, true, true]
     );
 }
 

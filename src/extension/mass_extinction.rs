@@ -4,13 +4,12 @@ use crate::population::Population;
 use crate::strategy::evolve::EvolveConfig;
 use rand::Rng;
 
-/// Simulates a cambrian explosion. The controlling metric is fitness score uniformity in the
-/// population (a fraction of the population which has the same fitness score). When this
-/// uniformity passes the threshold, the population is randomly reduced using the survival_rate
-/// (fraction of population).
+/// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
+/// population. When this cardinality drops to the threshold, the population is randomly reduced
+/// using the survival_rate (fraction of population).
 #[derive(Debug, Clone)]
 pub struct MassExtinction {
-    pub uniformity_threshold: f32,
+    pub cardinality_threshold: usize,
     pub survival_rate: f32,
 }
 
@@ -23,7 +22,7 @@ impl Extension for MassExtinction {
         rng: &mut R,
     ) {
         if population.size() >= evolve_config.target_population_size
-            && population.fitness_score_uniformity() >= self.uniformity_threshold
+            && population.fitness_score_cardinality() <= self.cardinality_threshold
         {
             log::debug!("### extension, mass extinction event");
             population.trim(self.survival_rate, rng);
@@ -32,9 +31,9 @@ impl Extension for MassExtinction {
 }
 
 impl MassExtinction {
-    pub fn new(uniformity_threshold: f32, survival_rate: f32) -> Self {
+    pub fn new(cardinality_threshold: usize, survival_rate: f32) -> Self {
         Self {
-            uniformity_threshold,
+            cardinality_threshold,
             survival_rate,
         }
     }

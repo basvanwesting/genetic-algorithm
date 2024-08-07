@@ -7,7 +7,7 @@ use rand::Rng;
 /// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where only an adam and eve of current best chromosomes survive
 #[derive(Debug, Clone)]
 pub struct MassGenesis {
-    pub uniformity_threshold: f32,
+    pub cardinality_threshold: usize,
 }
 
 impl Extension for MassGenesis {
@@ -19,7 +19,7 @@ impl Extension for MassGenesis {
         _rng: &mut R,
     ) {
         if population.size() >= evolve_config.target_population_size
-            && population.fitness_score_uniformity() >= self.uniformity_threshold
+            && population.fitness_score_cardinality() <= self.cardinality_threshold
         {
             log::debug!("### mass genesis event");
 
@@ -33,9 +33,9 @@ impl Extension for MassGenesis {
 }
 
 impl MassGenesis {
-    pub fn new(uniformity_threshold: f32) -> Self {
+    pub fn new(cardinality_threshold: usize) -> Self {
         Self {
-            uniformity_threshold,
+            cardinality_threshold,
         }
     }
 }

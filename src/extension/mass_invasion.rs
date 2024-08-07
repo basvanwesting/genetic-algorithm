@@ -8,7 +8,7 @@ use rand::Rng;
 /// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where the extinct population is replaced by a random population
 #[derive(Debug, Clone)]
 pub struct MassInvasion {
-    pub uniformity_threshold: f32,
+    pub cardinality_threshold: usize,
     pub survival_rate: f32,
 }
 
@@ -16,11 +16,13 @@ impl Extension for MassInvasion {
     fn call<G: Genotype, R: Rng>(
         &mut self,
         genotype: &G,
-        _evolve_config: &EvolveConfig,
+        evolve_config: &EvolveConfig,
         population: &mut Population<G>,
         rng: &mut R,
     ) {
-        if population.fitness_score_uniformity() >= self.uniformity_threshold {
+        if population.size() >= evolve_config.target_population_size
+            && population.fitness_score_cardinality() <= self.cardinality_threshold
+        {
             log::debug!("### mass invasion event");
             let bool_sampler = Bernoulli::new(self.survival_rate as f64).unwrap();
             for chromosome in &mut population.chromosomes {
@@ -34,9 +36,9 @@ impl Extension for MassInvasion {
 }
 
 impl MassInvasion {
-    pub fn new(uniformity_threshold: f32, survival_rate: f32) -> Self {
+    pub fn new(cardinality_threshold: usize, survival_rate: f32) -> Self {
         Self {
-            uniformity_threshold,
+            cardinality_threshold,
             survival_rate,
         }
     }

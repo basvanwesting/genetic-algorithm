@@ -18,9 +18,10 @@ use std::marker::PhantomData;
 ///     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
-///                 "periodic - current_generation: {}, best_generation: {}, current_population_size: {}",
+///                 "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}",
 ///                 state.current_generation(),
 ///                 state.best_generation(),
+///                 state.population.fitness_score_cardinality(),
 ///                 state.population.size(),
 ///             );
 ///         }
@@ -81,9 +82,10 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Simple<G> {
     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
         if state.current_generation() % self.period == 0 {
             println!(
-                "periodic - current_generation: {}, best_generation: {}, current_population_size: {}",
+                "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}",
                 state.current_generation(),
                 state.best_generation(),
+                state.population.fitness_score_cardinality(),
                 state.population.size(),
             );
         }
@@ -117,7 +119,7 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Log<G> {
 
     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
         log::debug!(
-            "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/uniformity/best-prevalence): {:?} / {} / {:?} / {:.0} / {:.0} / {:4.4} / {}",
+            "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/cardinality): {:?} / {} / {:?} / {:.0} / {:.0} / {}",
             state.current_generation(),
             state.best_generation(),
             state.population.age_mean(),
@@ -126,8 +128,7 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Log<G> {
             state.population.fitness_score_median(),
             state.population.fitness_score_mean(),
             state.population.fitness_score_stddev(),
-            state.population.fitness_score_uniformity(),
-            state.population.fitness_score_prevalence(state.best_fitness_score()),
+            state.population.fitness_score_cardinality(),
         );
 
         log::trace!(
