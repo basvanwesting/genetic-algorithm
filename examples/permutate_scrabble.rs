@@ -335,7 +335,7 @@ fn main() {
         .with_multithreading(true)
         // .with_reporter(PermutateReporterNoop::default())
         // .with_reporter(PermutateReporterSimple::new(100_000, true))
-        // .with_reporter(PermutateReporterLog:default())
+        // .with_reporter(PermutateReporterLog::default())
         .with_reporter(CustomReporter(100_000))
         // .with_reporter(CustomLogReporter(100_000))
         .build()

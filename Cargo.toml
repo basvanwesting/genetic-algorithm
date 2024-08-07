@@ -24,7 +24,6 @@ crossbeam = "0.8"
 rayon = "1.5.3"
 thread_local = "1.1"
 log = "0.4.0"
-env_logger = "0.11.3"
 
 [dev-dependencies]
 lru = "0.7.5"
@@ -33,6 +32,7 @@ pprof = { version = "0.13", features = ["criterion", "flamegraph"] }
 distance = "0.4.0"
 chrono = "0.4.22"
 statrs = "0.16.0"
+env_logger = "0.11.3"
 
 # for profiling and flamegraph
 #[profile.release]
