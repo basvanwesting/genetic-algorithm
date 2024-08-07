@@ -18,7 +18,7 @@ fn binary_genotype() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateMultiGeneRandom::new(0.5).call(&genotype, population, &mut rng);
+    MutateMultiGeneRandom::new(0.5, 2).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -47,7 +47,7 @@ fn discrete_genotype() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateMultiGeneRandom::new(0.5).call(&genotype, population, &mut rng);
+    MutateMultiGeneRandom::new(0.5, 2).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),

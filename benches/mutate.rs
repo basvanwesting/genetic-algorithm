@@ -14,7 +14,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     let mutates: Vec<MutateWrapper> = vec![
         MutateSingleGeneRandom::new(0.2).into(),
-        MutateMultiGeneRandom::new(0.2).into(),
+        // MutateMultiGeneRandom::new(0.2, 1).into(),
+        MutateMultiGeneRandom::new(0.2, 2).into(),
+        // MutateMultiGeneRandom::new(0.2, 3).into(),
         MutateSingleGeneRandomDynamic::new(0.2, 0.5).into(),
         MutateDynamicRounds::new(0.2, 0.5).into(),
     ];
