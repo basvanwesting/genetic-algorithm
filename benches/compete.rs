@@ -4,12 +4,13 @@ use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
-use genetic_algorithm::strategy::evolve::EvolveConfig;
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
+    let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::from_entropy();
     let population_sizes = vec![250, 500, 1000, 2000];
     let fitness_ordering = FitnessOrdering::Minimize;
@@ -38,7 +39,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             let target_population_size = population_size;
             let source_population_size = population_size * 2;
 
-            let evolve_config = EvolveConfig {
+            let config = EvolveConfig {
                 target_population_size: *target_population_size,
                 fitness_ordering,
                 ..Default::default()
@@ -47,16 +48,17 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             let chromosomes = (0..source_population_size)
                 .map(|_| genotype.chromosome_factory(&mut rng))
                 .collect();
-            let population = &mut Population::new(chromosomes);
-            CountTrue.call_for_population(population, None);
+            let population = Population::new(chromosomes);
+            let mut state = EvolveState::new(population);
+            CountTrue.call_for_population(&mut state.population, None);
 
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}", compete), population_size),
                 population_size,
                 |b, &_population_size| {
                     b.iter_batched(
-                        || population.clone(),
-                        |mut data| compete.call(&mut data, &evolve_config, &mut rng),
+                        || state.clone(),
+                        |mut data| compete.call(&mut data, &config, &mut reporter, &mut rng),
                         BatchSize::SmallInput,
                     )
                 },

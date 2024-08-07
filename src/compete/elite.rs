@@ -1,8 +1,7 @@
 use super::Compete;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::EvolveConfig;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
 use std::cmp::Reverse;
 
@@ -12,18 +11,21 @@ use std::cmp::Reverse;
 #[derive(Clone, Debug)]
 pub struct Elite;
 impl Compete for Elite {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        population: &mut Population<T>,
-        evolve_config: &EvolveConfig,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        _reporter: &mut SR,
         _rng: &mut R,
     ) {
-        match evolve_config.fitness_ordering {
-            FitnessOrdering::Maximize => population
+        match config.fitness_ordering {
+            FitnessOrdering::Maximize => state
+                .population
                 .chromosomes
                 .sort_unstable_by_key(|c| c.fitness_score),
             FitnessOrdering::Minimize => {
-                population
+                state
+                    .population
                     .chromosomes
                     .sort_unstable_by_key(|c| match c.fitness_score {
                         Some(fitness_score) => Reverse(fitness_score),
@@ -31,9 +33,9 @@ impl Compete for Elite {
                     })
             }
         }
-        if population.size() > evolve_config.target_population_size {
-            let to_drain_from_first = population.size() - evolve_config.target_population_size;
-            population.chromosomes.drain(..to_drain_from_first);
+        if state.population.size() > config.target_population_size {
+            let to_drain_from_first = state.population.size() - config.target_population_size;
+            state.population.chromosomes.drain(..to_drain_from_first);
         }
     }
 }

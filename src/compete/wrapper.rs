@@ -3,8 +3,7 @@ pub use super::tournament::Tournament as CompeteTournament;
 pub use super::Compete;
 
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::EvolveConfig;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
 
 #[derive(Clone, Debug)]
@@ -14,15 +13,16 @@ pub enum Wrapper {
 }
 
 impl Compete for Wrapper {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        population: &mut Population<T>,
-        evolve_config: &EvolveConfig,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
         rng: &mut R,
     ) {
         match self {
-            Wrapper::Elite(compete) => compete.call(population, evolve_config, rng),
-            Wrapper::Tournament(compete) => compete.call(population, evolve_config, rng),
+            Wrapper::Elite(compete) => compete.call(state, config, reporter, rng),
+            Wrapper::Tournament(compete) => compete.call(state, config, reporter, rng),
         }
     }
 }

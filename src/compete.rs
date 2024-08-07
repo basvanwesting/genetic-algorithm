@@ -10,15 +10,15 @@ pub use self::tournament::Tournament as CompeteTournament;
 pub use self::wrapper::Wrapper as CompeteWrapper;
 
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::EvolveConfig;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
 
 pub trait Compete: Clone + std::fmt::Debug {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        population: &mut Population<T>,
-        evolve_config: &EvolveConfig,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
         rng: &mut R,
     );
 }

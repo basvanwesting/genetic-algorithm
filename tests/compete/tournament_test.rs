@@ -4,11 +4,11 @@ use genetic_algorithm::compete::{Compete, CompeteTournament};
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::BinaryGenotype;
-use genetic_algorithm::strategy::evolve::EvolveConfig;
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
 fn maximize_population_surplus() {
-    let population = &mut build::population::<BinaryGenotype>(vec![
+    let population = build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
@@ -19,17 +19,19 @@ fn maximize_population_surplus() {
         vec![true, true, true],
     ]);
 
+    let mut state = EvolveState::new(population);
+    let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(population, None);
-    let evolve_config = EvolveConfig {
+    CountTrue.call_for_population(&mut state.population, None);
+    let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Maximize,
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population(population),
+        inspect::population(&state.population),
         vec![
             vec![true, true, true],
             vec![true, true, false],
@@ -41,29 +43,31 @@ fn maximize_population_surplus() {
 
 #[test]
 fn maximize_population_shortage() {
-    let population = &mut build::population::<BinaryGenotype>(vec![
+    let population = build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],
     ]);
 
+    let mut state = EvolveState::new(population);
+    let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(population, None);
-    let evolve_config = EvolveConfig {
+    CountTrue.call_for_population(&mut state.population, None);
+    let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Maximize,
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population(population),
+        inspect::population(&state.population),
         vec![vec![false, false, true], vec![false, false, false],]
     );
 }
 
 #[test]
 fn minimize_population_surplus() {
-    let population = &mut build::population::<BinaryGenotype>(vec![
+    let population = build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
@@ -74,17 +78,19 @@ fn minimize_population_surplus() {
         vec![true, true, true],
     ]);
 
+    let mut state = EvolveState::new(population);
+    let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(population, None);
-    let evolve_config = EvolveConfig {
+    CountTrue.call_for_population(&mut state.population, None);
+    let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population(population),
+        inspect::population(&state.population),
         vec![
             vec![false, false, false],
             vec![false, true, false],
@@ -96,29 +102,31 @@ fn minimize_population_surplus() {
 
 #[test]
 fn minimize_population_shortage() {
-    let population = &mut build::population::<BinaryGenotype>(vec![
+    let population = build::population::<BinaryGenotype>(vec![
         vec![false, false, false],
         vec![false, false, true],
     ]);
 
+    let mut state = EvolveState::new(population);
+    let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(population, None);
-    let evolve_config = EvolveConfig {
+    CountTrue.call_for_population(&mut state.population, None);
+    let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population(population),
+        inspect::population(&state.population),
         vec![vec![false, false, false], vec![false, false, true],]
     );
 }
 
 #[test]
 fn minimize_population_surplus_with_none_fitness() {
-    let population = &mut build::population_with_fitness_scores::<BinaryGenotype>(vec![
+    let population = build::population_with_fitness_scores::<BinaryGenotype>(vec![
         (vec![false, false, false], Some(0)),
         (vec![false, false, true], None),
         (vec![false, true, false], Some(1)),
@@ -129,16 +137,18 @@ fn minimize_population_surplus_with_none_fitness() {
         (vec![true, true, true], Some(3)),
     ]);
 
+    let mut state = EvolveState::new(population);
+    let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
-    let evolve_config = EvolveConfig {
+    let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population_with_fitness_scores(population),
+        inspect::population_with_fitness_scores(&state.population),
         vec![
             (vec![false, false, false], Some(0)),
             (vec![false, true, false], Some(1)),
@@ -150,22 +160,24 @@ fn minimize_population_surplus_with_none_fitness() {
 
 #[test]
 fn minimize_population_shortage_with_none_fitness() {
-    let population = &mut build::population_with_fitness_scores::<BinaryGenotype>(vec![
+    let population = build::population_with_fitness_scores::<BinaryGenotype>(vec![
         (vec![false, false, false], None),
         (vec![false, false, true], Some(1)),
         (vec![false, true, true], Some(2)),
     ]);
 
+    let mut state = EvolveState::new(population);
+    let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
-    let evolve_config = EvolveConfig {
+    let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(population, &evolve_config, &mut rng);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population_with_fitness_scores(population),
+        inspect::population_with_fitness_scores(&state.population),
         vec![
             (vec![false, false, true], Some(1)),
             (vec![false, true, true], Some(2)),

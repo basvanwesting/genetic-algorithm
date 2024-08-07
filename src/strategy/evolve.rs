@@ -182,7 +182,7 @@ impl<
                 .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
             self.plugins
                 .compete
-                .call(&mut self.state.population, &self.config, rng);
+                .call(&mut self.state, &self.config, &mut self.reporter, rng);
 
             if let Some(contending_chromosome) = self
                 .state
