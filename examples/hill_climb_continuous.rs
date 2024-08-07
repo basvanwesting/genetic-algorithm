@@ -20,8 +20,9 @@ fn main() {
 
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::Stochastic)
-        .with_target_fitness_score(99 * 100_000)
+        // .with_variant(HillClimbVariant::Stochastic)
+        .with_variant(HillClimbVariant::SteepestAscent)
+        .with_target_fitness_score(100 * 100_000)
         .with_scaling(Scaling::new(1.0, 0.8, 1e-5))
         .with_fitness(SumContinuousGenotype(1e-5))
         // .with_reporter(HillClimbReporterNoop::default())

@@ -113,6 +113,7 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Use log instread of env_logger as this is a library not an executable
 * Investigate implementing population uniformity as cardinality estimate
 * Implement defaults ReporterNoop en ExtensionNoop in builder
+* Review scaling in HillClimb as it doesn't feel right in its design approach
 
 ## MAYBE
 * Add Roulette competition with and without duplicates (with fitness ordering)

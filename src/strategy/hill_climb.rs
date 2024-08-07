@@ -36,6 +36,8 @@ pub enum HillClimbVariant {
 /// [MultiContinuousGenotype](crate::genotype::MultiContinuousGenotype) neighbouring_chromosomes
 /// The base_scale is the starting scale which is steadily decreased to the min_scale by the scale
 /// factor when no better chromosomes can be found in the current scale.
+/// Only meaningful for SteepestAscent [variants](HillClimbVariant), as Stochastic variants are not
+/// directed enough to benefit from scaling.
 #[derive(Clone, Debug)]
 pub struct Scaling {
     pub base_scale: f32,
@@ -75,7 +77,7 @@ pub struct Scaling {
 ///     * the stale generation counter is incremented (functionally)
 /// * If the fitness is equal
 ///     * the mutated chromosome is taken for the next round.
-///     * if the scaling is set, the scale is reduced to zoom in on the local solution
+///     * if the scaling is set, the scale is reset to its base scale
 ///     * the stale generation counter is incremented (functionally)
 /// * If the fitness is better
 ///     * the mutated chromosome is taken for the next round.
