@@ -1,5 +1,5 @@
-pub use super::multi_gene_random_dynamic::MultiGeneRandomDynamic as MutateMultiGeneRandomDynamic;
 pub use super::multi_gene_random::MultiGeneRandom as MutateMultiGeneRandom;
+pub use super::multi_gene_random_dynamic::MultiGeneRandomDynamic as MutateMultiGeneRandomDynamic;
 pub use super::single_gene_distance::SingleGeneDistance as MutateSingleGeneDistance;
 pub use super::single_gene_random::SingleGeneRandom as MutateSingleGeneRandom;
 pub use super::single_gene_random_dynamic::SingleGeneRandomDynamic as MutateSingleGeneRandomDynamic;
@@ -11,8 +11,8 @@ use rand::Rng;
 
 #[derive(Clone, Debug)]
 pub enum Wrapper {
-    MultiGeneRandomDynamic(MutateMultiGeneRandomDynamic),
     MultiGeneRandom(MutateMultiGeneRandom),
+    MultiGeneRandomDynamic(MutateMultiGeneRandomDynamic),
     SingleGeneDistance(MutateSingleGeneDistance),
     SingleGeneRandom(MutateSingleGeneRandom),
     SingleGeneRandomDynamic(MutateSingleGeneRandomDynamic),
@@ -26,8 +26,8 @@ impl Mutate for Wrapper {
         rng: &mut R,
     ) {
         match self {
-            Wrapper::MultiGeneRandomDynamic(mutate) => mutate.call(genotype, population, rng),
             Wrapper::MultiGeneRandom(mutate) => mutate.call(genotype, population, rng),
+            Wrapper::MultiGeneRandomDynamic(mutate) => mutate.call(genotype, population, rng),
             Wrapper::SingleGeneDistance(mutate) => mutate.call(genotype, population, rng),
             Wrapper::SingleGeneRandom(mutate) => mutate.call(genotype, population, rng),
             Wrapper::SingleGeneRandomDynamic(mutate) => mutate.call(genotype, population, rng),
@@ -35,8 +35,8 @@ impl Mutate for Wrapper {
     }
     fn report(&self) -> String {
         match self {
-            Wrapper::MultiGeneRandomDynamic(mutate) => mutate.report(),
             Wrapper::MultiGeneRandom(mutate) => mutate.report(),
+            Wrapper::MultiGeneRandomDynamic(mutate) => mutate.report(),
             Wrapper::SingleGeneDistance(mutate) => mutate.report(),
             Wrapper::SingleGeneRandom(mutate) => mutate.report(),
             Wrapper::SingleGeneRandomDynamic(mutate) => mutate.report(),

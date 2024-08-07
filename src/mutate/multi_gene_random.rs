@@ -12,8 +12,8 @@ use rand::Rng;
 /// number_of_mutations to two in that situation.
 #[derive(Debug, Clone)]
 pub struct MultiGeneRandom {
-    pub mutation_probability: f32,
     pub number_of_mutations: usize,
+    pub mutation_probability: f32,
 }
 
 impl Mutate for MultiGeneRandom {
@@ -34,17 +34,17 @@ impl Mutate for MultiGeneRandom {
     }
     fn report(&self) -> String {
         format!(
-            "multi_gene_random: {:2.2}, {}",
-            self.mutation_probability, self.number_of_mutations
+            "multi-gene-random: {}, {:2.2}",
+            self.number_of_mutations, self.mutation_probability,
         )
     }
 }
 
 impl MultiGeneRandom {
-    pub fn new(mutation_probability: f32, number_of_mutations: usize) -> Self {
+    pub fn new(number_of_mutations: usize, mutation_probability: f32) -> Self {
         Self {
-            mutation_probability,
             number_of_mutations,
+            mutation_probability,
         }
     }
 }
