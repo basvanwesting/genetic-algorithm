@@ -170,9 +170,12 @@ impl<
             self.plugins
                 .crossover
                 .call(&self.genotype, &mut self.state.population, rng);
-            self.plugins
-                .mutate
-                .call(&self.genotype, &mut self.state.population, rng);
+            self.plugins.mutate.call(
+                &self.genotype,
+                &mut self.state.population,
+                &mut self.reporter,
+                rng,
+            );
             self.fitness
                 .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
             self.plugins

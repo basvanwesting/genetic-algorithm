@@ -17,14 +17,21 @@ pub use self::wrapper::Wrapper as MutateWrapper;
 
 use crate::genotype::Genotype;
 use crate::population::Population;
+use crate::strategy::evolve::EvolveReporter;
 use rand::Rng;
 
 pub trait Mutate: Clone + std::fmt::Debug {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &T,
-        population: &mut Population<T>,
+        genotype: &G,
+        population: &mut Population<G>,
+        reporter: &mut SR,
         rng: &mut R,
     );
     fn report(&self) -> String;
+}
+
+#[derive(Clone, Debug)]
+pub enum MutateEvent {
+    ChangeMutationProbability(String),
 }

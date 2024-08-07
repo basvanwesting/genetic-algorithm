@@ -2,6 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGeneDistance};
+use genetic_algorithm::strategy::evolve::EvolveReporterNoop;
 
 #[test]
 fn continuous_genotype() {
@@ -18,8 +19,14 @@ fn continuous_genotype() {
         vec![0.5, 0.5, 0.5],
     ]);
 
+    let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(&genotype, population, &mut rng);
+    MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(
+        &genotype,
+        population,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(population),
@@ -31,9 +38,24 @@ fn continuous_genotype() {
         ]
     );
 
-    MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(&genotype, population, &mut rng);
-    MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(&genotype, population, &mut rng);
-    MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(&genotype, population, &mut rng);
+    MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(
+        &genotype,
+        population,
+        &mut reporter,
+        &mut rng,
+    );
+    MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(
+        &genotype,
+        population,
+        &mut reporter,
+        &mut rng,
+    );
+    MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(
+        &genotype,
+        population,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(population),

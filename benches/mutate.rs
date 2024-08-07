@@ -4,12 +4,15 @@ use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::mutate::*;
 use genetic_algorithm::population::Population;
+use genetic_algorithm::strategy::evolve::EvolveReporterNoop;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
+    let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::from_entropy();
+
     let population_sizes = vec![250, 500, 1000, 2000];
 
     let mut group = c.benchmark_group("mutates");
@@ -47,7 +50,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 |b, &_population_size| {
                     b.iter_batched(
                         || population.clone(),
-                        |mut data| mutate.call(&genotype, &mut data, &mut rng),
+                        |mut data| mutate.call(&genotype, &mut data, &mut reporter, &mut rng),
                         BatchSize::SmallInput,
                     )
                 },

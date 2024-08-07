@@ -1,6 +1,7 @@
-use super::Mutate;
+use super::{Mutate, MutateEvent};
 use crate::genotype::Genotype;
 use crate::population::Population;
+use crate::strategy::evolve::EvolveReporter;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
@@ -21,10 +22,11 @@ pub struct MultiGeneRandomDynamic {
 }
 
 impl Mutate for MultiGeneRandomDynamic {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &T,
-        population: &mut Population<T>,
+        genotype: &G,
+        population: &mut Population<G>,
+        reporter: &mut SR,
         rng: &mut R,
     ) {
         if population.fitness_score_cardinality() < self.target_cardinality {
@@ -34,10 +36,10 @@ impl Mutate for MultiGeneRandomDynamic {
             self.mutation_probability =
                 (self.mutation_probability - self.mutation_probability_step).max(0.0);
         }
-        log::trace!(
-            "### multi_gene_random_dynamic mutation probability: {}",
+        reporter.on_mutate_event(MutateEvent::ChangeMutationProbability(format!(
+            "set to {:0.3}",
             self.mutation_probability
-        );
+        )));
 
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
         for chromosome in population.chromosomes.iter_mut().filter(|c| c.age == 0) {

@@ -1,6 +1,7 @@
 use super::Mutate;
 use crate::genotype::{ContinuousGenotypeAllele, Genotype};
 use crate::population::Population;
+use crate::strategy::evolve::EvolveReporter;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use std::ops::Range;
@@ -16,10 +17,11 @@ pub struct SingleGeneDistance {
 }
 
 impl Mutate for SingleGeneDistance {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &T,
-        population: &mut Population<T>,
+        genotype: &G,
+        population: &mut Population<G>,
+        _reporter: &mut SR,
         rng: &mut R,
     ) {
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
