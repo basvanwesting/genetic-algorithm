@@ -62,6 +62,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(MILPFitness)
         .with_reporter(HillClimbReporterNoop::default());
+    // .with_reporter(HillClimbReporterSimple::new(100, false));
 
     for _ in 0..10 {
         let now = std::time::Instant::now();

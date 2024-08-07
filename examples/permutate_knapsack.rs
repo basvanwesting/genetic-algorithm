@@ -81,7 +81,7 @@ fn main() {
         .with_genotype(genotype)
         .with_fitness(fitness)
         // .with_reporter(PermutateReporterNoop::default())
-        .with_reporter(PermutateReporterSimple::new(100))
+        .with_reporter(PermutateReporterSimple::new(100, true))
         .build()
         .unwrap();
 

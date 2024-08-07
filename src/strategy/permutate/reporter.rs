@@ -65,12 +65,14 @@ impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Noop<G> {
 #[derive(Clone)]
 pub struct Simple<G: PermutableGenotype> {
     pub period: usize,
+    pub show_genes: bool,
     _phantom: PhantomData<G>,
 }
 impl<G: PermutableGenotype> Simple<G> {
-    pub fn new(period: usize) -> Self {
+    pub fn new(period: usize, show_genes: bool) -> Self {
         Self {
             period,
+            show_genes,
             _phantom: PhantomData,
         }
     }
@@ -94,7 +96,11 @@ impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Simple<G> {
             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
-            state.best_chromosome_as_ref().map(|c| &c.genes),
+            if self.show_genes {
+                state.best_chromosome_as_ref().map(|c| &c.genes)
+            } else {
+                None
+            },
         );
     }
 }
