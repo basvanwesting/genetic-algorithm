@@ -21,7 +21,7 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateDynamicOnce, MutateDynamicRounds, MutateOnce, MutateSingleGeneDistance, MutateTwice,
+    MutateDynamicOnce, MutateDynamicRounds, MutateSingleGeneRandom, MutateSingleGeneDistance, MutateTwice,
     MutateWrapper,
 };
 #[doc(no_inline)]

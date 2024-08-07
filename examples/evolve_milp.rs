@@ -55,7 +55,7 @@ fn main() {
         .with_max_stale_generations(100)
         .with_target_fitness_score(TARGET_SCORE)
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_mutate(MutateOnce::new(0.4))
+        .with_mutate(MutateSingleGeneRandom::new(0.4))
         .with_fitness(MILPFitness)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteElite::new())

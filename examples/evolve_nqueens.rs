@@ -49,7 +49,7 @@ fn main() {
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_mutate(MutateOnce::new(0.2))
+        .with_mutate(MutateSingleGeneRandom::new(0.2))
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteElite::new())
         .with_extension(ExtensionNoop::new())

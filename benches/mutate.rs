@@ -13,7 +13,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let population_sizes = vec![250, 500, 1000, 2000];
 
     let mutates: Vec<MutateWrapper> = vec![
-        MutateOnce::new(0.2).into(),
+        MutateSingleGeneRandom::new(0.2).into(),
         MutateTwice::new(0.2).into(),
         MutateDynamicOnce::new(0.2, 0.5).into(),
         MutateDynamicRounds::new(0.2, 0.5).into(),

@@ -48,7 +48,7 @@
 //!     .with_target_fitness_score(100)   // goal is 100 times true in the best chromosome
 //!     .with_fitness(CountTrue)          // count the number of true values in the chromosomes
 //!     .with_crossover(CrossoverUniform::new(true)) // crossover all individual genes between 2 chromosomes for offspring
-//!     .with_mutate(MutateOnce::new(0.2))    // mutate a single gene with a 20% probability per chromosome
+//!     .with_mutate(MutateSingleGeneRandom::new(0.2))    // mutate a single gene with a 20% probability per chromosome
 //!     .with_compete(CompeteElite::new())    // sort the chromosomes by fitness to determine crossover order
 //!     .with_extension(ExtensionNoop::new()) // extension step, disabled
 //!     .with_reporter(EvolveReporterNoop::default()) // no reporter

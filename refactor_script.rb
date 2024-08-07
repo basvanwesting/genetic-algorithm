@@ -10,10 +10,11 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /chromosome_neighbours/ => 'neighbouring_population',
+  /mutate_once/ => 'mutate_singe_gene_random',
 }
 
 other_translations = {
+  /MutateOnce/ => 'MutateSingleGeneRandom'
 }
 
 #check:

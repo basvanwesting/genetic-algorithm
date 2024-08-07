@@ -7,11 +7,11 @@ use rand::Rng;
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the provided mutation_probability. Then mutates the
 /// selected chromosomes once using random mutation.
 #[derive(Debug, Clone)]
-pub struct Once {
+pub struct SingleGeneRandom {
     pub mutation_probability: f32,
 }
 
-impl Mutate for Once {
+impl Mutate for SingleGeneRandom {
     fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
@@ -30,7 +30,7 @@ impl Mutate for Once {
     }
 }
 
-impl Once {
+impl SingleGeneRandom {
     pub fn new(mutation_probability: f32) -> Self {
         Self {
             mutation_probability,

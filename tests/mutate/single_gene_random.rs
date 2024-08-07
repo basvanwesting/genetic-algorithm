@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{BinaryGenotype, DiscreteGenotype, Genotype};
-use genetic_algorithm::mutate::{Mutate, MutateOnce};
+use genetic_algorithm::mutate::{Mutate, MutateSingleGeneRandom};
 
 #[test]
 fn binary_genotype() {
@@ -18,7 +18,7 @@ fn binary_genotype() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateOnce::new(0.5).call(&genotype, population, &mut rng);
+    MutateSingleGeneRandom::new(0.5).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
@@ -47,7 +47,7 @@ fn discrete_genotype() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateOnce::new(0.5).call(&genotype, population, &mut rng);
+    MutateSingleGeneRandom::new(0.5).call(&genotype, population, &mut rng);
 
     assert_eq!(
         inspect::population(population),
