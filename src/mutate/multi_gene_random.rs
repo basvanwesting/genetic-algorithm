@@ -5,16 +5,16 @@ use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the provided
-/// mutation_probability. Then mutates the selected chromosomes twice using random mutation. Useful
+/// mutation_probability. Then mutates the selected chromosomes multi_gene_random using random mutation. Useful
 /// when a single mutation would generally not lead to improvement, because the problem space
 /// behaves more like a [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be
 /// swapped (but the UniqueGenotype doesn't map to the problem space well)
 #[derive(Debug, Clone)]
-pub struct Twice {
+pub struct MultiGeneRandom {
     pub mutation_probability: f32,
 }
 
-impl Mutate for Twice {
+impl Mutate for MultiGeneRandom {
     fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
@@ -30,11 +30,11 @@ impl Mutate for Twice {
         }
     }
     fn report(&self) -> String {
-        format!("twice: {:2.2}", self.mutation_probability)
+        format!("multi_gene_random: {:2.2}", self.mutation_probability)
     }
 }
 
-impl Twice {
+impl MultiGeneRandom {
     pub fn new(mutation_probability: f32) -> Self {
         Self {
             mutation_probability,

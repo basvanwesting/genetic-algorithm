@@ -271,7 +271,7 @@ fn main() {
         .with_target_population_size(1000)
         .with_max_stale_generations(250)
         .with_max_chromosome_age(10)
-        .with_mutate(MutateTwice::new(0.2))
+        .with_mutate(MutateMultiGeneRandom::new(0.2))
         //.with_mutate(MutateSingleGeneRandomDynamic::new(0.01, 0.25))
         //.with_mutate(MutateDynamicRounds::new(0.1, 0.5))
         //.with_crossover(CrossoverSinglePoint::new(true))
