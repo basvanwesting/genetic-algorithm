@@ -32,18 +32,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         CountTrue.call_for_population(population, None);
 
         group.bench_with_input(
-            BenchmarkId::new("fitness_score_uniformity, low", population_size),
-            population_size,
-            |b, &_population_size| {
-                b.iter_batched(
-                    || population.clone(),
-                    |data| data.fitness_score_uniformity(),
-                    BatchSize::SmallInput,
-                )
-            },
-        );
-
-        group.bench_with_input(
             BenchmarkId::new("fitness_score_cardinality, low", population_size),
             population_size,
             |b, &_population_size| {
@@ -61,18 +49,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .collect();
         let population = &mut Population::new(chromosomes);
         CountTrue.call_for_population(population, None);
-
-        group.bench_with_input(
-            BenchmarkId::new("fitness_score_uniformity, high", population_size),
-            population_size,
-            |b, &_population_size| {
-                b.iter_batched(
-                    || population.clone(),
-                    |data| data.fitness_score_uniformity(),
-                    BatchSize::SmallInput,
-                )
-            },
-        );
 
         group.bench_with_input(
             BenchmarkId::new("fitness_score_cardinality, high", population_size),

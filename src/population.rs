@@ -76,8 +76,11 @@ impl<T: Genotype> Population<T> {
     pub fn age_mean(&self) -> f32 {
         stats::mean(self.chromosomes.iter().map(|c| c.age)) as f32
     }
-    pub fn fitness_score_stddev(&self) -> f32 {
-        stats::stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
+    pub fn fitness_score_count(&self) -> usize {
+        self.chromosomes
+            .iter()
+            .filter(|c| c.fitness_score.is_some())
+            .count()
     }
     pub fn fitness_score_median(&self) -> Option<isize> {
         stats::median(self.chromosomes.iter().filter_map(|c| c.fitness_score)).map(|v| v as isize)
@@ -85,33 +88,9 @@ impl<T: Genotype> Population<T> {
     pub fn fitness_score_mean(&self) -> f32 {
         stats::mean(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
     }
-    pub fn fitness_score_present(&self, fitness_score: Option<isize>) -> bool {
-        self.chromosomes
-            .iter()
-            .any(|c| c.fitness_score == fitness_score)
+    pub fn fitness_score_stddev(&self) -> f32 {
+        stats::stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
     }
-    pub fn fitness_score_prevalence(&self, fitness_score: Option<isize>) -> usize {
-        self.chromosomes
-            .iter()
-            .filter(|c| c.fitness_score == fitness_score)
-            .count()
-    }
-    pub fn fitness_score_count(&self) -> usize {
-        self.chromosomes
-            .iter()
-            .filter(|c| c.fitness_score.is_some())
-            .count()
-    }
-    pub fn fitness_score_uniformity(&self) -> f32 {
-        let median_fitness_score = self.fitness_score_median();
-        if median_fitness_score.is_some() {
-            self.fitness_score_prevalence(median_fitness_score) as f32
-                / self.fitness_score_count() as f32
-        } else {
-            0.0
-        }
-    }
-
     pub fn fitness_score_cardinality(&self) -> usize {
         let mut estimator = CardinalityEstimator::<isize>::new();
         self.chromosomes
@@ -119,6 +98,11 @@ impl<T: Genotype> Population<T> {
             .filter_map(|c| c.fitness_score)
             .for_each(|f| estimator.insert(&f));
         estimator.estimate()
+    }
+    pub fn fitness_score_present(&self, fitness_score: Option<isize>) -> bool {
+        self.chromosomes
+            .iter()
+            .any(|c| c.fitness_score == fitness_score)
     }
 }
 
