@@ -17,15 +17,24 @@ pub use self::wrapper::Wrapper as ExtensionWrapper;
 
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crate::strategy::evolve::EvolveConfig;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter};
 use rand::Rng;
 
 pub trait Extension: Clone + std::fmt::Debug {
-    fn call<G: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         evolve_config: &EvolveConfig,
         population: &mut Population<G>,
+        reporter: &mut SR,
         rng: &mut R,
     );
+}
+
+#[derive(Clone, Debug)]
+pub enum ExtensionEvent {
+    MassDegeneration(String),
+    MassExtinction(String),
+    MassGenesis(String),
+    MassInvasion(String),
 }

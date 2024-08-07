@@ -1,7 +1,7 @@
-use super::Extension;
+use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crate::strategy::evolve::EvolveConfig;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter};
 use rand::Rng;
 
 /// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
@@ -14,17 +14,18 @@ pub struct MassExtinction {
 }
 
 impl Extension for MassExtinction {
-    fn call<G: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
         evolve_config: &EvolveConfig,
         population: &mut Population<G>,
+        reporter: &mut SR,
         rng: &mut R,
     ) {
         if population.size() >= evolve_config.target_population_size
             && population.fitness_score_cardinality() <= self.cardinality_threshold
         {
-            log::debug!("### extension, mass extinction event");
+            reporter.on_extension_event(ExtensionEvent::MassExtinction("".to_string()));
             population.trim(self.survival_rate, rng);
         }
     }

@@ -164,6 +164,7 @@ impl<
                 &self.genotype,
                 &self.config,
                 &mut self.state.population,
+                &mut self.reporter,
                 rng,
             );
             self.plugins

@@ -1,4 +1,5 @@
 use super::EvolveState;
+use crate::extension::ExtensionEvent;
 use crate::genotype::Genotype;
 use crate::strategy::StrategyState;
 use std::marker::PhantomData;
@@ -45,6 +46,7 @@ pub trait Reporter: Clone + Send {
     fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>) {}
     fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>) {}
     fn on_new_best_chromosome(&mut self, _state: &EvolveState<Self::Genotype>) {}
+    fn on_extension_event(&mut self, _event: ExtensionEvent) {}
 }
 
 /// The noop reporter, silences reporting
@@ -103,6 +105,23 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Simple<G> {
             },
             state.population.size(),
         );
+    }
+
+    fn on_extension_event(&mut self, event: ExtensionEvent) {
+        match event {
+            ExtensionEvent::MassDegeneration(message) => {
+                println!("extension event - mass degeneration - {}", message)
+            }
+            ExtensionEvent::MassExtinction(message) => {
+                println!("extension event - mass extinction - {}", message)
+            }
+            ExtensionEvent::MassGenesis(message) => {
+                println!("extension event - mass genesis - {}", message)
+            }
+            ExtensionEvent::MassInvasion(message) => {
+                println!("extension event - mass invasion - {}", message)
+            }
+        }
     }
 }
 

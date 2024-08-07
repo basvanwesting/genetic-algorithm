@@ -8,7 +8,7 @@ pub use crate::crossover::{
 };
 #[doc(no_inline)]
 pub use crate::extension::{
-    ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
+    ExtensionEvent, ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
     ExtensionMassInvasion, ExtensionNoop, ExtensionWrapper,
 };
 #[doc(no_inline)]
@@ -21,8 +21,8 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateSingleGeneRandomDynamic, MutateMultiGeneRandomDynamic, MutateSingleGeneRandom, MutateSingleGeneDistance, MutateMultiGeneRandom,
-    MutateWrapper,
+    MutateMultiGeneRandom, MutateMultiGeneRandomDynamic, MutateSingleGeneDistance,
+    MutateSingleGeneRandom, MutateSingleGeneRandomDynamic, MutateWrapper,
 };
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{

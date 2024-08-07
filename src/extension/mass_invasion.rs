@@ -1,7 +1,7 @@
-use super::Extension;
+use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crate::strategy::evolve::EvolveConfig;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
@@ -13,17 +13,18 @@ pub struct MassInvasion {
 }
 
 impl Extension for MassInvasion {
-    fn call<G: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         evolve_config: &EvolveConfig,
         population: &mut Population<G>,
+        reporter: &mut SR,
         rng: &mut R,
     ) {
         if population.size() >= evolve_config.target_population_size
             && population.fitness_score_cardinality() <= self.cardinality_threshold
         {
-            log::debug!("### mass invasion event");
+            reporter.on_extension_event(ExtensionEvent::MassInvasion("".to_string()));
             let bool_sampler = Bernoulli::new(self.survival_rate as f64).unwrap();
             for chromosome in &mut population.chromosomes {
                 if !bool_sampler.sample(rng) {

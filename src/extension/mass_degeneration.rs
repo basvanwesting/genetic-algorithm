@@ -1,7 +1,7 @@
-use super::Extension;
+use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crate::strategy::evolve::EvolveConfig;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
@@ -15,18 +15,18 @@ pub struct MassDegeneration {
 }
 
 impl Extension for MassDegeneration {
-    fn call<G: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         evolve_config: &EvolveConfig,
         population: &mut Population<G>,
+        reporter: &mut SR,
         rng: &mut R,
     ) {
         if population.size() >= evolve_config.target_population_size
             && population.fitness_score_cardinality() <= self.cardinality_threshold
         {
-            log::debug!("### mass degeneration event");
-
+            reporter.on_extension_event(ExtensionEvent::MassDegeneration("".to_string()));
             let bool_sampler = Bernoulli::new(0.2).unwrap();
             for _ in 0..self.number_of_rounds {
                 for chromosome in &mut population.chromosomes {
