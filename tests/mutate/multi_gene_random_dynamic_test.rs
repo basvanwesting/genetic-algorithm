@@ -3,7 +3,7 @@ use crate::support::*;
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
-use genetic_algorithm::mutate::{Mutate, MutateDynamicRounds};
+use genetic_algorithm::mutate::{Mutate, MutateMultiGeneRandomDynamic};
 
 #[test]
 fn binary_genotype() {
@@ -26,7 +26,7 @@ fn binary_genotype() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut mutate = MutateDynamicRounds::new(0.2, 0.9);
+    let mut mutate = MutateMultiGeneRandomDynamic::new(0.2, 0.9);
     let mut fitness = CountTrue;
     assert_eq!(mutate.number_of_rounds, 0);
     fitness.call_for_population_single_thread(population);

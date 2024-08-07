@@ -1,4 +1,4 @@
-pub use super::dynamic_rounds::DynamicRounds as MutateDynamicRounds;
+pub use super::multi_gene_random_dynamic::MultiGeneRandomDynamic as MutateMultiGeneRandomDynamic;
 pub use super::multi_gene_random::MultiGeneRandom as MutateMultiGeneRandom;
 pub use super::single_gene_distance::SingleGeneDistance as MutateSingleGeneDistance;
 pub use super::single_gene_random::SingleGeneRandom as MutateSingleGeneRandom;
@@ -11,7 +11,7 @@ use rand::Rng;
 
 #[derive(Clone, Debug)]
 pub enum Wrapper {
-    DynamicRounds(MutateDynamicRounds),
+    MultiGeneRandomDynamic(MutateMultiGeneRandomDynamic),
     MultiGeneRandom(MutateMultiGeneRandom),
     SingleGeneDistance(MutateSingleGeneDistance),
     SingleGeneRandom(MutateSingleGeneRandom),
@@ -26,7 +26,7 @@ impl Mutate for Wrapper {
         rng: &mut R,
     ) {
         match self {
-            Wrapper::DynamicRounds(mutate) => mutate.call(genotype, population, rng),
+            Wrapper::MultiGeneRandomDynamic(mutate) => mutate.call(genotype, population, rng),
             Wrapper::MultiGeneRandom(mutate) => mutate.call(genotype, population, rng),
             Wrapper::SingleGeneDistance(mutate) => mutate.call(genotype, population, rng),
             Wrapper::SingleGeneRandom(mutate) => mutate.call(genotype, population, rng),
@@ -35,7 +35,7 @@ impl Mutate for Wrapper {
     }
     fn report(&self) -> String {
         match self {
-            Wrapper::DynamicRounds(mutate) => mutate.report(),
+            Wrapper::MultiGeneRandomDynamic(mutate) => mutate.report(),
             Wrapper::MultiGeneRandom(mutate) => mutate.report(),
             Wrapper::SingleGeneDistance(mutate) => mutate.report(),
             Wrapper::SingleGeneRandom(mutate) => mutate.report(),
@@ -59,9 +59,9 @@ impl From<MutateSingleGeneRandomDynamic> for Wrapper {
         Wrapper::SingleGeneRandomDynamic(mutate)
     }
 }
-impl From<MutateDynamicRounds> for Wrapper {
-    fn from(mutate: MutateDynamicRounds) -> Self {
-        Wrapper::DynamicRounds(mutate)
+impl From<MutateMultiGeneRandomDynamic> for Wrapper {
+    fn from(mutate: MutateMultiGeneRandomDynamic) -> Self {
+        Wrapper::MultiGeneRandomDynamic(mutate)
     }
 }
 impl From<MutateSingleGeneDistance> for Wrapper {

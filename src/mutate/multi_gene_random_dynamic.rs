@@ -9,13 +9,13 @@ use rand::Rng;
 /// random mutation. The number of rounds is dynamically increased or decreased to achieve a target
 /// population uniformity
 #[derive(Debug, Clone, Default)]
-pub struct DynamicRounds {
+pub struct MultiGeneRandomDynamic {
     pub mutation_probability: f32,
     pub number_of_rounds: usize,
     pub target_uniformity: f32,
 }
 
-impl Mutate for DynamicRounds {
+impl Mutate for MultiGeneRandomDynamic {
     fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
@@ -28,7 +28,7 @@ impl Mutate for DynamicRounds {
             self.number_of_rounds -= 1
         }
         log::trace!(
-            "### dynamic_rounds mutation probability: {}, rounds: {}",
+            "### multi_gene_random_dynamic mutation probability: {}, rounds: {}",
             self.mutation_probability,
             self.number_of_rounds
         );
@@ -47,7 +47,7 @@ impl Mutate for DynamicRounds {
     }
 }
 
-impl DynamicRounds {
+impl MultiGeneRandomDynamic {
     pub fn new(mutation_probability: f32, target_uniformity: f32) -> Self {
         Self {
             mutation_probability,
