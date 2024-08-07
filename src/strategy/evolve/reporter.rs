@@ -69,13 +69,22 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Noop<G> {
 pub struct Simple<G: Genotype> {
     pub period: usize,
     pub show_genes: bool,
+    pub show_mutate_event: bool,
+    pub show_extension_event: bool,
     _phantom: PhantomData<G>,
 }
 impl<G: Genotype> Simple<G> {
-    pub fn new(period: usize, show_genes: bool) -> Self {
+    pub fn new(
+        period: usize,
+        show_genes: bool,
+        show_mutate_event: bool,
+        show_extension_event: bool,
+    ) -> Self {
         Self {
             period,
             show_genes,
+            show_mutate_event,
+            show_extension_event,
             _phantom: PhantomData,
         }
     }
@@ -110,26 +119,30 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Simple<G> {
     }
 
     fn on_extension_event(&mut self, event: ExtensionEvent) {
-        match event {
-            ExtensionEvent::MassDegeneration(message) => {
-                println!("extension event - mass degeneration - {}", message)
-            }
-            ExtensionEvent::MassExtinction(message) => {
-                println!("extension event - mass extinction - {}", message)
-            }
-            ExtensionEvent::MassGenesis(message) => {
-                println!("extension event - mass genesis - {}", message)
-            }
-            ExtensionEvent::MassInvasion(message) => {
-                println!("extension event - mass invasion - {}", message)
+        if self.show_extension_event {
+            match event {
+                ExtensionEvent::MassDegeneration(message) => {
+                    println!("extension event - mass degeneration - {}", message)
+                }
+                ExtensionEvent::MassExtinction(message) => {
+                    println!("extension event - mass extinction - {}", message)
+                }
+                ExtensionEvent::MassGenesis(message) => {
+                    println!("extension event - mass genesis - {}", message)
+                }
+                ExtensionEvent::MassInvasion(message) => {
+                    println!("extension event - mass invasion - {}", message)
+                }
             }
         }
     }
 
     fn on_mutate_event(&mut self, event: MutateEvent) {
-        match event {
-            MutateEvent::ChangeMutationProbability(message) => {
-                println!("mutate event - change mutation probability - {}", message)
+        if self.show_mutate_event {
+            match event {
+                MutateEvent::ChangeMutationProbability(message) => {
+                    println!("mutate event - change mutation probability - {}", message)
+                }
             }
         }
     }
