@@ -18,7 +18,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         MutateMultiGeneRandom::new(0.2, 2).into(),
         // MutateMultiGeneRandom::new(0.2, 3).into(),
         MutateSingleGeneRandomDynamic::new(0.2, 0.5).into(),
-        MutateMultiGeneRandomDynamic::new(0.2, 0.5).into(),
+        MutateMultiGeneRandomDynamic::new(2, 0.2, 0.5).into(),
     ];
 
     let mut group = c.benchmark_group("mutates");

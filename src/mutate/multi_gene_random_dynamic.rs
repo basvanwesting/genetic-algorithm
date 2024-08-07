@@ -4,14 +4,19 @@ use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
-/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the provided
-/// mutation_probability. Repeatedly (number of rounds) mutates the selected chromosomes once using
-/// random mutation. The number of rounds is dynamically increased or decreased to achieve a target
-/// population uniformity
+/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the dynamically
+/// updated mutation_probability. Then mutates the selected chromosomes the provided number of
+/// times using random mutation. The mutation probability is dynamically increased or decreased to
+/// achieve a target population uniformity.
+/// Useful when a single mutation would generally not lead to improvement, because the problem
+/// space behaves more like a [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be
+/// swapped (but the UniqueGenotype doesn't map to the problem space well). Set number_of_mutations
+/// to two in that situation.
 #[derive(Debug, Clone, Default)]
 pub struct MultiGeneRandomDynamic {
+    pub number_of_mutations: usize,
     pub mutation_probability: f32,
-    pub number_of_rounds: usize,
+    pub mutation_probability_step: f32,
     pub target_uniformity: f32,
 }
 
@@ -23,34 +28,43 @@ impl Mutate for MultiGeneRandomDynamic {
         rng: &mut R,
     ) {
         if population.fitness_score_uniformity() > self.target_uniformity {
-            self.number_of_rounds += 1
-        } else if self.number_of_rounds > 0 {
-            self.number_of_rounds -= 1
+            self.mutation_probability =
+                (self.mutation_probability + self.mutation_probability_step).min(1.0);
+        } else {
+            self.mutation_probability =
+                (self.mutation_probability - self.mutation_probability_step).max(0.0);
         }
         log::trace!(
-            "### multi_gene_random_dynamic mutation probability: {}, rounds: {}",
-            self.mutation_probability,
-            self.number_of_rounds
+            "### multi_gene_random_dynamic mutation probability: {}",
+            self.mutation_probability
         );
 
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
         for chromosome in population.chromosomes.iter_mut().filter(|c| c.age == 0) {
-            for _ in 0..self.number_of_rounds {
-                if bool_sampler.sample(rng) {
+            if bool_sampler.sample(rng) {
+                for _ in 0..self.number_of_mutations {
                     genotype.mutate_chromosome_random(chromosome, rng);
                 }
             }
         }
     }
     fn report(&self) -> String {
-        format!("dynamic-rounds: {}", self.number_of_rounds)
+        format!(
+            "multi-gene-random-dynamic: {}, {:2.2}",
+            self.number_of_mutations, self.mutation_probability
+        )
     }
 }
 
 impl MultiGeneRandomDynamic {
-    pub fn new(mutation_probability: f32, target_uniformity: f32) -> Self {
+    pub fn new(
+        number_of_mutations: usize,
+        mutation_probability_step: f32,
+        target_uniformity: f32,
+    ) -> Self {
         Self {
-            mutation_probability,
+            number_of_mutations,
+            mutation_probability_step,
             target_uniformity,
             ..Default::default()
         }

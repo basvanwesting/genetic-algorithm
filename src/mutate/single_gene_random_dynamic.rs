@@ -4,9 +4,10 @@ use crate::population::Population;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
-/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the provided
-/// mutation_probability. Then mutates the selected chromosomes once using random mutation. The
-/// mutation probability is dynamically increased or decreased to achieve a target population uniformity
+/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the dynamically
+/// updated mutation_probability. Then mutates the selected chromosomes once using random mutation.
+/// The mutation probability is dynamically increased or decreased to achieve a target population
+/// uniformity
 #[derive(Debug, Clone, Default)]
 pub struct SingleGeneRandomDynamic {
     pub mutation_probability: f32,

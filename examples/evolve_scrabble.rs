@@ -273,7 +273,7 @@ fn main() {
         .with_max_chromosome_age(10)
         .with_mutate(MutateMultiGeneRandom::new(0.2, 2))
         //.with_mutate(MutateSingleGeneRandomDynamic::new(0.01, 0.25))
-        //.with_mutate(MutateMultiGeneRandomDynamic::new(0.1, 0.5))
+        //.with_mutate(MutateMultiGeneRandomDynamic::new(2, 0.1, 0.5))
         //.with_crossover(CrossoverSinglePoint::new(true))
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
