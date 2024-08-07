@@ -5,7 +5,7 @@ pub use super::uniform::Uniform as CrossoverUniform;
 pub use super::Crossover;
 
 use crate::genotype::Genotype;
-use crate::population::Population;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
 #[derive(Clone, Debug)]
@@ -17,17 +17,23 @@ pub enum Wrapper {
 }
 
 impl Crossover for Wrapper {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &T,
-        population: &mut Population<T>,
+        genotype: &G,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
         rng: &mut R,
     ) {
         match self {
-            Wrapper::Clone(crossover) => crossover.call(genotype, population, rng),
-            Wrapper::SingleGene(crossover) => crossover.call(genotype, population, rng),
-            Wrapper::SinglePoint(crossover) => crossover.call(genotype, population, rng),
-            Wrapper::Uniform(crossover) => crossover.call(genotype, population, rng),
+            Wrapper::Clone(crossover) => crossover.call(genotype, state, config, reporter, rng),
+            Wrapper::SingleGene(crossover) => {
+                crossover.call(genotype, state, config, reporter, rng)
+            }
+            Wrapper::SinglePoint(crossover) => {
+                crossover.call(genotype, state, config, reporter, rng)
+            }
+            Wrapper::Uniform(crossover) => crossover.call(genotype, state, config, reporter, rng),
         }
     }
 

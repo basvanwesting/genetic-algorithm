@@ -1,7 +1,7 @@
 use super::Crossover;
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
-use crate::population::Population;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Distribution, Slice};
 use rand::Rng;
 
@@ -15,22 +15,25 @@ pub struct SinglePoint {
     pub keep_parent: bool,
 }
 impl Crossover for SinglePoint {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &T,
-        population: &mut Population<T>,
+        genotype: &G,
+        state: &mut EvolveState<G>,
+        _config: &EvolveConfig,
+        _reporter: &mut SR,
         rng: &mut R,
     ) {
-        if population.size() < 2 {
+        if state.population.size() < 2 {
             return;
         }
 
         let crossover_points = genotype.crossover_points();
         let crossover_point_sampler = Slice::new(&crossover_points).unwrap();
         if self.keep_parent {
-            let mut child_chromosomes: Vec<Chromosome<T>> = Vec::with_capacity(population.size());
+            let mut child_chromosomes: Vec<Chromosome<G>> =
+                Vec::with_capacity(state.population.size());
 
-            for chunk in population.chromosomes.chunks(2) {
+            for chunk in state.population.chromosomes.chunks(2) {
                 if let [father, mother] = chunk {
                     let index = crossover_point_sampler.sample(rng);
                     let mut child_father_genes = father.genes.clone();
@@ -46,9 +49,9 @@ impl Crossover for SinglePoint {
                     child_chromosomes.push(Chromosome::new(child_mother_genes));
                 }
             }
-            population.chromosomes.append(&mut child_chromosomes);
+            state.population.chromosomes.append(&mut child_chromosomes);
         } else {
-            for chunk in population.chromosomes.chunks_mut(2) {
+            for chunk in state.population.chromosomes.chunks_mut(2) {
                 if let [father, mother] = chunk {
                     let index = crossover_point_sampler.sample(rng);
 

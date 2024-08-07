@@ -168,9 +168,13 @@ impl<
                 &mut self.reporter,
                 rng,
             );
-            self.plugins
-                .crossover
-                .call(&self.genotype, &mut self.state.population, rng);
+            self.plugins.crossover.call(
+                &self.genotype,
+                &mut self.state,
+                &self.config,
+                &mut self.reporter,
+                rng,
+            );
             self.plugins.mutate.call(
                 &self.genotype,
                 &mut self.state,

@@ -1,6 +1,6 @@
 use super::Crossover;
 use crate::genotype::Genotype;
-use crate::population::Population;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
 /// Children are clones of the parents, effectively doubling the population if you keep the parents.
@@ -12,16 +12,18 @@ pub struct Clone {
     pub keep_parent: bool,
 }
 impl Crossover for Clone {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        _genotype: &T,
-        population: &mut Population<T>,
+        _genotype: &G,
+        state: &mut EvolveState<G>,
+        _config: &EvolveConfig,
+        _reporter: &mut SR,
         _rng: &mut R,
     ) {
         if self.keep_parent {
-            let mut clones = population.clone();
+            let mut clones = state.population.clone();
             clones.reset_age();
-            population.merge(&mut clones);
+            state.population.merge(&mut clones);
         }
     }
 

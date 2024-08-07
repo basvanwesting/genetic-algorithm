@@ -16,14 +16,16 @@ pub use self::uniform::Uniform as CrossoverUniform;
 pub use self::wrapper::Wrapper as CrossoverWrapper;
 
 use crate::genotype::Genotype;
-use crate::population::Population;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
 pub trait Crossover: Clone + std::fmt::Debug {
-    fn call<T: Genotype, R: Rng>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &T,
-        population: &mut Population<T>,
+        genotype: &G,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
         rng: &mut R,
     );
 
