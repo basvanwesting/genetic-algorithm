@@ -271,9 +271,9 @@ fn main() {
         .with_target_population_size(1000)
         .with_max_stale_generations(2500)
         .with_max_chromosome_age(50)
-        // .with_mutate(MutateMultiGeneRandom::new(2, 0.2))
+        .with_mutate(MutateMultiGeneRandom::new(2, 0.2))
         //.with_mutate(MutateSingleGeneRandomDynamic::new(0.01, 250))
-        .with_mutate(MutateMultiGeneRandomDynamic::new(2, 0.1, 250))
+        // .with_mutate(MutateMultiGeneRandomDynamic::new(2, 0.1, 250))
         //.with_crossover(CrossoverSinglePoint::new(true))
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -292,7 +292,7 @@ fn main() {
             column_scores.clone(),
             false,
         ))
-        .with_reporter(EvolveReporterSimple::new(100, false, false, false));
+        .with_reporter(EvolveReporterSimple::new(100, false, false, true));
     // .with_reporter(EvolveReporterNoop::default());
 
     let now = std::time::Instant::now();

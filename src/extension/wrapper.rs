@@ -6,8 +6,7 @@ pub use super::noop::Noop as ExtensionNoop;
 pub use super::Extension;
 
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveReporter};
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
 #[derive(Clone, Debug)]
@@ -23,26 +22,24 @@ impl Extension for Wrapper {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        evolve_config: &EvolveConfig,
-        population: &mut Population<G>,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
     ) {
         match self {
-            Wrapper::Noop(extension) => {
-                extension.call(genotype, evolve_config, population, reporter, rng)
-            }
+            Wrapper::Noop(extension) => extension.call(genotype, state, config, reporter, rng),
             Wrapper::MassExtinction(extension) => {
-                extension.call(genotype, evolve_config, population, reporter, rng)
+                extension.call(genotype, state, config, reporter, rng)
             }
             Wrapper::MassGenesis(extension) => {
-                extension.call(genotype, evolve_config, population, reporter, rng)
+                extension.call(genotype, state, config, reporter, rng)
             }
             Wrapper::MassInvasion(extension) => {
-                extension.call(genotype, evolve_config, population, reporter, rng)
+                extension.call(genotype, state, config, reporter, rng)
             }
             Wrapper::MassDegeneration(extension) => {
-                extension.call(genotype, evolve_config, population, reporter, rng)
+                extension.call(genotype, state, config, reporter, rng)
             }
         }
     }

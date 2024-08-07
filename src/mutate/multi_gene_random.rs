@@ -1,11 +1,10 @@
 use super::Mutate;
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::EvolveReporter;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
-/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the provided
+/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population](crate::population::Population) with the provided
 /// mutation_probability. Then mutates the selected chromosomes the provided number of times using
 /// random mutation. Useful when a single mutation would generally not lead to improvement, because
 /// the problem space behaves more like a [UniqueGenotype](crate::genotype::UniqueGenotype) where
@@ -21,12 +20,18 @@ impl Mutate for MultiGeneRandom {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        population: &mut Population<G>,
+        state: &mut EvolveState<G>,
+        _config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
     ) {
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
-        for chromosome in population.chromosomes.iter_mut().filter(|c| c.age == 0) {
+        for chromosome in state
+            .population
+            .chromosomes
+            .iter_mut()
+            .filter(|c| c.age == 0)
+        {
             if bool_sampler.sample(rng) {
                 for _ in 0..self.number_of_mutations {
                     genotype.mutate_chromosome_random(chromosome, rng);

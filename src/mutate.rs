@@ -16,15 +16,15 @@ pub use self::single_gene_random_dynamic::SingleGeneRandomDynamic as MutateSingl
 pub use self::wrapper::Wrapper as MutateWrapper;
 
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::EvolveReporter;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
 pub trait Mutate: Clone + std::fmt::Debug {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        population: &mut Population<G>,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
     );

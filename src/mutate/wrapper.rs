@@ -6,8 +6,7 @@ pub use super::single_gene_random_dynamic::SingleGeneRandomDynamic as MutateSing
 pub use super::Mutate;
 
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::EvolveReporter;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
 #[derive(Clone, Debug)]
@@ -23,19 +22,24 @@ impl Mutate for Wrapper {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        population: &mut Population<G>,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
     ) {
         match self {
-            Wrapper::MultiGeneRandom(mutate) => mutate.call(genotype, population, reporter, rng),
+            Wrapper::MultiGeneRandom(mutate) => mutate.call(genotype, state, config, reporter, rng),
             Wrapper::MultiGeneRandomDynamic(mutate) => {
-                mutate.call(genotype, population, reporter, rng)
+                mutate.call(genotype, state, config, reporter, rng)
             }
-            Wrapper::SingleGeneDistance(mutate) => mutate.call(genotype, population, reporter, rng),
-            Wrapper::SingleGeneRandom(mutate) => mutate.call(genotype, population, reporter, rng),
+            Wrapper::SingleGeneDistance(mutate) => {
+                mutate.call(genotype, state, config, reporter, rng)
+            }
+            Wrapper::SingleGeneRandom(mutate) => {
+                mutate.call(genotype, state, config, reporter, rng)
+            }
             Wrapper::SingleGeneRandomDynamic(mutate) => {
-                mutate.call(genotype, population, reporter, rng)
+                mutate.call(genotype, state, config, reporter, rng)
             }
         }
     }

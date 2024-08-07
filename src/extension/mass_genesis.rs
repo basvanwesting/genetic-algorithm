@@ -1,7 +1,6 @@
 use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveReporter};
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
 /// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where only an adam and eve of current best chromosomes survive
@@ -14,19 +13,19 @@ impl Extension for MassGenesis {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
-        evolve_config: &EvolveConfig,
-        population: &mut Population<G>,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
         reporter: &mut SR,
         _rng: &mut R,
     ) {
-        if population.size() >= evolve_config.target_population_size
-            && population.fitness_score_cardinality() <= self.cardinality_threshold
+        if state.population.size() >= config.target_population_size
+            && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
-            reporter.on_extension_event(ExtensionEvent::MassGenesis("".to_string()));
-            if let Some(best_chromosome) =
-                population.best_chromosome(evolve_config.fitness_ordering)
+            reporter.on_extension_event(state, ExtensionEvent::MassGenesis("".to_string()));
+            if let Some(best_chromosome) = state.population.best_chromosome(config.fitness_ordering)
             {
-                population.chromosomes = vec![best_chromosome.clone(), best_chromosome.clone()]
+                state.population.chromosomes =
+                    vec![best_chromosome.clone(), best_chromosome.clone()]
             }
         }
     }

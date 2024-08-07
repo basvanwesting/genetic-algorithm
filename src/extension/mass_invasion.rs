@@ -1,7 +1,6 @@
 use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveReporter};
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
@@ -16,17 +15,17 @@ impl Extension for MassInvasion {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        evolve_config: &EvolveConfig,
-        population: &mut Population<G>,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
     ) {
-        if population.size() >= evolve_config.target_population_size
-            && population.fitness_score_cardinality() <= self.cardinality_threshold
+        if state.population.size() >= config.target_population_size
+            && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
-            reporter.on_extension_event(ExtensionEvent::MassInvasion("".to_string()));
+            reporter.on_extension_event(state, ExtensionEvent::MassInvasion("".to_string()));
             let bool_sampler = Bernoulli::new(self.survival_rate as f64).unwrap();
-            for chromosome in &mut population.chromosomes {
+            for chromosome in &mut state.population.chromosomes {
                 if !bool_sampler.sample(rng) {
                     chromosome.genes = genotype.random_genes_factory(rng);
                     chromosome.taint_fitness_score();

@@ -47,7 +47,8 @@ pub trait Reporter: Clone + Send {
     fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>) {}
     fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>) {}
     fn on_new_best_chromosome(&mut self, _state: &EvolveState<Self::Genotype>) {}
-    fn on_extension_event(&mut self, _event: ExtensionEvent) {}
+    fn on_extension_event(&mut self, _state: &EvolveState<Self::Genotype>, _event: ExtensionEvent) {
+    }
     fn on_mutate_event(&mut self, _event: MutateEvent) {}
 }
 
@@ -118,20 +119,36 @@ impl<G: Genotype + Sync + Clone + Send> Reporter for Simple<G> {
         );
     }
 
-    fn on_extension_event(&mut self, event: ExtensionEvent) {
+    fn on_extension_event(&mut self, state: &EvolveState<Self::Genotype>, event: ExtensionEvent) {
         if self.show_extension_event {
             match event {
                 ExtensionEvent::MassDegeneration(message) => {
-                    println!("extension event - mass degeneration - {}", message)
+                    println!(
+                        "extension event - mass degeneration - current generation {} - {}",
+                        state.current_generation(),
+                        message
+                    )
                 }
                 ExtensionEvent::MassExtinction(message) => {
-                    println!("extension event - mass extinction - {}", message)
+                    println!(
+                        "extension event - mass extinction - current generation {} - {}",
+                        state.current_generation(),
+                        message
+                    )
                 }
                 ExtensionEvent::MassGenesis(message) => {
-                    println!("extension event - mass genesis - {}", message)
+                    println!(
+                        "extension event - mass genesis - current generation {} - {}",
+                        state.current_generation(),
+                        message
+                    )
                 }
                 ExtensionEvent::MassInvasion(message) => {
-                    println!("extension event - mass invasion - {}", message)
+                    println!(
+                        "extension event - mass invasion - current generation {} - {}",
+                        state.current_generation(),
+                        message
+                    )
                 }
             }
         }

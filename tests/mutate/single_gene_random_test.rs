@@ -2,7 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::genotype::{BinaryGenotype, DiscreteGenotype, Genotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGeneRandom};
-use genetic_algorithm::strategy::evolve::EvolveReporterNoop;
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
 fn binary_genotype() {
@@ -11,19 +11,21 @@ fn binary_genotype() {
         .build()
         .unwrap();
 
-    let population = &mut build::population(vec![
+    let population = build::population(vec![
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],
     ]);
 
+    let mut state = EvolveState::new(population);
+    let config = EvolveConfig::default();
     let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, population, &mut reporter, &mut rng);
+    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population(population),
+        inspect::population(&state.population),
         vec![
             vec![true, false, true],
             vec![true, true, true],
@@ -41,19 +43,21 @@ fn discrete_genotype() {
         .build()
         .unwrap();
 
-    let population = &mut build::population(vec![
+    let population = build::population(vec![
         vec![0, 0, 0],
         vec![0, 0, 0],
         vec![0, 0, 0],
         vec![0, 0, 0],
     ]);
 
+    let mut state = EvolveState::new(population);
+    let config = EvolveConfig::default();
     let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, population, &mut reporter, &mut rng);
+    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population(population),
+        inspect::population(&state.population),
         vec![vec![0, 3, 0], vec![0, 0, 3], vec![0, 0, 0], vec![0, 3, 0],]
     );
 }

@@ -2,7 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGeneDistance};
-use genetic_algorithm::strategy::evolve::EvolveReporterNoop;
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
 fn continuous_genotype() {
@@ -12,24 +12,27 @@ fn continuous_genotype() {
         .build()
         .unwrap();
 
-    let population = &mut build::population(vec![
+    let population = build::population(vec![
         vec![0.5, 0.5, 0.5],
         vec![0.5, 0.5, 0.5],
         vec![0.5, 0.5, 0.5],
         vec![0.5, 0.5, 0.5],
     ]);
 
+    let mut state = EvolveState::new(population);
+    let config = EvolveConfig::default();
     let mut reporter = EvolveReporterNoop::default();
     let mut rng = SmallRng::seed_from_u64(0);
     MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(
         &genotype,
-        population,
+        &mut state,
+        &config,
         &mut reporter,
         &mut rng,
     );
 
     assert_eq!(
-        inspect::population(population),
+        inspect::population(&state.population),
         vec![
             vec![0.5, 0.45608598, 0.5],
             vec![0.5, 0.5, 0.5],
@@ -40,25 +43,28 @@ fn continuous_genotype() {
 
     MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(
         &genotype,
-        population,
+        &mut state,
+        &config,
         &mut reporter,
         &mut rng,
     );
     MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(
         &genotype,
-        population,
+        &mut state,
+        &config,
         &mut reporter,
         &mut rng,
     );
     MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(
         &genotype,
-        population,
+        &mut state,
+        &config,
         &mut reporter,
         &mut rng,
     );
 
     assert_eq!(
-        inspect::population(population),
+        inspect::population(&state.population),
         vec![
             vec![0.46048558, 0.37730217, 0.58177435],
             vec![0.46539983, 0.4746074, 0.5],

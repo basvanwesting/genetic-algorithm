@@ -16,16 +16,15 @@ pub use self::noop::Noop as ExtensionNoop;
 pub use self::wrapper::Wrapper as ExtensionWrapper;
 
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveReporter};
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
 pub trait Extension: Clone + std::fmt::Debug {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        evolve_config: &EvolveConfig,
-        population: &mut Population<G>,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
     );

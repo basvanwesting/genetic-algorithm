@@ -1,11 +1,10 @@
 use super::{Mutate, MutateEvent};
 use crate::genotype::Genotype;
-use crate::population::Population;
-use crate::strategy::evolve::EvolveReporter;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
-/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the dynamically
+/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population](crate::population::Population) with the dynamically
 /// updated mutation_probability. Then mutates the selected chromosomes once using random mutation.
 /// The mutation probability is dynamically increased or decreased to achieve a target population
 /// cardinality
@@ -20,11 +19,12 @@ impl Mutate for SingleGeneRandomDynamic {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        population: &mut Population<G>,
+        state: &mut EvolveState<G>,
+        _config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
     ) {
-        if population.fitness_score_cardinality() < self.target_cardinality {
+        if state.population.fitness_score_cardinality() < self.target_cardinality {
             self.mutation_probability =
                 (self.mutation_probability + self.mutation_probability_step).min(1.0);
         } else {
@@ -37,7 +37,12 @@ impl Mutate for SingleGeneRandomDynamic {
         )));
 
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
-        for chromosome in population.chromosomes.iter_mut().filter(|c| c.age == 0) {
+        for chromosome in state
+            .population
+            .chromosomes
+            .iter_mut()
+            .filter(|c| c.age == 0)
+        {
             if bool_sampler.sample(rng) {
                 genotype.mutate_chromosome_random(chromosome, rng);
             }

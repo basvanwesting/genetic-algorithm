@@ -128,6 +128,7 @@ pub struct EvolveConfig {
 /// Stores the state of the Evolve strategy. Next to the expected general fields, the following
 /// strategy specific fields are added:
 /// * population: the population of the current generation
+#[derive(Clone)]
 pub struct EvolveState<G: Genotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
@@ -162,8 +163,8 @@ impl<
 
             self.plugins.extension.call(
                 &self.genotype,
+                &mut self.state,
                 &self.config,
-                &mut self.state.population,
                 &mut self.reporter,
                 rng,
             );
@@ -172,7 +173,8 @@ impl<
                 .call(&self.genotype, &mut self.state.population, rng);
             self.plugins.mutate.call(
                 &self.genotype,
-                &mut self.state.population,
+                &mut self.state,
+                &self.config,
                 &mut self.reporter,
                 rng,
             );

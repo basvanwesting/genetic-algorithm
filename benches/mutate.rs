@@ -4,7 +4,7 @@ use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::mutate::*;
 use genetic_algorithm::population::Population;
-use genetic_algorithm::strategy::evolve::EvolveReporterNoop;
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
@@ -41,16 +41,20 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             let chromosomes = (0..*population_size)
                 .map(|_| genotype.chromosome_factory(&mut rng))
                 .collect();
-            let population = &mut Population::new(chromosomes);
-            CountTrue.call_for_population(population, None);
+            let population = Population::new(chromosomes);
+            let mut state = EvolveState::new(population);
+            let config = EvolveConfig::default();
+            CountTrue.call_for_population(&mut state.population, None);
 
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}", mutate), population_size),
                 population_size,
                 |b, &_population_size| {
                     b.iter_batched(
-                        || population.clone(),
-                        |mut data| mutate.call(&genotype, &mut data, &mut reporter, &mut rng),
+                        || state.clone(),
+                        |mut data| {
+                            mutate.call(&genotype, &mut data, &config, &mut reporter, &mut rng)
+                        },
                         BatchSize::SmallInput,
                     )
                 },
