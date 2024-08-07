@@ -8,13 +8,13 @@ use rand::Rng;
 /// mutation_probability. Then mutates the selected chromosomes once using random mutation. The
 /// mutation probability is dynamically increased or decreased to achieve a target population uniformity
 #[derive(Debug, Clone, Default)]
-pub struct DynamicOnce {
+pub struct SingleGeneRandomDynamic {
     pub mutation_probability: f32,
     pub mutation_probability_step: f32,
     pub target_uniformity: f32,
 }
 
-impl Mutate for DynamicOnce {
+impl Mutate for SingleGeneRandomDynamic {
     fn call<T: Genotype, R: Rng>(
         &mut self,
         genotype: &T,
@@ -29,7 +29,7 @@ impl Mutate for DynamicOnce {
                 (self.mutation_probability - self.mutation_probability_step).max(0.0);
         }
         log::trace!(
-            "### dynamic_once mutation probability: {}",
+            "### single_gene_random_dynamic mutation probability: {}",
             self.mutation_probability
         );
 
@@ -41,11 +41,14 @@ impl Mutate for DynamicOnce {
         }
     }
     fn report(&self) -> String {
-        format!("dynamic-once: {:2.2}", self.mutation_probability)
+        format!(
+            "single-gene-random-dynamic: {:2.2}",
+            self.mutation_probability
+        )
     }
 }
 
-impl DynamicOnce {
+impl SingleGeneRandomDynamic {
     pub fn new(mutation_probability_step: f32, target_uniformity: f32) -> Self {
         Self {
             mutation_probability_step,

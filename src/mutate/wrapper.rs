@@ -1,7 +1,7 @@
-pub use super::dynamic_once::DynamicOnce as MutateDynamicOnce;
 pub use super::dynamic_rounds::DynamicRounds as MutateDynamicRounds;
 pub use super::single_gene_distance::SingleGeneDistance as MutateSingleGeneDistance;
 pub use super::single_gene_random::SingleGeneRandom as MutateSingleGeneRandom;
+pub use super::single_gene_random_dynamic::SingleGeneRandomDynamic as MutateSingleGeneRandomDynamic;
 pub use super::twice::Twice as MutateTwice;
 pub use super::Mutate;
 
@@ -11,10 +11,10 @@ use rand::Rng;
 
 #[derive(Clone, Debug)]
 pub enum Wrapper {
-    DynamicOnce(MutateDynamicOnce),
     DynamicRounds(MutateDynamicRounds),
     SingleGeneDistance(MutateSingleGeneDistance),
     SingleGeneRandom(MutateSingleGeneRandom),
+    SingleGeneRandomDynamic(MutateSingleGeneRandomDynamic),
     Twice(MutateTwice),
 }
 
@@ -26,20 +26,20 @@ impl Mutate for Wrapper {
         rng: &mut R,
     ) {
         match self {
-            Wrapper::SingleGeneRandom(mutate) => mutate.call(genotype, population, rng),
-            Wrapper::Twice(mutate) => mutate.call(genotype, population, rng),
-            Wrapper::DynamicOnce(mutate) => mutate.call(genotype, population, rng),
             Wrapper::DynamicRounds(mutate) => mutate.call(genotype, population, rng),
             Wrapper::SingleGeneDistance(mutate) => mutate.call(genotype, population, rng),
+            Wrapper::SingleGeneRandom(mutate) => mutate.call(genotype, population, rng),
+            Wrapper::SingleGeneRandomDynamic(mutate) => mutate.call(genotype, population, rng),
+            Wrapper::Twice(mutate) => mutate.call(genotype, population, rng),
         }
     }
     fn report(&self) -> String {
         match self {
-            Wrapper::SingleGeneRandom(mutate) => mutate.report(),
-            Wrapper::Twice(mutate) => mutate.report(),
-            Wrapper::DynamicOnce(mutate) => mutate.report(),
             Wrapper::DynamicRounds(mutate) => mutate.report(),
             Wrapper::SingleGeneDistance(mutate) => mutate.report(),
+            Wrapper::SingleGeneRandom(mutate) => mutate.report(),
+            Wrapper::SingleGeneRandomDynamic(mutate) => mutate.report(),
+            Wrapper::Twice(mutate) => mutate.report(),
         }
     }
 }
@@ -54,9 +54,9 @@ impl From<MutateTwice> for Wrapper {
         Wrapper::Twice(mutate)
     }
 }
-impl From<MutateDynamicOnce> for Wrapper {
-    fn from(mutate: MutateDynamicOnce) -> Self {
-        Wrapper::DynamicOnce(mutate)
+impl From<MutateSingleGeneRandomDynamic> for Wrapper {
+    fn from(mutate: MutateSingleGeneRandomDynamic) -> Self {
+        Wrapper::SingleGeneRandomDynamic(mutate)
     }
 }
 impl From<MutateDynamicRounds> for Wrapper {

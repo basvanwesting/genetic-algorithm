@@ -10,11 +10,11 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /mutate_once/ => 'mutate_singe_gene_random',
+  /dynamic_once/ => 'single_gene_random_dynamic',
 }
 
 other_translations = {
-  /MutateOnce/ => 'MutateSingleGeneRandom'
+  /DynamicOnce/ => 'SingleGeneRandomDynamic'
 }
 
 #check:

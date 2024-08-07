@@ -26,7 +26,7 @@ impl Mutate for SingleGeneRandom {
         }
     }
     fn report(&self) -> String {
-        format!("once: {:2.2}", self.mutation_probability)
+        format!("single-gene-random: {:2.2}", self.mutation_probability)
     }
 }
 
