@@ -26,7 +26,7 @@ fn binary_genotype() {
     ]);
 
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut mutate = MutateSingleGeneRandomDynamic::new(0.1, 0.9);
+    let mut mutate = MutateSingleGeneRandomDynamic::new(0.1, 2);
     let mut fitness = CountTrue;
     assert_eq!(mutate.mutation_probability, 0.0);
     fitness.call_for_population_single_thread(population);

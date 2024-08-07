@@ -7,12 +7,12 @@ use rand::Rng;
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population] with the dynamically
 /// updated mutation_probability. Then mutates the selected chromosomes once using random mutation.
 /// The mutation probability is dynamically increased or decreased to achieve a target population
-/// uniformity
+/// cardinality
 #[derive(Debug, Clone, Default)]
 pub struct SingleGeneRandomDynamic {
     pub mutation_probability: f32,
     pub mutation_probability_step: f32,
-    pub target_uniformity: f32,
+    pub target_cardinality: usize,
 }
 
 impl Mutate for SingleGeneRandomDynamic {
@@ -22,7 +22,7 @@ impl Mutate for SingleGeneRandomDynamic {
         population: &mut Population<T>,
         rng: &mut R,
     ) {
-        if population.fitness_score_uniformity() > self.target_uniformity {
+        if population.fitness_score_cardinality() < self.target_cardinality {
             self.mutation_probability =
                 (self.mutation_probability + self.mutation_probability_step).min(1.0);
         } else {
@@ -50,10 +50,10 @@ impl Mutate for SingleGeneRandomDynamic {
 }
 
 impl SingleGeneRandomDynamic {
-    pub fn new(mutation_probability_step: f32, target_uniformity: f32) -> Self {
+    pub fn new(mutation_probability_step: f32, target_cardinality: usize) -> Self {
         Self {
             mutation_probability_step,
-            target_uniformity,
+            target_cardinality,
             ..Default::default()
         }
     }

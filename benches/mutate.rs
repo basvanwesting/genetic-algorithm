@@ -12,15 +12,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     let population_sizes = vec![250, 500, 1000, 2000];
 
-    let mutates: Vec<MutateWrapper> = vec![
-        MutateSingleGeneRandom::new(0.2).into(),
-        // MutateMultiGeneRandom::new(1, 0.2).into(),
-        MutateMultiGeneRandom::new(2, 0.2).into(),
-        // MutateMultiGeneRandom::new(3, 0.2).into(),
-        MutateSingleGeneRandomDynamic::new(0.2, 0.5).into(),
-        MutateMultiGeneRandomDynamic::new(2, 0.2, 0.5).into(),
-    ];
-
     let mut group = c.benchmark_group("mutates");
     //group.warm_up_time(Duration::from_secs(3));
     //group.measurement_time(Duration::from_secs(3));
@@ -32,8 +23,16 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .build()
         .unwrap();
 
-    for mut mutate in mutates {
-        for population_size in &population_sizes {
+    for population_size in &population_sizes {
+        let mutates: Vec<MutateWrapper> = vec![
+            MutateSingleGeneRandom::new(0.2).into(),
+            // MutateMultiGeneRandom::new(1, 0.2).into(),
+            MutateMultiGeneRandom::new(2, 0.2).into(),
+            // MutateMultiGeneRandom::new(3, 0.2).into(),
+            MutateSingleGeneRandomDynamic::new(0.2, population_size / 2).into(),
+            MutateMultiGeneRandomDynamic::new(2, 0.2, population_size / 2).into(),
+        ];
+        for mut mutate in mutates {
             group.throughput(Throughput::Elements(*population_size as u64));
 
             let chromosomes = (0..*population_size)
