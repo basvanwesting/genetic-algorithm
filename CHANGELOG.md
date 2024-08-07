@@ -4,6 +4,46 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.8.0] - 2024-08-07
+### Added
+* Add `PermutateConfig` and `PermutateState` to align structure with `Evolve` and `HillClimb`
+* Extract `StrategyConfig` trait and use for `EvolveConfig`, `HillClimbConfig` and `PermutateConfig`
+* Extract `StrategyState` trait and use for `EvolveState`, `HillClimbState` and `PermutateState`
+* Add pluggable `EvolveReporter` to `Evolve` strategy
+    * Set in builder using `with_reporter()`
+    * Custom implementations by client are encouraged, the API resembles the Fitness API
+    * Add bootstrap implementations `EvolveReporterNoop`, `EvolveReporterSimple` and `EvolveReporterLog`
+* Add pluggable `HillClimbReporter` to `HillClimb` strategy
+    * Set in builder using `with_reporter()`
+    * Custom implementations by client are encouraged, the API resembles the Fitness API
+    * Add bootstrap implementations `HillClimbReporterNoop`, `HillClimbReporterSimple` and `HillClimbReporterLog`
+* Add pluggable `PermutateReporter` to `Permutate` strategy
+    * Set in builder using `with_reporter()`
+    * Custom implementations by client are encouraged, the API resembles the Fitness API
+    * Add bootstrap implementations `PermutateReporterNoop`, `PermutateReporterSimple` and `PermutateReporterLog`
+* Add `fitness_score_cardinality()` to `Population`
+* Add `MutateMultiGeneRandomDynamic` (generalize to any number of mutations)
+* Add `MutateSingleGeneDistance` (only for `ContinuousGenotype`)
+
+### Removed
+* Drop `fitness_score_uniformity()` and `fitness_score_prevalence()` from `Population`
+* Drop `MutateDynamicRounds`
+
+### Changed
+* Align `Mutate`, `Compete`, `Crossover` and `Extension` traits to take `EvolveState`, `EvolveConfig`, `EvolveReporter` as parameters
+* Reimplement `MutateOnce` as `MutateSingleGeneRandom`
+* Reimplement `MutateTwice` as `MutateMultiGeneRandom` (generalize to any number of mutations)
+* Reimplement `MutateDynamicOnce` as `MutateSingleGeneRandomDynamic` (also fix InvalidProbabilty issue)
+* Replace `target_uniformity` with `target_cardinality` in `MutateSingleGeneRandomDynamic` and `MutateMultiGeneRandomDynamic` as uniformity is ill defined
+* Replace `uniformity_threshold` with `cardinality_threshold` in `Extension` implementations, as uniformity is ill defined
+* Move permutation `total_population_size` from `PermutateConfig` to `PermutateState`, so progress can be reported on in `PermutateReporterSimple`
+* Move `env_logger` dependency to dev-dependencies as this crate is a library, not an executable
+
+### Note
+* Note that `HillClimb` scaling needs review as it doesn't feel right in its design approach. Possibly align with `MutateSingleGeneDistance` approach?
+* Extract `StrategyReporter` trait, but don't use because of error E0658: associated type defaults are unstable. So for `EvolveReporter`, `HillClimbReporter` and `PermutateReporter` the trait is shadowed as if it is implemented
+
 ## [0.7.2] - 2024-07-27
 ### Added
 * Add `Wrapper`s instead of `Dispatcher`s as they keep state, behaviour is the same using `into()` (e.g. `MutateOnce::new(0.2).into()`)
