@@ -129,12 +129,12 @@ impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Log<G> {
             state.current_scale.as_ref(),
         );
 
+        log::trace!(
+            "best - fitness score: {:?}, genes: {:?}",
+            state.best_fitness_score(),
+            state.best_chromosome_as_ref().map(|c| &c.genes)
+        );
         if log::log_enabled!(log::Level::Trace) {
-            log::trace!(
-                "best - fitness score: {:?}, genes: {:?}",
-                state.best_fitness_score(),
-                state.best_chromosome_as_ref().map(|c| &c.genes)
-            );
             if let Some(chromosome) = state.contending_chromosome.as_ref() {
                 log::trace!(
                     "contending - fitness score: {:?}, genes: {:?}",

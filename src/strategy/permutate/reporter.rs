@@ -125,12 +125,10 @@ impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Log<G> {
             state.best_fitness_score(),
         );
 
-        if log::log_enabled!(log::Level::Trace) {
-            log::trace!(
-                "best - fitness score: {:?}, genes: {:?}",
-                state.best_fitness_score(),
-                state.best_chromosome_as_ref().map(|c| &c.genes)
-            );
-        }
+        log::trace!(
+            "best - fitness score: {:?}, genes: {:?}",
+            state.best_fitness_score(),
+            state.best_chromosome_as_ref().map(|c| &c.genes)
+        );
     }
 }
