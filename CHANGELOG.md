@@ -5,6 +5,14 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.8.1] - 2024-08-08
+### Added
+* Always implement `new()` next to `default()`. Use `new()` in public API examples
+
+### Changed
+* Rename `new()` to `new_with_flags()` for more verbose reporting in `EvolveReporterSimple`, `HillClimbReporterSimple` and `PermutateReporterSimple`
+* Add simpler `new()` to only take `period: usize` and set all flags to false (as this is the sensible less noisy default) in `EvolveReporterSimple`, `HillClimbReporterSimple` and `PermutateReporterSimple`
+
 ## [0.8.0] - 2024-08-07
 ### Added
 * Add `PermutateConfig` and `PermutateState` to align structure with `Evolve` and `HillClimb`
