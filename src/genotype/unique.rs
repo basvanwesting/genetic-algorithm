@@ -129,7 +129,7 @@ impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for Unique<T> {
                 new_genes.swap(first, second);
                 new_genes
             })
-            .map(|genes| Chromosome::new(genes))
+            .map(Chromosome::new)
             .collect::<Vec<_>>()
     }
 
@@ -155,7 +155,7 @@ impl<T: Clone + Send + std::fmt::Debug> PermutableGenotype for Unique<T> {
                 .clone()
                 .into_iter()
                 .permutations(self.genes_size())
-                .map(|genes| Chromosome::new(genes)),
+                .map(Chromosome::new),
         )
     }
 

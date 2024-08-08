@@ -39,6 +39,7 @@ pub struct Builder<
     pub reporter: Option<SR>,
 }
 
+#[allow(clippy::type_complexity)]
 impl<
         G: Genotype,
         M: Mutate,

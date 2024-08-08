@@ -56,7 +56,7 @@ impl TryFrom<Builder<Self>> for Continuous {
             let allele_range = builder.allele_range.unwrap();
 
             Ok(Self {
-                genes_size: genes_size,
+                genes_size,
                 allele_range: allele_range.clone(),
                 allele_neighbour_range: builder.allele_neighbour_range.clone(),
                 gene_index_sampler: Uniform::from(0..genes_size),

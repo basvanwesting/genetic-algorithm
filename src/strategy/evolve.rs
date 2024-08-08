@@ -397,7 +397,7 @@ impl<
             Err(TryFromEvolveBuilderError(
                 "The provided Crossover strategy requires crossover_points, which the provided Genotype does not provide",
             ))
-        } else if !(builder.target_population_size > 0) {
+        } else if builder.target_population_size == 0 {
             Err(TryFromEvolveBuilderError(
                 "Evolve requires a target_population_size > 0",
             ))

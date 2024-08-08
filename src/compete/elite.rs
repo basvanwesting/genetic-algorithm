@@ -45,3 +45,8 @@ impl Elite {
         Self
     }
 }
+impl Default for Elite {
+    fn default() -> Self {
+        Self::new()
+    }
+}

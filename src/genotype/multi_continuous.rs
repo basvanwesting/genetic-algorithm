@@ -77,7 +77,7 @@ impl TryFrom<Builder<Self>> for MultiContinuous {
                 .collect();
 
             Ok(Self {
-                genes_size: genes_size,
+                genes_size,
                 allele_ranges: allele_ranges.clone(),
                 allele_neighbour_ranges: builder.allele_neighbour_ranges.clone(),
                 gene_index_sampler: WeightedIndex::new(index_weights).unwrap(),

@@ -87,7 +87,7 @@ impl<T: Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for MultiUnique<T
             Ok(Self {
                 genes_size: allele_list_sizes.iter().sum(),
                 allele_list_sizes: allele_list_sizes.clone(),
-                allele_list_index_offsets: allele_list_index_offsets,
+                allele_list_index_offsets,
                 allele_lists: allele_lists.clone(),
                 allele_list_index_sampler: WeightedIndex::new(allele_list_sizes.clone()).unwrap(),
                 allele_list_index_samplers: allele_list_sizes
@@ -173,7 +173,7 @@ impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
                         new_genes.swap(index_offset + first, index_offset + second);
                         new_genes
                     })
-                    .map(|genes| Chromosome::new(genes))
+                    .map(Chromosome::new)
                     .collect::<Vec<_>>()
             })
             .collect::<Vec<_>>()

@@ -24,3 +24,8 @@ impl Noop {
         Self
     }
 }
+impl Default for Noop {
+    fn default() -> Self {
+        Self::new()
+    }
+}
