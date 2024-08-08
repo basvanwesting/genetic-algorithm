@@ -292,10 +292,12 @@ fn main() {
             column_scores.clone(),
             false,
         ))
+        // .with_reporter(EvolveReporterNoop::new());
         // .with_reporter(EvolveReporterSimple::default());
-        .with_reporter(EvolveReporterSimple::new_short(100));
-    // .with_reporter(EvolveReporterSimple::new(100, false, false, true));
-    // .with_reporter(EvolveReporterNoop::new());
+        // .with_reporter(EvolveReporterSimple::new_with_flags(
+        //     100, false, false, true,
+        // ));
+        .with_reporter(EvolveReporterSimple::new(100));
 
     let now = std::time::Instant::now();
     // let evolve = evolve_builder.call_speciated(10, &mut rng).unwrap();

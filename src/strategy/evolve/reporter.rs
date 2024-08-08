@@ -91,7 +91,13 @@ impl<G: Genotype> Default for Simple<G> {
     }
 }
 impl<G: Genotype> Simple<G> {
-    pub fn new(
+    pub fn new(period: usize) -> Self {
+        Self {
+            period,
+            ..Default::default()
+        }
+    }
+    pub fn new_with_flags(
         period: usize,
         show_genes: bool,
         show_mutate_event: bool,
@@ -102,13 +108,6 @@ impl<G: Genotype> Simple<G> {
             show_genes,
             show_mutate_event,
             show_extension_event,
-            ..Default::default()
-        }
-    }
-    // TODO: what is a good name for this?
-    pub fn new_short(period: usize) -> Self {
-        Self {
-            period,
             ..Default::default()
         }
     }

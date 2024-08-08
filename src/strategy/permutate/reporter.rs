@@ -83,17 +83,16 @@ impl<G: PermutableGenotype> Default for Simple<G> {
     }
 }
 impl<G: PermutableGenotype> Simple<G> {
-    pub fn new(period: usize, show_genes: bool) -> Self {
+    pub fn new(period: usize) -> Self {
         Self {
             period,
-            show_genes,
             ..Default::default()
         }
     }
-    // TODO: what is a good name for this?
-    pub fn new_short(period: usize) -> Self {
+    pub fn new_with_flags(period: usize, show_genes: bool) -> Self {
         Self {
             period,
+            show_genes,
             ..Default::default()
         }
     }

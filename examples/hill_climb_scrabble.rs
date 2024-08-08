@@ -280,7 +280,7 @@ fn main() {
             false,
         ))
         // .with_reporter(HillClimbReporterNoop::new());
-        .with_reporter(HillClimbReporterSimple::new(100, true));
+        .with_reporter(HillClimbReporterSimple::new_with_flags(100, true));
 
     let now = std::time::Instant::now();
     let hill_climb = hill_climb_builder.call_repeatedly(1, &mut rng).unwrap();

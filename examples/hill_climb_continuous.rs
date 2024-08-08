@@ -26,7 +26,7 @@ fn main() {
         .with_scaling(Scaling::new(1.0, 0.8, 1e-5))
         .with_fitness(SumContinuousGenotype(1e-5))
         // .with_reporter(HillClimbReporterNoop::new())
-        .with_reporter(HillClimbReporterSimple::new(100, false))
+        .with_reporter(HillClimbReporterSimple::new(100))
         .call(&mut rng)
         .unwrap();
 
