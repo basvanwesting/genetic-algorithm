@@ -54,7 +54,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Clone, Debug)]
-pub struct MultiUnique<T: Clone + Send + std::fmt::Debug = DefaultAllele> {
+pub struct MultiUnique<T: Clone + Send + Sync + std::fmt::Debug = DefaultAllele> {
     genes_size: usize,
     allele_list_sizes: Vec<usize>,
     allele_list_index_offsets: Vec<usize>,
@@ -64,7 +64,7 @@ pub struct MultiUnique<T: Clone + Send + std::fmt::Debug = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for MultiUnique<T> {
+impl<T: Clone + Send + Sync + std::fmt::Debug> TryFrom<Builder<Self>> for MultiUnique<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -100,7 +100,7 @@ impl<T: Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for MultiUnique<T
     }
 }
 
-impl<T: Clone + Send + std::fmt::Debug> Genotype for MultiUnique<T> {
+impl<T: Clone + Send + Sync + std::fmt::Debug> Genotype for MultiUnique<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -145,7 +145,7 @@ impl<T: Clone + Send + std::fmt::Debug> Genotype for MultiUnique<T> {
     }
 }
 
-impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
+impl<T: Clone + Send + Sync + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self>,
@@ -193,7 +193,7 @@ impl<T: Clone + Send + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
     }
 }
 
-impl<T: Clone + Send + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
+impl<T: Clone + Send + Sync + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
     //noop
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         vec![]
@@ -225,7 +225,7 @@ impl<T: Clone + Send + std::fmt::Debug> PermutableGenotype for MultiUnique<T> {
     }
 }
 
-impl<T: Clone + Send + std::fmt::Debug> fmt::Display for MultiUnique<T> {
+impl<T: Clone + Send + Sync + std::fmt::Debug> fmt::Display for MultiUnique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;

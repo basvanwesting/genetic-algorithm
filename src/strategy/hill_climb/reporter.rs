@@ -39,7 +39,7 @@ use std::marker::PhantomData;
 ///     }
 /// }
 /// ```
-pub trait Reporter: Clone + Send {
+pub trait Reporter: Clone + Send + Sync {
     type Genotype: IncrementalGenotype;
 
     fn on_start(&mut self, _state: &HillClimbState<Self::Genotype>) {}
@@ -64,7 +64,7 @@ impl<G: IncrementalGenotype> Noop<G> {
         Self::default()
     }
 }
-impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Noop<G> {
+impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Noop<G> {
     type Genotype = G;
 }
 
@@ -100,7 +100,7 @@ impl<G: IncrementalGenotype> Simple<G> {
         }
     }
 }
-impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Simple<G> {
+impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Simple<G> {
     type Genotype = G;
 
     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
@@ -142,7 +142,7 @@ impl<G: IncrementalGenotype> Log<G> {
         Self::default()
     }
 }
-impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Log<G> {
+impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Log<G> {
     type Genotype = G;
 
     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {

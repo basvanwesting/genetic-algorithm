@@ -21,7 +21,7 @@ impl<T: Genotype> Default for Zero<T> {
         Self::new()
     }
 }
-impl<T: Genotype + Sync> Fitness for Zero<T> {
+impl<T: Genotype> Fitness for Zero<T> {
     type Genotype = T;
     fn calculate_for_chromosome(
         &mut self,

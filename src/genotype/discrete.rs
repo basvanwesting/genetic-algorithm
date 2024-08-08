@@ -44,7 +44,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Debug, Clone)]
-pub struct Discrete<T: PartialEq + Clone + Send + std::fmt::Debug = DefaultAllele> {
+pub struct Discrete<T: PartialEq + Clone + Send + Sync + std::fmt::Debug = DefaultAllele> {
     pub genes_size: usize,
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
@@ -52,7 +52,7 @@ pub struct Discrete<T: PartialEq + Clone + Send + std::fmt::Debug = DefaultAllel
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: PartialEq + Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
+impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> TryFrom<Builder<Self>> for Discrete<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -79,7 +79,7 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> TryFrom<Builder<Self>> for D
     }
 }
 
-impl<T: PartialEq + Clone + Send + std::fmt::Debug> Genotype for Discrete<T> {
+impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> Genotype for Discrete<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -107,7 +107,7 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> Genotype for Discrete<T> {
     }
 }
 
-impl<T: PartialEq + Clone + Send + std::fmt::Debug> IncrementalGenotype for Discrete<T> {
+impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> IncrementalGenotype for Discrete<T> {
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self>,
@@ -142,13 +142,13 @@ impl<T: PartialEq + Clone + Send + std::fmt::Debug> IncrementalGenotype for Disc
     }
 }
 
-impl<T: PartialEq + Clone + Send + std::fmt::Debug> PermutableGenotype for Discrete<T> {
+impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> PermutableGenotype for Discrete<T> {
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         self.allele_list.clone()
     }
 }
 
-impl<T: PartialEq + Clone + Send + std::fmt::Debug> fmt::Display for Discrete<T> {
+impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> fmt::Display for Discrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;

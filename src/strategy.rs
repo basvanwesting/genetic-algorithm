@@ -108,7 +108,7 @@ pub trait StrategyState<G: Genotype> {
 ///     type State = PermutateState<Self::Genotype>;
 /// }
 /// ```
-pub trait StrategyReporter: Clone + Send {
+pub trait StrategyReporter: Clone + Send + Sync {
     type Genotype: Genotype;
     type State: StrategyState<Self::Genotype>;
 

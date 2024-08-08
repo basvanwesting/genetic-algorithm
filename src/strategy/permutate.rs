@@ -112,12 +112,15 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
     }
 }
 
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F, PermutateReporterNoop<G>> {
+    pub fn builder() -> PermutateBuilder<G, F, PermutateReporterNoop<G>> {
+        PermutateBuilder::new()
+    }
+}
+
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
     Permutate<G, F, SR>
 {
-    pub fn builder() -> PermutateBuilder<G, F, SR> {
-        PermutateBuilder::new()
-    }
     fn call_single_thread<R: Rng>(&mut self, _rng: &mut R) {
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
             self.state.current_generation += 1;

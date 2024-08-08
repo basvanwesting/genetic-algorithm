@@ -39,7 +39,7 @@ use std::marker::PhantomData;
 ///     }
 /// }
 /// ```
-pub trait Reporter: Clone + Send {
+pub trait Reporter: Clone + Send + Sync {
     type Genotype: PermutableGenotype;
 
     fn on_start(&mut self, _state: &PermutateState<Self::Genotype>) {}
@@ -61,7 +61,7 @@ impl<G: PermutableGenotype> Noop<G> {
         Self::default()
     }
 }
-impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Noop<G> {
+impl<G: PermutableGenotype + Clone + Send + Sync> Reporter for Noop<G> {
     type Genotype = G;
 }
 
@@ -97,7 +97,7 @@ impl<G: PermutableGenotype> Simple<G> {
         }
     }
 }
-impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Simple<G> {
+impl<G: PermutableGenotype + Clone + Send + Sync> Reporter for Simple<G> {
     type Genotype = G;
 
     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
@@ -138,7 +138,7 @@ impl<G: PermutableGenotype> Log<G> {
         Self::default()
     }
 }
-impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Log<G> {
+impl<G: PermutableGenotype + Clone + Send + Sync> Reporter for Log<G> {
     type Genotype = G;
 
     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {

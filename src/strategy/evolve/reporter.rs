@@ -40,7 +40,7 @@ use std::marker::PhantomData;
 ///     }
 /// }
 /// ```
-pub trait Reporter: Clone + Send {
+pub trait Reporter: Clone + Send + Sync {
     type Genotype: Genotype;
 
     fn on_start(&mut self, _state: &EvolveState<Self::Genotype>) {}
@@ -65,7 +65,7 @@ impl<G: Genotype> Noop<G> {
         Self::default()
     }
 }
-impl<G: Genotype + Sync + Clone + Send> Reporter for Noop<G> {
+impl<G: Genotype + Clone + Send + Sync> Reporter for Noop<G> {
     type Genotype = G;
 }
 
@@ -112,7 +112,7 @@ impl<G: Genotype> Simple<G> {
         }
     }
 }
-impl<G: Genotype + Sync + Clone + Send> Reporter for Simple<G> {
+impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     type Genotype = G;
 
     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
@@ -200,7 +200,7 @@ impl<G: Genotype> Log<G> {
         Self::default()
     }
 }
-impl<G: Genotype + Sync + Clone + Send> Reporter for Log<G> {
+impl<G: Genotype + Clone + Send + Sync> Reporter for Log<G> {
     type Genotype = G;
 
     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {

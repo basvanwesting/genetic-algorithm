@@ -24,7 +24,6 @@ fn call_binary_maximize() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(CountTrue)
-        .with_reporter(PermutateReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -76,7 +75,6 @@ fn call_discrete() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumDiscreteGenotype)
-        .with_reporter(PermutateReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -126,7 +124,6 @@ fn call_multi_thread() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumDiscreteGenotype)
-        .with_reporter(PermutateReporterNoop::new())
         .with_multithreading(true)
         .call(&mut rng)
         .unwrap();

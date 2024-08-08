@@ -1,4 +1,4 @@
-use super::{Permutate, PermutateReporter};
+use super::{Permutate, PermutateReporter, PermutateReporterNoop};
 use crate::fitness::{Fitness, FitnessOrdering};
 use crate::genotype::PermutableGenotype;
 use crate::strategy::Strategy;
@@ -21,13 +21,21 @@ pub struct Builder<
     pub reporter: Option<SR>,
 }
 
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F, PermutateReporterNoop<G>> {
+    pub fn new() -> Self {
+        Self {
+            genotype: None,
+            fitness_ordering: FitnessOrdering::Maximize,
+            multithreading: false,
+            fitness: None,
+            reporter: Some(PermutateReporterNoop::new()),
+        }
+    }
+}
+
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
     Builder<G, F, SR>
 {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     pub fn build(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         self.try_into()
     }
@@ -53,9 +61,17 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         self.fitness = Some(fitness);
         self
     }
-    pub fn with_reporter(mut self, reporter: SR) -> Self {
-        self.reporter = Some(reporter);
-        self
+    pub fn with_reporter<UR: PermutateReporter<Genotype = G>>(
+        self,
+        reporter: UR,
+    ) -> Builder<G, F, UR> {
+        Builder {
+            genotype: self.genotype,
+            fitness_ordering: self.fitness_ordering,
+            multithreading: self.multithreading,
+            fitness: self.fitness,
+            reporter: Some(reporter),
+        }
     }
 }
 
