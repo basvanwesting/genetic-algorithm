@@ -292,7 +292,9 @@ fn main() {
             column_scores.clone(),
             false,
         ))
-        .with_reporter(EvolveReporterSimple::new(100, false, false, true));
+        // .with_reporter(EvolveReporterSimple::default());
+        .with_reporter(EvolveReporterSimple::new_short(100));
+    // .with_reporter(EvolveReporterSimple::new(100, false, false, true));
     // .with_reporter(EvolveReporterNoop::new());
 
     let now = std::time::Instant::now();

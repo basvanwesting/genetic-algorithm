@@ -73,12 +73,28 @@ pub struct Simple<G: PermutableGenotype> {
     pub show_genes: bool,
     _phantom: PhantomData<G>,
 }
+impl<G: PermutableGenotype> Default for Simple<G> {
+    fn default() -> Self {
+        Self {
+            period: 1,
+            show_genes: false,
+            _phantom: PhantomData,
+        }
+    }
+}
 impl<G: PermutableGenotype> Simple<G> {
     pub fn new(period: usize, show_genes: bool) -> Self {
         Self {
             period,
             show_genes,
-            _phantom: PhantomData,
+            ..Default::default()
+        }
+    }
+    // TODO: what is a good name for this?
+    pub fn new_short(period: usize) -> Self {
+        Self {
+            period,
+            ..Default::default()
         }
     }
 }

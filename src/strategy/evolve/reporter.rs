@@ -79,6 +79,17 @@ pub struct Simple<G: Genotype> {
     pub show_extension_event: bool,
     _phantom: PhantomData<G>,
 }
+impl<G: Genotype> Default for Simple<G> {
+    fn default() -> Self {
+        Self {
+            period: 1,
+            show_genes: false,
+            show_mutate_event: false,
+            show_extension_event: false,
+            _phantom: PhantomData,
+        }
+    }
+}
 impl<G: Genotype> Simple<G> {
     pub fn new(
         period: usize,
@@ -91,7 +102,14 @@ impl<G: Genotype> Simple<G> {
             show_genes,
             show_mutate_event,
             show_extension_event,
-            _phantom: PhantomData,
+            ..Default::default()
+        }
+    }
+    // TODO: what is a good name for this?
+    pub fn new_short(period: usize) -> Self {
+        Self {
+            period,
+            ..Default::default()
         }
     }
 }
