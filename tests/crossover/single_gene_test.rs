@@ -19,8 +19,8 @@ fn population_even() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSingleGene::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
@@ -51,8 +51,8 @@ fn population_odd() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSingleGene::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
@@ -83,8 +83,8 @@ fn population_even_keep_parents() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSingleGene::new(true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
@@ -119,8 +119,8 @@ fn population_odd_keep_parents() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSingleGene::new(true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
@@ -150,8 +150,8 @@ fn population_size_one() {
     let population = build::population(vec![vec![true, false, true, false, true]]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSingleGene::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 

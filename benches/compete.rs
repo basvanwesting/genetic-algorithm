@@ -10,7 +10,7 @@ use rand::rngs::SmallRng;
 //use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut reporter = EvolveReporterNoop::default();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::from_entropy();
     let population_sizes = vec![250, 500, 1000, 2000];
     let fitness_ordering = FitnessOrdering::Minimize;

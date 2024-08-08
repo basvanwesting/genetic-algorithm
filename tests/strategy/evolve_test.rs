@@ -33,7 +33,7 @@ fn build_invalid_missing_ending_condition() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .build();
 
     assert!(evolve.is_err());
@@ -60,7 +60,7 @@ fn build_invalid_require_crossover_indexes() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .build();
 
     assert!(evolve.is_err());
@@ -86,7 +86,7 @@ fn build_invalid_require_crossover_points() {
         .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .build();
 
     assert!(evolve.is_err());
@@ -114,7 +114,7 @@ fn call_binary_max_stale_generations_maximize() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -145,7 +145,7 @@ fn call_binary_max_stale_generations_minimize() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -176,7 +176,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -203,7 +203,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -229,7 +229,7 @@ fn call_binary_target_fitness_score_maximize() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -260,7 +260,7 @@ fn call_binary_target_fitness_score_minimize() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -290,7 +290,7 @@ fn call_binary_mass_degeneration() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassDegeneration::new(10, 10))
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -320,7 +320,7 @@ fn call_binary_mass_extinction() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassExtinction::new(10, 0.1))
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -350,7 +350,7 @@ fn call_binary_mass_genesis() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassGenesis::new(10))
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -380,7 +380,7 @@ fn call_binary_mass_invasion() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassInvasion::new(10, 0.1))
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -411,7 +411,7 @@ fn call_continuous() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -446,7 +446,7 @@ fn call_discrete() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -481,7 +481,7 @@ fn call_multi_discrete() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -511,7 +511,7 @@ fn call_multi_thread() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
 
@@ -541,7 +541,7 @@ fn population_factory_binary() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default())
+        .with_reporter(EvolveReporterNoop::new())
         .build()
         .unwrap();
 

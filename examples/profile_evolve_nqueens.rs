@@ -51,7 +51,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteElite::new())
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default());
+        .with_reporter(EvolveReporterNoop::new());
 
     c.bench_function("profile_evolve_nqueens", |b| {
         b.iter_batched(

@@ -95,7 +95,7 @@ fn main() {
         ))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_reporter(HillClimbReporterNoop::default())
+        .with_reporter(HillClimbReporterNoop::new())
         .build()
         .unwrap();
 

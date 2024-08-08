@@ -83,7 +83,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .with_mutate(MutateSingleGeneRandom::new(0.2))      // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite::new())      // sort the chromosomes by fitness to determine crossover order
 ///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
-///     .with_reporter(EvolveReporterNoop::default()) // no reporting
+///     .with_reporter(EvolveReporterNoop::new()) // no reporting
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -445,6 +445,11 @@ impl Default for EvolveConfig {
         }
     }
 }
+impl EvolveConfig {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
 
 impl<G: Genotype> Default for EvolveState<G> {
     fn default() -> Self {
@@ -457,7 +462,6 @@ impl<G: Genotype> Default for EvolveState<G> {
         }
     }
 }
-
 impl<G: Genotype> EvolveState<G> {
     pub fn new(population: Population<G>) -> Self {
         Self {

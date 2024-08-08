@@ -115,7 +115,7 @@ pub struct Scaling {
 ///     .with_target_fitness_score(10)             // ending condition if sum of genes is <= 0.00010 in the best chromosome
 ///     .with_valid_fitness_score(100)             // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)          // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_reporter(HillClimbReporterNoop::default())  // no reporting
+///     .with_reporter(HillClimbReporterNoop::new())  // no reporting
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -165,7 +165,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
     Strategy<G> for HillClimb<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.state = HillClimbState::default();
+        self.state = HillClimbState::new();
         self.state.reset_scaling(&self.config);
 
         let mut seed_chromosome = self.genotype.chromosome_factory(rng);
@@ -474,7 +474,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     valid_fitness_score: builder.valid_fitness_score,
                     scaling: builder.scaling,
                 },
-                state: HillClimbState::default(),
+                state: HillClimbState::new(),
                 reporter: builder.reporter.unwrap(),
             })
         }
@@ -494,6 +494,11 @@ impl Default for HillClimbConfig {
         }
     }
 }
+impl HillClimbConfig {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
 
 impl<G: IncrementalGenotype> Default for HillClimbState<G> {
     fn default() -> Self {
@@ -506,6 +511,11 @@ impl<G: IncrementalGenotype> Default for HillClimbState<G> {
             contending_chromosome: None,
             neighbouring_population: None,
         }
+    }
+}
+impl<G: IncrementalGenotype> HillClimbState<G> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

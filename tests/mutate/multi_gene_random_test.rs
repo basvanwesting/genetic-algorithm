@@ -19,8 +19,8 @@ fn binary_genotype() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     MutateMultiGeneRandom::new(2, 0.5).call(
         &genotype,
@@ -57,8 +57,8 @@ fn discrete_genotype() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     MutateMultiGeneRandom::new(2, 0.5).call(
         &genotype,

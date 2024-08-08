@@ -20,7 +20,7 @@ fn maximize_population_surplus() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::default();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
     let config = EvolveConfig {
@@ -50,7 +50,7 @@ fn maximize_population_shortage() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::default();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
     let config = EvolveConfig {
@@ -84,7 +84,7 @@ fn minimize_population_surplus() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::default();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
     let config = EvolveConfig {
@@ -114,7 +114,7 @@ fn minimize_population_shortage() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::default();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
     let config = EvolveConfig {
@@ -145,7 +145,7 @@ fn fitness_ordering_with_none_fitness() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::default();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Maximize,

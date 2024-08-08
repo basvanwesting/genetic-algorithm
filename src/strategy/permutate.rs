@@ -51,7 +51,7 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .with_reporter(PermutateReporterNoop::default())  // no reporting
+///     .with_reporter(PermutateReporterNoop::new())  // no reporting
 ///     .with_multithreading(true)                        // use all cores
 ///     .call(&mut rng)
 ///     .unwrap();
@@ -265,6 +265,11 @@ impl Default for PermutateConfig {
         }
     }
 }
+impl PermutateConfig {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
 
 impl<G: PermutableGenotype> Default for PermutateState<G> {
     fn default() -> Self {
@@ -275,6 +280,11 @@ impl<G: PermutableGenotype> Default for PermutateState<G> {
             best_generation: 0,
             best_chromosome: None,
         }
+    }
+}
+impl<G: PermutableGenotype> PermutateState<G> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 

@@ -60,7 +60,7 @@ fn main() {
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteElite::new())
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default());
+        .with_reporter(EvolveReporterNoop::new());
 
     for _ in 0..10 {
         let now = std::time::Instant::now();

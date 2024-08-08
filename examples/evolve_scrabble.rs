@@ -293,7 +293,7 @@ fn main() {
             false,
         ))
         .with_reporter(EvolveReporterSimple::new(100, false, false, true));
-    // .with_reporter(EvolveReporterNoop::default());
+    // .with_reporter(EvolveReporterNoop::new());
 
     let now = std::time::Instant::now();
     // let evolve = evolve_builder.call_speciated(10, &mut rng).unwrap();

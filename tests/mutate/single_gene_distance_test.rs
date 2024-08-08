@@ -20,8 +20,8 @@ fn continuous_genotype() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     MutateSingleGeneDistance::new(0.5, 0.0..0.1).call(
         &genotype,

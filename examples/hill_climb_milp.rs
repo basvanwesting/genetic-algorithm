@@ -61,7 +61,7 @@ fn main() {
         //.with_target_fitness_score(TARGET_SCORE)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(MILPFitness)
-        .with_reporter(HillClimbReporterNoop::default());
+        .with_reporter(HillClimbReporterNoop::new());
     // .with_reporter(HillClimbReporterSimple::new(100, false));
 
     for _ in 0..10 {

@@ -27,8 +27,8 @@ fn binary_genotype() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     let mut mutate = MutateMultiGeneRandomDynamic::new(2, 0.2, 2);
     let mut fitness = CountTrue;

@@ -19,8 +19,8 @@ fn population_even() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSinglePoint::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
@@ -50,8 +50,8 @@ fn population_even_keep_parents() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let config = EvolveConfig::default();
-    let mut reporter = EvolveReporterNoop::default();
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSinglePoint::new(true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 

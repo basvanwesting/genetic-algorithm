@@ -47,7 +47,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::default());
+        .with_reporter(EvolveReporterNoop::new());
 
     c.bench_function("profile_evolve_monkeys", |b| {
         b.iter_batched(

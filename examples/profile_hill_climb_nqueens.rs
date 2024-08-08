@@ -47,7 +47,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_target_fitness_score(0)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(NQueensFitness)
-        .with_reporter(HillClimbReporterNoop::default());
+        .with_reporter(HillClimbReporterNoop::new());
 
     c.bench_function("profile_hill_climb_nqueens", |b| {
         b.iter_batched(

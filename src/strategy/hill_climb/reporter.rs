@@ -59,6 +59,11 @@ impl<G: IncrementalGenotype> Default for Noop<G> {
         Self(PhantomData)
     }
 }
+impl<G: IncrementalGenotype> Noop<G> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
 impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Noop<G> {
     type Genotype = G;
 }
@@ -115,6 +120,11 @@ pub struct Log<G: IncrementalGenotype>(pub PhantomData<G>);
 impl<G: IncrementalGenotype> Default for Log<G> {
     fn default() -> Self {
         Self(PhantomData)
+    }
+}
+impl<G: IncrementalGenotype> Log<G> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 impl<G: IncrementalGenotype + Sync + Clone + Send> Reporter for Log<G> {

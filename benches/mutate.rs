@@ -10,7 +10,7 @@ use rand::rngs::SmallRng;
 //use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut reporter = EvolveReporterNoop::default();
+    let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::from_entropy();
 
     let population_sizes = vec![250, 500, 1000, 2000];
@@ -43,7 +43,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .collect();
             let population = Population::new(chromosomes);
             let mut state = EvolveState::new(population);
-            let config = EvolveConfig::default();
+            let config = EvolveConfig::new();
             CountTrue.call_for_population(&mut state.population, None);
 
             group.bench_with_input(

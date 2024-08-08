@@ -56,6 +56,11 @@ impl<G: PermutableGenotype> Default for Noop<G> {
         Self(PhantomData)
     }
 }
+impl<G: PermutableGenotype> Noop<G> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
 impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Noop<G> {
     type Genotype = G;
 }
@@ -111,6 +116,11 @@ pub struct Log<G: PermutableGenotype>(pub PhantomData<G>);
 impl<G: PermutableGenotype> Default for Log<G> {
     fn default() -> Self {
         Self(PhantomData)
+    }
+}
+impl<G: PermutableGenotype> Log<G> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 impl<G: PermutableGenotype + Sync + Clone + Send> Reporter for Log<G> {

@@ -279,7 +279,7 @@ fn main() {
             column_scores.clone(),
             false,
         ))
-        // .with_reporter(HillClimbReporterNoop::default());
+        // .with_reporter(HillClimbReporterNoop::new());
         .with_reporter(HillClimbReporterSimple::new(100, true));
 
     let now = std::time::Instant::now();
