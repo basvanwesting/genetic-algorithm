@@ -7,11 +7,11 @@ use rand::Rng;
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population](crate::population::Population) with the provided mutation_probability. Then mutates the
 /// selected chromosomes once using neighbouring mutation.
 #[derive(Debug, Clone)]
-pub struct SingleGeneDistance {
+pub struct SingleGeneNeighbour {
     pub mutation_probability: f32,
 }
 
-impl Mutate for SingleGeneDistance {
+impl Mutate for SingleGeneNeighbour {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
@@ -37,7 +37,7 @@ impl Mutate for SingleGeneDistance {
     }
 }
 
-impl SingleGeneDistance {
+impl SingleGeneNeighbour {
     pub fn new(mutation_probability: f32) -> Self {
         Self {
             mutation_probability,

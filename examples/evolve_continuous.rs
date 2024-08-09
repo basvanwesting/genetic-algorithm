@@ -24,7 +24,7 @@ fn main() {
         .with_max_stale_generations(100)
         .with_target_fitness_score(99 * 100_000)
         // .with_mutate(MutateSingleGeneRandom::new(0.2))
-        .with_mutate(MutateSingleGeneDistance::new(0.2))
+        .with_mutate(MutateSingleGeneNeighbour::new(0.2))
         .with_fitness(SumContinuousGenotype(1e-5))
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))

@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
-use genetic_algorithm::mutate::{Mutate, MutateSingleGeneDistance};
+use genetic_algorithm::mutate::{Mutate, MutateSingleGeneNeighbour};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -24,7 +24,7 @@ fn continuous_genotype() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateSingleGeneDistance::new(0.5).call(
+    MutateSingleGeneNeighbour::new(0.5).call(
         &genotype,
         &mut state,
         &config,
@@ -42,21 +42,21 @@ fn continuous_genotype() {
         ]
     );
 
-    MutateSingleGeneDistance::new(0.5).call(
+    MutateSingleGeneNeighbour::new(0.5).call(
         &genotype,
         &mut state,
         &config,
         &mut reporter,
         &mut rng,
     );
-    MutateSingleGeneDistance::new(0.5).call(
+    MutateSingleGeneNeighbour::new(0.5).call(
         &genotype,
         &mut state,
         &config,
         &mut reporter,
         &mut rng,
     );
-    MutateSingleGeneDistance::new(0.5).call(
+    MutateSingleGeneNeighbour::new(0.5).call(
         &genotype,
         &mut state,
         &config,

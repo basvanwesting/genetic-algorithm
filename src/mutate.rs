@@ -3,14 +3,14 @@
 //! 5% and 20%.
 mod multi_gene_random;
 mod multi_gene_random_dynamic;
-mod single_gene_distance;
+mod single_gene_neighbour;
 mod single_gene_random;
 mod single_gene_random_dynamic;
 mod wrapper;
 
 pub use self::multi_gene_random::MultiGeneRandom as MutateMultiGeneRandom;
 pub use self::multi_gene_random_dynamic::MultiGeneRandomDynamic as MutateMultiGeneRandomDynamic;
-pub use self::single_gene_distance::SingleGeneDistance as MutateSingleGeneDistance;
+pub use self::single_gene_neighbour::SingleGeneNeighbour as MutateSingleGeneNeighbour;
 pub use self::single_gene_random::SingleGeneRandom as MutateSingleGeneRandom;
 pub use self::single_gene_random_dynamic::SingleGeneRandomDynamic as MutateSingleGeneRandomDynamic;
 pub use self::wrapper::Wrapper as MutateWrapper;

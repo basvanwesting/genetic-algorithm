@@ -1,6 +1,6 @@
 pub use super::multi_gene_random::MultiGeneRandom as MutateMultiGeneRandom;
 pub use super::multi_gene_random_dynamic::MultiGeneRandomDynamic as MutateMultiGeneRandomDynamic;
-pub use super::single_gene_distance::SingleGeneDistance as MutateSingleGeneDistance;
+pub use super::single_gene_neighbour::SingleGeneNeighbour as MutateSingleGeneNeighbour;
 pub use super::single_gene_random::SingleGeneRandom as MutateSingleGeneRandom;
 pub use super::single_gene_random_dynamic::SingleGeneRandomDynamic as MutateSingleGeneRandomDynamic;
 pub use super::Mutate;
@@ -13,7 +13,7 @@ use rand::Rng;
 pub enum Wrapper {
     MultiGeneRandom(MutateMultiGeneRandom),
     MultiGeneRandomDynamic(MutateMultiGeneRandomDynamic),
-    SingleGeneDistance(MutateSingleGeneDistance),
+    SingleGeneNeighbour(MutateSingleGeneNeighbour),
     SingleGeneRandom(MutateSingleGeneRandom),
     SingleGeneRandomDynamic(MutateSingleGeneRandomDynamic),
 }
@@ -32,7 +32,7 @@ impl Mutate for Wrapper {
             Wrapper::MultiGeneRandomDynamic(mutate) => {
                 mutate.call(genotype, state, config, reporter, rng)
             }
-            Wrapper::SingleGeneDistance(mutate) => {
+            Wrapper::SingleGeneNeighbour(mutate) => {
                 mutate.call(genotype, state, config, reporter, rng)
             }
             Wrapper::SingleGeneRandom(mutate) => {
@@ -47,7 +47,7 @@ impl Mutate for Wrapper {
         match self {
             Wrapper::MultiGeneRandom(mutate) => mutate.report(),
             Wrapper::MultiGeneRandomDynamic(mutate) => mutate.report(),
-            Wrapper::SingleGeneDistance(mutate) => mutate.report(),
+            Wrapper::SingleGeneNeighbour(mutate) => mutate.report(),
             Wrapper::SingleGeneRandom(mutate) => mutate.report(),
             Wrapper::SingleGeneRandomDynamic(mutate) => mutate.report(),
         }
@@ -74,8 +74,8 @@ impl From<MutateMultiGeneRandomDynamic> for Wrapper {
         Wrapper::MultiGeneRandomDynamic(mutate)
     }
 }
-impl From<MutateSingleGeneDistance> for Wrapper {
-    fn from(mutate: MutateSingleGeneDistance) -> Self {
-        Wrapper::SingleGeneDistance(mutate)
+impl From<MutateSingleGeneNeighbour> for Wrapper {
+    fn from(mutate: MutateSingleGeneNeighbour) -> Self {
+        Wrapper::SingleGeneNeighbour(mutate)
     }
 }
