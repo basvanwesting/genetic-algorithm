@@ -20,10 +20,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Fixed
 * Fix major issue where cardinality starts out as 0 as there are no fitness
-  calculations yet, triggering an optional extension event at the start of the
-  evolve loop (killing seed population and diversity). Issue was introduced in
-  v0.8.0 with `fitness_score_cardinality()`. Solve by adding None fitness counts
-  to cardinality.
+  calculations yet. This triggers the optional extension event, if set, at the
+  start of the evolve loop (killing seed population and diversity). Issue was
+  introduced in v0.8.0 with `fitness_score_cardinality()`. Solve by adding None
+  fitness counts to cardinality.
 
 ## [0.8.1] - 2024-08-08
 ### Added
