@@ -88,7 +88,6 @@ fn main() {
         .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::new())
         .build()
         .unwrap();
 

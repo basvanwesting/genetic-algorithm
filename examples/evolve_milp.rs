@@ -59,8 +59,7 @@ fn main() {
         .with_fitness(MILPFitness)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteElite::new())
-        .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::new());
+        .with_extension(ExtensionNoop::new());
 
     for _ in 0..10 {
         let now = std::time::Instant::now();

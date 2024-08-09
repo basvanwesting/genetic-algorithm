@@ -49,7 +49,6 @@ fn main() {
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteElite::new())
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::new())
         .build()
         .unwrap();
 

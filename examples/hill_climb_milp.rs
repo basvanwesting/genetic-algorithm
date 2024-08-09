@@ -60,8 +60,7 @@ fn main() {
         .with_max_stale_generations(100)
         //.with_target_fitness_score(TARGET_SCORE)
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_fitness(MILPFitness)
-        .with_reporter(HillClimbReporterNoop::new());
+        .with_fitness(MILPFitness);
     // .with_reporter(HillClimbReporterSimple::new(100));
 
     for _ in 0..10 {

@@ -51,7 +51,7 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .with_reporter(PermutateReporterNoop::new())  // no reporting
+///     .with_reporter(PermutateReporterNoop::new()) // no reporting, optional builder step as PermutateReporterNoop is default
 ///     .with_multithreading(true)                        // use all cores
 ///     .call(&mut rng)
 ///     .unwrap();

@@ -23,8 +23,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_mutate(MutateSingleGeneRandom::new(0.2))
         .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterNoop::new());
+        .with_extension(ExtensionNoop::new());
 
     c.bench_function("profile_evolve_binary", |b| {
         b.iter_batched(

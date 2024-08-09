@@ -115,7 +115,7 @@ pub struct Scaling {
 ///     .with_target_fitness_score(10)             // ending condition if sum of genes is <= 0.00010 in the best chromosome
 ///     .with_valid_fitness_score(100)             // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)          // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_reporter(HillClimbReporterNoop::new())  // no reporting
+///     .with_reporter(HillClimbReporterNoop::new()) // no reporting, optional builder step as HillClimbReporterNoop is default
 ///     .call(&mut rng)
 ///     .unwrap();
 ///

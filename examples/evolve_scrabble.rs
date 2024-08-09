@@ -284,7 +284,6 @@ fn main() {
         .with_extension(ExtensionMassGenesis::new(10))
         // .with_extension(ExtensionMassDegeneration::new(10, 50))
         .with_multithreading(true)
-        // .with_reporter(EvolveReporterNoop::new())
         // .with_reporter(EvolveReporterSimple::default())
         // .with_reporter(EvolveReporterSimple::new_with_flags(
         //     100, false, false, true,
