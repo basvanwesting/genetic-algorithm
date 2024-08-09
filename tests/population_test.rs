@@ -72,7 +72,7 @@ mod population_tests {
             (vec![true, true, false], None),
         ]);
 
-        assert_eq!(population.fitness_score_cardinality(), 3);
+        assert_eq!(population.fitness_score_cardinality(), 3 + 1);
     }
 
     #[test]

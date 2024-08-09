@@ -93,11 +93,15 @@ impl<T: Genotype> Population<T> {
     }
     pub fn fitness_score_cardinality(&self) -> usize {
         let mut estimator = CardinalityEstimator::<isize>::new();
-        self.chromosomes
-            .iter()
-            .filter_map(|c| c.fitness_score)
-            .for_each(|f| estimator.insert(&f));
-        estimator.estimate()
+        let mut nones = 0;
+        self.chromosomes.iter().for_each(|chromosome| {
+            if let Some(fitness_score) = chromosome.fitness_score {
+                estimator.insert(&fitness_score);
+            } else {
+                nones += 1;
+            }
+        });
+        estimator.estimate() + nones
     }
     pub fn fitness_score_present(&self, fitness_score: Option<isize>) -> bool {
         self.chromosomes
