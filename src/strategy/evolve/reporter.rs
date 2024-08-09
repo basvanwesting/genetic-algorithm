@@ -77,6 +77,8 @@ pub struct Simple<G: Genotype> {
     pub show_genes: bool,
     pub show_mutate_event: bool,
     pub show_extension_event: bool,
+    number_of_mutate_events: usize,
+    number_of_extension_events: usize,
     _phantom: PhantomData<G>,
 }
 impl<G: Genotype> Default for Simple<G> {
@@ -86,6 +88,8 @@ impl<G: Genotype> Default for Simple<G> {
             show_genes: false,
             show_mutate_event: false,
             show_extension_event: false,
+            number_of_mutate_events: 0,
+            number_of_extension_events: 0,
             _phantom: PhantomData,
         }
     }
@@ -118,12 +122,15 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
         if state.current_generation() % self.period == 0 {
             println!(
-                "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}",
+                "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}, #extension_events: {}",
                 state.current_generation(),
                 state.best_generation(),
                 state.population.fitness_score_cardinality(),
                 state.population.size(),
+                self.number_of_extension_events,
             );
+            self.number_of_mutate_events = 0;
+            self.number_of_extension_events = 0;
         }
     }
 
@@ -142,6 +149,7 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     }
 
     fn on_extension_event(&mut self, state: &EvolveState<Self::Genotype>, event: ExtensionEvent) {
+        self.number_of_extension_events += 1;
         if self.show_extension_event {
             match event {
                 ExtensionEvent::MassDegeneration(message) => {
@@ -177,6 +185,7 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     }
 
     fn on_mutate_event(&mut self, event: MutateEvent) {
+        self.number_of_mutate_events += 1;
         if self.show_mutate_event {
             match event {
                 MutateEvent::ChangeMutationProbability(message) => {
