@@ -32,7 +32,7 @@ fn build_invalid_missing_ending_condition() {
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionNoop::new())
+        // .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
         .build();
 
@@ -59,7 +59,7 @@ fn build_invalid_require_crossover_indexes() {
         .with_fitness(SumUniqueGenotype)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionNoop::new())
+        // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
         .build();
 
@@ -175,7 +175,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionNoop::new())
+        // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();
@@ -410,7 +410,7 @@ fn call_continuous() {
         .with_fitness(SumContinuousGenotype(1e-3))
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionNoop::new())
+        // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
         .call(&mut rng)
         .unwrap();

@@ -35,8 +35,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .with_mutate(MutateSingleGeneRandom::new(0.2))
                 .with_fitness(Zero::new())
                 .with_crossover(CrossoverSingleGene::new(true))
-                .with_compete(CompeteTournament::new(4))
-                .with_extension(ExtensionNoop::new());
+                .with_compete(CompeteTournament::new(4));
 
             b.iter_batched(
                 || evolve_builder.clone().build().unwrap(),
@@ -65,8 +64,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .with_mutate(MutateSingleGeneRandom::new(0.2))
                 .with_fitness(Zero::new())
                 .with_crossover(CrossoverSingleGene::new(true))
-                .with_compete(CompeteTournament::new(4))
-                .with_extension(ExtensionNoop::new());
+                .with_compete(CompeteTournament::new(4));
 
             b.iter_batched(
                 || evolve_builder.clone().build().unwrap(),

@@ -52,7 +52,6 @@ fn main() {
         .with_mutate(MutateSingleGeneRandom::new(0.2))
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteElite::new())
-        .with_extension(ExtensionNoop::new())
         .build()
         .unwrap();
 

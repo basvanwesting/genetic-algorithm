@@ -11,7 +11,7 @@ use super::{Strategy, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
-use crate::extension::Extension;
+use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
@@ -71,19 +71,19 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// let mut rng = rand::thread_rng(); // a randomness provider implementing Trait rand::Rng
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
-///     .with_target_population_size(100) // evolve with 100 chromosomes
-///     .with_target_fitness_score(0)     // ending condition if 0 times true in the best chromosome
-///     .with_valid_fitness_score(10)     // block ending conditions until at most a 10 times true in the best chromosome
-///     .with_max_stale_generations(1000) // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_max_chromosome_age(10)      // kill chromosomes after 10 generations
-///     .with_fitness(CountTrue)          // count the number of true values in the chromosomes
-///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .with_multithreading(true)              // use all cores for calculating the fitness of the population
-///     .with_crossover(CrossoverUniform::new(true)) // crossover all individual genes between 2 chromosomes for offspring
-///     .with_mutate(MutateSingleGeneRandom::new(0.2))      // mutate a single gene with a 20% probability per chromosome
-///     .with_compete(CompeteElite::new())      // sort the chromosomes by fitness to determine crossover order
-///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
-///     .with_reporter(EvolveReporterNoop::new()) // no reporting, optional builder step as EvolveReporterNoop is default
+///     .with_target_population_size(100)                      // evolve with 100 chromosomes
+///     .with_target_fitness_score(0)                          // ending condition if 0 times true in the best chromosome
+///     .with_valid_fitness_score(10)                          // block ending conditions until at most a 10 times true in the best chromosome
+///     .with_max_stale_generations(1000)                      // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_max_chromosome_age(10)                           // kill chromosomes after 10 generations
+///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
+///     .with_fitness_ordering(FitnessOrdering::Minimize)      // aim for the least true values
+///     .with_multithreading(true)                             // use all cores for calculating the fitness of the population
+///     .with_crossover(CrossoverUniform::new(true))           // crossover all individual genes between 2 chromosomes for offspring
+///     .with_mutate(MutateSingleGeneRandom::new(0.2))         // mutate a single gene with a 20% probability per chromosome
+///     .with_compete(CompeteElite::new())                     // sort the chromosomes by fitness to determine crossover order
+///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
+///     .with_reporter(EvolveReporterSimple::new(100))         // optional builder step, report every 100 generations
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -222,10 +222,10 @@ impl<
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
-    Evolve<G, M, F, S, C, E, EvolveReporterNoop<G>>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+    Evolve<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
-    pub fn builder() -> EvolveBuilder<G, M, F, S, C, E, EvolveReporterNoop<G>> {
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>> {
         EvolveBuilder::new()
     }
 }
@@ -416,7 +416,7 @@ impl<
                     mutate: builder.mutate.unwrap(),
                     crossover: builder.crossover.unwrap(),
                     compete: builder.compete.unwrap(),
-                    extension: builder.extension.unwrap(),
+                    extension: builder.extension,
                 },
                 config: EvolveConfig {
                     target_population_size: builder.target_population_size,

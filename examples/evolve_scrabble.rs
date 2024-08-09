@@ -278,7 +278,6 @@ fn main() {
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
         //.with_compete(CompeteElite::new())
-        // .with_extension(ExtensionNoop::new())
         //.with_extension(ExtensionMassExtinction::new(10, 0.001))
         // .with_extension(ExtensionMassInvasion::new(10, 0.1))
         .with_extension(ExtensionMassGenesis::new(10))

@@ -2,7 +2,7 @@ use super::{Evolve, EvolveReporter, EvolveReporterNoop};
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
-use crate::extension::Extension;
+use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
@@ -35,12 +35,12 @@ pub struct Builder<
     pub fitness: Option<F>,
     pub crossover: Option<S>,
     pub compete: Option<C>,
-    pub extension: Option<E>,
+    pub extension: E,
     pub reporter: SR,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
-    Default for Builder<G, M, F, S, C, E, EvolveReporterNoop<G>>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Default
+    for Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -56,13 +56,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete,
             fitness: None,
             crossover: None,
             compete: None,
-            extension: None,
+            extension: ExtensionNoop::new(),
             reporter: EvolveReporterNoop::new(),
         }
     }
 }
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
-    Builder<G, M, F, S, C, E, EvolveReporterNoop<G>>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+    Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     pub fn new() -> Self {
         Self::default()
@@ -160,9 +160,23 @@ impl<
         self.compete = Some(compete);
         self
     }
-    pub fn with_extension(mut self, extension: E) -> Self {
-        self.extension = Some(extension);
-        self
+    pub fn with_extension<E2: Extension>(self, extension: E2) -> Builder<G, M, F, S, C, E2, SR> {
+        Builder {
+            genotype: self.genotype,
+            target_population_size: self.target_population_size,
+            max_stale_generations: self.max_stale_generations,
+            max_chromosome_age: self.max_chromosome_age,
+            target_fitness_score: self.target_fitness_score,
+            valid_fitness_score: self.valid_fitness_score,
+            fitness_ordering: self.fitness_ordering,
+            multithreading: self.multithreading,
+            mutate: self.mutate,
+            fitness: self.fitness,
+            crossover: self.crossover,
+            compete: self.compete,
+            extension,
+            reporter: self.reporter,
+        }
     }
     pub fn with_reporter<SR2: EvolveReporter<Genotype = G>>(
         self,

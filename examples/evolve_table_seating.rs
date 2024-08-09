@@ -97,8 +97,7 @@ fn main() {
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGeneRandom::new(0.3))
         .with_crossover(CrossoverSinglePoint::new(true))
-        .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionNoop::new());
+        .with_compete(CompeteTournament::new(4));
 
     //let now = std::time::Instant::now();
     //let evolve = evolve_builder.call(&mut rng).unwrap();
