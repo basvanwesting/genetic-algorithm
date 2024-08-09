@@ -304,13 +304,14 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
     }
 }
 
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F, HillClimbReporterNoop<G>> {
+    pub fn builder() -> HillClimbBuilder<G, F, HillClimbReporterNoop<G>> {
+        HillClimbBuilder::new()
+    }
+}
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
     HillClimb<G, F, SR>
 {
-    pub fn builder() -> HillClimbBuilder<G, F, SR> {
-        HillClimbBuilder::new()
-    }
-
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
             && (self.is_finished_by_max_stale_generations()
@@ -450,10 +451,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
             ))
         } else if builder.fitness.is_none() {
             Err(TryFromHillClimbBuilderError("HillClimb requires a Fitness"))
-        } else if builder.reporter.is_none() {
-            Err(TryFromHillClimbBuilderError(
-                "HillClimb requires a Reporter",
-            ))
         } else if builder.max_stale_generations.is_none()
             && builder.target_fitness_score.is_none()
             && builder.scaling.is_none()
@@ -475,7 +472,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     scaling: builder.scaling,
                 },
                 state: HillClimbState::new(),
-                reporter: builder.reporter.unwrap(),
+                reporter: builder.reporter,
             })
         }
     }

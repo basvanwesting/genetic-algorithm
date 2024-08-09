@@ -1,4 +1,4 @@
-use super::{HillClimb, HillClimbReporter, HillClimbVariant, Scaling};
+use super::{HillClimb, HillClimbReporter, HillClimbReporterNoop, HillClimbVariant, Scaling};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::Strategy;
@@ -23,70 +23,39 @@ pub struct Builder<
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub scaling: Option<Scaling>,
-    pub reporter: Option<SR>,
+    pub reporter: SR,
+}
+
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default
+    for Builder<G, F, HillClimbReporterNoop<G>>
+{
+    fn default() -> Self {
+        Self {
+            genotype: None,
+            variant: None,
+            fitness: None,
+            fitness_ordering: FitnessOrdering::Maximize,
+            multithreading: false,
+            max_stale_generations: None,
+            target_fitness_score: None,
+            valid_fitness_score: None,
+            scaling: None,
+            reporter: HillClimbReporterNoop::new(),
+        }
+    }
+}
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F, HillClimbReporterNoop<G>> {
+    pub fn new() -> Self {
+        Self::default()
+    }
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
     Builder<G, F, SR>
 {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     pub fn build(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         self.try_into()
     }
-    pub fn call<R: Rng>(self, rng: &mut R) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
-        let mut hill_climb: HillClimb<G, F, SR> = self.try_into()?;
-        hill_climb.call(rng);
-        Ok(hill_climb)
-    }
-    pub fn call_repeatedly<R: Rng>(
-        self,
-        max_repeats: usize,
-        rng: &mut R,
-    ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
-        let mut best_hill_climb: Option<HillClimb<G, F, SR>> = None;
-        for iteration in 0..max_repeats {
-            let mut contending_run: HillClimb<G, F, SR> = self.clone().try_into()?;
-            contending_run.state.current_iteration = iteration;
-            contending_run.call(rng);
-            if contending_run.is_finished_by_target_fitness_score() {
-                best_hill_climb = Some(contending_run);
-                break;
-            }
-            if let Some(best_run) = best_hill_climb.as_ref() {
-                match (
-                    best_run.best_fitness_score(),
-                    contending_run.best_fitness_score(),
-                ) {
-                    (None, None) => {}
-                    (Some(_), None) => {}
-                    (None, Some(_)) => {
-                        best_hill_climb = Some(contending_run);
-                    }
-                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match contending_run.config.fitness_ordering {
-                            FitnessOrdering::Maximize => {
-                                if contending_fitness_score >= current_fitness_score {
-                                    best_hill_climb = Some(contending_run);
-                                }
-                            }
-                            FitnessOrdering::Minimize => {
-                                if contending_fitness_score <= current_fitness_score {
-                                    best_hill_climb = Some(contending_run);
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                best_hill_climb = Some(contending_run);
-            }
-        }
-        Ok(best_hill_climb.unwrap())
-    }
-
     pub fn with_genotype(mut self, genotype: G) -> Self {
         self.genotype = Some(genotype);
         self
@@ -144,27 +113,76 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         self.scaling = Some(scaling);
         self
     }
-    pub fn with_reporter(mut self, reporter: SR) -> Self {
-        self.reporter = Some(reporter);
-        self
+    pub fn with_reporter<SR2: HillClimbReporter<Genotype = G>>(
+        self,
+        reporter: SR2,
+    ) -> Builder<G, F, SR2> {
+        Builder {
+            genotype: self.genotype,
+            variant: self.variant,
+            fitness: self.fitness,
+            fitness_ordering: self.fitness_ordering,
+            multithreading: self.multithreading,
+            max_stale_generations: self.max_stale_generations,
+            target_fitness_score: self.target_fitness_score,
+            valid_fitness_score: self.valid_fitness_score,
+            scaling: self.scaling,
+            reporter,
+        }
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>> Default
-    for Builder<G, F, SR>
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
+    Builder<G, F, SR>
 {
-    fn default() -> Self {
-        Self {
-            genotype: None,
-            variant: None,
-            fitness: None,
-            fitness_ordering: FitnessOrdering::Maximize,
-            multithreading: false,
-            max_stale_generations: None,
-            target_fitness_score: None,
-            valid_fitness_score: None,
-            scaling: None,
-            reporter: None,
+    pub fn call<R: Rng>(self, rng: &mut R) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
+        let mut hill_climb: HillClimb<G, F, SR> = self.try_into()?;
+        hill_climb.call(rng);
+        Ok(hill_climb)
+    }
+    pub fn call_repeatedly<R: Rng>(
+        self,
+        max_repeats: usize,
+        rng: &mut R,
+    ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
+        let mut best_hill_climb: Option<HillClimb<G, F, SR>> = None;
+        for iteration in 0..max_repeats {
+            let mut contending_run: HillClimb<G, F, SR> = self.clone().try_into()?;
+            contending_run.state.current_iteration = iteration;
+            contending_run.call(rng);
+            if contending_run.is_finished_by_target_fitness_score() {
+                best_hill_climb = Some(contending_run);
+                break;
+            }
+            if let Some(best_run) = best_hill_climb.as_ref() {
+                match (
+                    best_run.best_fitness_score(),
+                    contending_run.best_fitness_score(),
+                ) {
+                    (None, None) => {}
+                    (Some(_), None) => {}
+                    (None, Some(_)) => {
+                        best_hill_climb = Some(contending_run);
+                    }
+                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
+                        match contending_run.config.fitness_ordering {
+                            FitnessOrdering::Maximize => {
+                                if contending_fitness_score >= current_fitness_score {
+                                    best_hill_climb = Some(contending_run);
+                                }
+                            }
+                            FitnessOrdering::Minimize => {
+                                if contending_fitness_score <= current_fitness_score {
+                                    best_hill_climb = Some(contending_run);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                best_hill_climb = Some(contending_run);
+            }
         }
+        Ok(best_hill_climb.unwrap())
     }
 }

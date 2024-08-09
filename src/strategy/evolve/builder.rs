@@ -39,6 +39,36 @@ pub struct Builder<
     pub reporter: Option<SR>,
 }
 
+impl<
+        G: Genotype,
+        M: Mutate,
+        F: Fitness<Genotype = G>,
+        S: Crossover,
+        C: Compete,
+        E: Extension,
+        SR: EvolveReporter<Genotype = G>,
+    > Default for Builder<G, M, F, S, C, E, SR>
+{
+    fn default() -> Self {
+        Self {
+            genotype: None,
+            target_population_size: 0,
+            max_stale_generations: None,
+            max_chromosome_age: None,
+            target_fitness_score: None,
+            valid_fitness_score: None,
+            fitness_ordering: FitnessOrdering::Maximize,
+            multithreading: false,
+            mutate: None,
+            fitness: None,
+            crossover: None,
+            compete: None,
+            extension: None,
+            reporter: None,
+        }
+    }
+}
+
 #[allow(clippy::type_complexity)]
 impl<
         G: Genotype,
@@ -56,90 +86,6 @@ impl<
 
     pub fn build(self) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         self.try_into()
-    }
-
-    pub fn call<R: Rng>(
-        self,
-        rng: &mut R,
-    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
-        let mut evolve: Evolve<G, M, F, S, C, E, SR> = self.try_into()?;
-        evolve.call(rng);
-        Ok(evolve)
-    }
-    pub fn call_repeatedly<R: Rng>(
-        self,
-        max_repeats: usize,
-        rng: &mut R,
-    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
-        let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
-        for iteration in 0..max_repeats {
-            log::info!("### repeated round: {}", iteration);
-            let mut contending_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
-            contending_run.state.current_iteration = iteration;
-            contending_run.call(rng);
-            if contending_run.is_finished_by_target_fitness_score() {
-                best_evolve = Some(contending_run);
-                break;
-            }
-            if let Some(best_run) = best_evolve.as_ref() {
-                match (
-                    best_run.best_fitness_score(),
-                    contending_run.best_fitness_score(),
-                ) {
-                    (None, None) => {}
-                    (Some(_), None) => {}
-                    (None, Some(_)) => {
-                        best_evolve = Some(contending_run);
-                    }
-                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match contending_run.config.fitness_ordering {
-                            FitnessOrdering::Maximize => {
-                                if contending_fitness_score >= current_fitness_score {
-                                    best_evolve = Some(contending_run);
-                                }
-                            }
-                            FitnessOrdering::Minimize => {
-                                if contending_fitness_score <= current_fitness_score {
-                                    best_evolve = Some(contending_run);
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                best_evolve = Some(contending_run);
-            }
-        }
-        Ok(best_evolve.unwrap())
-    }
-    pub fn call_speciated<R: Rng>(
-        self,
-        number_of_species: usize,
-        rng: &mut R,
-    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
-        let best_chromosomes: Vec<Chromosome<G>> = (0..number_of_species)
-            .filter_map(|iteration| {
-                log::info!("### speciated round: {}", iteration);
-                let mut species_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into().ok()?;
-                species_run.state.current_iteration = iteration;
-                species_run.call(rng);
-                species_run.best_chromosome()
-            })
-            .collect();
-
-        log::info!("### speciated final run");
-        let seed_genes_list = best_chromosomes
-            .iter()
-            .map(|best_chromosome| best_chromosome.genes.clone())
-            .collect();
-        log::debug!("### seed_genes_list: {:?}", seed_genes_list);
-        let mut final_genotype = self.genotype.clone().unwrap();
-        final_genotype.set_seed_genes_list(seed_genes_list);
-        let mut final_run: Evolve<G, M, F, S, C, E, SR> =
-            self.clone().with_genotype(final_genotype).try_into()?;
-
-        final_run.call(rng);
-        Ok(final_run)
     }
 
     pub fn with_genotype(mut self, genotype: G) -> Self {
@@ -228,6 +174,7 @@ impl<
     }
 }
 
+#[allow(clippy::type_complexity)]
 impl<
         G: Genotype,
         M: Mutate,
@@ -236,24 +183,89 @@ impl<
         C: Compete,
         E: Extension,
         SR: EvolveReporter<Genotype = G>,
-    > Default for Builder<G, M, F, S, C, E, SR>
+    > Builder<G, M, F, S, C, E, SR>
 {
-    fn default() -> Self {
-        Self {
-            genotype: None,
-            target_population_size: 0,
-            max_stale_generations: None,
-            max_chromosome_age: None,
-            target_fitness_score: None,
-            valid_fitness_score: None,
-            fitness_ordering: FitnessOrdering::Maximize,
-            multithreading: false,
-            mutate: None,
-            fitness: None,
-            crossover: None,
-            compete: None,
-            extension: None,
-            reporter: None,
+    pub fn call<R: Rng>(
+        self,
+        rng: &mut R,
+    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+        let mut evolve: Evolve<G, M, F, S, C, E, SR> = self.try_into()?;
+        evolve.call(rng);
+        Ok(evolve)
+    }
+    pub fn call_repeatedly<R: Rng>(
+        self,
+        max_repeats: usize,
+        rng: &mut R,
+    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+        let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
+        for iteration in 0..max_repeats {
+            log::info!("### repeated round: {}", iteration);
+            let mut contending_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
+            contending_run.state.current_iteration = iteration;
+            contending_run.call(rng);
+            if contending_run.is_finished_by_target_fitness_score() {
+                best_evolve = Some(contending_run);
+                break;
+            }
+            if let Some(best_run) = best_evolve.as_ref() {
+                match (
+                    best_run.best_fitness_score(),
+                    contending_run.best_fitness_score(),
+                ) {
+                    (None, None) => {}
+                    (Some(_), None) => {}
+                    (None, Some(_)) => {
+                        best_evolve = Some(contending_run);
+                    }
+                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
+                        match contending_run.config.fitness_ordering {
+                            FitnessOrdering::Maximize => {
+                                if contending_fitness_score >= current_fitness_score {
+                                    best_evolve = Some(contending_run);
+                                }
+                            }
+                            FitnessOrdering::Minimize => {
+                                if contending_fitness_score <= current_fitness_score {
+                                    best_evolve = Some(contending_run);
+                                }
+                            }
+                        }
+                    }
+                }
+            } else {
+                best_evolve = Some(contending_run);
+            }
         }
+        Ok(best_evolve.unwrap())
+    }
+    pub fn call_speciated<R: Rng>(
+        self,
+        number_of_species: usize,
+        rng: &mut R,
+    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+        let best_chromosomes: Vec<Chromosome<G>> = (0..number_of_species)
+            .filter_map(|iteration| {
+                log::info!("### speciated round: {}", iteration);
+                let mut species_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into().ok()?;
+                species_run.state.current_iteration = iteration;
+                species_run.call(rng);
+                species_run.best_chromosome()
+            })
+            .collect();
+
+        log::info!("### speciated final run");
+        let seed_genes_list = best_chromosomes
+            .iter()
+            .map(|best_chromosome| best_chromosome.genes.clone())
+            .collect();
+        log::debug!("### seed_genes_list: {:?}", seed_genes_list);
+        let mut final_genotype = self.genotype.clone().unwrap();
+        final_genotype.set_seed_genes_list(seed_genes_list);
+        let mut final_run: Evolve<G, M, F, S, C, E, SR> =
+            self.clone().with_genotype(final_genotype).try_into()?;
+
+        final_run.call(rng);
+        Ok(final_run)
     }
 }

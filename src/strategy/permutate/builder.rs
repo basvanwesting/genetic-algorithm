@@ -46,12 +46,6 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
     pub fn build(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         self.try_into()
     }
-    pub fn call<R: Rng>(self, rng: &mut R) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
-        let mut permutate: Permutate<G, F, SR> = self.try_into()?;
-        permutate.call(rng);
-        Ok(permutate)
-    }
-
     pub fn with_genotype(mut self, genotype: G) -> Self {
         self.genotype = Some(genotype);
         self
@@ -68,10 +62,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         self.fitness = Some(fitness);
         self
     }
-    pub fn with_reporter<UR: PermutateReporter<Genotype = G>>(
+    pub fn with_reporter<SR2: PermutateReporter<Genotype = G>>(
         self,
-        reporter: UR,
-    ) -> Builder<G, F, UR> {
+        reporter: SR2,
+    ) -> Builder<G, F, SR2> {
         Builder {
             genotype: self.genotype,
             fitness_ordering: self.fitness_ordering,
@@ -79,5 +73,14 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             fitness: self.fitness,
             reporter,
         }
+    }
+}
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
+    Builder<G, F, SR>
+{
+    pub fn call<R: Rng>(self, rng: &mut R) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
+        let mut permutate: Permutate<G, F, SR> = self.try_into()?;
+        permutate.call(rng);
+        Ok(permutate)
     }
 }
