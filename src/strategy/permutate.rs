@@ -234,10 +234,6 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             ))
         } else if builder.fitness.is_none() {
             Err(TryFromPermutateBuilderError("Permutate requires a Fitness"))
-        } else if builder.reporter.is_none() {
-            Err(TryFromPermutateBuilderError(
-                "Permutate requires a Reporter",
-            ))
         } else {
             let genotype = builder.genotype.unwrap();
             let total_population_size = genotype.chromosome_permutations_size();
@@ -254,7 +250,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
                     total_population_size,
                     ..Default::default()
                 },
-                reporter: builder.reporter.unwrap(),
+                reporter: builder.reporter,
             })
         }
     }

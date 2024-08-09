@@ -18,18 +18,25 @@ pub struct Builder<
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
-    pub reporter: Option<SR>,
+    pub reporter: SR,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F, PermutateReporterNoop<G>> {
-    pub fn new() -> Self {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default
+    for Builder<G, F, PermutateReporterNoop<G>>
+{
+    fn default() -> Self {
         Self {
             genotype: None,
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
             fitness: None,
-            reporter: Some(PermutateReporterNoop::new()),
+            reporter: PermutateReporterNoop::new(),
         }
+    }
+}
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F, PermutateReporterNoop<G>> {
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -70,22 +77,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             fitness_ordering: self.fitness_ordering,
             multithreading: self.multithreading,
             fitness: self.fitness,
-            reporter: Some(reporter),
-        }
-    }
-}
-
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>> Default
-    for Builder<G, F, SR>
-{
-    fn default() -> Self {
-        Self {
-            genotype: None,
-            fitness_ordering: FitnessOrdering::Maximize,
-            multithreading: false,
-            fitness: None,
-            reporter: None,
-            // reporter: Some(SR::default()),
+            reporter,
         }
     }
 }
