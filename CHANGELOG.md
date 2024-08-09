@@ -4,6 +4,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.8.2] - 2024-08-09
+### Added
+* Improve bootstrapped reporter outputs `EvolveReporterSimple`, `HillClimbReporterSimple` and `PermutateReporterSimple`
+* Implement `ExtensionNoop` default for `EvolveBuilder` and remove now optional `with_extension()` steps in examples
+* Implement `EvolveReporterNoop` default for `EvolveBuilder` and remove now optional `with_reporter()` steps in examples
+* Implement `HillClimbReporterNoop` default for `HillClimbBuilder` and remove now optional `with_reporter()` steps in examples
+* Implement `PermutateReporterNoop` default for `PermutateBuilder` and remove now optional `with_reporter()` steps in examples
+
+### Changed
+* Align `EvolveReporter`, `HillClimbReporter` and `PermutateReporter` traits to
+  take `EvolveState` and `EvolveConfig` as parameters in further aligment with
+  `Mutate`, `Compete`, `Crossover` and `Extension` traits.
+* Add `Sync` trait everywhere where `Send` trait was required.
+
+### Fixed
+* Fix major issue where cardinality starts out as 0 as there are no fitness
+  calculations yet, triggering an optional extension event at the start of the
+  evolve loop (killing seed population and diversity). Issue was introduced in
+  v0.8.0 with `fitness_score_cardinality()`. Solve by adding None fitness counts
+  to cardinality.
 
 ## [0.8.1] - 2024-08-08
 ### Added
