@@ -3,13 +3,12 @@ use super::{Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
-use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 use std::ops::Range;
 
-pub type DefaultAllele = f32;
+pub type ContinuousAllele = f32;
 
 /// Genes are a list of f32, each taken from the allele_range using clone(). On random initialization, each
 /// gene gets a value from the allele_range with a uniform probability. Each gene has an equal probability
@@ -18,7 +17,7 @@ pub type DefaultAllele = f32;
 /// Optionally an allele_neighbour_range can be provided. When this is done the mutation is
 /// restricted to modify the existing value by a difference taken from allele_neighbour_range with a uniform probability.
 ///
-/// # Example (f32, default):
+/// # Example:
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, ContinuousGenotype};
 ///
@@ -29,42 +28,18 @@ pub type DefaultAllele = f32;
 ///     .build()
 ///     .unwrap();
 /// ```
-///
-/// # Example (isize):
-/// ```
-/// use genetic_algorithm::genotype::{Genotype, ContinuousGenotype};
-///
-/// let genotype = ContinuousGenotype::<isize>::builder()
-///     .with_genes_size(100)
-///     .with_allele_range(0..10)
-///     .with_allele_neighbour_range(-1..1) // optional
-///     .build()
-///     .unwrap();
-/// ```
-pub struct Continuous<
-    T: Copy + Clone + Default + Send + Sync + SampleUniform + std::ops::Add<Output = T> + std::cmp::PartialOrd + std::fmt::Debug = DefaultAllele,
-> {
+#[derive(Clone, Debug)]
+pub struct Continuous {
     pub genes_size: usize,
-    pub allele_range: Range<T>,
-    pub allele_neighbour_range: Option<Range<T>>,
+    pub allele_range: Range<ContinuousAllele>,
+    pub allele_neighbour_range: Option<Range<ContinuousAllele>>,
     gene_index_sampler: Uniform<usize>,
-    allele_sampler: Uniform<T>,
-    allele_neighbour_sampler: Option<Uniform<T>>,
-    pub seed_genes_list: Vec<Vec<T>>,
+    allele_sampler: Uniform<ContinuousAllele>,
+    allele_neighbour_sampler: Option<Uniform<ContinuousAllele>>,
+    pub seed_genes_list: Vec<Vec<ContinuousAllele>>,
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > TryFrom<Builder<Self>> for Continuous<T>
-{
+impl TryFrom<Builder<Self>> for Continuous {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -95,19 +70,8 @@ impl<
     }
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > Genotype for Continuous<T>
-{
-    type Allele = T;
+impl Genotype for Continuous {
+    type Allele = ContinuousAllele;
     fn genes_size(&self) -> usize {
         self.genes_size
     }
@@ -133,12 +97,12 @@ impl<
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self>,
-        _scale: Option<f32>,
+        scale: Option<f32>,
         rng: &mut R,
     ) {
         let index = self.gene_index_sampler.sample(rng);
-        let new_value =
-            chromosome.genes[index] + self.allele_neighbour_sampler.as_ref().unwrap().sample(rng);
+        let new_value = chromosome.genes[index]
+            + self.allele_neighbour_sampler.as_ref().unwrap().sample(rng) * scale.unwrap_or(1.0);
         if new_value < self.allele_range.start {
             chromosome.genes[index] = self.allele_range.start;
         } else if new_value > self.allele_range.end {
@@ -149,38 +113,27 @@ impl<
         chromosome.taint_fitness_score();
     }
 
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<Self::Allele>>) {
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<ContinuousAllele>>) {
         self.seed_genes_list = seed_genes_list;
     }
-    fn seed_genes_list(&self) -> &Vec<Vec<Self::Allele>> {
+    fn seed_genes_list(&self) -> &Vec<Vec<ContinuousAllele>> {
         &self.seed_genes_list
     }
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > IncrementalGenotype for Continuous<T>
-{
+impl IncrementalGenotype for Continuous {
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,
-        _scale: Option<f32>,
+        scale: Option<f32>,
     ) -> Vec<Chromosome<Self>> {
-        let diffs: Vec<Self::Allele> = vec![
-            self.allele_neighbour_range.as_ref().unwrap().start,
-            self.allele_neighbour_range.as_ref().unwrap().end,
+        let diffs: Vec<ContinuousAllele> = vec![
+            self.allele_neighbour_range.as_ref().unwrap().start * scale.unwrap_or(1.0),
+            self.allele_neighbour_range.as_ref().unwrap().end * scale.unwrap_or(1.0),
         ]
         .into_iter()
         .dedup()
-        .filter(|diff| *diff != T::default())
+        .filter(|diff| *diff != 0.0)
         .collect();
 
         (0..self.genes_size)
@@ -206,69 +159,7 @@ impl<
     }
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > Clone for Continuous<T>
-{
-    fn clone(&self) -> Self {
-        Self {
-            genes_size: self.genes_size.clone(),
-            allele_range: self.allele_range.clone(),
-            allele_neighbour_range: self.allele_neighbour_range.clone(),
-            gene_index_sampler: self.gene_index_sampler.clone(),
-            allele_sampler: Uniform::from(self.allele_range.clone()),
-            allele_neighbour_sampler: self
-                .allele_neighbour_range
-                .clone()
-                .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
-            seed_genes_list: self.seed_genes_list.clone(),
-        }
-    }
-}
-
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > fmt::Debug for Continuous<T>
-{
-    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Point")
-            .field("genes_size", &self.genes_size)
-            .field("allele_range", &self.allele_range)
-            .field("allele_neighbour_range", &self.allele_neighbour_range)
-            .field("gene_index_sampler", &self.gene_index_sampler)
-            .field("seed_genes_list", &self.seed_genes_list)
-            .finish()
-    }
-}
-
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > fmt::Display for Continuous<T>
-{
+impl fmt::Display for Continuous {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
