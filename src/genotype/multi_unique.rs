@@ -149,15 +149,6 @@ impl<T: Clone + Send + Sync + std::fmt::Debug> Genotype for MultiUnique<T> {
 }
 
 impl<T: Clone + Send + Sync + std::fmt::Debug> IncrementalGenotype for MultiUnique<T> {
-    fn mutate_chromosome_neighbour<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self>,
-        _scale: Option<f32>,
-        rng: &mut R,
-    ) {
-        self.mutate_chromosome_random(chromosome, rng);
-    }
-
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,

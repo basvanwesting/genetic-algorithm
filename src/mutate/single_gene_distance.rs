@@ -1,18 +1,14 @@
 use super::Mutate;
-use crate::genotype::{ContinuousGenotypeAllele, Genotype};
+use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use rand::distributions::{Bernoulli, Distribution, Uniform};
+use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
-use std::ops::Range;
 
-/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population](crate::population::Population) with the provided
-/// mutation_probability. Then mutates the selected chromosomes, changing a single gene by adding
-/// or substracting a uniform sample from the provided allele_distance_range.
-/// Note: Only Implemented for [ContinuousGenotype](crate::genotype::ContinuousGenotype)
+/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population](crate::population::Population) with the provided mutation_probability. Then mutates the
+/// selected chromosomes once using neighbouring mutation.
 #[derive(Debug, Clone)]
 pub struct SingleGeneDistance {
     pub mutation_probability: f32,
-    pub allele_distance_range: Range<ContinuousGenotypeAllele>,
 }
 
 impl Mutate for SingleGeneDistance {
@@ -25,8 +21,6 @@ impl Mutate for SingleGeneDistance {
         rng: &mut R,
     ) {
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
-        let allele_distance_sampler = Uniform::from(self.allele_distance_range.clone());
-        let sign_sampler = Bernoulli::new(0.5).unwrap();
         for chromosome in state
             .population
             .chromosomes
@@ -34,31 +28,19 @@ impl Mutate for SingleGeneDistance {
             .filter(|c| c.age == 0)
         {
             if bool_sampler.sample(rng) {
-                let distance = allele_distance_sampler.sample(rng);
-                if sign_sampler.sample(rng) {
-                    genotype.mutate_chromosome_distance(chromosome, distance, rng);
-                } else {
-                    genotype.mutate_chromosome_distance(chromosome, -distance, rng);
-                }
+                genotype.mutate_chromosome_neighbour(chromosome, None, rng);
             }
         }
     }
     fn report(&self) -> String {
-        format!(
-            "single-gene-distance: {:2.2}, {:?}",
-            self.mutation_probability, self.allele_distance_range
-        )
+        format!("single-gene-neighbour: {:2.2}", self.mutation_probability)
     }
 }
 
 impl SingleGeneDistance {
-    pub fn new(
-        mutation_probability: f32,
-        allele_distance_range: Range<ContinuousGenotypeAllele>,
-    ) -> Self {
+    pub fn new(mutation_probability: f32) -> Self {
         Self {
             mutation_probability,
-            allele_distance_range,
         }
     }
 }

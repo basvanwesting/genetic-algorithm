@@ -46,10 +46,11 @@ pub trait Genotype:
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
     /// a random mutation of the chromosome
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
-    fn mutate_chromosome_distance<R: Rng>(
+    /// a blanket neighbouring mutation fallback random mutation
+    fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self>,
-        _distance: ContinuousGenotypeAllele,
+        _scale: Option<f32>,
         rng: &mut R,
     ) {
         self.mutate_chromosome_random(chromosome, rng);
@@ -75,16 +76,10 @@ pub trait Genotype:
 //Evolvable is implicit, until proven otherwise
 //pub trait EvolvableGenotype: Genotype {}
 
-/// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb).
-/// Need to implement a neighbouring mutation.
+/// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb). Need to implement a
+/// neighbouring mutation and override the blanket mutate_chromosome_neighbour from the supertrait
+/// Genotype
 pub trait IncrementalGenotype: Genotype {
-    /// a neighbouring mutation of the chromosome
-    fn mutate_chromosome_neighbour<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self>,
-        _scale: Option<f32>,
-        rng: &mut R,
-    );
     /// all neighbouring mutations of the chromosome
     fn neighbouring_chromosomes(
         &self,

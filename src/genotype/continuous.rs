@@ -94,31 +94,6 @@ impl Genotype for Continuous {
         chromosome.genes[index] = self.allele_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
-    fn mutate_chromosome_distance<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self>,
-        distance: ContinuousAllele,
-        rng: &mut R,
-    ) {
-        let index = self.gene_index_sampler.sample(rng);
-        if distance.is_sign_positive() {
-            chromosome.genes[index] =
-                (chromosome.genes[index] + distance).min(self.allele_range.end);
-        } else {
-            chromosome.genes[index] =
-                (chromosome.genes[index] + distance).max(self.allele_range.start);
-        }
-        chromosome.taint_fitness_score();
-    }
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<ContinuousAllele>>) {
-        self.seed_genes_list = seed_genes_list;
-    }
-    fn seed_genes_list(&self) -> &Vec<Vec<ContinuousAllele>> {
-        &self.seed_genes_list
-    }
-}
-
-impl IncrementalGenotype for Continuous {
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self>,
@@ -138,6 +113,15 @@ impl IncrementalGenotype for Continuous {
         chromosome.taint_fitness_score();
     }
 
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<ContinuousAllele>>) {
+        self.seed_genes_list = seed_genes_list;
+    }
+    fn seed_genes_list(&self) -> &Vec<Vec<ContinuousAllele>> {
+        &self.seed_genes_list
+    }
+}
+
+impl IncrementalGenotype for Continuous {
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,

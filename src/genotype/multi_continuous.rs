@@ -124,15 +124,6 @@ impl Genotype for MultiContinuous {
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<ContinuousAllele>>) {
-        self.seed_genes_list = seed_genes_list;
-    }
-    fn seed_genes_list(&self) -> &Vec<Vec<ContinuousAllele>> {
-        &self.seed_genes_list
-    }
-}
-
-impl IncrementalGenotype for MultiContinuous {
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self>,
@@ -153,7 +144,15 @@ impl IncrementalGenotype for MultiContinuous {
         }
         chromosome.taint_fitness_score();
     }
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<ContinuousAllele>>) {
+        self.seed_genes_list = seed_genes_list;
+    }
+    fn seed_genes_list(&self) -> &Vec<Vec<ContinuousAllele>> {
+        &self.seed_genes_list
+    }
+}
 
+impl IncrementalGenotype for MultiContinuous {
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,

@@ -78,15 +78,6 @@ impl Genotype for Binary {
 }
 
 impl IncrementalGenotype for Binary {
-    fn mutate_chromosome_neighbour<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self>,
-        _scale: Option<f32>,
-        rng: &mut R,
-    ) {
-        self.mutate_chromosome_random(chromosome, rng);
-    }
-
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,
