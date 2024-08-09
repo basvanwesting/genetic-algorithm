@@ -135,10 +135,11 @@ impl<G: Genotype> Simple<G> {
 impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     type Genotype = G;
 
-    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, config: &EvolveConfig) {
         if state.current_generation() % self.period == 0 {
+            let width = config.target_population_size.to_string().len();
             println!(
-                "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}, #extension_events: {}",
+                "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {:>width$}, current_population_size: {:>width$}, #extension_events: {}",
                 state.current_generation(),
                 state.best_generation(),
                 state.population.fitness_score_cardinality(),

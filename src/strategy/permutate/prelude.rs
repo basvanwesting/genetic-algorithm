@@ -15,3 +15,4 @@ pub use crate::strategy::permutate::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::{Strategy, StrategyState};
+pub use num::BigUint;

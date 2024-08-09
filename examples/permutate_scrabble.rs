@@ -234,8 +234,10 @@ impl PermutateReporter for CustomReporter {
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.0 == 0 {
+            let width = state.total_population_size.to_string().len();
             println!(
-                "custom - current_generation: {}, best_generation: {}",
+                "progress: {:3.3}%, current_generation: {:>width$}, best_generation: {:>width$}",
+                BigUint::from(state.current_generation() * 100) / &state.total_population_size,
                 state.current_generation(),
                 state.best_generation(),
             );
@@ -345,7 +347,7 @@ fn main() {
             false,
         ))
         .with_multithreading(true)
-        // .with_reporter(PermutateReporterSimple::new_with_flags(100_000, true))
+        // .with_reporter(PermutateReporterSimple::new(100_000))
         // .with_reporter(PermutateReporterLog::new())
         .with_reporter(CustomReporter(100_000))
         // .with_reporter(CustomLogReporter(100_000))

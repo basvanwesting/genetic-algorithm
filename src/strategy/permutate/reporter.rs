@@ -116,8 +116,9 @@ impl<G: PermutableGenotype + Clone + Send + Sync> Reporter for Simple<G> {
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.period == 0 {
+            let width = state.total_population_size.to_string().len();
             println!(
-                "progress: {:2.2}%, current_generation: {}, best_generation: {}",
+                "progress: {:3.3}%, current_generation: {:>width$}, best_generation: {:>width$}",
                 BigUint::from(state.current_generation() * 100) / &state.total_population_size,
                 state.current_generation(),
                 state.best_generation(),
