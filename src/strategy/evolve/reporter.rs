@@ -8,7 +8,8 @@ use std::marker::PhantomData;
 /// Reporter with event hooks in the Evolve process.
 ///
 /// # Example:
-/// You are encouraged to roll your own, like the [EvolveReporterSimple](Simple) implementation below
+/// You are encouraged to take a look at the [EvolveReporterSimple](Simple) implementation, and
+/// then roll your own like below:
 /// ```rust
 /// use genetic_algorithm::strategy::evolve::prelude::*;
 ///
@@ -43,7 +44,13 @@ use std::marker::PhantomData;
 pub trait Reporter: Clone + Send + Sync {
     type Genotype: Genotype;
 
-    fn on_start(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+    }
     fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
     fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
     fn on_new_best_chromosome(
@@ -134,6 +141,23 @@ impl<G: Genotype> Simple<G> {
 }
 impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     type Genotype = G;
+
+    fn on_start(
+        &mut self,
+        genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+        println!("start - iteration: {}", state.current_iteration());
+        genotype
+            .seed_genes_list()
+            .iter()
+            .for_each(|genes| println!("start - seed_genes: {:?}", genes));
+    }
+
+    fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+        println!("finish - iteration: {}", state.current_iteration());
+    }
 
     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, config: &EvolveConfig) {
         if state.current_generation() % self.period == 0 {

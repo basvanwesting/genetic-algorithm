@@ -149,14 +149,15 @@ impl<
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.state = EvolveState::new(self.population_factory(rng));
+        self.state.population = self.population_factory(rng);
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.multithreading {
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
-        self.reporter.on_start(&self.state, &self.config);
+        self.reporter
+            .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
             self.state.population.increment_and_filter_age(&self.config);

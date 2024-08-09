@@ -165,7 +165,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
     Strategy<G> for HillClimb<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.state = HillClimbState::new();
         self.state.reset_scaling(&self.config);
 
         let mut seed_chromosome = self.genotype.chromosome_factory(rng);
@@ -177,7 +176,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
-        self.reporter.on_start(&self.state, &self.config);
+        self.reporter
+            .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
             match self.config.variant {

@@ -298,8 +298,8 @@ fn main() {
         ));
 
     let now = std::time::Instant::now();
-    // let evolve = evolve_builder.call_speciated(10, &mut rng).unwrap();
-    let evolve = evolve_builder.call(&mut rng).unwrap();
+    let evolve = evolve_builder.call_speciated(10, &mut rng).unwrap();
+    // let evolve = evolve_builder.call(&mut rng).unwrap();
     let duration = now.elapsed();
     println!("{:?}", duration);
 

@@ -127,6 +127,9 @@ impl Genotype for MultiContinuous {
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<ContinuousAllele>>) {
         self.seed_genes_list = seed_genes_list;
     }
+    fn seed_genes_list(&self) -> &Vec<Vec<ContinuousAllele>> {
+        &self.seed_genes_list
+    }
 }
 
 impl IncrementalGenotype for MultiContinuous {

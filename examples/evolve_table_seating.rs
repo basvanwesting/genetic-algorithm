@@ -97,14 +97,15 @@ fn main() {
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGeneRandom::new(0.3))
         .with_crossover(CrossoverSinglePoint::new(true))
-        .with_compete(CompeteTournament::new(4));
+        .with_compete(CompeteTournament::new(4))
+        .with_reporter(EvolveReporterSimple::new(1000));
 
     //let now = std::time::Instant::now();
     //let evolve = evolve_builder.call(&mut rng).unwrap();
     //let duration = now.elapsed();
 
     let now = std::time::Instant::now();
-    let evolve = evolve_builder.call_repeatedly(100, &mut rng).unwrap();
+    let evolve = evolve_builder.call_repeatedly(10, &mut rng).unwrap();
     let duration = now.elapsed();
 
     println!("{}", evolve);

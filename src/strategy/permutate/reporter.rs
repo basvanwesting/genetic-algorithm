@@ -8,7 +8,8 @@ use std::marker::PhantomData;
 /// A new generation is simply handling a single new chromosome from the total population
 ///
 /// # Example:
-/// You are encouraged to roll your own, like the [PermutateReporterSimple](Simple) implementation below
+/// You are encouraged to take a look at the [PermutateReporterSimple](Simple) implementation, and
+/// then roll your own like below:
 /// ```rust
 /// use genetic_algorithm::strategy::permutate::prelude::*;
 /// use num::BigUint;
@@ -42,7 +43,13 @@ use std::marker::PhantomData;
 pub trait Reporter: Clone + Send + Sync {
     type Genotype: PermutableGenotype;
 
-    fn on_start(&mut self, _state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {}
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &PermutateState<Self::Genotype>,
+        _config: &PermutateConfig,
+    ) {
+    }
     fn on_finish(&mut self, _state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {}
     fn on_new_generation(
         &mut self,

@@ -93,7 +93,8 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
     Strategy<G> for Permutate<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.reporter.on_start(&self.state, &self.config);
+        self.reporter
+            .on_start(&self.genotype, &self.state, &self.config);
         if self.config.multithreading {
             self.call_multi_thread(rng)
         } else {

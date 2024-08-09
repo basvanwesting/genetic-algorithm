@@ -8,7 +8,8 @@ use std::marker::PhantomData;
 /// an extra event hook for this situation.
 ///
 /// # Example:
-/// You are encouraged to roll your own, like the [HillClimbReporterSimple](Simple) implementation below
+/// You are encouraged to take a look at the [HillClimbReporterSimple](Simple) implementation, and
+/// then roll your own like below:
 /// ```rust
 /// use genetic_algorithm::strategy::hill_climb::prelude::*;
 ///
@@ -42,7 +43,13 @@ use std::marker::PhantomData;
 pub trait Reporter: Clone + Send + Sync {
     type Genotype: IncrementalGenotype;
 
-    fn on_start(&mut self, _state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {}
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
+    }
     fn on_finish(&mut self, _state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {}
     fn on_new_generation(
         &mut self,
@@ -117,6 +124,23 @@ impl<G: IncrementalGenotype> Simple<G> {
 }
 impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Simple<G> {
     type Genotype = G;
+
+    fn on_start(
+        &mut self,
+        genotype: &Self::Genotype,
+        state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
+        println!("start - iteration: {}", state.current_iteration());
+        genotype
+            .seed_genes_list()
+            .iter()
+            .for_each(|genes| println!("start - seed_genes: {:?}", genes));
+    }
+
+    fn on_finish(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
+        println!("finish - iteration: {}", state.current_iteration());
+    }
 
     fn on_new_generation(
         &mut self,

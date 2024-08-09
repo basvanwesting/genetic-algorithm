@@ -268,8 +268,8 @@ fn main() {
 
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::SteepestAscent)
-        .with_max_stale_generations(1000)
+        .with_variant(HillClimbVariant::SteepestAscentSecondary)
+        .with_max_stale_generations(2)
         .with_multithreading(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
@@ -279,10 +279,10 @@ fn main() {
             column_scores.clone(),
             false,
         ))
-        .with_reporter(HillClimbReporterSimple::new_with_flags(100, true));
+        .with_reporter(HillClimbReporterSimple::new(100));
 
     let now = std::time::Instant::now();
-    let hill_climb = hill_climb_builder.call_repeatedly(1, &mut rng).unwrap();
+    let hill_climb = hill_climb_builder.call_repeatedly(4, &mut rng).unwrap();
     let duration = now.elapsed();
     println!("{:?}", duration);
 
