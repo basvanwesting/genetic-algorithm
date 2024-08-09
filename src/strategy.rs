@@ -111,9 +111,10 @@ pub trait StrategyState<G: Genotype> {
 pub trait StrategyReporter: Clone + Send + Sync {
     type Genotype: Genotype;
     type State: StrategyState<Self::Genotype>;
+    type Config: StrategyConfig;
 
-    fn on_start(&mut self, _state: &Self::State) {}
-    fn on_finish(&mut self, _state: &Self::State) {}
-    fn on_new_generation(&mut self, _state: &Self::State) {}
-    fn on_new_best_chromosome(&mut self, _state: &Self::State) {}
+    fn on_start(&mut self, _state: &Self::State, _config: &Self::Config) {}
+    fn on_finish(&mut self, _state: &Self::State, _config: &Self::Config) {}
+    fn on_new_generation(&mut self, _state: &Self::State, _config: &Self::Config) {}
+    fn on_new_best_chromosome(&mut self, _state: &Self::State, _config: &Self::Config) {}
 }

@@ -228,7 +228,11 @@ pub struct CustomReporter(usize);
 impl PermutateReporter for CustomReporter {
     type Genotype = MultiDiscreteGenotype<WordPosition>;
 
-    fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
+    fn on_new_generation(
+        &mut self,
+        state: &PermutateState<Self::Genotype>,
+        _config: &PermutateConfig,
+    ) {
         if state.current_generation() % self.0 == 0 {
             println!(
                 "custom - current_generation: {}, best_generation: {}",
@@ -238,7 +242,11 @@ impl PermutateReporter for CustomReporter {
         }
     }
 
-    fn on_new_best_chromosome(&mut self, state: &PermutateState<Self::Genotype>) {
+    fn on_new_best_chromosome(
+        &mut self,
+        state: &PermutateState<Self::Genotype>,
+        _config: &PermutateConfig,
+    ) {
         println!(
             "new best - current_generation: {}, best_fitness_score: {:?}, best_genes: {:?}",
             state.current_generation(),
@@ -253,7 +261,11 @@ pub struct CustomLogReporter(usize);
 impl PermutateReporter for CustomLogReporter {
     type Genotype = MultiDiscreteGenotype<WordPosition>;
 
-    fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>) {
+    fn on_new_generation(
+        &mut self,
+        state: &PermutateState<Self::Genotype>,
+        _config: &PermutateConfig,
+    ) {
         if state.current_generation() % self.0 == 0 {
             log::info!(
                 "logger - current_generation: {}, best_fitness_score: {:?}",

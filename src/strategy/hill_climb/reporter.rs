@@ -1,4 +1,4 @@
-use super::HillClimbState;
+use super::{HillClimbConfig, HillClimbState};
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::StrategyState;
 use std::marker::PhantomData;
@@ -17,7 +17,7 @@ use std::marker::PhantomData;
 /// impl HillClimbReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
+///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, best_generation: {}, current_scale: {:?}",
@@ -28,7 +28,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype>) {
+///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale: {:?}",
 ///             state.current_generation(),
@@ -42,13 +42,28 @@ use std::marker::PhantomData;
 pub trait Reporter: Clone + Send + Sync {
     type Genotype: IncrementalGenotype;
 
-    fn on_start(&mut self, _state: &HillClimbState<Self::Genotype>) {}
-    fn on_finish(&mut self, _state: &HillClimbState<Self::Genotype>) {}
-    fn on_new_generation(&mut self, _state: &HillClimbState<Self::Genotype>) {}
+    fn on_start(&mut self, _state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {}
+    fn on_finish(&mut self, _state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {}
+    fn on_new_generation(
+        &mut self,
+        _state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
+    }
     /// used to report on true improvement (new best chromosome with improved fitness)
-    fn on_new_best_chromosome(&mut self, _state: &HillClimbState<Self::Genotype>) {}
+    fn on_new_best_chromosome(
+        &mut self,
+        _state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
+    }
     /// used to report on sideways move (new best chromosome with equal fitness)
-    fn on_new_best_chromosome_equal_fitness(&mut self, _state: &HillClimbState<Self::Genotype>) {}
+    fn on_new_best_chromosome_equal_fitness(
+        &mut self,
+        _state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
+    }
 }
 
 /// The noop reporter, silences reporting
@@ -103,7 +118,11 @@ impl<G: IncrementalGenotype> Simple<G> {
 impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Simple<G> {
     type Genotype = G;
 
-    fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
+    fn on_new_generation(
+        &mut self,
+        state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
         if state.current_generation() % self.period == 0 {
             println!(
                 "periodic - current_generation: {}, best_generation: {}, current_scale: {:?}",
@@ -114,7 +133,11 @@ impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Simple<G> {
         }
     }
 
-    fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype>) {
+    fn on_new_best_chromosome(
+        &mut self,
+        state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
         println!(
             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale: {:?}",
             state.current_generation(),
@@ -145,7 +168,11 @@ impl<G: IncrementalGenotype> Log<G> {
 impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Log<G> {
     type Genotype = G;
 
-    fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>) {
+    fn on_new_generation(
+        &mut self,
+        state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
         log::debug!(
             "generation (current/best): {}/{}, fitness score (best): {:?}, current scale: {:?}",
             state.current_generation(),

@@ -26,7 +26,7 @@ pub use crate::mutate::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{
-    Evolve, EvolveBuilder, EvolveReporter, EvolveReporterLog, EvolveReporterNoop,
+    Evolve, EvolveBuilder, EvolveConfig, EvolveReporter, EvolveReporterLog, EvolveReporterNoop,
     EvolveReporterSimple, EvolveState, TryFromEvolveBuilderError,
 };
 #[doc(no_inline)]

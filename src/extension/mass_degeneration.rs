@@ -25,7 +25,11 @@ impl Extension for MassDegeneration {
         if state.population.size() >= config.target_population_size
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
-            reporter.on_extension_event(state, ExtensionEvent::MassDegeneration("".to_string()));
+            reporter.on_extension_event(
+                ExtensionEvent::MassDegeneration("".to_string()),
+                state,
+                config,
+            );
             let bool_sampler = Bernoulli::new(0.2).unwrap();
             for _ in 0..self.number_of_rounds {
                 for chromosome in &mut state.population.chromosomes {

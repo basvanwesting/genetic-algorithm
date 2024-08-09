@@ -1,4 +1,4 @@
-use super::EvolveState;
+use super::{EvolveConfig, EvolveState};
 use crate::extension::ExtensionEvent;
 use crate::genotype::Genotype;
 use crate::mutate::MutateEvent;
@@ -17,7 +17,7 @@ use std::marker::PhantomData;
 /// impl EvolveReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
+///     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}",
@@ -29,7 +29,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype>) {
+///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, population_size: {}",
 ///             state.current_generation(),
@@ -43,13 +43,29 @@ use std::marker::PhantomData;
 pub trait Reporter: Clone + Send + Sync {
     type Genotype: Genotype;
 
-    fn on_start(&mut self, _state: &EvolveState<Self::Genotype>) {}
-    fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>) {}
-    fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>) {}
-    fn on_new_best_chromosome(&mut self, _state: &EvolveState<Self::Genotype>) {}
-    fn on_extension_event(&mut self, _state: &EvolveState<Self::Genotype>, _event: ExtensionEvent) {
+    fn on_start(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
+    fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
+    fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
+    fn on_new_best_chromosome(
+        &mut self,
+        _state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
     }
-    fn on_mutate_event(&mut self, _event: MutateEvent) {}
+    fn on_extension_event(
+        &mut self,
+        _event: ExtensionEvent,
+        _state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+    }
+    fn on_mutate_event(
+        &mut self,
+        _event: MutateEvent,
+        _state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+    }
 }
 
 /// The noop reporter, silences reporting
@@ -119,7 +135,7 @@ impl<G: Genotype> Simple<G> {
 impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     type Genotype = G;
 
-    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
+    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
         if state.current_generation() % self.period == 0 {
             println!(
                 "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}, #extension_events: {}",
@@ -134,7 +150,11 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
         }
     }
 
-    fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype>) {
+    fn on_new_best_chromosome(
+        &mut self,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         println!(
             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, population_size: {}",
             state.current_generation(),
@@ -148,7 +168,12 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
         );
     }
 
-    fn on_extension_event(&mut self, state: &EvolveState<Self::Genotype>, event: ExtensionEvent) {
+    fn on_extension_event(
+        &mut self,
+        event: ExtensionEvent,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         self.number_of_extension_events += 1;
         if self.show_extension_event {
             match event {
@@ -184,7 +209,12 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
         }
     }
 
-    fn on_mutate_event(&mut self, event: MutateEvent) {
+    fn on_mutate_event(
+        &mut self,
+        event: MutateEvent,
+        _state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         self.number_of_mutate_events += 1;
         if self.show_mutate_event {
             match event {
@@ -212,7 +242,7 @@ impl<G: Genotype> Log<G> {
 impl<G: Genotype + Clone + Send + Sync> Reporter for Log<G> {
     type Genotype = G;
 
-    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>) {
+    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
         log::debug!(
             "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/cardinality): {:?} / {} / {:?} / {:.0} / {:.0} / {}",
             state.current_generation(),

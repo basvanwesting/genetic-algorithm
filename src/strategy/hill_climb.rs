@@ -177,7 +177,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
-        self.reporter.on_start(&self.state);
+        self.reporter.on_start(&self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
             match self.config.variant {
@@ -289,9 +289,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     self.state.neighbouring_population = Some(neighbouring_population);
                 }
             }
-            self.reporter.on_new_generation(&self.state);
+            self.reporter.on_new_generation(&self.state, &self.config);
         }
-        self.reporter.on_finish(&self.state);
+        self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.state.best_chromosome()
@@ -416,11 +416,11 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
     ) {
         match self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, true) {
             (true, true) => {
-                reporter.on_new_best_chromosome(self);
+                reporter.on_new_best_chromosome(self, config);
                 self.reset_scaling(config);
             }
             (true, false) => {
-                reporter.on_new_best_chromosome_equal_fitness(self);
+                reporter.on_new_best_chromosome_equal_fitness(self, config);
                 self.reset_scaling(config);
             }
             _ => self.scale_down(config),

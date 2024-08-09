@@ -20,7 +20,7 @@ impl Mutate for SingleGeneRandomDynamic {
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
-        _config: &EvolveConfig,
+        config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
     ) {
@@ -31,10 +31,14 @@ impl Mutate for SingleGeneRandomDynamic {
             self.mutation_probability =
                 (self.mutation_probability - self.mutation_probability_step).max(0.0);
         }
-        reporter.on_mutate_event(MutateEvent::ChangeMutationProbability(format!(
-            "set to {:0.3}",
-            self.mutation_probability
-        )));
+        reporter.on_mutate_event(
+            MutateEvent::ChangeMutationProbability(format!(
+                "set to {:0.3}",
+                self.mutation_probability
+            )),
+            state,
+            config,
+        );
 
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
         for chromosome in state

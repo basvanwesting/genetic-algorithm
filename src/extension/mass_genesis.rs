@@ -21,7 +21,7 @@ impl Extension for MassGenesis {
         if state.population.size() >= config.target_population_size
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
-            reporter.on_extension_event(state, ExtensionEvent::MassGenesis("".to_string()));
+            reporter.on_extension_event(ExtensionEvent::MassGenesis("".to_string()), state, config);
             if let Some(best_chromosome) = state.population.best_chromosome(config.fitness_ordering)
             {
                 state.population.chromosomes =

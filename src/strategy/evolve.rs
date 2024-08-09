@@ -156,7 +156,7 @@ impl<
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
-        self.reporter.on_start(&self.state);
+        self.reporter.on_start(&self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
             self.state.population.increment_and_filter_age(&self.config);
@@ -203,13 +203,14 @@ impl<
                     )
                     .0
                 {
-                    self.reporter.on_new_best_chromosome(&self.state);
+                    self.reporter
+                        .on_new_best_chromosome(&self.state, &self.config);
                 }
             }
             //self.ensure_best_chromosome(population);
-            self.reporter.on_new_generation(&self.state);
+            self.reporter.on_new_generation(&self.state, &self.config);
         }
-        self.reporter.on_finish(&self.state);
+        self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.state.best_chromosome()

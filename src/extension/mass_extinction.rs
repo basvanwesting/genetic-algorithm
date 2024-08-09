@@ -24,7 +24,11 @@ impl Extension for MassExtinction {
         if state.population.size() >= config.target_population_size
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
-            reporter.on_extension_event(state, ExtensionEvent::MassExtinction("".to_string()));
+            reporter.on_extension_event(
+                ExtensionEvent::MassExtinction("".to_string()),
+                state,
+                config,
+            );
             state.population.trim(self.survival_rate, rng);
         }
     }

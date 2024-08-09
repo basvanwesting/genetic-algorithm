@@ -23,7 +23,11 @@ impl Extension for MassInvasion {
         if state.population.size() >= config.target_population_size
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
-            reporter.on_extension_event(state, ExtensionEvent::MassInvasion("".to_string()));
+            reporter.on_extension_event(
+                ExtensionEvent::MassInvasion("".to_string()),
+                state,
+                config,
+            );
             let bool_sampler = Bernoulli::new(self.survival_rate as f64).unwrap();
             for chromosome in &mut state.population.chromosomes {
                 if !bool_sampler.sample(rng) {

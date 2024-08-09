@@ -93,13 +93,13 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
     Strategy<G> for Permutate<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.reporter.on_start(&self.state);
+        self.reporter.on_start(&self.state, &self.config);
         if self.config.multithreading {
             self.call_multi_thread(rng)
         } else {
             self.call_single_thread(rng)
         }
-        self.reporter.on_finish(&self.state);
+        self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
         self.state.best_chromosome()
@@ -130,9 +130,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
                 .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false)
                 .0
             {
-                self.reporter.on_new_best_chromosome(&self.state);
+                self.reporter
+                    .on_new_best_chromosome(&self.state, &self.config);
             }
-            self.reporter.on_new_generation(&self.state);
+            self.reporter.on_new_generation(&self.state, &self.config);
         }
     }
     fn call_multi_thread<R: Rng>(&mut self, _rng: &mut R) {
@@ -171,9 +172,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
                         .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false)
                         .0
                     {
-                        self.reporter.on_new_best_chromosome(&self.state);
+                        self.reporter
+                            .on_new_best_chromosome(&self.state, &self.config);
                     }
-                    self.reporter.on_new_generation(&self.state);
+                    self.reporter.on_new_generation(&self.state, &self.config);
                 }
             });
         })

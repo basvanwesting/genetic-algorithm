@@ -10,8 +10,8 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::hill_climb::{
-    HillClimb, HillClimbBuilder, HillClimbReporter, HillClimbReporterLog, HillClimbReporterNoop,
-    HillClimbReporterSimple, HillClimbState, HillClimbVariant, Scaling,
+    HillClimb, HillClimbBuilder, HillClimbConfig, HillClimbReporter, HillClimbReporterLog,
+    HillClimbReporterNoop, HillClimbReporterSimple, HillClimbState, HillClimbVariant, Scaling,
     TryFromHillClimbBuilderError,
 };
 #[doc(no_inline)]
