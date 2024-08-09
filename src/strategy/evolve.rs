@@ -222,6 +222,14 @@ impl<
     }
 }
 
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
+    Evolve<G, M, F, S, C, E, EvolveReporterNoop<G>>
+{
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C, E, EvolveReporterNoop<G>> {
+        EvolveBuilder::new()
+    }
+}
+
 impl<
         G: Genotype,
         M: Mutate,
@@ -232,10 +240,6 @@ impl<
         SR: EvolveReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
 {
-    pub fn builder() -> EvolveBuilder<G, M, F, S, C, E, SR> {
-        EvolveBuilder::new()
-    }
-
     #[allow(dead_code)]
     fn ensure_best_chromosome(&mut self, population: &mut Population<G>) {
         if let Some(best_chromosome) = &self.state.best_chromosome {
@@ -355,8 +359,6 @@ impl<
             Err(TryFromEvolveBuilderError("Evolve requires a Genotype"))
         } else if builder.fitness.is_none() {
             Err(TryFromEvolveBuilderError("Evolve requires a Fitness"))
-        } else if builder.reporter.is_none() {
-            Err(TryFromEvolveBuilderError("Evolve requires a Reporter"))
         } else if builder.mutate.is_none() {
             Err(TryFromEvolveBuilderError(
                 "Evolve requires a Mutate strategy",
@@ -426,7 +428,7 @@ impl<
                     multithreading: builder.multithreading,
                 },
                 state: EvolveState::default(),
-                reporter: builder.reporter.unwrap(),
+                reporter: builder.reporter,
             })
         }
     }

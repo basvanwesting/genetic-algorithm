@@ -1,4 +1,4 @@
-use super::{Evolve, EvolveReporter};
+use super::{Evolve, EvolveReporter, EvolveReporterNoop};
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
@@ -36,18 +36,11 @@ pub struct Builder<
     pub crossover: Option<S>,
     pub compete: Option<C>,
     pub extension: Option<E>,
-    pub reporter: Option<SR>,
+    pub reporter: SR,
 }
 
-impl<
-        G: Genotype,
-        M: Mutate,
-        F: Fitness<Genotype = G>,
-        S: Crossover,
-        C: Compete,
-        E: Extension,
-        SR: EvolveReporter<Genotype = G>,
-    > Default for Builder<G, M, F, S, C, E, SR>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
+    Default for Builder<G, M, F, S, C, E, EvolveReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -64,8 +57,15 @@ impl<
             crossover: None,
             compete: None,
             extension: None,
-            reporter: None,
+            reporter: EvolveReporterNoop::new(),
         }
+    }
+}
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete, E: Extension>
+    Builder<G, M, F, S, C, E, EvolveReporterNoop<G>>
+{
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -80,10 +80,6 @@ impl<
         SR: EvolveReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
-    pub fn new() -> Self {
-        Self::default()
-    }
-
     pub fn build(self) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         self.try_into()
     }
@@ -168,9 +164,26 @@ impl<
         self.extension = Some(extension);
         self
     }
-    pub fn with_reporter(mut self, reporter: SR) -> Self {
-        self.reporter = Some(reporter);
-        self
+    pub fn with_reporter<SR2: EvolveReporter<Genotype = G>>(
+        self,
+        reporter: SR2,
+    ) -> Builder<G, M, F, S, C, E, SR2> {
+        Builder {
+            genotype: self.genotype,
+            target_population_size: self.target_population_size,
+            max_stale_generations: self.max_stale_generations,
+            max_chromosome_age: self.max_chromosome_age,
+            target_fitness_score: self.target_fitness_score,
+            valid_fitness_score: self.valid_fitness_score,
+            fitness_ordering: self.fitness_ordering,
+            multithreading: self.multithreading,
+            mutate: self.mutate,
+            fitness: self.fitness,
+            crossover: self.crossover,
+            compete: self.compete,
+            extension: self.extension,
+            reporter,
+        }
     }
 }
 

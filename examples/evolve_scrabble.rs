@@ -284,6 +284,12 @@ fn main() {
         .with_extension(ExtensionMassGenesis::new(10))
         // .with_extension(ExtensionMassDegeneration::new(10, 50))
         .with_multithreading(true)
+        // .with_reporter(EvolveReporterNoop::new())
+        // .with_reporter(EvolveReporterSimple::default())
+        // .with_reporter(EvolveReporterSimple::new_with_flags(
+        //     100, false, false, true,
+        // ))
+        .with_reporter(EvolveReporterSimple::new(100))
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
             rows,
@@ -291,13 +297,7 @@ fn main() {
             row_scores.clone(),
             column_scores.clone(),
             false,
-        ))
-        // .with_reporter(EvolveReporterNoop::new());
-        // .with_reporter(EvolveReporterSimple::default());
-        // .with_reporter(EvolveReporterSimple::new_with_flags(
-        //     100, false, false, true,
-        // ));
-        .with_reporter(EvolveReporterSimple::new(100));
+        ));
 
     let now = std::time::Instant::now();
     // let evolve = evolve_builder.call_speciated(10, &mut rng).unwrap();
