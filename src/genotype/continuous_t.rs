@@ -11,6 +11,21 @@ use std::ops::Range;
 
 pub type DefaultAllele = f32;
 
+pub trait DataSupported:
+    Copy
+    + Clone
+    + Default
+    + Send
+    + Sync
+    + SampleUniform
+    + std::ops::Add<Output = Self>
+    + std::cmp::PartialOrd
+    + std::fmt::Debug
+{
+}
+impl DataSupported for f32 {}
+impl DataSupported for u8 {}
+
 /// Genes are a list of f32, each taken from the allele_range using clone(). On random initialization, each
 /// gene gets a value from the allele_range with a uniform probability. Each gene has an equal probability
 /// of mutating. If a gene mutates, a new value is taken from allele_range with a uniform probability.
@@ -41,9 +56,7 @@ pub type DefaultAllele = f32;
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct Continuous<
-    T: Copy + Clone + Default + Send + Sync + SampleUniform + std::ops::Add<Output = T> + std::cmp::PartialOrd + std::fmt::Debug = DefaultAllele,
-> {
+pub struct Continuous<T: DataSupported = DefaultAllele> {
     pub genes_size: usize,
     pub allele_range: Range<T>,
     pub allele_neighbour_range: Option<Range<T>>,
@@ -53,18 +66,7 @@ pub struct Continuous<
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > TryFrom<Builder<Self>> for Continuous<T>
-{
+impl<T: DataSupported> TryFrom<Builder<Self>> for Continuous<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -95,18 +97,7 @@ impl<
     }
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > Genotype for Continuous<T>
-{
+impl<T: DataSupported> Genotype for Continuous<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -157,18 +148,7 @@ impl<
     }
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > IncrementalGenotype for Continuous<T>
-{
+impl<T: DataSupported> IncrementalGenotype for Continuous<T> {
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,
@@ -206,18 +186,7 @@ impl<
     }
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > Clone for Continuous<T>
-{
+impl<T: DataSupported> Clone for Continuous<T> {
     fn clone(&self) -> Self {
         Self {
             genes_size: self.genes_size.clone(),
@@ -234,18 +203,7 @@ impl<
     }
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > fmt::Debug for Continuous<T>
-{
+impl<T: DataSupported> fmt::Debug for Continuous<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Point")
             .field("genes_size", &self.genes_size)
@@ -257,18 +215,7 @@ impl<
     }
 }
 
-impl<
-        T: Copy
-            + Clone
-            + Default
-            + Send
-            + Sync
-            + SampleUniform
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd
-            + std::fmt::Debug,
-    > fmt::Display for Continuous<T>
-{
+impl<T: DataSupported> fmt::Display for Continuous<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
