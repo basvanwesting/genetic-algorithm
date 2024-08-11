@@ -1,11 +1,7 @@
 //! placeholders for testing and bootstrapping, not really used in practice
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessValue};
-use crate::genotype::{
-    Allele, BinaryAllele, BinaryGenotype, ContinuousAllele, ContinuousGenotype, DiscreteGenotype,
-    Genotype, MultiContinuousGenotype, MultiContinuousGenotypeAllele, MultiDiscreteGenotype,
-    MultiUniqueGenotype, UniqueGenotype,
-};
+use crate::genotype::{Allele, BinaryAllele, ContinuousAllele};
 use std::marker::PhantomData;
 
 /// placeholder for testing and bootstrapping, not really used in practice

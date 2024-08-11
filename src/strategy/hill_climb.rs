@@ -415,8 +415,11 @@ impl<A: Allele> StrategyState<A> for HillClimbState<A> {
     }
 }
 
-impl<A: Allele, G: IncrementalGenotype<Allele = A>> HillClimbState<A> {
-    fn update_best_chromosome_and_scale<SR: HillClimbReporter<Genotype = G>>(
+impl<A: Allele> HillClimbState<A> {
+    fn update_best_chromosome_and_scale<
+        G: IncrementalGenotype<Allele = A>,
+        SR: HillClimbReporter<Genotype = G>,
+    >(
         &mut self,
         contending_chromosome: &Chromosome<A>,
         config: &HillClimbConfig,
@@ -434,7 +437,6 @@ impl<A: Allele, G: IncrementalGenotype<Allele = A>> HillClimbState<A> {
             _ => self.scale_down(config),
         }
     }
-
     fn reset_scaling(&mut self, hill_climb_config: &HillClimbConfig) {
         self.current_scale = hill_climb_config.scaling.as_ref().map(|s| s.base_scale);
     }
