@@ -14,6 +14,7 @@ enum Orientation {
 
 #[derive(Clone, Debug, Eq, PartialEq)]
 struct WordPosition(pub Row, pub Column, pub Orientation);
+impl Allele for WordPosition {}
 
 #[derive(Clone, Debug)]
 struct ScrabbleFitness {

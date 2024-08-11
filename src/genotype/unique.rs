@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype, PermutableGenotype};
+use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use factorial::Factorial;
 use itertools::Itertools;
@@ -28,10 +28,11 @@ pub type DefaultAllele = usize;
 ///
 /// # Example (struct)
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, UniqueGenotype};
+/// use genetic_algorithm::genotype::{Allele, Genotype, UniqueGenotype};
 ///
-/// #[derive(Clone, Debug)]
+/// #[derive(PartialEq, Clone, Debug)]
 /// struct Item(pub u16, pub u16);
+/// impl Allele for Item {}
 ///
 /// let genotype = UniqueGenotype::builder()
 ///     .with_allele_list(vec![
@@ -43,13 +44,13 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Debug, Clone)]
-pub struct Unique<T: Clone + Send + Sync + std::fmt::Debug = DefaultAllele> {
+pub struct Unique<T: Allele = DefaultAllele> {
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: Clone + Send + Sync + std::fmt::Debug> TryFrom<Builder<Self>> for Unique<T> {
+impl<T: Allele> TryFrom<Builder<Self>> for Unique<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -70,7 +71,7 @@ impl<T: Clone + Send + Sync + std::fmt::Debug> TryFrom<Builder<Self>> for Unique
     }
 }
 
-impl<T: Clone + Send + Sync + std::fmt::Debug> Genotype for Unique<T> {
+impl<T: Allele> Genotype for Unique<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.allele_list.len()
@@ -110,7 +111,7 @@ impl<T: Clone + Send + Sync + std::fmt::Debug> Genotype for Unique<T> {
     }
 }
 
-impl<T: Clone + Send + Sync + std::fmt::Debug> IncrementalGenotype for Unique<T> {
+impl<T: Allele> IncrementalGenotype for Unique<T> {
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,
@@ -135,7 +136,7 @@ impl<T: Clone + Send + Sync + std::fmt::Debug> IncrementalGenotype for Unique<T>
     }
 }
 
-impl<T: Clone + Send + Sync + std::fmt::Debug> PermutableGenotype for Unique<T> {
+impl<T: Allele> PermutableGenotype for Unique<T> {
     //noop
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         vec![]
@@ -158,7 +159,7 @@ impl<T: Clone + Send + Sync + std::fmt::Debug> PermutableGenotype for Unique<T> 
     }
 }
 
-impl<T: Clone + Send + Sync + std::fmt::Debug> fmt::Display for Unique<T> {
+impl<T: Allele> fmt::Display for Unique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  allele_list: {:?}", self.allele_list)?;

@@ -11,6 +11,7 @@ type Value = u16;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 struct Item(pub Weight, pub Value);
+impl Allele for Item {}
 
 #[derive(Clone, Debug)]
 struct KnapsackFitness<'a> {

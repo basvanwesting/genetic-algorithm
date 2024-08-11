@@ -29,15 +29,41 @@ use num::BigUint;
 use rand::Rng;
 use std::fmt;
 
-// trait alias, experimental
-//pub trait Allele = Clone + std::fmt::Debug;
+/// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
+pub trait Allele: Clone + Send + Sync + std::cmp::PartialEq + std::fmt::Debug
+// use rand::distributions::uniform::SampleUniform;
+// + SampleUniform
+// Copy
+// + Default
+{
+}
+// pub trait DiscreteAllele: Allele + PartialEq {}
+// pub trait ContinuousAllele: Allele + PartialEq + PartialOrd + Add<Output = Self> {}
+
+impl Allele for bool {}
+impl Allele for char {}
+impl Allele for f32 {}
+impl Allele for f64 {}
+impl Allele for i128 {}
+impl Allele for i16 {}
+impl Allele for i32 {}
+impl Allele for i64 {}
+impl Allele for i8 {}
+impl Allele for isize {}
+impl Allele for u128 {}
+impl Allele for u16 {}
+impl Allele for u32 {}
+impl Allele for u64 {}
+impl Allele for u8 {}
+impl Allele for usize {}
+impl Allele for String {}
 
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
 pub trait Genotype:
     Clone + Send + Sync + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>>
 {
-    type Allele: Clone + Send + Sync + std::fmt::Debug;
+    type Allele: Allele;
     fn genes_size(&self) -> usize;
     /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     /// random genes unless seed genes are provided

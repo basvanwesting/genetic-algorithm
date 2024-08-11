@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype};
+use super::{Allele, Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;

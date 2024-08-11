@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype, PermutableGenotype};
+use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
@@ -62,10 +62,11 @@ pub type DefaultAllele = usize;
 ///
 /// # Example (struct, the limitation is that the type needs to be the same for all lists)
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MultiDiscreteGenotype};
+/// use genetic_algorithm::genotype::{Allele, Genotype, MultiDiscreteGenotype};
 ///
 /// #[derive(PartialEq, Clone, Debug)]
 /// struct Item(pub u16, pub u16);
+/// impl Allele for Item {}
 ///
 /// let genotype = MultiDiscreteGenotype::builder()
 ///     .with_allele_lists(vec![
@@ -77,7 +78,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Clone, Debug)]
-pub struct MultiDiscrete<T: PartialEq + Clone + Send + Sync + std::fmt::Debug = DefaultAllele> {
+pub struct MultiDiscrete<T: Allele = DefaultAllele> {
     genes_size: usize,
     pub allele_lists: Vec<Vec<T>>,
     gene_index_sampler: WeightedIndex<usize>,
@@ -86,9 +87,7 @@ pub struct MultiDiscrete<T: PartialEq + Clone + Send + Sync + std::fmt::Debug = 
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> TryFrom<Builder<Self>>
-    for MultiDiscrete<T>
-{
+impl<T: Allele> TryFrom<Builder<Self>> for MultiDiscrete<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -118,7 +117,7 @@ impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> TryFrom<Builder<Self>
     }
 }
 
-impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> Genotype for MultiDiscrete<T> {
+impl<T: Allele> Genotype for MultiDiscrete<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -154,9 +153,7 @@ impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> Genotype for MultiDis
     }
 }
 
-impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> IncrementalGenotype
-    for MultiDiscrete<T>
-{
+impl<T: Allele> IncrementalGenotype for MultiDiscrete<T> {
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self>,
@@ -184,7 +181,7 @@ impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> IncrementalGenotype
     }
 }
 
-impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> PermutableGenotype for MultiDiscrete<T> {
+impl<T: Allele> PermutableGenotype for MultiDiscrete<T> {
     //noop
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         vec![]
@@ -210,7 +207,7 @@ impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> PermutableGenotype fo
     }
 }
 
-impl<T: PartialEq + Clone + Send + Sync + std::fmt::Debug> fmt::Display for MultiDiscrete<T> {
+impl<T: Allele> fmt::Display for MultiDiscrete<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
