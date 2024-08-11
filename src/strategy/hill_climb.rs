@@ -126,7 +126,7 @@ pub struct Scaling {
 pub struct HillClimb<
     G: IncrementalGenotype,
     F: Fitness<Allele = G::Allele>,
-    SR: HillClimbReporter<Genotype = G>,
+    SR: HillClimbReporter<Allele = G::Allele>,
 > {
     genotype: G,
     fitness: F,
@@ -164,7 +164,7 @@ pub struct HillClimbState<A: Allele> {
 impl<
         G: IncrementalGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Genotype = G>,
+        SR: HillClimbReporter<Allele = G::Allele>,
     > Strategy<G> for HillClimb<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
@@ -308,16 +308,16 @@ impl<
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>>
-    HillClimb<G, F, HillClimbReporterNoop<G>>
+    HillClimb<G, F, HillClimbReporterNoop<G::Allele>>
 {
-    pub fn builder() -> HillClimbBuilder<G, F, HillClimbReporterNoop<G>> {
+    pub fn builder() -> HillClimbBuilder<G, F, HillClimbReporterNoop<G::Allele>> {
         HillClimbBuilder::new()
     }
 }
 impl<
         G: IncrementalGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Genotype = G>,
+        SR: HillClimbReporter<Allele = G::Allele>,
     > HillClimb<G, F, SR>
 {
     fn is_finished(&self) -> bool {
@@ -416,10 +416,7 @@ impl<A: Allele> StrategyState<A> for HillClimbState<A> {
 }
 
 impl<A: Allele> HillClimbState<A> {
-    fn update_best_chromosome_and_scale<
-        G: IncrementalGenotype<Allele = A>,
-        SR: HillClimbReporter<Genotype = G>,
-    >(
+    fn update_best_chromosome_and_scale<SR: HillClimbReporter<Allele = A>>(
         &mut self,
         contending_chromosome: &Chromosome<A>,
         config: &HillClimbConfig,
@@ -452,7 +449,7 @@ impl<A: Allele> HillClimbState<A> {
 impl<
         G: IncrementalGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Genotype = G>,
+        SR: HillClimbReporter<Allele = G::Allele>,
     > TryFrom<HillClimbBuilder<G, F, SR>> for HillClimb<G, F, SR>
 {
     type Error = TryFromHillClimbBuilderError;
@@ -542,7 +539,7 @@ impl Scaling {
 impl<
         G: IncrementalGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Genotype = G>,
+        SR: HillClimbReporter<Allele = G::Allele>,
     > fmt::Display for HillClimb<G, F, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

@@ -98,7 +98,7 @@ pub struct Evolve<
     S: Crossover,
     C: Compete,
     E: Extension,
-    SR: EvolveReporter<Genotype = G>,
+    SR: EvolveReporter<Allele = G::Allele>,
 > {
     pub genotype: G,
     pub fitness: F,
@@ -145,7 +145,7 @@ impl<
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: EvolveReporter<Allele = G::Allele>,
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
@@ -225,9 +225,9 @@ impl<
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Compete>
-    Evolve<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
+    Evolve<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G::Allele>>
 {
-    pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>> {
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G::Allele>> {
         EvolveBuilder::new()
     }
 }
@@ -239,7 +239,7 @@ impl<
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: EvolveReporter<Allele = G::Allele>,
     > Evolve<G, M, F, S, C, E, SR>
 {
     #[allow(dead_code)]
@@ -351,7 +351,7 @@ impl<
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: EvolveReporter<Allele = G::Allele>,
     > TryFrom<EvolveBuilder<G, M, F, S, C, E, SR>> for Evolve<G, M, F, S, C, E, SR>
 {
     type Error = TryFromEvolveBuilderError;
@@ -482,7 +482,7 @@ impl<
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: EvolveReporter<Allele = G::Allele>,
     > fmt::Display for Evolve<G, M, F, S, C, E, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

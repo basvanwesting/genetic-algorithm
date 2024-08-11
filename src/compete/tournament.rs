@@ -2,7 +2,7 @@ use super::Compete;
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
-use crate::genotype::Genotype;
+use crate::genotype::Allele;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
 
@@ -18,9 +18,9 @@ pub struct Tournament {
 }
 
 impl Compete for Tournament {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
+    fn call<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
         &mut self,
-        state: &mut EvolveState<G::Allele>,
+        state: &mut EvolveState<A>,
         config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
@@ -30,8 +30,7 @@ impl Compete for Tournament {
         let target_population_size =
             std::cmp::min(config.target_population_size, working_population_size);
 
-        let mut target_chromosomes: Vec<Chromosome<G::Allele>> =
-            Vec::with_capacity(target_population_size);
+        let mut target_chromosomes: Vec<Chromosome<A>> = Vec::with_capacity(target_population_size);
         let mut sample_index: usize;
         let mut winning_index: usize;
         let mut sample_fitness_value: FitnessValue;

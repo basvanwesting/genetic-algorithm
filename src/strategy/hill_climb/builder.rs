@@ -12,7 +12,7 @@ pub struct TryFromBuilderError(pub &'static str);
 pub struct Builder<
     G: IncrementalGenotype,
     F: Fitness<Allele = G::Allele>,
-    SR: HillClimbReporter<Genotype = G>,
+    SR: HillClimbReporter<Allele = G::Allele>,
 > {
     pub genotype: Option<G>,
     pub variant: Option<HillClimbVariant>,
@@ -27,7 +27,7 @@ pub struct Builder<
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
-    for Builder<G, F, HillClimbReporterNoop<G>>
+    for Builder<G, F, HillClimbReporterNoop<G::Allele>>
 {
     fn default() -> Self {
         Self {
@@ -45,7 +45,7 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
     }
 }
 impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>>
-    Builder<G, F, HillClimbReporterNoop<G>>
+    Builder<G, F, HillClimbReporterNoop<G::Allele>>
 {
     pub fn new() -> Self {
         Self::default()
@@ -55,7 +55,7 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>>
 impl<
         G: IncrementalGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Genotype = G>,
+        SR: HillClimbReporter<Allele = G::Allele>,
     > Builder<G, F, SR>
 {
     pub fn build(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
@@ -118,7 +118,7 @@ impl<
         self.scaling = Some(scaling);
         self
     }
-    pub fn with_reporter<SR2: HillClimbReporter<Genotype = G>>(
+    pub fn with_reporter<SR2: HillClimbReporter<Allele = G::Allele>>(
         self,
         reporter: SR2,
     ) -> Builder<G, F, SR2> {
@@ -140,7 +140,7 @@ impl<
 impl<
         G: IncrementalGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Genotype = G>,
+        SR: HillClimbReporter<Allele = G::Allele>,
     > Builder<G, F, SR>
 {
     pub fn call<R: Rng>(self, rng: &mut R) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {

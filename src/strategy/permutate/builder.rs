@@ -12,7 +12,7 @@ pub struct TryFromBuilderError(pub &'static str);
 pub struct Builder<
     G: PermutableGenotype,
     F: Fitness<Allele = G::Allele>,
-    SR: PermutateReporter<Genotype = G>,
+    SR: PermutateReporter<Allele = G::Allele>,
 > {
     pub genotype: Option<G>,
     pub fitness: Option<F>,
@@ -22,7 +22,7 @@ pub struct Builder<
 }
 
 impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>> Default
-    for Builder<G, F, PermutateReporterNoop<G>>
+    for Builder<G, F, PermutateReporterNoop<G::Allele>>
 {
     fn default() -> Self {
         Self {
@@ -35,7 +35,7 @@ impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>> Default
     }
 }
 impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>>
-    Builder<G, F, PermutateReporterNoop<G>>
+    Builder<G, F, PermutateReporterNoop<G::Allele>>
 {
     pub fn new() -> Self {
         Self::default()
@@ -45,7 +45,7 @@ impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>>
 impl<
         G: PermutableGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Genotype = G>,
+        SR: PermutateReporter<Allele = G::Allele>,
     > Builder<G, F, SR>
 {
     pub fn build(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
@@ -67,7 +67,7 @@ impl<
         self.fitness = Some(fitness);
         self
     }
-    pub fn with_reporter<SR2: PermutateReporter<Genotype = G>>(
+    pub fn with_reporter<SR2: PermutateReporter<Allele = G::Allele>>(
         self,
         reporter: SR2,
     ) -> Builder<G, F, SR2> {
@@ -83,7 +83,7 @@ impl<
 impl<
         G: PermutableGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Genotype = G>,
+        SR: PermutateReporter<Allele = G::Allele>,
     > Builder<G, F, SR>
 {
     pub fn call<R: Rng>(self, rng: &mut R) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {

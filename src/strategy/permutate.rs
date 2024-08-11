@@ -63,7 +63,7 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 pub struct Permutate<
     G: PermutableGenotype,
     F: Fitness<Allele = G::Allele>,
-    SR: PermutateReporter<Genotype = G>,
+    SR: PermutateReporter<Allele = G::Allele>,
 > {
     genotype: G,
     fitness: F,
@@ -92,7 +92,7 @@ pub struct PermutateState<A: Allele> {
 impl<
         G: PermutableGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Genotype = G>,
+        SR: PermutateReporter<Allele = G::Allele>,
     > Strategy<G> for Permutate<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
@@ -117,9 +117,9 @@ impl<
 }
 
 impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>>
-    Permutate<G, F, PermutateReporterNoop<G>>
+    Permutate<G, F, PermutateReporterNoop<G::Allele>>
 {
-    pub fn builder() -> PermutateBuilder<G, F, PermutateReporterNoop<G>> {
+    pub fn builder() -> PermutateBuilder<G, F, PermutateReporterNoop<G::Allele>> {
         PermutateBuilder::new()
     }
 }
@@ -127,7 +127,7 @@ impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>>
 impl<
         G: PermutableGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Genotype = G>,
+        SR: PermutateReporter<Allele = G::Allele>,
     > Permutate<G, F, SR>
 {
     fn call_single_thread<R: Rng>(&mut self, _rng: &mut R) {
@@ -236,7 +236,7 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
 impl<
         G: PermutableGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Genotype = G>,
+        SR: PermutateReporter<Allele = G::Allele>,
     > TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
 {
     type Error = TryFromPermutateBuilderError;
@@ -304,7 +304,7 @@ impl<A: Allele> PermutateState<A> {
 impl<
         G: PermutableGenotype,
         F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Genotype = G>,
+        SR: PermutateReporter<Allele = G::Allele>,
     > fmt::Display for Permutate<G, F, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

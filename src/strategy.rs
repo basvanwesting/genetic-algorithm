@@ -109,7 +109,6 @@ pub trait StrategyState<A: Allele> {
 /// }
 /// ```
 pub trait StrategyReporter: Clone + Send + Sync {
-    type Genotype: Genotype;
     type Allele: Allele;
     type State: StrategyState<Self::Allele>;
     type Config: StrategyConfig;
