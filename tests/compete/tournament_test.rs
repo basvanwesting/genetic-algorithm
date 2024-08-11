@@ -8,7 +8,7 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 
 #[test]
 fn maximize_population_surplus() {
-    let population = build::population::<BinaryGenotype>(vec![
+    let population = build::population(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
@@ -20,7 +20,7 @@ fn maximize_population_surplus() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
     let config = EvolveConfig {
@@ -43,13 +43,10 @@ fn maximize_population_surplus() {
 
 #[test]
 fn maximize_population_shortage() {
-    let population = build::population::<BinaryGenotype>(vec![
-        vec![false, false, false],
-        vec![false, false, true],
-    ]);
+    let population = build::population(vec![vec![false, false, false], vec![false, false, true]]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
     let config = EvolveConfig {
@@ -67,7 +64,7 @@ fn maximize_population_shortage() {
 
 #[test]
 fn minimize_population_surplus() {
-    let population = build::population::<BinaryGenotype>(vec![
+    let population = build::population(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
@@ -79,7 +76,7 @@ fn minimize_population_surplus() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
     let config = EvolveConfig {
@@ -102,13 +99,10 @@ fn minimize_population_surplus() {
 
 #[test]
 fn minimize_population_shortage() {
-    let population = build::population::<BinaryGenotype>(vec![
-        vec![false, false, false],
-        vec![false, false, true],
-    ]);
-
+    let population = build::population(vec![vec![false, false, false], vec![false, false, true]]);
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::new();
+
+    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
     let config = EvolveConfig {
@@ -126,7 +120,7 @@ fn minimize_population_shortage() {
 
 #[test]
 fn minimize_population_surplus_with_none_fitness() {
-    let population = build::population_with_fitness_scores::<BinaryGenotype>(vec![
+    let population = build::population_with_fitness_scores(vec![
         (vec![false, false, false], Some(0)),
         (vec![false, false, true], None),
         (vec![false, true, false], Some(1)),
@@ -138,7 +132,7 @@ fn minimize_population_surplus_with_none_fitness() {
     ]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,
@@ -160,14 +154,14 @@ fn minimize_population_surplus_with_none_fitness() {
 
 #[test]
 fn minimize_population_shortage_with_none_fitness() {
-    let population = build::population_with_fitness_scores::<BinaryGenotype>(vec![
+    let population = build::population_with_fitness_scores(vec![
         (vec![false, false, false], None),
         (vec![false, false, true], Some(1)),
         (vec![false, true, true], Some(2)),
     ]);
 
     let mut state = EvolveState::new(population);
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,

@@ -19,7 +19,7 @@ use std::marker::PhantomData;
 /// impl PermutateReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype::Allele>, _config: &PermutateConfig) {
+///     fn on_new_generation(&mut self, state: &PermutateState<<<Self as PermutateReporter>::Genotype as Genotype>::Allele>, _config: &PermutateConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "progress: {:2.2}%, current_generation: {}, best_generation: {}",
@@ -30,7 +30,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &PermutateState<Self::Genotype::Allele>, _config: &PermutateConfig) {
+///     fn on_new_best_chromosome(&mut self, state: &PermutateState<<<Self as PermutateReporter>::Genotype as Genotype>::Allele>, _config: &PermutateConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
 ///             state.current_generation(),

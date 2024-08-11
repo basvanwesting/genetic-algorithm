@@ -1,8 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::{
-    CountTrue, SumDiscreteAllele, SumDiscreteAllele,
-};
+use genetic_algorithm::fitness::placeholders::{CountTrue, SumDiscreteAllele};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
     BinaryGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,

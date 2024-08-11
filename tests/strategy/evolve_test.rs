@@ -6,10 +6,7 @@ use genetic_algorithm::extension::{
     ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
     ExtensionMassInvasion, ExtensionNoop,
 };
-use genetic_algorithm::fitness::placeholders::{
-    CountTrue, SumContinuousAllele, SumDiscreteAllele, SumDiscreteAllele,
-    SumDiscreteAllele,
-};
+use genetic_algorithm::fitness::placeholders::{CountTrue, SumContinuousAllele, SumDiscreteAllele};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,

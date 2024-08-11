@@ -18,7 +18,7 @@ use std::marker::PhantomData;
 /// impl EvolveReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype::Allele>, _config: &EvolveConfig) {
+///     fn on_new_generation(&mut self, state: &EvolveState<<<Self as EvolveReporter>::Genotype as Genotype>::Allele>, _config: &EvolveConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}",
@@ -30,7 +30,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype::Allele>, _config: &EvolveConfig) {
+///     fn on_new_best_chromosome(&mut self, state: &EvolveState<<<Self as EvolveReporter>::Genotype as Genotype>::Allele>, _config: &EvolveConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, population_size: {}",
 ///             state.current_generation(),

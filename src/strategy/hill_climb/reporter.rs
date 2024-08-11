@@ -18,7 +18,7 @@ use std::marker::PhantomData;
 /// impl HillClimbReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype::Allele>, _config: &HillClimbConfig) {
+///     fn on_new_generation(&mut self, state: &HillClimbState<<<Self as HillClimbReporter>::Genotype as Genotype>::Allele>, _config: &HillClimbConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, best_generation: {}, current_scale: {:?}",
@@ -29,7 +29,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype::Allele>, _config: &HillClimbConfig) {
+///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<<<Self as HillClimbReporter>::Genotype as Genotype>::Allele>, _config: &HillClimbConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale: {:?}",
 ///             state.current_generation(),

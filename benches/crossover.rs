@@ -1,6 +1,6 @@
 use criterion::*;
 use genetic_algorithm::crossover::*;
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
+use genetic_algorithm::genotype::{BinaryAllele, BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 use rand::prelude::*;
@@ -11,7 +11,7 @@ pub fn setup(
     genes_size: usize,
     population_size: usize,
     rng: &mut SmallRng,
-) -> (BinaryGenotype, EvolveState<BinaryGenotype>) {
+) -> (BinaryGenotype, EvolveState<BinaryAllele>) {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(genes_size)
         .build()
@@ -28,7 +28,7 @@ pub fn setup(
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::from_entropy();
     let population_size: usize = 1000;
     let genes_sizes = vec![10, 100, 1000, 10000];
