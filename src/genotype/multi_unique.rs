@@ -129,11 +129,15 @@ impl<T: Allele> Genotype for MultiUnique<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
         let index = self.allele_list_index_sampler.sample(rng);
         let index_offset: usize = self.allele_list_index_offsets[index];
         let index1 = index_offset + self.allele_list_index_samplers[index].sample(rng);
@@ -152,9 +156,9 @@ impl<T: Allele> Genotype for MultiUnique<T> {
 impl<T: Allele> IncrementalGenotype for MultiUnique<T> {
     fn neighbouring_chromosomes(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &Chromosome<Self::Allele>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<Chromosome<Self::Allele>> {
         self.allele_list_sizes
             .iter()
             .enumerate()
@@ -196,7 +200,7 @@ impl<T: Allele> PermutableGenotype for MultiUnique<T> {
 
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
+    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + 'a> {
         Box::new(
             self.allele_lists
                 .clone()

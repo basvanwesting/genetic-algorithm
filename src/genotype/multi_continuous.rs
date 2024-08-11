@@ -115,18 +115,22 @@ impl Genotype for MultiContinuous {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut Chromosome<Self::Allele>,
         scale: Option<f32>,
         rng: &mut R,
     ) {
@@ -155,9 +159,9 @@ impl Genotype for MultiContinuous {
 impl IncrementalGenotype for MultiContinuous {
     fn neighbouring_chromosomes(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &Chromosome<Self::Allele>,
         scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<Chromosome<Self::Allele>> {
         let range_diffs: Vec<Vec<ContinuousAllele>> = self
             .allele_neighbour_ranges
             .as_ref()

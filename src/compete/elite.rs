@@ -13,7 +13,7 @@ pub struct Elite;
 impl Compete for Elite {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState<G::Allele>,
         config: &EvolveConfig,
         _reporter: &mut SR,
         _rng: &mut R,

@@ -6,10 +6,10 @@ use rand::rngs::SmallRng;
 #[derive(Clone, Debug)]
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
-    type Genotype = UniqueGenotype<u8>;
+    type Allele = u8;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Genotype>,
+        chromosome: &Chromosome<Self::Allele>,
     ) -> Option<FitnessValue> {
         let mut score = 0;
         let max_index = chromosome.genes.len() - 1;

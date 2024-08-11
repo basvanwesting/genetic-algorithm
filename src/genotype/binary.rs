@@ -60,11 +60,15 @@ impl Genotype for Binary {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = !chromosome.genes[index];
         chromosome.taint_fitness_score();
@@ -80,9 +84,9 @@ impl Genotype for Binary {
 impl IncrementalGenotype for Binary {
     fn neighbouring_chromosomes(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &Chromosome<Self::Allele>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<Chromosome<Self::Allele>> {
         (0..self.genes_size)
             .map(|index| {
                 let mut genes = chromosome.genes.clone();

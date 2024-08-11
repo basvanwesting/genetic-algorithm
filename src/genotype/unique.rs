@@ -93,11 +93,15 @@ impl<T: Allele> Genotype for Unique<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
         let index1 = self.gene_index_sampler.sample(rng);
         let index2 = self.gene_index_sampler.sample(rng);
         chromosome.genes.swap(index1, index2);
@@ -114,9 +118,9 @@ impl<T: Allele> Genotype for Unique<T> {
 impl<T: Allele> IncrementalGenotype for Unique<T> {
     fn neighbouring_chromosomes(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &Chromosome<Self::Allele>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<Chromosome<Self::Allele>> {
         (0..self.genes_size())
             .tuple_combinations()
             .map(|(first, second)| {
@@ -144,7 +148,7 @@ impl<T: Allele> PermutableGenotype for Unique<T> {
 
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
+    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + 'a> {
         Box::new(
             self.allele_list
                 .clone()

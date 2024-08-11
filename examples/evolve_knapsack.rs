@@ -24,11 +24,11 @@ impl KnapsackFitness<'_> {
     const EXCESS_WEIGHT_PENALTY: FitnessValue = 1000;
 }
 impl Fitness for KnapsackFitness<'_> {
-    type Genotype = BinaryGenotype;
+    type Allele = BinaryAllele;
 
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Genotype>,
+        chromosome: &Chromosome<Self::Allele>,
     ) -> Option<FitnessValue> {
         let item_indices: Vec<usize> = chromosome
             .genes

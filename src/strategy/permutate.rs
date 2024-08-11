@@ -10,7 +10,7 @@ pub use self::builder::{
 use super::{Strategy, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::PermutableGenotype;
+use crate::genotype::{Allele, PermutableGenotype};
 use crossbeam::channel::bounded;
 use num::BigUint;
 use rand::Rng;
@@ -62,13 +62,13 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 /// ```
 pub struct Permutate<
     G: PermutableGenotype,
-    F: Fitness<Genotype = G>,
+    F: Fitness<Allele = G::Allele>,
     SR: PermutateReporter<Genotype = G>,
 > {
     genotype: G,
     fitness: F,
     pub config: PermutateConfig,
-    pub state: PermutateState<G>,
+    pub state: PermutateState<G::Allele>,
     reporter: SR,
 }
 
@@ -80,17 +80,20 @@ pub struct PermutateConfig {
 /// Stores the state of the Permutate strategy. Next to the expected general fields, the following
 /// strategy specific fields are added:
 /// * total_population_size: only the size as the full population is never instantiated simultaneously
-pub struct PermutateState<G: PermutableGenotype> {
+pub struct PermutateState<A: Allele> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub best_generation: usize,
-    pub best_chromosome: Option<Chromosome<G>>,
+    pub best_chromosome: Option<Chromosome<A>>,
 
     pub total_population_size: BigUint,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
-    Strategy<G> for Permutate<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: PermutateReporter<Genotype = G>,
+    > Strategy<G> for Permutate<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.reporter
@@ -102,7 +105,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         }
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+    fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
         self.state.best_chromosome()
     }
     fn best_generation(&self) -> usize {
@@ -113,14 +116,19 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F, PermutateReporterNoop<G>> {
+impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>>
+    Permutate<G, F, PermutateReporterNoop<G>>
+{
     pub fn builder() -> PermutateBuilder<G, F, PermutateReporterNoop<G>> {
         PermutateBuilder::new()
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
-    Permutate<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: PermutateReporter<Genotype = G>,
+    > Permutate<G, F, SR>
 {
     fn call_single_thread<R: Rng>(&mut self, _rng: &mut R) {
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
@@ -193,11 +201,11 @@ impl StrategyConfig for PermutateConfig {
     }
 }
 
-impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
-    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+impl<A: Allele> StrategyState<A> for PermutateState<A> {
+    fn best_chromosome(&self) -> Option<Chromosome<A>> {
         self.best_chromosome.clone()
     }
-    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<G>> {
+    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
         self.best_chromosome.as_ref()
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
@@ -214,7 +222,7 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     }
     fn set_best_chromosome(
         &mut self,
-        best_chromosome: &Chromosome<G>,
+        best_chromosome: &Chromosome<A>,
         improved_fitness: bool,
     ) -> (bool, bool) {
         self.best_chromosome = Some(best_chromosome.clone());
@@ -225,8 +233,11 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
-    TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: PermutateReporter<Genotype = G>,
+    > TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
 {
     type Error = TryFromPermutateBuilderError;
 
@@ -273,7 +284,7 @@ impl PermutateConfig {
     }
 }
 
-impl<G: PermutableGenotype> Default for PermutateState<G> {
+impl<A: Allele> Default for PermutateState<A> {
     fn default() -> Self {
         Self {
             total_population_size: BigUint::default(),
@@ -284,14 +295,17 @@ impl<G: PermutableGenotype> Default for PermutateState<G> {
         }
     }
 }
-impl<G: PermutableGenotype> PermutateState<G> {
+impl<A: Allele> PermutateState<A> {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
-    fmt::Display for Permutate<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: PermutateReporter<Genotype = G>,
+    > fmt::Display for Permutate<G, F, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate:")?;
@@ -311,7 +325,7 @@ impl fmt::Display for PermutateConfig {
     }
 }
 
-impl<G: PermutableGenotype> fmt::Display for PermutateState<G> {
+impl<A: Allele> fmt::Display for PermutateState<A> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_state:")?;
         writeln!(f, "  total_population_size: {}", self.total_population_size)?;

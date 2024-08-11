@@ -13,7 +13,7 @@ impl Extension for MassGenesis {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState<G::Allele>,
         config: &EvolveConfig,
         reporter: &mut SR,
         _rng: &mut R,

@@ -1,6 +1,6 @@
 //! The chromosome is a container for the genes and caches a fitness score
 use crate::fitness::FitnessValue;
-use crate::genotype::Genotype;
+use crate::genotype::Allele;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt;
@@ -14,16 +14,16 @@ pub type GenesKey = u64;
 /// Chromosomes [crossover](crate::crossover), [mutate](crate::mutate) and [compete](crate::compete) with each other in the
 /// [Evolve](crate::strategy::evolve::Evolve) strategy
 #[derive(Clone, Debug)]
-pub struct Chromosome<T: Genotype> {
-    pub genes: Vec<T::Allele>,
+pub struct Chromosome<T: Allele> {
+    pub genes: Vec<T>,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
 }
 
 // Cannot Hash ContinuousAllele
-impl<T: Genotype> Chromosome<T>
+impl<T: Allele> Chromosome<T>
 where
-    <T as Genotype>::Allele: Hash,
+    T: Hash,
 {
     pub fn genes_key(&self) -> GenesKey {
         let mut s = DefaultHasher::new();
@@ -32,8 +32,8 @@ where
     }
 }
 
-impl<T: Genotype> Chromosome<T> {
-    pub fn new(genes: Vec<T::Allele>) -> Self {
+impl<T: Allele> Chromosome<T> {
+    pub fn new(genes: Vec<T>) -> Self {
         Self {
             genes,
             fitness_score: None,
@@ -48,27 +48,27 @@ impl<T: Genotype> Chromosome<T> {
     }
 }
 
-impl<T: Genotype> PartialEq for Chromosome<T> {
+impl<T: Allele> PartialEq for Chromosome<T> {
     fn eq(&self, other: &Self) -> bool {
         self.fitness_score == other.fitness_score
     }
 }
 
-impl<T: Genotype> Eq for Chromosome<T> {}
+impl<T: Allele> Eq for Chromosome<T> {}
 
-impl<T: Genotype> PartialOrd for Chromosome<T> {
+impl<T: Allele> PartialOrd for Chromosome<T> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.fitness_score.cmp(&other.fitness_score))
     }
 }
 
-impl<T: Genotype> Ord for Chromosome<T> {
+impl<T: Allele> Ord for Chromosome<T> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap_or(Ordering::Equal)
     }
 }
 
-impl<T: Genotype> fmt::Display for Chromosome<T> {
+impl<T: Allele> fmt::Display for Chromosome<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(score) = self.fitness_score {
             write!(f, "fitness score {}", score)

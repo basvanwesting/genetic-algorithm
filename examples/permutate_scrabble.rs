@@ -29,10 +29,10 @@ struct ScrabbleFitness {
     letter_board: Vec<Vec<char>>,
 }
 impl Fitness for ScrabbleFitness {
-    type Genotype = MultiDiscreteGenotype<WordPosition>;
+    type Allele = WordPosition;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Genotype>,
+        chromosome: &Chromosome<Self::Allele>,
     ) -> Option<FitnessValue> {
         let mut score: isize = 0;
 
@@ -231,7 +231,7 @@ impl PermutateReporter for CustomReporter {
 
     fn on_new_generation(
         &mut self,
-        state: &PermutateState<Self::Genotype>,
+        state: &PermutateState<Self::Genotype::Allele>,
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.0 == 0 {
@@ -247,7 +247,7 @@ impl PermutateReporter for CustomReporter {
 
     fn on_new_best_chromosome(
         &mut self,
-        state: &PermutateState<Self::Genotype>,
+        state: &PermutateState<Self::Genotype::Allele>,
         _config: &PermutateConfig,
     ) {
         println!(
@@ -266,7 +266,7 @@ impl PermutateReporter for CustomLogReporter {
 
     fn on_new_generation(
         &mut self,
-        state: &PermutateState<Self::Genotype>,
+        state: &PermutateState<Self::Genotype::Allele>,
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.0 == 0 {

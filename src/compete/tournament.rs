@@ -20,7 +20,7 @@ pub struct Tournament {
 impl Compete for Tournament {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState<G::Allele>,
         config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
@@ -30,7 +30,8 @@ impl Compete for Tournament {
         let target_population_size =
             std::cmp::min(config.target_population_size, working_population_size);
 
-        let mut target_chromosomes: Vec<Chromosome<G>> = Vec::with_capacity(target_population_size);
+        let mut target_chromosomes: Vec<Chromosome<G::Allele>> =
+            Vec::with_capacity(target_population_size);
         let mut sample_index: usize;
         let mut winning_index: usize;
         let mut sample_fitness_value: FitnessValue;

@@ -85,18 +85,22 @@ impl Genotype for Continuous {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = self.allele_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut Chromosome<Self::Allele>,
         scale: Option<f32>,
         rng: &mut R,
     ) {
@@ -124,9 +128,9 @@ impl Genotype for Continuous {
 impl IncrementalGenotype for Continuous {
     fn neighbouring_chromosomes(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &Chromosome<Self::Allele>,
         scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<Chromosome<Self::Allele>> {
         let diffs: Vec<ContinuousAllele> = vec![
             self.allele_neighbour_range.as_ref().unwrap().start * scale.unwrap_or(1.0),
             self.allele_neighbour_range.as_ref().unwrap().end * scale.unwrap_or(1.0),

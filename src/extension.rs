@@ -23,7 +23,7 @@ pub trait Extension: Clone + std::fmt::Debug {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState<G::Allele>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,

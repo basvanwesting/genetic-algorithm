@@ -17,7 +17,7 @@ pub struct TryFromBuilderError(pub &'static str);
 pub struct Builder<
     G: Genotype,
     M: Mutate,
-    F: Fitness<Genotype = G>,
+    F: Fitness<Allele = G::Allele>,
     S: Crossover,
     C: Compete,
     E: Extension,
@@ -39,7 +39,7 @@ pub struct Builder<
     pub reporter: SR,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Default
+impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Compete> Default
     for Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     fn default() -> Self {
@@ -61,7 +61,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
         }
     }
 }
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Compete>
     Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     pub fn new() -> Self {
@@ -73,7 +73,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Genotype = G>,
+        F: Fitness<Allele = G::Allele>,
         S: Crossover,
         C: Compete,
         E: Extension,
@@ -205,7 +205,7 @@ impl<
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Genotype = G>,
+        F: Fitness<Allele = G::Allele>,
         S: Crossover,
         C: Compete,
         E: Extension,
@@ -270,7 +270,7 @@ impl<
         number_of_species: usize,
         rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
-        let best_chromosomes: Vec<Chromosome<G>> = (0..number_of_species)
+        let best_chromosomes: Vec<Chromosome<G::Allele>> = (0..number_of_species)
             .filter_map(|iteration| {
                 let mut species_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into().ok()?;
                 species_run.state.current_iteration = iteration;

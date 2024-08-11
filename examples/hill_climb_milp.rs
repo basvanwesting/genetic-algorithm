@@ -10,10 +10,10 @@ const PRECISION: f32 = 1e-5;
 #[derive(Clone, Debug)]
 struct MILPFitness;
 impl Fitness for MILPFitness {
-    type Genotype = MultiContinuousGenotype;
+    type Allele = ContinuousAllele;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Genotype>,
+        chromosome: &Chromosome<Self::Allele>,
     ) -> Option<FitnessValue> {
         let x1 = chromosome.genes[0];
         let x2 = chromosome.genes[1].floor();

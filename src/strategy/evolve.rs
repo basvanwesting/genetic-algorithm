@@ -13,7 +13,7 @@ use crate::compete::Compete;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::Genotype;
+use crate::genotype::{Allele, Genotype};
 use crate::mutate::Mutate;
 use crate::population::Population;
 use rand::Rng;
@@ -94,7 +94,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 pub struct Evolve<
     G: Genotype,
     M: Mutate,
-    F: Fitness<Genotype = G>,
+    F: Fitness<Allele = G::Allele>,
     S: Crossover,
     C: Compete,
     E: Extension,
@@ -104,7 +104,7 @@ pub struct Evolve<
     pub fitness: F,
     pub plugins: EvolvePlugins<M, S, C, E>,
     pub config: EvolveConfig,
-    pub state: EvolveState<G>,
+    pub state: EvolveState<G::Allele>,
     reporter: SR,
 }
 
@@ -129,19 +129,19 @@ pub struct EvolveConfig {
 /// strategy specific fields are added:
 /// * population: the population of the current generation
 #[derive(Clone)]
-pub struct EvolveState<G: Genotype> {
+pub struct EvolveState<A: Allele> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub best_generation: usize,
-    pub best_chromosome: Option<Chromosome<G>>,
+    pub best_chromosome: Option<Chromosome<A>>,
 
-    pub population: Population<G>,
+    pub population: Population<A>,
 }
 
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Genotype = G>,
+        F: Fitness<Allele = G::Allele>,
         S: Crossover,
         C: Compete,
         E: Extension,
@@ -213,7 +213,7 @@ impl<
         }
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+    fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
         self.state.best_chromosome()
     }
     fn best_generation(&self) -> usize {
@@ -224,7 +224,7 @@ impl<
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Compete>
     Evolve<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>> {
@@ -235,7 +235,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Genotype = G>,
+        F: Fitness<Allele = G::Allele>,
         S: Crossover,
         C: Compete,
         E: Extension,
@@ -243,7 +243,7 @@ impl<
     > Evolve<G, M, F, S, C, E, SR>
 {
     #[allow(dead_code)]
-    fn ensure_best_chromosome(&mut self, population: &mut Population<G>) {
+    fn ensure_best_chromosome(&mut self, population: &mut Population<G::Allele>) {
         if let Some(best_chromosome) = &self.state.best_chromosome {
             if !population.fitness_score_present(best_chromosome.fitness_score) {
                 population.chromosomes.push(best_chromosome.clone());
@@ -295,7 +295,7 @@ impl<
         }
     }
 
-    pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G> {
+    pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G::Allele> {
         (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_factory(rng))
             .collect::<Vec<_>>()
@@ -312,11 +312,11 @@ impl StrategyConfig for EvolveConfig {
     }
 }
 
-impl<G: Genotype> StrategyState<G> for EvolveState<G> {
-    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+impl<A: Allele> StrategyState<A> for EvolveState<A> {
+    fn best_chromosome(&self) -> Option<Chromosome<A>> {
         self.best_chromosome.clone()
     }
-    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<G>> {
+    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
         self.best_chromosome.as_ref()
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
@@ -333,7 +333,7 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     }
     fn set_best_chromosome(
         &mut self,
-        best_chromosome: &Chromosome<G>,
+        best_chromosome: &Chromosome<A>,
         improved_fitness: bool,
     ) -> (bool, bool) {
         self.best_chromosome = Some(best_chromosome.clone());
@@ -347,7 +347,7 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Genotype = G>,
+        F: Fitness<Allele = G::Allele>,
         S: Crossover,
         C: Compete,
         E: Extension,
@@ -455,7 +455,7 @@ impl EvolveConfig {
     }
 }
 
-impl<G: Genotype> Default for EvolveState<G> {
+impl<A: Allele> Default for EvolveState<A> {
     fn default() -> Self {
         Self {
             current_iteration: 0,
@@ -466,8 +466,8 @@ impl<G: Genotype> Default for EvolveState<G> {
         }
     }
 }
-impl<G: Genotype> EvolveState<G> {
-    pub fn new(population: Population<G>) -> Self {
+impl<A: Allele> EvolveState<A> {
+    pub fn new(population: Population<A>) -> Self {
         Self {
             population,
             ..Default::default()
@@ -478,7 +478,7 @@ impl<G: Genotype> EvolveState<G> {
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Genotype = G>,
+        F: Fitness<Allele = G::Allele>,
         S: Crossover,
         C: Compete,
         E: Extension,
@@ -527,7 +527,7 @@ impl fmt::Display for EvolveConfig {
     }
 }
 
-impl<G: Genotype> fmt::Display for EvolveState<G> {
+impl<A: Allele> fmt::Display for EvolveState<A> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;

@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::fitness::placeholders::{
-    CountTrue, SumContinuousGenotype, SumDiscreteGenotype, Zero,
+    CountTrue, SumContinuousAllele, SumDiscreteAllele, Zero,
 };
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, DiscreteGenotype};
@@ -37,13 +37,13 @@ fn count_true() {
 fn sum_discrete_genotype() {
     let chromosome = build::chromosome::<DiscreteGenotype>(vec![0, 1, 2, 3]);
     assert_eq!(
-        SumDiscreteGenotype.calculate_for_chromosome(&chromosome),
+        SumDiscreteAllele.calculate_for_chromosome(&chromosome),
         Some(6)
     );
 
     let chromosome = build::chromosome::<DiscreteGenotype>(vec![0, 0, 0, 0]);
     assert_eq!(
-        SumDiscreteGenotype.calculate_for_chromosome(&chromosome),
+        SumDiscreteAllele.calculate_for_chromosome(&chromosome),
         Some(0)
     );
 }
@@ -52,19 +52,19 @@ fn sum_discrete_genotype() {
 fn sum_continuous_genotype() {
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![0.0, 0.0, 0.0]);
     assert_eq!(
-        SumContinuousGenotype(1e-3).calculate_for_chromosome(&chromosome),
+        SumContinuousAllele(1e-3).calculate_for_chromosome(&chromosome),
         Some(0)
     );
 
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![0.1, 0.2, 0.3]);
     assert_eq!(
-        SumContinuousGenotype(1e-3).calculate_for_chromosome(&chromosome),
+        SumContinuousAllele(1e-3).calculate_for_chromosome(&chromosome),
         Some(600)
     );
 
     let chromosome = build::chromosome::<ContinuousGenotype>(vec![1.4, 2.4, 3.4]);
     assert_eq!(
-        SumContinuousGenotype(1e-3).calculate_for_chromosome(&chromosome),
+        SumContinuousAllele(1e-3).calculate_for_chromosome(&chromosome),
         Some(7200)
     );
 }

@@ -16,7 +16,7 @@ use rand::prelude::*;
 pub trait Compete: Clone + std::fmt::Debug {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState<G::Allele>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,

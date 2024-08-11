@@ -18,7 +18,7 @@ impl Crossover for SinglePoint {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState<G::Allele>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
@@ -30,7 +30,7 @@ impl Crossover for SinglePoint {
         let crossover_points = genotype.crossover_points();
         let crossover_point_sampler = Slice::new(&crossover_points).unwrap();
         if self.keep_parent {
-            let mut child_chromosomes: Vec<Chromosome<G>> =
+            let mut child_chromosomes: Vec<Chromosome<G::Allele>> =
                 Vec::with_capacity(state.population.size());
 
             for chunk in state.population.chromosomes.chunks(2) {

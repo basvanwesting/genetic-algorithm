@@ -1,5 +1,5 @@
 use super::{PermutateConfig, PermutateState};
-use crate::genotype::PermutableGenotype;
+use crate::genotype::{Genotype, PermutableGenotype};
 use crate::strategy::StrategyState;
 use num::BigUint;
 use std::marker::PhantomData;
@@ -19,7 +19,7 @@ use std::marker::PhantomData;
 /// impl PermutateReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
+///     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype::Allele>, _config: &PermutateConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "progress: {:2.2}%, current_generation: {}, best_generation: {}",
@@ -30,7 +30,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
+///     fn on_new_best_chromosome(&mut self, state: &PermutateState<Self::Genotype::Allele>, _config: &PermutateConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
 ///             state.current_generation(),
@@ -46,20 +46,25 @@ pub trait Reporter: Clone + Send + Sync {
     fn on_start(
         &mut self,
         _genotype: &Self::Genotype,
-        _state: &PermutateState<Self::Genotype>,
+        _state: &PermutateState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &PermutateConfig,
     ) {
     }
-    fn on_finish(&mut self, _state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {}
+    fn on_finish(
+        &mut self,
+        _state: &PermutateState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
+        _config: &PermutateConfig,
+    ) {
+    }
     fn on_new_generation(
         &mut self,
-        _state: &PermutateState<Self::Genotype>,
+        _state: &PermutateState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &PermutateConfig,
     ) {
     }
     fn on_new_best_chromosome(
         &mut self,
-        _state: &PermutateState<Self::Genotype>,
+        _state: &PermutateState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &PermutateConfig,
     ) {
     }
@@ -119,7 +124,7 @@ impl<G: PermutableGenotype + Clone + Send + Sync> Reporter for Simple<G> {
 
     fn on_new_generation(
         &mut self,
-        state: &PermutateState<Self::Genotype>,
+        state: &PermutateState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.period == 0 {
@@ -135,7 +140,7 @@ impl<G: PermutableGenotype + Clone + Send + Sync> Reporter for Simple<G> {
 
     fn on_new_best_chromosome(
         &mut self,
-        state: &PermutateState<Self::Genotype>,
+        state: &PermutateState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &PermutateConfig,
     ) {
         println!(
@@ -169,7 +174,7 @@ impl<G: PermutableGenotype + Clone + Send + Sync> Reporter for Log<G> {
 
     fn on_new_generation(
         &mut self,
-        state: &PermutateState<Self::Genotype>,
+        state: &PermutateState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &PermutateConfig,
     ) {
         log::debug!(

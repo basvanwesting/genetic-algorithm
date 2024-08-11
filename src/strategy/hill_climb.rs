@@ -10,7 +10,7 @@ pub use self::builder::{
 use super::{Strategy, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::IncrementalGenotype;
+use crate::genotype::{Allele, IncrementalGenotype};
 use crate::population::Population;
 use rand::prelude::SliceRandom;
 use rand::Rng;
@@ -93,7 +93,7 @@ pub struct Scaling {
 /// Example:
 /// ```
 /// use genetic_algorithm::strategy::hill_climb::prelude::*;
-/// use genetic_algorithm::fitness::placeholders::SumContinuousGenotype;
+/// use genetic_algorithm::fitness::placeholders::SumContinuousAllele;
 ///
 /// // the search space
 /// let genotype = ContinuousGenotype::builder() // f32 alleles
@@ -108,7 +108,7 @@ pub struct Scaling {
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
 ///     .with_variant(HillClimbVariant::SteepestAscent)   // check all neighbours for each round
-///     .with_fitness(SumContinuousGenotype(1e-5))        // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
+///     .with_fitness(SumContinuousAllele(1e-5))        // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_multithreading(true)                        // use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
 ///     .with_scaling(Scaling::new(1.0, 0.8, 1e-5))       // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale
@@ -125,13 +125,13 @@ pub struct Scaling {
 /// ```
 pub struct HillClimb<
     G: IncrementalGenotype,
-    F: Fitness<Genotype = G>,
+    F: Fitness<Allele = G::Allele>,
     SR: HillClimbReporter<Genotype = G>,
 > {
     genotype: G,
     fitness: F,
     pub config: HillClimbConfig,
-    pub state: HillClimbState<G>,
+    pub state: HillClimbState<G::Allele>,
     reporter: SR,
 }
 
@@ -150,19 +150,22 @@ pub struct HillClimbConfig {
 /// * current_scale: see [Scaling]
 /// * contending_chromosome: available for all [variants](HillClimbVariant)
 /// * neighbouring_population: only available for SteepestAscent [variants](HillClimbVariant)
-pub struct HillClimbState<G: IncrementalGenotype> {
+pub struct HillClimbState<A: Allele> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub best_generation: usize,
-    pub best_chromosome: Option<Chromosome<G>>,
+    pub best_chromosome: Option<Chromosome<A>>,
 
     pub current_scale: Option<f32>,
-    pub contending_chromosome: Option<Chromosome<G>>,
-    pub neighbouring_population: Option<Population<G>>,
+    pub contending_chromosome: Option<Chromosome<A>>,
+    pub neighbouring_population: Option<Population<A>>,
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
-    Strategy<G> for HillClimb<G, F, SR>
+impl<
+        G: IncrementalGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: HillClimbReporter<Genotype = G>,
+    > Strategy<G> for HillClimb<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.state.reset_scaling(&self.config);
@@ -293,7 +296,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         }
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+    fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
         self.state.best_chromosome()
     }
     fn best_generation(&self) -> usize {
@@ -304,13 +307,18 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> HillClimb<G, F, HillClimbReporterNoop<G>> {
+impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>>
+    HillClimb<G, F, HillClimbReporterNoop<G>>
+{
     pub fn builder() -> HillClimbBuilder<G, F, HillClimbReporterNoop<G>> {
         HillClimbBuilder::new()
     }
 }
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
-    HillClimb<G, F, SR>
+impl<
+        G: IncrementalGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: HillClimbReporter<Genotype = G>,
+    > HillClimb<G, F, SR>
 {
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
@@ -375,11 +383,11 @@ impl StrategyConfig for HillClimbConfig {
     }
 }
 
-impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
-    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+impl<A: Allele> StrategyState<A> for HillClimbState<A> {
+    fn best_chromosome(&self) -> Option<Chromosome<A>> {
         self.best_chromosome.clone()
     }
-    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<G>> {
+    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
         self.best_chromosome.as_ref()
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
@@ -396,7 +404,7 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     }
     fn set_best_chromosome(
         &mut self,
-        best_chromosome: &Chromosome<G>,
+        best_chromosome: &Chromosome<A>,
         improved_fitness: bool,
     ) -> (bool, bool) {
         self.best_chromosome = Some(best_chromosome.clone());
@@ -407,10 +415,10 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     }
 }
 
-impl<G: IncrementalGenotype> HillClimbState<G> {
+impl<A: Allele, G: IncrementalGenotype<Allele = A>> HillClimbState<A> {
     fn update_best_chromosome_and_scale<SR: HillClimbReporter<Genotype = G>>(
         &mut self,
-        contending_chromosome: &Chromosome<G>,
+        contending_chromosome: &Chromosome<A>,
         config: &HillClimbConfig,
         reporter: &mut SR,
     ) {
@@ -439,8 +447,11 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
-    TryFrom<HillClimbBuilder<G, F, SR>> for HillClimb<G, F, SR>
+impl<
+        G: IncrementalGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: HillClimbReporter<Genotype = G>,
+    > TryFrom<HillClimbBuilder<G, F, SR>> for HillClimb<G, F, SR>
 {
     type Error = TryFromHillClimbBuilderError;
 
@@ -497,7 +508,7 @@ impl HillClimbConfig {
     }
 }
 
-impl<G: IncrementalGenotype> Default for HillClimbState<G> {
+impl<A: Allele> Default for HillClimbState<A> {
     fn default() -> Self {
         Self {
             current_iteration: 0,
@@ -510,7 +521,7 @@ impl<G: IncrementalGenotype> Default for HillClimbState<G> {
         }
     }
 }
-impl<G: IncrementalGenotype> HillClimbState<G> {
+impl<A: Allele> HillClimbState<A> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -526,8 +537,11 @@ impl Scaling {
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
-    fmt::Display for HillClimb<G, F, SR>
+impl<
+        G: IncrementalGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: HillClimbReporter<Genotype = G>,
+    > fmt::Display for HillClimb<G, F, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "hill_climb:")?;
@@ -557,7 +571,7 @@ impl fmt::Display for HillClimbConfig {
     }
 }
 
-impl<G: IncrementalGenotype> fmt::Display for HillClimbState<G> {
+impl<A: Allele> fmt::Display for HillClimbState<A> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "hill_climb_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;

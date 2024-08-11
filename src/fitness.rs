@@ -9,7 +9,7 @@ pub mod placeholders;
 pub mod prelude;
 
 use crate::chromosome::Chromosome;
-use crate::genotype::Genotype;
+use crate::genotype::Allele;
 use crate::population::Population;
 use rayon::prelude::*;
 use std::cell::RefCell;
@@ -39,18 +39,18 @@ pub enum FitnessOrdering {
 /// #[derive(Clone, Debug)]
 /// pub struct CountTrue;
 /// impl Fitness for CountTrue {
-///     type Genotype = BinaryGenotype;
-///     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
+///     type Allele = BinaryAllele;
+///     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Allele>) -> Option<FitnessValue> {
 ///         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
 ///     }
 /// }
 /// ```
 pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
-    type Genotype: Genotype;
+    type Allele: Allele;
     /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,
-        population: &mut Population<Self::Genotype>,
+        population: &mut Population<Self::Allele>,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         if let Some(thread_local) = thread_local {
@@ -59,7 +59,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             self.call_for_population_single_thread(population);
         }
     }
-    fn call_for_population_single_thread(&mut self, population: &mut Population<Self::Genotype>) {
+    fn call_for_population_single_thread(&mut self, population: &mut Population<Self::Allele>) {
         population
             .chromosomes
             .iter_mut()
@@ -69,7 +69,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population_multi_thread(
         &self,
-        population: &mut Population<Self::Genotype>,
+        population: &mut Population<Self::Allele>,
         thread_local: &ThreadLocal<RefCell<Self>>,
     ) {
         population
@@ -81,11 +81,11 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                 fitness.borrow_mut().call_for_chromosome(chromosome);
             });
     }
-    fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Genotype>) {
+    fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Allele>) {
         chromosome.fitness_score = self.calculate_for_chromosome(chromosome);
     }
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Genotype>,
+        chromosome: &Chromosome<Self::Allele>,
     ) -> Option<FitnessValue>;
 }

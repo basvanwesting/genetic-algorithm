@@ -135,11 +135,15 @@ impl<T: Allele> Genotype for MultiDiscrete<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] =
             self.allele_lists[index][self.allele_index_samplers[index].sample(rng)].clone();
@@ -156,9 +160,9 @@ impl<T: Allele> Genotype for MultiDiscrete<T> {
 impl<T: Allele> IncrementalGenotype for MultiDiscrete<T> {
     fn neighbouring_chromosomes(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &Chromosome<Self::Allele>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<Chromosome<Self::Allele>> {
         (0..self.genes_size)
             .flat_map(|index| {
                 self.allele_lists[index]
@@ -189,7 +193,7 @@ impl<T: Allele> PermutableGenotype for MultiDiscrete<T> {
 
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
+    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + 'a> {
         Box::new(
             self.allele_lists
                 .clone()

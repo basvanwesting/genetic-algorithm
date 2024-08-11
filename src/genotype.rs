@@ -8,11 +8,11 @@ mod multi_discrete;
 mod multi_unique;
 mod unique;
 
-pub use self::binary::Binary as BinaryGenotype;
+pub use self::binary::{Binary as BinaryGenotype, BinaryAllele};
 pub use self::builder::{
     Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
 };
-pub use self::continuous_f32::Continuous as ContinuousGenotype;
+pub use self::continuous_f32::{Continuous as ContinuousGenotype, ContinuousAllele};
 pub use self::discrete::Discrete as DiscreteGenotype;
 pub use self::multi_continuous::MultiContinuous as MultiContinuousGenotype;
 pub use self::multi_discrete::MultiDiscrete as MultiDiscreteGenotype;
@@ -30,7 +30,7 @@ use rand::Rng;
 use std::fmt;
 
 /// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
-pub trait Allele: Clone + Send + Sync + std::cmp::PartialEq + std::fmt::Debug
+pub trait Allele: Clone + Send + Sync + PartialEq + std::fmt::Debug
 // use rand::distributions::uniform::SampleUniform;
 // + SampleUniform
 // Copy
@@ -67,15 +67,15 @@ pub trait Genotype:
     fn genes_size(&self) -> usize;
     /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     /// random genes unless seed genes are provided
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele>;
     /// a random genes factory (respecting seed genes)
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
     /// a random mutation of the chromosome
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self>, rng: &mut R);
+    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self::Allele>, rng: &mut R);
     /// a blanket neighbouring mutation fallback random mutation
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut Chromosome<Self::Allele>,
         _scale: Option<f32>,
         rng: &mut R,
     ) {
@@ -109,15 +109,15 @@ pub trait IncrementalGenotype: Genotype {
     /// all neighbouring mutations of the chromosome
     fn neighbouring_chromosomes(
         &self,
-        _chromosome: &Chromosome<Self>,
+        _chromosome: &Chromosome<Self::Allele>,
         _scale: Option<f32>,
-    ) -> Vec<Chromosome<Self>>;
+    ) -> Vec<Chromosome<Self::Allele>>;
 
     fn neighbouring_population(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &Chromosome<Self::Allele>,
         scale: Option<f32>,
-    ) -> Population<Self> {
+    ) -> Population<Self::Allele> {
         self.neighbouring_chromosomes(chromosome, scale).into()
     }
     /// chromosome neighbours size for the all possible neighbouring mutation combinations
@@ -133,7 +133,7 @@ pub trait PermutableGenotype: Genotype {
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
-    ) -> Box<dyn Iterator<Item = Chromosome<Self>> + 'a> {
+    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + 'a> {
         Box::new(
             (0..self.genes_size())
                 .map(|_| self.allele_list_for_chromosome_permutations())

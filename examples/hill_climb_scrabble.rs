@@ -29,10 +29,10 @@ struct ScrabbleFitness {
     letter_board: Vec<Vec<char>>,
 }
 impl Fitness for ScrabbleFitness {
-    type Genotype = MultiDiscreteGenotype<WordPosition>;
+    type Allele = WordPosition;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Genotype>,
+        chromosome: &Chromosome<Self::Allele>,
     ) -> Option<FitnessValue> {
         let mut score: isize = 0;
 

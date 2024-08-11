@@ -1,17 +1,17 @@
 //! The population is a  container for [Chromosomes](Chromosome)
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
-use crate::genotype::Genotype;
+use crate::genotype::Allele;
 use crate::strategy::evolve::EvolveConfig;
 use cardinality_estimator::CardinalityEstimator;
 use rand::prelude::*;
 
 #[derive(Clone, Debug)]
-pub struct Population<T: Genotype> {
+pub struct Population<T: Allele> {
     pub chromosomes: Vec<Chromosome<T>>,
 }
 
-impl<T: Genotype> Population<T> {
+impl<T: Allele> Population<T> {
     pub fn new(chromosomes: Vec<Chromosome<T>>) -> Self {
         Self { chromosomes }
     }
@@ -110,7 +110,7 @@ impl<T: Genotype> Population<T> {
     }
 }
 
-impl<T: Genotype> From<Vec<Chromosome<T>>> for Population<T> {
+impl<T: Allele> From<Vec<Chromosome<T>>> for Population<T> {
     fn from(chromosomes: Vec<Chromosome<T>>) -> Self {
         Self::new(chromosomes)
     }

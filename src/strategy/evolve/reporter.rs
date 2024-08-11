@@ -18,7 +18,7 @@ use std::marker::PhantomData;
 /// impl EvolveReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+///     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype::Allele>, _config: &EvolveConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}",
@@ -30,7 +30,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype::Allele>, _config: &EvolveConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, population_size: {}",
 ///             state.current_generation(),
@@ -47,29 +47,39 @@ pub trait Reporter: Clone + Send + Sync {
     fn on_start(
         &mut self,
         _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
+        _state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &EvolveConfig,
     ) {
     }
-    fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
-    fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
+    fn on_finish(
+        &mut self,
+        _state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
+        _config: &EvolveConfig,
+    ) {
+    }
+    fn on_new_generation(
+        &mut self,
+        _state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
+        _config: &EvolveConfig,
+    ) {
+    }
     fn on_new_best_chromosome(
         &mut self,
-        _state: &EvolveState<Self::Genotype>,
+        _state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &EvolveConfig,
     ) {
     }
     fn on_extension_event(
         &mut self,
         _event: ExtensionEvent,
-        _state: &EvolveState<Self::Genotype>,
+        _state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &EvolveConfig,
     ) {
     }
     fn on_mutate_event(
         &mut self,
         _event: MutateEvent,
-        _state: &EvolveState<Self::Genotype>,
+        _state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &EvolveConfig,
     ) {
     }
@@ -145,7 +155,7 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     fn on_start(
         &mut self,
         genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
+        state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &EvolveConfig,
     ) {
         println!("start - iteration: {}", state.current_iteration());
@@ -155,11 +165,19 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
             .for_each(|genes| println!("start - seed_genes: {:?}", genes));
     }
 
-    fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_finish(
+        &mut self,
+        state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
+        _config: &EvolveConfig,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
     }
 
-    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, config: &EvolveConfig) {
+    fn on_new_generation(
+        &mut self,
+        state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
+        config: &EvolveConfig,
+    ) {
         if state.current_generation() % self.period == 0 {
             let width = config.target_population_size.to_string().len();
             println!(
@@ -177,7 +195,7 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
 
     fn on_new_best_chromosome(
         &mut self,
-        state: &EvolveState<Self::Genotype>,
+        state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &EvolveConfig,
     ) {
         println!(
@@ -196,7 +214,7 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     fn on_extension_event(
         &mut self,
         event: ExtensionEvent,
-        state: &EvolveState<Self::Genotype>,
+        state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &EvolveConfig,
     ) {
         self.number_of_extension_events += 1;
@@ -237,7 +255,7 @@ impl<G: Genotype + Clone + Send + Sync> Reporter for Simple<G> {
     fn on_mutate_event(
         &mut self,
         event: MutateEvent,
-        _state: &EvolveState<Self::Genotype>,
+        _state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &EvolveConfig,
     ) {
         self.number_of_mutate_events += 1;
@@ -267,7 +285,11 @@ impl<G: Genotype> Log<G> {
 impl<G: Genotype + Clone + Send + Sync> Reporter for Log<G> {
     type Genotype = G;
 
-    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_new_generation(
+        &mut self,
+        state: &EvolveState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
+        _config: &EvolveConfig,
+    ) {
         log::debug!(
             "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/cardinality): {:?} / {} / {:?} / {:.0} / {:.0} / {}",
             state.current_generation(),

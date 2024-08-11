@@ -20,7 +20,7 @@ impl Mutate for MultiGeneRandom {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState<G::Allele>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,

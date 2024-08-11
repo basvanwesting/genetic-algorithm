@@ -7,8 +7,8 @@ use genetic_algorithm::extension::{
     ExtensionMassInvasion, ExtensionNoop,
 };
 use genetic_algorithm::fitness::placeholders::{
-    CountTrue, SumContinuousGenotype, SumDiscreteGenotype, SumMultiDiscreteGenotype,
-    SumUniqueGenotype,
+    CountTrue, SumContinuousAllele, SumDiscreteAllele, SumDiscreteAllele,
+    SumDiscreteAllele,
 };
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
@@ -56,7 +56,7 @@ fn build_invalid_require_crossover_indexes() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumUniqueGenotype)
+        .with_fitness(SumDiscreteAllele)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
@@ -82,7 +82,7 @@ fn build_invalid_require_crossover_points() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumUniqueGenotype)
+        .with_fitness(SumDiscreteAllele)
         .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
@@ -407,7 +407,7 @@ fn call_continuous() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumContinuousGenotype(1e-3))
+        .with_fitness(SumContinuousAllele(1e-3))
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
@@ -442,7 +442,7 @@ fn call_discrete() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumDiscreteGenotype)
+        .with_fitness(SumDiscreteAllele)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
@@ -477,7 +477,7 @@ fn call_multi_discrete() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumMultiDiscreteGenotype)
+        .with_fitness(SumDiscreteAllele)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
@@ -506,7 +506,7 @@ fn call_multi_thread() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumDiscreteGenotype)
+        .with_fitness(SumDiscreteAllele)
         .with_multithreading(true)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))

@@ -11,7 +11,7 @@ impl Extension for Noop {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
-        _state: &mut EvolveState<G>,
+        _state: &mut EvolveState<G::Allele>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
         _rng: &mut R,

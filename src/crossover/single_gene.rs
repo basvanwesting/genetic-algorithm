@@ -18,7 +18,7 @@ impl Crossover for SingleGene {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState<G::Allele>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
@@ -29,7 +29,7 @@ impl Crossover for SingleGene {
         let crossover_indexes = genotype.crossover_indexes();
         let crossover_index_sampler = Slice::new(&crossover_indexes).unwrap();
         if self.keep_parent {
-            let mut child_chromosomes: Vec<Chromosome<G>> =
+            let mut child_chromosomes: Vec<Chromosome<G::Allele>> =
                 Vec::with_capacity(state.population.size());
 
             for chunk in state.population.chromosomes.chunks(2) {

@@ -5,12 +5,12 @@ pub mod permutate;
 
 use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
-use crate::genotype::Genotype;
+use crate::genotype::{Allele, Genotype};
 use rand::Rng;
 
 pub trait Strategy<G: Genotype> {
     fn call<R: Rng>(&mut self, rng: &mut R);
-    fn best_chromosome(&self) -> Option<Chromosome<G>>;
+    fn best_chromosome(&self) -> Option<Chromosome<G::Allele>>;
     fn best_generation(&self) -> usize;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
 }
@@ -25,10 +25,10 @@ pub trait StrategyConfig {
 /// * current_iteration: `usize`
 /// * current_generation: `usize`
 /// * best_generation: `usize`
-/// * best_chromosome: `Option<Chromosome<G>>`
-pub trait StrategyState<G: Genotype> {
-    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<G>>;
-    fn best_chromosome(&self) -> Option<Chromosome<G>>;
+/// * best_chromosome: `Option<Chromosome<G::Allele>>`
+pub trait StrategyState<A: Allele> {
+    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>>;
+    fn best_chromosome(&self) -> Option<Chromosome<A>>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
@@ -39,7 +39,7 @@ pub trait StrategyState<G: Genotype> {
     // distinguished for reporting purposes
     fn set_best_chromosome(
         &mut self,
-        best_chromosome: &Chromosome<G>,
+        best_chromosome: &Chromosome<A>,
         improved_fitness: bool,
     ) -> (bool, bool);
 
@@ -48,7 +48,7 @@ pub trait StrategyState<G: Genotype> {
     // distinguished for reporting purposes
     fn update_best_chromosome(
         &mut self,
-        contending_chromosome: &Chromosome<G>,
+        contending_chromosome: &Chromosome<A>,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {
@@ -105,12 +105,13 @@ pub trait StrategyState<G: Genotype> {
 /// where
 ///     <Self as StrategyReporter>::Genotype: PermutableGenotype,
 /// {
-///     type State = PermutateState<Self::Genotype>;
+///     type State = PermutateState<Self::Genotype::Allele>;
 /// }
 /// ```
 pub trait StrategyReporter: Clone + Send + Sync {
     type Genotype: Genotype;
-    type State: StrategyState<Self::Genotype>;
+    type Allele: Allele;
+    type State: StrategyState<Self::Allele>;
     type Config: StrategyConfig;
 
     fn on_start(&mut self, _state: &Self::State, _config: &Self::Config) {}

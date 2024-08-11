@@ -1,5 +1,5 @@
 use super::{HillClimbConfig, HillClimbState};
-use crate::genotype::IncrementalGenotype;
+use crate::genotype::{Genotype, IncrementalGenotype};
 use crate::strategy::StrategyState;
 use std::marker::PhantomData;
 
@@ -18,7 +18,7 @@ use std::marker::PhantomData;
 /// impl HillClimbReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
+///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype::Allele>, _config: &HillClimbConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, best_generation: {}, current_scale: {:?}",
@@ -29,7 +29,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
+///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype::Allele>, _config: &HillClimbConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale: {:?}",
 ///             state.current_generation(),
@@ -46,28 +46,33 @@ pub trait Reporter: Clone + Send + Sync {
     fn on_start(
         &mut self,
         _genotype: &Self::Genotype,
-        _state: &HillClimbState<Self::Genotype>,
+        _state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &HillClimbConfig,
     ) {
     }
-    fn on_finish(&mut self, _state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {}
+    fn on_finish(
+        &mut self,
+        _state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
+        _config: &HillClimbConfig,
+    ) {
+    }
     fn on_new_generation(
         &mut self,
-        _state: &HillClimbState<Self::Genotype>,
+        _state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &HillClimbConfig,
     ) {
     }
     /// used to report on true improvement (new best chromosome with improved fitness)
     fn on_new_best_chromosome(
         &mut self,
-        _state: &HillClimbState<Self::Genotype>,
+        _state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &HillClimbConfig,
     ) {
     }
     /// used to report on sideways move (new best chromosome with equal fitness)
     fn on_new_best_chromosome_equal_fitness(
         &mut self,
-        _state: &HillClimbState<Self::Genotype>,
+        _state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &HillClimbConfig,
     ) {
     }
@@ -128,7 +133,7 @@ impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Simple<G> {
     fn on_start(
         &mut self,
         genotype: &Self::Genotype,
-        state: &HillClimbState<Self::Genotype>,
+        state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &HillClimbConfig,
     ) {
         println!("start - iteration: {}", state.current_iteration());
@@ -138,13 +143,17 @@ impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Simple<G> {
             .for_each(|genes| println!("start - seed_genes: {:?}", genes));
     }
 
-    fn on_finish(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
+    fn on_finish(
+        &mut self,
+        state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
+        _config: &HillClimbConfig,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
     }
 
     fn on_new_generation(
         &mut self,
-        state: &HillClimbState<Self::Genotype>,
+        state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &HillClimbConfig,
     ) {
         if state.current_generation() % self.period == 0 {
@@ -159,7 +168,7 @@ impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Simple<G> {
 
     fn on_new_best_chromosome(
         &mut self,
-        state: &HillClimbState<Self::Genotype>,
+        state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &HillClimbConfig,
     ) {
         println!(
@@ -194,7 +203,7 @@ impl<G: IncrementalGenotype + Clone + Send + Sync> Reporter for Log<G> {
 
     fn on_new_generation(
         &mut self,
-        state: &HillClimbState<Self::Genotype>,
+        state: &HillClimbState<<<Self as Reporter>::Genotype as Genotype>::Allele>,
         _config: &HillClimbConfig,
     ) {
         log::debug!(
