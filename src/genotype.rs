@@ -3,7 +3,8 @@ mod binary;
 mod builder;
 mod continuous;
 mod discrete;
-mod multi_continuous;
+mod multi_continuous_f32;
+mod multi_continuous_t;
 mod multi_discrete;
 mod multi_unique;
 mod unique;
@@ -14,13 +15,14 @@ pub use self::builder::{
 };
 pub use self::continuous::Continuous as ContinuousGenotype;
 pub use self::discrete::Discrete as DiscreteGenotype;
-pub use self::multi_continuous::MultiContinuous as MultiContinuousGenotype;
+// pub use self::multi_continuous_f32::MultiContinuous as MultiContinuousGenotype;
+pub use self::multi_continuous_t::MultiContinuous as MultiContinuousGenotype;
 pub use self::multi_discrete::MultiDiscrete as MultiDiscreteGenotype;
 pub use self::multi_unique::MultiUnique as MultiUniqueGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 // pub use self::continuous::ContinuousAllele as ContinuousGenotypeAllele;
-pub use self::multi_continuous::ContinuousAllele as MultiContinuousGenotypeAllele;
+// pub use self::multi_continuous_f32::ContinuousAllele as MultiContinuousGenotypeAllele;
 
 use crate::chromosome::Chromosome;
 use crate::population::Population;
