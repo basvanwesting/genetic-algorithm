@@ -34,7 +34,7 @@
 //! #[derive(Clone, Debug)]
 //! pub struct CountTrue;
 //! impl Fitness for CountTrue {
-//!     type Allele = BinaryAllele;
+//!     type Allele = BinaryAllele; // bool
 //!     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Allele>) -> Option<FitnessValue> {
 //!         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
 //!     }

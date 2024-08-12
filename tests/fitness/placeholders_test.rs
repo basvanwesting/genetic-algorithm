@@ -1,8 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::{
-    CountTrue, SumContinuousAllele, SumDiscreteAllele, Zero,
-};
+use genetic_algorithm::fitness::placeholders::{CountTrue, SumF32, SumIsize, SumUsize, Zero};
 use genetic_algorithm::fitness::Fitness;
 
 #[test]
@@ -33,37 +31,37 @@ fn count_true() {
 }
 
 #[test]
-fn sum_discrete_genotype() {
+fn sum_usize() {
     let chromosome = build::chromosome(vec![0, 1, 2, 3]);
-    assert_eq!(
-        SumDiscreteAllele.calculate_for_chromosome(&chromosome),
-        Some(6)
-    );
+    assert_eq!(SumUsize.calculate_for_chromosome(&chromosome), Some(6));
 
     let chromosome = build::chromosome(vec![0, 0, 0, 0]);
-    assert_eq!(
-        SumDiscreteAllele.calculate_for_chromosome(&chromosome),
-        Some(0)
-    );
+    assert_eq!(SumUsize.calculate_for_chromosome(&chromosome), Some(0));
 }
 
 #[test]
-fn sum_continuous_genotype() {
+fn sum_isize() {
+    let chromosome = build::chromosome(vec![-2, -1, 0, 1, 2, 3]);
+    assert_eq!(SumIsize.calculate_for_chromosome(&chromosome), Some(3));
+
+    let chromosome = build::chromosome(vec![0, 0, 0, 0]);
+    assert_eq!(SumIsize.calculate_for_chromosome(&chromosome), Some(0));
+}
+
+#[test]
+fn sum_f32() {
     let chromosome = build::chromosome(vec![0.0, 0.0, 0.0]);
-    assert_eq!(
-        SumContinuousAllele(1e-3).calculate_for_chromosome(&chromosome),
-        Some(0)
-    );
+    assert_eq!(SumF32(1e-3).calculate_for_chromosome(&chromosome), Some(0));
 
     let chromosome = build::chromosome(vec![0.1, 0.2, 0.3]);
     assert_eq!(
-        SumContinuousAllele(1e-3).calculate_for_chromosome(&chromosome),
+        SumF32(1e-3).calculate_for_chromosome(&chromosome),
         Some(600)
     );
 
     let chromosome = build::chromosome(vec![1.4, 2.4, 3.4]);
     assert_eq!(
-        SumContinuousAllele(1e-3).calculate_for_chromosome(&chromosome),
+        SumF32(1e-3).calculate_for_chromosome(&chromosome),
         Some(7200)
     );
 }

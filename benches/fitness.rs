@@ -1,6 +1,6 @@
 use criterion::*;
 use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::fitness::placeholders::{CountTrue, SumContinuousAllele, SumDiscreteAllele};
+use genetic_algorithm::fitness::placeholders::{CountTrue, SumF32, SumUsize};
 use genetic_algorithm::fitness::Fitness;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -14,13 +14,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     group.bench_function("sum_continuous_genotype", |b| {
         let chromosome = Chromosome::new(vec![1.0; 1000]);
-        let mut sum = SumContinuousAllele(1e-5);
+        let mut sum = SumF32(1e-5);
         b.iter(|| sum.calculate_for_chromosome(black_box(&chromosome)))
     });
 
     group.bench_function("sum_discrete_genotype", |b| {
         let chromosome = Chromosome::new(vec![1; 1000]);
-        let mut sum = SumDiscreteAllele;
+        let mut sum = SumUsize;
         b.iter(|| sum.calculate_for_chromosome(black_box(&chromosome)))
     });
 }

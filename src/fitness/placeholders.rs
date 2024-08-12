@@ -42,8 +42,8 @@ impl Fitness for CountTrue {
 
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SumContinuousAllele(pub f32);
-impl Fitness for SumContinuousAllele {
+pub struct SumF32(pub f32);
+impl Fitness for SumF32 {
     type Allele = f32;
     fn calculate_for_chromosome(
         &mut self,
@@ -61,9 +61,22 @@ impl Fitness for SumContinuousAllele {
 
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
-pub struct SumDiscreteAllele;
-impl Fitness for SumDiscreteAllele {
+pub struct SumUsize;
+impl Fitness for SumUsize {
     type Allele = usize;
+    fn calculate_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Allele>,
+    ) -> Option<FitnessValue> {
+        Some(chromosome.genes.iter().sum::<Self::Allele>() as FitnessValue)
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+#[derive(Clone, Debug)]
+pub struct SumIsize;
+impl Fitness for SumIsize {
+    type Allele = isize;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Allele>,

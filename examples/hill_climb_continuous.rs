@@ -1,4 +1,4 @@
-use genetic_algorithm::fitness::placeholders::SumContinuousAllele;
+use genetic_algorithm::fitness::placeholders::SumF32;
 use genetic_algorithm::strategy::hill_climb::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -24,7 +24,7 @@ fn main() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_target_fitness_score(100 * 100_000)
         .with_scaling(Scaling::new(1.0, 0.8, 1e-5))
-        .with_fitness(SumContinuousAllele(1e-5))
+        .with_fitness(SumF32(1e-5))
         .with_reporter(HillClimbReporterSimple::new(100))
         .call(&mut rng)
         .unwrap();

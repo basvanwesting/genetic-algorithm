@@ -14,10 +14,8 @@ underscore_translations = {
 }
 
 other_translations = {
-  /SumDiscreteGenotype/ => 'SumDiscreteAllele',
-  /SumMultiDiscreteGenotype/ => 'SumDiscreteAllele',
-  /SumMultiUniqueGenotype/ => 'SumDiscreteAllele',
-  /SumUniqueGenotype/ => 'SumDiscreteAllele',
+  /SumContinuousAllele/ => 'SumF32',
+  /SumDiscreteAllele/ => 'SumUsize',
 }
 
 #check:

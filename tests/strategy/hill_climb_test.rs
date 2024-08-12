@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::{CountTrue, SumContinuousAllele};
+use genetic_algorithm::fitness::placeholders::{CountTrue, SumF32};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, Genotype};
 use genetic_algorithm::strategy::hill_climb::{
@@ -19,7 +19,7 @@ fn build_invalid_missing_ending_condition() {
 
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
-        .with_fitness(SumContinuousAllele(1e-3))
+        .with_fitness(SumF32(1e-3))
         // .with_reporter(HillClimbReporterNoop::new())
         .build();
 
@@ -44,7 +44,7 @@ fn call_continuous_max_stale_generations_maximize() {
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_max_stale_generations(1000)
-        .with_fitness(SumContinuousAllele(1e-3))
+        .with_fitness(SumF32(1e-3))
         .with_reporter(HillClimbReporterNoop::new())
         .call(&mut rng)
         .unwrap();
@@ -73,7 +73,7 @@ fn call_continuous_max_stale_generations_minimize() {
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(100)
-        .with_fitness(SumContinuousAllele(1e-3))
+        .with_fitness(SumF32(1e-3))
         // .with_reporter(HillClimbReporterNoop::new())
         .call(&mut rng)
         .unwrap();
@@ -102,7 +102,7 @@ fn call_continuous_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_genotype(genotype)
         .with_max_stale_generations(10)
         .with_valid_fitness_score(75000)
-        .with_fitness(SumContinuousAllele(1e-3))
+        .with_fitness(SumF32(1e-3))
         .with_reporter(HillClimbReporterNoop::new())
         .call(&mut rng)
         .unwrap();
@@ -127,7 +127,7 @@ fn call_continuous_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(10)
         .with_valid_fitness_score(25000)
-        .with_fitness(SumContinuousAllele(1e-3))
+        .with_fitness(SumF32(1e-3))
         // .with_reporter(HillClimbReporterNoop::new())
         .call(&mut rng)
         .unwrap();
@@ -150,7 +150,7 @@ fn call_continuous_target_fitness_score_maximize() {
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_target_fitness_score(8000)
-        .with_fitness(SumContinuousAllele(1e-3))
+        .with_fitness(SumF32(1e-3))
         .with_reporter(HillClimbReporterNoop::new())
         .call(&mut rng)
         .unwrap();
@@ -181,7 +181,7 @@ fn call_continuous_target_fitness_score_minimize() {
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(1000)
-        .with_fitness(SumContinuousAllele(1e-3))
+        .with_fitness(SumF32(1e-3))
         // .with_reporter(HillClimbReporterNoop::new())
         .call(&mut rng)
         .unwrap();
@@ -222,7 +222,7 @@ fn call_continuous_multi_thread() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_multithreading(true)
         .with_target_fitness_score(1000)
-        .with_fitness(SumContinuousAllele(1e-3))
+        .with_fitness(SumF32(1e-3))
         .with_reporter(HillClimbReporterNoop::new())
         .call(&mut rng)
         .unwrap();

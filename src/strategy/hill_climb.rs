@@ -93,7 +93,7 @@ pub struct Scaling {
 /// Example:
 /// ```
 /// use genetic_algorithm::strategy::hill_climb::prelude::*;
-/// use genetic_algorithm::fitness::placeholders::SumContinuousAllele;
+/// use genetic_algorithm::fitness::placeholders::SumF32;
 ///
 /// // the search space
 /// let genotype = ContinuousGenotype::builder() // f32 alleles
@@ -108,7 +108,7 @@ pub struct Scaling {
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
 ///     .with_variant(HillClimbVariant::SteepestAscent)   // check all neighbours for each round
-///     .with_fitness(SumContinuousAllele(1e-5))        // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
+///     .with_fitness(SumF32(1e-5))        // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_multithreading(true)                        // use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
 ///     .with_scaling(Scaling::new(1.0, 0.8, 1e-5))       // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale

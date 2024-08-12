@@ -39,7 +39,7 @@ println!("{}", genotype);
 #[derive(Clone, Debug)]
 pub struct CountTrue;
 impl Fitness for CountTrue {
-    type Allele = BinaryGenotype;
+    type Allele = BinaryGenotype; // bool
     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Allele>) -> Option<FitnessValue> {
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
     }
@@ -115,7 +115,6 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Add Roulette competition with and without duplicates (with fitness ordering)
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for ContinuousGenotype?
-* Rename Continuous to Real?
 
 ## ISSUES
 * permutate (and possibly others) with gene_size 0 panics. Maybe it should just return a empty chromosome?
