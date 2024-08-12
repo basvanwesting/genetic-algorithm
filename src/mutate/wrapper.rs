@@ -19,7 +19,7 @@ pub enum Wrapper {
 }
 
 impl Mutate for Wrapper {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G::Allele>,

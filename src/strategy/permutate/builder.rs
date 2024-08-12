@@ -9,7 +9,11 @@ pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an Permutate struct.
 #[derive(Clone, Debug)]
-pub struct Builder<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporter> {
+pub struct Builder<
+    G: PermutableGenotype,
+    F: Fitness<Allele = G::Allele>,
+    SR: PermutateReporter<Allele = G::Allele>,
+> {
     pub genotype: Option<G>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
@@ -18,7 +22,7 @@ pub struct Builder<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: Pe
 }
 
 impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>> Default
-    for Builder<G, F, PermutateReporterNoop>
+    for Builder<G, F, PermutateReporterNoop<G::Allele>>
 {
     fn default() -> Self {
         Self {
@@ -30,14 +34,19 @@ impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>> Default
         }
     }
 }
-impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>> Builder<G, F, PermutateReporterNoop> {
+impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>>
+    Builder<G, F, PermutateReporterNoop<G::Allele>>
+{
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporter>
-    Builder<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: PermutateReporter<Allele = G::Allele>,
+    > Builder<G, F, SR>
 {
     pub fn build(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         self.try_into()
@@ -58,7 +67,10 @@ impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporte
         self.fitness = Some(fitness);
         self
     }
-    pub fn with_reporter<SR2: PermutateReporter>(self, reporter: SR2) -> Builder<G, F, SR2> {
+    pub fn with_reporter<SR2: PermutateReporter<Allele = G::Allele>>(
+        self,
+        reporter: SR2,
+    ) -> Builder<G, F, SR2> {
         Builder {
             genotype: self.genotype,
             fitness_ordering: self.fitness_ordering,
@@ -68,8 +80,11 @@ impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporte
         }
     }
 }
-impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporter>
-    Builder<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: PermutateReporter<Allele = G::Allele>,
+    > Builder<G, F, SR>
 {
     pub fn call<R: Rng>(self, rng: &mut R) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         let mut permutate: Permutate<G, F, SR> = self.try_into()?;

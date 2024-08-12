@@ -123,8 +123,11 @@ pub struct Scaling {
 /// let best_chromosome = hill_climb.best_chromosome().unwrap();
 /// assert_eq!(best_chromosome.genes.into_iter().map(|v| v <= 1e-3).collect::<Vec<_>>(), vec![true; 16])
 /// ```
-pub struct HillClimb<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>, SR: HillClimbReporter>
-{
+pub struct HillClimb<
+    G: IncrementalGenotype,
+    F: Fitness<Allele = G::Allele>,
+    SR: HillClimbReporter<Allele = G::Allele>,
+> {
     genotype: G,
     fitness: F,
     pub config: HillClimbConfig,
@@ -158,8 +161,11 @@ pub struct HillClimbState<A: Allele> {
     pub neighbouring_population: Option<Population<A>>,
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>, SR: HillClimbReporter> Strategy<G>
-    for HillClimb<G, F, SR>
+impl<
+        G: IncrementalGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: HillClimbReporter<Allele = G::Allele>,
+    > Strategy<G> for HillClimb<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.state.reset_scaling(&self.config);
@@ -302,14 +308,17 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>, SR: HillClimbReport
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>>
-    HillClimb<G, F, HillClimbReporterNoop>
+    HillClimb<G, F, HillClimbReporterNoop<G::Allele>>
 {
-    pub fn builder() -> HillClimbBuilder<G, F, HillClimbReporterNoop> {
+    pub fn builder() -> HillClimbBuilder<G, F, HillClimbReporterNoop<G::Allele>> {
         HillClimbBuilder::new()
     }
 }
-impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>, SR: HillClimbReporter>
-    HillClimb<G, F, SR>
+impl<
+        G: IncrementalGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: HillClimbReporter<Allele = G::Allele>,
+    > HillClimb<G, F, SR>
 {
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
@@ -407,7 +416,7 @@ impl<A: Allele> StrategyState<A> for HillClimbState<A> {
 }
 
 impl<A: Allele> HillClimbState<A> {
-    fn update_best_chromosome_and_scale<SR: HillClimbReporter>(
+    fn update_best_chromosome_and_scale<SR: HillClimbReporter<Allele = A>>(
         &mut self,
         contending_chromosome: &Chromosome<A>,
         config: &HillClimbConfig,
@@ -437,8 +446,11 @@ impl<A: Allele> HillClimbState<A> {
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>, SR: HillClimbReporter>
-    TryFrom<HillClimbBuilder<G, F, SR>> for HillClimb<G, F, SR>
+impl<
+        G: IncrementalGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: HillClimbReporter<Allele = G::Allele>,
+    > TryFrom<HillClimbBuilder<G, F, SR>> for HillClimb<G, F, SR>
 {
     type Error = TryFromHillClimbBuilderError;
 
@@ -524,8 +536,11 @@ impl Scaling {
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>, SR: HillClimbReporter> fmt::Display
-    for HillClimb<G, F, SR>
+impl<
+        G: IncrementalGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: HillClimbReporter<Allele = G::Allele>,
+    > fmt::Display for HillClimb<G, F, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "hill_climb:")?;

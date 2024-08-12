@@ -3,6 +3,7 @@ use crate::extension::ExtensionEvent;
 use crate::genotype::{Allele, Genotype};
 use crate::mutate::MutateEvent;
 use crate::strategy::StrategyState;
+use std::marker::PhantomData;
 
 /// Reporter with event hooks in the Evolve process.
 ///
@@ -15,7 +16,9 @@ use crate::strategy::StrategyState;
 /// #[derive(Clone)]
 /// pub struct CustomReporter { pub period: usize }
 /// impl EvolveReporter for CustomReporter {
-///     fn on_new_generation<A: Allele>(&mut self, state: &EvolveState<A>, _config: &EvolveConfig) {
+///     type Allele = BinaryAllele;
+///
+///     fn on_new_generation(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}",
@@ -27,7 +30,7 @@ use crate::strategy::StrategyState;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome<A: Allele>(&mut self, state: &EvolveState<A>, _config: &EvolveConfig) {
+///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, population_size: {}",
 ///             state.current_generation(),
@@ -39,59 +42,69 @@ use crate::strategy::StrategyState;
 /// }
 /// ```
 pub trait Reporter: Clone + Send + Sync {
-    fn on_start<A: Allele, G: Genotype>(
+    type Allele: Allele;
+
+    fn on_start<G: Genotype>(
         &mut self,
         _genotype: &G,
-        _state: &EvolveState<A>,
+        _state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
     }
-    fn on_finish<A: Allele>(&mut self, _state: &EvolveState<A>, _config: &EvolveConfig) {}
-    fn on_new_generation<A: Allele>(&mut self, _state: &EvolveState<A>, _config: &EvolveConfig) {}
-    fn on_new_best_chromosome<A: Allele>(
+    fn on_finish(&mut self, _state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {}
+    fn on_new_generation(&mut self, _state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {}
+    fn on_new_best_chromosome(
         &mut self,
-        _state: &EvolveState<A>,
+        _state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
     }
-    fn on_extension_event<A: Allele>(
+    fn on_extension_event(
         &mut self,
         _event: ExtensionEvent,
-        _state: &EvolveState<A>,
+        _state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
     }
-    fn on_mutate_event<A: Allele>(
+    fn on_mutate_event(
         &mut self,
         _event: MutateEvent,
-        _state: &EvolveState<A>,
+        _state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
     }
 }
 
 /// The noop reporter, silences reporting
-#[derive(Clone, Default)]
-pub struct Noop;
-impl Noop {
+#[derive(Clone)]
+pub struct Noop<A: Allele>(pub PhantomData<A>);
+impl<A: Allele> Default for Noop<A> {
+    fn default() -> Self {
+        Self(PhantomData)
+    }
+}
+impl<A: Allele> Noop<A> {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl Reporter for Noop {}
+impl<A: Allele> Reporter for Noop<A> {
+    type Allele = A;
+}
 
 /// A Simple reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
-pub struct Simple {
+pub struct Simple<A: Allele> {
     pub period: usize,
     pub show_genes: bool,
     pub show_mutate_event: bool,
     pub show_extension_event: bool,
     number_of_mutate_events: usize,
     number_of_extension_events: usize,
+    _phantom: PhantomData<A>,
 }
-impl Default for Simple {
+impl<A: Allele> Default for Simple<A> {
     fn default() -> Self {
         Self {
             period: 1,
@@ -100,10 +113,11 @@ impl Default for Simple {
             show_extension_event: false,
             number_of_mutate_events: 0,
             number_of_extension_events: 0,
+            _phantom: PhantomData,
         }
     }
 }
-impl Simple {
+impl<A: Allele> Simple<A> {
     pub fn new(period: usize) -> Self {
         Self {
             period,
@@ -125,11 +139,13 @@ impl Simple {
         }
     }
 }
-impl Reporter for Simple {
-    fn on_start<A: Allele, G: Genotype>(
+impl<A: Allele> Reporter for Simple<A> {
+    type Allele = A;
+
+    fn on_start<G: Genotype>(
         &mut self,
         genotype: &G,
-        state: &EvolveState<A>,
+        state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
         println!("start - iteration: {}", state.current_iteration());
@@ -139,11 +155,11 @@ impl Reporter for Simple {
             .for_each(|genes| println!("start - seed_genes: {:?}", genes));
     }
 
-    fn on_finish<A: Allele>(&mut self, state: &EvolveState<A>, _config: &EvolveConfig) {
+    fn on_finish(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
         println!("finish - iteration: {}", state.current_iteration());
     }
 
-    fn on_new_generation<A: Allele>(&mut self, state: &EvolveState<A>, config: &EvolveConfig) {
+    fn on_new_generation(&mut self, state: &EvolveState<Self::Allele>, config: &EvolveConfig) {
         if state.current_generation() % self.period == 0 {
             let width = config.target_population_size.to_string().len();
             println!(
@@ -159,9 +175,9 @@ impl Reporter for Simple {
         }
     }
 
-    fn on_new_best_chromosome<A: Allele>(
+    fn on_new_best_chromosome(
         &mut self,
-        state: &EvolveState<A>,
+        state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
         println!(
@@ -177,10 +193,10 @@ impl Reporter for Simple {
         );
     }
 
-    fn on_extension_event<A: Allele>(
+    fn on_extension_event(
         &mut self,
         event: ExtensionEvent,
-        state: &EvolveState<A>,
+        state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
         self.number_of_extension_events += 1;
@@ -218,10 +234,10 @@ impl Reporter for Simple {
         }
     }
 
-    fn on_mutate_event<A: Allele>(
+    fn on_mutate_event(
         &mut self,
         event: MutateEvent,
-        _state: &EvolveState<A>,
+        _state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
         self.number_of_mutate_events += 1;
@@ -236,15 +252,22 @@ impl Reporter for Simple {
 }
 
 /// A log-level based reporter for debug and trace, runs on each generation
-#[derive(Clone, Default)]
-pub struct Log;
-impl Log {
+#[derive(Clone)]
+pub struct Log<A: Allele>(pub PhantomData<A>);
+impl<A: Allele> Default for Log<A> {
+    fn default() -> Self {
+        Self(PhantomData)
+    }
+}
+impl<A: Allele> Log<A> {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl Reporter for Log {
-    fn on_new_generation<A: Allele>(&mut self, state: &EvolveState<A>, _config: &EvolveConfig) {
+impl<A: Allele> Reporter for Log<A> {
+    type Allele = A;
+
+    fn on_new_generation(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
         log::debug!(
             "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/cardinality): {:?} / {} / {:?} / {:.0} / {:.0} / {}",
             state.current_generation(),

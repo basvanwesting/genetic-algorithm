@@ -18,7 +18,7 @@ pub struct Tournament {
 }
 
 impl Compete for Tournament {
-    fn call<A: Allele, R: Rng, SR: EvolveReporter>(
+    fn call<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
         &mut self,
         state: &mut EvolveState<A>,
         config: &EvolveConfig,

@@ -28,7 +28,7 @@ pub fn setup(
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::from_entropy();
     let population_size: usize = 1000;
     let genes_sizes = vec![10, 100, 1000, 10000];

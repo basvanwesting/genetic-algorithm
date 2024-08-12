@@ -12,7 +12,7 @@ pub struct Clone {
     pub keep_parent: bool,
 }
 impl Crossover for Clone {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         _genotype: &G,
         state: &mut EvolveState<G::Allele>,
