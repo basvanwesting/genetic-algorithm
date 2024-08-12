@@ -15,7 +15,7 @@ pub struct SingleGene {
     pub keep_parent: bool,
 }
 impl Crossover for SingleGene {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G::Allele>,

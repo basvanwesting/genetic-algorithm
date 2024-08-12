@@ -11,7 +11,7 @@ use std::cmp::Reverse;
 #[derive(Clone, Debug)]
 pub struct Elite;
 impl Compete for Elite {
-    fn call<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
+    fn call<A: Allele, R: Rng, SR: EvolveReporter>(
         &mut self,
         state: &mut EvolveState<A>,
         config: &EvolveConfig,

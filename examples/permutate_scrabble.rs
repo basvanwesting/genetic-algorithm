@@ -227,11 +227,9 @@ impl ScrabbleFitness {
 #[derive(Clone)]
 pub struct CustomReporter(usize);
 impl PermutateReporter for CustomReporter {
-    type Allele = WordPosition;
-
-    fn on_new_generation(
+    fn on_new_generation<A: Allele>(
         &mut self,
-        state: &PermutateState<Self::Allele>,
+        state: &PermutateState<A>,
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.0 == 0 {
@@ -245,9 +243,9 @@ impl PermutateReporter for CustomReporter {
         }
     }
 
-    fn on_new_best_chromosome(
+    fn on_new_best_chromosome<A: Allele>(
         &mut self,
-        state: &PermutateState<Self::Allele>,
+        state: &PermutateState<A>,
         _config: &PermutateConfig,
     ) {
         println!(
@@ -262,11 +260,9 @@ impl PermutateReporter for CustomReporter {
 #[derive(Clone)]
 pub struct CustomLogReporter(usize);
 impl PermutateReporter for CustomLogReporter {
-    type Allele = WordPosition;
-
-    fn on_new_generation(
+    fn on_new_generation<A: Allele>(
         &mut self,
-        state: &PermutateState<Self::Allele>,
+        state: &PermutateState<A>,
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.0 == 0 {

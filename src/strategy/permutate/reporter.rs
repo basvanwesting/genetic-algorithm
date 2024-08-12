@@ -2,7 +2,6 @@ use super::{PermutateConfig, PermutateState};
 use crate::genotype::{Allele, PermutableGenotype};
 use crate::strategy::StrategyState;
 use num::BigUint;
-use std::marker::PhantomData;
 
 /// Reporter with event hooks in the Permutate process.
 /// A new generation is simply handling a single new chromosome from the total population
@@ -17,9 +16,7 @@ use std::marker::PhantomData;
 /// #[derive(Clone)]
 /// pub struct CustomReporter { pub period: usize };
 /// impl PermutateReporter for CustomReporter {
-///     type Allele = BinaryAllele;
-///
-///     fn on_new_generation(&mut self, state: &PermutateState<Self::Allele>, _config: &PermutateConfig) {
+///     fn on_new_generation<A: Allele>(&mut self, state: &PermutateState<A>, _config: &PermutateConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "progress: {:2.2}%, current_generation: {}, best_generation: {}",
@@ -30,7 +27,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &PermutateState<Self::Allele>, _config: &PermutateConfig) {
+///     fn on_new_best_chromosome<A: Allele>(&mut self, state: &PermutateState<A>, _config: &PermutateConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
 ///             state.current_generation(),
@@ -41,65 +38,54 @@ use std::marker::PhantomData;
 /// }
 /// ```
 pub trait Reporter: Clone + Send + Sync {
-    type Allele: Allele;
-
-    fn on_start<G: PermutableGenotype>(
+    fn on_start<A: Allele, G: PermutableGenotype>(
         &mut self,
         _genotype: &G,
-        _state: &PermutateState<Self::Allele>,
+        _state: &PermutateState<A>,
         _config: &PermutateConfig,
     ) {
     }
-    fn on_finish(&mut self, _state: &PermutateState<Self::Allele>, _config: &PermutateConfig) {}
-    fn on_new_generation(
+    fn on_finish<A: Allele>(&mut self, _state: &PermutateState<A>, _config: &PermutateConfig) {}
+    fn on_new_generation<A: Allele>(
         &mut self,
-        _state: &PermutateState<Self::Allele>,
+        _state: &PermutateState<A>,
         _config: &PermutateConfig,
     ) {
     }
-    fn on_new_best_chromosome(
+    fn on_new_best_chromosome<A: Allele>(
         &mut self,
-        _state: &PermutateState<Self::Allele>,
+        _state: &PermutateState<A>,
         _config: &PermutateConfig,
     ) {
     }
 }
 
 /// The noop reporter, silences reporting
-#[derive(Clone)]
-pub struct Noop<A: Allele>(pub PhantomData<A>);
-impl<A: Allele> Default for Noop<A> {
-    fn default() -> Self {
-        Self(PhantomData)
-    }
-}
-impl<A: Allele> Noop<A> {
+#[derive(Clone, Default)]
+pub struct Noop;
+impl Noop {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl<A: Allele> Reporter for Noop<A> {
-    type Allele = A;
-}
+impl Reporter for Noop {}
 
 /// A Simple reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
-pub struct Simple<A: Allele> {
+pub struct Simple {
     pub period: usize,
     pub show_genes: bool,
-    _phantom: PhantomData<A>,
 }
-impl<A: Allele> Default for Simple<A> {
+impl Default for Simple {
     fn default() -> Self {
         Self {
             period: 1,
             show_genes: false,
-            _phantom: PhantomData,
         }
     }
 }
-impl<A: Allele> Simple<A> {
+impl Simple {
     pub fn new(period: usize) -> Self {
         Self {
             period,
@@ -114,12 +100,10 @@ impl<A: Allele> Simple<A> {
         }
     }
 }
-impl<A: Allele> Reporter for Simple<A> {
-    type Allele = A;
-
-    fn on_new_generation(
+impl Reporter for Simple {
+    fn on_new_generation<A: Allele>(
         &mut self,
-        state: &PermutateState<Self::Allele>,
+        state: &PermutateState<A>,
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.period == 0 {
@@ -133,9 +117,9 @@ impl<A: Allele> Reporter for Simple<A> {
         }
     }
 
-    fn on_new_best_chromosome(
+    fn on_new_best_chromosome<A: Allele>(
         &mut self,
-        state: &PermutateState<Self::Allele>,
+        state: &PermutateState<A>,
         _config: &PermutateConfig,
     ) {
         println!(
@@ -152,24 +136,17 @@ impl<A: Allele> Reporter for Simple<A> {
 }
 
 /// A log-level based reporter for debug and trace, runs on each generation
-#[derive(Clone)]
-pub struct Log<A: Allele>(pub PhantomData<A>);
-impl<A: Allele> Default for Log<A> {
-    fn default() -> Self {
-        Self(PhantomData)
-    }
-}
-impl<A: Allele> Log<A> {
+#[derive(Clone, Default)]
+pub struct Log;
+impl Log {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl<A: Allele> Reporter for Log<A> {
-    type Allele = A;
-
-    fn on_new_generation(
+impl Reporter for Log {
+    fn on_new_generation<A: Allele>(
         &mut self,
-        state: &PermutateState<Self::Allele>,
+        state: &PermutateState<A>,
         _config: &PermutateConfig,
     ) {
         log::debug!(

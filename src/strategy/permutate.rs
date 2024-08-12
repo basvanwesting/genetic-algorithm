@@ -60,11 +60,7 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 /// let best_chromosome = permutate.best_chromosome().unwrap();
 /// assert_eq!(best_chromosome.genes, vec![false; 16])
 /// ```
-pub struct Permutate<
-    G: PermutableGenotype,
-    F: Fitness<Allele = G::Allele>,
-    SR: PermutateReporter<Allele = G::Allele>,
-> {
+pub struct Permutate<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporter> {
     genotype: G,
     fitness: F,
     pub config: PermutateConfig,
@@ -89,11 +85,8 @@ pub struct PermutateState<A: Allele> {
     pub total_population_size: BigUint,
 }
 
-impl<
-        G: PermutableGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Allele = G::Allele>,
-    > Strategy<G> for Permutate<G, F, SR>
+impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporter> Strategy<G>
+    for Permutate<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.reporter
@@ -116,19 +109,14 @@ impl<
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>>
-    Permutate<G, F, PermutateReporterNoop<G::Allele>>
-{
-    pub fn builder() -> PermutateBuilder<G, F, PermutateReporterNoop<G::Allele>> {
+impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>> Permutate<G, F, PermutateReporterNoop> {
+    pub fn builder() -> PermutateBuilder<G, F, PermutateReporterNoop> {
         PermutateBuilder::new()
     }
 }
 
-impl<
-        G: PermutableGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Allele = G::Allele>,
-    > Permutate<G, F, SR>
+impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporter>
+    Permutate<G, F, SR>
 {
     fn call_single_thread<R: Rng>(&mut self, _rng: &mut R) {
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
@@ -233,11 +221,8 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
     }
 }
 
-impl<
-        G: PermutableGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Allele = G::Allele>,
-    > TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
+impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporter>
+    TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
 {
     type Error = TryFromPermutateBuilderError;
 
@@ -301,11 +286,8 @@ impl<A: Allele> PermutateState<A> {
     }
 }
 
-impl<
-        G: PermutableGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Allele = G::Allele>,
-    > fmt::Display for Permutate<G, F, SR>
+impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>, SR: PermutateReporter> fmt::Display
+    for Permutate<G, F, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate:")?;

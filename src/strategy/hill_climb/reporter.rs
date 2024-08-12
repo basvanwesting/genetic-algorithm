@@ -1,7 +1,6 @@
 use super::{HillClimbConfig, HillClimbState};
 use crate::genotype::{Allele, IncrementalGenotype};
 use crate::strategy::StrategyState;
-use std::marker::PhantomData;
 
 /// Reporter with event hooks in the HillClimb process.
 /// Since the HillClimb process sets a new best chromosome, even if the fitness is equal, there is
@@ -16,9 +15,7 @@ use std::marker::PhantomData;
 /// #[derive(Clone)]
 /// pub struct CustomReporter { pub period: usize }
 /// impl HillClimbReporter for CustomReporter {
-///     type Allele = BinaryAllele;
-///
-///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
+///     fn on_new_generation<A: Allele>(&mut self, state: &HillClimbState<A>, _config: &HillClimbConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, best_generation: {}, current_scale: {:?}",
@@ -29,7 +26,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
+///     fn on_new_best_chromosome<A: Allele>(&mut self, state: &HillClimbState<A>, _config: &HillClimbConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale: {:?}",
 ///             state.current_generation(),
@@ -41,73 +38,62 @@ use std::marker::PhantomData;
 /// }
 /// ```
 pub trait Reporter: Clone + Send + Sync {
-    type Allele: Allele;
-
-    fn on_start<G: IncrementalGenotype>(
+    fn on_start<A: Allele, G: IncrementalGenotype>(
         &mut self,
         _genotype: &G,
-        _state: &HillClimbState<Self::Allele>,
+        _state: &HillClimbState<A>,
         _config: &HillClimbConfig,
     ) {
     }
-    fn on_finish(&mut self, _state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {}
-    fn on_new_generation(
+    fn on_finish<A: Allele>(&mut self, _state: &HillClimbState<A>, _config: &HillClimbConfig) {}
+    fn on_new_generation<A: Allele>(
         &mut self,
-        _state: &HillClimbState<Self::Allele>,
+        _state: &HillClimbState<A>,
         _config: &HillClimbConfig,
     ) {
     }
     /// used to report on true improvement (new best chromosome with improved fitness)
-    fn on_new_best_chromosome(
+    fn on_new_best_chromosome<A: Allele>(
         &mut self,
-        _state: &HillClimbState<Self::Allele>,
+        _state: &HillClimbState<A>,
         _config: &HillClimbConfig,
     ) {
     }
     /// used to report on sideways move (new best chromosome with equal fitness)
-    fn on_new_best_chromosome_equal_fitness(
+    fn on_new_best_chromosome_equal_fitness<A: Allele>(
         &mut self,
-        _state: &HillClimbState<Self::Allele>,
+        _state: &HillClimbState<A>,
         _config: &HillClimbConfig,
     ) {
     }
 }
 
 /// The noop reporter, silences reporting
-#[derive(Clone)]
-pub struct Noop<A: Allele>(pub PhantomData<A>);
-impl<A: Allele> Default for Noop<A> {
-    fn default() -> Self {
-        Self(PhantomData)
-    }
-}
-impl<A: Allele> Noop<A> {
+#[derive(Clone, Default)]
+pub struct Noop;
+impl Noop {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl<A: Allele> Reporter for Noop<A> {
-    type Allele = A;
-}
+impl Reporter for Noop {}
 
 /// A Simple reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
-pub struct Simple<A: Allele> {
+pub struct Simple {
     pub period: usize,
     pub show_genes: bool,
-    _phantom: PhantomData<A>,
 }
-impl<A: Allele> Default for Simple<A> {
+impl Default for Simple {
     fn default() -> Self {
         Self {
             period: 1,
             show_genes: false,
-            _phantom: PhantomData,
         }
     }
 }
-impl<A: Allele> Simple<A> {
+impl Simple {
     pub fn new(period: usize) -> Self {
         Self {
             period,
@@ -122,13 +108,11 @@ impl<A: Allele> Simple<A> {
         }
     }
 }
-impl<A: Allele> Reporter for Simple<A> {
-    type Allele = A;
-
-    fn on_start<G: IncrementalGenotype>(
+impl Reporter for Simple {
+    fn on_start<A: Allele, G: IncrementalGenotype>(
         &mut self,
         genotype: &G,
-        state: &HillClimbState<Self::Allele>,
+        state: &HillClimbState<A>,
         _config: &HillClimbConfig,
     ) {
         println!("start - iteration: {}", state.current_iteration());
@@ -138,13 +122,13 @@ impl<A: Allele> Reporter for Simple<A> {
             .for_each(|genes| println!("start - seed_genes: {:?}", genes));
     }
 
-    fn on_finish(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
+    fn on_finish<A: Allele>(&mut self, state: &HillClimbState<A>, _config: &HillClimbConfig) {
         println!("finish - iteration: {}", state.current_iteration());
     }
 
-    fn on_new_generation(
+    fn on_new_generation<A: Allele>(
         &mut self,
-        state: &HillClimbState<Self::Allele>,
+        state: &HillClimbState<A>,
         _config: &HillClimbConfig,
     ) {
         if state.current_generation() % self.period == 0 {
@@ -157,9 +141,9 @@ impl<A: Allele> Reporter for Simple<A> {
         }
     }
 
-    fn on_new_best_chromosome(
+    fn on_new_best_chromosome<A: Allele>(
         &mut self,
-        state: &HillClimbState<Self::Allele>,
+        state: &HillClimbState<A>,
         _config: &HillClimbConfig,
     ) {
         println!(
@@ -177,24 +161,17 @@ impl<A: Allele> Reporter for Simple<A> {
 }
 
 /// A log-level based reporter for debug and trace, runs on each generation
-#[derive(Clone)]
-pub struct Log<A: Allele>(pub PhantomData<A>);
-impl<A: Allele> Default for Log<A> {
-    fn default() -> Self {
-        Self(PhantomData)
-    }
-}
-impl<A: Allele> Log<A> {
+#[derive(Clone, Default)]
+pub struct Log;
+impl Log {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl<A: Allele> Reporter for Log<A> {
-    type Allele = A;
-
-    fn on_new_generation(
+impl Reporter for Log {
+    fn on_new_generation<A: Allele>(
         &mut self,
-        state: &HillClimbState<Self::Allele>,
+        state: &HillClimbState<A>,
         _config: &HillClimbConfig,
     ) {
         log::debug!(

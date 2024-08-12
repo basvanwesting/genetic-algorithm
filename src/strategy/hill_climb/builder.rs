@@ -9,11 +9,7 @@ pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an HillClimb struct.
 #[derive(Clone, Debug)]
-pub struct Builder<
-    G: IncrementalGenotype,
-    F: Fitness<Allele = G::Allele>,
-    SR: HillClimbReporter<Allele = G::Allele>,
-> {
+pub struct Builder<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>, SR: HillClimbReporter> {
     pub genotype: Option<G>,
     pub variant: Option<HillClimbVariant>,
     pub fitness: Option<F>,
@@ -27,7 +23,7 @@ pub struct Builder<
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
-    for Builder<G, F, HillClimbReporterNoop<G::Allele>>
+    for Builder<G, F, HillClimbReporterNoop>
 {
     fn default() -> Self {
         Self {
@@ -44,19 +40,14 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
         }
     }
 }
-impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>>
-    Builder<G, F, HillClimbReporterNoop<G::Allele>>
-{
+impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Builder<G, F, HillClimbReporterNoop> {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<
-        G: IncrementalGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Allele = G::Allele>,
-    > Builder<G, F, SR>
+impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>, SR: HillClimbReporter>
+    Builder<G, F, SR>
 {
     pub fn build(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         self.try_into()
@@ -118,10 +109,7 @@ impl<
         self.scaling = Some(scaling);
         self
     }
-    pub fn with_reporter<SR2: HillClimbReporter<Allele = G::Allele>>(
-        self,
-        reporter: SR2,
-    ) -> Builder<G, F, SR2> {
+    pub fn with_reporter<SR2: HillClimbReporter>(self, reporter: SR2) -> Builder<G, F, SR2> {
         Builder {
             genotype: self.genotype,
             variant: self.variant,
@@ -137,11 +125,8 @@ impl<
     }
 }
 
-impl<
-        G: IncrementalGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Allele = G::Allele>,
-    > Builder<G, F, SR>
+impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>, SR: HillClimbReporter>
+    Builder<G, F, SR>
 {
     pub fn call<R: Rng>(self, rng: &mut R) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         let mut hill_climb: HillClimb<G, F, SR> = self.try_into()?;
