@@ -1,7 +1,7 @@
 //! placeholders for testing and bootstrapping, not really used in practice
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessValue};
-use crate::genotype::{Allele, BinaryAllele, ContinuousAllele};
+use crate::genotype::{Allele, BinaryAllele};
 use std::marker::PhantomData;
 
 /// placeholder for testing and bootstrapping, not really used in practice
@@ -44,7 +44,7 @@ impl Fitness for CountTrue {
 #[derive(Clone, Debug)]
 pub struct SumContinuousAllele(pub f32);
 impl Fitness for SumContinuousAllele {
-    type Allele = ContinuousAllele;
+    type Allele = f32;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Allele>,

@@ -6,7 +6,7 @@ warning: unused imports: `BinaryGenotype`, `ContinuousGenotype`, `DiscreteGenoty
 otype`, `UniqueGenotype`
  --> src/fitness/placeholders.rs:5:27
   |
-5 |     Allele, BinaryAllele, BinaryGenotype, ContinuousAllele, ContinuousGenotype, DiscreteGenotype,
+5 |     Allele, BinaryAllele, BinaryGenotype, ContinuousGenotype, DiscreteGenotype,
   |                           ^^^^^^^^^^^^^^                    ^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^
 6 |     Genotype, MultiContinuousGenotype, MultiContinuousGenotypeAllele, MultiDiscreteGenotype,
   |     ^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^  ^^^^^^^^^^^^^^^^^^^^^

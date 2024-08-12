@@ -11,21 +11,6 @@ use std::ops::Range;
 
 pub type DefaultAllele = f32;
 
-pub trait DataSupported:
-    Copy
-    + Clone
-    + Default
-    + Send
-    + Sync
-    + SampleUniform
-    + std::ops::Add<Output = Self>
-    + std::cmp::PartialOrd
-    + std::fmt::Debug
-{
-}
-impl DataSupported for f32 {}
-impl DataSupported for u8 {}
-
 /// Genes are a list of f32, each taken from the allele_range using clone(). On random initialization, each
 /// gene gets a value from the allele_range with a uniform probability. Each gene has an equal probability
 /// of mutating. If a gene mutates, a new value is taken from allele_range with a uniform probability.
@@ -56,7 +41,12 @@ impl DataSupported for u8 {}
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct Continuous<T: DataSupported = DefaultAllele> {
+pub struct Continuous<
+    T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
+> where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
     pub genes_size: usize,
     pub allele_range: Range<T>,
     pub allele_neighbour_range: Option<Range<T>>,
@@ -66,7 +56,12 @@ pub struct Continuous<T: DataSupported = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: DataSupported> TryFrom<Builder<Self>> for Continuous<T> {
+impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd>
+    TryFrom<Builder<Self>> for Continuous<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -97,7 +92,12 @@ impl<T: DataSupported> TryFrom<Builder<Self>> for Continuous<T> {
     }
 }
 
-impl<T: DataSupported> Genotype for Continuous<T> {
+impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd> Genotype
+    for Continuous<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -125,6 +125,7 @@ impl<T: DataSupported> Genotype for Continuous<T> {
         chromosome.genes[index] = self.allele_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
+    //FIXME: scale doesn't work for generic
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
@@ -152,7 +153,13 @@ impl<T: DataSupported> Genotype for Continuous<T> {
     }
 }
 
-impl<T: DataSupported> IncrementalGenotype for Continuous<T> {
+impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd>
+    IncrementalGenotype for Continuous<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    //FIXME: scale doesn't work for generic
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self::Allele>,
@@ -190,7 +197,12 @@ impl<T: DataSupported> IncrementalGenotype for Continuous<T> {
     }
 }
 
-impl<T: DataSupported> Clone for Continuous<T> {
+impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd> Clone
+    for Continuous<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
     fn clone(&self) -> Self {
         Self {
             genes_size: self.genes_size.clone(),
@@ -207,7 +219,12 @@ impl<T: DataSupported> Clone for Continuous<T> {
     }
 }
 
-impl<T: DataSupported> fmt::Debug for Continuous<T> {
+impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd> fmt::Debug
+    for Continuous<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         f.debug_struct("Point")
             .field("genes_size", &self.genes_size)
@@ -219,7 +236,12 @@ impl<T: DataSupported> fmt::Debug for Continuous<T> {
     }
 }
 
-impl<T: DataSupported> fmt::Display for Continuous<T> {
+impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd> fmt::Display
+    for Continuous<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;

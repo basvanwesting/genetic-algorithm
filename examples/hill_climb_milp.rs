@@ -10,7 +10,7 @@ const PRECISION: f32 = 1e-5;
 #[derive(Clone, Debug)]
 struct MILPFitness;
 impl Fitness for MILPFitness {
-    type Allele = ContinuousAllele;
+    type Allele = f32;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Allele>,

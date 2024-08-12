@@ -20,7 +20,7 @@ pub struct Chromosome<T: Allele> {
     pub age: usize,
 }
 
-// Cannot Hash ContinuousAllele
+// Cannot Hash floats
 impl<T: Allele> Chromosome<T>
 where
     T: Hash,

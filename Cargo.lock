@@ -496,6 +496,7 @@ dependencies = [
 name = "genetic_algorithm"
 version = "0.8.2"
 dependencies = [
+ "approx",
  "cardinality-estimator",
  "chrono",
  "criterion",

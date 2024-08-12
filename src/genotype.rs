@@ -1,7 +1,8 @@
 //! The search space for the algorithm.
 mod binary;
 mod builder;
-mod continuous_f32;
+// mod continuous_f32;
+mod continuous_t;
 mod discrete;
 mod multi_continuous;
 mod multi_discrete;
@@ -12,7 +13,8 @@ pub use self::binary::{Binary as BinaryGenotype, BinaryAllele};
 pub use self::builder::{
     Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
 };
-pub use self::continuous_f32::{Continuous as ContinuousGenotype, ContinuousAllele};
+// pub use self::continuous_f32::{Continuous as ContinuousGenotype, ContinuousAllele};
+pub use self::continuous_t::Continuous as ContinuousGenotype;
 pub use self::discrete::Discrete as DiscreteGenotype;
 pub use self::multi_continuous::MultiContinuous as MultiContinuousGenotype;
 pub use self::multi_discrete::MultiDiscrete as MultiDiscreteGenotype;
@@ -71,7 +73,11 @@ pub trait Genotype:
     /// a random genes factory (respecting seed genes)
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
     /// a random mutation of the chromosome
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<Self::Allele>, rng: &mut R);
+    fn mutate_chromosome_random<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    );
     /// a blanket neighbouring mutation fallback random mutation
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
