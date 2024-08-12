@@ -157,7 +157,7 @@ impl<T: Allele> IncrementalGenotype for MultiUnique<T> {
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self::Allele>,
-        _scale: Option<f32>,
+        _scale_index: Option<usize>,
     ) -> Vec<Chromosome<Self::Allele>> {
         self.allele_list_sizes
             .iter()

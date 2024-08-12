@@ -20,7 +20,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
         b.iter_batched(
             || genotype.chromosome_factory(&mut rng),
-            |c| genotype.neighbouring_population(&c, Some(1.0)),
+            |c| genotype.neighbouring_population(&c, None),
             BatchSize::SmallInput,
         );
     });

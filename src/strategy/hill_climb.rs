@@ -188,7 +188,7 @@ impl<
                     let mut contending_chromosome = self.state.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_neighbour(
                         &mut contending_chromosome,
-                        self.state.current_scale,
+                        None,
                         rng,
                     );
                     self.fitness.call_for_chromosome(&mut contending_chromosome);
@@ -203,7 +203,7 @@ impl<
                     let mut contending_chromosome_primary = self.state.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_neighbour(
                         &mut contending_chromosome_primary,
-                        self.state.current_scale,
+                        None,
                         rng,
                     );
                     self.fitness
@@ -217,7 +217,7 @@ impl<
                     let mut contending_chromosome_secondary = contending_chromosome_primary.clone();
                     self.genotype.mutate_chromosome_neighbour(
                         &mut contending_chromosome_secondary,
-                        self.state.current_scale,
+                        None,
                         rng,
                     );
                     self.fitness
@@ -231,9 +231,8 @@ impl<
                 }
                 HillClimbVariant::SteepestAscent => {
                     let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
-                    let mut neighbouring_population = self
-                        .genotype
-                        .neighbouring_population(best_chromosome, self.state.current_scale);
+                    let mut neighbouring_population =
+                        self.genotype.neighbouring_population(best_chromosome, None);
 
                     self.fitness.call_for_population(
                         &mut neighbouring_population,
@@ -258,14 +257,13 @@ impl<
                     let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
                     let mut neighbouring_chromosomes = self
                         .genotype
-                        .neighbouring_chromosomes(best_chromosome, self.state.current_scale);
+                        .neighbouring_chromosomes(best_chromosome, None);
 
                     neighbouring_chromosomes.append(
                         &mut neighbouring_chromosomes
                             .iter()
                             .flat_map(|chromosome| {
-                                self.genotype
-                                    .neighbouring_chromosomes(chromosome, self.state.current_scale)
+                                self.genotype.neighbouring_chromosomes(chromosome, None)
                             })
                             .collect(),
                     );

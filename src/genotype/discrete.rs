@@ -119,7 +119,7 @@ impl<T: Allele> IncrementalGenotype for Discrete<T> {
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self::Allele>,
-        _scale: Option<f32>,
+        _scale_index: Option<usize>,
     ) -> Vec<Chromosome<Self::Allele>> {
         (0..self.genes_size)
             .flat_map(|index| {

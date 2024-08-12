@@ -77,7 +77,7 @@ pub trait Genotype:
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
-        _scale: Option<f32>,
+        _scale_index: Option<usize>,
         rng: &mut R,
     ) {
         self.mutate_chromosome_random(chromosome, rng);
@@ -111,15 +111,16 @@ pub trait IncrementalGenotype: Genotype {
     fn neighbouring_chromosomes(
         &self,
         _chromosome: &Chromosome<Self::Allele>,
-        _scale: Option<f32>,
+        _scale_index: Option<usize>,
     ) -> Vec<Chromosome<Self::Allele>>;
 
     fn neighbouring_population(
         &self,
         chromosome: &Chromosome<Self::Allele>,
-        scale: Option<f32>,
+        scale_index: Option<usize>,
     ) -> Population<Self::Allele> {
-        self.neighbouring_chromosomes(chromosome, scale).into()
+        self.neighbouring_chromosomes(chromosome, scale_index)
+            .into()
     }
     /// chromosome neighbours size for the all possible neighbouring mutation combinations
     fn neighbouring_population_size(&self) -> BigUint;

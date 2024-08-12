@@ -51,9 +51,11 @@ pub struct Continuous<
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_neighbour_range: Option<RangeInclusive<T>>,
+    pub allele_neighbour_scaled_range: Option<Vec<RangeInclusive<T>>>,
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_neighbour_sampler: Option<Uniform<T>>,
+    allele_neighbour_scaled_sampler: Option<Vec<Uniform<T>>>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
@@ -82,11 +84,22 @@ where
                 genes_size,
                 allele_range: allele_range.clone(),
                 allele_neighbour_range: builder.allele_neighbour_range.clone(),
+                allele_neighbour_scaled_range: builder.allele_neighbour_scaled_range.clone(),
                 gene_index_sampler: Uniform::from(0..genes_size),
                 allele_sampler: Uniform::from(allele_range.clone()),
                 allele_neighbour_sampler: builder
                     .allele_neighbour_range
                     .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
+                allele_neighbour_scaled_sampler: builder.allele_neighbour_scaled_range.map(
+                    |allele_neighbour_scaled_range| {
+                        allele_neighbour_scaled_range
+                            .iter()
+                            .map(|allele_neighbour_range| {
+                                Uniform::from(allele_neighbour_range.clone())
+                            })
+                            .collect()
+                    },
+                ),
                 seed_genes_list: builder.seed_genes_list,
             })
         }
@@ -126,16 +139,19 @@ where
         chromosome.genes[index] = self.allele_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
-    //FIXME: scale doesn't work for generic
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
-        _scale: Option<f32>,
+        scale_index: Option<usize>,
         rng: &mut R,
     ) {
         let index = self.gene_index_sampler.sample(rng);
-        let new_value =
-            chromosome.genes[index] + self.allele_neighbour_sampler.as_ref().unwrap().sample(rng);
+        let value_diff = if let Some(scale_index) = scale_index {
+            self.allele_neighbour_scaled_sampler.as_ref().unwrap()[scale_index].sample(rng)
+        } else {
+            self.allele_neighbour_sampler.as_ref().unwrap().sample(rng)
+        };
+        let new_value = chromosome.genes[index] + value_diff;
         if new_value < *self.allele_range.start() {
             chromosome.genes[index] = *self.allele_range.start();
         } else if new_value > *self.allele_range.end() {
@@ -160,20 +176,28 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    //FIXME: scale doesn't work for generic
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self::Allele>,
-        _scale: Option<f32>,
+        scale_index: Option<usize>,
     ) -> Vec<Chromosome<Self::Allele>> {
-        let diffs: Vec<Self::Allele> = vec![
-            *self.allele_neighbour_range.as_ref().unwrap().start(),
-            *self.allele_neighbour_range.as_ref().unwrap().end(),
-        ]
-        .into_iter()
-        .dedup()
-        .filter(|diff| !diff.is_zero())
-        .collect();
+        let value_diffs = if let Some(scale_index) = scale_index {
+            vec![
+                *self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index].start(),
+                *self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index].end(),
+            ]
+        } else {
+            vec![
+                *self.allele_neighbour_range.as_ref().unwrap().start(),
+                *self.allele_neighbour_range.as_ref().unwrap().end(),
+            ]
+        };
+
+        let diffs: Vec<Self::Allele> = value_diffs
+            .into_iter()
+            .dedup()
+            .filter(|diff| !diff.is_zero())
+            .collect();
 
         (0..self.genes_size)
             .flat_map(|index| {
@@ -209,12 +233,21 @@ where
             genes_size: self.genes_size.clone(),
             allele_range: self.allele_range.clone(),
             allele_neighbour_range: self.allele_neighbour_range.clone(),
+            allele_neighbour_scaled_range: self.allele_neighbour_scaled_range.clone(),
             gene_index_sampler: self.gene_index_sampler.clone(),
             allele_sampler: Uniform::from(self.allele_range.clone()),
             allele_neighbour_sampler: self
                 .allele_neighbour_range
                 .clone()
                 .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
+            allele_neighbour_scaled_sampler: self.allele_neighbour_scaled_range.clone().map(
+                |allele_neighbour_scaled_range| {
+                    allele_neighbour_scaled_range
+                        .iter()
+                        .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone()))
+                        .collect()
+                },
+            ),
             seed_genes_list: self.seed_genes_list.clone(),
         }
     }

@@ -12,7 +12,7 @@ pub use rand::rngs::SmallRng;
 pub use rand::SeedableRng;
 
 #[allow(dead_code)]
-pub fn relative_chromosome_eq<T: RelativeEq<Epsilon = T> + Clone + Copy>(
+pub fn relative_chromosome_eq<T: RelativeEq<Epsilon = T> + Clone + Copy + std::fmt::Debug>(
     a: Vec<T>,
     b: Vec<T>,
     epsilon: T,
@@ -22,12 +22,13 @@ pub fn relative_chromosome_eq<T: RelativeEq<Epsilon = T> + Clone + Copy>(
             .zip(b.iter())
             .all(|(a, b)| a.relative_eq(b, epsilon, epsilon))
     } else {
+        println!("{:?} <> {:?}", a, b);
         false
     }
 }
 
 #[allow(dead_code)]
-pub fn relative_population_eq<T: RelativeEq<Epsilon = T> + Clone + Copy>(
+pub fn relative_population_eq<T: RelativeEq<Epsilon = T> + Clone + Copy + std::fmt::Debug>(
     a: Vec<Vec<T>>,
     b: Vec<Vec<T>>,
     epsilon: T,
@@ -37,6 +38,7 @@ pub fn relative_population_eq<T: RelativeEq<Epsilon = T> + Clone + Copy>(
             .zip(b.iter())
             .all(|(a, b)| relative_chromosome_eq(a.to_vec(), b.to_vec(), epsilon))
     } else {
+        println!("{:?} <> {:?}", a, b);
         false
     }
 }

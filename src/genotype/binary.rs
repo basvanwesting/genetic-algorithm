@@ -85,7 +85,7 @@ impl IncrementalGenotype for Binary {
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self::Allele>,
-        _scale: Option<f32>,
+        _scale_index: Option<usize>,
     ) -> Vec<Chromosome<Self::Allele>> {
         (0..self.genes_size)
             .map(|index| {

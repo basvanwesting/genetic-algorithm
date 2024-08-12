@@ -58,11 +58,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
                 b.iter(|| {
-                    genotype.mutate_chromosome_neighbour(
-                        black_box(&mut chromosome),
-                        Some(1.0),
-                        &mut rng,
-                    )
+                    genotype.mutate_chromosome_neighbour(black_box(&mut chromosome), None, &mut rng)
                 })
             },
         );
@@ -110,11 +106,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
                 b.iter(|| {
-                    genotype.mutate_chromosome_neighbour(
-                        black_box(&mut chromosome),
-                        Some(1.0),
-                        &mut rng,
-                    )
+                    genotype.mutate_chromosome_neighbour(black_box(&mut chromosome), None, &mut rng)
                 })
             },
         );

@@ -183,7 +183,7 @@ where
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
-        _scale: Option<f32>,
+        _scale_index: Option<usize>,
         rng: &mut R,
     ) {
         let index = self.gene_index_sampler.sample(rng);
@@ -224,7 +224,7 @@ where
     fn neighbouring_chromosomes(
         &self,
         chromosome: &Chromosome<Self::Allele>,
-        _scale: Option<f32>,
+        _scale_index: Option<usize>,
     ) -> Vec<Chromosome<Self::Allele>> {
         let range_diffs: Vec<Vec<T>> = self
             .allele_neighbour_ranges
