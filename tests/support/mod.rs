@@ -17,10 +17,13 @@ pub fn relative_chromosome_eq<T: RelativeEq<Epsilon = T> + Clone + Copy>(
     b: Vec<T>,
     epsilon: T,
 ) -> bool {
-    assert_eq!(a.len(), b.len());
-    a.iter()
-        .zip(b.iter())
-        .all(|(a, b)| a.relative_eq(b, epsilon, epsilon))
+    if a.len() == b.len() {
+        a.iter()
+            .zip(b.iter())
+            .all(|(a, b)| a.relative_eq(b, epsilon, epsilon))
+    } else {
+        false
+    }
 }
 
 #[allow(dead_code)]
@@ -29,8 +32,11 @@ pub fn relative_population_eq<T: RelativeEq<Epsilon = T> + Clone + Copy>(
     b: Vec<Vec<T>>,
     epsilon: T,
 ) -> bool {
-    assert_eq!(a.len(), b.len());
-    a.iter()
-        .zip(b.iter())
-        .all(|(a, b)| relative_chromosome_eq(a.to_vec(), b.to_vec(), epsilon))
+    if a.len() == b.len() {
+        a.iter()
+            .zip(b.iter())
+            .all(|(a, b)| relative_chromosome_eq(a.to_vec(), b.to_vec(), epsilon))
+    } else {
+        false
+    }
 }

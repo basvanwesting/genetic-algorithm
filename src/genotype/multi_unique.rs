@@ -25,10 +25,10 @@ pub type DefaultAllele = usize;
 ///
 /// let genotype = MultiUniqueGenotype::builder()
 ///     .with_allele_lists(vec![
-///        (0..3).collect(),
-///        (4..6).collect(),
-///        (7..9).collect(),
-///        (0..2).collect(),
+///        (0..=3).collect(),
+///        (4..=6).collect(),
+///        (7..=9).collect(),
+///        (0..=2).collect(),
 ///     ])
 ///     .build()
 ///     .unwrap();

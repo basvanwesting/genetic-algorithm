@@ -3,11 +3,12 @@ use super::{Allele, Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
+use num::Zero;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
-use std::ops::Range;
+use std::ops::RangeInclusive;
 
 pub type DefaultAllele = f32;
 
@@ -24,8 +25,8 @@ pub type DefaultAllele = f32;
 ///
 /// let genotype = ContinuousGenotype::builder()
 ///     .with_genes_size(100)
-///     .with_allele_range(0.0..1.0)
-///     .with_allele_neighbour_range(-0.1..0.1) // optional
+///     .with_allele_range(0.0..=1.0)
+///     .with_allele_neighbour_range(-0.1..=0.1) // optional
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -36,27 +37,27 @@ pub type DefaultAllele = f32;
 ///
 /// let genotype = ContinuousGenotype::<isize>::builder()
 ///     .with_genes_size(100)
-///     .with_allele_range(0..10)
-///     .with_allele_neighbour_range(-1..1) // optional
+///     .with_allele_range(0..=10)
+///     .with_allele_neighbour_range(-1..=1) // optional, note to use an inclusive range for integers
 ///     .build()
 ///     .unwrap();
 /// ```
 pub struct Continuous<
-    T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
+    T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
 > where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     pub genes_size: usize,
-    pub allele_range: Range<T>,
-    pub allele_neighbour_range: Option<Range<T>>,
+    pub allele_range: RangeInclusive<T>,
+    pub allele_neighbour_range: Option<RangeInclusive<T>>,
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_neighbour_sampler: Option<Uniform<T>>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd>
+impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd>
     TryFrom<Builder<Self>> for Continuous<T>
 where
     T: SampleUniform,
@@ -92,7 +93,7 @@ where
     }
 }
 
-impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd> Genotype
+impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd> Genotype
     for Continuous<T>
 where
     T: SampleUniform,
@@ -135,10 +136,10 @@ where
         let index = self.gene_index_sampler.sample(rng);
         let new_value =
             chromosome.genes[index] + self.allele_neighbour_sampler.as_ref().unwrap().sample(rng);
-        if new_value < self.allele_range.start {
-            chromosome.genes[index] = self.allele_range.start;
-        } else if new_value > self.allele_range.end {
-            chromosome.genes[index] = self.allele_range.end;
+        if new_value < *self.allele_range.start() {
+            chromosome.genes[index] = *self.allele_range.start();
+        } else if new_value > *self.allele_range.end() {
+            chromosome.genes[index] = *self.allele_range.end();
         } else {
             chromosome.genes[index] = new_value;
         }
@@ -153,7 +154,7 @@ where
     }
 }
 
-impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd>
+impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd>
     IncrementalGenotype for Continuous<T>
 where
     T: SampleUniform,
@@ -166,12 +167,12 @@ where
         _scale: Option<f32>,
     ) -> Vec<Chromosome<Self::Allele>> {
         let diffs: Vec<Self::Allele> = vec![
-            self.allele_neighbour_range.as_ref().unwrap().start,
-            self.allele_neighbour_range.as_ref().unwrap().end,
+            *self.allele_neighbour_range.as_ref().unwrap().start(),
+            *self.allele_neighbour_range.as_ref().unwrap().end(),
         ]
         .into_iter()
         .dedup()
-        .filter(|diff| *diff != T::default())
+        .filter(|diff| !diff.is_zero())
         .collect();
 
         (0..self.genes_size)
@@ -179,10 +180,10 @@ where
                 diffs.iter().map(move |diff| {
                     let mut genes = chromosome.genes.clone();
                     let new_value = genes[index] + *diff;
-                    if new_value < self.allele_range.start {
-                        genes[index] = self.allele_range.start;
-                    } else if new_value > self.allele_range.end {
-                        genes[index] = self.allele_range.end;
+                    if new_value < *self.allele_range.start() {
+                        genes[index] = *self.allele_range.start();
+                    } else if new_value > *self.allele_range.end() {
+                        genes[index] = *self.allele_range.end();
                     } else {
                         genes[index] = new_value;
                     }
@@ -197,7 +198,7 @@ where
     }
 }
 
-impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd> Clone
+impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd> Clone
     for Continuous<T>
 where
     T: SampleUniform,
@@ -219,8 +220,8 @@ where
     }
 }
 
-impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd> fmt::Debug
-    for Continuous<T>
+impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd>
+    fmt::Debug for Continuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -236,8 +237,8 @@ where
     }
 }
 
-impl<T: Allele + Copy + Default + std::ops::Add<Output = T> + std::cmp::PartialOrd> fmt::Display
-    for Continuous<T>
+impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd>
+    fmt::Display for Continuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

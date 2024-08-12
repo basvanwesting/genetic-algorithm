@@ -27,10 +27,10 @@ pub type DefaultAllele = usize;
 ///
 /// let genotype = MultiDiscreteGenotype::builder()
 ///     .with_allele_lists(vec![
-///        (0..10).collect(),
-///        (0..20).collect(),
-///        (0..5).collect(),
-///        (0..30).collect(),
+///        (0..=10).collect(),
+///        (0..=20).collect(),
+///        (0..=5).collect(),
+///        (0..=30).collect(),
 ///     ])
 ///     .build()
 ///     .unwrap();

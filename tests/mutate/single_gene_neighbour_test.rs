@@ -8,8 +8,8 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 fn continuous_float_genotype() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(3)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
 
@@ -81,8 +81,8 @@ fn continuous_float_genotype() {
 fn continuous_integer_genotype() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(3)
-        .with_allele_range(-10..10)
-        .with_allele_neighbour_range(-1..2)
+        .with_allele_range(-9..=9)
+        .with_allele_neighbour_range(-1..=1)
         .build()
         .unwrap();
 
@@ -107,7 +107,7 @@ fn continuous_integer_genotype() {
 
     assert_eq!(
         inspect::population(&state.population),
-        vec![vec![0, 0, 0], vec![0, 0, 0], vec![0, -1, 0], vec![0, 0, 0]],
+        vec![vec![0, 1, 0], vec![0, 0, 1], vec![0, 0, 0], vec![0, 1, 0]],
     );
 
     MutateSingleGeneNeighbour::new(0.5).call(
@@ -134,6 +134,6 @@ fn continuous_integer_genotype() {
 
     assert_eq!(
         inspect::population(&state.population),
-        vec![vec![0, 0, 0], vec![0, 0, 0], vec![0, 0, 0], vec![0, 0, 0],],
+        vec![vec![0, 1, 0], vec![1, 1, 0], vec![1, -1, 1], vec![0, 1, 0]]
     );
 }

@@ -39,7 +39,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &genes_size| {
                 let genotype = ContinuousGenotype::builder()
                     .with_genes_size(genes_size)
-                    .with_allele_range(0.0..1.0)
+                    .with_allele_range(0.0..=1.0)
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -52,8 +52,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &genes_size| {
                 let genotype = ContinuousGenotype::builder()
                     .with_genes_size(genes_size)
-                    .with_allele_range(0.0..1.0)
-                    .with_allele_neighbour_range(-0.1..0.1)
+                    .with_allele_range(0.0..=1.0)
+                    .with_allele_neighbour_range(-0.1..=0.1)
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -92,7 +92,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             genes_size,
             |b, &genes_size| {
                 let genotype = MultiContinuousGenotype::builder()
-                    .with_allele_ranges((0..genes_size).map(|_| (0.0..1.0)).collect())
+                    .with_allele_ranges((0..genes_size).map(|_| (0.0..=1.0)).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -104,8 +104,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             genes_size,
             |b, &genes_size| {
                 let genotype = MultiContinuousGenotype::builder()
-                    .with_allele_ranges((0..genes_size).map(|_| (0.0..1.0)).collect())
-                    .with_allele_neighbour_ranges((0..genes_size).map(|_| (-0.1..0.1)).collect())
+                    .with_allele_ranges((0..genes_size).map(|_| (0.0..=1.0)).collect())
+                    .with_allele_neighbour_ranges((0..genes_size).map(|_| (-0.1..=0.1)).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);

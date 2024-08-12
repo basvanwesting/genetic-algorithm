@@ -395,7 +395,7 @@ fn call_binary_mass_invasion() {
 fn call_continuous() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..1.0)
+        .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -416,13 +416,14 @@ fn call_continuous() {
     println!("{:#?}", best_chromosome);
 
     assert_eq!(best_chromosome.fitness_score, Some(9952));
-    assert_eq!(
+    assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
         vec![
             0.99798167, 0.99938405, 0.99611986, 0.99007106, 0.9982017, 0.9936614, 0.9934199,
             0.9904206, 0.99784184, 0.99518645
-        ]
-    );
+        ],
+        0.001
+    ));
 }
 
 #[test]

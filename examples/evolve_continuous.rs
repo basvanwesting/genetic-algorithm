@@ -9,8 +9,8 @@ fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(100)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
 

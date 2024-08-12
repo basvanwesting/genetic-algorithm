@@ -98,8 +98,8 @@ pub struct Scaling {
 /// // the search space
 /// let genotype = ContinuousGenotype::builder() // f32 alleles
 ///     .with_genes_size(16)                     // 16 genes
-///     .with_allele_range(0.0..1.0)             // values betwee 0.0 and 1.0
-///     .with_allele_neighbour_range(-0.1..0.1)  // neighbouring step size or 0.1 in both directions
+///     .with_allele_range(0.0..=1.0)             // values betwee 0.0 and 1.0
+///     .with_allele_neighbour_range(-0.1..=0.1)  // neighbouring step size or 0.1 in both directions
 ///     .build()
 ///     .unwrap();
 ///

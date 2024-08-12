@@ -6,7 +6,7 @@ use num::BigUint;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
-use std::ops::Range;
+use std::ops::RangeInclusive;
 
 pub type ContinuousAllele = f32;
 
@@ -23,16 +23,16 @@ pub type ContinuousAllele = f32;
 ///
 /// let genotype = ContinuousGenotype::builder()
 ///     .with_genes_size(100)
-///     .with_allele_range(0.0..1.0)
-///     .with_allele_neighbour_range(-0.1..0.1) // optional
+///     .with_allele_range(0.0..=1.0)
+///     .with_allele_neighbour_range(-0.1..=0.1) // optional
 ///     .build()
 ///     .unwrap();
 /// ```
 #[derive(Clone, Debug)]
 pub struct Continuous {
     pub genes_size: usize,
-    pub allele_range: Range<ContinuousAllele>,
-    pub allele_neighbour_range: Option<Range<ContinuousAllele>>,
+    pub allele_range: RangeInclusive<ContinuousAllele>,
+    pub allele_neighbour_range: Option<RangeInclusive<ContinuousAllele>>,
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<ContinuousAllele>,
     allele_neighbour_sampler: Option<Uniform<ContinuousAllele>>,
@@ -107,10 +107,10 @@ impl Genotype for Continuous {
         let index = self.gene_index_sampler.sample(rng);
         let new_value = chromosome.genes[index]
             + self.allele_neighbour_sampler.as_ref().unwrap().sample(rng) * scale.unwrap_or(1.0);
-        if new_value < self.allele_range.start {
-            chromosome.genes[index] = self.allele_range.start;
-        } else if new_value > self.allele_range.end {
-            chromosome.genes[index] = self.allele_range.end;
+        if new_value < *self.allele_range.start() {
+            chromosome.genes[index] = *self.allele_range.start();
+        } else if new_value > *self.allele_range.end() {
+            chromosome.genes[index] = *self.allele_range.end();
         } else {
             chromosome.genes[index] = new_value;
         }
@@ -132,8 +132,8 @@ impl IncrementalGenotype for Continuous {
         scale: Option<f32>,
     ) -> Vec<Chromosome<Self::Allele>> {
         let diffs: Vec<ContinuousAllele> = vec![
-            self.allele_neighbour_range.as_ref().unwrap().start * scale.unwrap_or(1.0),
-            self.allele_neighbour_range.as_ref().unwrap().end * scale.unwrap_or(1.0),
+            self.allele_neighbour_range.as_ref().unwrap().start() * scale.unwrap_or(1.0),
+            self.allele_neighbour_range.as_ref().unwrap().end() * scale.unwrap_or(1.0),
         ]
         .into_iter()
         .dedup()
@@ -145,10 +145,10 @@ impl IncrementalGenotype for Continuous {
                 diffs.iter().map(move |diff| {
                     let mut genes = chromosome.genes.clone();
                     let new_value = genes[index] + *diff;
-                    if new_value < self.allele_range.start {
-                        genes[index] = self.allele_range.start;
-                    } else if new_value > self.allele_range.end {
-                        genes[index] = self.allele_range.end;
+                    if new_value < *self.allele_range.start() {
+                        genes[index] = *self.allele_range.start();
+                    } else if new_value > *self.allele_range.end() {
+                        genes[index] = *self.allele_range.end();
                     } else {
                         genes[index] = new_value;
                     }

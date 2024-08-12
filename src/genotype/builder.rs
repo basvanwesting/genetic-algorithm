@@ -1,5 +1,5 @@
 use super::Genotype;
-use std::ops::Range;
+use std::ops::RangeInclusive;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -16,10 +16,10 @@ pub struct Builder<G: Genotype> {
     pub genes_size: Option<usize>,
     pub allele_list: Option<Vec<<G as Genotype>::Allele>>,
     pub allele_lists: Option<Vec<Vec<<G as Genotype>::Allele>>>,
-    pub allele_range: Option<Range<<G as Genotype>::Allele>>,
-    pub allele_ranges: Option<Vec<Range<<G as Genotype>::Allele>>>,
-    pub allele_neighbour_range: Option<Range<<G as Genotype>::Allele>>,
-    pub allele_neighbour_ranges: Option<Vec<Range<<G as Genotype>::Allele>>>,
+    pub allele_range: Option<RangeInclusive<<G as Genotype>::Allele>>,
+    pub allele_ranges: Option<Vec<RangeInclusive<<G as Genotype>::Allele>>>,
+    pub allele_neighbour_range: Option<RangeInclusive<<G as Genotype>::Allele>>,
+    pub allele_neighbour_ranges: Option<Vec<RangeInclusive<<G as Genotype>::Allele>>>,
     pub seed_genes_list: Vec<Vec<<G as Genotype>::Allele>>,
 }
 
@@ -43,14 +43,17 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
-    pub fn with_allele_range(mut self, allele_range: Range<<G as Genotype>::Allele>) -> Self {
+    pub fn with_allele_range(
+        mut self,
+        allele_range: RangeInclusive<<G as Genotype>::Allele>,
+    ) -> Self {
         self.allele_range = Some(allele_range);
         self
     }
 
     pub fn with_allele_ranges(
         mut self,
-        allele_ranges: Vec<Range<<G as Genotype>::Allele>>,
+        allele_ranges: Vec<RangeInclusive<<G as Genotype>::Allele>>,
     ) -> Self {
         self.allele_ranges = Some(allele_ranges);
         self
@@ -58,7 +61,7 @@ impl<G: Genotype> Builder<G> {
 
     pub fn with_allele_neighbour_range(
         mut self,
-        allele_neighbour_range: Range<<G as Genotype>::Allele>,
+        allele_neighbour_range: RangeInclusive<<G as Genotype>::Allele>,
     ) -> Self {
         self.allele_neighbour_range = Some(allele_neighbour_range);
         self
@@ -66,7 +69,7 @@ impl<G: Genotype> Builder<G> {
 
     pub fn with_allele_neighbour_ranges(
         mut self,
-        allele_neighbour_ranges: Vec<Range<<G as Genotype>::Allele>>,
+        allele_neighbour_ranges: Vec<RangeInclusive<<G as Genotype>::Allele>>,
     ) -> Self {
         self.allele_neighbour_ranges = Some(allele_neighbour_ranges);
         self

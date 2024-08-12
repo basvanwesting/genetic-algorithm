@@ -7,7 +7,7 @@ fn general_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..1.0)
+        .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
 
@@ -40,8 +40,8 @@ fn general_neighbour() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
 
@@ -74,8 +74,8 @@ fn neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(1)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
 
@@ -110,8 +110,8 @@ fn neighbouring_population_2() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(2)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
 
@@ -140,8 +140,8 @@ fn neighbouring_population_3() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(3)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
 
@@ -172,8 +172,8 @@ fn neighbouring_population_3_one_sided() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(3)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(0.0..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(0.0..=0.1)
         .build()
         .unwrap();
 

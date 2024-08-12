@@ -13,8 +13,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     group.bench_function("mult-continues-neighbouring_population", |b| {
         let genotype = MultiContinuousGenotype::builder()
-            .with_allele_ranges(vec![(-100.0..100.0), (0.0..100.0)])
-            .with_allele_neighbour_ranges(vec![(-1.0..1.0), (-1.0..1.0)])
+            .with_allele_ranges(vec![(-100.0..=100.0), (0.0..=100.0)])
+            .with_allele_neighbour_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
             .build()
             .unwrap();
 

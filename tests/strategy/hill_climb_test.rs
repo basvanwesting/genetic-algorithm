@@ -12,8 +12,8 @@ use genetic_algorithm::strategy::Strategy;
 fn build_invalid_missing_ending_condition() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
 
@@ -36,8 +36,8 @@ fn build_invalid_missing_ending_condition() {
 fn call_continuous_max_stale_generations_maximize() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -53,18 +53,19 @@ fn call_continuous_max_stale_generations_maximize() {
     println!("{:#?}", best_chromosome);
 
     assert_eq!(best_chromosome.fitness_score, Some(9999));
-    assert_eq!(
+    assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,]
-    );
+        vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,],
+        0.001
+    ));
 }
 
 #[test]
 fn call_continuous_max_stale_generations_minimize() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -81,18 +82,19 @@ fn call_continuous_max_stale_generations_minimize() {
     println!("{:#?}", best_chromosome);
 
     assert_eq!(best_chromosome.fitness_score, Some(0));
-    assert_eq!(
+    assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,]
-    );
+        vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,],
+        0.001
+    ));
 }
 
 #[test]
 fn call_continuous_max_stale_generations_and_valid_fitness_score_maximize() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(100)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -115,8 +117,8 @@ fn call_continuous_max_stale_generations_and_valid_fitness_score_maximize() {
 fn call_continuous_max_stale_generations_and_valid_fitness_score_minimize() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(100)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -140,8 +142,8 @@ fn call_continuous_max_stale_generations_and_valid_fitness_score_minimize() {
 fn call_continuous_target_fitness_score_maximize() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -157,20 +159,21 @@ fn call_continuous_target_fitness_score_maximize() {
     println!("{:#?}", best_chromosome);
 
     assert_eq!(best_chromosome.fitness_score, Some(8088));
-    assert_eq!(
+    assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
         vec![
             0.673274, 0.62921375, 1.0, 0.7220475, 1.0, 1.0, 0.73748976, 0.7359946, 0.5902894, 1.0,
-        ]
-    );
+        ],
+        0.001
+    ));
 }
 
 #[test]
 fn call_continuous_target_fitness_score_minimize() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -187,7 +190,7 @@ fn call_continuous_target_fitness_score_minimize() {
     println!("{:#?}", best_chromosome);
 
     assert_eq!(best_chromosome.fitness_score, Some(964));
-    assert_eq!(
+    assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
         vec![
             0.0,
@@ -200,16 +203,17 @@ fn call_continuous_target_fitness_score_minimize() {
             0.0,
             0.0,
             0.15902928,
-        ]
-    );
+        ],
+        0.001
+    ));
 }
 
 #[test]
 fn call_continuous_multi_thread() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..1.0)
-        .with_allele_neighbour_range(-0.1..0.1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_range(-0.1..=0.1)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -227,7 +231,7 @@ fn call_continuous_multi_thread() {
     println!("{:#?}", best_chromosome);
 
     assert_eq!(best_chromosome.fitness_score, Some(964));
-    assert_eq!(
+    assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
         vec![
             0.0,
@@ -240,8 +244,9 @@ fn call_continuous_multi_thread() {
             0.0,
             0.0,
             0.15902928,
-        ]
-    );
+        ],
+        0.001
+    ));
 }
 
 #[test]

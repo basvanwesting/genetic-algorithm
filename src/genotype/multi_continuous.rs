@@ -6,7 +6,7 @@ use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
-use std::ops::Range;
+use std::ops::RangeInclusive;
 
 pub type ContinuousAllele = f32;
 
@@ -26,16 +26,16 @@ pub type ContinuousAllele = f32;
 ///
 /// let genotype = MultiContinuousGenotype::builder()
 ///     .with_allele_ranges(vec![
-///        (0.0..10.0),
-///        (5.0..20.0),
-///        (0.0..5.0),
-///        (10.0..30.0),
+///        (0.0..=10.0),
+///        (5.0..=20.0),
+///        (0.0..=5.0),
+///        (10.0..=30.0),
 ///     ])
 ///     .with_allele_neighbour_ranges(vec![
-///        (-1.0..1.0),
-///        (-2.0..2.0),
-///        (-0.5..0.5),
-///        (-3.0..3.0),
+///        (-1.0..=1.0),
+///        (-2.0..=2.0),
+///        (-0.5..=0.5),
+///        (-3.0..=3.0),
 ///     ]) // optional
 ///     .build()
 ///     .unwrap();
@@ -43,8 +43,8 @@ pub type ContinuousAllele = f32;
 #[derive(Clone, Debug)]
 pub struct MultiContinuous {
     genes_size: usize,
-    pub allele_ranges: Vec<Range<ContinuousAllele>>,
-    pub allele_neighbour_ranges: Option<Vec<Range<ContinuousAllele>>>,
+    pub allele_ranges: Vec<RangeInclusive<ContinuousAllele>>,
+    pub allele_neighbour_ranges: Option<Vec<RangeInclusive<ContinuousAllele>>>,
     gene_index_sampler: WeightedIndex<ContinuousAllele>,
     allele_samplers: Vec<Uniform<ContinuousAllele>>,
     allele_neighbour_samplers: Option<Vec<Uniform<ContinuousAllele>>>,
@@ -73,7 +73,7 @@ impl TryFrom<Builder<Self>> for MultiContinuous {
             let genes_size = allele_ranges.len();
             let index_weights: Vec<ContinuousAllele> = allele_ranges
                 .iter()
-                .map(|allele_range| allele_range.end - allele_range.start)
+                .map(|allele_range| allele_range.end() - allele_range.start())
                 .collect();
 
             Ok(Self {
@@ -139,10 +139,10 @@ impl Genotype for MultiContinuous {
         let new_value = chromosome.genes[index]
             + self.allele_neighbour_samplers.as_ref().unwrap()[index].sample(rng)
                 * scale.unwrap_or(1.0);
-        if new_value < allele_ranges.start {
-            chromosome.genes[index] = allele_ranges.start;
-        } else if new_value > allele_ranges.end {
-            chromosome.genes[index] = allele_ranges.end;
+        if new_value < *allele_ranges.start() {
+            chromosome.genes[index] = *allele_ranges.start();
+        } else if new_value > *allele_ranges.end() {
+            chromosome.genes[index] = *allele_ranges.end();
         } else {
             chromosome.genes[index] = new_value;
         }
@@ -169,8 +169,8 @@ impl IncrementalGenotype for MultiContinuous {
             .iter()
             .map(|range| {
                 vec![
-                    range.start * scale.unwrap_or(1.0),
-                    range.end * scale.unwrap_or(1.0),
+                    range.start() * scale.unwrap_or(1.0),
+                    range.end() * scale.unwrap_or(1.0),
                 ]
             })
             .map(|range| {
@@ -189,10 +189,10 @@ impl IncrementalGenotype for MultiContinuous {
                 range_diffs[index].iter().map(move |diff| {
                     let mut genes = chromosome.genes.clone();
                     let new_value = genes[index] + *diff;
-                    if new_value < value_range.start {
-                        genes[index] = value_range.start;
-                    } else if new_value > value_range.end {
-                        genes[index] = value_range.end;
+                    if new_value < *value_range.start() {
+                        genes[index] = *value_range.start();
+                    } else if new_value > *value_range.end() {
+                        genes[index] = *value_range.end();
                     } else {
                         genes[index] = new_value;
                     }
