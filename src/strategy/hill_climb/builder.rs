@@ -1,4 +1,4 @@
-use super::{HillClimb, HillClimbReporter, HillClimbReporterNoop, HillClimbVariant, Scaling};
+use super::{HillClimb, HillClimbReporter, HillClimbReporterNoop, HillClimbVariant};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::Strategy;
@@ -22,7 +22,6 @@ pub struct Builder<
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub scaling: Option<Scaling>,
     pub reporter: SR,
 }
 
@@ -39,7 +38,6 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
             max_stale_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
-            scaling: None,
             reporter: HillClimbReporterNoop::new(),
         }
     }
@@ -114,10 +112,6 @@ impl<
         self.valid_fitness_score = valid_fitness_score_option;
         self
     }
-    pub fn with_scaling(mut self, scaling: Scaling) -> Self {
-        self.scaling = Some(scaling);
-        self
-    }
     pub fn with_reporter<SR2: HillClimbReporter<Allele = G::Allele>>(
         self,
         reporter: SR2,
@@ -131,7 +125,6 @@ impl<
             max_stale_generations: self.max_stale_generations,
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
-            scaling: self.scaling,
             reporter,
         }
     }

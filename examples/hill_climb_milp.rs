@@ -47,6 +47,18 @@ fn main() {
     let genotype = MultiContinuousGenotype::builder()
         .with_allele_ranges(vec![(-10.0..=10.0), (0.0..=10.0)])
         .with_allele_neighbour_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
+        // .with_allele_neighbour_scaled_ranges(vec![
+        //     vec![-0.1..=0.1, -0.1..=0.1],
+        //     vec![-0.05..=0.05, -0.05..=0.05],
+        //     vec![-0.025..=0.025, -0.025..=0.025],
+        //     vec![-0.01..=0.01, -0.01..=0.01],
+        //     vec![-0.005..=0.005, -0.005..=0.005],
+        //     vec![-0.0025..=0.0025, -0.0025..=0.0025],
+        //     vec![-0.001..=0.001, -0.001..=0.001],
+        //     vec![-0.0005..=0.0005, -0.0005..=0.0005],
+        //     vec![-0.00025..=0.00025, -0.00025..=0.00025],
+        //     vec![-0.0001..=0.0001, -0.0001..=0.0001],
+        // ])
         .build()
         .unwrap();
 
@@ -56,7 +68,6 @@ fn main() {
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::Stochastic)
         // .with_variant(HillClimbVariant::SteepestAscent)
-        .with_scaling(Scaling::new(1.0, 0.5, 1e-5))
         .with_max_stale_generations(100)
         //.with_target_fitness_score(TARGET_SCORE)
         .with_fitness_ordering(FitnessOrdering::Minimize)
@@ -78,8 +89,8 @@ fn main() {
                 let result = 8.0 * x1 + x2;
 
                 println!(
-                    "x1: {:.5}, x2: {} => {:.5} (fitness score: {:>3}, best_iteration: {:>3}, best_generation: {:>5}, duration: {:?}, scale: {:?})",
-                    x1, x2 as u8, result, fitness_score, hill_climb.state.current_iteration, hill_climb.best_generation(), duration, hill_climb.state.current_scale
+                    "x1: {:.5}, x2: {} => {:.5} (fitness score: {:>3}, best_iteration: {:>3}, best_generation: {:>5}, duration: {:?}, scale_index: {:?})",
+                    x1, x2 as u8, result, fitness_score, hill_climb.state.current_iteration, hill_climb.best_generation(), duration, hill_climb.state.current_scale_index
                 );
             } else {
                 println!(

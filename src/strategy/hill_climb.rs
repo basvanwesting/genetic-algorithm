@@ -32,19 +32,6 @@ pub enum HillClimbVariant {
     SteepestAscentSecondary,
 }
 
-/// Defines the optional scaling of [ContinuousGenotype](crate::genotype::ContinuousGenotype) and
-/// [MultiContinuousGenotype](crate::genotype::MultiContinuousGenotype) neighbouring_chromosomes
-/// The base_scale is the starting scale which is steadily decreased to the min_scale by the scale
-/// factor when no better chromosomes can be found in the current scale.
-/// Only meaningful for SteepestAscent [variants](HillClimbVariant), as Stochastic variants are not
-/// directed enough to benefit from scaling.
-#[derive(Clone, Debug)]
-pub struct Scaling {
-    pub base_scale: f32,
-    pub scale_factor: f32,
-    pub min_scale: f32,
-}
-
 /// The HillClimb strategy is an iterative algorithm that starts with an arbitrary solution to a
 /// problem, then attempts to find a better solution by making an incremental change to the
 /// solution
@@ -68,21 +55,26 @@ pub struct Scaling {
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
-/// * min_scale: when the scaling drops below the precision and further refining is useless
 ///
 /// The fitness is calculated each round:
 /// * If the fitness is worse
 ///     * the mutation is ignored and the next round is started based on the current best chromosome
-///     * if the scaling is set, the scale is reduced to zoom in on the local solution
+///     * if the scaling used, the scale is reduced to zoom in on the local solution
 ///     * the stale generation counter is incremented (functionally)
 /// * If the fitness is equal
 ///     * the mutated chromosome is taken for the next round.
-///     * if the scaling is set, the scale is reset to its base scale
+///     * if the scaling used, the scale is reset to its base scale
 ///     * the stale generation counter is incremented (functionally)
 /// * If the fitness is better
 ///     * the mutated chromosome is taken for the next round.
-///     * if the scaling is set, the scale is reset to its base scale
+///     * if the scaling used, the scale is reset to its base scale
 ///     * the stale generation counter is reset (functionally)
+///
+/// There is optional scaling of [ContinuousGenotype](crate::genotype::ContinuousGenotype) and
+/// [MultiContinuousGenotype](crate::genotype::MultiContinuousGenotype) neighbouring_chromosomes.
+/// If used, this is defined by providing the allele_neighbour_scaled_range(s) in the Genotype
+/// builder. Only meaningful for SteepestAscent [variants](HillClimbVariant), as Stochastic variants are not
+/// directed enough to benefit from scaling.
 ///
 /// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
 /// [HillClimbReporter] (e.g. [HillClimbReporterNoop], [HillClimbReporterSimple]). But you are encouraged to
@@ -111,7 +103,6 @@ pub struct Scaling {
 ///     .with_fitness(SumF32(1e-5))        // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_multithreading(true)                        // use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
-///     .with_scaling(Scaling::new(1.0, 0.8, 1e-5))       // start with neighbouring mutation scale 1.0 and multiply by 0.8 to zoom in on solution when stale, halt at 1e-5 scale
 ///     .with_target_fitness_score(10)                    // ending condition if sum of genes is <= 0.00010 in the best chromosome
 ///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations
@@ -142,12 +133,12 @@ pub struct HillClimbConfig {
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub scaling: Option<Scaling>,
 }
 
 /// Stores the state of the HillClimb strategy. Next to the expected general fields, the following
 /// strategy specific fields are added:
-/// * current_scale: see [Scaling]
+/// * current_scale_index: current index of [IncrementalGenotype]'s allele_neighbour_scaled_range
+/// * max_scale_index: max index of [IncrementalGenotype]'s allele_neighbour_scaled_range
 /// * contending_chromosome: available for all [variants](HillClimbVariant)
 /// * neighbouring_population: only available for SteepestAscent [variants](HillClimbVariant)
 pub struct HillClimbState<A: Allele> {
@@ -156,7 +147,6 @@ pub struct HillClimbState<A: Allele> {
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
 
-    pub current_scale: Option<f32>,
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
     pub contending_chromosome: Option<Chromosome<A>>,
@@ -170,8 +160,6 @@ impl<
     > Strategy<G> for HillClimb<G, F, SR>
 {
     fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.state.reset_scaling(&self.config);
-
         let mut seed_chromosome = self.genotype.chromosome_factory(rng);
         self.fitness.call_for_chromosome(&mut seed_chromosome);
         self.state.set_best_chromosome(&seed_chromosome, true);
@@ -327,8 +315,7 @@ impl<
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
             && (self.is_finished_by_max_stale_generations()
-                || self.is_finished_by_target_fitness_score()
-                || self.is_finished_by_min_scale())
+                || self.is_finished_by_target_fitness_score())
     }
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
@@ -366,14 +353,6 @@ impl<
             }
         } else {
             true
-        }
-    }
-
-    fn is_finished_by_min_scale(&self) -> bool {
-        if let Some(current_scale) = self.state.current_scale {
-            current_scale < self.config.scaling.as_ref().unwrap().min_scale
-        } else {
-            false
         }
     }
 }
@@ -429,28 +408,15 @@ impl<A: Allele> HillClimbState<A> {
         match self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, true) {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
-                self.reset_scaling(config);
                 self.reset_scale_index();
             }
             (true, false) => {
                 reporter.on_new_best_chromosome_equal_fitness(self, config);
-                self.reset_scaling(config);
                 self.reset_scale_index();
             }
             _ => {
-                self.scale_down(config);
                 self.increment_scale_index();
             }
-        }
-    }
-    fn reset_scaling(&mut self, hill_climb_config: &HillClimbConfig) {
-        self.current_scale = hill_climb_config.scaling.as_ref().map(|s| s.base_scale);
-    }
-
-    fn scale_down(&mut self, hill_climb_config: &HillClimbConfig) {
-        if let Some(current_scale) = self.current_scale {
-            self.current_scale =
-                Some(current_scale * hill_climb_config.scaling.as_ref().unwrap().scale_factor);
         }
     }
     fn reset_scale_index(&mut self) {
@@ -489,12 +455,10 @@ impl<
             ))
         } else if builder.fitness.is_none() {
             Err(TryFromHillClimbBuilderError("HillClimb requires a Fitness"))
-        } else if builder.max_stale_generations.is_none()
-            && builder.target_fitness_score.is_none()
-            && builder.scaling.is_none()
+        } else if builder.max_stale_generations.is_none() && builder.target_fitness_score.is_none()
         {
             Err(TryFromHillClimbBuilderError(
-                "HillClimb requires at least a max_stale_generations, target_fitness_score or scaling ending condition",
+                "HillClimb requires at least a max_stale_generations or target_fitness_score ending condition",
             ))
         } else {
             let genotype = builder.genotype.unwrap();
@@ -510,7 +474,6 @@ impl<
                     max_stale_generations: builder.max_stale_generations,
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
-                    scaling: builder.scaling,
                 },
                 state,
                 reporter: builder.reporter,
@@ -528,7 +491,6 @@ impl Default for HillClimbConfig {
             max_stale_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
-            scaling: None,
         }
     }
 }
@@ -543,7 +505,6 @@ impl<A: Allele> Default for HillClimbState<A> {
         Self {
             current_iteration: 0,
             current_generation: 0,
-            current_scale: None,
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
@@ -563,16 +524,6 @@ impl<A: Allele> HillClimbState<A> {
             }
         } else {
             Self::default()
-        }
-    }
-}
-
-impl Scaling {
-    pub fn new(base_scale: f32, scale_factor: f32, min_scale: f32) -> Self {
-        Self {
-            base_scale,
-            scale_factor,
-            min_scale,
         }
     }
 }
@@ -606,8 +557,7 @@ impl fmt::Display for HillClimbConfig {
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  multithreading: {:?}", self.multithreading)?;
-        writeln!(f, "  scaling: {:?}", self.scaling)
+        writeln!(f, "  multithreading: {:?}", self.multithreading)
     }
 }
 
@@ -616,7 +566,6 @@ impl<A: Allele> fmt::Display for HillClimbState<A> {
         writeln!(f, "hill_climb_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
-        writeln!(f, "  current scale: {:?}", self.current_scale)?;
         writeln!(
             f,
             "  scale index (current/max): {:?}/{}",

@@ -11,7 +11,7 @@ pub use crate::genotype::{
 #[doc(no_inline)]
 pub use crate::strategy::hill_climb::{
     HillClimb, HillClimbBuilder, HillClimbConfig, HillClimbReporter, HillClimbReporterLog,
-    HillClimbReporterNoop, HillClimbReporterSimple, HillClimbState, HillClimbVariant, Scaling,
+    HillClimbReporterNoop, HillClimbReporterSimple, HillClimbState, HillClimbVariant,
     TryFromHillClimbBuilderError,
 };
 #[doc(no_inline)]

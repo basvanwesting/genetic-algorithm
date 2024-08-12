@@ -27,7 +27,7 @@ fn build_invalid_missing_ending_condition() {
     assert_eq!(
         hill_climb.err(),
         Some(TryFromHillClimbBuilderError(
-            "HillClimb requires at least a max_stale_generations, target_fitness_score or scaling ending condition"
+            "HillClimb requires at least a max_stale_generations or target_fitness_score ending condition"
         ))
     );
 }
