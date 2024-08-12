@@ -22,7 +22,7 @@ pub type DefaultAllele = f32;
 /// Optionally an allele_neighbour_ranges can be provided. When this is done the mutation is
 /// restricted to modify the existing value by a difference taken from allele_neighbour_range with a uniform probability.
 ///
-/// # Example:
+/// # Example (f32, default):
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, MultiContinuousGenotype};
 ///
@@ -38,6 +38,27 @@ pub type DefaultAllele = f32;
 ///        (-2.0..=2.0),
 ///        (-0.5..=0.5),
 ///        (-3.0..=3.0),
+///     ]) // optional
+///     .build()
+///     .unwrap();
+/// ```
+///
+/// # Example (isize):
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, MultiContinuousGenotype};
+///
+/// let genotype = MultiContinuousGenotype::builder()
+///     .with_allele_ranges(vec![
+///        (0..=10),
+///        (5..=20),
+///        (-5..=5),
+///        (10..=30),
+///     ])
+///     .with_allele_neighbour_ranges(vec![
+///        (-1..=1),
+///        (-1..=1),
+///        (-1..=1),
+///        (-2..=2),
 ///     ]) // optional
 ///     .build()
 ///     .unwrap();

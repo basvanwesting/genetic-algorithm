@@ -38,7 +38,7 @@ pub type DefaultAllele = f32;
 /// let genotype = ContinuousGenotype::<isize>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=10)
-///     .with_allele_neighbour_range(-1..=1) // optional, note to use an inclusive range for integers
+///     .with_allele_neighbour_range(-1..=1) // optional
 ///     .build()
 ///     .unwrap();
 /// ```
