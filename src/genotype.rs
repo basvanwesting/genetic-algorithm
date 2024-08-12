@@ -1,8 +1,7 @@
 //! The search space for the algorithm.
 mod binary;
 mod builder;
-// mod continuous_f32;
-mod continuous_t;
+mod continuous;
 mod discrete;
 mod multi_continuous;
 mod multi_discrete;
@@ -13,8 +12,7 @@ pub use self::binary::{Binary as BinaryGenotype, BinaryAllele};
 pub use self::builder::{
     Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
 };
-// pub use self::continuous_f32::{Continuous as ContinuousGenotype, ContinuousAllele};
-pub use self::continuous_t::Continuous as ContinuousGenotype;
+pub use self::continuous::Continuous as ContinuousGenotype;
 pub use self::discrete::Discrete as DiscreteGenotype;
 pub use self::multi_continuous::MultiContinuous as MultiContinuousGenotype;
 pub use self::multi_discrete::MultiDiscrete as MultiDiscreteGenotype;

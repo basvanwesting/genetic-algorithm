@@ -427,6 +427,37 @@ fn call_continuous_f32() {
 }
 
 #[test]
+fn call_continuous_usize() {
+    let genotype = ContinuousGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0..=9)
+        .build()
+        .unwrap();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(100)
+        .with_max_stale_generations(20)
+        .with_mutate(MutateSingleGeneRandom::new(0.1))
+        .with_fitness(SumUsize)
+        .with_crossover(CrossoverSingleGene::new(true))
+        .with_compete(CompeteTournament::new(4))
+        // .with_extension(ExtensionNoop::new())
+        .with_reporter(EvolveReporterNoop::new())
+        .call(&mut rng)
+        .unwrap();
+
+    let best_chromosome = evolve.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(90));
+    assert_eq!(
+        inspect::chromosome(&best_chromosome),
+        vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+    );
+}
+
+#[test]
 fn call_continuous_isize() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(10)
