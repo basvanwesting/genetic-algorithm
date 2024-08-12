@@ -96,6 +96,7 @@ impl<A: Allele> Reporter for Noop<A> {
 pub struct Simple<A: Allele> {
     pub period: usize,
     pub show_genes: bool,
+    pub show_equal_fitness: bool,
     _phantom: PhantomData<A>,
 }
 impl<A: Allele> Default for Simple<A> {
@@ -103,6 +104,7 @@ impl<A: Allele> Default for Simple<A> {
         Self {
             period: 1,
             show_genes: false,
+            show_equal_fitness: false,
             _phantom: PhantomData,
         }
     }
@@ -114,10 +116,11 @@ impl<A: Allele> Simple<A> {
             ..Default::default()
         }
     }
-    pub fn new_with_flags(period: usize, show_genes: bool) -> Self {
+    pub fn new_with_flags(period: usize, show_genes: bool, show_equal_fitness: bool) -> Self {
         Self {
             period,
             show_genes,
+            show_equal_fitness,
             ..Default::default()
         }
     }
@@ -173,6 +176,26 @@ impl<A: Allele> Reporter for Simple<A> {
             },
             state.current_scale_index.as_ref(),
         );
+    }
+
+    fn on_new_best_chromosome_equal_fitness(
+        &mut self,
+        state: &HillClimbState<Self::Allele>,
+        _config: &HillClimbConfig,
+    ) {
+        if self.show_equal_fitness {
+            println!(
+                "equal best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}",
+                state.current_generation(),
+                state.best_fitness_score(),
+                if self.show_genes {
+                    state.best_chromosome_as_ref().map(|c| &c.genes)
+                } else {
+                    None
+                },
+                state.current_scale_index.as_ref(),
+            );
+        }
     }
 }
 

@@ -56,7 +56,7 @@ fn main() {
         .with_max_stale_generations(10000)
         .with_fitness(DistanceTo(0.5, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_reporter(HillClimbReporterSimple::new(100))
+        .with_reporter(HillClimbReporterSimple::new_with_flags(100, false, true))
         .call(&mut rng)
         .unwrap();
 

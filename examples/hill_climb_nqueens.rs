@@ -49,7 +49,7 @@ fn main() {
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_reporter(HillClimbReporterSimple::new_with_flags(100, true))
+        .with_reporter(HillClimbReporterSimple::new_with_flags(100, true, false))
         .build()
         .unwrap();
 
