@@ -21,21 +21,21 @@ use std::marker::PhantomData;
 ///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
-///                 "periodic - current_generation: {}, best_generation: {}, current_scale: {:?}",
+///                 "periodic - current_generation: {}, best_generation: {}, current_scale_index: {:?}",
 ///                 state.current_generation(),
 ///                 state.best_generation(),
-///                 state.current_scale.as_ref(),
+///                 state.current_scale_index.as_ref(),
 ///             );
 ///         }
 ///     }
 ///
 ///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
 ///         println!(
-///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale: {:?}",
+///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
 ///             state.best_chromosome_as_ref().map(|c| &c.genes),
-///             state.current_scale.as_ref(),
+///             state.current_scale_index.as_ref(),
 ///         );
 ///     }
 /// }
@@ -149,10 +149,10 @@ impl<A: Allele> Reporter for Simple<A> {
     ) {
         if state.current_generation() % self.period == 0 {
             println!(
-                "periodic - current_generation: {}, best_generation: {}, current_scale: {:?}",
+                "periodic - current_generation: {}, best_generation: {}, current_scale_index: {:?}",
                 state.current_generation(),
                 state.best_generation(),
-                state.current_scale.as_ref(),
+                state.current_scale_index.as_ref(),
             );
         }
     }
@@ -163,7 +163,7 @@ impl<A: Allele> Reporter for Simple<A> {
         _config: &HillClimbConfig,
     ) {
         println!(
-            "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale: {:?}",
+            "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
             if self.show_genes {
@@ -171,7 +171,7 @@ impl<A: Allele> Reporter for Simple<A> {
             } else {
                 None
             },
-            state.current_scale.as_ref(),
+            state.current_scale_index.as_ref(),
         );
     }
 }
@@ -198,11 +198,11 @@ impl<A: Allele> Reporter for Log<A> {
         _config: &HillClimbConfig,
     ) {
         log::debug!(
-            "generation (current/best): {}/{}, fitness score (best): {:?}, current scale: {:?}",
+            "generation (current/best): {}/{}, fitness score (best): {:?}, current scale index: {:?}",
             state.current_generation(),
             state.best_generation(),
             state.best_fitness_score(),
-            state.current_scale.as_ref(),
+            state.current_scale_index.as_ref(),
         );
 
         log::trace!(

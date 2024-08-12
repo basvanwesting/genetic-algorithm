@@ -190,6 +190,9 @@ impl<T: Allele> IncrementalGenotype for MultiUnique<T> {
             })
             .sum()
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl<T: Allele> PermutableGenotype for MultiUnique<T> {

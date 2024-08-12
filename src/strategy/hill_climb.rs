@@ -157,6 +157,8 @@ pub struct HillClimbState<A: Allele> {
     pub best_chromosome: Option<Chromosome<A>>,
 
     pub current_scale: Option<f32>,
+    pub current_scale_index: Option<usize>,
+    pub max_scale_index: usize,
     pub contending_chromosome: Option<Chromosome<A>>,
     pub neighbouring_population: Option<Population<A>>,
 }
@@ -188,7 +190,7 @@ impl<
                     let mut contending_chromosome = self.state.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_neighbour(
                         &mut contending_chromosome,
-                        None,
+                        self.state.current_scale_index,
                         rng,
                     );
                     self.fitness.call_for_chromosome(&mut contending_chromosome);
@@ -203,7 +205,7 @@ impl<
                     let mut contending_chromosome_primary = self.state.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_neighbour(
                         &mut contending_chromosome_primary,
-                        None,
+                        self.state.current_scale_index,
                         rng,
                     );
                     self.fitness
@@ -217,7 +219,7 @@ impl<
                     let mut contending_chromosome_secondary = contending_chromosome_primary.clone();
                     self.genotype.mutate_chromosome_neighbour(
                         &mut contending_chromosome_secondary,
-                        None,
+                        self.state.current_scale_index,
                         rng,
                     );
                     self.fitness
@@ -231,8 +233,9 @@ impl<
                 }
                 HillClimbVariant::SteepestAscent => {
                     let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
-                    let mut neighbouring_population =
-                        self.genotype.neighbouring_population(best_chromosome, None);
+                    let mut neighbouring_population = self
+                        .genotype
+                        .neighbouring_population(best_chromosome, self.state.current_scale_index);
 
                     self.fitness.call_for_population(
                         &mut neighbouring_population,
@@ -257,13 +260,16 @@ impl<
                     let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
                     let mut neighbouring_chromosomes = self
                         .genotype
-                        .neighbouring_chromosomes(best_chromosome, None);
+                        .neighbouring_chromosomes(best_chromosome, self.state.current_scale_index);
 
                     neighbouring_chromosomes.append(
                         &mut neighbouring_chromosomes
                             .iter()
                             .flat_map(|chromosome| {
-                                self.genotype.neighbouring_chromosomes(chromosome, None)
+                                self.genotype.neighbouring_chromosomes(
+                                    chromosome,
+                                    self.state.current_scale_index,
+                                )
                             })
                             .collect(),
                     );
@@ -424,12 +430,17 @@ impl<A: Allele> HillClimbState<A> {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
                 self.reset_scaling(config);
+                self.reset_scale_index();
             }
             (true, false) => {
                 reporter.on_new_best_chromosome_equal_fitness(self, config);
                 self.reset_scaling(config);
+                self.reset_scale_index();
             }
-            _ => self.scale_down(config),
+            _ => {
+                self.scale_down(config);
+                self.increment_scale_index();
+            }
         }
     }
     fn reset_scaling(&mut self, hill_climb_config: &HillClimbConfig) {
@@ -442,6 +453,25 @@ impl<A: Allele> HillClimbState<A> {
                 Some(current_scale * hill_climb_config.scaling.as_ref().unwrap().scale_factor);
         }
     }
+    fn reset_scale_index(&mut self) {
+        if self.current_scale_index.is_some() {
+            self.current_scale_index = Some(0);
+        }
+    }
+    fn increment_scale_index(&mut self) {
+        if let Some(current_scale_index) = self.current_scale_index {
+            if current_scale_index < self.max_scale_index {
+                self.current_scale_index = Some(current_scale_index + 1);
+            }
+        }
+    }
+    // fn decrement_scale_index(&mut self) {
+    //     if let Some(current_scale_index) = self.current_scale_index {
+    //         if current_scale_index > 0 {
+    //             self.current_scale_index = Some(current_scale_index - 1);
+    //         }
+    //     }
+    // }
 }
 
 impl<
@@ -467,8 +497,11 @@ impl<
                 "HillClimb requires at least a max_stale_generations, target_fitness_score or scaling ending condition",
             ))
         } else {
+            let genotype = builder.genotype.unwrap();
+            let state = HillClimbState::new(&genotype);
+
             Ok(Self {
-                genotype: builder.genotype.unwrap(),
+                genotype,
                 fitness: builder.fitness.unwrap(),
                 config: HillClimbConfig {
                     variant: builder.variant.unwrap_or(HillClimbVariant::Stochastic),
@@ -479,7 +512,7 @@ impl<
                     valid_fitness_score: builder.valid_fitness_score,
                     scaling: builder.scaling,
                 },
-                state: HillClimbState::new(),
+                state,
                 reporter: builder.reporter,
             })
         }
@@ -511,6 +544,8 @@ impl<A: Allele> Default for HillClimbState<A> {
             current_iteration: 0,
             current_generation: 0,
             current_scale: None,
+            current_scale_index: None,
+            max_scale_index: 0,
             best_generation: 0,
             best_chromosome: None,
             contending_chromosome: None,
@@ -519,8 +554,16 @@ impl<A: Allele> Default for HillClimbState<A> {
     }
 }
 impl<A: Allele> HillClimbState<A> {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new<G: IncrementalGenotype>(genotype: &G) -> Self {
+        if let Some(max_scale_index) = genotype.max_scale_index() {
+            Self {
+                current_scale_index: Some(0),
+                max_scale_index,
+                ..Default::default()
+            }
+        } else {
+            Self::default()
+        }
     }
 }
 
@@ -574,6 +617,11 @@ impl<A: Allele> fmt::Display for HillClimbState<A> {
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  current scale: {:?}", self.current_scale)?;
+        writeln!(
+            f,
+            "  scale index (current/max): {:?}/{}",
+            self.current_scale_index, self.max_scale_index
+        )?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
         writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
     }

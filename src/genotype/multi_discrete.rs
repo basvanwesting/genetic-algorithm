@@ -183,6 +183,9 @@ impl<T: Allele> IncrementalGenotype for MultiDiscrete<T> {
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(self.allele_list_sizes.iter().map(|v| *v - 1).sum::<usize>())
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl<T: Allele> PermutableGenotype for MultiDiscrete<T> {

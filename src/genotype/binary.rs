@@ -99,6 +99,9 @@ impl IncrementalGenotype for Binary {
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(self.genes_size)
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl PermutableGenotype for Binary {

@@ -260,9 +260,11 @@ where
             })
             .collect::<Vec<_>>()
     }
-
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(2 * self.genes_size)
+    }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
     }
 }
 

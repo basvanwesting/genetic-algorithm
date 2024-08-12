@@ -27,7 +27,20 @@ fn main() {
     let genotype = ContinuousGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0)
-        .with_allele_neighbour_range(-0.1..=0.1)
+        // .with_allele_neighbour_range(-0.1..=0.1) // won't converge
+        // .with_allele_neighbour_range(-0.001..=0.001) // slow converge
+        .with_allele_neighbour_scaled_range(vec![
+            -0.1..=0.1,
+            -0.05..=0.05,
+            -0.025..=0.025,
+            -0.01..=0.01,
+            -0.005..=0.005,
+            -0.0025..=0.0025,
+            -0.001..=0.001,
+            -0.0005..=0.0005,
+            -0.00025..=0.00025,
+            -0.0001..=0.0001,
+        ])
         .build()
         .unwrap();
 
@@ -39,7 +52,6 @@ fn main() {
         .with_genotype(genotype)
         // .with_variant(HillClimbVariant::Stochastic)
         .with_variant(HillClimbVariant::SteepestAscent)
-        // .with_scaling(Scaling::new(1.0, 0.8, 1e-5))
         .with_target_fitness_score(100 * 100)
         .with_max_stale_generations(10000)
         .with_fitness(DistanceTo(0.5, 1e-5))

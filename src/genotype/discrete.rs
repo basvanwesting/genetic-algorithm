@@ -139,6 +139,9 @@ impl<T: Allele> IncrementalGenotype for Discrete<T> {
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from((self.allele_list.len() - 1) * self.genes_size)
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl<T: Allele> PermutableGenotype for Discrete<T> {

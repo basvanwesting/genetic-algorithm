@@ -220,6 +220,12 @@ where
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(2 * self.genes_size)
     }
+
+    fn max_scale_index(&self) -> Option<usize> {
+        self.allele_neighbour_scaled_range
+            .as_ref()
+            .map(|r| r.len() - 1)
+    }
 }
 
 impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd> Clone

@@ -124,6 +124,7 @@ pub trait IncrementalGenotype: Genotype {
     }
     /// chromosome neighbours size for the all possible neighbouring mutation combinations
     fn neighbouring_population_size(&self) -> BigUint;
+    fn max_scale_index(&self) -> Option<usize>;
 }
 
 /// Genotype suitable for [Permutate](crate::strategy::permutate::Permutate).

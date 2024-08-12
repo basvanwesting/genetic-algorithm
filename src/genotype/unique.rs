@@ -138,6 +138,9 @@ impl<T: Allele> IncrementalGenotype for Unique<T> {
 
         n.factorial() / (k.factorial() * (n - k).factorial())
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl<T: Allele> PermutableGenotype for Unique<T> {
