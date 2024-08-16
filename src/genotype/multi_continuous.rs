@@ -221,10 +221,11 @@ where
     Uniform<T>: Send + Sync,
 {
     //FIXME: scale doesn't work for generic
-    fn neighbouring_chromosomes(
+    fn neighbouring_chromosomes<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
         _scale_index: Option<usize>,
+        _rng: &mut R,
     ) -> Vec<Chromosome<Self::Allele>> {
         let range_diffs: Vec<Vec<T>> = self
             .allele_neighbour_ranges

@@ -108,18 +108,20 @@ pub trait Genotype:
 /// Genotype
 pub trait IncrementalGenotype: Genotype {
     /// all neighbouring mutations of the chromosome
-    fn neighbouring_chromosomes(
+    fn neighbouring_chromosomes<R: Rng>(
         &self,
         _chromosome: &Chromosome<Self::Allele>,
         _scale_index: Option<usize>,
+        _rng: &mut R,
     ) -> Vec<Chromosome<Self::Allele>>;
 
-    fn neighbouring_population(
+    fn neighbouring_population<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
         scale_index: Option<usize>,
+        rng: &mut R,
     ) -> Population<Self::Allele> {
-        self.neighbouring_chromosomes(chromosome, scale_index)
+        self.neighbouring_chromosomes(chromosome, scale_index, rng)
             .into()
     }
     /// chromosome neighbours size for the all possible neighbouring mutation combinations

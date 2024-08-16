@@ -221,9 +221,11 @@ impl<
                 }
                 HillClimbVariant::SteepestAscent => {
                     let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
-                    let mut neighbouring_population = self
-                        .genotype
-                        .neighbouring_population(best_chromosome, self.state.current_scale_index);
+                    let mut neighbouring_population = self.genotype.neighbouring_population(
+                        best_chromosome,
+                        self.state.current_scale_index,
+                        rng,
+                    );
 
                     self.fitness.call_for_population(
                         &mut neighbouring_population,
@@ -246,9 +248,11 @@ impl<
                 }
                 HillClimbVariant::SteepestAscentSecondary => {
                     let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
-                    let mut neighbouring_chromosomes = self
-                        .genotype
-                        .neighbouring_chromosomes(best_chromosome, self.state.current_scale_index);
+                    let mut neighbouring_chromosomes = self.genotype.neighbouring_chromosomes(
+                        best_chromosome,
+                        self.state.current_scale_index,
+                        rng,
+                    );
 
                     neighbouring_chromosomes.append(
                         &mut neighbouring_chromosomes
@@ -257,6 +261,7 @@ impl<
                                 self.genotype.neighbouring_chromosomes(
                                     chromosome,
                                     self.state.current_scale_index,
+                                    rng,
                                 )
                             })
                             .collect(),

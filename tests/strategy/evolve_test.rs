@@ -10,7 +10,7 @@ use genetic_algorithm::fitness::placeholders::{CountTrue, SumF32, SumIsize, SumU
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
-    UniqueGenotype,
+    TryFromGenotypeBuilderError, UniqueGenotype,
 };
 use genetic_algorithm::mutate::{MutateSingleGeneNeighbour, MutateSingleGeneRandom};
 use genetic_algorithm::strategy::evolve::{Evolve, EvolveReporterNoop, TryFromEvolveBuilderError};

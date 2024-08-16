@@ -75,7 +75,7 @@ fn float_neighbouring_population_1() {
     //FIXME: scale doesn't work for generic
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
     assert!(relative_population_eq(
-        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
         vec![vec![0.0], vec![0.547325],],
         0.001
     ));
@@ -100,7 +100,7 @@ fn float_neighbouring_population_3() {
     //FIXME: scale doesn't work for generic
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
     assert!(relative_population_eq(
-        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
         vec![
             vec![0.0, 2.1957011, 19.798801],
             vec![0.547325, 2.1957011, 19.798801],
@@ -165,7 +165,7 @@ fn integer_neighbouring_population_1() {
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
     assert_eq!(
-        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
         vec![vec![3], vec![5]],
     );
 }
@@ -184,7 +184,7 @@ fn integer_neighbouring_population_3() {
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
     assert_eq!(
-        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
         vec![
             vec![3, 2, 20],
             vec![5, 2, 20],

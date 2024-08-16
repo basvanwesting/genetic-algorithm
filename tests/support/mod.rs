@@ -17,10 +17,15 @@ pub fn relative_chromosome_eq<T: RelativeEq<Epsilon = T> + Clone + Copy + std::f
     b: Vec<T>,
     epsilon: T,
 ) -> bool {
-    if a.len() == b.len() {
+    let result = if a.len() == b.len() {
         a.iter()
             .zip(b.iter())
             .all(|(a, b)| a.relative_eq(b, epsilon, epsilon))
+    } else {
+        false
+    };
+    if result {
+        true
     } else {
         println!("{:?} <> {:?}", a, b);
         false

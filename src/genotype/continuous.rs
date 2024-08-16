@@ -5,10 +5,10 @@ use itertools::Itertools;
 use num::BigUint;
 use num::Zero;
 use rand::distributions::uniform::SampleUniform;
-use rand::distributions::{Distribution, Uniform};
+use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
-use std::ops::RangeInclusive;
+use std::ops::{Add, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
@@ -43,7 +43,7 @@ pub type DefaultAllele = f32;
 ///     .unwrap();
 /// ```
 pub struct Continuous<
-    T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
+    T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
 > where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -56,10 +56,11 @@ pub struct Continuous<
     allele_sampler: Uniform<T>,
     allele_neighbour_sampler: Option<Uniform<T>>,
     allele_neighbour_scaled_sampler: Option<Vec<Uniform<T>>>,
+    sign_sampler: Bernoulli,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd>
+impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd>
     TryFrom<Builder<Self>> for Continuous<T>
 where
     T: SampleUniform,
@@ -100,13 +101,14 @@ where
                             .collect()
                     },
                 ),
+                sign_sampler: Bernoulli::new(0.5).unwrap(),
                 seed_genes_list: builder.seed_genes_list,
             })
         }
     }
 }
 
-impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd> Genotype
+impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Genotype
     for Continuous<T>
 where
     T: SampleUniform,
@@ -139,6 +141,8 @@ where
         chromosome.genes[index] = self.allele_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
+    // used in HillClimbVariant::Stochastic and StochasticSecondary
+    // used in Evolve MutateSingleGeneNeighbour (no scaling)
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
@@ -147,7 +151,12 @@ where
     ) {
         let index = self.gene_index_sampler.sample(rng);
         let value_diff = if let Some(scale_index) = scale_index {
-            self.allele_neighbour_scaled_sampler.as_ref().unwrap()[scale_index].sample(rng)
+            let working_range = &self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index];
+            if self.sign_sampler.sample(rng) {
+                *working_range.start()
+            } else {
+                *working_range.end()
+            }
         } else {
             self.allele_neighbour_sampler.as_ref().unwrap().sample(rng)
         };
@@ -170,27 +179,25 @@ where
     }
 }
 
-impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd>
-    IncrementalGenotype for Continuous<T>
+impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> IncrementalGenotype
+    for Continuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn neighbouring_chromosomes(
+    // used in HillClimbVariant::SteepestAscent and SteepestAscentSecondary
+    fn neighbouring_chromosomes<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
         scale_index: Option<usize>,
+        rng: &mut R,
     ) -> Vec<Chromosome<Self::Allele>> {
         let value_diffs = if let Some(scale_index) = scale_index {
-            vec![
-                *self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index].start(),
-                *self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index].end(),
-            ]
+            let working_range = &self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index];
+            vec![*working_range.start(), *working_range.end()]
         } else {
-            vec![
-                *self.allele_neighbour_range.as_ref().unwrap().start(),
-                *self.allele_neighbour_range.as_ref().unwrap().end(),
-            ]
+            let working_range = self.allele_neighbour_sampler.as_ref().unwrap();
+            vec![working_range.sample(rng), working_range.sample(rng)]
         };
 
         let diffs: Vec<Self::Allele> = value_diffs
@@ -228,7 +235,7 @@ where
     }
 }
 
-impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd> Clone
+impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Clone
     for Continuous<T>
 where
     T: SampleUniform,
@@ -254,13 +261,14 @@ where
                         .collect()
                 },
             ),
+            sign_sampler: Bernoulli::new(0.5).unwrap(),
             seed_genes_list: self.seed_genes_list.clone(),
         }
     }
 }
 
-impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd>
-    fmt::Debug for Continuous<T>
+impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> fmt::Debug
+    for Continuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -276,8 +284,8 @@ where
     }
 }
 
-impl<T: Allele + Copy + Default + Zero + std::ops::Add<Output = T> + std::cmp::PartialOrd>
-    fmt::Display for Continuous<T>
+impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> fmt::Display
+    for Continuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

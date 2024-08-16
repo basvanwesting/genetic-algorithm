@@ -57,7 +57,7 @@ fn neighbouring_population() {
         BigUint::from(10u32)
     );
     assert_eq!(
-        inspect::population(&genotype.neighbouring_population(&chromosome, None)),
+        inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
         vec![
             vec![false, true, false, true, false, false, false, true, true, false],
             vec![true, false, false, true, false, false, false, true, true, false],

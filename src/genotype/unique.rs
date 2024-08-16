@@ -116,10 +116,11 @@ impl<T: Allele> Genotype for Unique<T> {
 }
 
 impl<T: Allele> IncrementalGenotype for Unique<T> {
-    fn neighbouring_chromosomes(
+    fn neighbouring_chromosomes<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
         _scale_index: Option<usize>,
+        _rng: &mut R,
     ) -> Vec<Chromosome<Self::Allele>> {
         (0..self.genes_size())
             .tuple_combinations()
