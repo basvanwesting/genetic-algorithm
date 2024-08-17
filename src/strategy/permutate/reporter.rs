@@ -63,6 +63,12 @@ pub trait Reporter: Clone + Send + Sync {
         _config: &PermutateConfig,
     ) {
     }
+    fn on_new_best_chromosome_equal_fitness(
+        &mut self,
+        _state: &PermutateState<Self::Allele>,
+        _config: &PermutateConfig,
+    ) {
+    }
 }
 
 /// The noop reporter, silences reporting

@@ -83,6 +83,7 @@ pub struct PermutateConfig {
 pub struct PermutateState<A: Allele> {
     pub current_iteration: usize,
     pub current_generation: usize,
+    pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
 
@@ -134,14 +135,12 @@ impl<
         for mut chromosome in self.genotype.clone().chromosome_permutations_into_iter() {
             self.state.current_generation += 1;
             self.fitness.call_for_chromosome(&mut chromosome);
-            if self
-                .state
-                .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false)
-                .0
-            {
-                self.reporter
-                    .on_new_best_chromosome(&self.state, &self.config);
-            }
+            self.state.update_best_chromosome_and_report(
+                &chromosome,
+                &self.config,
+                &mut self.reporter,
+            );
+
             self.reporter.on_new_generation(&self.state, &self.config);
         }
     }
@@ -176,14 +175,11 @@ impl<
             s.spawn(|_| {
                 for chromosome in processed_chromosome_receiver {
                     self.state.current_generation += 1;
-                    if self
-                        .state
-                        .update_best_chromosome(&chromosome, &self.config.fitness_ordering, false)
-                        .0
-                    {
-                        self.reporter
-                            .on_new_best_chromosome(&self.state, &self.config);
-                    }
+                    self.state.update_best_chromosome_and_report(
+                        &chromosome,
+                        &self.config,
+                        &mut self.reporter,
+                    );
                     self.reporter.on_new_generation(&self.state, &self.config);
                 }
             });
@@ -220,6 +216,15 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
     fn current_iteration(&self) -> usize {
         self.current_iteration
     }
+    fn stale_generations(&self) -> usize {
+        self.stale_generations
+    }
+    fn increment_stale_generations(&mut self) {
+        self.stale_generations += 1;
+    }
+    fn reset_stale_generations(&mut self) {
+        self.stale_generations = 0;
+    }
     fn set_best_chromosome(
         &mut self,
         best_chromosome: &Chromosome<A>,
@@ -230,6 +235,27 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
             self.best_generation = self.current_generation;
         }
         (true, improved_fitness)
+    }
+}
+
+impl<A: Allele> PermutateState<A> {
+    fn update_best_chromosome_and_report<SR: PermutateReporter<Allele = A>>(
+        &mut self,
+        contending_chromosome: &Chromosome<A>,
+        config: &PermutateConfig,
+        reporter: &mut SR,
+    ) {
+        match self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, false) {
+            (true, true) => {
+                reporter.on_new_best_chromosome(self, config);
+                self.reset_stale_generations();
+            }
+            (true, false) => {
+                reporter.on_new_best_chromosome_equal_fitness(self, config);
+                self.increment_stale_generations()
+            }
+            _ => self.increment_stale_generations(),
+        }
     }
 }
 
@@ -290,6 +316,7 @@ impl<A: Allele> Default for PermutateState<A> {
             total_population_size: BigUint::default(),
             current_iteration: 0,
             current_generation: 0,
+            stale_generations: 0,
             best_generation: 0,
             best_chromosome: None,
         }

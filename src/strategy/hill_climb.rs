@@ -144,10 +144,10 @@ pub struct HillClimbConfig {
 pub struct HillClimbState<A: Allele> {
     pub current_iteration: usize,
     pub current_generation: usize,
+    pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
 
-    pub stale_generations: usize,
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
     pub contending_chromosome: Option<Chromosome<A>>,
@@ -183,7 +183,7 @@ impl<
                         rng,
                     );
                     self.fitness.call_for_chromosome(&mut contending_chromosome);
-                    self.state.update_best_chromosome_and_scale(
+                    self.state.update_best_chromosome_and_report(
                         &contending_chromosome,
                         &self.config,
                         &mut self.reporter,
@@ -199,7 +199,7 @@ impl<
                     );
                     self.fitness
                         .call_for_chromosome(&mut contending_chromosome_primary);
-                    self.state.update_best_chromosome_and_scale(
+                    self.state.update_best_chromosome_and_report(
                         &contending_chromosome_primary,
                         &self.config,
                         &mut self.reporter,
@@ -213,7 +213,7 @@ impl<
                     );
                     self.fitness
                         .call_for_chromosome(&mut contending_chromosome_secondary);
-                    self.state.update_best_chromosome_and_scale(
+                    self.state.update_best_chromosome_and_report(
                         &contending_chromosome_secondary,
                         &self.config,
                         &mut self.reporter,
@@ -238,7 +238,7 @@ impl<
                     if let Some(contending_chromosome) =
                         neighbouring_population.best_chromosome(self.config.fitness_ordering)
                     {
-                        self.state.update_best_chromosome_and_scale(
+                        self.state.update_best_chromosome_and_report(
                             contending_chromosome,
                             &self.config,
                             &mut self.reporter,
@@ -280,7 +280,7 @@ impl<
                     if let Some(contending_chromosome) =
                         neighbouring_population.best_chromosome(self.config.fitness_ordering)
                     {
-                        self.state.update_best_chromosome_and_scale(
+                        self.state.update_best_chromosome_and_report(
                             contending_chromosome,
                             &self.config,
                             &mut self.reporter,
@@ -392,6 +392,15 @@ impl<A: Allele> StrategyState<A> for HillClimbState<A> {
     fn current_iteration(&self) -> usize {
         self.current_iteration
     }
+    fn stale_generations(&self) -> usize {
+        self.stale_generations
+    }
+    fn increment_stale_generations(&mut self) {
+        self.stale_generations += 1;
+    }
+    fn reset_stale_generations(&mut self) {
+        self.stale_generations = 0;
+    }
     fn set_best_chromosome(
         &mut self,
         best_chromosome: &Chromosome<A>,
@@ -406,7 +415,7 @@ impl<A: Allele> StrategyState<A> for HillClimbState<A> {
 }
 
 impl<A: Allele> HillClimbState<A> {
-    fn update_best_chromosome_and_scale<SR: HillClimbReporter<Allele = A>>(
+    fn update_best_chromosome_and_report<SR: HillClimbReporter<Allele = A>>(
         &mut self,
         contending_chromosome: &Chromosome<A>,
         config: &HillClimbConfig,
@@ -415,15 +424,13 @@ impl<A: Allele> HillClimbState<A> {
         match self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, true) {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
-                self.stale_generations = 0;
+                self.reset_stale_generations();
             }
             (true, false) => {
                 reporter.on_new_best_chromosome_equal_fitness(self, config);
-                self.stale_generations += 1;
+                self.increment_stale_generations()
             }
-            _ => {
-                self.stale_generations += 1;
-            }
+            _ => self.increment_stale_generations(),
         }
     }
     fn scale(&mut self, config: &HillClimbConfig) {
@@ -433,7 +440,7 @@ impl<A: Allele> HillClimbState<A> {
                     && current_scale_index < self.max_scale_index
                 {
                     self.current_scale_index = Some(current_scale_index + 1);
-                    self.stale_generations = 0;
+                    self.reset_stale_generations();
                 }
             }
         }

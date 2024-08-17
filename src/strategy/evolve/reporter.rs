@@ -59,6 +59,12 @@ pub trait Reporter: Clone + Send + Sync {
         _config: &EvolveConfig,
     ) {
     }
+    fn on_new_best_chromosome_equal_fitness(
+        &mut self,
+        _state: &EvolveState<Self::Allele>,
+        _config: &EvolveConfig,
+    ) {
+    }
     fn on_extension_event(
         &mut self,
         _event: ExtensionEvent,

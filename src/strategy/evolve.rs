@@ -132,6 +132,7 @@ pub struct EvolveConfig {
 pub struct EvolveState<A: Allele> {
     pub current_iteration: usize,
     pub current_generation: usize,
+    pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
 
@@ -195,18 +196,11 @@ impl<
                 .best_chromosome(self.config.fitness_ordering)
                 .cloned()
             {
-                if self
-                    .state
-                    .update_best_chromosome(
-                        &contending_chromosome,
-                        &self.config.fitness_ordering,
-                        false,
-                    )
-                    .0
-                {
-                    self.reporter
-                        .on_new_best_chromosome(&self.state, &self.config);
-                }
+                self.state.update_best_chromosome_and_report(
+                    &contending_chromosome,
+                    &self.config,
+                    &mut self.reporter,
+                );
             }
             //self.ensure_best_chromosome(population);
             self.reporter.on_new_generation(&self.state, &self.config);
@@ -259,7 +253,7 @@ impl<
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
         if let Some(max_stale_generations) = self.config.max_stale_generations {
-            self.state.current_generation - self.state.best_generation >= max_stale_generations
+            self.state.stale_generations >= max_stale_generations
         } else {
             false
         }
@@ -331,6 +325,15 @@ impl<A: Allele> StrategyState<A> for EvolveState<A> {
     fn current_iteration(&self) -> usize {
         self.current_iteration
     }
+    fn stale_generations(&self) -> usize {
+        self.stale_generations
+    }
+    fn increment_stale_generations(&mut self) {
+        self.stale_generations += 1;
+    }
+    fn reset_stale_generations(&mut self) {
+        self.stale_generations = 0;
+    }
     fn set_best_chromosome(
         &mut self,
         best_chromosome: &Chromosome<A>,
@@ -341,6 +344,26 @@ impl<A: Allele> StrategyState<A> for EvolveState<A> {
             self.best_generation = self.current_generation;
         }
         (true, improved_fitness)
+    }
+}
+impl<A: Allele> EvolveState<A> {
+    fn update_best_chromosome_and_report<SR: EvolveReporter<Allele = A>>(
+        &mut self,
+        contending_chromosome: &Chromosome<A>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
+    ) {
+        match self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, true) {
+            (true, true) => {
+                reporter.on_new_best_chromosome(self, config);
+                self.reset_stale_generations();
+            }
+            (true, false) => {
+                reporter.on_new_best_chromosome_equal_fitness(self, config);
+                self.increment_stale_generations()
+            }
+            _ => self.increment_stale_generations(),
+        }
     }
 }
 
@@ -460,6 +483,7 @@ impl<A: Allele> Default for EvolveState<A> {
         Self {
             current_iteration: 0,
             current_generation: 0,
+            stale_generations: 0,
             best_generation: 0,
             best_chromosome: None,
             population: Population::new_empty(),

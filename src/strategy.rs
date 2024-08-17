@@ -33,6 +33,9 @@ pub trait StrategyState<A: Allele> {
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
+    fn stale_generations(&self) -> usize;
+    fn increment_stale_generations(&mut self);
+    fn reset_stale_generations(&mut self);
 
     // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
     // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
@@ -46,6 +49,8 @@ pub trait StrategyState<A: Allele> {
     // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
     // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
     // distinguished for reporting purposes
+    // TODO: because the StrategyReporter trait is not used, all StrategyState are implementing a
+    // specialized update_best_chromosome_and_report function
     fn update_best_chromosome(
         &mut self,
         contending_chromosome: &Chromosome<A>,
@@ -117,4 +122,10 @@ pub trait StrategyReporter: Clone + Send + Sync {
     fn on_finish(&mut self, _state: &Self::State, _config: &Self::Config) {}
     fn on_new_generation(&mut self, _state: &Self::State, _config: &Self::Config) {}
     fn on_new_best_chromosome(&mut self, _state: &Self::State, _config: &Self::Config) {}
+    fn on_new_best_chromosome_equal_fitness(
+        &mut self,
+        _state: &Self::State,
+        _config: &Self::Config,
+    ) {
+    }
 }
