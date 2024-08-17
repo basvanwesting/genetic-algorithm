@@ -55,7 +55,6 @@ pub struct Continuous<
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_neighbour_sampler: Option<Uniform<T>>,
-    allele_neighbour_scaled_sampler: Option<Vec<Uniform<T>>>,
     sign_sampler: Bernoulli,
     pub seed_genes_list: Vec<Vec<T>>,
 }
@@ -91,16 +90,6 @@ where
                 allele_neighbour_sampler: builder
                     .allele_neighbour_range
                     .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
-                allele_neighbour_scaled_sampler: builder.allele_neighbour_scaled_range.map(
-                    |allele_neighbour_scaled_range| {
-                        allele_neighbour_scaled_range
-                            .iter()
-                            .map(|allele_neighbour_range| {
-                                Uniform::from(allele_neighbour_range.clone())
-                            })
-                            .collect()
-                    },
-                ),
                 sign_sampler: Bernoulli::new(0.5).unwrap(),
                 seed_genes_list: builder.seed_genes_list,
             })
@@ -314,14 +303,6 @@ where
                 .allele_neighbour_range
                 .clone()
                 .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
-            allele_neighbour_scaled_sampler: self.allele_neighbour_scaled_range.clone().map(
-                |allele_neighbour_scaled_range| {
-                    allele_neighbour_scaled_range
-                        .iter()
-                        .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone()))
-                        .collect()
-                },
-            ),
             sign_sampler: Bernoulli::new(0.5).unwrap(),
             seed_genes_list: self.seed_genes_list.clone(),
         }
