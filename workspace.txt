@@ -22,7 +22,7 @@ Add max_stale_scale_generations?
     scale down after max_stale_generations
     stop if max_stale_generations reached at smallest scale
   without_scaling: 
-    mutate uniformly over range (neighbour_range or allele_range fallback) and symmetrically set 2 neigbours per gene
+    mutate uniformly over range (neighbour_range or allele_range fallback), ensure lower and higher neighbour
     stop if max_stale_generations reached
   with_on_equal_fitness:
     high max_stale_generations

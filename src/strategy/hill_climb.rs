@@ -147,6 +147,7 @@ pub struct HillClimbState<A: Allele> {
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
 
+    pub stale_generations: usize,
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
     pub contending_chromosome: Option<Chromosome<A>>,
@@ -290,6 +291,7 @@ impl<
                 }
             }
             self.reporter.on_new_generation(&self.state, &self.config);
+            self.state.scale(&self.config);
         }
         self.reporter.on_finish(&self.state, &self.config);
     }
@@ -325,7 +327,7 @@ impl<
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
         if let Some(max_stale_generations) = self.config.max_stale_generations {
-            self.state.current_generation - self.state.best_generation >= max_stale_generations
+            self.state.stale_generations >= max_stale_generations
         } else {
             false
         }
@@ -413,36 +415,29 @@ impl<A: Allele> HillClimbState<A> {
         match self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, true) {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
-                self.reset_scale_index();
+                self.stale_generations = 0;
             }
             (true, false) => {
                 reporter.on_new_best_chromosome_equal_fitness(self, config);
-                self.reset_scale_index();
+                self.stale_generations += 1;
             }
             _ => {
-                self.increment_scale_index();
+                self.stale_generations += 1;
             }
         }
     }
-    fn reset_scale_index(&mut self) {
-        if self.current_scale_index.is_some() {
-            self.current_scale_index = Some(0);
-        }
-    }
-    fn increment_scale_index(&mut self) {
+    fn scale(&mut self, config: &HillClimbConfig) {
         if let Some(current_scale_index) = self.current_scale_index {
-            if current_scale_index < self.max_scale_index {
-                self.current_scale_index = Some(current_scale_index + 1);
+            if let Some(max_stale_generations) = config.max_stale_generations {
+                if self.stale_generations >= max_stale_generations
+                    && current_scale_index < self.max_scale_index
+                {
+                    self.current_scale_index = Some(current_scale_index + 1);
+                    self.stale_generations = 0;
+                }
             }
         }
     }
-    // fn decrement_scale_index(&mut self) {
-    //     if let Some(current_scale_index) = self.current_scale_index {
-    //         if current_scale_index > 0 {
-    //             self.current_scale_index = Some(current_scale_index - 1);
-    //         }
-    //     }
-    // }
 }
 
 impl<
@@ -510,6 +505,7 @@ impl<A: Allele> Default for HillClimbState<A> {
         Self {
             current_iteration: 0,
             current_generation: 0,
+            stale_generations: 0,
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
@@ -571,6 +567,7 @@ impl<A: Allele> fmt::Display for HillClimbState<A> {
         writeln!(f, "hill_climb_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
+        writeln!(f, "  stale generations: {:?}", self.stale_generations)?;
         writeln!(
             f,
             "  scale index (current/max): {:?}/{}",

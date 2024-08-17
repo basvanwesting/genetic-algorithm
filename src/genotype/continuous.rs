@@ -192,38 +192,54 @@ where
         scale_index: Option<usize>,
         rng: &mut R,
     ) -> Vec<Chromosome<Self::Allele>> {
+        let allele_range_start = *self.allele_range.start();
+        let allele_range_end = *self.allele_range.end();
+
         if let Some(scale_index) = scale_index {
             let working_range = &self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index];
-            let value_diffs = vec![*working_range.start(), *working_range.end()];
-
-            let diffs: Vec<Self::Allele> = value_diffs
-                .into_iter()
-                .dedup()
-                .filter(|diff| !diff.is_zero())
-                .collect();
+            let working_range_start = *working_range.start();
+            let working_range_end = *working_range.end();
 
             (0..self.genes_size)
                 .flat_map(|index| {
-                    diffs.iter().map(move |diff| {
-                        let mut genes = chromosome.genes.clone();
-                        let new_value = genes[index] + *diff;
-                        if new_value < *self.allele_range.start() {
-                            genes[index] = *self.allele_range.start();
-                        } else if new_value > *self.allele_range.end() {
-                            genes[index] = *self.allele_range.end();
+                    let base_value = chromosome.genes[index];
+                    let value_start = if base_value + working_range_start < allele_range_start {
+                        allele_range_start
+                    } else {
+                        base_value + working_range_start
+                    };
+                    let value_end = if base_value + working_range_end > allele_range_end {
+                        allele_range_end
+                    } else {
+                        base_value + working_range_end
+                    };
+
+                    [
+                        if value_start < base_value {
+                            let mut genes = chromosome.genes.clone();
+                            genes[index] = value_start;
+                            Some(genes)
                         } else {
-                            genes[index] = new_value;
-                        }
-                        Chromosome::new(genes)
-                    })
+                            None
+                        },
+                        if base_value < value_end {
+                            let mut genes = chromosome.genes.clone();
+                            genes[index] = value_end;
+                            Some(genes)
+                        } else {
+                            None
+                        },
+                    ]
                 })
+                .flatten()
+                .dedup()
+                .filter(|genes| *genes != chromosome.genes)
+                .map(Chromosome::new)
                 .collect::<Vec<_>>()
         } else {
             let working_range = &self.allele_neighbour_range.as_ref().unwrap();
             let working_range_start = *working_range.start();
             let working_range_end = *working_range.end();
-            let allele_range_start = *self.allele_range.start();
-            let allele_range_end = *self.allele_range.end();
 
             (0..self.genes_size)
                 .flat_map(|index| {
