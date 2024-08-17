@@ -9,18 +9,49 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    let mut rng = SmallRng::from_entropy();
+    let mut rng1 = SmallRng::from_entropy();
+    let mut rng2 = SmallRng::from_entropy();
 
-    group.bench_function("mult-continues-neighbouring_population", |b| {
-        let genotype = MultiContinuousGenotype::builder()
-            .with_allele_ranges(vec![(-100.0..=100.0), (0.0..=100.0)])
-            .with_allele_neighbour_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
+    // group.bench_function("mult-continues-neighbouring_population", |b| {
+    //     let genotype = MultiContinuousGenotype::builder()
+    //         .with_allele_ranges(vec![(-100.0..=100.0), (0.0..=100.0)])
+    //         .with_allele_neighbour_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
+    //         .build()
+    //         .unwrap();
+    //
+    //     b.iter_batched(
+    //         || genotype.chromosome_factory(&mut rng1),
+    //         |c| genotype.neighbouring_population(&c, None, &mut rng2),
+    //         BatchSize::SmallInput,
+    //     );
+    // });
+
+    group.bench_function("continues-neighbouring_population-scaled", |b| {
+        let genotype = ContinuousGenotype::builder()
+            .with_genes_size(10)
+            .with_allele_range(-1.0..=1.0)
+            .with_allele_neighbour_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
             .build()
             .unwrap();
 
         b.iter_batched(
-            || genotype.chromosome_factory(&mut rng),
-            |c| genotype.neighbouring_population(&c, None, &mut rng),
+            || genotype.chromosome_factory(&mut rng1),
+            |c| genotype.neighbouring_population(&c, Some(1), &mut rng2),
+            BatchSize::SmallInput,
+        );
+    });
+
+    group.bench_function("continues-neighbouring_population-unscaled", |b| {
+        let genotype = ContinuousGenotype::builder()
+            .with_genes_size(10)
+            .with_allele_range(-1.0..=1.0)
+            .with_allele_neighbour_range(-0.1..=0.1)
+            .build()
+            .unwrap();
+
+        b.iter_batched(
+            || genotype.chromosome_factory(&mut rng1),
+            |c| genotype.neighbouring_population(&c, None, &mut rng2),
             BatchSize::SmallInput,
         );
     });
