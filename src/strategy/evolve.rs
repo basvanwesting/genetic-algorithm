@@ -201,6 +201,8 @@ impl<
                     &self.config,
                     &mut self.reporter,
                 );
+            } else {
+                self.state.increment_stale_generations();
             }
             //self.ensure_best_chromosome(population);
             self.reporter.on_new_generation(&self.state, &self.config);

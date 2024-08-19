@@ -244,6 +244,8 @@ impl<
                             &mut self.reporter,
                         );
                         self.state.contending_chromosome = Some(contending_chromosome.clone());
+                    } else {
+                        self.state.increment_stale_generations();
                     }
                     self.state.neighbouring_population = Some(neighbouring_population);
                 }
@@ -286,6 +288,8 @@ impl<
                             &mut self.reporter,
                         );
                         self.state.contending_chromosome = Some(contending_chromosome.clone());
+                    } else {
+                        self.state.increment_stale_generations();
                     }
                     self.state.neighbouring_population = Some(neighbouring_population);
                 }

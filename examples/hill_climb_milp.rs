@@ -46,19 +46,13 @@ fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = MultiContinuousGenotype::builder()
         .with_allele_ranges(vec![(-10.0..=10.0), (0.0..=10.0)])
-        .with_allele_neighbour_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
-        // .with_allele_neighbour_scaled_ranges(vec![
-        //     vec![-0.1..=0.1, -0.1..=0.1],
-        //     vec![-0.05..=0.05, -0.05..=0.05],
-        //     vec![-0.025..=0.025, -0.025..=0.025],
-        //     vec![-0.01..=0.01, -0.01..=0.01],
-        //     vec![-0.005..=0.005, -0.005..=0.005],
-        //     vec![-0.0025..=0.0025, -0.0025..=0.0025],
-        //     vec![-0.001..=0.001, -0.001..=0.001],
-        //     vec![-0.0005..=0.0005, -0.0005..=0.0005],
-        //     vec![-0.00025..=0.00025, -0.00025..=0.00025],
-        //     vec![-0.0001..=0.0001, -0.0001..=0.0001],
-        // ])
+        // .with_allele_neighbour_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
+        .with_allele_neighbour_scaled_ranges(vec![
+            vec![-0.1..=0.1, -0.1..=0.1],
+            vec![-0.01..=0.01, -0.01..=0.01],
+            vec![-0.001..=0.001, -0.001..=0.001],
+            vec![-0.0001..=0.0001, -0.0001..=0.0001],
+        ])
         .build()
         .unwrap();
 
@@ -66,13 +60,14 @@ fn main() {
 
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::Stochastic)
-        .with_max_stale_generations(1000)
-        // .with_variant(HillClimbVariant::SteepestAscent)
+        // .with_variant(HillClimbVariant::Stochastic)
+        // .with_max_stale_generations(1000)
+        .with_variant(HillClimbVariant::SteepestAscent)
+        .with_max_stale_generations(1)
+        // .with_reporter(HillClimbReporterSimple::new(100))
         //.with_target_fitness_score(TARGET_SCORE)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(MILPFitness);
-    // .with_reporter(HillClimbReporterSimple::new(100));
 
     for _ in 0..10 {
         let now = std::time::Instant::now();

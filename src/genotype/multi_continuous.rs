@@ -321,7 +321,9 @@ where
         BigUint::from(2 * self.genes_size)
     }
     fn max_scale_index(&self) -> Option<usize> {
-        None
+        self.allele_neighbour_scaled_ranges
+            .as_ref()
+            .map(|r| r.len() - 1)
     }
 }
 

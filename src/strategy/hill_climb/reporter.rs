@@ -21,8 +21,9 @@ use std::marker::PhantomData;
 ///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
-///                 "periodic - current_generation: {}, best_generation: {}, current_scale_index: {:?}",
+///                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}",
 ///                 state.current_generation(),
+///                 state.stale_generations(),
 ///                 state.best_generation(),
 ///                 state.current_scale_index.as_ref(),
 ///             );
@@ -152,8 +153,9 @@ impl<A: Allele> Reporter for Simple<A> {
     ) {
         if state.current_generation() % self.period == 0 {
             println!(
-                "periodic - current_generation: {}, best_generation: {}, current_scale_index: {:?}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}",
                 state.current_generation(),
+                state.stale_generations(),
                 state.best_generation(),
                 state.current_scale_index.as_ref(),
             );
