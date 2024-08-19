@@ -99,6 +99,58 @@ where
     }
 }
 
+impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Range<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
+        let index = self.gene_index_sampler.sample(rng);
+        chromosome.genes[index] = self.allele_sampler.sample(rng);
+        chromosome.taint_fitness_score();
+    }
+    fn mutate_chromosome_neighbour_unscaled<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<T>,
+        rng: &mut R,
+    ) {
+        let index = self.gene_index_sampler.sample(rng);
+        let value_diff = self.allele_neighbour_sampler.as_ref().unwrap().sample(rng);
+        let new_value = chromosome.genes[index] + value_diff;
+        if new_value < *self.allele_range.start() {
+            chromosome.genes[index] = *self.allele_range.start();
+        } else if new_value > *self.allele_range.end() {
+            chromosome.genes[index] = *self.allele_range.end();
+        } else {
+            chromosome.genes[index] = new_value;
+        }
+        chromosome.taint_fitness_score();
+    }
+    fn mutate_chromosome_neighbour_scaled<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<T>,
+        scale_index: usize,
+        rng: &mut R,
+    ) {
+        let index = self.gene_index_sampler.sample(rng);
+        let working_range = &self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index];
+        let value_diff = if self.sign_sampler.sample(rng) {
+            *working_range.start()
+        } else {
+            *working_range.end()
+        };
+        let new_value = chromosome.genes[index] + value_diff;
+        if new_value < *self.allele_range.start() {
+            chromosome.genes[index] = *self.allele_range.start();
+        } else if new_value > *self.allele_range.end() {
+            chromosome.genes[index] = *self.allele_range.end();
+        } else {
+            chromosome.genes[index] = new_value;
+        }
+        chromosome.taint_fitness_score();
+    }
+}
+
 impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Genotype
     for Range<T>
 where
@@ -123,41 +175,19 @@ where
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_random<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self::Allele>,
-        rng: &mut R,
-    ) {
-        let index = self.gene_index_sampler.sample(rng);
-        chromosome.genes[index] = self.allele_sampler.sample(rng);
-        chromosome.taint_fitness_score();
-    }
-    fn mutate_chromosome_neighbour<R: Rng>(
+    fn mutate_chromosome<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        let index = self.gene_index_sampler.sample(rng);
-        let value_diff = if let Some(scale_index) = scale_index {
-            let working_range = &self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index];
-            if self.sign_sampler.sample(rng) {
-                *working_range.start()
-            } else {
-                *working_range.end()
-            }
+        if self.allele_neighbour_scaled_range.is_some() {
+            self.mutate_chromosome_neighbour_scaled(chromosome, scale_index.unwrap(), rng);
+        } else if self.allele_neighbour_range.is_some() {
+            self.mutate_chromosome_neighbour_unscaled(chromosome, rng);
         } else {
-            self.allele_neighbour_sampler.as_ref().unwrap().sample(rng)
-        };
-        let new_value = chromosome.genes[index] + value_diff;
-        if new_value < *self.allele_range.start() {
-            chromosome.genes[index] = *self.allele_range.start();
-        } else if new_value > *self.allele_range.end() {
-            chromosome.genes[index] = *self.allele_range.end();
-        } else {
-            chromosome.genes[index] = new_value;
+            self.mutate_chromosome_random(chromosome, rng);
         }
-        chromosome.taint_fitness_score();
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<Self::Allele>>) {

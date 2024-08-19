@@ -26,7 +26,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_random(black_box(&mut chromosome), &mut rng))
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
             },
         );
     }
@@ -43,7 +43,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_random(black_box(&mut chromosome), &mut rng))
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
             },
         );
         group.bench_with_input(
@@ -57,9 +57,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| {
-                    genotype.mutate_chromosome_neighbour(black_box(&mut chromosome), None, &mut rng)
-                })
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
             },
         );
     }
@@ -76,7 +74,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_random(black_box(&mut chromosome), &mut rng))
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
             },
         );
     }
@@ -92,7 +90,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_random(black_box(&mut chromosome), &mut rng))
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
             },
         );
         group.bench_with_input(
@@ -105,9 +103,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| {
-                    genotype.mutate_chromosome_neighbour(black_box(&mut chromosome), None, &mut rng)
-                })
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
             },
         );
     }
@@ -123,7 +119,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_random(black_box(&mut chromosome), &mut rng))
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
             },
         );
     }
@@ -140,7 +136,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_random(black_box(&mut chromosome), &mut rng))
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
             },
         );
         group.bench_with_input(
@@ -153,9 +149,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| {
-                    genotype.mutate_chromosome_neighbour(black_box(&mut chromosome), None, &mut rng)
-                })
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
             },
         );
     }

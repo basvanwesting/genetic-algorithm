@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{RangeGenotype, Genotype, IncrementalGenotype};
+use genetic_algorithm::genotype::{Genotype, IncrementalGenotype, RangeGenotype};
 
 #[test]
 fn float_random() {
@@ -14,20 +14,14 @@ fn float_random() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![
-            0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456,
-            0.395, 0.818,
-        ],
+        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
-    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![
-            0.447, 0.439, 0.976, 0.462, 0.897, 0.942, 0.588, 0.456,
-            0.395, 0.818,
-        ],
+        vec![0.447, 0.439, 0.976, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
@@ -48,30 +42,21 @@ fn float_neighbour_unscaled() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![
-            0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456,
-            0.395, 0.818,
-        ],
+        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![
-            0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.588, 0.456,
-            0.395, 0.818,
-        ],
+        vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![
-            0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.0, 0.456, 0.395,
-            0.818,
-        ],
+        vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.0, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
@@ -92,30 +77,21 @@ fn float_neighbour_scaled() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![
-            0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456,
-            0.395, 0.818,
-        ],
+        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, Some(2), &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![
-            0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.588, 0.456,
-            0.395, 0.818,
-        ],
+        vec![0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, Some(2), &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![
-            0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.578, 0.456,
-            0.395, 0.818
-        ],
+        vec![0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.578, 0.456, 0.395, 0.818],
         0.001,
     ));
 
@@ -305,8 +281,8 @@ fn integer_random() {
         vec![4, 4, 9, 4, 8, 9, 5, 4, 3, 8],
     );
 
-    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
-    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![4, 4, 9, 4, 8, 9, 0, 4, 3, 8],
@@ -332,8 +308,8 @@ fn integer_neighbour() {
         vec![4, 4, 9, 4, 8, 9, 5, 4, 3, 8],
     );
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
-    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![4, 4, 9, 4, 8, 9, 4, 4, 3, 8],

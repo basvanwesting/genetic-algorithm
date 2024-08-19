@@ -54,7 +54,7 @@ impl Mutate for MultiGeneRandomDynamic {
         {
             if bool_sampler.sample(rng) {
                 for _ in 0..self.number_of_mutations {
-                    genotype.mutate_chromosome_random(chromosome, rng);
+                    genotype.mutate_chromosome(chromosome, state.current_scale_index, rng);
                 }
             }
         }

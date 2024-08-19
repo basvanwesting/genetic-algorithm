@@ -67,24 +67,14 @@ pub trait Genotype:
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele>;
     /// a random genes factory (respecting seed genes)
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
-    /// a random mutation of the chromosome
-    fn mutate_chromosome_random<R: Rng>(
+    /// a mutation of the chromosome, the genotype determines whether this is random,
+    /// neighbour-scaled or neighbour-unscaled.
+    fn mutate_chromosome<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
+        scale_index: Option<usize>,
         rng: &mut R,
     );
-    /// a blanket neighbouring mutation fallback random mutation
-    /// used in HillClimbVariant::Stochastic and StochasticSecondary
-    /// used in Evolve MutateSingleGeneNeighbour (no scaling)
-    fn mutate_chromosome_neighbour<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self::Allele>,
-        _scale_index: Option<usize>,
-        rng: &mut R,
-    ) {
-        self.mutate_chromosome_random(chromosome, rng);
-    }
-
     /// to guard against invalid crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
     fn crossover_points(&self) -> Vec<usize> {

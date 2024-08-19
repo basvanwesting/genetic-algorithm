@@ -42,14 +42,19 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
-/// There is optional scaling of [RangeGenotype](crate::genotype::RangeGenotype) and
-/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring_chromosomes:
-/// * With scaling (set allele_neighbour_scaled_range(s) on genotype):
-///     * Mutate only on edges of current scale (e.g. -1 and +1 for -1..-1 scale), pick random edge
+/// There are optional mutation distance limitations for
+/// [RangeGenotype](crate::genotype::RangeGenotype) and
+/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring chromosomes. Listed in
+/// descending priority:
+/// * With allele_neighbour_scaled_range(s) set on genotype:
+///     * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale), pick random edge
 ///     * Scale down after max_stale_generations is reached and reset max_stale_generations to zero
 ///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
-/// * Without scaling (set allele_neighbour_range(s) on genotype):
-///     * Mutate uniformly over neighbouring range
+/// * With allele_neighbour_range(s) set on genotype:
+///     * Mutation distance uniformly over neighbouring range
+///     * Standard max_stale_generations ending condition
+/// * With only allele_range(s) set on genotype:
+///     * Mutate uniformly over the complete allele range
 ///     * Standard max_stale_generations ending condition
 ///
 /// There are reporting hooks in the loop receiving the [EvolveState], which can by handled by an

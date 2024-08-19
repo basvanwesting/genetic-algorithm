@@ -108,6 +108,8 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Add simulated annealing strategy
 * Add scaling permutate? Can be done by grid search and then search within last grid with new scale
+* Generalize MutateSingleGeneRandom and MutateSingleGeneNeighbour implementation as Genotype defines behaviour
+* Fallback to allele_range when allele_neighbour_range not set
 
 ## MAYBE
 * Add Roulette competition with and without duplicates (with fitness ordering)

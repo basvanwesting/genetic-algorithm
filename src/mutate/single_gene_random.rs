@@ -28,7 +28,7 @@ impl Mutate for SingleGeneRandom {
             .filter(|c| c.age == 0)
         {
             if bool_sampler.sample(rng) {
-                genotype.mutate_chromosome_random(chromosome, rng);
+                genotype.mutate_chromosome(chromosome, state.current_scale_index, rng);
             }
         }
     }

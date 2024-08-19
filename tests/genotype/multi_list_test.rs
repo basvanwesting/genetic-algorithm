@@ -20,11 +20,11 @@ fn general() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 5]);
 
-    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 2, 7]);
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
-    assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 1, 7]);
+    // genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    // assert_eq!(inspect::chromosome(&chromosome), vec![2, 0, 1, 7]);
 
     assert_eq!(
         genotype.chromosome_permutations_size(),

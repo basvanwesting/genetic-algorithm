@@ -56,18 +56,25 @@ pub enum HillClimbVariant {
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
-/// There is optional scaling of [RangeGenotype](crate::genotype::RangeGenotype) and
-/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring_chromosomes:
-/// * With scaling (set allele_neighbour_scaled_range(s) on genotype):
-///     * Mutate only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
+/// There are optional mutation distance limitations for
+/// [RangeGenotype](crate::genotype::RangeGenotype) and
+/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring chromosomes. Listed in
+/// descending priority:
+/// * With allele_neighbour_scaled_range(s) set on genotype:
+///     * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
 ///         * Pick random edge for [HillClimbVariant::Stochastic]
 ///         * Take both edges per gene for [HillClimbVariant::SteepestAscent]
 ///     * Scale down after max_stale_generations is reached and reset max_stale_generations to zero
 ///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
-/// * Without scaling (set allele_neighbour_range(s) on genotype):
-///     * Mutate uniformly over neighbouring range
+/// * With allele_neighbour_range(s) set on genotype:
+///     * Mutation distance uniformly over neighbouring range
 ///         * Sample single random value for [HillClimbVariant::Stochastic]
 ///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
+///     * Standard max_stale_generations ending condition
+/// * With only allele_range(s) set on genotype:
+///     * Mutate uniformly over the complete allele range
+///         * Sample single random value for [HillClimbVariant::Stochastic]
+///         * Not valid for [HillClimbVariant::SteepestAscent]
 ///     * Standard max_stale_generations ending condition
 ///
 /// Using scaling for [HillClimbVariant::StochasticSecondary] and
@@ -181,7 +188,7 @@ impl<
             match self.config.variant {
                 HillClimbVariant::Stochastic => {
                     let mut contending_chromosome = self.state.best_chromosome().unwrap();
-                    self.genotype.mutate_chromosome_neighbour(
+                    self.genotype.mutate_chromosome(
                         &mut contending_chromosome,
                         self.state.current_scale_index,
                         rng,
@@ -196,7 +203,7 @@ impl<
                 }
                 HillClimbVariant::StochasticSecondary => {
                     let mut contending_chromosome_primary = self.state.best_chromosome().unwrap();
-                    self.genotype.mutate_chromosome_neighbour(
+                    self.genotype.mutate_chromosome(
                         &mut contending_chromosome_primary,
                         self.state.current_scale_index,
                         rng,
@@ -210,7 +217,7 @@ impl<
                     );
 
                     let mut contending_chromosome_secondary = contending_chromosome_primary.clone();
-                    self.genotype.mutate_chromosome_neighbour(
+                    self.genotype.mutate_chromosome(
                         &mut contending_chromosome_secondary,
                         self.state.current_scale_index,
                         rng,

@@ -17,7 +17,7 @@ fn float_random() {
         0.001
     ));
 
-    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.195, 18.970],
@@ -44,15 +44,15 @@ fn float_neighbour_unscaled() {
         0.001
     ));
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 20.0],
         0.001
     ));
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
-    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 19.790],
@@ -83,14 +83,14 @@ fn float_neighbour_scaled() {
         0.001
     ));
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, Some(2), &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 19.899],
         0.001
     ));
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, Some(2), &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 19.999],
@@ -226,7 +226,7 @@ fn integer_random() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 2, 20]);
 
-    genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 20]);
 
     assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
@@ -245,7 +245,7 @@ fn integer_neighbour() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 2, 20]);
 
-    genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 20]);
 
     assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());

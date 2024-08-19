@@ -133,11 +133,13 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_random<R: Rng>(
+    fn mutate_chromosome<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
+        _scale_index: Option<usize>,
         rng: &mut R,
     ) {
+        
         let index = self.allele_list_index_sampler.sample(rng);
         let index_offset: usize = self.allele_list_index_offsets[index];
         let index1 = index_offset + self.allele_list_index_samplers[index].sample(rng);

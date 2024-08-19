@@ -34,7 +34,7 @@ impl Extension for MassDegeneration {
             for _ in 0..self.number_of_rounds {
                 for chromosome in &mut state.population.chromosomes {
                     if bool_sampler.sample(rng) {
-                        genotype.mutate_chromosome_random(chromosome, rng);
+                        genotype.mutate_chromosome(chromosome, state.current_scale_index, rng);
                     }
                 }
             }
