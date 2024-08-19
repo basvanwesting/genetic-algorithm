@@ -1,12 +1,12 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{ContinuousGenotype, Genotype};
+use genetic_algorithm::genotype::{RangeGenotype, Genotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGeneNeighbour};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
-fn continuous_float_genotype() {
-    let genotype = ContinuousGenotype::builder()
+fn range_float_genotype() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_allele_neighbour_range(-0.1..=0.1)
@@ -78,8 +78,8 @@ fn continuous_float_genotype() {
 }
 
 #[test]
-fn continuous_integer_genotype() {
-    let genotype = ContinuousGenotype::builder()
+fn range_integer_genotype() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(-9..=9)
         .with_allele_neighbour_range(-1..=1)

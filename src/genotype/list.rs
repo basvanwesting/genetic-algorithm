@@ -18,9 +18,9 @@ pub type DefaultAllele = usize;
 ///
 /// # Example (usize, default):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, DiscreteGenotype};
+/// use genetic_algorithm::genotype::{Genotype, ListGenotype};
 ///
-/// let genotype = DiscreteGenotype::builder()
+/// let genotype = ListGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_list((0..10).collect())
 ///     .build()
@@ -29,13 +29,13 @@ pub type DefaultAllele = usize;
 ///
 /// # Example (struct)
 /// ```
-/// use genetic_algorithm::genotype::{Allele, Genotype, DiscreteGenotype};
+/// use genetic_algorithm::genotype::{Allele, Genotype, ListGenotype};
 ///
 /// #[derive(PartialEq, Clone, Debug)]
 /// struct Item(pub u16, pub u16);
 /// impl Allele for Item {}
 ///
-/// let genotype = DiscreteGenotype::builder()
+/// let genotype = ListGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_list(vec![
 ///         Item(23, 505),
@@ -46,7 +46,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Debug, Clone)]
-pub struct Discrete<T: Allele = DefaultAllele> {
+pub struct List<T: Allele = DefaultAllele> {
     pub genes_size: usize,
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
@@ -54,19 +54,19 @@ pub struct Discrete<T: Allele = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: Allele> TryFrom<Builder<Self>> for Discrete<T> {
+impl<T: Allele> TryFrom<Builder<Self>> for List<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.genes_size.is_none() {
             Err(TryFromBuilderError(
-                "DiscreteGenotype requires a genes_size",
+                "ListGenotype requires a genes_size",
             ))
         } else if builder.allele_list.is_none() {
-            Err(TryFromBuilderError("DiscreteGenotype requires allele_list"))
+            Err(TryFromBuilderError("ListGenotype requires allele_list"))
         } else if builder.allele_list.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
-                "DiscreteGenotype requires non-empty allele_list",
+                "ListGenotype requires non-empty allele_list",
             ))
         } else {
             let allele_list = builder.allele_list.unwrap();
@@ -81,7 +81,7 @@ impl<T: Allele> TryFrom<Builder<Self>> for Discrete<T> {
     }
 }
 
-impl<T: Allele> Genotype for Discrete<T> {
+impl<T: Allele> Genotype for List<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -116,7 +116,7 @@ impl<T: Allele> Genotype for Discrete<T> {
     }
 }
 
-impl<T: Allele> IncrementalGenotype for Discrete<T> {
+impl<T: Allele> IncrementalGenotype for List<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
@@ -146,13 +146,13 @@ impl<T: Allele> IncrementalGenotype for Discrete<T> {
     }
 }
 
-impl<T: Allele> PermutableGenotype for Discrete<T> {
+impl<T: Allele> PermutableGenotype for List<T> {
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         self.allele_list.clone()
     }
 }
 
-impl<T: Allele> fmt::Display for Discrete<T> {
+impl<T: Allele> fmt::Display for List<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;

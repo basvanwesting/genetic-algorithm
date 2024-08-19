@@ -260,7 +260,7 @@ fn main() {
     });
 
     let mut rng = SmallRng::from_entropy();
-    let genotype = MultiDiscreteGenotype::builder()
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(allele_lists)
         .build()
         .unwrap();

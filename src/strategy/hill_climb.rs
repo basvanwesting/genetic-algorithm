@@ -56,8 +56,8 @@ pub enum HillClimbVariant {
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
-/// There is optional scaling of [ContinuousGenotype](crate::genotype::ContinuousGenotype) and
-/// [MultiContinuousGenotype](crate::genotype::MultiContinuousGenotype) neighbouring_chromosomes:
+/// There is optional scaling of [RangeGenotype](crate::genotype::RangeGenotype) and
+/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring_chromosomes:
 /// * With scaling (set allele_neighbour_scaled_range(s) on genotype):
 ///     * Mutate only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
 ///         * Pick random edge for [HillClimbVariant::Stochastic]
@@ -85,7 +85,7 @@ pub enum HillClimbVariant {
 /// use genetic_algorithm::fitness::placeholders::SumGenes;
 ///
 /// // the search space
-/// let genotype = ContinuousGenotype::builder() // f32 alleles
+/// let genotype = RangeGenotype::builder() // f32 alleles
 ///     .with_genes_size(16)                     // 16 genes
 ///     .with_allele_range(0.0..=1.0)             // allow gene values between 0.0 and 1.0
 ///     .with_allele_neighbour_range(-0.1..=0.1)  // neighbouring step size or 0.1 in both directions

@@ -13,7 +13,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng2 = SmallRng::from_entropy();
 
     group.bench_function("continues-neighbouring_population-scaled", |b| {
-        let genotype = ContinuousGenotype::builder()
+        let genotype = RangeGenotype::builder()
             .with_genes_size(10)
             .with_allele_range(-1.0..=1.0)
             .with_allele_neighbour_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
@@ -28,7 +28,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     });
 
     group.bench_function("continues-neighbouring_population-unscaled", |b| {
-        let genotype = ContinuousGenotype::builder()
+        let genotype = RangeGenotype::builder()
             .with_genes_size(10)
             .with_allele_range(-1.0..=1.0)
             .with_allele_neighbour_range(-0.1..=0.1)

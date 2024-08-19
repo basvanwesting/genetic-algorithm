@@ -7,7 +7,7 @@ fn main() {
     env_logger::init();
 
     let mut rng = SmallRng::from_entropy();
-    let genotype = ContinuousGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0..=10)
         .with_allele_neighbour_range(-1..=1)

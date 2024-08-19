@@ -1,13 +1,13 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{
-    Genotype, IncrementalGenotype, MultiDiscreteGenotype, PermutableGenotype,
+    Genotype, IncrementalGenotype, MultiListGenotype, PermutableGenotype,
 };
 
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = MultiDiscreteGenotype::builder()
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![
             vec![0, 1, 2, 3, 4],
             vec![0, 1],
@@ -37,7 +37,7 @@ fn general() {
 #[test]
 fn neighbouring_population_size() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = MultiDiscreteGenotype::builder()
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1, 2, 3]])
         .build()
         .unwrap();
@@ -61,7 +61,7 @@ fn neighbouring_population_size() {
 
 #[test]
 fn chromosome_permutations_genes_size_1() {
-    let genotype = MultiDiscreteGenotype::builder()
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![vec![0]])
         .build()
         .unwrap();
@@ -75,7 +75,7 @@ fn chromosome_permutations_genes_size_1() {
 
 #[test]
 fn chromosome_permutations_genes_size_4() {
-    let genotype = MultiDiscreteGenotype::builder()
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1, 2, 3]])
         .build()
         .unwrap();
@@ -117,7 +117,7 @@ fn chromosome_permutations_genes_size_4() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let genotype = MultiDiscreteGenotype::builder()
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![
             (0..1000).collect(),
             (0..1000).collect(),

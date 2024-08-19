@@ -1,13 +1,13 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{
-    DiscreteGenotype, Genotype, IncrementalGenotype, PermutableGenotype,
+    ListGenotype, Genotype, IncrementalGenotype, PermutableGenotype,
 };
 
 #[test]
 fn general() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = DiscreteGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(5)
         .with_allele_list(vec![5, 2, 3, 4])
         .build()
@@ -33,7 +33,7 @@ fn general() {
 #[test]
 fn neighbouring_population() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = DiscreteGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(5)
         .with_allele_list(vec![5, 2, 3, 4])
         .build()
@@ -70,7 +70,7 @@ fn neighbouring_population() {
 
 #[test]
 fn chromosome_permutations() {
-    let genotype = DiscreteGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(3)
         .with_allele_list(vec![0, 1, 2])
         .build()
@@ -116,7 +116,7 @@ fn chromosome_permutations() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let genotype = DiscreteGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(30)
         .with_allele_list((0..10).collect())
         .build()

@@ -1,22 +1,22 @@
 //! The search space for the algorithm.
 mod binary;
 mod builder;
-mod continuous;
-mod discrete;
-mod multi_continuous;
-mod multi_discrete;
+mod list;
+mod multi_list;
+mod multi_range;
 mod multi_unique;
+mod range;
 mod unique;
 
 pub use self::binary::{Binary as BinaryGenotype, BinaryAllele};
 pub use self::builder::{
     Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
 };
-pub use self::continuous::Continuous as ContinuousGenotype;
-pub use self::discrete::Discrete as DiscreteGenotype;
-pub use self::multi_continuous::MultiContinuous as MultiContinuousGenotype;
-pub use self::multi_discrete::MultiDiscrete as MultiDiscreteGenotype;
+pub use self::list::List as ListGenotype;
+pub use self::multi_list::MultiList as MultiListGenotype;
+pub use self::multi_range::MultiRange as MultiRangeGenotype;
 pub use self::multi_unique::MultiUnique as MultiUniqueGenotype;
+pub use self::range::Range as RangeGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::Chromosome;
@@ -34,8 +34,8 @@ pub trait Allele: Clone + Send + Sync + PartialEq + std::fmt::Debug
 // + Default
 {
 }
-// pub trait DiscreteAllele: Allele + PartialEq {}
-// pub trait ContinuousAllele: Allele + PartialEq + PartialOrd + Add<Output = Self> {}
+// pub trait ListAllele: Allele + PartialEq {}
+// pub trait RangeAllele: Allele + PartialEq + PartialOrd + Add<Output = Self> {}
 
 impl Allele for bool {}
 impl Allele for char {}
@@ -133,7 +133,7 @@ pub trait IncrementalGenotype: Genotype {
 }
 
 /// Genotype suitable for [Permutate](crate::strategy::permutate::Permutate).
-/// Not all genotypes are permutable, only countable ones (e.g. continuous genotypes cannot be permutated).
+/// Not all genotypes are permutable, only countable ones (e.g. range genotypes cannot be permutated).
 pub trait PermutableGenotype: Genotype {
     /// used for default chromosome_permutations_into_iter implementation
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele>;

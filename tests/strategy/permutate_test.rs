@@ -3,7 +3,7 @@ use crate::support::*;
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
-    BinaryGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
+    BinaryGenotype, ListGenotype, Genotype, MultiListGenotype,
 };
 use genetic_algorithm::strategy::permutate::{Permutate, PermutateReporterNoop};
 use genetic_algorithm::strategy::Strategy;
@@ -63,8 +63,8 @@ fn call_binary_minimize() {
 }
 
 #[test]
-fn call_discrete() {
-    let genotype = DiscreteGenotype::builder()
+fn call_list() {
+    let genotype = ListGenotype::builder()
         .with_genes_size(5)
         .with_allele_list((0..10).collect())
         .build()
@@ -86,8 +86,8 @@ fn call_discrete() {
 }
 
 #[test]
-fn call_multi_discrete() {
-    let genotype = MultiDiscreteGenotype::builder()
+fn call_multi_list() {
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![
             vec![0, 1, 2, 3, 4],
             vec![0, 1],
@@ -114,7 +114,7 @@ fn call_multi_discrete() {
 
 #[test]
 fn call_multi_thread() {
-    let genotype = DiscreteGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(5)
         .with_allele_list((0..10).collect())
         .build()

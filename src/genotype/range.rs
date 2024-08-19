@@ -25,9 +25,9 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (f32, default):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, ContinuousGenotype};
+/// use genetic_algorithm::genotype::{Genotype, RangeGenotype};
 ///
-/// let genotype = ContinuousGenotype::builder()
+/// let genotype = RangeGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0)
 ///     .with_allele_neighbour_range(-0.1..=0.1) // optional, only required for neighbouring logic
@@ -38,9 +38,9 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (isize):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, ContinuousGenotype};
+/// use genetic_algorithm::genotype::{Genotype, RangeGenotype};
 ///
-/// let genotype = ContinuousGenotype::<isize>::builder()
+/// let genotype = RangeGenotype::<isize>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=100)
 ///     .with_allele_neighbour_range(-1..=1) // optional, only required for neighbouring logic
@@ -48,7 +48,7 @@ pub type DefaultAllele = f32;
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct Continuous<
+pub struct Range<
     T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
 > where
     T: SampleUniform,
@@ -66,7 +66,7 @@ pub struct Continuous<
 }
 
 impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd>
-    TryFrom<Builder<Self>> for Continuous<T>
+    TryFrom<Builder<Self>> for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -76,11 +76,11 @@ where
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.genes_size.is_none() {
             Err(TryFromBuilderError(
-                "ContinuousGenotype requires a genes_size",
+                "RangeGenotype requires a genes_size",
             ))
         } else if builder.allele_range.is_none() {
             Err(TryFromBuilderError(
-                "ContinuousGenotype requires a allele_range",
+                "RangeGenotype requires a allele_range",
             ))
         } else {
             let genes_size = builder.genes_size.unwrap();
@@ -104,7 +104,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Genotype
-    for Continuous<T>
+    for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -173,7 +173,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> IncrementalGenotype
-    for Continuous<T>
+    for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -289,7 +289,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Clone
-    for Continuous<T>
+    for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -313,7 +313,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> fmt::Debug
-    for Continuous<T>
+    for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -330,7 +330,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> fmt::Display
-    for Continuous<T>
+    for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

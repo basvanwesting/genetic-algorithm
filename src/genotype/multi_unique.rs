@@ -13,7 +13,7 @@ pub type DefaultAllele = usize;
 /// Genes are a concatinated list of sets of unique values, each set taken from its own
 /// allele_list using clone(). The genes_size is derived to be the sum of the allele_list
 /// lengths. All allele_list have to be of the same type, but can have different values and
-/// lengths. On random initialization, the allele_list sets are internally suffled and
+/// lengths. On random initialization, the allele_list sets are internally shuffled and
 /// concatinated to form the genes, but the order of the sets is always the same. Each unique set
 /// has a weighted probability of mutating, depending on its allele_list length. If a set
 /// mutates, the values for a pair of genes in the set are switched, ensuring the set remains
@@ -34,7 +34,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 ///
 /// // chromosome genes example: [1,2,3, 5,4,6, 9,8,7, 1,0]
-/// // four unique sets internally suffled
+/// // four unique sets internally shuffled
 /// ```
 ///
 /// # Example (struct, the limitation is that the type needs to be the same for all lists)

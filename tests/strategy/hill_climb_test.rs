@@ -2,7 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
-use genetic_algorithm::genotype::{BinaryGenotype, ContinuousGenotype, Genotype};
+use genetic_algorithm::genotype::{BinaryGenotype, RangeGenotype, Genotype};
 use genetic_algorithm::strategy::hill_climb::{
     HillClimb, HillClimbReporterNoop, HillClimbVariant, TryFromHillClimbBuilderError,
 };
@@ -10,7 +10,7 @@ use genetic_algorithm::strategy::Strategy;
 
 #[test]
 fn build_invalid_missing_ending_condition() {
-    let genotype = ContinuousGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_neighbour_range(-0.1..=0.1)
@@ -33,8 +33,8 @@ fn build_invalid_missing_ending_condition() {
 }
 
 #[test]
-fn call_continuous_max_stale_generations_maximize() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_max_stale_generations_maximize() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_neighbour_range(-0.1..=0.1)
@@ -61,8 +61,8 @@ fn call_continuous_max_stale_generations_maximize() {
 }
 
 #[test]
-fn call_continuous_max_stale_generations_minimize() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_max_stale_generations_minimize() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_neighbour_range(-0.1..=0.1)
@@ -90,8 +90,8 @@ fn call_continuous_max_stale_generations_minimize() {
 }
 
 #[test]
-fn call_continuous_max_stale_generations_and_valid_fitness_score_maximize() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0)
         .with_allele_neighbour_range(-0.1..=0.1)
@@ -114,8 +114,8 @@ fn call_continuous_max_stale_generations_and_valid_fitness_score_maximize() {
 }
 
 #[test]
-fn call_continuous_max_stale_generations_and_valid_fitness_score_minimize() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0)
         .with_allele_neighbour_range(-0.1..=0.1)
@@ -139,8 +139,8 @@ fn call_continuous_max_stale_generations_and_valid_fitness_score_minimize() {
 }
 
 #[test]
-fn call_continuous_target_fitness_score_maximize() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_target_fitness_score_maximize() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_neighbour_range(-0.1..=0.1)
@@ -167,8 +167,8 @@ fn call_continuous_target_fitness_score_maximize() {
 }
 
 #[test]
-fn call_continuous_target_fitness_score_minimize() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_target_fitness_score_minimize() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_neighbour_range(-0.1..=0.1)
@@ -196,8 +196,8 @@ fn call_continuous_target_fitness_score_minimize() {
 }
 
 #[test]
-fn call_continuous_multi_thread() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_multi_thread() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_neighbour_range(-0.1..=0.1)

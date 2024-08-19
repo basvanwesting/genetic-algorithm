@@ -71,7 +71,7 @@
 //!     * custom `KnapsackFitness(&items, weight_limit)` fitness
 //! * Infinite Monkey theorem: <https://en.wikipedia.org/wiki/Infinite_monkey_theorem>
 //!     * See [examples/evolve_monkeys](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_monkeys.rs)
-//!     * `DiscreteGenotype<char>` 100 monkeys randomly typing characters in a loop
+//!     * `ListGenotype<char>` 100 monkeys randomly typing characters in a loop
 //!     * custom fitness using hamming distance
 //! * Permutation strategy instead of Evolve strategy for small search spaces, with a 100% guarantee
 //!     * See [examples/permutate_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_knapsack.rs)

@@ -14,14 +14,14 @@ fn chromosome_binary() {
 }
 
 #[test]
-fn chromosome_discrete() {
+fn chromosome_list() {
     let chromosome = build::chromosome(vec![3, 4, 5, 6]);
     println!("{:#?}", chromosome);
     assert_eq!(inspect::chromosome(&chromosome), vec![3, 4, 5, 6]);
 }
 
 #[test]
-fn chromosome_continuous() {
+fn chromosome_range() {
     let chromosome = build::chromosome(vec![0.1, 0.2, 0.3]);
     println!("{:#?}", chromosome);
     assert_eq!(inspect::chromosome(&chromosome), vec![0.1, 0.2, 0.3]);

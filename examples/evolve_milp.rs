@@ -44,7 +44,7 @@ fn main() {
     env_logger::init();
 
     let mut rng = SmallRng::from_entropy();
-    let genotype = MultiContinuousGenotype::builder()
+    let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![(-10.0..=10.0), (0.0..=10.0)])
         .build()
         .unwrap();

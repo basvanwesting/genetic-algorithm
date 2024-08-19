@@ -27,9 +27,9 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (f32, default):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MultiContinuousGenotype};
+/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype};
 ///
-/// let genotype = MultiContinuousGenotype::builder()
+/// let genotype = MultiRangeGenotype::builder()
 ///     .with_allele_ranges(vec![
 ///        0.0..=10.0,
 ///        5.0..=20.0,
@@ -52,9 +52,9 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (isize):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MultiContinuousGenotype};
+/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype};
 ///
-/// let genotype = MultiContinuousGenotype::builder()
+/// let genotype = MultiRangeGenotype::builder()
 ///     .with_allele_ranges(vec![
 ///        0..=10,
 ///        5..=20,
@@ -74,7 +74,7 @@ pub type DefaultAllele = f32;
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct MultiContinuous<
+pub struct MultiRange<
     T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
 > where
     T: SampleUniform,
@@ -92,7 +92,7 @@ pub struct MultiContinuous<
 }
 
 impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
-    TryFrom<Builder<Self>> for MultiContinuous<T>
+    TryFrom<Builder<Self>> for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -102,7 +102,7 @@ where
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.allele_ranges.is_none() {
             Err(TryFromBuilderError(
-                "MultiContinuousGenotype requires a allele_ranges",
+                "MultiRangeGenotype requires a allele_ranges",
             ))
         } else if builder
             .allele_ranges
@@ -111,7 +111,7 @@ where
             .unwrap()
         {
             Err(TryFromBuilderError(
-                "MultiContinuousGenotype requires non-empty allele_ranges",
+                "MultiRangeGenotype requires non-empty allele_ranges",
             ))
         } else {
             let allele_ranges = builder.allele_ranges.unwrap();
@@ -149,7 +149,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
-    Genotype for MultiContinuous<T>
+    Genotype for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -220,7 +220,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
-    IncrementalGenotype for MultiContinuous<T>
+    IncrementalGenotype for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -340,7 +340,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> Clone
-    for MultiContinuous<T>
+    for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -372,7 +372,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
-    fmt::Debug for MultiContinuous<T>
+    fmt::Debug for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -389,7 +389,7 @@ where
 }
 
 impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
-    fmt::Display for MultiContinuous<T>
+    fmt::Display for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

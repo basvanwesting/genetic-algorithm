@@ -15,8 +15,8 @@ pub use crate::extension::{
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]
 pub use crate::genotype::{
-    Allele, BinaryAllele, BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype,
-    GenotypeBuilder, MultiContinuousGenotype, MultiDiscreteGenotype, MultiUniqueGenotype,
+    Allele, BinaryAllele, BinaryGenotype, RangeGenotype, ListGenotype, Genotype,
+    GenotypeBuilder, MultiRangeGenotype, MultiListGenotype, MultiUniqueGenotype,
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]

@@ -9,7 +9,7 @@ use genetic_algorithm::extension::{
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
-    BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
+    BinaryGenotype, RangeGenotype, ListGenotype, Genotype, MultiListGenotype,
     UniqueGenotype,
 };
 use genetic_algorithm::mutate::{MutateSingleGeneNeighbour, MutateSingleGeneRandom};
@@ -392,8 +392,8 @@ fn call_binary_mass_invasion() {
 }
 
 #[test]
-fn call_continuous_f32() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_f32() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -424,8 +424,8 @@ fn call_continuous_f32() {
 }
 
 #[test]
-fn call_continuous_usize() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_usize() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
         .build()
@@ -455,8 +455,8 @@ fn call_continuous_usize() {
 }
 
 #[test]
-fn call_continuous_isize() {
-    let genotype = ContinuousGenotype::builder()
+fn call_range_isize() {
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
         .with_allele_neighbour_range(-1..=1)
@@ -487,8 +487,8 @@ fn call_continuous_isize() {
 }
 
 #[test]
-fn call_discrete() {
-    let genotype = DiscreteGenotype::builder()
+fn call_list() {
+    let genotype = ListGenotype::builder()
         .with_genes_size(10)
         .with_allele_list((0..4).collect())
         .build()
@@ -519,8 +519,8 @@ fn call_discrete() {
 }
 
 #[test]
-fn call_multi_discrete() {
-    let genotype = MultiDiscreteGenotype::builder()
+fn call_multi_list() {
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![
             vec![0, 1, 2, 3, 4],
             vec![0, 1],
@@ -552,7 +552,7 @@ fn call_multi_discrete() {
 
 #[test]
 fn call_multi_thread() {
-    let genotype = DiscreteGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(10)
         .with_allele_list((0..4).collect())
         .build()

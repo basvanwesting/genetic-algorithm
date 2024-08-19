@@ -47,11 +47,11 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     group.bench_function(
         format!(
-            "discrete-{}-pop{}-gen{}",
+            "list-{}-pop{}-gen{}",
             genes_size, target_population_size, max_stale_generations
         ),
         |b| {
-            let genotype = DiscreteGenotype::builder()
+            let genotype = ListGenotype::builder()
                 .with_genes_size(genes_size)
                 .with_allele_list((0..10).collect())
                 .build()

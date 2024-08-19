@@ -34,10 +34,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("continuous-random", genes_size),
+            BenchmarkId::new("range-random", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = ContinuousGenotype::builder()
+                let genotype = RangeGenotype::builder()
                     .with_genes_size(genes_size)
                     .with_allele_range(0.0..=1.0)
                     .build()
@@ -47,10 +47,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             },
         );
         group.bench_with_input(
-            BenchmarkId::new("continuous-neighbour", genes_size),
+            BenchmarkId::new("range-neighbour", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = ContinuousGenotype::builder()
+                let genotype = RangeGenotype::builder()
                     .with_genes_size(genes_size)
                     .with_allele_range(0.0..=1.0)
                     .with_allele_neighbour_range(-0.1..=0.1)
@@ -67,10 +67,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("discrete-random", genes_size),
+            BenchmarkId::new("list-random", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = DiscreteGenotype::builder()
+                let genotype = ListGenotype::builder()
                     .with_genes_size(genes_size)
                     .with_allele_list((0..10).collect())
                     .build()
@@ -84,10 +84,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("multi_continuous-random", genes_size),
+            BenchmarkId::new("multi_range-random", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = MultiContinuousGenotype::builder()
+                let genotype = MultiRangeGenotype::builder()
                     .with_allele_ranges((0..genes_size).map(|_| (0.0..=1.0)).collect())
                     .build()
                     .unwrap();
@@ -96,10 +96,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             },
         );
         group.bench_with_input(
-            BenchmarkId::new("multi_continuous-neighbour", genes_size),
+            BenchmarkId::new("multi_range-neighbour", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = MultiContinuousGenotype::builder()
+                let genotype = MultiRangeGenotype::builder()
                     .with_allele_ranges((0..genes_size).map(|_| (0.0..=1.0)).collect())
                     .with_allele_neighbour_ranges((0..genes_size).map(|_| (-0.1..=0.1)).collect())
                     .build()
@@ -115,10 +115,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("multi_discrete-random", genes_size),
+            BenchmarkId::new("multi_list-random", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = MultiDiscreteGenotype::builder()
+                let genotype = MultiListGenotype::builder()
                     .with_allele_lists((0..genes_size).map(|_| (0..10).collect()).collect())
                     .build()
                     .unwrap();

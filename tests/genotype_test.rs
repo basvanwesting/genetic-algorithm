@@ -1,10 +1,10 @@
 mod genotype {
     mod binary_test;
-    mod continuous_test;
-    mod discrete_test;
-    mod multi_continuous_test;
-    mod multi_discrete_test;
+    mod list_test;
+    mod multi_list_test;
+    mod multi_range_test;
     mod multi_unique_test;
+    mod range_test;
     mod unique_test;
 }
 mod support;

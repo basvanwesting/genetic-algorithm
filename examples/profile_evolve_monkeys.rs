@@ -30,7 +30,7 @@ impl Fitness for MonkeyFitness {
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    let genotype = DiscreteGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(TARGET_TEXT.len())
         .with_allele_list((MIN_CHAR..MAX_CHAR).collect())
         .build()

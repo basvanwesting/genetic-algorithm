@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{BinaryGenotype, DiscreteGenotype, Genotype};
+use genetic_algorithm::genotype::{BinaryGenotype, ListGenotype, Genotype};
 use genetic_algorithm::mutate::{Mutate, MutateMultiGeneRandom};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
@@ -42,8 +42,8 @@ fn binary_genotype() {
 }
 
 #[test]
-fn discrete_genotype() {
-    let genotype = DiscreteGenotype::builder()
+fn list_genotype() {
+    let genotype = ListGenotype::builder()
         .with_genes_size(3)
         .with_allele_list(vec![0, 1, 2, 3])
         .build()

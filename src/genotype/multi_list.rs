@@ -24,9 +24,9 @@ pub type DefaultAllele = usize;
 ///
 /// # Example (usize, default):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MultiDiscreteGenotype};
+/// use genetic_algorithm::genotype::{Genotype, MultiListGenotype};
 ///
-/// let genotype = MultiDiscreteGenotype::builder()
+/// let genotype = MultiListGenotype::builder()
 ///     .with_allele_lists(vec![
 ///        (0..=10).collect(),
 ///        (0..=20).collect(),
@@ -39,14 +39,14 @@ pub type DefaultAllele = usize;
 ///
 /// # Example (usize, used to lookup external types of different kind):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MultiDiscreteGenotype};
+/// use genetic_algorithm::genotype::{Genotype, MultiListGenotype};
 ///
 /// let cars = vec!["BMW X3", "Ford Mustang", "Chevrolet Camaro"];
 /// let drivers = vec!["Louis", "Max", "Charles"];
 /// let number_of_laps = vec![10, 20, 30, 40];
 /// let rain_probabilities = vec![0.0, 0.2, 0.4, 0.6, 0.8, 1.0];
 ///
-/// let genotype = MultiDiscreteGenotype::builder()
+/// let genotype = MultiListGenotype::builder()
 ///     .with_allele_lists(vec![
 ///        (0..cars.len()).collect(),
 ///        (0..drivers.len()).collect(),
@@ -63,13 +63,13 @@ pub type DefaultAllele = usize;
 ///
 /// # Example (struct, the limitation is that the type needs to be the same for all lists)
 /// ```
-/// use genetic_algorithm::genotype::{Allele, Genotype, MultiDiscreteGenotype};
+/// use genetic_algorithm::genotype::{Allele, Genotype, MultiListGenotype};
 ///
 /// #[derive(PartialEq, Clone, Debug)]
 /// struct Item(pub u16, pub u16);
 /// impl Allele for Item {}
 ///
-/// let genotype = MultiDiscreteGenotype::builder()
+/// let genotype = MultiListGenotype::builder()
 ///     .with_allele_lists(vec![
 ///       vec![Item(23, 505), Item(26, 352), Item(20, 458)],
 ///       vec![Item(23, 505), Item(26, 352)],
@@ -79,7 +79,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Clone, Debug)]
-pub struct MultiDiscrete<T: Allele = DefaultAllele> {
+pub struct MultiList<T: Allele = DefaultAllele> {
     genes_size: usize,
     pub allele_lists: Vec<Vec<T>>,
     gene_index_sampler: WeightedIndex<usize>,
@@ -88,17 +88,17 @@ pub struct MultiDiscrete<T: Allele = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: Allele> TryFrom<Builder<Self>> for MultiDiscrete<T> {
+impl<T: Allele> TryFrom<Builder<Self>> for MultiList<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.allele_lists.is_none() {
             Err(TryFromBuilderError(
-                "MultiDiscreteGenotype requires a allele_lists",
+                "MultiListGenotype requires a allele_lists",
             ))
         } else if builder.allele_lists.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
-                "MultiDiscreteGenotype requires non-empty allele_lists",
+                "MultiListGenotype requires non-empty allele_lists",
             ))
         } else {
             let allele_lists = builder.allele_lists.unwrap();
@@ -118,7 +118,7 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiDiscrete<T> {
     }
 }
 
-impl<T: Allele> Genotype for MultiDiscrete<T> {
+impl<T: Allele> Genotype for MultiList<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -158,7 +158,7 @@ impl<T: Allele> Genotype for MultiDiscrete<T> {
     }
 }
 
-impl<T: Allele> IncrementalGenotype for MultiDiscrete<T> {
+impl<T: Allele> IncrementalGenotype for MultiList<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
@@ -190,7 +190,7 @@ impl<T: Allele> IncrementalGenotype for MultiDiscrete<T> {
     }
 }
 
-impl<T: Allele> PermutableGenotype for MultiDiscrete<T> {
+impl<T: Allele> PermutableGenotype for MultiList<T> {
     //noop
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         vec![]
@@ -216,7 +216,7 @@ impl<T: Allele> PermutableGenotype for MultiDiscrete<T> {
     }
 }
 
-impl<T: Allele> fmt::Display for MultiDiscrete<T> {
+impl<T: Allele> fmt::Display for MultiList<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;

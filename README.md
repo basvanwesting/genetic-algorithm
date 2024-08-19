@@ -77,7 +77,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * custom `KnapsackFitness(&items, weight_limit)` fitness
 * Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
     * See [examples/evolve_monkeys](../main/examples/evolve_monkeys.rs)
-    * `DiscreteGenotype<char>` 100 monkeys randomly typing characters in a loop
+    * `ListGenotype<char>` 100 monkeys randomly typing characters in a loop
     * custom fitness using hamming distance
 * Permutation strategy instead of Evolve strategy for small search spaces, with a 100% guarantee
     * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
@@ -108,13 +108,11 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Add simulated annealing strategy
 * Add scaling to evolve and permutate?
-* Rename DiscreteGenotype to SetGenotype, EnumGenotype or ListGenotype?
-* Rename ContinuousGenotype to RangeGenotype?
 
 ## MAYBE
 * Add Roulette competition with and without duplicates (with fitness ordering)
 * Add OrderOne crossover for UniqueGenotype?
-* Add WholeArithmetic crossover for ContinuousGenotype?
+* Add WholeArithmetic crossover for RangeGenotype?
 * Add scaling helper function
 * Default max_stale_generations to 1 for SteepestAscent
 

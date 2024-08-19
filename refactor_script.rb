@@ -10,11 +10,13 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  # /single_gene_distance/ => 'single_gene_neighbour',
+  /discrete/ => 'list',
+  /continuous/ => 'range',
 }
 
 other_translations = {
-  /SumAlleles/ => 'SumGenes',
+  /Discrete/ => 'List',
+  /Continuous/ => 'Range',
 }
 
 #check:
