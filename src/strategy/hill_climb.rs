@@ -439,13 +439,11 @@ impl<A: Allele> HillClimbState<A> {
         ) {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
-                self.reset_stale_generations();
             }
             (true, false) => {
                 reporter.on_new_best_chromosome_equal_fitness(self, config);
-                self.increment_stale_generations()
             }
-            _ => self.increment_stale_generations(),
+            _ => (),
         }
     }
     fn scale(&mut self, config: &HillClimbConfig) {

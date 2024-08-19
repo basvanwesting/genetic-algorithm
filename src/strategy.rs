@@ -59,7 +59,7 @@ pub trait StrategyState<A: Allele> {
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {
-        match self.best_chromosome_as_ref() {
+        let (new_best_chomesome, improved_fitness) = match self.best_chromosome_as_ref() {
             None => self.set_best_chromosome(contending_chromosome, true),
             Some(current_best_chromosome) => {
                 match (
@@ -97,7 +97,13 @@ pub trait StrategyState<A: Allele> {
                     }
                 }
             }
-        }
+        };
+        if improved_fitness {
+            self.reset_stale_generations();
+        } else {
+            self.increment_stale_generations();
+        };
+        (new_best_chomesome, improved_fitness)
     }
 }
 
