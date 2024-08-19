@@ -85,7 +85,7 @@ fn main() {
         .with_target_population_size(100)
         .with_max_stale_generations(100)
         .with_fitness(fitness)
-        .with_mutate(MutateSingleGeneRandom::new(0.2))
+        .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
         .build()

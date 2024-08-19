@@ -4,18 +4,24 @@ use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
-/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population](crate::population::Population) with the dynamically
-/// updated mutation_probability. Then mutates the selected chromosomes once using random mutation.
-/// The mutation probability is dynamically increased or decreased to achieve a target population
-/// cardinality
+/// Selects [Chromosomes](crate::chromosome::Chromosome) in the
+/// [Population](crate::population::Population) with the dynamically updated mutation_probability.
+/// Then mutates the selected chromosomes the provided number of times, where the [Genotype]
+/// determines whether this is random, neighbour-scaled or neighbour-unscaled. The mutation
+/// probability is dynamically increased or decreased to achieve a target population cardinality.
+/// Useful when a single mutation would generally not lead to improvement, because the problem
+/// space behaves more like a [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be
+/// swapped (but the UniqueGenotype doesn't map to the problem space well). Set number_of_mutations
+/// to two in that situation.
 #[derive(Debug, Clone, Default)]
-pub struct SingleGeneRandomDynamic {
+pub struct MultiGeneDynamic {
+    pub number_of_mutations: usize,
     pub mutation_probability: f32,
     pub mutation_probability_step: f32,
     pub target_cardinality: usize,
 }
 
-impl Mutate for SingleGeneRandomDynamic {
+impl Mutate for MultiGeneDynamic {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
@@ -48,21 +54,28 @@ impl Mutate for SingleGeneRandomDynamic {
             .filter(|c| c.age == 0)
         {
             if bool_sampler.sample(rng) {
-                genotype.mutate_chromosome(chromosome, state.current_scale_index, rng);
+                for _ in 0..self.number_of_mutations {
+                    genotype.mutate_chromosome(chromosome, state.current_scale_index, rng);
+                }
             }
         }
     }
     fn report(&self) -> String {
         format!(
-            "single-gene-random-dynamic: {:2.2}",
-            self.mutation_probability
+            "multi-gene-random-dynamic: {}, {:2.2}",
+            self.number_of_mutations, self.mutation_probability
         )
     }
 }
 
-impl SingleGeneRandomDynamic {
-    pub fn new(mutation_probability_step: f32, target_cardinality: usize) -> Self {
+impl MultiGeneDynamic {
+    pub fn new(
+        number_of_mutations: usize,
+        mutation_probability_step: f32,
+        target_cardinality: usize,
+    ) -> Self {
         Self {
+            number_of_mutations,
             mutation_probability_step,
             target_cardinality,
             ..Default::default()

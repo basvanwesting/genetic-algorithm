@@ -26,20 +26,18 @@ fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = RangeGenotype::builder()
         .with_genes_size(100)
-        .with_allele_range(0.0..=1.0)
-        .with_allele_neighbour_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
+        .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
+        // .with_allele_neighbour_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
         // .with_allele_neighbour_range(-0.001..=0.001) // slow converge
-        // .with_allele_neighbour_scaled_range(vec![
-        //     -0.4..=0.4,
-        //     -0.2..=0.2,
-        //     -0.1..=0.1,
-        //     -0.05..=0.05,
-        //     -0.025..=0.025,
-        //     -0.01..=0.01,
-        //     -0.005..=0.005,
-        //     -0.0025..=0.0025,
-        //     -0.001..=0.001,
-        // ])
+        .with_allele_neighbour_scaled_range(vec![
+            -0.1..=0.1,
+            -0.05..=0.05,
+            -0.025..=0.025,
+            -0.01..=0.01,
+            -0.005..=0.005,
+            -0.0025..=0.0025,
+            -0.001..=0.001,
+        ])
         .build()
         .unwrap();
 
@@ -50,13 +48,11 @@ fn main() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
-        // .with_max_stale_generations(10)
         .with_max_stale_generations(100)
         .with_target_fitness_score(100 * 100)
         .with_fitness(DistanceTo(0.5, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        // .with_mutate(MutateSingleGeneRandom::new(0.2))
-        .with_mutate(MutateSingleGeneRandom::new(0.2))
+        .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_reporter(EvolveReporterSimple::new(100))

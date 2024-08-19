@@ -32,7 +32,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .with_genotype(genotype)
                 .with_target_population_size(target_population_size)
                 .with_max_stale_generations(max_stale_generations)
-                .with_mutate(MutateSingleGeneRandom::new(0.2))
+                .with_mutate(MutateSingleGene::new(0.2))
                 .with_fitness(Zero::new())
                 .with_crossover(CrossoverSingleGene::new(true))
                 .with_compete(CompeteTournament::new(4));
@@ -61,7 +61,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .with_genotype(genotype)
                 .with_target_population_size(target_population_size)
                 .with_max_stale_generations(max_stale_generations)
-                .with_mutate(MutateSingleGeneRandom::new(0.2))
+                .with_mutate(MutateSingleGene::new(0.2))
                 .with_fitness(Zero::new())
                 .with_crossover(CrossoverSingleGene::new(true))
                 .with_compete(CompeteTournament::new(4));

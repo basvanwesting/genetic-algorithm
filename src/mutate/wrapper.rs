@@ -1,7 +1,7 @@
-pub use super::multi_gene_random::MultiGeneRandom as MutateMultiGeneRandom;
-pub use super::multi_gene_random_dynamic::MultiGeneRandomDynamic as MutateMultiGeneRandomDynamic;
-pub use super::single_gene_random::SingleGeneRandom as MutateSingleGeneRandom;
-pub use super::single_gene_random_dynamic::SingleGeneRandomDynamic as MutateSingleGeneRandomDynamic;
+pub use super::multi_gene::MultiGene as MutateMultiGene;
+pub use super::multi_gene_dynamic::MultiGeneDynamic as MutateMultiGeneDynamic;
+pub use super::single_gene::SingleGene as MutateSingleGene;
+pub use super::single_gene_dynamic::SingleGeneDynamic as MutateSingleGeneDynamic;
 pub use super::Mutate;
 
 use crate::genotype::Genotype;
@@ -10,10 +10,10 @@ use rand::Rng;
 
 #[derive(Clone, Debug)]
 pub enum Wrapper {
-    MultiGeneRandom(MutateMultiGeneRandom),
-    MultiGeneRandomDynamic(MutateMultiGeneRandomDynamic),
-    SingleGeneRandom(MutateSingleGeneRandom),
-    SingleGeneRandomDynamic(MutateSingleGeneRandomDynamic),
+    MultiGene(MutateMultiGene),
+    MultiGeneDynamic(MutateMultiGeneDynamic),
+    SingleGene(MutateSingleGene),
+    SingleGeneDynamic(MutateSingleGeneDynamic),
 }
 
 impl Mutate for Wrapper {
@@ -26,45 +26,43 @@ impl Mutate for Wrapper {
         rng: &mut R,
     ) {
         match self {
-            Wrapper::MultiGeneRandom(mutate) => mutate.call(genotype, state, config, reporter, rng),
-            Wrapper::MultiGeneRandomDynamic(mutate) => {
+            Wrapper::MultiGene(mutate) => mutate.call(genotype, state, config, reporter, rng),
+            Wrapper::MultiGeneDynamic(mutate) => {
                 mutate.call(genotype, state, config, reporter, rng)
             }
-            Wrapper::SingleGeneRandom(mutate) => {
-                mutate.call(genotype, state, config, reporter, rng)
-            }
-            Wrapper::SingleGeneRandomDynamic(mutate) => {
+            Wrapper::SingleGene(mutate) => mutate.call(genotype, state, config, reporter, rng),
+            Wrapper::SingleGeneDynamic(mutate) => {
                 mutate.call(genotype, state, config, reporter, rng)
             }
         }
     }
     fn report(&self) -> String {
         match self {
-            Wrapper::MultiGeneRandom(mutate) => mutate.report(),
-            Wrapper::MultiGeneRandomDynamic(mutate) => mutate.report(),
-            Wrapper::SingleGeneRandom(mutate) => mutate.report(),
-            Wrapper::SingleGeneRandomDynamic(mutate) => mutate.report(),
+            Wrapper::MultiGene(mutate) => mutate.report(),
+            Wrapper::MultiGeneDynamic(mutate) => mutate.report(),
+            Wrapper::SingleGene(mutate) => mutate.report(),
+            Wrapper::SingleGeneDynamic(mutate) => mutate.report(),
         }
     }
 }
 
-impl From<MutateSingleGeneRandom> for Wrapper {
-    fn from(mutate: MutateSingleGeneRandom) -> Self {
-        Wrapper::SingleGeneRandom(mutate)
+impl From<MutateSingleGene> for Wrapper {
+    fn from(mutate: MutateSingleGene) -> Self {
+        Wrapper::SingleGene(mutate)
     }
 }
-impl From<MutateMultiGeneRandom> for Wrapper {
-    fn from(mutate: MutateMultiGeneRandom) -> Self {
-        Wrapper::MultiGeneRandom(mutate)
+impl From<MutateMultiGene> for Wrapper {
+    fn from(mutate: MutateMultiGene) -> Self {
+        Wrapper::MultiGene(mutate)
     }
 }
-impl From<MutateSingleGeneRandomDynamic> for Wrapper {
-    fn from(mutate: MutateSingleGeneRandomDynamic) -> Self {
-        Wrapper::SingleGeneRandomDynamic(mutate)
+impl From<MutateSingleGeneDynamic> for Wrapper {
+    fn from(mutate: MutateSingleGeneDynamic) -> Self {
+        Wrapper::SingleGeneDynamic(mutate)
     }
 }
-impl From<MutateMultiGeneRandomDynamic> for Wrapper {
-    fn from(mutate: MutateMultiGeneRandomDynamic) -> Self {
-        Wrapper::MultiGeneRandomDynamic(mutate)
+impl From<MutateMultiGeneDynamic> for Wrapper {
+    fn from(mutate: MutateMultiGeneDynamic) -> Self {
+        Wrapper::MultiGeneDynamic(mutate)
     }
 }

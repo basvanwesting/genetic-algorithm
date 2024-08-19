@@ -21,8 +21,8 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateEvent, MutateMultiGeneRandom, MutateMultiGeneRandomDynamic, MutateSingleGeneRandom,
-    MutateSingleGeneRandomDynamic, MutateWrapper,
+    MutateEvent, MutateMultiGene, MutateMultiGeneDynamic, MutateSingleGene,
+    MutateSingleGeneDynamic, MutateWrapper,
 };
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{

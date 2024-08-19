@@ -1,7 +1,7 @@
 mod mutate {
-    mod multi_gene_random_dynamic_test;
-    mod multi_gene_random_test;
-    mod single_gene_random_dynamic_test;
-    mod single_gene_random_test;
+    mod multi_gene_dynamic_test;
+    mod multi_gene_test;
+    mod single_gene_dynamic_test;
+    mod single_gene_test;
 }
 mod support;

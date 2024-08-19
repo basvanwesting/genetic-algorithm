@@ -3,7 +3,7 @@ use crate::support::*;
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
-use genetic_algorithm::mutate::{Mutate, MutateMultiGeneRandomDynamic};
+use genetic_algorithm::mutate::{Mutate, MutateSingleGeneDynamic};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -30,18 +30,18 @@ fn binary_genotype() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut mutate = MutateMultiGeneRandomDynamic::new(2, 0.2, 2);
+    let mut mutate = MutateSingleGeneDynamic::new(0.1, 2);
     let mut fitness = CountTrue;
     assert_eq!(mutate.mutation_probability, 0.0);
     fitness.call_for_population_single_thread(&mut state.population);
     mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-    assert_eq!(mutate.mutation_probability, 0.2);
-    fitness.call_for_population_single_thread(&mut state.population);
-    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-    assert_eq!(mutate.mutation_probability, 0.4);
+    assert_eq!(mutate.mutation_probability, 0.1);
     fitness.call_for_population_single_thread(&mut state.population);
     mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.2);
+    fitness.call_for_population_single_thread(&mut state.population);
+    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    assert_eq!(mutate.mutation_probability, 0.1);
     fitness.call_for_population_single_thread(&mut state.population);
     mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.0);
@@ -49,16 +49,16 @@ fn binary_genotype() {
     assert_eq!(
         inspect::population(&state.population),
         vec![
-            vec![true, false, false],
-            vec![false, true, false],
-            vec![false, true, false],
-            vec![true, true, true],
-            vec![true, true, true],
-            vec![false, true, false],
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
-            vec![true, false, false],
+            vec![true, true, false],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, false],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, false, true],
         ]
     );
 }

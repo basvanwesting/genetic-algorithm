@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, RangeGenotype};
-use genetic_algorithm::mutate::{Mutate, MutateSingleGeneRandom};
+use genetic_algorithm::mutate::{Mutate, MutateSingleGene};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -22,7 +22,7 @@ fn binary_genotype() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -54,7 +54,7 @@ fn list_genotype() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -82,7 +82,7 @@ fn range_float_genotype_unscaled() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert!(relative_population_eq(
         inspect::population(&state.population),
@@ -95,9 +95,9 @@ fn range_float_genotype_unscaled() {
         0.001,
     ));
 
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert!(relative_population_eq(
         inspect::population(&state.population),
@@ -131,7 +131,7 @@ fn range_float_genotype_scaled() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&state.population),
         vec![
@@ -143,7 +143,7 @@ fn range_float_genotype_scaled() {
         0.001,
     ));
 
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&state.population),
         vec![
@@ -156,7 +156,7 @@ fn range_float_genotype_scaled() {
     ));
 
     state.current_scale_index = Some(1);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&state.population),
         vec![
@@ -189,16 +189,16 @@ fn range_integer_genotype() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
         vec![vec![0, 1, 0], vec![0, 0, 1], vec![0, 0, 0], vec![0, 1, 0]],
     );
 
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-    MutateSingleGeneRandom::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),

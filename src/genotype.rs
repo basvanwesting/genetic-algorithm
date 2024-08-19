@@ -67,8 +67,7 @@ pub trait Genotype:
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele>;
     /// a random genes factory (respecting seed genes)
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
-    /// a mutation of the chromosome, the genotype determines whether this is random,
-    /// neighbour-scaled or neighbour-unscaled.
+    /// a mutation of the chromosome, the genotype determines whether this is random, neighbour-scaled or neighbour-unscaled.
     fn mutate_chromosome<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,

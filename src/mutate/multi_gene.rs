@@ -4,19 +4,21 @@ use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
-/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population](crate::population::Population) with the provided
-/// mutation_probability. Then mutates the selected chromosomes the provided number of times using
-/// random mutation. Useful when a single mutation would generally not lead to improvement, because
-/// the problem space behaves more like a [UniqueGenotype](crate::genotype::UniqueGenotype) where
-/// genes must be swapped (but the UniqueGenotype doesn't map to the problem space well). Set
-/// number_of_mutations to two in that situation.
+/// Selects [Chromosomes](crate::chromosome::Chromosome) in the
+/// [Population](crate::population::Population) with the provided mutation_probability. Then
+/// mutates the selected chromosomes the provided number of times, where the [Genotype] determines
+/// whether this is random, neighbour-scaled or neighbour-unscaled. Useful when a single mutation
+/// would generally not lead to improvement, because the problem space behaves more like a
+/// [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be swapped (but the
+/// UniqueGenotype doesn't map to the problem space well). Set number_of_mutations to two in that
+/// situation.
 #[derive(Debug, Clone)]
-pub struct MultiGeneRandom {
+pub struct MultiGene {
     pub number_of_mutations: usize,
     pub mutation_probability: f32,
 }
 
-impl Mutate for MultiGeneRandom {
+impl Mutate for MultiGene {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
@@ -47,7 +49,7 @@ impl Mutate for MultiGeneRandom {
     }
 }
 
-impl MultiGeneRandom {
+impl MultiGene {
     pub fn new(number_of_mutations: usize, mutation_probability: f32) -> Self {
         Self {
             number_of_mutations,

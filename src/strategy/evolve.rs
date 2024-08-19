@@ -96,7 +96,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .with_multithreading(true)                             // optional, defaults to false, use all cores for calculating the fitness of the population
 ///     .with_replace_on_equal_fitness(true)                   // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
 ///     .with_crossover(CrossoverUniform::new(true))           // crossover all individual genes between 2 chromosomes for offspring
-///     .with_mutate(MutateSingleGeneRandom::new(0.2))         // mutate a single gene with a 20% probability per chromosome
+///     .with_mutate(MutateSingleGene::new(0.2))         // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite::new())                     // sort the chromosomes by fitness to determine crossover order
 ///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
 ///     .with_reporter(EvolveReporterSimple::new(100))         // optional builder step, report every 100 generations

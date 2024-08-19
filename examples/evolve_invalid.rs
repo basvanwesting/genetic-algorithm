@@ -11,7 +11,7 @@ fn main() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(1000)
-        .with_mutate(MutateSingleGeneRandom::new(0.2))
+        .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))

@@ -4,14 +4,16 @@ use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
-/// Selects [Chromosomes](crate::chromosome::Chromosome) in the [Population](crate::population::Population) with the provided mutation_probability. Then mutates the
-/// selected chromosomes once using random mutation.
+/// Selects [Chromosomes](crate::chromosome::Chromosome) in the
+/// [Population](crate::population::Population) with the provided mutation_probability. Then
+/// mutates the selected chromosomes once, where the [Genotype] determines whether this is random,
+/// neighbour-scaled or neighbour-unscaled.
 #[derive(Debug, Clone)]
-pub struct SingleGeneRandom {
+pub struct SingleGene {
     pub mutation_probability: f32,
 }
 
-impl Mutate for SingleGeneRandom {
+impl Mutate for SingleGene {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
@@ -37,7 +39,7 @@ impl Mutate for SingleGeneRandom {
     }
 }
 
-impl SingleGeneRandom {
+impl SingleGene {
     pub fn new(mutation_probability: f32) -> Self {
         Self {
             mutation_probability,
