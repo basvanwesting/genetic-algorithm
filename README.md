@@ -107,13 +107,16 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 ## TODO
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Add simulated annealing strategy
-* Add scaling helper function
-* Default max_stale_generations to 1 for SteepestAscent
+* Add scaling to evolve and permutate?
+* Rename DiscreteGenotype to SetGenotype, EnumGenotype or ListGenotype?
+* Rename ContinuousGenotype to RangeGenotype?
 
 ## MAYBE
 * Add Roulette competition with and without duplicates (with fitness ordering)
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for ContinuousGenotype?
+* Add scaling helper function
+* Default max_stale_generations to 1 for SteepestAscent
 
 ## ISSUES
 * permutate (and possibly others) with gene_size 0 panics. Maybe it should just return a empty chromosome?

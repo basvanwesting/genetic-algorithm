@@ -38,10 +38,10 @@ pub enum HillClimbVariant {
 ///
 /// There are 4 variants:
 /// * [HillClimbVariant::Stochastic]: does not examine all neighbors before deciding how to move.
-///   Rather, it selects a neighbor at random, and decides (based on the amount of improvement in
-///   that neighbor) whether to move to that neighbor or to examine another
-/// * [HillClimbVariant::SteepestAscent]: all neighbours are compared and the closest to the
-///   solution is chosen
+///   Rather, it selects a neighbor at random, and decides (based on the improvement in that
+///   neighbour) whether to move to that neighbor or to examine another
+/// * [HillClimbVariant::SteepestAscent]: all neighbours are compared and the one with the best
+///   improvement is chosen.
 /// * [HillClimbVariant::StochasticSecondary]: like Stochastic, but also randomly tries a random
 ///   neighbour of the neighbour. Useful when a single mutation would generally not lead to
 ///   improvement, because the problem space behaves more like a
@@ -56,25 +56,22 @@ pub enum HillClimbVariant {
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
-/// The fitness is calculated each round:
-/// * If the fitness is worse
-///     * the mutation is ignored and the next round is started based on the current best chromosome
-///     * if the scaling used, the scale is reduced to zoom in on the local solution
-///     * the stale generation counter is incremented (functionally)
-/// * If the fitness is equal
-///     * the mutated chromosome is taken for the next round.
-///     * if the scaling used, the scale is reset to its base scale
-///     * the stale generation counter is incremented (functionally)
-/// * If the fitness is better
-///     * the mutated chromosome is taken for the next round.
-///     * if the scaling used, the scale is reset to its base scale
-///     * the stale generation counter is reset (functionally)
-///
 /// There is optional scaling of [ContinuousGenotype](crate::genotype::ContinuousGenotype) and
-/// [MultiContinuousGenotype](crate::genotype::MultiContinuousGenotype) neighbouring_chromosomes.
-/// If used, this is defined by providing the allele_neighbour_scaled_range(s) in the Genotype
-/// builder. Only meaningful for SteepestAscent [variants](HillClimbVariant), as Stochastic variants are not
-/// directed enough to benefit from scaling.
+/// [MultiContinuousGenotype](crate::genotype::MultiContinuousGenotype) neighbouring_chromosomes:
+/// * With scaling (set allele_neighbour_scaled_range(s) on genotype):
+///     * Mutate only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
+///         * Pick random edge for [HillClimbVariant::Stochastic]
+///         * Take both edges per gene for [HillClimbVariant::SteepestAscent]
+///     * Scale down after max_stale_generations is reached and reset max_stale_generations to zero
+///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
+/// * Without scaling (set allele_neighbour_range(s) on genotype):
+///     * Mutate uniformly over neighbouring range
+///         * Sample single random value for [HillClimbVariant::Stochastic]
+///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
+///     * Standard max_stale_generations ending condition
+///
+/// Using scaling for [HillClimbVariant::StochasticSecondary] and
+/// [HillClimbVariant::SteepestAscentSecondary] doesn't make sense, though it will work.
 ///
 /// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
 /// [HillClimbReporter] (e.g. [HillClimbReporterNoop], [HillClimbReporterSimple]). But you are encouraged to
@@ -90,8 +87,13 @@ pub enum HillClimbVariant {
 /// // the search space
 /// let genotype = ContinuousGenotype::builder() // f32 alleles
 ///     .with_genes_size(16)                     // 16 genes
-///     .with_allele_range(0.0..=1.0)             // values betwee 0.0 and 1.0
+///     .with_allele_range(0.0..=1.0)             // allow gene values between 0.0 and 1.0
 ///     .with_allele_neighbour_range(-0.1..=0.1)  // neighbouring step size or 0.1 in both directions
+///     .with_allele_neighbour_scaled_range(vec![
+///       -0.1..=0.1,
+///       -0.01..=0.01,
+///       -0.001..=0.001
+///      ]) // or use scaled neighbouring step size
 ///     .build()
 ///     .unwrap();
 ///

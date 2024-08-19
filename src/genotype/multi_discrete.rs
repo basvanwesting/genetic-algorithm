@@ -10,13 +10,14 @@ use std::fmt;
 pub type DefaultAllele = usize;
 
 /// Genes are a list of values, each individually taken from its own allele_list using clone(). The
-/// genes_size is derived to be the allele_lists length. All allele_list have to be of the same
-/// type, but can have different values and lengths. On random initialization, each gene gets a
-/// value from its own allele_list with a uniform probability. Each gene has a weighted probability
-/// of mutating, depending on its allele_list length. If a gene mutates, a new values is taken from
-/// its own allele_list with a uniform probability (regardless of current value, which could
-/// therefore be assigned again, not mutating as a result). Duplicate allele values are allowed.
-/// Defaults to usize as item.
+/// allele_lists are taken as unrelated, unorderable set with no concept op distance between the
+/// values. The genes_size is derived to be the allele_lists length. All allele_list have to be of
+/// the same type, but can have different values and lengths. On random initialization, each gene
+/// gets a value from its own allele_list with a uniform probability. Each gene has a weighted
+/// probability of mutating, depending on its allele_list length. If a gene mutates, a new values
+/// is taken from its own allele_list with a uniform probability (regardless of current value,
+/// which could therefore be assigned again, not mutating as a result). Duplicate allele values are
+/// allowed. Defaults to usize as item.
 ///
 /// This genotype is also used in the [meta analysis](https://github.com/basvanwesting/genetic-algorithm-meta.git), to hold the indices of the
 /// different [Evolve](crate::strategy::evolve::Evolve) configuration values (defined outside of the genotype).

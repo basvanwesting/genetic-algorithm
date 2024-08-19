@@ -8,12 +8,13 @@ use std::fmt;
 
 pub type DefaultAllele = usize;
 
-/// Genes are a list of values, each taken from the allele_list using clone(). On random
+/// Genes are a list of values, each taken from the allele_list using clone(). The allele_list is
+/// taken as unrelated, unorderable set with no concept op distance between the values. On random
 /// initialization, each gene gets a value from the allele_list with a uniform probability. Each
 /// gene has an equal probability of mutating. If a gene mutates, a new values is taken from the
 /// allele_list with a uniform probability (regardless of current value, which could therefore be
-/// assigned again, not mutating as a result). Duplicate allele values are allowed. Defaults to usize
-/// as item.
+/// assigned again, not mutating as a result). Duplicate allele values are allowed. Defaults to
+/// usize as item.
 ///
 /// # Example (usize, default):
 /// ```

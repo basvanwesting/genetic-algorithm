@@ -11,15 +11,19 @@ use std::ops::{Add, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
-/// Genes are a list of f32, each individually taken from its own allele_range. The genes_size is
+/// Genes are a list of numberic values, each individually taken from its own allele_range. The genes_size is
 /// derived to be the allele_ranges length. On random initialization, each gene gets a value
 /// from its own allele_range with a uniform probability. Each gene has a weighted probability of
 /// mutating, depending on its allele_range size. If a gene mutates, a new values is taken from its
-/// own allele_range with a uniform probability. Duplicate allele values are allowed. Defaults to usize
-/// as item.
+/// own allele_range with a uniform probability. Duplicate allele values are allowed.
 ///
-/// Optionally an allele_neighbour_ranges can be provided. When this is done the mutation is
-/// restricted to modify the existing value by a difference taken from allele_neighbour_range with a uniform probability.
+/// For (optional) neighbouring logic an allele_neighbour_ranges or allele_neighbour_scaled_ranges
+/// must be provided.
+/// When allele_neighbour_ranges is provided the mutation is restricted to modify
+/// the existing value by a difference taken from allele_neighbour_ranges with a uniform
+/// probability.
+/// When allele_neighbour_scaled_ranges is provided the mutation is restricted to modify
+/// the existing value by a difference taken from edges of the scaled ranges (depending on current scale)
 ///
 /// # Example (f32, default):
 /// ```
@@ -27,17 +31,21 @@ pub type DefaultAllele = f32;
 ///
 /// let genotype = MultiContinuousGenotype::builder()
 ///     .with_allele_ranges(vec![
-///        (0.0..=10.0),
-///        (5.0..=20.0),
-///        (0.0..=5.0),
-///        (10.0..=30.0),
+///        0.0..=10.0,
+///        5.0..=20.0,
+///        0.0..=5.0,
+///        10.0..=30.0
 ///     ])
 ///     .with_allele_neighbour_ranges(vec![
-///        (-1.0..=1.0),
-///        (-2.0..=2.0),
-///        (-0.5..=0.5),
-///        (-3.0..=3.0),
-///     ]) // optional
+///        -1.0..=1.0,
+///        -2.0..=2.0,
+///        -0.5..=0.5,
+///        -3.0..=3.0
+///     ]) // optional, only required for neighbouring logic
+///     .with_allele_neighbour_scaled_ranges(vec![
+///        vec![-1.0..=1.0, -2.0..=2.0, -0.5..=0.5, -3.0..=3.0],
+///        vec![-0.1..=0.1, -0.2..=0.2, -0.05..=0.05, -0.3..=0.3],
+///     ]) // optional, only required for neighbouring logic
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -48,17 +56,21 @@ pub type DefaultAllele = f32;
 ///
 /// let genotype = MultiContinuousGenotype::builder()
 ///     .with_allele_ranges(vec![
-///        (0..=10),
-///        (5..=20),
-///        (-5..=5),
-///        (10..=30),
+///        0..=10,
+///        5..=20,
+///        -5..=5,
+///        10..=30,
 ///     ])
 ///     .with_allele_neighbour_ranges(vec![
-///        (-1..=1),
-///        (-1..=1),
-///        (-1..=1),
-///        (-2..=2),
-///     ]) // optional
+///        -1..=1,
+///        -1..=1,
+///        -1..=1,
+///        -2..=2,
+///     ]) // optional, only required for neighbouring logic
+///     .with_allele_neighbour_scaled_ranges(vec![
+///        vec![-1..=1, -2..=2, -1..=1, -5..=5],
+///        vec![-1..=1, -1..=1, -1..=1, -1..=1],
+///     ]) // optional, only required for neighbouring logic
 ///     .build()
 ///     .unwrap();
 /// ```

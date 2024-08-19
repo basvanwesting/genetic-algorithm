@@ -11,12 +11,17 @@ use std::ops::{Add, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
-/// Genes are a list of f32, each taken from the allele_range using clone(). On random initialization, each
+/// Genes are a list of numeric values, each taken from the allele_range. On random initialization, each
 /// gene gets a value from the allele_range with a uniform probability. Each gene has an equal probability
 /// of mutating. If a gene mutates, a new value is taken from allele_range with a uniform probability.
 ///
-/// Optionally an allele_neighbour_range can be provided. When this is done the mutation is
-/// restricted to modify the existing value by a difference taken from allele_neighbour_range with a uniform probability.
+/// For (optional) neighbouring logic an allele_neighbour_range or allele_neighbour_scaled_range
+/// must be provided.
+/// When allele_neighbour_range is provided the mutation is restricted to modify
+/// the existing value by a difference taken from allele_neighbour_range with a uniform
+/// probability.
+/// When allele_neighbour_scaled_range is provided the mutation is restricted to modify
+/// the existing value by a difference taken from edges of the scaled range (depending on current scale)
 ///
 /// # Example (f32, default):
 /// ```
@@ -25,7 +30,8 @@ pub type DefaultAllele = f32;
 /// let genotype = ContinuousGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0)
-///     .with_allele_neighbour_range(-0.1..=0.1) // optional
+///     .with_allele_neighbour_range(-0.1..=0.1) // optional, only required for neighbouring logic
+///     .with_allele_neighbour_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001]) // optional, only required for neighbouring logic
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -36,8 +42,9 @@ pub type DefaultAllele = f32;
 ///
 /// let genotype = ContinuousGenotype::<isize>::builder()
 ///     .with_genes_size(100)
-///     .with_allele_range(0..=10)
-///     .with_allele_neighbour_range(-1..=1) // optional
+///     .with_allele_range(0..=100)
+///     .with_allele_neighbour_range(-1..=1) // optional, only required for neighbouring logic
+///     .with_allele_neighbour_scaled_range(vec![-10..=10, -3..=3, -1..=1]) // optional, only required for neighbouring logic
 ///     .build()
 ///     .unwrap();
 /// ```
