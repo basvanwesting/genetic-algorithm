@@ -85,7 +85,7 @@ pub enum HillClimbVariant {
 /// Example:
 /// ```
 /// use genetic_algorithm::strategy::hill_climb::prelude::*;
-/// use genetic_algorithm::fitness::placeholders::SumF32;
+/// use genetic_algorithm::fitness::placeholders::SumGenes;
 ///
 /// // the search space
 /// let genotype = ContinuousGenotype::builder() // f32 alleles
@@ -99,14 +99,14 @@ pub enum HillClimbVariant {
 /// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
-///     .with_variant(HillClimbVariant::SteepestAscent)   // check all neighbours for each round
-///     .with_fitness(SumF32(1e-5))        // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
-///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
-///     .with_multithreading(true)                        // use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
-///     .with_target_fitness_score(10)                    // ending condition if sum of genes is <= 0.00010 in the best chromosome
-///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
-///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_reporter(HillClimbReporterSimple::new(100)) // optional builder step, report every 100 generations
+///     .with_variant(HillClimbVariant::SteepestAscent)     // check all neighbours for each round
+///     .with_fitness(SumGenes::new_with_precision(1e-5)) // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
+///     .with_fitness_ordering(FitnessOrdering::Minimize)   // aim for the lowest sum
+///     .with_multithreading(true)                          // use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
+///     .with_target_fitness_score(10)                      // ending condition if sum of genes is <= 0.00010 in the best chromosome
+///     .with_valid_fitness_score(100)                      // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
+///     .with_max_stale_generations(1000)                   // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_reporter(HillClimbReporterSimple::new(100))   // optional builder step, report every 100 generations
 ///     .call(&mut rng)
 ///     .unwrap();
 ///

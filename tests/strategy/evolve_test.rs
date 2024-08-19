@@ -6,7 +6,7 @@ use genetic_algorithm::extension::{
     ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
     ExtensionMassInvasion, ExtensionNoop,
 };
-use genetic_algorithm::fitness::placeholders::{CountTrue, SumF32, SumIsize, SumUsize};
+use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
     BinaryGenotype, ContinuousGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
@@ -53,7 +53,7 @@ fn build_invalid_require_crossover_indexes() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumUsize)
+        .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
@@ -79,7 +79,7 @@ fn build_invalid_require_crossover_points() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumUsize)
+        .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSinglePoint::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
@@ -404,7 +404,7 @@ fn call_continuous_f32() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumF32(1e-3))
+        .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
@@ -439,7 +439,7 @@ fn call_continuous_usize() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumUsize)
+        .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
@@ -471,7 +471,7 @@ fn call_continuous_isize() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneNeighbour::new(0.1))
-        .with_fitness(SumIsize)
+        .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
@@ -503,7 +503,7 @@ fn call_discrete() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumUsize)
+        .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
@@ -538,7 +538,7 @@ fn call_multi_discrete() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumUsize)
+        .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
@@ -567,7 +567,7 @@ fn call_multi_thread() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGeneRandom::new(0.1))
-        .with_fitness(SumUsize)
+        .with_fitness(SumGenes::new())
         .with_multithreading(true)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))

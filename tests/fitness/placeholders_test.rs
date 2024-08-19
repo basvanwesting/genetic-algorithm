@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::{CountTrue, SumF32, SumIsize, SumUsize, Zero};
+use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes, Zero};
 use genetic_algorithm::fitness::Fitness;
 
 #[test]
@@ -31,37 +31,100 @@ fn count_true() {
 }
 
 #[test]
-fn sum_usize() {
+fn sum_alleles_usize() {
     let chromosome = build::chromosome(vec![0, 1, 2, 3]);
-    assert_eq!(SumUsize.calculate_for_chromosome(&chromosome), Some(6));
-
-    let chromosome = build::chromosome(vec![0, 0, 0, 0]);
-    assert_eq!(SumUsize.calculate_for_chromosome(&chromosome), Some(0));
-}
-
-#[test]
-fn sum_isize() {
-    let chromosome = build::chromosome(vec![-2, -1, 0, 1, 2, 3]);
-    assert_eq!(SumIsize.calculate_for_chromosome(&chromosome), Some(3));
-
-    let chromosome = build::chromosome(vec![0, 0, 0, 0]);
-    assert_eq!(SumIsize.calculate_for_chromosome(&chromosome), Some(0));
-}
-
-#[test]
-fn sum_f32() {
-    let chromosome = build::chromosome(vec![0.0, 0.0, 0.0]);
-    assert_eq!(SumF32(1e-3).calculate_for_chromosome(&chromosome), Some(0));
-
-    let chromosome = build::chromosome(vec![0.1, 0.2, 0.3]);
     assert_eq!(
-        SumF32(1e-3).calculate_for_chromosome(&chromosome),
+        SumGenes::new().calculate_for_chromosome(&chromosome),
+        Some(6)
+    );
+
+    let chromosome = build::chromosome(vec![0, 0, 0, 0]);
+    assert_eq!(
+        SumGenes::new().calculate_for_chromosome(&chromosome),
+        Some(0)
+    );
+}
+
+#[test]
+fn sum_alleles_isize() {
+    let chromosome = build::chromosome(vec![-2, -1, 0, 1, 2, 3]);
+    assert_eq!(
+        SumGenes::new().calculate_for_chromosome(&chromosome),
+        Some(3)
+    );
+
+    let chromosome = build::chromosome(vec![0, 0, 0, 0]);
+    assert_eq!(
+        SumGenes::new().calculate_for_chromosome(&chromosome),
+        Some(0)
+    );
+
+    let chromosome = build::chromosome(vec![-2, -1, 0, -1, -2, -3]);
+    assert_eq!(
+        SumGenes::new().calculate_for_chromosome(&chromosome),
+        Some(-9)
+    );
+}
+
+#[test]
+fn sum_alleles_f32() {
+    let chromosome = build::chromosome(vec![0.0_f32, 0.0_f32, 0.0_f32]);
+    assert_eq!(
+        SumGenes::new().calculate_for_chromosome(&chromosome),
+        Some(0)
+    );
+
+    let chromosome = build::chromosome(vec![0.1_f32, 0.2_f32, 0.3_f32]);
+    assert_eq!(
+        SumGenes::new().calculate_for_chromosome(&chromosome),
+        Some(0)
+    );
+
+    let chromosome = build::chromosome(vec![1.4_f32, 2.4_f32, 3.4_f32]);
+    assert_eq!(
+        SumGenes::new().calculate_for_chromosome(&chromosome),
+        Some(7)
+    );
+}
+
+#[test]
+fn sum_alleles_with_precision_f32() {
+    let chromosome = build::chromosome(vec![0.0_f32, 0.0_f32, 0.0_f32]);
+    assert_eq!(
+        SumGenes::new_with_precision(1e-3).calculate_for_chromosome(&chromosome),
+        Some(0)
+    );
+
+    let chromosome = build::chromosome(vec![0.1_f32, 0.2_f32, 0.3_f32]);
+    assert_eq!(
+        SumGenes::new_with_precision(1e-3).calculate_for_chromosome(&chromosome),
         Some(600)
     );
 
-    let chromosome = build::chromosome(vec![1.4, 2.4, 3.4]);
+    let chromosome = build::chromosome(vec![1.4_f32, 2.4_f32, 3.4_f32]);
     assert_eq!(
-        SumF32(1e-3).calculate_for_chromosome(&chromosome),
+        SumGenes::new_with_precision(1e-3).calculate_for_chromosome(&chromosome),
         Some(7200)
+    );
+}
+
+#[test]
+fn sum_alleles_with_precision_f64() {
+    let chromosome = build::chromosome(vec![0.0_f64, 0.0_f64, 0.0_f64]);
+    assert_eq!(
+        SumGenes::new_with_precision(1e-3).calculate_for_chromosome(&chromosome),
+        Some(0)
+    );
+
+    let chromosome = build::chromosome(vec![0.1_f64, 0.2_f64, 0.3_f64]);
+    assert_eq!(
+        SumGenes::new_with_precision(1e-3).calculate_for_chromosome(&chromosome),
+        Some(600)
+    );
+
+    let chromosome = build::chromosome(vec![1.4_f64, 2.4_f64, 3.4_f64]);
+    assert_eq!(
+        SumGenes::new_with_precision(1e-3).calculate_for_chromosome(&chromosome),
+        Some(7199)
     );
 }

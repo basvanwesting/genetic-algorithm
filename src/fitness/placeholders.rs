@@ -41,46 +41,45 @@ impl Fitness for CountTrue {
 }
 
 /// placeholder for testing and bootstrapping, not really used in practice
+/// Sums the genes and converts to isize [FitnessValue]
+/// There are 2 constructors:
+/// * new(), precision is defaulted to 1.0
+/// * new_with_precision(precision)
 #[derive(Clone, Debug)]
-pub struct SumF32(pub f32);
-impl Fitness for SumF32 {
-    type Allele = f32;
-    fn calculate_for_chromosome(
-        &mut self,
-        chromosome: &Chromosome<Self::Allele>,
-    ) -> Option<FitnessValue> {
-        Some(
-            chromosome
-                .genes
-                .iter()
-                .map(|v| v / self.0)
-                .sum::<Self::Allele>() as FitnessValue,
-        )
+pub struct SumGenes<T: Allele + Into<f64>> {
+    precision: f64,
+    _phantom: PhantomData<T>,
+}
+impl<T: Allele + Into<f64>> SumGenes<T> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn new_with_precision(precision: f64) -> Self {
+        Self {
+            precision,
+            ..Default::default()
+        }
     }
 }
-
-/// placeholder for testing and bootstrapping, not really used in practice
-#[derive(Clone, Debug)]
-pub struct SumUsize;
-impl Fitness for SumUsize {
-    type Allele = usize;
-    fn calculate_for_chromosome(
-        &mut self,
-        chromosome: &Chromosome<Self::Allele>,
-    ) -> Option<FitnessValue> {
-        Some(chromosome.genes.iter().sum::<Self::Allele>() as FitnessValue)
+impl<T: Allele + Into<f64>> Default for SumGenes<T> {
+    fn default() -> Self {
+        Self {
+            precision: 1.0_f64,
+            _phantom: PhantomData,
+        }
     }
 }
-
-/// placeholder for testing and bootstrapping, not really used in practice
-#[derive(Clone, Debug)]
-pub struct SumIsize;
-impl Fitness for SumIsize {
-    type Allele = isize;
+impl<T: Allele + Into<f64>> Fitness for SumGenes<T> {
+    type Allele = T;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Allele>,
     ) -> Option<FitnessValue> {
-        Some(chromosome.genes.iter().sum::<Self::Allele>() as FitnessValue)
+        let sum: f64 = chromosome
+            .genes
+            .clone()
+            .into_iter()
+            .fold(0.0_f64, |acc, e| acc + e.into());
+        Some((sum / self.precision) as FitnessValue)
     }
 }

@@ -1,4 +1,4 @@
-use genetic_algorithm::fitness::placeholders::SumIsize;
+use genetic_algorithm::fitness::placeholders::SumGenes;
 use genetic_algorithm::strategy::evolve::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -24,7 +24,7 @@ fn main() {
         .with_target_fitness_score(99 * 100_000)
         // .with_mutate(MutateSingleGeneRandom::new(0.2))
         .with_mutate(MutateSingleGeneNeighbour::new(0.2))
-        .with_fitness(SumIsize)
+        .with_fitness(SumGenes::new())
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
         .call(&mut rng)

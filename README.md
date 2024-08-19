@@ -106,10 +106,7 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 
 ## TODO
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
-* Make fitness/simple_sum generic
-* Does Fitness need an associated trait for Genotype? Can this be made more lightweight?
 * Add simulated annealing strategy
-* Review scaling in HillClimb as it doesn't feel right in its design approach
 
 ## MAYBE
 * Add Roulette competition with and without duplicates (with fitness ordering)

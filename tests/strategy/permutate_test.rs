@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::{CountTrue, SumUsize};
+use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
     BinaryGenotype, DiscreteGenotype, Genotype, MultiDiscreteGenotype,
@@ -73,7 +73,7 @@ fn call_discrete() {
     let mut rng = rand::thread_rng();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
-        .with_fitness(SumUsize)
+        .with_fitness(SumGenes::new())
         // .with_reporter(PermutateReporterNoop::new())
         .call(&mut rng)
         .unwrap();
@@ -100,7 +100,7 @@ fn call_multi_discrete() {
     let mut rng = rand::thread_rng();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
-        .with_fitness(SumUsize)
+        .with_fitness(SumGenes::new())
         .with_reporter(PermutateReporterNoop::new())
         .call(&mut rng)
         .unwrap();
@@ -123,7 +123,7 @@ fn call_multi_thread() {
     let mut rng = rand::thread_rng();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
-        .with_fitness(SumUsize)
+        .with_fitness(SumGenes::new())
         .with_multithreading(true)
         // .with_reporter(PermutateReporterNoop::new())
         .call(&mut rng)

@@ -1,8 +1,6 @@
 Add on_equal_fitness to Evolve as well?
 still counts as stale generations
 
-Add max_stale_scale_generations?
-
 [HillClimbVariant::Stochastic]:
   with_scaling: 
     move only on edges of scale

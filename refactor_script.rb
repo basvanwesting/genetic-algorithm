@@ -14,8 +14,7 @@ underscore_translations = {
 }
 
 other_translations = {
-  /SumContinuousAllele/ => 'SumF32',
-  /SumDiscreteAllele/ => 'SumUsize',
+  /SumAlleles/ => 'SumGenes',
 }
 
 #check:
