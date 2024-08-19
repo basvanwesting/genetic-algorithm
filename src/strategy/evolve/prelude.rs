@@ -15,14 +15,14 @@ pub use crate::extension::{
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]
 pub use crate::genotype::{
-    Allele, BinaryAllele, BinaryGenotype, RangeGenotype, ListGenotype, Genotype,
-    GenotypeBuilder, MultiRangeGenotype, MultiListGenotype, MultiUniqueGenotype,
+    Allele, BinaryAllele, BinaryGenotype, Genotype, GenotypeBuilder, ListGenotype,
+    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeGenotype,
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateEvent, MutateMultiGeneRandom, MutateMultiGeneRandomDynamic, MutateSingleGeneNeighbour,
-    MutateSingleGeneRandom, MutateSingleGeneRandomDynamic, MutateWrapper,
+    MutateEvent, MutateMultiGeneRandom, MutateMultiGeneRandomDynamic, MutateSingleGeneRandom,
+    MutateSingleGeneRandomDynamic, MutateWrapper,
 };
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{

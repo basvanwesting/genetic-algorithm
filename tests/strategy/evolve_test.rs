@@ -9,10 +9,9 @@ use genetic_algorithm::extension::{
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
-    BinaryGenotype, RangeGenotype, ListGenotype, Genotype, MultiListGenotype,
-    UniqueGenotype,
+    BinaryGenotype, Genotype, ListGenotype, MultiListGenotype, RangeGenotype, UniqueGenotype,
 };
-use genetic_algorithm::mutate::{MutateSingleGeneNeighbour, MutateSingleGeneRandom};
+use genetic_algorithm::mutate::MutateSingleGeneRandom;
 use genetic_algorithm::strategy::evolve::{Evolve, EvolveReporterNoop, TryFromEvolveBuilderError};
 use genetic_algorithm::strategy::Strategy;
 
@@ -467,7 +466,7 @@ fn call_range_isize() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGeneNeighbour::new(0.1))
+        .with_mutate(MutateSingleGeneRandom::new(0.1))
         .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))

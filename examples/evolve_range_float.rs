@@ -56,7 +56,7 @@ fn main() {
         .with_fitness(DistanceTo(0.5, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         // .with_mutate(MutateSingleGeneRandom::new(0.2))
-        .with_mutate(MutateSingleGeneNeighbour::new(0.2))
+        .with_mutate(MutateSingleGeneRandom::new(0.2))
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_reporter(EvolveReporterSimple::new(100))
