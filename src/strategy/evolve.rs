@@ -380,11 +380,13 @@ impl<A: Allele> EvolveState<A> {
         ) {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
+                self.reset_stale_generations();
             }
             (true, false) => {
                 reporter.on_new_best_chromosome_equal_fitness(self, config);
+                self.increment_stale_generations()
             }
-            _ => (),
+            _ => self.increment_stale_generations(),
         }
     }
     fn scale(&mut self, config: &EvolveConfig) {
