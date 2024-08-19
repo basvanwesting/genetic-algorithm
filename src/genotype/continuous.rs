@@ -2,8 +2,7 @@ use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
-use num::BigUint;
-use num::Zero;
+use num::{BigUint, Zero};
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::prelude::*;
@@ -130,8 +129,6 @@ where
         chromosome.genes[index] = self.allele_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
-    // used in HillClimbVariant::Stochastic and StochasticSecondary
-    // used in Evolve MutateSingleGeneNeighbour (no scaling)
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
@@ -174,7 +171,6 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    // used in HillClimbVariant::SteepestAscent and SteepestAscentSecondary
     fn neighbouring_chromosomes<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,

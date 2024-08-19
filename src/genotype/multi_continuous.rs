@@ -2,13 +2,12 @@ use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
-use num::BigUint;
-use num::Zero;
+use num::{BigUint, Zero};
 use rand::distributions::uniform::SampleUniform;
-use rand::distributions::{Distribution, Uniform, WeightedIndex};
+use rand::distributions::{Bernoulli, Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
-use std::ops::RangeInclusive;
+use std::ops::{Add, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
@@ -64,7 +63,7 @@ pub type DefaultAllele = f32;
 ///     .unwrap();
 /// ```
 pub struct MultiContinuous<
-    T: Allele + Copy + Default + Zero + Into<f64> + std::ops::Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
+    T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
 > where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -72,21 +71,16 @@ pub struct MultiContinuous<
     genes_size: usize,
     pub allele_ranges: Vec<RangeInclusive<T>>,
     pub allele_neighbour_ranges: Option<Vec<RangeInclusive<T>>>,
+    pub allele_neighbour_scaled_ranges: Option<Vec<Vec<RangeInclusive<T>>>>,
     gene_index_sampler: WeightedIndex<f64>,
     allele_samplers: Vec<Uniform<T>>,
     allele_neighbour_samplers: Option<Vec<Uniform<T>>>,
+    sign_sampler: Bernoulli,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<
-        T: Allele
-            + Copy
-            + Default
-            + Zero
-            + Into<f64>
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd,
-    > TryFrom<Builder<Self>> for MultiContinuous<T>
+impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
+    TryFrom<Builder<Self>> for MultiContinuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -119,6 +113,7 @@ where
                 genes_size,
                 allele_ranges: allele_ranges.clone(),
                 allele_neighbour_ranges: builder.allele_neighbour_ranges.clone(),
+                allele_neighbour_scaled_ranges: builder.allele_neighbour_scaled_ranges.clone(),
                 gene_index_sampler: WeightedIndex::new(index_weights).unwrap(),
                 allele_samplers: allele_ranges
                     .iter()
@@ -134,21 +129,15 @@ where
                             .collect()
                     },
                 ),
+                sign_sampler: Bernoulli::new(0.5).unwrap(),
                 seed_genes_list: builder.seed_genes_list,
             })
         }
     }
 }
 
-impl<
-        T: Allele
-            + Copy
-            + Default
-            + Zero
-            + Into<f64>
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd,
-    > Genotype for MultiContinuous<T>
+impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
+    Genotype for MultiContinuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -179,21 +168,32 @@ where
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
-    //FIXME: scale doesn't work for generic
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
-        _scale_index: Option<usize>,
+        scale_index: Option<usize>,
         rng: &mut R,
     ) {
         let index = self.gene_index_sampler.sample(rng);
-        let allele_ranges = &self.allele_ranges[index];
-        let new_value = chromosome.genes[index]
-            + self.allele_neighbour_samplers.as_ref().unwrap()[index].sample(rng);
-        if new_value < *allele_ranges.start() {
-            chromosome.genes[index] = *allele_ranges.start();
-        } else if new_value > *allele_ranges.end() {
-            chromosome.genes[index] = *allele_ranges.end();
+        let allele_range = &self.allele_ranges[index];
+
+        let value_diff = if let Some(scale_index) = scale_index {
+            let working_range =
+                &self.allele_neighbour_scaled_ranges.as_ref().unwrap()[scale_index][index];
+            if self.sign_sampler.sample(rng) {
+                *working_range.start()
+            } else {
+                *working_range.end()
+            }
+        } else {
+            self.allele_neighbour_samplers.as_ref().unwrap()[index].sample(rng)
+        };
+
+        let new_value = chromosome.genes[index] + value_diff;
+        if new_value < *allele_range.start() {
+            chromosome.genes[index] = *allele_range.start();
+        } else if new_value > *allele_range.end() {
+            chromosome.genes[index] = *allele_range.end();
         } else {
             chromosome.genes[index] = new_value;
         }
@@ -207,59 +207,115 @@ where
     }
 }
 
-impl<
-        T: Allele
-            + Copy
-            + Default
-            + Zero
-            + Into<f64>
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd,
-    > IncrementalGenotype for MultiContinuous<T>
+impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
+    IncrementalGenotype for MultiContinuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    //FIXME: scale doesn't work for generic
     fn neighbouring_chromosomes<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
-        _scale_index: Option<usize>,
-        _rng: &mut R,
+        scale_index: Option<usize>,
+        rng: &mut R,
     ) -> Vec<Chromosome<Self::Allele>> {
-        let range_diffs: Vec<Vec<T>> = self
-            .allele_neighbour_ranges
-            .as_ref()
-            .unwrap()
-            .iter()
-            .map(|range| vec![*range.start(), *range.end()])
-            .map(|range| {
-                range
-                    .into_iter()
-                    .dedup()
-                    .filter(|diff| !diff.is_zero())
-                    .collect()
-            })
-            .collect();
+        if let Some(scale_index) = scale_index {
+            self.allele_ranges
+                .iter()
+                .enumerate()
+                .flat_map(|(index, allele_range)| {
+                    let allele_range_start = *allele_range.start();
+                    let allele_range_end = *allele_range.end();
+                    let working_range =
+                        &self.allele_neighbour_scaled_ranges.as_ref().unwrap()[scale_index][index];
+                    let working_range_start = *working_range.start();
+                    let working_range_end = *working_range.end();
 
-        self.allele_ranges
-            .iter()
-            .enumerate()
-            .flat_map(|(index, value_range)| {
-                range_diffs[index].iter().map(move |diff| {
-                    let mut genes = chromosome.genes.clone();
-                    let new_value = genes[index] + *diff;
-                    if new_value < *value_range.start() {
-                        genes[index] = *value_range.start();
-                    } else if new_value > *value_range.end() {
-                        genes[index] = *value_range.end();
+                    let base_value = chromosome.genes[index];
+                    let value_start = if base_value + working_range_start < allele_range_start {
+                        allele_range_start
                     } else {
-                        genes[index] = new_value;
-                    }
-                    Chromosome::new(genes)
+                        base_value + working_range_start
+                    };
+                    let value_end = if base_value + working_range_end > allele_range_end {
+                        allele_range_end
+                    } else {
+                        base_value + working_range_end
+                    };
+
+                    [
+                        if value_start < base_value {
+                            let mut genes = chromosome.genes.clone();
+                            genes[index] = value_start;
+                            Some(genes)
+                        } else {
+                            None
+                        },
+                        if base_value < value_end {
+                            let mut genes = chromosome.genes.clone();
+                            genes[index] = value_end;
+                            Some(genes)
+                        } else {
+                            None
+                        },
+                    ]
                 })
-            })
-            .collect::<Vec<_>>()
+                .flatten()
+                .dedup()
+                .filter(|genes| *genes != chromosome.genes)
+                .map(Chromosome::new)
+                .collect::<Vec<_>>()
+        } else {
+            self.allele_ranges
+                .iter()
+                .enumerate()
+                .flat_map(|(index, allele_range)| {
+                    let allele_range_start = *allele_range.start();
+                    let allele_range_end = *allele_range.end();
+                    let working_range = &self.allele_neighbour_ranges.as_ref().unwrap()[index];
+                    let working_range_start = *working_range.start();
+                    let working_range_end = *working_range.end();
+
+                    let base_value = chromosome.genes[index];
+                    let range_start = if base_value + working_range_start < allele_range_start {
+                        allele_range_start
+                    } else {
+                        base_value + working_range_start
+                    };
+                    let range_end = if base_value + working_range_end > allele_range_end {
+                        allele_range_end
+                    } else {
+                        base_value + working_range_end
+                    };
+
+                    [
+                        if range_start < base_value {
+                            let mut genes = chromosome.genes.clone();
+                            genes[index] = rng.gen_range(range_start..base_value);
+                            Some(genes)
+                        } else {
+                            None
+                        },
+                        if base_value < range_end {
+                            let mut genes = chromosome.genes.clone();
+                            let mut new_value = rng.gen_range(base_value..=range_end);
+                            // FIXME: ugly loop, goal is to have an exclusive below range
+                            while new_value <= base_value {
+                                new_value = rng.gen_range(base_value..=range_end);
+                            }
+                            genes[index] = new_value;
+                            Some(genes)
+                        } else {
+                            None
+                        },
+                    ]
+                })
+                .flatten()
+                .dedup()
+                .filter(|genes| *genes != chromosome.genes)
+                .map(Chromosome::new)
+                .collect::<Vec<_>>()
+        }
     }
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(2 * self.genes_size)
@@ -269,15 +325,8 @@ where
     }
 }
 
-impl<
-        T: Allele
-            + Copy
-            + Default
-            + Zero
-            + Into<f64>
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd,
-    > Clone for MultiContinuous<T>
+impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> Clone
+    for MultiContinuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -287,6 +336,7 @@ where
             genes_size: self.genes_size.clone(),
             allele_ranges: self.allele_ranges.clone(),
             allele_neighbour_ranges: self.allele_neighbour_ranges.clone(),
+            allele_neighbour_scaled_ranges: self.allele_neighbour_scaled_ranges.clone(),
             gene_index_sampler: self.gene_index_sampler.clone(),
             allele_samplers: self
                 .allele_ranges
@@ -301,20 +351,14 @@ where
                         .collect()
                 },
             ),
+            sign_sampler: Bernoulli::new(0.5).unwrap(),
             seed_genes_list: self.seed_genes_list.clone(),
         }
     }
 }
 
-impl<
-        T: Allele
-            + Copy
-            + Default
-            + Zero
-            + Into<f64>
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd,
-    > fmt::Debug for MultiContinuous<T>
+impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
+    fmt::Debug for MultiContinuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -330,15 +374,8 @@ where
     }
 }
 
-impl<
-        T: Allele
-            + Copy
-            + Default
-            + Zero
-            + Into<f64>
-            + std::ops::Add<Output = T>
-            + std::cmp::PartialOrd,
-    > fmt::Display for MultiContinuous<T>
+impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
+    fmt::Display for MultiContinuous<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

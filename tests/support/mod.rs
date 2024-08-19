@@ -38,10 +38,16 @@ pub fn relative_population_eq<T: RelativeEq<Epsilon = T> + Clone + Copy + std::f
     b: Vec<Vec<T>>,
     epsilon: T,
 ) -> bool {
-    if a.len() == b.len() {
+    let result = if a.len() == b.len() {
         a.iter()
             .zip(b.iter())
             .all(|(a, b)| relative_chromosome_eq(a.to_vec(), b.to_vec(), epsilon))
+    } else {
+        println!("{:?} <> {:?}", a, b);
+        false
+    };
+    if result {
+        true
     } else {
         println!("{:?} <> {:?}", a, b);
         false

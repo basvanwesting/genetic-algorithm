@@ -107,6 +107,7 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 ## TODO
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
 * Add simulated annealing strategy
+* Add scaling helper function
 
 ## MAYBE
 * Add Roulette competition with and without duplicates (with fitness ordering)

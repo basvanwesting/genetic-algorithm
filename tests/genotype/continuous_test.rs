@@ -66,7 +66,6 @@ fn float_neighbour_unscaled() {
     ));
 
     genotype.mutate_chromosome_neighbour(&mut chromosome, None, &mut rng);
-    println!("{:?}", inspect::chromosome(&chromosome));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![

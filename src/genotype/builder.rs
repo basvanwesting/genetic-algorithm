@@ -21,6 +21,7 @@ pub struct Builder<G: Genotype> {
     pub allele_neighbour_range: Option<RangeInclusive<<G as Genotype>::Allele>>,
     pub allele_neighbour_ranges: Option<Vec<RangeInclusive<<G as Genotype>::Allele>>>,
     pub allele_neighbour_scaled_range: Option<Vec<RangeInclusive<<G as Genotype>::Allele>>>,
+    pub allele_neighbour_scaled_ranges: Option<Vec<Vec<RangeInclusive<<G as Genotype>::Allele>>>>,
     pub seed_genes_list: Vec<Vec<<G as Genotype>::Allele>>,
 }
 
@@ -84,6 +85,14 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    pub fn with_allele_neighbour_scaled_ranges(
+        mut self,
+        allele_neighbour_scaled_ranges: Vec<Vec<RangeInclusive<<G as Genotype>::Allele>>>,
+    ) -> Self {
+        self.allele_neighbour_scaled_ranges = Some(allele_neighbour_scaled_ranges);
+        self
+    }
+
     pub fn with_seed_genes_list(
         mut self,
         seed_genes_list: Vec<Vec<<G as Genotype>::Allele>>,
@@ -108,6 +117,7 @@ impl<G: Genotype> Default for Builder<G> {
             allele_neighbour_range: None,
             allele_neighbour_ranges: None,
             allele_neighbour_scaled_range: None,
+            allele_neighbour_scaled_ranges: None,
             seed_genes_list: vec![],
         }
     }

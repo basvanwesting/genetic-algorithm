@@ -74,6 +74,8 @@ pub trait Genotype:
         rng: &mut R,
     );
     /// a blanket neighbouring mutation fallback random mutation
+    /// used in HillClimbVariant::Stochastic and StochasticSecondary
+    /// used in Evolve MutateSingleGeneNeighbour (no scaling)
     fn mutate_chromosome_neighbour<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
@@ -108,6 +110,7 @@ pub trait Genotype:
 /// Genotype
 pub trait IncrementalGenotype: Genotype {
     /// all neighbouring mutations of the chromosome
+    /// used in HillClimbVariant::SteepestAscent and SteepestAscentSecondary
     fn neighbouring_chromosomes<R: Rng>(
         &self,
         _chromosome: &Chromosome<Self::Allele>,
