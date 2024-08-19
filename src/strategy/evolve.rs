@@ -88,7 +88,8 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .with_max_chromosome_age(10)                           // kill chromosomes after 10 generations
 ///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)      // aim for the least true values
-///     .with_multithreading(true)                             // use all cores for calculating the fitness of the population
+///     .with_multithreading(true)                             // optional, defaults to false, use all cores for calculating the fitness of the population
+///     .with_replace_on_equal_fitness(true)                   // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
 ///     .with_crossover(CrossoverUniform::new(true))           // crossover all individual genes between 2 chromosomes for offspring
 ///     .with_mutate(MutateSingleGeneRandom::new(0.2))         // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite::new())                     // sort the chromosomes by fitness to determine crossover order
@@ -133,6 +134,7 @@ pub struct EvolveConfig {
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
+    pub replace_on_equal_fitness: bool,
 }
 
 /// Stores the state of the Evolve strategy. Next to the expected general fields, the following
@@ -319,6 +321,9 @@ impl StrategyConfig for EvolveConfig {
     fn multithreading(&self) -> bool {
         self.multithreading
     }
+    fn replace_on_equal_fitness(&self) -> bool {
+        self.replace_on_equal_fitness
+    }
 }
 
 impl<A: Allele> StrategyState<A> for EvolveState<A> {
@@ -368,7 +373,11 @@ impl<A: Allele> EvolveState<A> {
         config: &EvolveConfig,
         reporter: &mut SR,
     ) {
-        match self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, true) {
+        match self.update_best_chromosome(
+            contending_chromosome,
+            &config.fitness_ordering,
+            config.replace_on_equal_fitness,
+        ) {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
                 self.reset_stale_generations();
@@ -482,6 +491,7 @@ impl<
                     valid_fitness_score: builder.valid_fitness_score,
                     fitness_ordering: builder.fitness_ordering,
                     multithreading: builder.multithreading,
+                    replace_on_equal_fitness: builder.replace_on_equal_fitness,
                 },
                 state,
                 reporter: builder.reporter,
@@ -500,6 +510,7 @@ impl Default for EvolveConfig {
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
+            replace_on_equal_fitness: false,
         }
     }
 }

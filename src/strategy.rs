@@ -18,6 +18,7 @@ pub trait Strategy<G: Genotype> {
 pub trait StrategyConfig {
     fn fitness_ordering(&self) -> FitnessOrdering;
     fn multithreading(&self) -> bool;
+    fn replace_on_equal_fitness(&self) -> bool;
 }
 
 /// Stores the state of the strategy.
@@ -34,6 +35,7 @@ pub trait StrategyState<A: Allele> {
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
+
     fn increment_stale_generations(&mut self);
     fn reset_stale_generations(&mut self);
 

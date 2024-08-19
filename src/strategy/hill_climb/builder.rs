@@ -22,6 +22,7 @@ pub struct Builder<
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
+    pub replace_on_equal_fitness: bool,
     pub reporter: SR,
 }
 
@@ -38,6 +39,7 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
             max_stale_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
+            replace_on_equal_fitness: true,
             reporter: HillClimbReporterNoop::new(),
         }
     }
@@ -112,6 +114,10 @@ impl<
         self.valid_fitness_score = valid_fitness_score_option;
         self
     }
+    pub fn with_replace_on_equal_fitness(mut self, replace_on_equal_fitness: bool) -> Self {
+        self.replace_on_equal_fitness = replace_on_equal_fitness;
+        self
+    }
     pub fn with_reporter<SR2: HillClimbReporter<Allele = G::Allele>>(
         self,
         reporter: SR2,
@@ -125,6 +131,7 @@ impl<
             max_stale_generations: self.max_stale_generations,
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
+            replace_on_equal_fitness: self.replace_on_equal_fitness,
             reporter,
         }
     }

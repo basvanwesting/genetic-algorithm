@@ -104,11 +104,12 @@ pub enum HillClimbVariant {
 ///     .with_variant(HillClimbVariant::SteepestAscent)     // check all neighbours for each round
 ///     .with_fitness(SumGenes::new_with_precision(1e-5)) // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)   // aim for the lowest sum
-///     .with_multithreading(true)                          // use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
+///     .with_multithreading(true)                          // optional, defaults to false, use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
 ///     .with_target_fitness_score(10)                      // ending condition if sum of genes is <= 0.00010 in the best chromosome
 ///     .with_valid_fitness_score(100)                      // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)                   // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_reporter(HillClimbReporterSimple::new(100))   // optional builder step, report every 100 generations
+///     .with_replace_on_equal_fitness(true)                // optional, defaults to true, crucial for some type of problems with discrete fitness steps like nqueens
+///     .with_reporter(HillClimbReporterSimple::new(100))   // optional, report every 100 generations
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -135,6 +136,7 @@ pub struct HillClimbConfig {
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
+    pub replace_on_equal_fitness: bool,
 }
 
 /// Stores the state of the HillClimb strategy. Next to the expected general fields, the following
@@ -377,6 +379,9 @@ impl StrategyConfig for HillClimbConfig {
     fn multithreading(&self) -> bool {
         self.multithreading
     }
+    fn replace_on_equal_fitness(&self) -> bool {
+        self.replace_on_equal_fitness
+    }
 }
 
 impl<A: Allele> StrategyState<A> for HillClimbState<A> {
@@ -427,7 +432,11 @@ impl<A: Allele> HillClimbState<A> {
         config: &HillClimbConfig,
         reporter: &mut SR,
     ) {
-        match self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, true) {
+        match self.update_best_chromosome(
+            contending_chromosome,
+            &config.fitness_ordering,
+            config.replace_on_equal_fitness,
+        ) {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
                 self.reset_stale_generations();
@@ -487,6 +496,7 @@ impl<
                     max_stale_generations: builder.max_stale_generations,
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
+                    replace_on_equal_fitness: builder.replace_on_equal_fitness,
                 },
                 state,
                 reporter: builder.reporter,
@@ -504,6 +514,7 @@ impl Default for HillClimbConfig {
             max_stale_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
+            replace_on_equal_fitness: false,
         }
     }
 }

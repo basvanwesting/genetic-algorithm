@@ -18,6 +18,7 @@ pub struct Builder<
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
+    pub replace_on_equal_fitness: bool,
     pub reporter: SR,
 }
 
@@ -29,6 +30,7 @@ impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>> Default
             genotype: None,
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
+            replace_on_equal_fitness: false,
             fitness: None,
             reporter: PermutateReporterNoop::new(),
         }
@@ -63,6 +65,10 @@ impl<
         self.multithreading = multithreading;
         self
     }
+    pub fn with_replace_on_equal_fitness(mut self, replace_on_equal_fitness: bool) -> Self {
+        self.replace_on_equal_fitness = replace_on_equal_fitness;
+        self
+    }
     pub fn with_fitness(mut self, fitness: F) -> Self {
         self.fitness = Some(fitness);
         self
@@ -75,6 +81,7 @@ impl<
             genotype: self.genotype,
             fitness_ordering: self.fitness_ordering,
             multithreading: self.multithreading,
+            replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,
             reporter,
         }

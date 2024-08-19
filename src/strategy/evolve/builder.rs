@@ -31,6 +31,7 @@ pub struct Builder<
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
+    pub replace_on_equal_fitness: bool,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
     pub crossover: Option<S>,
@@ -52,6 +53,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
+            replace_on_equal_fitness: false,
             mutate: None,
             fitness: None,
             crossover: None,
@@ -144,6 +146,10 @@ impl<
         self.multithreading = multithreading;
         self
     }
+    pub fn with_replace_on_equal_fitness(mut self, replace_on_equal_fitness: bool) -> Self {
+        self.replace_on_equal_fitness = replace_on_equal_fitness;
+        self
+    }
     pub fn with_mutate(mut self, mutate: M) -> Self {
         self.mutate = Some(mutate);
         self
@@ -170,6 +176,7 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             multithreading: self.multithreading,
+            replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,
             crossover: self.crossover,
@@ -191,6 +198,7 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             multithreading: self.multithreading,
+            replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,
             crossover: self.crossover,

@@ -52,7 +52,7 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_reporter(PermutateReporterSimple::new(100)) // optional builder step, report every 100 generations
-///     .with_multithreading(true)                        // use all cores
+///     .with_multithreading(true)                        // optional, defaults to false, use all cores
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -75,6 +75,7 @@ pub struct Permutate<
 pub struct PermutateConfig {
     pub fitness_ordering: FitnessOrdering,
     pub multithreading: bool,
+    pub replace_on_equal_fitness: bool,
 }
 
 /// Stores the state of the Permutate strategy. Next to the expected general fields, the following
@@ -195,6 +196,9 @@ impl StrategyConfig for PermutateConfig {
     fn multithreading(&self) -> bool {
         self.multithreading
     }
+    fn replace_on_equal_fitness(&self) -> bool {
+        self.replace_on_equal_fitness
+    }
 }
 
 impl<A: Allele> StrategyState<A> for PermutateState<A> {
@@ -245,7 +249,11 @@ impl<A: Allele> PermutateState<A> {
         config: &PermutateConfig,
         reporter: &mut SR,
     ) {
-        match self.update_best_chromosome(contending_chromosome, &config.fitness_ordering, false) {
+        match self.update_best_chromosome(
+            contending_chromosome,
+            &config.fitness_ordering,
+            config.replace_on_equal_fitness,
+        ) {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
                 self.reset_stale_generations();
@@ -285,6 +293,7 @@ impl<
                 config: PermutateConfig {
                     fitness_ordering: builder.fitness_ordering,
                     multithreading: builder.multithreading,
+                    replace_on_equal_fitness: builder.replace_on_equal_fitness,
                 },
                 state: PermutateState {
                     total_population_size,
@@ -301,6 +310,7 @@ impl Default for PermutateConfig {
         Self {
             fitness_ordering: FitnessOrdering::Maximize,
             multithreading: false,
+            replace_on_equal_fitness: false,
         }
     }
 }
