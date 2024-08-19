@@ -15,8 +15,8 @@ fn float_random() {
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.4391402, 0.9798802, 0.46216714, 0.897079, 0.9429498, 0.5881474, 0.4563719,
-            0.3951441, 0.8188509,
+            0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456,
+            0.395, 0.818,
         ],
         0.001,
     ));
@@ -25,8 +25,8 @@ fn float_random() {
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.4391402, 0.9763819, 0.46216714, 0.897079, 0.9429498, 0.5881474, 0.4563719,
-            0.3951441, 0.8188509,
+            0.447, 0.439, 0.976, 0.462, 0.897, 0.942, 0.588, 0.456,
+            0.395, 0.818,
         ],
         0.001,
     ));
@@ -49,8 +49,8 @@ fn float_neighbour_unscaled() {
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.4391402, 0.9798802, 0.46216714, 0.897079, 0.9429498, 0.5881474, 0.4563719,
-            0.3951441, 0.8188509,
+            0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456,
+            0.395, 0.818,
         ],
         0.001,
     ));
@@ -59,8 +59,8 @@ fn float_neighbour_unscaled() {
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.4391402, 1.0, 0.46216714, 0.897079, 0.9429498, 0.5881474, 0.4563719,
-            0.3951441, 0.8188509,
+            0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.588, 0.456,
+            0.395, 0.818,
         ],
         0.001,
     ));
@@ -69,8 +69,8 @@ fn float_neighbour_unscaled() {
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.4391402, 1.0, 0.46216714, 0.897079, 0.9429498, 0.0, 0.4563719, 0.3951441,
-            0.8188509,
+            0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.0, 0.456, 0.395,
+            0.818,
         ],
         0.001,
     ));
@@ -93,8 +93,8 @@ fn float_neighbour_scaled() {
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.4391402, 0.9798802, 0.46216714, 0.897079, 0.9429498, 0.5881474, 0.4563719,
-            0.3951441, 0.8188509,
+            0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456,
+            0.395, 0.818,
         ],
         0.001,
     ));
@@ -103,8 +103,8 @@ fn float_neighbour_scaled() {
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.4391402, 0.9898802, 0.46216714, 0.897079, 0.9429498, 0.5881474, 0.4563719,
-            0.3951441, 0.8188509,
+            0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.588, 0.456,
+            0.395, 0.818,
         ],
         0.001,
     ));
@@ -113,8 +113,8 @@ fn float_neighbour_scaled() {
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![
-            0.447325, 0.439140, 0.989880, 0.462167, 0.897079, 0.942949, 0.578147, 0.456371,
-            0.395144, 0.818850
+            0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.578, 0.456,
+            0.395, 0.818
         ],
         0.001,
     ));
@@ -136,7 +136,7 @@ fn float_neighbouring_population_1() {
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447325],
+        vec![0.447],
         0.001
     ));
 

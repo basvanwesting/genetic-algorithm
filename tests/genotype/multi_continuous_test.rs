@@ -13,14 +13,14 @@ fn float_random() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447325, 2.1957011, 19.798801],
+        vec![0.447, 2.195, 19.798],
         0.001
     ));
 
     genotype.mutate_chromosome_random(&mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447325, 2.1957011, 18.970789],
+        vec![0.447, 2.195, 18.970],
         0.001
     ));
 
@@ -113,7 +113,7 @@ fn float_neighbouring_population_1() {
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447325],
+        vec![0.447],
         0.001
     ));
 

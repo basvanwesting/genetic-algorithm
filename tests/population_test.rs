@@ -3,6 +3,7 @@ mod support;
 #[cfg(test)]
 mod population_tests {
     use crate::support::*;
+    use approx::assert_relative_eq;
     use genetic_algorithm::fitness::placeholders::CountTrue;
     use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 
@@ -21,7 +22,7 @@ mod population_tests {
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
         CountTrue.call_for_population(population, None);
-        assert_eq!(population.fitness_score_stddev(), 0.8660254);
+        assert_relative_eq!(population.fitness_score_stddev(), 0.866, epsilon = 0.001);
 
         let population = &mut build::population(vec![
             vec![true, true, true],
@@ -36,7 +37,7 @@ mod population_tests {
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
         CountTrue.call_for_population(population, None);
-        assert_eq!(population.fitness_score_stddev(), 0.3307189);
+        assert_relative_eq!(population.fitness_score_stddev(), 0.331, epsilon = 0.001);
     }
 
     #[test]

@@ -35,10 +35,10 @@ fn continuous_float_genotype() {
     assert!(relative_population_eq(
         inspect::population(&state.population),
         vec![
-            vec![0.5, 0.59597605, 0.5],
-            vec![0.5, 0.5, 0.58858997],
+            vec![0.5, 0.595, 0.5],
+            vec![0.5, 0.5, 0.588],
             vec![0.5, 0.5, 0.5],
-            vec![0.5, 0.5637702, 0.5],
+            vec![0.5, 0.563, 0.5],
         ],
         0.001,
     ));
@@ -68,10 +68,10 @@ fn continuous_float_genotype() {
     assert!(relative_population_eq(
         inspect::population(&state.population),
         vec![
-            vec![0.5, 0.59597605, 0.52890337],
-            vec![0.5729175, 0.5864907, 0.5336115],
-            vec![0.55756766, 0.45686823, 0.5942435],
-            vec![0.5, 0.5637702, 0.48710027],
+            vec![0.5, 0.595, 0.528],
+            vec![0.572, 0.586, 0.533],
+            vec![0.557, 0.456, 0.594],
+            vec![0.5, 0.563, 0.487],
         ],
         0.001
     ));

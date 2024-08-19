@@ -418,10 +418,7 @@ fn call_continuous_f32() {
     assert_eq!(best_chromosome.fitness_score, Some(9952));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![
-            0.99798167, 0.99938405, 0.99611986, 0.99007106, 0.9982017, 0.9936614, 0.9934199,
-            0.9904206, 0.99784184, 0.99518645
-        ],
+        vec![0.997, 0.999, 0.996, 0.990, 0.998, 0.993, 0.993, 0.990, 0.997, 0.995],
         0.001
     ));
 }

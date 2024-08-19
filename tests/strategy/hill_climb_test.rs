@@ -161,9 +161,7 @@ fn call_continuous_target_fitness_score_maximize() {
     assert_eq!(best_chromosome.fitness_score, Some(8088));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![
-            0.673274, 0.62921375, 1.0, 0.7220475, 1.0, 1.0, 0.73748976, 0.7359946, 0.5902894, 1.0,
-        ],
+        vec![0.673, 0.629, 1.0, 0.722, 1.0, 1.0, 0.737, 0.735, 0.590, 1.0,],
         0.001
     ));
 }
@@ -192,18 +190,7 @@ fn call_continuous_target_fitness_score_minimize() {
     assert_eq!(best_chromosome.fitness_score, Some(964));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![
-            0.0,
-            0.0,
-            0.17363752,
-            0.0,
-            0.62618715,
-            0.0061164834,
-            0.0,
-            0.0,
-            0.0,
-            0.15902928,
-        ],
+        vec![0.0, 0.0, 0.173, 0.0, 0.626, 0.006, 0.0, 0.0, 0.0, 0.159,],
         0.001
     ));
 }
@@ -233,18 +220,7 @@ fn call_continuous_multi_thread() {
     assert_eq!(best_chromosome.fitness_score, Some(964));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![
-            0.0,
-            0.0,
-            0.17363752,
-            0.0,
-            0.62618715,
-            0.0061164834,
-            0.0,
-            0.0,
-            0.0,
-            0.15902928,
-        ],
+        vec![0.0, 0.0, 0.173, 0.0, 0.626, 0.006, 0.0, 0.0, 0.0, 0.159,],
         0.001
     ));
 }
