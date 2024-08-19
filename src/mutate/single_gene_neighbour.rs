@@ -28,7 +28,7 @@ impl Mutate for SingleGeneNeighbour {
             .filter(|c| c.age == 0)
         {
             if bool_sampler.sample(rng) {
-                genotype.mutate_chromosome_neighbour(chromosome, None, rng);
+                genotype.mutate_chromosome_neighbour(chromosome, state.current_scale_index, rng);
             }
         }
     }

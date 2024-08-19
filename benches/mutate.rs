@@ -42,7 +42,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .map(|_| genotype.chromosome_factory(&mut rng))
                 .collect();
             let population = Population::new(chromosomes);
-            let mut state = EvolveState::new(population);
+            let mut state = EvolveState::new(&genotype, population);
             let config = EvolveConfig::new();
             CountTrue.call_for_population(&mut state.population, None);
 

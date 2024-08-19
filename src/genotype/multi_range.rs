@@ -217,6 +217,11 @@ where
     fn seed_genes_list(&self) -> &Vec<Vec<T>> {
         &self.seed_genes_list
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        self.allele_neighbour_scaled_ranges
+            .as_ref()
+            .map(|r| r.len() - 1)
+    }
 }
 
 impl<T: Allele + Copy + Default + Zero + Into<f64> + Add<Output = T> + std::cmp::PartialOrd>
@@ -331,11 +336,6 @@ where
     }
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(2 * self.genes_size)
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        self.allele_neighbour_scaled_ranges
-            .as_ref()
-            .map(|r| r.len() - 1)
     }
 }
 

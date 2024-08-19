@@ -42,6 +42,16 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
+/// There is optional scaling of [RangeGenotype](crate::genotype::RangeGenotype) and
+/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring_chromosomes:
+/// * With scaling (set allele_neighbour_scaled_range(s) on genotype):
+///     * Mutate only on edges of current scale (e.g. -1 and +1 for -1..-1 scale), pick random edge
+///     * Scale down after max_stale_generations is reached and reset max_stale_generations to zero
+///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
+/// * Without scaling (set allele_neighbour_range(s) on genotype):
+///     * Mutate uniformly over neighbouring range
+///     * Standard max_stale_generations ending condition
+///
 /// There are reporting hooks in the loop receiving the [EvolveState], which can by handled by an
 /// [EvolveReporter] (e.g. [EvolveReporterNoop], [EvolveReporterSimple]). But you are encouraged to
 /// roll your own, see [EvolveReporter].
@@ -136,6 +146,8 @@ pub struct EvolveState<A: Allele> {
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
 
+    pub current_scale_index: Option<usize>,
+    pub max_scale_index: usize,
     pub population: Population<A>,
 }
 
@@ -206,6 +218,7 @@ impl<
             }
             //self.ensure_best_chromosome(population);
             self.reporter.on_new_generation(&self.state, &self.config);
+            self.state.scale(&self.config);
         }
         self.reporter.on_finish(&self.state, &self.config);
     }
@@ -367,6 +380,18 @@ impl<A: Allele> EvolveState<A> {
             _ => self.increment_stale_generations(),
         }
     }
+    fn scale(&mut self, config: &EvolveConfig) {
+        if let Some(current_scale_index) = self.current_scale_index {
+            if let Some(max_stale_generations) = config.max_stale_generations {
+                if self.stale_generations >= max_stale_generations
+                    && current_scale_index < self.max_scale_index
+                {
+                    self.current_scale_index = Some(current_scale_index + 1);
+                    self.reset_stale_generations();
+                }
+            }
+        }
+    }
 }
 
 impl<
@@ -436,8 +461,12 @@ impl<
                 "Evolve requires at least a max_stale_generations or target_fitness_score ending condition",
             ))
         } else {
+            let genotype = builder.genotype.unwrap();
+            let population = Population::new_empty();
+            let state = EvolveState::new(&genotype, population);
+
             Ok(Self {
-                genotype: builder.genotype.unwrap(),
+                genotype,
                 fitness: builder.fitness.unwrap(),
                 plugins: EvolvePlugins {
                     mutate: builder.mutate.unwrap(),
@@ -454,7 +483,7 @@ impl<
                     fitness_ordering: builder.fitness_ordering,
                     multithreading: builder.multithreading,
                 },
-                state: EvolveState::default(),
+                state,
                 reporter: builder.reporter,
             })
         }
@@ -486,6 +515,8 @@ impl<A: Allele> Default for EvolveState<A> {
             current_iteration: 0,
             current_generation: 0,
             stale_generations: 0,
+            current_scale_index: None,
+            max_scale_index: 0,
             best_generation: 0,
             best_chromosome: None,
             population: Population::new_empty(),
@@ -493,10 +524,19 @@ impl<A: Allele> Default for EvolveState<A> {
     }
 }
 impl<A: Allele> EvolveState<A> {
-    pub fn new(population: Population<A>) -> Self {
-        Self {
-            population,
-            ..Default::default()
+    pub fn new<G: Genotype>(genotype: &G, population: Population<A>) -> Self {
+        if let Some(max_scale_index) = genotype.max_scale_index() {
+            Self {
+                current_scale_index: Some(0),
+                max_scale_index,
+                population,
+                ..Default::default()
+            }
+        } else {
+            Self {
+                population,
+                ..Default::default()
+            }
         }
     }
 }
@@ -558,6 +598,12 @@ impl<A: Allele> fmt::Display for EvolveState<A> {
         writeln!(f, "evolve_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
+        writeln!(f, "  stale generations: {:?}", self.stale_generations)?;
+        writeln!(
+            f,
+            "  scale index (current/max): {:?}/{}",
+            self.current_scale_index, self.max_scale_index
+        )?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
         writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
     }

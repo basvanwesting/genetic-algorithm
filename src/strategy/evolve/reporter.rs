@@ -21,9 +21,11 @@ use std::marker::PhantomData;
 ///     fn on_new_generation(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
-///                 "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {}, current_population_size: {}",
+///                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {}, current_population_size: {}",
 ///                 state.current_generation(),
+///                 state.stale_generations(),
 ///                 state.best_generation(),
+///                 state.current_scale_index.as_ref(),
 ///                 state.population.fitness_score_cardinality(),
 ///                 state.population.size(),
 ///             );
@@ -32,10 +34,11 @@ use std::marker::PhantomData;
 ///
 ///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
 ///         println!(
-///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, population_size: {}",
+///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}, population_size: {}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
 ///             state.best_chromosome_as_ref().map(|c| &c.genes),
+///             state.current_scale_index.as_ref(),
 ///             state.population.size(),
 ///         );
 ///     }
@@ -169,9 +172,11 @@ impl<A: Allele> Reporter for Simple<A> {
         if state.current_generation() % self.period == 0 {
             let width = config.target_population_size.to_string().len();
             println!(
-                "periodic - current_generation: {}, best_generation: {}, fitness_score_cardinality: {:>width$}, current_population_size: {:>width$}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {:>width$}, current_population_size: {:>width$}, #extension_events: {}",
                 state.current_generation(),
+                state.stale_generations(),
                 state.best_generation(),
+                state.current_scale_index.as_ref(),
                 state.population.fitness_score_cardinality(),
                 state.population.size(),
                 self.number_of_extension_events,
@@ -187,7 +192,7 @@ impl<A: Allele> Reporter for Simple<A> {
         _config: &EvolveConfig,
     ) {
         println!(
-            "new best - generation: {}, fitness_score: {:?}, genes: {:?}, population_size: {}",
+            "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}, population_size: {}",
             state.current_generation(),
             state.best_fitness_score(),
             if self.show_genes {
@@ -195,6 +200,7 @@ impl<A: Allele> Reporter for Simple<A> {
             } else {
                 None
             },
+            state.current_scale_index.as_ref(),
             state.population.size(),
         );
     }

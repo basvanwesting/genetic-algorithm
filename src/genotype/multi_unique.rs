@@ -151,6 +151,9 @@ impl<T: Allele> Genotype for MultiUnique<T> {
     fn seed_genes_list(&self) -> &Vec<Vec<T>> {
         &self.seed_genes_list
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl<T: Allele> IncrementalGenotype for MultiUnique<T> {
@@ -190,9 +193,6 @@ impl<T: Allele> IncrementalGenotype for MultiUnique<T> {
                 n.factorial() / (k.factorial() * (n - k).factorial())
             })
             .sum()
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        None
     }
 }
 

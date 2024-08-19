@@ -59,9 +59,7 @@ impl<T: Allele> TryFrom<Builder<Self>> for List<T> {
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.genes_size.is_none() {
-            Err(TryFromBuilderError(
-                "ListGenotype requires a genes_size",
-            ))
+            Err(TryFromBuilderError("ListGenotype requires a genes_size"))
         } else if builder.allele_list.is_none() {
             Err(TryFromBuilderError("ListGenotype requires allele_list"))
         } else if builder.allele_list.as_ref().map(|o| o.is_empty()).unwrap() {
@@ -114,6 +112,9 @@ impl<T: Allele> Genotype for List<T> {
     fn seed_genes_list(&self) -> &Vec<Vec<T>> {
         &self.seed_genes_list
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl<T: Allele> IncrementalGenotype for List<T> {
@@ -140,9 +141,6 @@ impl<T: Allele> IncrementalGenotype for List<T> {
 
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from((self.allele_list.len() - 1) * self.genes_size)
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        None
     }
 }
 

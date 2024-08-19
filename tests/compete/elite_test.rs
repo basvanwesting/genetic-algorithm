@@ -3,11 +3,15 @@ use crate::support::*;
 use genetic_algorithm::compete::{Compete, CompeteElite};
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
-use genetic_algorithm::genotype::BinaryAllele;
+use genetic_algorithm::genotype::{BinaryAllele, BinaryGenotype, Genotype};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
 fn maximize_population_surplus() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
     let population = build::population(vec![
         vec![false, false, false],
         vec![false, false, true],
@@ -19,7 +23,7 @@ fn maximize_population_surplus() {
         vec![true, true, true],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
@@ -43,13 +47,17 @@ fn maximize_population_surplus() {
 
 #[test]
 fn maximize_population_shortage() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
     let population = build::population(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
@@ -72,6 +80,10 @@ fn maximize_population_shortage() {
 
 #[test]
 fn minimize_population_surplus() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
     let population = build::population(vec![
         vec![false, false, false],
         vec![false, false, true],
@@ -83,7 +95,7 @@ fn minimize_population_surplus() {
         vec![true, true, true],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
@@ -107,13 +119,17 @@ fn minimize_population_surplus() {
 
 #[test]
 fn minimize_population_shortage() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
     let population = build::population(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
@@ -136,6 +152,10 @@ fn minimize_population_shortage() {
 
 #[test]
 fn fitness_ordering_with_none_fitness() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
     let population = build::population_with_fitness_scores(vec![
         (vec![false, false, false], Some(0)),
         (vec![false, false, true], Some(1)),
@@ -144,7 +164,7 @@ fn fitness_ordering_with_none_fitness() {
         (vec![true, true, false], None),
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     let config = EvolveConfig {

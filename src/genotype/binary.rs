@@ -79,6 +79,9 @@ impl Genotype for Binary {
     fn seed_genes_list(&self) -> &Vec<Vec<BinaryAllele>> {
         &self.seed_genes_list
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl IncrementalGenotype for Binary {
@@ -99,9 +102,6 @@ impl IncrementalGenotype for Binary {
 
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(self.genes_size)
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        None
     }
 }
 

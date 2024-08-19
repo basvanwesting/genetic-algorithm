@@ -1,11 +1,11 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{RangeGenotype, Genotype};
+use genetic_algorithm::genotype::{Genotype, RangeGenotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGeneNeighbour};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
-fn range_float_genotype() {
+fn range_float_genotype_unscaled() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
@@ -20,7 +20,7 @@ fn range_float_genotype() {
         vec![0.5, 0.5, 0.5],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -78,6 +78,82 @@ fn range_float_genotype() {
 }
 
 #[test]
+fn range_float_genotype_scaled() {
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_neighbour_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
+        .build()
+        .unwrap();
+
+    let population = build::population(vec![
+        vec![0.5, 0.5, 0.5],
+        vec![0.5, 0.5, 0.5],
+        vec![0.5, 0.5, 0.5],
+        vec![0.5, 0.5, 0.5],
+    ]);
+
+    let mut state = EvolveState::new(&genotype, population);
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
+    let mut rng = SmallRng::seed_from_u64(0);
+    MutateSingleGeneNeighbour::new(0.5).call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
+    assert!(relative_population_eq(
+        inspect::population(&state.population),
+        vec![
+            vec![0.5, 0.6, 0.5],
+            vec![0.5, 0.5, 0.6],
+            vec![0.5, 0.5, 0.5],
+            vec![0.5, 0.6, 0.5],
+        ],
+        0.001,
+    ));
+
+    MutateSingleGeneNeighbour::new(0.5).call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
+    assert!(relative_population_eq(
+        inspect::population(&state.population),
+        vec![
+            vec![0.5, 0.6, 0.6],
+            vec![0.5, 0.5, 0.5],
+            vec![0.6, 0.5, 0.5],
+            vec![0.5, 0.6, 0.5],
+        ],
+        0.001,
+    ));
+
+    state.current_scale_index = Some(1);
+    MutateSingleGeneNeighbour::new(0.5).call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
+    assert!(relative_population_eq(
+        inspect::population(&state.population),
+        vec![
+            vec![0.5, 0.6, 0.6],
+            vec![0.51, 0.5, 0.5],
+            vec![0.6, 0.5, 0.51],
+            vec![0.5, 0.6, 0.49]
+        ],
+        0.001
+    ));
+}
+
+#[test]
 fn range_integer_genotype() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
@@ -93,7 +169,7 @@ fn range_integer_genotype() {
         vec![0, 0, 0],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);

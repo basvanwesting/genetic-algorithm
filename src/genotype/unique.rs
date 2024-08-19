@@ -113,6 +113,9 @@ impl<T: Allele> Genotype for Unique<T> {
     fn seed_genes_list(&self) -> &Vec<Vec<T>> {
         &self.seed_genes_list
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl<T: Allele> IncrementalGenotype for Unique<T> {
@@ -138,9 +141,6 @@ impl<T: Allele> IncrementalGenotype for Unique<T> {
         let k = BigUint::from(2usize);
 
         n.factorial() / (k.factorial() * (n - k).factorial())
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        None
     }
 }
 

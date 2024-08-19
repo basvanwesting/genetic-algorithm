@@ -100,6 +100,7 @@ pub trait Genotype:
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<Self::Allele>>);
     fn seed_genes_list(&self) -> &Vec<Vec<Self::Allele>>;
+    fn max_scale_index(&self) -> Option<usize>;
 }
 
 //Evolvable is implicit, until proven otherwise
@@ -129,7 +130,6 @@ pub trait IncrementalGenotype: Genotype {
     }
     /// chromosome neighbours size for the all possible neighbouring mutation combinations
     fn neighbouring_population_size(&self) -> BigUint;
-    fn max_scale_index(&self) -> Option<usize>;
 }
 
 /// Genotype suitable for [Permutate](crate::strategy::permutate::Permutate).

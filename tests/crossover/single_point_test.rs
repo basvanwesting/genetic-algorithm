@@ -18,7 +18,7 @@ fn population_even() {
         vec![false, false, false, false, false],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -49,7 +49,7 @@ fn population_even_keep_parents() {
         vec![false, false, false, false, false],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);

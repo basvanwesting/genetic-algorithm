@@ -156,6 +156,9 @@ impl<T: Allele> Genotype for MultiList<T> {
     fn seed_genes_list(&self) -> &Vec<Vec<T>> {
         &self.seed_genes_list
     }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
 }
 
 impl<T: Allele> IncrementalGenotype for MultiList<T> {
@@ -184,9 +187,6 @@ impl<T: Allele> IncrementalGenotype for MultiList<T> {
 
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(self.allele_list_sizes.iter().map(|v| *v - 1).sum::<usize>())
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        None
     }
 }
 

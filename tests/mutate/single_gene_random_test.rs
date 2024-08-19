@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{BinaryGenotype, ListGenotype, Genotype};
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGeneRandom};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
@@ -18,7 +18,7 @@ fn binary_genotype() {
         vec![true, true, true],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -50,7 +50,7 @@ fn list_genotype() {
         vec![0, 0, 0],
     ]);
 
-    let mut state = EvolveState::new(population);
+    let mut state = EvolveState::new(&genotype, population);
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);

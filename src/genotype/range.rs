@@ -75,13 +75,9 @@ where
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.genes_size.is_none() {
-            Err(TryFromBuilderError(
-                "RangeGenotype requires a genes_size",
-            ))
+            Err(TryFromBuilderError("RangeGenotype requires a genes_size"))
         } else if builder.allele_range.is_none() {
-            Err(TryFromBuilderError(
-                "RangeGenotype requires a allele_range",
-            ))
+            Err(TryFromBuilderError("RangeGenotype requires a allele_range"))
         } else {
             let genes_size = builder.genes_size.unwrap();
             let allele_range = builder.allele_range.unwrap();
@@ -169,6 +165,11 @@ where
     }
     fn seed_genes_list(&self) -> &Vec<Vec<Self::Allele>> {
         &self.seed_genes_list
+    }
+    fn max_scale_index(&self) -> Option<usize> {
+        self.allele_neighbour_scaled_range
+            .as_ref()
+            .map(|r| r.len() - 1)
     }
 }
 
@@ -280,16 +281,9 @@ where
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(2 * self.genes_size)
     }
-
-    fn max_scale_index(&self) -> Option<usize> {
-        self.allele_neighbour_scaled_range
-            .as_ref()
-            .map(|r| r.len() - 1)
-    }
 }
 
-impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Clone
-    for Range<T>
+impl<T: Allele + Copy + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Clone for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
