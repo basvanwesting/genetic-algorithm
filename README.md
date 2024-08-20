@@ -1,3 +1,5 @@
+[![Rust](https://github.com/basvanwesting/genetic-algorithm/actions/workflows/rust.yml/badge.svg)](https://github.com/basvanwesting/genetic-algorithm/actions/workflows/rust.yml)
+
 # genetic-algorithm
 A genetic algorithm implementation for Rust.
 Inspired by the book [Genetic Algorithms in Elixir](https://pragprog.com/titles/smgaelixir/genetic-algorithms-in-elixir/)
