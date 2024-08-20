@@ -103,18 +103,13 @@ pub trait StrategyState<A: Allele> {
 
 /// Reporter with event hooks in the Strategy process
 ///
-/// Supertrait StrategyReporter is not used, because of error
-/// [E0658: associated type defaults are unstable](https://github.com/rust-lang/rust/issues/29661)
-/// So it is only shadowed, as if it existed as a supertrait for now.
+/// As this is a primary API for clients, which are encouraged to implement their own reporters, we
+/// want the API to resemble the Fitness API (which is also custom implemented by clients).
+/// Therefore we only want to set a associated trait Allele in the API. The error [E0658:
+/// associated type defaults are unstable](https://github.com/rust-lang/rust/issues/29661) blocks
+/// this API design. Thus Supertrait StrategyReporter is not used. It is only shadowed, as if it
+/// existed as a supertrait for now.
 ///
-/// ```ignore
-/// pub trait PermutateReporter: StrategyReporter
-/// where
-///     <Self as StrategyReporter>::Genotype: PermutableGenotype,
-/// {
-///     type State = PermutateState<Self::Genotype::Allele>;
-/// }
-/// ```
 pub trait StrategyReporter: Clone + Send + Sync {
     type Allele: Allele;
     type State: StrategyState<Self::Allele>;

@@ -4,51 +4,45 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.0] - 2024-08-19
-### Added
+## [0.9.0] - 2024-08-20
+This is a major breaking release, see Changed:
+
 ### Changed
+* Add formal `Allele` trait: `Allele: Clone + Send + Sync + PartialEq + Debug`
+* Change associated type from `Genotype` to `Allele` for: `Fitness`, `EvolveReporter`, `HillClimbReporter` and `PermutateReporter`
+* Change generic type `Genotype` to `Allele` for: `Chromosome`, `Population` and other structs/functions using these types
+* Rename `DiscreteGenotype` to `ListGenotype` (incl. Multi)
+* Rename `ContinuousGenotype` to `RangeGenotype` (incl Multi)
+* Generalize `RangeGenotype` for numeric types (incl. Multi, default still f32, but other float and integer types are now supported)
+* Replace `Range` with `RangeInclusive` for all ranges in `RangeGenotype` in order to handle integer ranges more intuitively (incl. Multi)
+* Change `Fitness` placeholders `SumContinuousAllele` and `SumDiscreteAllele` to generalized `SumGenes` (with optional precision)
+* Reimplement scaling completely now `RangeGenotype` is generalized. 
+  * Drop f32 `Scaling` logic
+  * Set `allele_mutation_scaled_range` on `RangeGenotype` to define scaling (incl. Multi) instead of `with_scaling()` in `HillClimb` build step
+  * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
+  * Scale down after `max_stale_generations` is reached and reset new `stale_generations` counter to zero
+  * Only trigger `max_stale_generations` ending condition when already reached the smallest scale
+* How to mutate now fully controlled by `Genotype` with random, relative or scaled mutations options (relative and scaled only possible for RangeGenotype, incl. Multi)
+  * Rename `MutateSingleGeneRandom` to `MutateSingleGene` as it just calls `mutate_chromosome()` on `Genotype`
+  * Rename `MutateSingleGeneRandomDynamic` to `MutateSingleGeneDynamic` as it just calls `mutate_chromosome()` on `Genotype`
+  * Rename `MutateMultiGeneRandom` to `MutateMultiGene` as it just calls `mutate_chromosome()` on `Genotype`
+  * Rename `MutateMultiGeneRandomDynamic` to `MutateMultiGeneDynamic`as it just calls `mutate_chromosome()` on `Genotype`
+  * Rename `allele_neighbour_range` to `allele_mutation_range` in `RangeGenoype` (incl. Multi) to define relative mutation
+  * Add `allele_mutation_scaled_range` to `RangeGenotype` (incl. Multi) to define scaled mutation
+* All changes to `RangeGenotype` are reflected in `MultiRangeGenotype` as well
 
-* (HEAD -> feature/generic_continuous_genotype, origin/feature/generic_continuous_genotype) Rename MutateSingleGeneRandom to MutateSingleGene Rename MutateSingleGeneRandomDynamic to MutateSingleGeneDynamic Rename MutateMult iGeneRandom to MutateMultiGene Rename MutateMultiGeneRandomDynamic to MutateMultiGeneDynamic
-* Remove MutateSingleGeneNeighbour as random v. neighbour is no longer decided by caller
-* Move decision between random, neighbour-scaled and neighbour-unscaled mutation from caller to genotype internal implementation. Allow for fallback to complete allele_range when allele_neighbour_(scaled_)range not set
-* Revert "refactor reset and increment stale generations to strategy"
-* refactor reset and increment stale generations to strategy, but don't like the result, reverting in next commit
-* Add replace_on_equal_fitness to HillClimb, default to true as the best chromosome is take as base for next step, which sometimes crucial Add replace_on_equal_fitness to Evolve, default to false, since the best chromosome is less important, but useful for mass extinction events Add replace_on_equal_fitness to Permutate, default to false, since it makes no sense at all
-* Add scaling to Evolve as well (just like HillClimb)
-* Refactor DiscreteGenotype to ListGenotype Refactor MultiDiscreteGenotype to MultiListGenotype Refactor ContinuousGenotype to RangeGenotype Refactor MultiContinuousGenotype to MultiRangeGenotype
-* Add scaling documentation
-* remove all unneeded precision in tests
-* Add increment_stale_generations on no valid fitness for HillClimb and Evolve Implement max_scale_index for MultiContinuousGenotype
-* Align MultiContinuousGenotype scaling implementation with ContinuousGenotype
-* Generalize fitness summing placeholders into SumGenes with optional precision
-* remove unused allele_neighbour_scaled_sampler remove unused TryFromGenotypeBuilderError in evolve test
-* Align all StrategyState implementations and add shadowed StrategyReporter trait function update_best_chromosome_and_report Use stale_generations for is_finished_by_max_stale_generations for Evolve as well
-* Implement new scaling implementation in HillClimb Use separate stale_generations to keep track of staleness per scale
-* Ensure range.sample(rng) for unscaled neighbour always has a smalller and larger neighbour for the neighbouring_population set
-* Add rng to Genotype::neighbouring_population Always use range start/end for scaled neighour (incl. single mutation) Always use range.sample(rng) for unscaled neighbour (incl. population)
-* Add show_equal_fitness flag to HillClimbReporterSimple as example/hill_climb_continuous sometimes doesn't resolve
-* Remove legacy f32 scaling logic in HillClimb
-* Hookup scale_index in HillClimb process
-* Add with_allele_neighbour_scaled_range for ContinuousGenotype with index addressing from caller
-* Change example/hill_climb_continuous and example/evolve_continuous_float to optimize the distance-to 0.5 for each gene, instead of max (which can't overshoot) Use this distance-to to prove HillClimbVariant SteepestAscent needs scaling, otherwise it can't find a target fitness
-* Replace MultiContinuousGenotype with static f32 implementation with generic implementation
-* Add multi_continuous_t implementation next to multi_continuous_f32
-* Replace ContinuousGenotype with static f32 implementation with generic implementation #3
-* Change SumContinuousAllele to SumF32 Change SumDiscreteAllele to SumUsize and SumIsize
-* Replace Range with RangeInclusive for allele ranges in order to handle integer ranges more intuitively
-* Enable continuous_t module instead of fixed continuous_f32 module Issue with exclusive range end on integer range
-* Revert "Remove Associated trait Allele from StrategyReporter, use simple generic functions" The client API will use only one specific implementation of Allele for Fitness and Reporting. So an associated type fits the API best
-* Remove Associated trait Allele from StrategyReporter, use simple generic functions
-* Change StrategyReporter to take Allele instead of Genotype as well
-* cargo tests and bench green
-* cargo build runs
-* Change Chromosome, Population and Fitness to take Allele instead of Genotype, RED EOD
-* Add formal Allele trait
-* Explicit type list doesn't help
-* Added first attempt at ContinuousGenotype<T>, but having Send + Sync issues with SampleUniform
-* (origin/main, main) Rename MutateSingleGeneDistance to MutateSingleGeneNeighbour
-* Reimplement MutateSingleGeneDistance to use mutate_chromosome_neighbour where the genotype already defines the distance range through allele_neighbour_range Move mutate_chromosome_neighbour from the IncrementalGenotype tr ait to the Genotype trait and provide blanked fallback to mutate_chromosome_random Only truly implement mutate_chromosome_neighbour for ContinuousGenotype and MultiContinuousGenotype (as is)
+### Added
+* Allow relative mutations for `Evolve` as well, as it is a `Genotype` responsibility now
+* Allow scaled mutations for `Evolve` as well, as it is a `Genotype` responsibility now
+  * Scale down after `max_stale_generations` is reached and reset `max_stale_generations` to zero
+  * Only trigger `max_stale_generations` ending condition when already reached the smallest scale
+* Add `replace_on_equal_fitness` to builders to allow for lateral moves in search space
+  * `Evolve`: defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
+  * `HillClimb`: defaults to true, crucial for some type of problems with discrete fitness steps like nqueens
+  * `Permutate`: defaults to false, makes no sense to use in this strategy
 
+### Removed
+* Drop `MutateSingleGeneDistance` as random, relative or scaled mutations are now handled by `Genotype` and not the caller
 
 ## [0.8.2] - 2024-08-09
 ### Added

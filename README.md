@@ -73,7 +73,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
     * See [examples/evolve_knapsack](../main/examples/evolve_knapsack.rs)
     * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
-    * `BinaryGenotype<(weight, value)>` each gene encodes presence in the knapsack
+    * `BinaryGenotype<Item(weight, value)>` each gene encodes presence in the knapsack
     * custom `KnapsackFitness(&items, weight_limit)` fitness
 * Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
     * See [examples/evolve_monkeys](../main/examples/evolve_monkeys.rs)

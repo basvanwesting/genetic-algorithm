@@ -13,7 +13,7 @@
 //! * [Population](crate::population): a population has `population_size` number of individuals (called chromosomes).
 //! * [Chromosome](crate::chromosome): a chromosome has `genes_size` number of genes
 //! * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
-//! * Allele: alleles are the possible values of the genes
+//! * [Allele](crate::genotype::Allele): alleles are the possible values of the genes
 //! * [Genotype](crate::genotype): holds the `genes_size` and alleles and knows how to generate and mutate chromosomes efficiently
 //! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
 //!
@@ -67,7 +67,7 @@
 //! * Knapsack problem: <https://en.wikipedia.org/wiki/Knapsack_problem>
 //!     * See [examples/evolve_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_knapsack.rs)
 //!     * See [examples/permutate_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_knapsack.rs)
-//!     * `BinaryGenotype<(weight, value)>` each gene encodes presence in the knapsack
+//!     * `BinaryGenotype<Item(weight, value)>` each gene encodes presence in the knapsack
 //!     * custom `KnapsackFitness(&items, weight_limit)` fitness
 //! * Infinite Monkey theorem: <https://en.wikipedia.org/wiki/Infinite_monkey_theorem>
 //!     * See [examples/evolve_monkeys](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_monkeys.rs)

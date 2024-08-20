@@ -2,7 +2,8 @@
 //!
 //! Each problem will usually have its own specific [Fitness] function, therefore you need to
 //! implement it yourself. Because the [Fitness] function is specific, it is also bound to the
-//! [genotype](crate::genotype) through a trait attribute (no reason to make it generic).
+//! [Allele] through a trait attribute (no reason to make it generic, as the client implements for
+//! a single [Allele] type).
 //!
 //! See [Fitness] Trait
 pub mod placeholders;
