@@ -34,7 +34,7 @@ This is a major breaking release, see Changed:
 ### Added
 * Allow relative mutations for `Evolve` as well, as it is a `Genotype` responsibility now
 * Allow scaled mutations for `Evolve` as well, as it is a `Genotype` responsibility now
-  * Scale down after `max_stale_generations` is reached and reset `max_stale_generations` to zero
+  * Scale down after `max_stale_generations` is reached and reset `stale_generations` to zero
   * Only trigger `max_stale_generations` ending condition when already reached the smallest scale
 * Add `replace_on_equal_fitness` to builders to allow for lateral moves in search space
   * `Evolve`: defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events

@@ -64,7 +64,7 @@ pub enum HillClimbVariant {
 ///     * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
 ///         * Pick random edge for [HillClimbVariant::Stochastic]
 ///         * Take both edges per gene for [HillClimbVariant::SteepestAscent]
-///     * Scale down after max_stale_generations is reached and reset max_stale_generations to zero
+///     * Scale down after max_stale_generations is reached and reset stale_generations to zero
 ///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
 /// * With allele_mutation_range(s) set on genotype:
 ///     * Mutation distance taken uniformly from mutation range
