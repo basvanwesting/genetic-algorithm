@@ -1,8 +1,10 @@
 # genetic-algorithm
 
+![Crates.io MSRV][cmb]
 [![Tests][teb]][tel]
 [![MIT/Apache][lib]][lil]
 
+[cmb]: https://img.shields.io/crates/msrv/genetic-algorithm
 [teb]: https://github.com/basvanwesting/genetic-algorithm/actions/workflows/rust.yml/badge.svg
 [lib]: https://img.shields.io/badge/license-MIT%2FApache-blue.svg
 
