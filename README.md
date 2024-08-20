@@ -1,15 +1,19 @@
 # genetic-algorithm
 
-![Crates.io MSRV][cmb]
-[![Tests][teb]][tel]
-[![Crates.io License][lib]][lil]
+[![Crates.io MSRV][cmb]][cml]
+[![Crates.io Version][cvb]][cvl]
+[![Rust][rub]][rul]
+[![Crates.io License][clb]][cll]
 
 [cmb]: https://img.shields.io/crates/msrv/genetic-algorithm
-[teb]: https://github.com/basvanwesting/genetic-algorithm/actions/workflows/rust.yml/badge.svg
-[lib]: https://img.shields.io/crates/l/genetic-algorithm
+[cvb]: https://img.shields.io/crates/v/genetic-algorithm
+[clb]: https://img.shields.io/crates/l/genetic-algorithm
+[rub]: https://github.com/basvanwesting/genetic-algorithm/actions/workflows/rust.yml/badge.svg
 
-[tel]: https://github.com/basvanwesting/genetic-algorithm/actions/workflows/rust.yml
-[lil]: COPYRIGHT.txt
+[cml]: https://www.rust-lang.org
+[cvl]: https://crates.io/crates/genetic_algorithm
+[cll]: COPYRIGHT.txt
+[rul]: https://github.com/basvanwesting/genetic-algorithm/actions/workflows/rust.yml
 
 A genetic algorithm implementation for Rust.
 Inspired by the book [Genetic Algorithms in Elixir](https://pragprog.com/titles/smgaelixir/genetic-algorithms-in-elixir/)
