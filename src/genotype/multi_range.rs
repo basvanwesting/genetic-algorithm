@@ -377,7 +377,7 @@ where
 {
     fn clone(&self) -> Self {
         Self {
-            genes_size: self.genes_size.clone(),
+            genes_size: self.genes_size,
             allele_ranges: self.allele_ranges.clone(),
             allele_mutation_ranges: self.allele_mutation_ranges.clone(),
             allele_mutation_scaled_ranges: self.allele_mutation_scaled_ranges.clone(),

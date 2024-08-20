@@ -316,11 +316,11 @@ where
 {
     fn clone(&self) -> Self {
         Self {
-            genes_size: self.genes_size.clone(),
+            genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
             allele_mutation_range: self.allele_mutation_range.clone(),
             allele_mutation_scaled_range: self.allele_mutation_scaled_range.clone(),
-            gene_index_sampler: self.gene_index_sampler.clone(),
+            gene_index_sampler: self.gene_index_sampler,
             allele_sampler: Uniform::from(self.allele_range.clone()),
             allele_relative_sampler: self
                 .allele_mutation_range

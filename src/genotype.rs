@@ -133,7 +133,7 @@ pub trait PermutableGenotype: Genotype {
             (0..self.genes_size())
                 .map(|_| self.allele_list_for_chromosome_permutations())
                 .multi_cartesian_product()
-                .map(|genes| Chromosome::new(genes)),
+                .map(Chromosome::new),
         )
     }
 
