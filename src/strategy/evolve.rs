@@ -44,14 +44,14 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///
 /// There are optional mutation distance limitations for
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
-/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring chromosomes. Listed in
-/// descending priority:
-/// * With allele_neighbour_scaled_range(s) set on genotype:
+/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) chromosomes. Listed in descending
+/// priority:
+/// * With allele_mutation_scaled_range(s) set on genotype:
 ///     * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale), pick random edge
 ///     * Scale down after max_stale_generations is reached and reset max_stale_generations to zero
 ///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
-/// * With allele_neighbour_range(s) set on genotype:
-///     * Mutation distance uniformly over neighbouring range
+/// * With allele_mutation_range(s) set on genotype:
+///     * Mutation distance taken uniformly from mutation range
 ///     * Standard max_stale_generations ending condition
 /// * With only allele_range(s) set on genotype:
 ///     * Mutate uniformly over the complete allele range
@@ -96,7 +96,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .with_multithreading(true)                             // optional, defaults to false, use all cores for calculating the fitness of the population
 ///     .with_replace_on_equal_fitness(true)                   // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
 ///     .with_crossover(CrossoverUniform::new(true))           // crossover all individual genes between 2 chromosomes for offspring
-///     .with_mutate(MutateSingleGene::new(0.2))         // mutate a single gene with a 20% probability per chromosome
+///     .with_mutate(MutateSingleGene::new(0.2))               // mutate a single gene with a 20% probability per chromosome
 ///     .with_compete(CompeteElite::new())                     // sort the chromosomes by fitness to determine crossover order
 ///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
 ///     .with_reporter(EvolveReporterSimple::new(100))         // optional builder step, report every 100 generations

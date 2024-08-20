@@ -29,11 +29,11 @@ fn float_random() {
 }
 
 #[test]
-fn float_neighbour_unscaled() {
+fn float_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
-        .with_allele_neighbour_ranges(vec![-0.1..=0.1, -0.5..=0.5, -1.0..=1.0])
+        .with_allele_mutation_ranges(vec![-0.1..=0.1, -0.5..=0.5, -1.0..=1.0])
         .build()
         .unwrap();
 
@@ -64,11 +64,11 @@ fn float_neighbour_unscaled() {
 }
 
 #[test]
-fn float_neighbour_scaled() {
+fn float_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
-        .with_allele_neighbour_scaled_ranges(vec![
+        .with_allele_mutation_scaled_ranges(vec![
             vec![-0.5..=0.5, -1.0..=1.0, -5.0..=5.0],
             vec![-0.1..=0.1, -0.5..=0.5, -1.0..=1.0],
             vec![-0.01..=0.01, -0.05..=0.05, -0.1..=0.1],
@@ -106,7 +106,7 @@ fn float_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0])
-        .with_allele_neighbour_ranges(vec![-0.1..=0.1])
+        .with_allele_mutation_ranges(vec![-0.1..=0.1])
         .build()
         .unwrap();
 
@@ -130,7 +130,7 @@ fn float_neighbouring_population_3_unscaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
-        .with_allele_neighbour_ranges(vec![-0.1..=0.1, -0.5..=0.5, -1.0..=1.0])
+        .with_allele_mutation_ranges(vec![-0.1..=0.1, -0.5..=0.5, -1.0..=1.0])
         .build()
         .unwrap();
 
@@ -161,7 +161,7 @@ fn float_neighbouring_population_3_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
-        .with_allele_neighbour_scaled_ranges(vec![
+        .with_allele_mutation_scaled_ranges(vec![
             vec![-0.5..=0.5, -1.0..=1.0, -5.0..=5.0],
             vec![-0.1..=0.1, -0.5..=0.5, -1.0..=1.0],
             vec![-0.01..=0.01, -0.05..=0.05, -0.1..=0.1],
@@ -234,11 +234,11 @@ fn integer_random() {
 }
 
 #[test]
-fn integer_neighbour() {
+fn integer_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
-        .with_allele_neighbour_ranges(vec![-1..=1, -2..=2, -3..=3])
+        .with_allele_mutation_ranges(vec![-1..=1, -2..=2, -3..=3])
         .build()
         .unwrap();
 
@@ -257,7 +257,7 @@ fn integer_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9])
-        .with_allele_neighbour_ranges(vec![-1..=1])
+        .with_allele_mutation_ranges(vec![-1..=1])
         .build()
         .unwrap();
 
@@ -276,7 +276,7 @@ fn integer_neighbouring_population_3() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
-        .with_allele_neighbour_ranges(vec![-1..=1, -2..=2, -3..=3])
+        .with_allele_mutation_ranges(vec![-1..=1, -2..=2, -3..=3])
         .build()
         .unwrap();
 

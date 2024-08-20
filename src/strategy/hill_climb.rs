@@ -60,14 +60,14 @@ pub enum HillClimbVariant {
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
 /// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring chromosomes. Listed in
 /// descending priority:
-/// * With allele_neighbour_scaled_range(s) set on genotype:
+/// * With allele_mutation_scaled_range(s) set on genotype:
 ///     * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
 ///         * Pick random edge for [HillClimbVariant::Stochastic]
 ///         * Take both edges per gene for [HillClimbVariant::SteepestAscent]
 ///     * Scale down after max_stale_generations is reached and reset max_stale_generations to zero
 ///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
-/// * With allele_neighbour_range(s) set on genotype:
-///     * Mutation distance uniformly over neighbouring range
+/// * With allele_mutation_range(s) set on genotype:
+///     * Mutation distance taken uniformly from mutation range
 ///         * Sample single random value for [HillClimbVariant::Stochastic]
 ///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
 ///     * Standard max_stale_generations ending condition
@@ -92,15 +92,15 @@ pub enum HillClimbVariant {
 /// use genetic_algorithm::fitness::placeholders::SumGenes;
 ///
 /// // the search space
-/// let genotype = RangeGenotype::builder() // f32 alleles
-///     .with_genes_size(16)                     // 16 genes
-///     .with_allele_range(0.0..=1.0)             // allow gene values between 0.0 and 1.0
-///     .with_allele_neighbour_range(-0.1..=0.1)  // neighbouring step size or 0.1 in both directions
-///     .with_allele_neighbour_scaled_range(vec![
+/// let genotype = RangeGenotype::builder()     // f32 alleles
+///     .with_genes_size(16)                    // 16 genes
+///     .with_allele_range(0.0..=1.0)           // allow gene values between 0.0 and 1.0
+///     .with_allele_mutation_range(-0.1..=0.1) // neighbouring step size randomly sampled from range
+///     .with_allele_mutation_scaled_range(vec![
 ///       -0.1..=0.1,
 ///       -0.01..=0.01,
 ///       -0.001..=0.001
-///      ]) // or use scaled neighbouring step size
+///      ]) // neighbouring step size equal to start/end of each scaled range
 ///     .build()
 ///     .unwrap();
 ///
@@ -108,15 +108,15 @@ pub enum HillClimbVariant {
 /// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
-///     .with_variant(HillClimbVariant::SteepestAscent)     // check all neighbours for each round
+///     .with_variant(HillClimbVariant::SteepestAscent)   // check all neighbours for each round
 ///     .with_fitness(SumGenes::new_with_precision(1e-5)) // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
-///     .with_fitness_ordering(FitnessOrdering::Minimize)   // aim for the lowest sum
-///     .with_multithreading(true)                          // optional, defaults to false, use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
-///     .with_target_fitness_score(10)                      // ending condition if sum of genes is <= 0.00010 in the best chromosome
-///     .with_valid_fitness_score(100)                      // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
-///     .with_max_stale_generations(1000)                   // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_replace_on_equal_fitness(true)                // optional, defaults to true, crucial for some type of problems with discrete fitness steps like nqueens
-///     .with_reporter(HillClimbReporterSimple::new(100))   // optional, report every 100 generations
+///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
+///     .with_multithreading(true)                        // optional, defaults to false, use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
+///     .with_target_fitness_score(10)                    // ending condition if sum of genes is <= 0.00010 in the best chromosome
+///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
+///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_replace_on_equal_fitness(true)              // optional, defaults to true, crucial for some type of problems with discrete fitness steps like nqueens
+///     .with_reporter(HillClimbReporterSimple::new(100)) // optional, report every 100 generations
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -148,8 +148,8 @@ pub struct HillClimbConfig {
 
 /// Stores the state of the HillClimb strategy. Next to the expected general fields, the following
 /// strategy specific fields are added:
-/// * current_scale_index: current index of [IncrementalGenotype]'s allele_neighbour_scaled_range
-/// * max_scale_index: max index of [IncrementalGenotype]'s allele_neighbour_scaled_range
+/// * current_scale_index: current index of [IncrementalGenotype]'s allele_mutation_scaled_range
+/// * max_scale_index: max index of [IncrementalGenotype]'s allele_mutation_scaled_range
 /// * contending_chromosome: available for all [variants](HillClimbVariant)
 /// * neighbouring_population: only available for SteepestAscent [variants](HillClimbVariant)
 pub struct HillClimbState<A: Allele> {

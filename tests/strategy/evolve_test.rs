@@ -458,7 +458,7 @@ fn call_range_isize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
-        .with_allele_neighbour_range(-1..=1)
+        .with_allele_mutation_range(-1..=1)
         .build()
         .unwrap();
     let mut rng = SmallRng::seed_from_u64(0);

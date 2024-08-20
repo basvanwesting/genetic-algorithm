@@ -10,13 +10,11 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /multi_gene_random/  => 'multi_gene',
-  /single_gene_random/ => 'single_gene',
+  /allele_neighbour_range/        => 'allele_mutation_range',
+  /allele_neighbour_scaled_range/ => 'allele_mutation_scaled_range',
 }
 
 other_translations = {
-  /MultiGeneRandom/  => 'MultiGene',
-  /SingleGeneRandom/ => 'SingleGene',
 }
 
 #check:

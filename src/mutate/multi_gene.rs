@@ -7,7 +7,7 @@ use rand::Rng;
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the provided mutation_probability. Then
 /// mutates the selected chromosomes the provided number of times, where the [Genotype] determines
-/// whether this is random, neighbour-scaled or neighbour-unscaled. Useful when a single mutation
+/// whether this is random, relative or scaled. Useful when a single mutation
 /// would generally not lead to improvement, because the problem space behaves more like a
 /// [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be swapped (but the
 /// UniqueGenotype doesn't map to the problem space well). Set number_of_mutations to two in that

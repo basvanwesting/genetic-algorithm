@@ -7,7 +7,7 @@ use rand::Rng;
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the provided mutation_probability. Then
 /// mutates the selected chromosomes once, where the [Genotype] determines whether this is random,
-/// neighbour-scaled or neighbour-unscaled.
+/// relative or scaled.
 #[derive(Debug, Clone)]
 pub struct SingleGene {
     pub mutation_probability: f32,

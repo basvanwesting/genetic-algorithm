@@ -27,9 +27,9 @@ fn main() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
-        // .with_allele_neighbour_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
-        // .with_allele_neighbour_range(-0.001..=0.001) // slow converge
-        .with_allele_neighbour_scaled_range(vec![
+        // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
+        // .with_allele_mutation_range(-0.001..=0.001) // slow converge
+        .with_allele_mutation_scaled_range(vec![
             -0.1..=0.1,
             -0.05..=0.05,
             -0.025..=0.025,

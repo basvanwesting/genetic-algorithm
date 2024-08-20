@@ -11,17 +11,17 @@ use std::ops::{Add, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
-/// Genes are a list of numeric values, each taken from the allele_range. On random initialization, each
-/// gene gets a value from the allele_range with a uniform probability. Each gene has an equal probability
-/// of mutating. If a gene mutates, a new value is taken from allele_range with a uniform probability.
+/// Genes are a list of numeric values, each taken from the allele_range. On random initialization,
+/// each gene gets a value from the allele_range with a uniform probability. Each gene has an equal
+/// probability of mutating. If a gene mutates, a new value is taken from allele_range with a
+/// uniform probability.
 ///
-/// For (optional) neighbouring logic an allele_neighbour_range or allele_neighbour_scaled_range
-/// must be provided.
-/// When allele_neighbour_range is provided the mutation is restricted to modify
-/// the existing value by a difference taken from allele_neighbour_range with a uniform
-/// probability.
-/// When allele_neighbour_scaled_range is provided the mutation is restricted to modify
-/// the existing value by a difference taken from edges of the scaled range (depending on current scale)
+/// Optionally the mutation range can be bound by relative allele_mutation_range or
+/// allele_mutation_scaled_range. When allele_mutation_range is provided the mutation is restricted
+/// to modify the existing value by a difference taken from allele_mutation_range with a uniform
+/// probability. When allele_mutation_scaled_range is provided the mutation is restricted to modify
+/// the existing value by a difference taken from start and end of the scaled range (depending on
+/// current scale)
 ///
 /// # Example (f32, default):
 /// ```
@@ -29,9 +29,9 @@ pub type DefaultAllele = f32;
 ///
 /// let genotype = RangeGenotype::builder()
 ///     .with_genes_size(100)
-///     .with_allele_range(0.0..=1.0)
-///     .with_allele_neighbour_range(-0.1..=0.1) // optional, only required for neighbouring logic
-///     .with_allele_neighbour_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001]) // optional, only required for neighbouring logic
+///     .with_allele_range(0.0..=1.0) // also default mutation range
+///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
+///     .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001]) // optional, restricts mutations to relative start/end of each scale
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -42,9 +42,9 @@ pub type DefaultAllele = f32;
 ///
 /// let genotype = RangeGenotype::<isize>::builder()
 ///     .with_genes_size(100)
-///     .with_allele_range(0..=100)
-///     .with_allele_neighbour_range(-1..=1) // optional, only required for neighbouring logic
-///     .with_allele_neighbour_scaled_range(vec![-10..=10, -3..=3, -1..=1]) // optional, only required for neighbouring logic
+///     .with_allele_range(0..=100) // also default mutation range
+///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range
+///     .with_allele_mutation_scaled_range(vec![-10..=10, -3..=3, -1..=1]) // optional, restricts mutations to relative start/end of each scale
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -56,11 +56,11 @@ pub struct Range<
 {
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
-    pub allele_neighbour_range: Option<RangeInclusive<T>>,
-    pub allele_neighbour_scaled_range: Option<Vec<RangeInclusive<T>>>,
+    pub allele_mutation_range: Option<RangeInclusive<T>>,
+    pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<T>>>,
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
-    allele_neighbour_sampler: Option<Uniform<T>>,
+    allele_relative_sampler: Option<Uniform<T>>,
     sign_sampler: Bernoulli,
     pub seed_genes_list: Vec<Vec<T>>,
 }
@@ -85,13 +85,13 @@ where
             Ok(Self {
                 genes_size,
                 allele_range: allele_range.clone(),
-                allele_neighbour_range: builder.allele_neighbour_range.clone(),
-                allele_neighbour_scaled_range: builder.allele_neighbour_scaled_range.clone(),
+                allele_mutation_range: builder.allele_mutation_range.clone(),
+                allele_mutation_scaled_range: builder.allele_mutation_scaled_range.clone(),
                 gene_index_sampler: Uniform::from(0..genes_size),
                 allele_sampler: Uniform::from(allele_range.clone()),
-                allele_neighbour_sampler: builder
-                    .allele_neighbour_range
-                    .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
+                allele_relative_sampler: builder
+                    .allele_mutation_range
+                    .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
                 sign_sampler: Bernoulli::new(0.5).unwrap(),
                 seed_genes_list: builder.seed_genes_list,
             })
@@ -109,13 +109,9 @@ where
         chromosome.genes[index] = self.allele_sampler.sample(rng);
         chromosome.taint_fitness_score();
     }
-    fn mutate_chromosome_neighbour_unscaled<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<T>,
-        rng: &mut R,
-    ) {
+    fn mutate_chromosome_relative<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
         let index = self.gene_index_sampler.sample(rng);
-        let value_diff = self.allele_neighbour_sampler.as_ref().unwrap().sample(rng);
+        let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
         let new_value = chromosome.genes[index] + value_diff;
         if new_value < *self.allele_range.start() {
             chromosome.genes[index] = *self.allele_range.start();
@@ -126,14 +122,14 @@ where
         }
         chromosome.taint_fitness_score();
     }
-    fn mutate_chromosome_neighbour_scaled<R: Rng>(
+    fn mutate_chromosome_scaled<R: Rng>(
         &self,
         chromosome: &mut Chromosome<T>,
         scale_index: usize,
         rng: &mut R,
     ) {
         let index = self.gene_index_sampler.sample(rng);
-        let working_range = &self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index];
+        let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
         let value_diff = if self.sign_sampler.sample(rng) {
             *working_range.start()
         } else {
@@ -181,10 +177,10 @@ where
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        if self.allele_neighbour_scaled_range.is_some() {
-            self.mutate_chromosome_neighbour_scaled(chromosome, scale_index.unwrap(), rng);
-        } else if self.allele_neighbour_range.is_some() {
-            self.mutate_chromosome_neighbour_unscaled(chromosome, rng);
+        if self.allele_mutation_scaled_range.is_some() {
+            self.mutate_chromosome_scaled(chromosome, scale_index.unwrap(), rng);
+        } else if self.allele_mutation_range.is_some() {
+            self.mutate_chromosome_relative(chromosome, rng);
         } else {
             self.mutate_chromosome_random(chromosome, rng);
         }
@@ -197,7 +193,7 @@ where
         &self.seed_genes_list
     }
     fn max_scale_index(&self) -> Option<usize> {
-        self.allele_neighbour_scaled_range
+        self.allele_mutation_scaled_range
             .as_ref()
             .map(|r| r.len() - 1)
     }
@@ -219,7 +215,7 @@ where
         let allele_range_end = *self.allele_range.end();
 
         if let Some(scale_index) = scale_index {
-            let working_range = &self.allele_neighbour_scaled_range.as_ref().unwrap()[scale_index];
+            let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
             let working_range_start = *working_range.start();
             let working_range_end = *working_range.end();
 
@@ -260,7 +256,7 @@ where
                 .map(Chromosome::new)
                 .collect::<Vec<_>>()
         } else {
-            let working_range = &self.allele_neighbour_range.as_ref().unwrap();
+            let working_range = &self.allele_mutation_range.as_ref().unwrap();
             let working_range_start = *working_range.start();
             let working_range_end = *working_range.end();
 
@@ -322,14 +318,14 @@ where
         Self {
             genes_size: self.genes_size.clone(),
             allele_range: self.allele_range.clone(),
-            allele_neighbour_range: self.allele_neighbour_range.clone(),
-            allele_neighbour_scaled_range: self.allele_neighbour_scaled_range.clone(),
+            allele_mutation_range: self.allele_mutation_range.clone(),
+            allele_mutation_scaled_range: self.allele_mutation_scaled_range.clone(),
             gene_index_sampler: self.gene_index_sampler.clone(),
             allele_sampler: Uniform::from(self.allele_range.clone()),
-            allele_neighbour_sampler: self
-                .allele_neighbour_range
+            allele_relative_sampler: self
+                .allele_mutation_range
                 .clone()
-                .map(|allele_neighbour_range| Uniform::from(allele_neighbour_range.clone())),
+                .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
             sign_sampler: Bernoulli::new(0.5).unwrap(),
             seed_genes_list: self.seed_genes_list.clone(),
         }
@@ -346,7 +342,7 @@ where
         f.debug_struct("Point")
             .field("genes_size", &self.genes_size)
             .field("allele_range", &self.allele_range)
-            .field("allele_neighbour_range", &self.allele_neighbour_range)
+            .field("allele_mutation_range", &self.allele_mutation_range)
             .field("gene_index_sampler", &self.gene_index_sampler)
             .field("seed_genes_list", &self.seed_genes_list)
             .finish()
@@ -365,8 +361,8 @@ where
         writeln!(f, "  allele_range: {:?}", self.allele_range)?;
         writeln!(
             f,
-            "  allele_neighbour_range: {:?}",
-            self.allele_neighbour_range
+            "  allele_mutation_range: {:?}",
+            self.allele_mutation_range
         )?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(

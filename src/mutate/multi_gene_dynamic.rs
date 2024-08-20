@@ -7,12 +7,12 @@ use rand::Rng;
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the dynamically updated mutation_probability.
 /// Then mutates the selected chromosomes the provided number of times, where the [Genotype]
-/// determines whether this is random, neighbour-scaled or neighbour-unscaled. The mutation
-/// probability is dynamically increased or decreased to achieve a target population cardinality.
-/// Useful when a single mutation would generally not lead to improvement, because the problem
-/// space behaves more like a [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be
-/// swapped (but the UniqueGenotype doesn't map to the problem space well). Set number_of_mutations
-/// to two in that situation.
+/// determines whether this is random, relative or scaled. The mutation probability is dynamically
+/// increased or decreased to achieve a target population cardinality. Useful when a single
+/// mutation would generally not lead to improvement, because the problem space behaves more like a
+/// [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be swapped (but the
+/// UniqueGenotype doesn't map to the problem space well). Set number_of_mutations to two in that
+/// situation.
 #[derive(Debug, Clone, Default)]
 pub struct MultiGeneDynamic {
     pub number_of_mutations: usize,

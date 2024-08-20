@@ -4,6 +4,52 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.0] - 2024-08-19
+### Added
+### Changed
+
+* (HEAD -> feature/generic_continuous_genotype, origin/feature/generic_continuous_genotype) Rename MutateSingleGeneRandom to MutateSingleGene Rename MutateSingleGeneRandomDynamic to MutateSingleGeneDynamic Rename MutateMult iGeneRandom to MutateMultiGene Rename MutateMultiGeneRandomDynamic to MutateMultiGeneDynamic
+* Remove MutateSingleGeneNeighbour as random v. neighbour is no longer decided by caller
+* Move decision between random, neighbour-scaled and neighbour-unscaled mutation from caller to genotype internal implementation. Allow for fallback to complete allele_range when allele_neighbour_(scaled_)range not set
+* Revert "refactor reset and increment stale generations to strategy"
+* refactor reset and increment stale generations to strategy, but don't like the result, reverting in next commit
+* Add replace_on_equal_fitness to HillClimb, default to true as the best chromosome is take as base for next step, which sometimes crucial Add replace_on_equal_fitness to Evolve, default to false, since the best chromosome is less important, but useful for mass extinction events Add replace_on_equal_fitness to Permutate, default to false, since it makes no sense at all
+* Add scaling to Evolve as well (just like HillClimb)
+* Refactor DiscreteGenotype to ListGenotype Refactor MultiDiscreteGenotype to MultiListGenotype Refactor ContinuousGenotype to RangeGenotype Refactor MultiContinuousGenotype to MultiRangeGenotype
+* Add scaling documentation
+* remove all unneeded precision in tests
+* Add increment_stale_generations on no valid fitness for HillClimb and Evolve Implement max_scale_index for MultiContinuousGenotype
+* Align MultiContinuousGenotype scaling implementation with ContinuousGenotype
+* Generalize fitness summing placeholders into SumGenes with optional precision
+* remove unused allele_neighbour_scaled_sampler remove unused TryFromGenotypeBuilderError in evolve test
+* Align all StrategyState implementations and add shadowed StrategyReporter trait function update_best_chromosome_and_report Use stale_generations for is_finished_by_max_stale_generations for Evolve as well
+* Implement new scaling implementation in HillClimb Use separate stale_generations to keep track of staleness per scale
+* Ensure range.sample(rng) for unscaled neighbour always has a smalller and larger neighbour for the neighbouring_population set
+* Add rng to Genotype::neighbouring_population Always use range start/end for scaled neighour (incl. single mutation) Always use range.sample(rng) for unscaled neighbour (incl. population)
+* Add show_equal_fitness flag to HillClimbReporterSimple as example/hill_climb_continuous sometimes doesn't resolve
+* Remove legacy f32 scaling logic in HillClimb
+* Hookup scale_index in HillClimb process
+* Add with_allele_neighbour_scaled_range for ContinuousGenotype with index addressing from caller
+* Change example/hill_climb_continuous and example/evolve_continuous_float to optimize the distance-to 0.5 for each gene, instead of max (which can't overshoot) Use this distance-to to prove HillClimbVariant SteepestAscent needs scaling, otherwise it can't find a target fitness
+* Replace MultiContinuousGenotype with static f32 implementation with generic implementation
+* Add multi_continuous_t implementation next to multi_continuous_f32
+* Replace ContinuousGenotype with static f32 implementation with generic implementation #3
+* Change SumContinuousAllele to SumF32 Change SumDiscreteAllele to SumUsize and SumIsize
+* Replace Range with RangeInclusive for allele ranges in order to handle integer ranges more intuitively
+* Enable continuous_t module instead of fixed continuous_f32 module Issue with exclusive range end on integer range
+* Revert "Remove Associated trait Allele from StrategyReporter, use simple generic functions" The client API will use only one specific implementation of Allele for Fitness and Reporting. So an associated type fits the API best
+* Remove Associated trait Allele from StrategyReporter, use simple generic functions
+* Change StrategyReporter to take Allele instead of Genotype as well
+* cargo tests and bench green
+* cargo build runs
+* Change Chromosome, Population and Fitness to take Allele instead of Genotype, RED EOD
+* Add formal Allele trait
+* Explicit type list doesn't help
+* Added first attempt at ContinuousGenotype<T>, but having Send + Sync issues with SampleUniform
+* (origin/main, main) Rename MutateSingleGeneDistance to MutateSingleGeneNeighbour
+* Reimplement MutateSingleGeneDistance to use mutate_chromosome_neighbour where the genotype already defines the distance range through allele_neighbour_range Move mutate_chromosome_neighbour from the IncrementalGenotype tr ait to the Genotype trait and provide blanked fallback to mutate_chromosome_random Only truly implement mutate_chromosome_neighbour for ContinuousGenotype and MultiContinuousGenotype (as is)
+
+
 ## [0.8.2] - 2024-08-09
 ### Added
 * Improve bootstrapped reporter outputs `EvolveReporterSimple`, `HillClimbReporterSimple` and `PermutateReporterSimple`

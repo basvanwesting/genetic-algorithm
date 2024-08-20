@@ -46,8 +46,8 @@ fn main() {
     let mut rng = SmallRng::from_entropy();
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![(-10.0..=10.0), (0.0..=10.0)])
-        // .with_allele_neighbour_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
-        .with_allele_neighbour_scaled_ranges(vec![
+        // .with_allele_mutation_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
+        .with_allele_mutation_scaled_ranges(vec![
             vec![-0.1..=0.1, -0.1..=0.1],
             vec![-0.01..=0.01, -0.01..=0.01],
             vec![-0.001..=0.001, -0.001..=0.001],

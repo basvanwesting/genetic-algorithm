@@ -67,7 +67,7 @@ fn range_float_genotype_unscaled() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
-        .with_allele_neighbour_range(-0.1..=0.1)
+        .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
 
@@ -116,7 +116,7 @@ fn range_float_genotype_scaled() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
-        .with_allele_neighbour_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
+        .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
         .build()
         .unwrap();
 
@@ -174,7 +174,7 @@ fn range_integer_genotype() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(-9..=9)
-        .with_allele_neighbour_range(-1..=1)
+        .with_allele_mutation_range(-1..=1)
         .build()
         .unwrap();
 

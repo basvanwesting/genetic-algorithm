@@ -7,8 +7,8 @@ use rand::Rng;
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the dynamically updated mutation_probability.
 /// Then mutates the selected chromosomes once, where the [Genotype] determines whether this is
-/// random, neighbour-scaled or neighbour-unscaled. The mutation probability is dynamically
-/// increased or decreased to achieve a target population cardinality
+/// random, relative or scaled. The mutation probability is dynamically increased or decreased to
+/// achieve a target population cardinality
 #[derive(Debug, Clone, Default)]
 pub struct SingleGeneDynamic {
     pub mutation_probability: f32,
