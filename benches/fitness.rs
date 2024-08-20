@@ -12,13 +12,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter(|| sum.calculate_for_chromosome(black_box(&chromosome)))
     });
 
-    group.bench_function("sum_range_genotype", |b| {
+    group.bench_function("sum_genes_with_precision", |b| {
         let chromosome = Chromosome::new(vec![1.0; 1000]);
         let mut sum = SumGenes::new_with_precision(1e-5);
         b.iter(|| sum.calculate_for_chromosome(black_box(&chromosome)))
     });
 
-    group.bench_function("sum_list_genotype", |b| {
+    group.bench_function("sum_genes", |b| {
         let chromosome = Chromosome::new(vec![1; 1000]);
         let mut sum = SumGenes::new();
         b.iter(|| sum.calculate_for_chromosome(black_box(&chromosome)))

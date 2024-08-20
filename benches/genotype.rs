@@ -34,37 +34,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("range-random", genes_size),
-            genes_size,
-            |b, &genes_size| {
-                let genotype = RangeGenotype::builder()
-                    .with_genes_size(genes_size)
-                    .with_allele_range(0.0..=1.0)
-                    .build()
-                    .unwrap();
-                let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
-            },
-        );
-        group.bench_with_input(
-            BenchmarkId::new("range-neighbour", genes_size),
-            genes_size,
-            |b, &genes_size| {
-                let genotype = RangeGenotype::builder()
-                    .with_genes_size(genes_size)
-                    .with_allele_range(0.0..=1.0)
-                    .with_allele_mutation_range(-0.1..=0.1)
-                    .build()
-                    .unwrap();
-                let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
-            },
-        );
-    }
-
-    for genes_size in &genes_sizes {
-        //group.throughput(Throughput::Elements(*genes_size as u64));
-        group.bench_with_input(
             BenchmarkId::new("list-random", genes_size),
             genes_size,
             |b, &genes_size| {
@@ -82,11 +51,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("multi_range-random", genes_size),
+            BenchmarkId::new("range-random", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = MultiRangeGenotype::builder()
-                    .with_allele_ranges((0..genes_size).map(|_| (0.0..=1.0)).collect())
+                let genotype = RangeGenotype::builder()
+                    .with_genes_size(genes_size)
+                    .with_allele_range(0.0..=1.0)
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -94,12 +64,48 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             },
         );
         group.bench_with_input(
-            BenchmarkId::new("multi_range-neighbour", genes_size),
+            BenchmarkId::new("range-relative", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = MultiRangeGenotype::builder()
-                    .with_allele_ranges((0..genes_size).map(|_| (0.0..=1.0)).collect())
-                    .with_allele_mutation_ranges((0..genes_size).map(|_| (-0.1..=0.1)).collect())
+                let genotype = RangeGenotype::builder()
+                    .with_genes_size(genes_size)
+                    .with_allele_range(0.0..=1.0)
+                    .with_allele_mutation_range(-0.1..=0.1)
+                    .build()
+                    .unwrap();
+                let mut chromosome = genotype.chromosome_factory(&mut rng);
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
+            },
+        );
+        group.bench_with_input(
+            BenchmarkId::new("range-scaled", genes_size),
+            genes_size,
+            |b, &genes_size| {
+                let genotype = RangeGenotype::builder()
+                    .with_genes_size(genes_size)
+                    .with_allele_range(0.0..=1.0)
+                    .with_allele_mutation_scaled_range(vec![
+                        -0.1..=0.1,
+                        -0.01..=0.01,
+                        -0.001..=0.001,
+                    ])
+                    .build()
+                    .unwrap();
+                let mut chromosome = genotype.chromosome_factory(&mut rng);
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), Some(1), &mut rng))
+            },
+        );
+    }
+
+    for genes_size in &genes_sizes {
+        //group.throughput(Throughput::Elements(*genes_size as u64));
+        group.bench_with_input(
+            BenchmarkId::new("unique-random", genes_size),
+            genes_size,
+            |b, &genes_size| {
+                let genotype = UniqueGenotype::builder()
+                    .with_genes_size(genes_size)
+                    .with_allele_list((0..10).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -127,12 +133,11 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
         group.bench_with_input(
-            BenchmarkId::new("unique-random", genes_size),
+            BenchmarkId::new("multi_range-random", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = UniqueGenotype::builder()
-                    .with_genes_size(genes_size)
-                    .with_allele_list((0..10).collect())
+                let genotype = MultiRangeGenotype::builder()
+                    .with_allele_ranges((0..genes_size).map(|_| (0.0..=1.0)).collect())
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
@@ -140,12 +145,50 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             },
         );
         group.bench_with_input(
-            BenchmarkId::new("unique-neighbour", genes_size),
+            BenchmarkId::new("multi_range-relative", genes_size),
             genes_size,
             |b, &genes_size| {
-                let genotype = UniqueGenotype::builder()
+                let genotype = MultiRangeGenotype::builder()
+                    .with_allele_ranges((0..genes_size).map(|_| (0.0..=1.0)).collect())
+                    .with_allele_mutation_ranges((0..genes_size).map(|_| (-0.1..=0.1)).collect())
+                    .build()
+                    .unwrap();
+                let mut chromosome = genotype.chromosome_factory(&mut rng);
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), None, &mut rng))
+            },
+        );
+        group.bench_with_input(
+            BenchmarkId::new("multi_range-scaled", genes_size),
+            genes_size,
+            |b, &genes_size| {
+                let genotype = MultiRangeGenotype::builder()
+                    .with_allele_ranges((0..genes_size).map(|_| (0.0..=1.0)).collect())
+                    .with_allele_mutation_scaled_ranges(vec![
+                        (0..genes_size).map(|_| (-0.1..=0.1)).collect(),
+                        (0..genes_size).map(|_| (-0.01..=0.01)).collect(),
+                        (0..genes_size).map(|_| (-0.001..=0.001)).collect(),
+                    ])
+                    .build()
+                    .unwrap();
+                let mut chromosome = genotype.chromosome_factory(&mut rng);
+                b.iter(|| genotype.mutate_chromosome(black_box(&mut chromosome), Some(1), &mut rng))
+            },
+        );
+    }
+
+    for genes_size in &genes_sizes {
+        //group.throughput(Throughput::Elements(*genes_size as u64));
+        group.bench_with_input(
+            BenchmarkId::new("multi_unique-random", genes_size),
+            genes_size,
+            |b, &genes_size| {
+                let genotype = MultiUniqueGenotype::builder()
                     .with_genes_size(genes_size)
-                    .with_allele_list((0..10).collect())
+                    .with_allele_lists(vec![
+                        (0..10).collect(),
+                        (0..10).collect(),
+                        (0..10).collect(),
+                    ])
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);

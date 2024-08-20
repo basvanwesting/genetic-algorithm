@@ -67,7 +67,7 @@ pub trait Genotype:
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele>;
     /// a random genes factory (respecting seed genes)
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
-    /// a mutation of the chromosome, the genotype determines whether this is random, neighbour-scaled or neighbour-unscaled.
+    /// a mutation of the chromosome, the genotype determines whether this is random, relative or scaled.
     fn mutate_chromosome<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
@@ -95,9 +95,7 @@ pub trait Genotype:
 //Evolvable is implicit, until proven otherwise
 //pub trait EvolvableGenotype: Genotype {}
 
-/// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb). Need to implement a
-/// neighbouring mutation and override the blanket mutate_chromosome_neighbour from the supertrait
-/// Genotype
+/// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb).
 pub trait IncrementalGenotype: Genotype {
     /// all neighbouring mutations of the chromosome
     /// used in HillClimbVariant::SteepestAscent and SteepestAscentSecondary
