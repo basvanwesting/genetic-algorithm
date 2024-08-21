@@ -2,9 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
-use genetic_algorithm::genotype::{
-    BinaryGenotype, ListGenotype, Genotype, MultiListGenotype,
-};
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, MultiListGenotype};
 use genetic_algorithm::strategy::permutate::{Permutate, PermutateReporterNoop};
 use genetic_algorithm::strategy::Strategy;
 

@@ -83,3 +83,40 @@ impl<T: Allele + Into<f64>> Fitness for SumGenes<T> {
         Some((sum / self.precision) as FitnessValue)
     }
 }
+
+/// placeholder for testing and benchmarking, not used in practice
+use std::{thread, time};
+#[derive(Debug)]
+pub struct CountTrueWithSleep {
+    pub micro_seconds: u64,
+    pub print_on_clone: bool,
+}
+impl CountTrueWithSleep {
+    pub fn new(micro_seconds: u64, print_on_clone: bool) -> Self {
+        Self {
+            micro_seconds,
+            print_on_clone,
+        }
+    }
+}
+impl Fitness for CountTrueWithSleep {
+    type Allele = BinaryAllele;
+    fn calculate_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Allele>,
+    ) -> Option<FitnessValue> {
+        thread::sleep(time::Duration::from_micros(self.micro_seconds));
+        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
+    }
+}
+impl Clone for CountTrueWithSleep {
+    fn clone(&self) -> Self {
+        if self.print_on_clone {
+            println!("Cloned CountTrueWithSleep: {:?}", thread::current().id());
+        }
+        Self {
+            micro_seconds: self.micro_seconds,
+            print_on_clone: self.print_on_clone,
+        }
+    }
+}

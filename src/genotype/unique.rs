@@ -103,7 +103,6 @@ impl<T: Allele> Genotype for Unique<T> {
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        
         let index1 = self.gene_index_sampler.sample(rng);
         let index2 = self.gene_index_sampler.sample(rng);
         chromosome.genes.swap(index1, index2);
@@ -152,16 +151,14 @@ impl<T: Allele> PermutableGenotype for Unique<T> {
         vec![]
     }
 
-    fn chromosome_permutations_into_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + 'a> {
-        Box::new(
-            self.allele_list
-                .clone()
-                .into_iter()
-                .permutations(self.genes_size())
-                .map(Chromosome::new),
-        )
+    fn chromosome_permutations_into_iter(
+        &self,
+    ) -> impl Iterator<Item = Chromosome<Self::Allele>> + Send {
+        self.allele_list
+            .clone()
+            .into_iter()
+            .permutations(self.genes_size())
+            .map(Chromosome::new)
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {

@@ -126,15 +126,13 @@ pub trait PermutableGenotype: Genotype {
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele>;
 
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
-    fn chromosome_permutations_into_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + 'a> {
-        Box::new(
-            (0..self.genes_size())
-                .map(|_| self.allele_list_for_chromosome_permutations())
-                .multi_cartesian_product()
-                .map(Chromosome::new),
-        )
+    fn chromosome_permutations_into_iter(
+        &self,
+    ) -> impl Iterator<Item = Chromosome<Self::Allele>> + Send {
+        (0..self.genes_size())
+            .map(|_| self.allele_list_for_chromosome_permutations())
+            .multi_cartesian_product()
+            .map(Chromosome::new)
     }
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)

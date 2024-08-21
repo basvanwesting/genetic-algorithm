@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes, Zero};
+use genetic_algorithm::fitness::placeholders::{CountTrue, CountTrueWithSleep, SumGenes, Zero};
 use genetic_algorithm::fitness::Fitness;
 
 #[test]
@@ -126,5 +126,14 @@ fn sum_alleles_with_precision_f64() {
     assert_eq!(
         SumGenes::new_with_precision(1e-3).calculate_for_chromosome(&chromosome),
         Some(7199)
+    );
+}
+
+#[test]
+fn count_true_with_sleep() {
+    let chromosome = build::chromosome(vec![true, false, true]);
+    assert_eq!(
+        CountTrueWithSleep::new(1000, false).calculate_for_chromosome(&chromosome),
+        Some(2)
     );
 }

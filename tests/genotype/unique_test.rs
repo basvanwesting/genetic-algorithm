@@ -81,6 +81,20 @@ fn chromosome_permutations_genes_size_huge() {
         genotype.chromosome_permutations_size(),
         BigUint::parse_bytes(b"265252859812191058636308480000000", 10).unwrap()
     );
+
+    // ensure lazy
+    assert_eq!(
+        inspect::chromosomes(
+            &genotype
+                .chromosome_permutations_into_iter()
+                .take(1)
+                .collect()
+        ),
+        vec![vec![
+            0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23,
+            24, 25, 26, 27, 28, 29
+        ]]
+    )
 }
 
 #[test]

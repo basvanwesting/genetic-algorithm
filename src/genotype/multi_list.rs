@@ -146,7 +146,6 @@ impl<T: Allele> Genotype for MultiList<T> {
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] =
             self.allele_lists[index][self.allele_index_samplers[index].sample(rng)].clone();
@@ -198,16 +197,14 @@ impl<T: Allele> PermutableGenotype for MultiList<T> {
         vec![]
     }
 
-    fn chromosome_permutations_into_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + 'a> {
-        Box::new(
-            self.allele_lists
-                .clone()
-                .into_iter()
-                .multi_cartesian_product()
-                .map(Chromosome::new),
-        )
+    fn chromosome_permutations_into_iter(
+        &self,
+    ) -> impl Iterator<Item = Chromosome<Self::Allele>> + Send {
+        self.allele_lists
+            .clone()
+            .into_iter()
+            .multi_cartesian_product()
+            .map(Chromosome::new)
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {

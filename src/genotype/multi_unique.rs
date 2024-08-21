@@ -139,7 +139,6 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        
         let index = self.allele_list_index_sampler.sample(rng);
         let index_offset: usize = self.allele_list_index_offsets[index];
         let index1 = index_offset + self.allele_list_index_samplers[index].sample(rng);
@@ -204,20 +203,18 @@ impl<T: Allele> PermutableGenotype for MultiUnique<T> {
         vec![]
     }
 
-    fn chromosome_permutations_into_iter<'a>(
-        &'a self,
-    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + 'a> {
-        Box::new(
-            self.allele_lists
-                .clone()
-                .into_iter()
-                .map(|allele_list| {
-                    let size = allele_list.len();
-                    allele_list.into_iter().permutations(size)
-                })
-                .multi_cartesian_product()
-                .map(|gene_sets| Chromosome::new(gene_sets.into_iter().concat())),
-        )
+    fn chromosome_permutations_into_iter(
+        &self,
+    ) -> impl Iterator<Item = Chromosome<Self::Allele>> + Send {
+        self.allele_lists
+            .clone()
+            .into_iter()
+            .map(|allele_list| {
+                let size = allele_list.len();
+                allele_list.into_iter().permutations(size)
+            })
+            .multi_cartesian_product()
+            .map(|gene_sets| Chromosome::new(gene_sets.into_iter().concat()))
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {

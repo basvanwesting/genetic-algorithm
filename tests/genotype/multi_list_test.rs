@@ -136,4 +136,15 @@ fn chromosome_permutations_genes_size_huge() {
         genotype.chromosome_permutations_size(),
         BigUint::parse_bytes(b"1000000000000000000000000000000", 10).unwrap()
     );
+
+    // ensure lazy
+    assert_eq!(
+        inspect::chromosomes(
+            &genotype
+                .chromosome_permutations_into_iter()
+                .take(1)
+                .collect()
+        ),
+        vec![vec![0; 10]]
+    )
 }
