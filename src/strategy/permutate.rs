@@ -14,10 +14,8 @@ use crate::genotype::{Allele, PermutableGenotype};
 use num::BigUint;
 use rand::Rng;
 use rayon::prelude::*;
-use std::cell::RefCell;
 use std::fmt;
 use std::sync::mpsc::sync_channel;
-use thread_local::ThreadLocal;
 
 pub use self::reporter::Log as PermutateReporterLog;
 pub use self::reporter::Noop as PermutateReporterNoop;
@@ -152,34 +150,28 @@ impl<
     }
     fn call_multi_thread<R: Rng>(&mut self, _rng: &mut R) {
         rayon::scope(|s| {
-            let thread_genotype = self.genotype.clone();
-            let thread_fitness = self.fitness.clone();
-            let thread_local: ThreadLocal<RefCell<F>> = ThreadLocal::new();
-            let (sender, receiver) = sync_channel(100);
+            let genotype = &self.genotype;
+            let fitness = self.fitness.clone();
+            let (sender, receiver) = sync_channel(1000);
 
             s.spawn(move |_| {
-                thread_genotype
+                genotype
                     .chromosome_permutations_into_iter()
                     .par_bridge()
-                    .for_each_with(&sender, |s, mut chromosome| {
-                        let fitness =
-                            thread_local.get_or(|| std::cell::RefCell::new(thread_fitness.clone()));
-                        fitness.borrow_mut().call_for_chromosome(&mut chromosome);
-                        s.send(chromosome).unwrap();
+                    .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
+                        fitness.call_for_chromosome(&mut chromosome);
+                        sender.send(chromosome).unwrap();
                     });
-
-                drop(sender);
             });
 
-            for chromosome in receiver {
+            receiver.iter().for_each(|chromosome| {
                 self.state.current_generation += 1;
                 self.state.update_best_chromosome_and_report(
                     &chromosome,
                     &self.config,
                     &mut self.reporter,
                 );
-                self.reporter.on_new_generation(&self.state, &self.config);
-            }
+            })
         });
     }
 }
