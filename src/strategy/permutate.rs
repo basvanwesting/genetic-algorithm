@@ -16,7 +16,7 @@ use rand::Rng;
 use rayon::prelude::*;
 use std::cell::RefCell;
 use std::fmt;
-use std::sync::mpsc::channel;
+use std::sync::mpsc::sync_channel;
 use thread_local::ThreadLocal;
 
 pub use self::reporter::Log as PermutateReporterLog;
@@ -151,28 +151,35 @@ impl<
             });
     }
     fn call_multi_thread<R: Rng>(&mut self, _rng: &mut R) {
-        let (sender, receiver) = channel();
+        rayon::scope(|s| {
+            let thread_genotype = self.genotype.clone();
+            let thread_fitness = self.fitness.clone();
+            let thread_local: ThreadLocal<RefCell<F>> = ThreadLocal::new();
+            let (sender, receiver) = sync_channel(100);
 
-        let fitness_thread_local: ThreadLocal<RefCell<F>> = ThreadLocal::new();
-        self.genotype
-            .clone()
-            .chromosome_permutations_into_iter()
-            .par_bridge()
-            .for_each_with(sender, |s, mut chromosome| {
-                let fitness =
-                    fitness_thread_local.get_or(|| std::cell::RefCell::new(self.fitness.clone()));
-                fitness.borrow_mut().call_for_chromosome(&mut chromosome);
-                s.send(chromosome).unwrap();
+            s.spawn(move |_| {
+                thread_genotype
+                    .chromosome_permutations_into_iter()
+                    .par_bridge()
+                    .for_each_with(&sender, |s, mut chromosome| {
+                        let fitness =
+                            thread_local.get_or(|| std::cell::RefCell::new(thread_fitness.clone()));
+                        fitness.borrow_mut().call_for_chromosome(&mut chromosome);
+                        s.send(chromosome).unwrap();
+                    });
+
+                drop(sender);
             });
 
-        receiver.iter().for_each(|chromosome| {
-            self.state.current_generation += 1;
-            self.state.update_best_chromosome_and_report(
-                &chromosome,
-                &self.config,
-                &mut self.reporter,
-            );
-            self.reporter.on_new_generation(&self.state, &self.config);
+            for chromosome in receiver {
+                self.state.current_generation += 1;
+                self.state.update_best_chromosome_and_report(
+                    &chromosome,
+                    &self.config,
+                    &mut self.reporter,
+                );
+                self.reporter.on_new_generation(&self.state, &self.config);
+            }
         });
     }
 }
