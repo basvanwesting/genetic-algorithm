@@ -77,10 +77,16 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             .chromosomes
             .par_iter_mut()
             .filter(|c| c.fitness_score.is_none())
-            .for_each(|chromosome| {
-                let fitness = thread_local.get_or(|| std::cell::RefCell::new(self.clone()));
-                fitness.borrow_mut().call_for_chromosome(chromosome);
-            });
+            .for_each_init(
+                || {
+                    thread_local
+                        .get_or(|| std::cell::RefCell::new(self.clone()))
+                        .borrow_mut()
+                },
+                |fitness, chromosome| {
+                    fitness.call_for_chromosome(chromosome);
+                },
+            );
     }
     fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Allele>) {
         chromosome.fitness_score = self.calculate_for_chromosome(chromosome);
