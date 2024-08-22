@@ -1,3 +1,8 @@
+multithreading for CrossoverUniform(false)
+multithreading for CompeteTournament
+multithreading for MutateSingleGene
+
+
 crossovers-pop1000/Uniform(Uniform { keep_parent: false })-single-thread/10    time: [55.650 µs]
 crossovers-pop1000/Uniform(Uniform { keep_parent: false })-multi-thread/10     time: [141.90 µs]
 crossovers-pop1000/Uniform(Uniform { keep_parent: false })-single-thread/100   time: [252.51 µs]

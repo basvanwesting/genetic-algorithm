@@ -24,8 +24,11 @@ fn main() {
         .with_target_fitness_score(99 * 100_000)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverUniform::new(true))
-        .with_compete(CompeteTournament::new(4))
+        .with_multithreading(true)
+        // .with_crossover(CrossoverUniform::new(false)) // multi-thread
+        .with_crossover(CrossoverUniform::new(true)) // single-thread
+        // .with_compete(CompeteTournament::new(4)) // multi-thread
+        .with_compete(CompeteElite) // single-thread
         .call(&mut rng)
         .unwrap();
 
