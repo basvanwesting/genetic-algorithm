@@ -186,10 +186,8 @@ impl<
         self.state.population = self.population_factory(rng);
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
-        let mut rng_thread_local: Option<ThreadLocal<RefCell<R>>> = None;
         if self.config.multithreading {
             fitness_thread_local = Some(ThreadLocal::new());
-            rng_thread_local = Some(ThreadLocal::new());
         }
 
         self.reporter
@@ -218,7 +216,6 @@ impl<
                 &self.config,
                 &mut self.reporter,
                 rng,
-                rng_thread_local.as_ref(),
             );
             self.fitness
                 .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());

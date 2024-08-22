@@ -8,13 +8,12 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
-use thread_local::ThreadLocal;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::from_entropy();
 
-    let population_sizes = vec![100, 1000];
+    let population_sizes = vec![250, 500, 1000, 2000];
 
     let mut group = c.benchmark_group("mutates");
     //group.warm_up_time(Duration::from_secs(3));
@@ -30,9 +29,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for population_size in &population_sizes {
         let mutates: Vec<MutateWrapper> = vec![
             MutateSingleGene::new(0.2).into(),
-            // MutateMultiGene::new(2, 0.2).into(),
-            // MutateSingleGeneDynamic::new(0.2, population_size / 2).into(),
-            // MutateMultiGeneDynamic::new(2, 0.2, population_size / 2).into(),
+            MutateMultiGene::new(2, 0.2).into(),
+            MutateSingleGeneDynamic::new(0.2, population_size / 2).into(),
+            MutateMultiGeneDynamic::new(2, 0.2, population_size / 2).into(),
         ];
         for mut mutate in mutates {
             group.throughput(Throughput::Elements(*population_size as u64));
@@ -46,43 +45,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             CountTrue.call_for_population(&mut state.population, None);
 
             group.bench_with_input(
-                BenchmarkId::new(format!("{:?}-single-threaded", mutate), population_size),
+                BenchmarkId::new(format!("{:?}", mutate), population_size),
                 population_size,
                 |b, &_population_size| {
                     b.iter_batched(
                         || state.clone(),
                         |mut data| {
-                            mutate.call(
-                                &genotype,
-                                &mut data,
-                                &config,
-                                &mut reporter,
-                                &mut rng,
-                                None,
-                            )
-                        },
-                        BatchSize::SmallInput,
-                    )
-                },
-            );
-
-            // reuse thread rng for all runs (as in evolve loop)
-            let rng_thread_local = Some(ThreadLocal::new());
-            group.bench_with_input(
-                BenchmarkId::new(format!("{:?}-multi-threaded", mutate), population_size),
-                population_size,
-                |b, &_population_size| {
-                    b.iter_batched(
-                        || state.clone(),
-                        |mut data| {
-                            mutate.call(
-                                &genotype,
-                                &mut data,
-                                &config,
-                                &mut reporter,
-                                &mut rng,
-                                rng_thread_local.as_ref(),
-                            )
+                            mutate.call(&genotype, &mut data, &config, &mut reporter, &mut rng)
                         },
                         BatchSize::SmallInput,
                     )

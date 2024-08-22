@@ -3,10 +3,6 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
-use rayon::prelude::*;
-use std::cell::RefCell;
-use std::ops::DerefMut;
-use thread_local::ThreadLocal;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the provided mutation_probability. Then
@@ -25,42 +21,17 @@ impl Mutate for SingleGene {
         _config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
-        thread_local: Option<&ThreadLocal<RefCell<R>>>,
     ) {
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
-        if let Some(thread_local) = thread_local {
-            state
-                .population
-                .chromosomes
-                .par_iter_mut()
-                .filter(|c| c.age == 0)
-                .for_each_init(
-                    || {
-                        thread_local
-                            .get_or(|| std::cell::RefCell::new(rng.clone()))
-                            .borrow_mut()
-                    },
-                    |rng, chromosome| {
-                        if rng.sample(bool_sampler) {
-                            genotype.mutate_chromosome(
-                                chromosome,
-                                state.current_scale_index,
-                                rng.deref_mut(),
-                            );
-                        }
-                    },
-                );
-        } else {
-            state
-                .population
-                .chromosomes
-                .iter_mut()
-                .filter(|c| c.age == 0)
-                .for_each(|chromosome| {
-                    if bool_sampler.sample(rng) {
-                        genotype.mutate_chromosome(chromosome, state.current_scale_index, rng);
-                    }
-                });
+        for chromosome in state
+            .population
+            .chromosomes
+            .iter_mut()
+            .filter(|c| c.age == 0)
+        {
+            if bool_sampler.sample(rng) {
+                genotype.mutate_chromosome(chromosome, state.current_scale_index, rng);
+            }
         }
     }
     fn report(&self) -> String {

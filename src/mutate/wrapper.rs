@@ -7,8 +7,6 @@ pub use super::Mutate;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
-use std::cell::RefCell;
-use thread_local::ThreadLocal;
 
 #[derive(Clone, Debug)]
 pub enum Wrapper {
@@ -26,20 +24,15 @@ impl Mutate for Wrapper {
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
-        thread_local: Option<&ThreadLocal<RefCell<R>>>,
     ) {
         match self {
-            Wrapper::MultiGene(mutate) => {
-                mutate.call(genotype, state, config, reporter, rng, thread_local)
-            }
+            Wrapper::MultiGene(mutate) => mutate.call(genotype, state, config, reporter, rng),
             Wrapper::MultiGeneDynamic(mutate) => {
-                mutate.call(genotype, state, config, reporter, rng, thread_local)
+                mutate.call(genotype, state, config, reporter, rng)
             }
-            Wrapper::SingleGene(mutate) => {
-                mutate.call(genotype, state, config, reporter, rng, thread_local)
-            }
+            Wrapper::SingleGene(mutate) => mutate.call(genotype, state, config, reporter, rng),
             Wrapper::SingleGeneDynamic(mutate) => {
-                mutate.call(genotype, state, config, reporter, rng, thread_local)
+                mutate.call(genotype, state, config, reporter, rng)
             }
         }
     }
