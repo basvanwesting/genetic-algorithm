@@ -84,6 +84,25 @@ pub enum HillClimbVariant {
 /// [HillClimbReporter] (e.g. [HillClimbReporterNoop], [HillClimbReporterSimple]). But you are encouraged to
 /// roll your own, see [HillClimbReporter].
 ///
+/// From the [HillClimbBuilder] level, there are several calling mechanisms:
+/// * [call](HillClimbBuilder::call): this runs a single [HillClimb] strategy
+/// * [call_repeatedly](HillClimbBuilder::call_repeatedly): this runs multiple independent [HillClimb]
+///   strategies and returns the best one (or short circuits when the target_fitness_score is
+///   reached)
+/// * [call_par_repeatedly](HillClimbBuilder::call_par_repeatedly): this runs multiple independent
+///   [HillClimb] strategies in parallel and returns the best one (or short circuits when the
+///   target_fitness_score is reached). This is separate and independent from the
+///   `with_multithreading()` flag on the builder, which determines multithreading inside the [HillClimb]
+///   strategy. Both can be combined.
+///
+/// Multithreading inside the [HillClimbVariant::Stochastic] and
+/// [HillClimbVariant::StochasticSecondary] using the `with_multithreading()` builder step does
+/// nothing, due to the sequential nature of the search. But
+/// [call_par_repeatedly](HillClimbBuilder::call_par_repeatedly) still effectively multithreads for
+/// these variants as the sequential nature is only internal to the [HillClimb] strategy.
+///
+/// All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
+///
 /// See [HillClimbBuilder] for initialization options.
 ///
 /// Example:

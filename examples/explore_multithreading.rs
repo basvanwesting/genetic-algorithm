@@ -5,19 +5,19 @@ use genetic_algorithm::strategy::permutate::prelude::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 
-// const MULTITHREAD: bool = false;
-const MULTITHREAD: bool = true;
-// const PAR_CALL: bool = false;
-const PAR_CALL: bool = true;
+// const INTERNAL_MULTITHREAD: bool = false;
+const INTERNAL_MULTITHREAD: bool = true;
+// const EXTERNAL_MULTITHREAD: bool = false;
+const EXTERNAL_MULTITHREAD: bool = true;
 
 fn main() {
     env_logger::init();
 
-    // call_evolve();
-    // call_hill_climb();
-    // call_permutate();
-    // call_evolve_repeatedly();
-    // call_hill_climb_repeatedly();
+    call_evolve();
+    call_hill_climb();
+    call_permutate();
+    call_evolve_repeatedly();
+    call_hill_climb_repeatedly();
     call_evolve_speciated();
 }
 
@@ -36,7 +36,7 @@ fn call_evolve() {
         .with_max_stale_generations(100)
         .with_target_fitness_score(100)
         .with_fitness(CountTrueWithSleep::new(1000, true))
-        .with_multithreading(MULTITHREAD)
+        .with_multithreading(INTERNAL_MULTITHREAD)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -72,7 +72,7 @@ fn call_hill_climb() {
         .with_max_stale_generations(1)
         .with_target_fitness_score(100)
         .with_fitness(CountTrueWithSleep::new(1000, true))
-        .with_multithreading(MULTITHREAD)
+        .with_multithreading(INTERNAL_MULTITHREAD)
         // .with_reporter(HillClimbReporterSimple::new(1000))
         .build()
         .unwrap();
@@ -102,7 +102,7 @@ fn call_permutate() {
     let mut permutate = Permutate::builder()
         .with_genotype(genotype.clone())
         .with_fitness(CountTrueWithSleep::new(1000, true))
-        .with_multithreading(MULTITHREAD)
+        .with_multithreading(INTERNAL_MULTITHREAD)
         .with_reporter(PermutateReporterSimple::new(1000))
         .build()
         .unwrap();
@@ -133,16 +133,16 @@ fn call_evolve_repeatedly() {
         .with_genotype(genotype.clone())
         .with_target_population_size(100)
         .with_max_stale_generations(100)
-        // .with_target_fitness_score(100)
+        // .with_target_fitness_score(100) // short-circuit
         .with_fitness(CountTrueWithSleep::new(1000, false))
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_reporter(EvolveIterationReporter)
-        .with_multithreading(MULTITHREAD);
+        .with_multithreading(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
-    let evolve = if PAR_CALL {
+    let evolve = if EXTERNAL_MULTITHREAD {
         evolve_builder.call_par_repeatedly(20, &mut rng).unwrap()
     } else {
         evolve_builder.call_repeatedly(3, &mut rng).unwrap()
@@ -171,16 +171,16 @@ fn call_evolve_speciated() {
         .with_genotype(genotype.clone())
         .with_target_population_size(100)
         .with_max_stale_generations(100)
-        // .with_target_fitness_score(100)
+        // .with_target_fitness_score(100) // short-circuit
         .with_fitness(CountTrueWithSleep::new(1000, false))
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_reporter(EvolveIterationReporter)
-        .with_multithreading(MULTITHREAD);
+        .with_multithreading(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
-    let evolve = if PAR_CALL {
+    let evolve = if EXTERNAL_MULTITHREAD {
         evolve_builder.call_par_speciated(20, &mut rng).unwrap()
     } else {
         evolve_builder.call_speciated(3, &mut rng).unwrap()
@@ -207,17 +207,17 @@ fn call_hill_climb_repeatedly() {
     println!("hill_climb_repeatedly: start");
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype.clone())
-        // .with_variant(HillClimbVariant::SteepestAscent)
+        // .with_variant(HillClimbVariant::SteepestAscent) // internal multi-threading
         // .with_max_stale_generations(1)
-        .with_variant(HillClimbVariant::Stochastic)
+        .with_variant(HillClimbVariant::Stochastic) // no internal multi-threading due to sequential nature
         .with_max_stale_generations(1000)
-        // .with_target_fitness_score(100)
+        // .with_target_fitness_score(100) // short-circuit
         .with_fitness(CountTrueWithSleep::new(1000, false))
         .with_reporter(HillClimbIterationReporter)
-        .with_multithreading(MULTITHREAD);
+        .with_multithreading(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
-    let hill_climb = if PAR_CALL {
+    let hill_climb = if EXTERNAL_MULTITHREAD {
         hill_climb_builder
             .call_par_repeatedly(20, &mut rng)
             .unwrap()

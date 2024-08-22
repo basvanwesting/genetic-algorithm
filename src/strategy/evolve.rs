@@ -29,13 +29,12 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
 /// seeds specific genes to start with).
 /// Then the Evolve strategy runs through generations of chromosomes in a loop:
+/// * [extension](crate::extension) an optional step (e.g. [MassExtinction](crate::extension::ExtensionMassExtinction))
 /// * [crossover](crate::crossover) to produce new offspring with a mix of parents chromosome genes
 /// * [mutate](crate::mutate) a subset of chromosomes to add some additional diversity
 /// * calculate [fitness](crate::fitness) for all chromosomes
 /// * [compete](crate::compete) to pair up chromosomes for crossover in next generation and drop excess chromosomes
-/// * store best chromosome
-/// * check ending conditions
-/// * [extension](crate::extension) an optional additional step (e.g. [MassExtinction](crate::extension::ExtensionMassExtinction))
+/// * store best chromosome and check ending conditions
 ///
 /// The ending conditions are one or more of the following:
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
@@ -61,13 +60,26 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// [EvolveReporter] (e.g. [EvolveReporterNoop], [EvolveReporterSimple]). But you are encouraged to
 /// roll your own, see [EvolveReporter].
 ///
-/// At the [EvolveBuilder] level, there are two additional mechanisms:
+/// From the [EvolveBuilder] level, there are several calling mechanisms:
+/// * [call](EvolveBuilder::call): this runs a single evolve strategy
 /// * [call_repeatedly](EvolveBuilder::call_repeatedly): this runs multiple independent evolve
 ///   strategies and returns the best one (or short circuits when the target_fitness_score is
 ///   reached)
+/// * [call_par_repeatedly](EvolveBuilder::call_par_repeatedly): this runs multiple independent
+///   evolve strategies in parallel and returns the best one (or short circuits when the
+///   target_fitness_score is reached). This is separate and independent from the
+///   `with_multithreading()` flag on the builder, which determines multithreading inside the evolve
+///   strategy. Both can be combined.
 /// * [call_speciated](EvolveBuilder::call_speciated): this runs multiple independent
 ///   evolve strategies and then competes their best results against each other in one final evolve
-///   strategy
+///   strategy (or short circuits when the target_fitness_score is reached)
+/// * [call_par_speciated](EvolveBuilder::call_par_speciated): this runs multiple independent
+///   evolve strategies in parallel and then competes their best results against each other in one
+///   final evolve strategy (or short circuits when the target_fitness_score is reached). This is
+///   separate and independent from the `with_multithreading()` flag on the builder, which determines
+///   multithreading inside the evolve strategy. Both can be combined.
+///
+/// All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 ///
 /// See [EvolveBuilder] for initialization options.
 ///

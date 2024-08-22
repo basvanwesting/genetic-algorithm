@@ -27,13 +27,17 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 /// For efficiency reasons the full population is never instantiated as a whole.
 ///
 /// The `chromosome_permutations_size` is subject to combinatorial explosion, so check the genotype
-/// for practical values before using the [Permutate] strategy.
+/// for practical values before using the [Permutate] strategy. This will not pose any memory
+/// issues, as the permutations are not instantiated at the same time, just iterated over. But it
+/// will take forever...
 ///
 /// There are reporting hooks in the loop receiving the [PermutateState], which can by handled by an
 /// [PermutateReporter] (e.g. [PermutateReporterNoop], [PermutateReporterSimple]). But you are encouraged to
 /// roll your own, see [PermutateReporter].
 ///
 /// See [PermutateBuilder] for initialization options.
+///
+/// All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 ///
 /// Example:
 /// ```

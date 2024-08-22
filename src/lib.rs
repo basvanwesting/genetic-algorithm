@@ -79,6 +79,8 @@
 //! * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
 //!     * See [examples/hill_climb_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_nqueens.rs)
 //!     * See [examples/hill_climb_table_seating](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_table_seating.rs)
+//! * Explore internal and external multithreading options
+//!     * See [examples/explore_multithreading](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_multithreading.rs)
 //! * Custom Fitness function with LRU cache
 //!     * See [examples/evolve_binary_lru_cache_fitness](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_binary_lru_cache_fitness.rs)
 //!     * _Note: doesn't help performance much in this case..._
