@@ -202,6 +202,7 @@ impl<
         max_repeats: usize,
         rng: &mut R,
     ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
+        let _valid_builder: HillClimb<G, F, SR> = self.clone().try_into()?;
         let mut best_hill_climb: Option<HillClimb<G, F, SR>> = None;
         rayon::scope(|s| {
             let builder = &self;
@@ -210,11 +211,11 @@ impl<
 
             s.spawn(move |_| {
                 (0..max_repeats)
-                    .map(|iteration| {
+                    .filter_map(|iteration| {
                         let mut contending_run: HillClimb<G, F, SR> =
-                            builder.clone().try_into().unwrap();
+                            builder.clone().try_into().ok()?;
                         contending_run.state.current_iteration = iteration;
-                        contending_run
+                        Some(contending_run)
                     })
                     .par_bridge()
                     .map_with((sender, rng), |(sender, rng), mut contending_run| {

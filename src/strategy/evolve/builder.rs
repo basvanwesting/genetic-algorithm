@@ -281,6 +281,7 @@ impl<
         max_repeats: usize,
         rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+        let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
         rayon::scope(|s| {
             let builder = &self;
@@ -289,11 +290,11 @@ impl<
 
             s.spawn(move |_| {
                 (0..max_repeats)
-                    .map(|iteration| {
+                    .filter_map(|iteration| {
                         let mut contending_run: Evolve<G, M, F, S, C, E, SR> =
-                            builder.clone().try_into().unwrap();
+                            builder.clone().try_into().ok()?;
                         contending_run.state.current_iteration = iteration;
-                        contending_run
+                        Some(contending_run)
                     })
                     .par_bridge()
                     .map_with((sender, rng), |(sender, rng), mut contending_run| {
@@ -344,6 +345,7 @@ impl<
         number_of_species: usize,
         rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+        let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let best_chromosomes: Vec<Chromosome<G::Allele>> = (0..number_of_species)
             .filter_map(|iteration| {
                 let mut species_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into().ok()?;
