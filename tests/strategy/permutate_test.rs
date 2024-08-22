@@ -111,7 +111,7 @@ fn call_multi_list() {
 }
 
 #[test]
-fn call_multi_thread() {
+fn call_par_fitness() {
     let genotype = ListGenotype::builder()
         .with_genes_size(5)
         .with_allele_list((0..10).collect())
@@ -122,7 +122,7 @@ fn call_multi_thread() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
-        .with_multithreading(true)
+        .with_par_fitness(true)
         // .with_reporter(PermutateReporterNoop::new())
         .call(&mut rng)
         .unwrap();

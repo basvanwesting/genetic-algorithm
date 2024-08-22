@@ -11,13 +11,23 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   using [rayon::iter](https://docs.rs/rayon/latest/rayon/iter/index.html) and
   [std::sync::mpsc](https://doc.rust-lang.org/1.78.0/std/sync/mpsc/index.html)
 * Distinguish between internal and external multithreading:
-  * Internal multithreading using the `with_multithreading()` builder step for all strategies
+  * Internal multithreading using the `with_par_fitness()` builder step for all strategies
   * External multithreading using the `call_par_repeatedly()` for the `EvolveBuilder` and `HillClimbBuilder`
   * External multithreading using the `call_par_speciated()` for the `EvolveBuilder`
   * Note that `Permutate` only has internal multithreading as repeated calls make no sense
   * Note that internal and external multithreading can be combined
+  * Note that internal multithreading has been exlored for `Compete`,
+    `Crossover` and `Mutate`. But the overhead of parallel execution was too
+    high, resulting in severe degradation of performance. The breakeven point was
+    found only for huge genotypes (1000+ genes), where each gene was part of the
+    calculation (e.g. `CrossoverUniform`). Since `Fitness` is a client
+    implementation which could be very heavy depending on the domain, an explicit
+    `with_par_fitness()` is used for enabling internal multithreading of the
+    fitness calculation only. Future releases could for instance support explicit
+    `with_par_crossover()` for specific use cases.
 * Require `Send + Sync` to Compete, Crossover, Extension and Mutate
 * Change `chromosome_permutations_into_iter()` return type from `Box<dyn Iterator>` to `impl Iterator`
+* Rename `with_multithreading()` to explicit `with_par_fitness()` for clarity of the effect
 
 ### Added
 * Add `CountTrueWithSleep` fitness placeholder for use in multithreading examples and benchmarking

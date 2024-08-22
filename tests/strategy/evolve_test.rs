@@ -550,7 +550,7 @@ fn call_multi_list() {
 }
 
 #[test]
-fn call_multi_thread() {
+fn call_par_fitness() {
     let genotype = ListGenotype::builder()
         .with_genes_size(10)
         .with_allele_list((0..4).collect())
@@ -564,7 +564,7 @@ fn call_multi_thread() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
-        .with_multithreading(true)
+        .with_par_fitness(true)
         .with_crossover(CrossoverSingleGene::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())

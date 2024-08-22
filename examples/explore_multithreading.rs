@@ -36,7 +36,7 @@ fn call_evolve() {
         .with_max_stale_generations(100)
         .with_target_fitness_score(100)
         .with_fitness(CountTrueWithSleep::new(1000, true))
-        .with_multithreading(INTERNAL_MULTITHREAD)
+        .with_par_fitness(INTERNAL_MULTITHREAD)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -72,7 +72,7 @@ fn call_hill_climb() {
         .with_max_stale_generations(1)
         .with_target_fitness_score(100)
         .with_fitness(CountTrueWithSleep::new(1000, true))
-        .with_multithreading(INTERNAL_MULTITHREAD)
+        .with_par_fitness(INTERNAL_MULTITHREAD)
         // .with_reporter(HillClimbReporterSimple::new(1000))
         .build()
         .unwrap();
@@ -102,7 +102,7 @@ fn call_permutate() {
     let mut permutate = Permutate::builder()
         .with_genotype(genotype.clone())
         .with_fitness(CountTrueWithSleep::new(1000, true))
-        .with_multithreading(INTERNAL_MULTITHREAD)
+        .with_par_fitness(INTERNAL_MULTITHREAD)
         .with_reporter(PermutateReporterSimple::new(1000))
         .build()
         .unwrap();
@@ -139,7 +139,7 @@ fn call_evolve_repeatedly() {
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_reporter(EvolveIterationReporter)
-        .with_multithreading(INTERNAL_MULTITHREAD);
+        .with_par_fitness(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
     let evolve = if EXTERNAL_MULTITHREAD {
@@ -177,7 +177,7 @@ fn call_evolve_speciated() {
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_reporter(EvolveIterationReporter)
-        .with_multithreading(INTERNAL_MULTITHREAD);
+        .with_par_fitness(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
     let evolve = if EXTERNAL_MULTITHREAD {
@@ -214,7 +214,7 @@ fn call_hill_climb_repeatedly() {
         // .with_target_fitness_score(100) // short-circuit
         .with_fitness(CountTrueWithSleep::new(1000, false))
         .with_reporter(HillClimbIterationReporter)
-        .with_multithreading(INTERNAL_MULTITHREAD);
+        .with_par_fitness(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
     let hill_climb = if EXTERNAL_MULTITHREAD {

@@ -33,7 +33,7 @@ fn binary_genotype() {
     let mut mutate = MutateSingleGeneDynamic::new(0.1, 2);
     let mut fitness = CountTrue;
     assert_eq!(mutate.mutation_probability, 0.0);
-    fitness.call_for_population_single_thread(&mut state.population);
+    fitness.call_for_population(&mut state.population, None);
     mutate.call(
         &genotype,
         &mut state,
@@ -43,7 +43,7 @@ fn binary_genotype() {
         None,
     );
     assert_eq!(mutate.mutation_probability, 0.1);
-    fitness.call_for_population_single_thread(&mut state.population);
+    fitness.call_for_population(&mut state.population, None);
     mutate.call(
         &genotype,
         &mut state,
@@ -53,7 +53,7 @@ fn binary_genotype() {
         None,
     );
     assert_eq!(mutate.mutation_probability, 0.2);
-    fitness.call_for_population_single_thread(&mut state.population);
+    fitness.call_for_population(&mut state.population, None);
     mutate.call(
         &genotype,
         &mut state,
@@ -63,7 +63,7 @@ fn binary_genotype() {
         None,
     );
     assert_eq!(mutate.mutation_probability, 0.1);
-    fitness.call_for_population_single_thread(&mut state.population);
+    fitness.call_for_population(&mut state.population, None);
     mutate.call(
         &genotype,
         &mut state,

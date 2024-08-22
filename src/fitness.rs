@@ -55,38 +55,27 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         if let Some(thread_local) = thread_local {
-            self.call_for_population_multi_thread(population, thread_local);
+            population
+                .chromosomes
+                .par_iter_mut()
+                .filter(|c| c.fitness_score.is_none())
+                .for_each_init(
+                    || {
+                        thread_local
+                            .get_or(|| std::cell::RefCell::new(self.clone()))
+                            .borrow_mut()
+                    },
+                    |fitness, chromosome| {
+                        fitness.call_for_chromosome(chromosome);
+                    },
+                );
         } else {
-            self.call_for_population_single_thread(population);
+            population
+                .chromosomes
+                .iter_mut()
+                .filter(|c| c.fitness_score.is_none())
+                .for_each(|c| self.call_for_chromosome(c));
         }
-    }
-    fn call_for_population_single_thread(&mut self, population: &mut Population<Self::Allele>) {
-        population
-            .chromosomes
-            .iter_mut()
-            .filter(|c| c.fitness_score.is_none())
-            .for_each(|c| self.call_for_chromosome(c));
-    }
-    /// pass thread_local for external control of fitness caching in multithreading
-    fn call_for_population_multi_thread(
-        &self,
-        population: &mut Population<Self::Allele>,
-        thread_local: &ThreadLocal<RefCell<Self>>,
-    ) {
-        population
-            .chromosomes
-            .par_iter_mut()
-            .filter(|c| c.fitness_score.is_none())
-            .for_each_init(
-                || {
-                    thread_local
-                        .get_or(|| std::cell::RefCell::new(self.clone()))
-                        .borrow_mut()
-                },
-                |fitness, chromosome| {
-                    fitness.call_for_chromosome(chromosome);
-                },
-            );
     }
     fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Allele>) {
         chromosome.fitness_score = self.calculate_for_chromosome(chromosome);

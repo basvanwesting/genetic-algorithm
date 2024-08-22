@@ -92,11 +92,11 @@ pub enum HillClimbVariant {
 /// * [call_par_repeatedly](HillClimbBuilder::call_par_repeatedly): this runs multiple independent
 ///   [HillClimb] strategies in parallel and returns the best one (or short circuits when the
 ///   target_fitness_score is reached). This is separate and independent from the
-///   `with_multithreading()` flag on the builder, which determines multithreading inside the [HillClimb]
-///   strategy. Both can be combined.
+///   `with_par_fitness()` flag on the builder, which determines multithreading of the fitness
+///   calculation inside the [HillClimb] strategy. Both can be combined.
 ///
 /// Multithreading inside the [HillClimbVariant::Stochastic] and
-/// [HillClimbVariant::StochasticSecondary] using the `with_multithreading()` builder step does
+/// [HillClimbVariant::StochasticSecondary] using the `with_par_fitness()` builder step does
 /// nothing, due to the sequential nature of the search. But
 /// [call_par_repeatedly](HillClimbBuilder::call_par_repeatedly) still effectively multithreads for
 /// these variants as the sequential nature is only internal to the [HillClimb] strategy.
@@ -132,7 +132,7 @@ pub enum HillClimbVariant {
 ///     .with_variant(HillClimbVariant::SteepestAscent)   // check all neighbours for each round
 ///     .with_fitness(SumGenes::new_with_precision(1e-5)) // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
-///     .with_multithreading(true)                        // optional, defaults to false, use all cores for calculating the fitness of the neighbouring_population (only used with HillClimbVariant::SteepestAscent)
+///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
 ///     .with_target_fitness_score(10)                    // ending condition if sum of genes is <= 0.00010 in the best chromosome
 ///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations
@@ -160,7 +160,7 @@ pub struct HillClimb<
 pub struct HillClimbConfig {
     pub variant: HillClimbVariant,
     pub fitness_ordering: FitnessOrdering,
-    pub multithreading: bool,
+    pub par_fitness: bool,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
@@ -198,7 +198,7 @@ impl<
         self.state.set_best_chromosome(&seed_chromosome, true);
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
-        if self.config.multithreading {
+        if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
@@ -404,8 +404,8 @@ impl StrategyConfig for HillClimbConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
     }
-    fn multithreading(&self) -> bool {
-        self.multithreading
+    fn par_fitness(&self) -> bool {
+        self.par_fitness
     }
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
@@ -520,7 +520,7 @@ impl<
                 config: HillClimbConfig {
                     variant: builder.variant.unwrap_or(HillClimbVariant::Stochastic),
                     fitness_ordering: builder.fitness_ordering,
-                    multithreading: builder.multithreading,
+                    par_fitness: builder.par_fitness,
                     max_stale_generations: builder.max_stale_generations,
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
@@ -538,7 +538,7 @@ impl Default for HillClimbConfig {
         Self {
             variant: HillClimbVariant::default(),
             fitness_ordering: FitnessOrdering::Maximize,
-            multithreading: false,
+            par_fitness: false,
             max_stale_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
@@ -610,7 +610,7 @@ impl fmt::Display for HillClimbConfig {
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  multithreading: {:?}", self.multithreading)
+        writeln!(f, "  par_fitness: {:?}", self.par_fitness)
     }
 }
 

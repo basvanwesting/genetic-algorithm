@@ -17,7 +17,7 @@ pub trait Strategy<G: Genotype> {
 
 pub trait StrategyConfig {
     fn fitness_ordering(&self) -> FitnessOrdering;
-    fn multithreading(&self) -> bool;
+    fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
 }
 

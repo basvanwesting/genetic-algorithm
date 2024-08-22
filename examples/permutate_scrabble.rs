@@ -347,7 +347,7 @@ fn main() {
             column_scores.clone(),
             false,
         ))
-        .with_multithreading(true)
+        .with_par_fitness(true)
         // .with_reporter(PermutateReporterSimple::new(100_000))
         // .with_reporter(PermutateReporterLog::new())
         .with_reporter(CustomReporter(100_000))

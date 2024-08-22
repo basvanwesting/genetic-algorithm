@@ -385,7 +385,7 @@ fn main() {
         //.with_max_stale_generations(100)
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(1)
-        .with_multithreading(true)
+        .with_par_fitness(true)
         .with_fitness(RecessFitness(&adults, &dates))
         .with_fitness_ordering(FitnessOrdering::Maximize);
 

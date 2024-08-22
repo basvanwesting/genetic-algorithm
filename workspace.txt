@@ -1,3 +1,20 @@
+StrategyBuilder with_rng. if needed for seeds
+with_rng_seed?
+Default to thread_rng
+Set seeds for test, check rand docs
+Fixed type or RNG trait?
+Spawn for thread
+Is par deterministic? Maybe seed won”t help as work stealing is  not deterministic. Check rayon docs
+
+Target cardinality range for dynamic to avoid constant switching
+
+Store samplers on mutate etc. Just like genotype
+
+Make fitness immutable?
+
+Add CountTrueWithWotk
+
+
 multithreading for CrossoverUniform(false)
 multithreading for CompeteTournament
 multithreading for MutateSingleGene

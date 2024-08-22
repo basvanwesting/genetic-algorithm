@@ -271,7 +271,7 @@ fn main() {
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscentSecondary)
         .with_max_stale_generations(2)
-        .with_multithreading(true)
+        .with_par_fitness(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
             rows,

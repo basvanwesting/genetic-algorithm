@@ -22,9 +22,9 @@ fn main() {
         .with_target_population_size(100)
         .with_max_stale_generations(100)
         .with_target_fitness_score(99 * 100_000)
+        // .with_par_fitness(true) // 2x slower in this case
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(SumGenes::new())
-        .with_multithreading(true)
         // .with_crossover(CrossoverUniform::new(false)) // multi-thread
         .with_crossover(CrossoverUniform::new(true)) // single-thread
         // .with_compete(CompeteTournament::new(4)) // multi-thread
