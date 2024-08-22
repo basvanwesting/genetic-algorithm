@@ -34,6 +34,10 @@ Terminology:
 * Genotype: holds the `genes_size` and alleles and knows how to generate and mutate chromosomes efficiently
 * Fitness: knows how to determine the fitness of a chromosome
 
+All multithreading mechanisms are implemented using
+[rayon::iter](https://docs.rs/rayon/latest/rayon/iter/index.html) and
+[std::sync::mpsc](https://doc.rust-lang.org/1.78.0/std/sync/mpsc/index.html).
+
 ## Documentation
 
 See [docs.rs](https://docs.rs/genetic_algorithm/latest/genetic_algorithm)

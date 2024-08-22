@@ -17,6 +17,8 @@
 //! * [Genotype](crate::genotype): holds the `genes_size` and alleles and knows how to generate and mutate chromosomes efficiently
 //! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
 //!
+//! All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
+//!
 //! ## Quick Usage
 //!
 //! ```rust
