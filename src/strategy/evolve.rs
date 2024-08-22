@@ -185,6 +185,7 @@ impl<
     fn call<R: Rng + Clone + Send + Sync>(&mut self, rng: &mut R) {
         self.state.population = self.population_factory(rng);
 
+        // reuse same thread local variables for all loops
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         let mut rng_thread_local: Option<ThreadLocal<RefCell<R>>> = None;
         if self.config.multithreading {
@@ -223,9 +224,13 @@ impl<
             );
             self.fitness
                 .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
-            self.plugins
-                .compete
-                .call(&mut self.state, &self.config, &mut self.reporter, rng);
+            self.plugins.compete.call(
+                &mut self.state,
+                &self.config,
+                &mut self.reporter,
+                rng,
+                rng_thread_local.as_ref(),
+            );
 
             if let Some(contending_chromosome) = self
                 .state
