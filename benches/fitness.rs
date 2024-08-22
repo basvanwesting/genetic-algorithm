@@ -56,10 +56,11 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
         );
     });
 
+    // reuse thread fitness for all runs (as in evolve loop)
+    let fitness_thread_local = Some(ThreadLocal::new());
     group.sample_size(300);
     group.bench_function("fitness-CountTrueWithSleep-multi-threaded", |b| {
         let mut fitness = CountTrueWithSleep::new(1000, true);
-        let fitness_thread_local = Some(ThreadLocal::new());
         b.iter_batched(
             || population.clone(),
             |mut data| {
