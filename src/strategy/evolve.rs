@@ -87,6 +87,8 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// ```
 /// use genetic_algorithm::strategy::evolve::prelude::*;
 /// use genetic_algorithm::fitness::placeholders::CountTrue;
+/// use rand::prelude::*;
+/// use rand::rngs::SmallRng;
 ///
 /// // the search space
 /// let genotype = BinaryGenotype::builder() // boolean alleles
@@ -95,7 +97,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .unwrap();
 ///
 /// // the search strategy
-/// let mut rng = rand::thread_rng(); // a randomness provider implementing Trait rand::Rng
+/// let mut rng = SmallRng::from_entropy(); // a randomness provider implementing Trait rand::Rng + Clone + Send + Sync
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
 ///     .with_target_population_size(100)                      // evolve with 100 chromosomes
@@ -180,7 +182,7 @@ impl<
         SR: EvolveReporter<Allele = G::Allele>,
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
-    fn call<R: Rng>(&mut self, rng: &mut R) {
+    fn call<R: Rng + Clone + Send + Sync>(&mut self, rng: &mut R) {
         self.state.population = self.population_factory(rng);
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
@@ -323,7 +325,10 @@ impl<
         }
     }
 
-    pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G::Allele> {
+    pub fn population_factory<R: Rng + Clone + Send + Sync>(
+        &mut self,
+        rng: &mut R,
+    ) -> Population<G::Allele> {
         (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_factory(rng))
             .collect::<Vec<_>>()

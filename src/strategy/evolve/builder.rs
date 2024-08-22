@@ -221,7 +221,7 @@ impl<
         SR: EvolveReporter<Allele = G::Allele>,
     > Builder<G, M, F, S, C, E, SR>
 {
-    pub fn call<R: Rng>(
+    pub fn call<R: Rng + Clone + Send + Sync>(
         self,
         rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
@@ -229,7 +229,7 @@ impl<
         evolve.call(rng);
         Ok(evolve)
     }
-    pub fn call_repeatedly<R: Rng>(
+    pub fn call_repeatedly<R: Rng + Clone + Send + Sync>(
         self,
         max_repeats: usize,
         rng: &mut R,
@@ -340,7 +340,7 @@ impl<
         Ok(best_evolve.unwrap())
     }
 
-    pub fn call_speciated<R: Rng>(
+    pub fn call_speciated<R: Rng + Clone + Send + Sync>(
         self,
         number_of_species: usize,
         rng: &mut R,

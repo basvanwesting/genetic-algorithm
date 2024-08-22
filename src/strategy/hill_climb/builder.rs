@@ -145,13 +145,16 @@ impl<
         SR: HillClimbReporter<Allele = G::Allele>,
     > Builder<G, F, SR>
 {
-    pub fn call<R: Rng>(self, rng: &mut R) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
+    pub fn call<R: Rng + Clone + Send + Sync>(
+        self,
+        rng: &mut R,
+    ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         let mut hill_climb: HillClimb<G, F, SR> = self.try_into()?;
         hill_climb.call(rng);
         Ok(hill_climb)
     }
 
-    pub fn call_repeatedly<R: Rng>(
+    pub fn call_repeatedly<R: Rng + Clone + Send + Sync>(
         self,
         max_repeats: usize,
         rng: &mut R,

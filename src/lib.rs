@@ -23,6 +23,8 @@
 //!
 //! ```rust
 //! use genetic_algorithm::strategy::evolve::prelude::*;
+//! use rand::prelude::*;
+//! use rand::rngs::SmallRng;
 //!
 //! // the search space
 //! let genotype = BinaryGenotype::builder() // boolean alleles
@@ -43,7 +45,7 @@
 //! }
 //!
 //! // the search strategy
-//! let mut rng = rand::thread_rng(); // a randomness provider implementing Trait rand::Rng
+//! let mut rng = SmallRng::from_entropy(); // a randomness provider implementing Trait rand::Rng + Clone + Send + Sync
 //! let evolve = Evolve::builder()
 //!     .with_genotype(genotype)
 //!     .with_target_population_size(100)              // evolve with 100 chromosomes

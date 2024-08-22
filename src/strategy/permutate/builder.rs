@@ -93,7 +93,10 @@ impl<
         SR: PermutateReporter<Allele = G::Allele>,
     > Builder<G, F, SR>
 {
-    pub fn call<R: Rng>(self, rng: &mut R) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
+    pub fn call<R: Rng + Clone + Send + Sync>(
+        self,
+        rng: &mut R,
+    ) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         let mut permutate: Permutate<G, F, SR> = self.try_into()?;
         permutate.call(rng);
         Ok(permutate)

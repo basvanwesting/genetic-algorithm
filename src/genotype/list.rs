@@ -84,7 +84,7 @@ impl<T: Allele> Genotype for List<T> {
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
+    fn random_genes_factory<R: Rng + Clone + Send + Sync>(&self, rng: &mut R) -> Vec<Self::Allele> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
                 .map(|_| self.allele_list[self.allele_index_sampler.sample(rng)].clone())
@@ -93,17 +93,19 @@ impl<T: Allele> Genotype for List<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
+    fn chromosome_factory<R: Rng + Clone + Send + Sync>(
+        &self,
+        rng: &mut R,
+    ) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome<R: Rng>(
+    fn mutate_chromosome<R: Rng + Clone + Send + Sync>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)].clone();
         chromosome.taint_fitness_score();
@@ -120,7 +122,7 @@ impl<T: Allele> Genotype for List<T> {
 }
 
 impl<T: Allele> IncrementalGenotype for List<T> {
-    fn neighbouring_chromosomes<R: Rng>(
+    fn neighbouring_chromosomes<R: Rng + Clone + Send + Sync>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
         _scale_index: Option<usize>,

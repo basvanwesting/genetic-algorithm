@@ -43,6 +43,8 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 /// ```
 /// use genetic_algorithm::strategy::permutate::prelude::*;
 /// use genetic_algorithm::fitness::placeholders::CountTrue;
+/// use rand::prelude::*;
+/// use rand::rngs::SmallRng;
 ///
 /// // the search space
 /// let genotype = BinaryGenotype::builder() // boolean alleles
@@ -51,7 +53,7 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///     .unwrap();
 ///
 /// // the search strategy
-/// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
+/// let mut rng = SmallRng::from_entropy(); // a randomness provider implementing Trait rand::Rng + Clone + Send + Sync
 /// let permutate = Permutate::builder()
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
@@ -102,7 +104,7 @@ impl<
         SR: PermutateReporter<Allele = G::Allele>,
     > Strategy<G> for Permutate<G, F, SR>
 {
-    fn call<R: Rng>(&mut self, rng: &mut R) {
+    fn call<R: Rng + Clone + Send + Sync>(&mut self, rng: &mut R) {
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         if self.config.multithreading {
@@ -137,7 +139,7 @@ impl<
         SR: PermutateReporter<Allele = G::Allele>,
     > Permutate<G, F, SR>
 {
-    fn call_single_thread<R: Rng>(&mut self, _rng: &mut R) {
+    fn call_single_thread<R: Rng + Clone + Send + Sync>(&mut self, _rng: &mut R) {
         self.genotype
             .clone()
             .chromosome_permutations_into_iter()
@@ -152,7 +154,7 @@ impl<
                 self.reporter.on_new_generation(&self.state, &self.config);
             });
     }
-    fn call_multi_thread<R: Rng>(&mut self, _rng: &mut R) {
+    fn call_multi_thread<R: Rng + Clone + Send + Sync>(&mut self, _rng: &mut R) {
         rayon::scope(|s| {
             let genotype = &self.genotype;
             let fitness = self.fitness.clone();

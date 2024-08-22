@@ -84,7 +84,7 @@ impl<T: Allele> Genotype for Unique<T> {
     fn crossover_indexes(&self) -> Vec<usize> {
         vec![]
     }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
+    fn random_genes_factory<R: Rng + Clone + Send + Sync>(&self, rng: &mut R) -> Vec<Self::Allele> {
         if self.seed_genes_list.is_empty() {
             let mut genes = self.allele_list.clone();
             genes.shuffle(rng);
@@ -93,11 +93,14 @@ impl<T: Allele> Genotype for Unique<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
+    fn chromosome_factory<R: Rng + Clone + Send + Sync>(
+        &self,
+        rng: &mut R,
+    ) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome<R: Rng>(
+    fn mutate_chromosome<R: Rng + Clone + Send + Sync>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
         _scale_index: Option<usize>,
@@ -120,7 +123,7 @@ impl<T: Allele> Genotype for Unique<T> {
 }
 
 impl<T: Allele> IncrementalGenotype for Unique<T> {
-    fn neighbouring_chromosomes<R: Rng>(
+    fn neighbouring_chromosomes<R: Rng + Clone + Send + Sync>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
         _scale_index: Option<usize>,

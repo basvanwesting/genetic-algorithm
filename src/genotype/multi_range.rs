@@ -154,12 +154,20 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
+    fn mutate_chromosome_random<R: Rng + Clone + Send + Sync>(
+        &self,
+        chromosome: &mut Chromosome<T>,
+        rng: &mut R,
+    ) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
-    fn mutate_chromosome_relative<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
+    fn mutate_chromosome_relative<R: Rng + Clone + Send + Sync>(
+        &self,
+        chromosome: &mut Chromosome<T>,
+        rng: &mut R,
+    ) {
         let index = self.gene_index_sampler.sample(rng);
         let allele_range = &self.allele_ranges[index];
 
@@ -174,7 +182,7 @@ where
         }
         chromosome.taint_fitness_score();
     }
-    fn mutate_chromosome_scaled<R: Rng>(
+    fn mutate_chromosome_scaled<R: Rng + Clone + Send + Sync>(
         &self,
         chromosome: &mut Chromosome<T>,
         scale_index: usize,
@@ -213,7 +221,7 @@ where
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
+    fn random_genes_factory<R: Rng + Clone + Send + Sync>(&self, rng: &mut R) -> Vec<Self::Allele> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
                 .map(|index| self.allele_samplers[index].sample(rng))
@@ -222,11 +230,14 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
+    fn chromosome_factory<R: Rng + Clone + Send + Sync>(
+        &self,
+        rng: &mut R,
+    ) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome<R: Rng>(
+    fn mutate_chromosome<R: Rng + Clone + Send + Sync>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
         scale_index: Option<usize>,
@@ -260,7 +271,7 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn neighbouring_chromosomes<R: Rng>(
+    fn neighbouring_chromosomes<R: Rng + Clone + Send + Sync>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
         scale_index: Option<usize>,

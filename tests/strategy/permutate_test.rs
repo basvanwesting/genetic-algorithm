@@ -16,7 +16,7 @@ fn call_binary_maximize() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
+    let mut rng = SmallRng::from_entropy();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(CountTrue)
@@ -41,7 +41,7 @@ fn call_binary_minimize() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
+    let mut rng = SmallRng::from_entropy();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
@@ -68,7 +68,7 @@ fn call_list() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
+    let mut rng = SmallRng::from_entropy();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
@@ -95,7 +95,7 @@ fn call_multi_list() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
+    let mut rng = SmallRng::from_entropy();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
@@ -118,7 +118,7 @@ fn call_multi_thread() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
+    let mut rng = SmallRng::from_entropy();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())

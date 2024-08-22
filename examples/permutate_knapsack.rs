@@ -1,4 +1,6 @@
 use genetic_algorithm::strategy::permutate::prelude::*;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
 
 // see https://en.wikipedia.org/wiki/Knapsack_problem
 // example data 10 items with (weight, value):
@@ -77,7 +79,7 @@ fn main() {
 
     println!("{}", genotype);
 
-    let mut rng = rand::thread_rng();
+    let mut rng = SmallRng::from_entropy();
     let mut permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(fitness)

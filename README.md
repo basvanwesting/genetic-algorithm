@@ -46,6 +46,8 @@ See [docs.rs](https://docs.rs/genetic_algorithm/latest/genetic_algorithm)
 
 ```rust
 use genetic_algorithm::strategy::evolve::prelude::*;
+use rand::prelude::*;
+use rand::rngs::SmallRng;
 
 // the search space
 let genotype = BinaryGenotype::builder() // boolean alleles
@@ -66,7 +68,7 @@ impl Fitness for CountTrue {
 }
 
 // the search strategy
-let mut rng = rand::thread_rng();     // a randomness provider implementing Trait rand::Rng
+let mut rng = SmallRng::from_entropy(); // a randomness provider implementing Trait rand::Rng + Clone + Send + Sync
 let evolve = Evolve::builder()
     .with_genotype(genotype)
     .with_population_size(100)                     // evolve with 100 chromosomes

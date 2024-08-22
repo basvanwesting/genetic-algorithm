@@ -109,6 +109,8 @@ pub enum HillClimbVariant {
 /// ```
 /// use genetic_algorithm::strategy::hill_climb::prelude::*;
 /// use genetic_algorithm::fitness::placeholders::SumGenes;
+/// use rand::prelude::*;
+/// use rand::rngs::SmallRng;
 ///
 /// // the search space
 /// let genotype = RangeGenotype::builder()     // f32 alleles
@@ -124,7 +126,7 @@ pub enum HillClimbVariant {
 ///     .unwrap();
 ///
 /// // the search strategy
-/// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
+/// let mut rng = SmallRng::from_entropy(); // a randomness provider implementing Trait rand::Rng + Clone + Send + Sync
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
 ///     .with_variant(HillClimbVariant::SteepestAscent)   // check all neighbours for each round
@@ -190,7 +192,7 @@ impl<
         SR: HillClimbReporter<Allele = G::Allele>,
     > Strategy<G> for HillClimb<G, F, SR>
 {
-    fn call<R: Rng>(&mut self, rng: &mut R) {
+    fn call<R: Rng + Clone + Send + Sync>(&mut self, rng: &mut R) {
         let mut seed_chromosome = self.genotype.chromosome_factory(rng);
         self.fitness.call_for_chromosome(&mut seed_chromosome);
         self.state.set_best_chromosome(&seed_chromosome, true);

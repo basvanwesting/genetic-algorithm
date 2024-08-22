@@ -13,7 +13,7 @@ pub enum Wrapper {
 }
 
 impl Compete for Wrapper {
-    fn call<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
+    fn call<A: Allele, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = A>>(
         &mut self,
         state: &mut EvolveState<A>,
         config: &EvolveConfig,

@@ -48,7 +48,7 @@ impl<T: Allele> Population<T> {
         }
     }
 
-    pub fn trim<R: Rng>(&mut self, remaining_percentage: f32, rng: &mut R) {
+    pub fn trim<R: Rng + Clone + Send + Sync>(&mut self, remaining_percentage: f32, rng: &mut R) {
         let remaining_size: usize = std::cmp::max(
             (self.size() as f32 * remaining_percentage).ceil() as usize,
             2,

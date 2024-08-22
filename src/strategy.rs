@@ -9,7 +9,7 @@ use crate::genotype::{Allele, Genotype};
 use rand::Rng;
 
 pub trait Strategy<G: Genotype> {
-    fn call<R: Rng>(&mut self, rng: &mut R);
+    fn call<R: Rng + Clone + Send + Sync>(&mut self, rng: &mut R);
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>>;
     fn best_generation(&self) -> usize;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
