@@ -1,5 +1,4 @@
 use super::{Evolve, EvolveReporter, EvolveReporterNoop};
-use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
@@ -299,9 +298,10 @@ impl<
                     .par_bridge()
                     .map_with((sender, rng), |(sender, rng), mut contending_run| {
                         contending_run.call(rng);
-                        let stop = contending_run.is_finished_by_target_fitness_score();
+                        let finished_by_target_fitness_score =
+                            contending_run.is_finished_by_target_fitness_score();
                         sender.send(contending_run).unwrap();
-                        stop
+                        finished_by_target_fitness_score
                     })
                     .any(|x| x);
             });
@@ -346,25 +346,41 @@ impl<
         rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
-        let best_chromosomes: Vec<Chromosome<G::Allele>> = (0..number_of_species)
+        let mut species_runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
+        let finished_by_target_fitness_score = (0..number_of_species)
             .filter_map(|iteration| {
                 let mut species_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into().ok()?;
                 species_run.state.current_iteration = iteration;
-                species_run.call(rng);
-                species_run.best_chromosome()
+                Some(species_run)
             })
-            .collect();
+            .map(|mut species_run| {
+                species_run.call(rng);
+                let finished_by_target_fitness_score =
+                    species_run.is_finished_by_target_fitness_score();
+                species_runs.push(species_run);
+                finished_by_target_fitness_score
+            })
+            .any(|x| x);
 
-        let seed_genes_list = best_chromosomes
-            .iter()
-            .map(|best_chromosome| best_chromosome.genes.clone())
-            .collect();
-        let mut final_genotype = self.genotype.clone().unwrap();
-        final_genotype.set_seed_genes_list(seed_genes_list);
-        let mut final_run: Evolve<G, M, F, S, C, E, SR> =
-            self.clone().with_genotype(final_genotype).try_into()?;
+        let final_run = if finished_by_target_fitness_score {
+            species_runs
+                .into_iter()
+                .find(|species_run| species_run.is_finished_by_target_fitness_score())
+                .unwrap()
+        } else {
+            let seed_genes_list = species_runs
+                .iter()
+                .filter_map(|species_run| species_run.best_chromosome())
+                .map(|best_chromosome| best_chromosome.genes.clone())
+                .collect();
+            let mut final_genotype = self.genotype.clone().unwrap();
+            final_genotype.set_seed_genes_list(seed_genes_list);
+            let mut final_run: Evolve<G, M, F, S, C, E, SR> =
+                self.clone().with_genotype(final_genotype).try_into()?;
 
-        final_run.call(rng);
+            final_run.call(rng);
+            final_run
+        };
         Ok(final_run)
     }
 
@@ -374,31 +390,59 @@ impl<
         rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
-        let thread_rng = rng.clone();
-        let best_chromosomes: Vec<Chromosome<G::Allele>> = (0..number_of_species)
-            .filter_map(|iteration| {
-                let mut species_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into().ok()?;
-                species_run.state.current_iteration = iteration;
-                Some(species_run)
-            })
-            .par_bridge()
-            .map_with(thread_rng, |rng, mut species_run| {
-                species_run.call(rng);
-                species_run.best_chromosome()
-            })
-            .filter_map(|x| x)
-            .collect();
+        let mut species_runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
+        rayon::scope(|s| {
+            let builder = &self;
+            let thread_rng = rng.clone();
+            let (sender, receiver) = channel();
 
-        let seed_genes_list = best_chromosomes
+            s.spawn(move |_| {
+                (0..number_of_species)
+                    .filter_map(|iteration| {
+                        let mut species_run: Evolve<G, M, F, S, C, E, SR> =
+                            builder.clone().try_into().ok()?;
+                        species_run.state.current_iteration = iteration;
+                        Some(species_run)
+                    })
+                    .par_bridge()
+                    .map_with((sender, thread_rng), |(sender, rng), mut species_run| {
+                        species_run.call(rng);
+                        let finished_by_target_fitness_score =
+                            species_run.is_finished_by_target_fitness_score();
+                        sender.send(species_run).unwrap();
+                        finished_by_target_fitness_score
+                    })
+                    .any(|x| x);
+            });
+
+            receiver.iter().for_each(|species_run| {
+                species_runs.push(species_run);
+            });
+        });
+
+        let finished_by_target_fitness_score = species_runs
             .iter()
-            .map(|best_chromosome| best_chromosome.genes.clone())
-            .collect();
-        let mut final_genotype = self.genotype.clone().unwrap();
-        final_genotype.set_seed_genes_list(seed_genes_list);
-        let mut final_run: Evolve<G, M, F, S, C, E, SR> =
-            self.clone().with_genotype(final_genotype).try_into()?;
+            .any(|species_run| species_run.is_finished_by_target_fitness_score());
 
-        final_run.call(rng);
+        let final_run = if finished_by_target_fitness_score {
+            species_runs
+                .into_iter()
+                .find(|species_run| species_run.is_finished_by_target_fitness_score())
+                .unwrap()
+        } else {
+            let seed_genes_list = species_runs
+                .iter()
+                .filter_map(|species_run| species_run.best_chromosome())
+                .map(|best_chromosome| best_chromosome.genes.clone())
+                .collect();
+            let mut final_genotype = self.genotype.clone().unwrap();
+            final_genotype.set_seed_genes_list(seed_genes_list);
+            let mut final_run: Evolve<G, M, F, S, C, E, SR> =
+                self.clone().with_genotype(final_genotype).try_into()?;
+
+            final_run.call(rng);
+            final_run
+        };
         Ok(final_run)
     }
 }

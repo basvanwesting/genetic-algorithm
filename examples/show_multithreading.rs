@@ -166,7 +166,7 @@ fn call_evolve_speciated() {
         .build()
         .unwrap();
 
-    println!("evolve_repeatedly: start");
+    println!("evolve_speciated: start");
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype.clone())
         .with_target_population_size(100)
@@ -188,11 +188,11 @@ fn call_evolve_speciated() {
     let duration = now.elapsed();
 
     if let Some(fitness_score) = evolve.best_fitness_score() {
-        println!("evolve_repeatedly fitness score: {}", fitness_score);
+        println!("evolve_speciated fitness score: {}", fitness_score);
     } else {
-        println!("evolve_repeatedly invalid solution with fitness score: None");
+        println!("evolve_speciated invalid solution with fitness score: None");
     }
-    println!("evolve_repeatedly: {:?}", duration);
+    println!("evolve_speciated: {:?}", duration);
     println!();
 }
 
