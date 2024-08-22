@@ -16,6 +16,8 @@ pub use self::wrapper::Wrapper as MutateWrapper;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
+use std::cell::RefCell;
+use thread_local::ThreadLocal;
 
 pub trait Mutate: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: Genotype, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = G::Allele>>(
@@ -25,6 +27,7 @@ pub trait Mutate: Clone + Send + Sync + std::fmt::Debug {
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
+        thread_local: Option<&ThreadLocal<RefCell<R>>>,
     );
     fn report(&self) -> String;
 }

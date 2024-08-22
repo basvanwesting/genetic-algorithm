@@ -34,16 +34,44 @@ fn binary_genotype() {
     let mut fitness = CountTrue;
     assert_eq!(mutate.mutation_probability, 0.0);
     fitness.call_for_population_single_thread(&mut state.population);
-    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+        None,
+    );
     assert_eq!(mutate.mutation_probability, 0.2);
     fitness.call_for_population_single_thread(&mut state.population);
-    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+        None,
+    );
     assert_eq!(mutate.mutation_probability, 0.4);
     fitness.call_for_population_single_thread(&mut state.population);
-    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+        None,
+    );
     assert_eq!(mutate.mutation_probability, 0.2);
     fitness.call_for_population_single_thread(&mut state.population);
-    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+        None,
+    );
     assert_eq!(mutate.mutation_probability, 0.0);
 
     assert_eq!(

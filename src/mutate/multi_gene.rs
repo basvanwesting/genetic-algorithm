@@ -3,6 +3,8 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
+use std::cell::RefCell;
+use thread_local::ThreadLocal;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the provided mutation_probability. Then
@@ -26,6 +28,7 @@ impl Mutate for MultiGene {
         _config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
+        _thread_local: Option<&ThreadLocal<RefCell<R>>>,
     ) {
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
         for chromosome in state
