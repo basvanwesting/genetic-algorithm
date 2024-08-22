@@ -31,7 +31,7 @@ pub struct Builder<
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
-    pub multithreading: bool,
+    pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -53,7 +53,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
             target_fitness_score: None,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
-            multithreading: false,
+            par_fitness: false,
             replace_on_equal_fitness: false,
             mutate: None,
             fitness: None,
@@ -143,8 +143,8 @@ impl<
         self.fitness_ordering = fitness_ordering;
         self
     }
-    pub fn with_multithreading(mut self, multithreading: bool) -> Self {
-        self.multithreading = multithreading;
+    pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
+        self.par_fitness = par_fitness;
         self
     }
     pub fn with_replace_on_equal_fitness(mut self, replace_on_equal_fitness: bool) -> Self {
@@ -176,7 +176,7 @@ impl<
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
-            multithreading: self.multithreading,
+            par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,
@@ -198,7 +198,7 @@ impl<
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
-            multithreading: self.multithreading,
+            par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,

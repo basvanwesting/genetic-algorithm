@@ -20,7 +20,7 @@ pub struct Builder<
     pub variant: Option<HillClimbVariant>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
-    pub multithreading: bool,
+    pub par_fitness: bool,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
@@ -37,7 +37,7 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
             variant: None,
             fitness: None,
             fitness_ordering: FitnessOrdering::Maximize,
-            multithreading: false,
+            par_fitness: false,
             max_stale_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
@@ -75,8 +75,8 @@ impl<
         self.fitness_ordering = fitness_ordering;
         self
     }
-    pub fn with_multithreading(mut self, multithreading: bool) -> Self {
-        self.multithreading = multithreading;
+    pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
+        self.par_fitness = par_fitness;
         self
     }
     pub fn with_fitness(mut self, fitness: F) -> Self {
@@ -129,7 +129,7 @@ impl<
             variant: self.variant,
             fitness: self.fitness,
             fitness_ordering: self.fitness_ordering,
-            multithreading: self.multithreading,
+            par_fitness: self.par_fitness,
             max_stale_generations: self.max_stale_generations,
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,

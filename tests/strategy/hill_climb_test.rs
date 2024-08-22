@@ -2,7 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
-use genetic_algorithm::genotype::{BinaryGenotype, RangeGenotype, Genotype};
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype, RangeGenotype};
 use genetic_algorithm::strategy::hill_climb::{
     HillClimb, HillClimbReporterNoop, HillClimbVariant, TryFromHillClimbBuilderError,
 };
@@ -196,7 +196,7 @@ fn call_range_target_fitness_score_minimize() {
 }
 
 #[test]
-fn call_range_multi_thread() {
+fn call_range_par_fitness() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
@@ -207,7 +207,7 @@ fn call_range_multi_thread() {
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_multithreading(true)
+        .with_par_fitness(true)
         .with_target_fitness_score(1000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_reporter(HillClimbReporterNoop::new())

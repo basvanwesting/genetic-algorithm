@@ -56,8 +56,8 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
+///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
 ///     .with_reporter(PermutateReporterSimple::new(100)) // optional builder step, report every 100 generations
-///     .with_multithreading(true)                        // optional, defaults to false, use all cores
 ///     .call(&mut rng)
 ///     .unwrap();
 ///
@@ -79,7 +79,7 @@ pub struct Permutate<
 
 pub struct PermutateConfig {
     pub fitness_ordering: FitnessOrdering,
-    pub multithreading: bool,
+    pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
 }
 
@@ -105,10 +105,10 @@ impl<
     fn call<R: Rng>(&mut self, rng: &mut R) {
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
-        if self.config.multithreading {
-            self.call_multi_thread(rng)
+        if self.config.par_fitness {
+            self.call_parallel(rng)
         } else {
-            self.call_single_thread(rng)
+            self.call_sequential(rng)
         }
         self.reporter.on_finish(&self.state, &self.config);
     }
@@ -137,7 +137,7 @@ impl<
         SR: PermutateReporter<Allele = G::Allele>,
     > Permutate<G, F, SR>
 {
-    fn call_single_thread<R: Rng>(&mut self, _rng: &mut R) {
+    fn call_sequential<R: Rng>(&mut self, _rng: &mut R) {
         self.genotype
             .clone()
             .chromosome_permutations_into_iter()
@@ -152,7 +152,7 @@ impl<
                 self.reporter.on_new_generation(&self.state, &self.config);
             });
     }
-    fn call_multi_thread<R: Rng>(&mut self, _rng: &mut R) {
+    fn call_parallel<R: Rng>(&mut self, _rng: &mut R) {
         rayon::scope(|s| {
             let genotype = &self.genotype;
             let fitness = self.fitness.clone();
@@ -184,8 +184,8 @@ impl StrategyConfig for PermutateConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
     }
-    fn multithreading(&self) -> bool {
-        self.multithreading
+    fn par_fitness(&self) -> bool {
+        self.par_fitness
     }
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
@@ -283,7 +283,7 @@ impl<
 
                 config: PermutateConfig {
                     fitness_ordering: builder.fitness_ordering,
-                    multithreading: builder.multithreading,
+                    par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
                 },
                 state: PermutateState {
@@ -300,7 +300,7 @@ impl Default for PermutateConfig {
     fn default() -> Self {
         Self {
             fitness_ordering: FitnessOrdering::Maximize,
-            multithreading: false,
+            par_fitness: false,
             replace_on_equal_fitness: false,
         }
     }
@@ -349,7 +349,7 @@ impl fmt::Display for PermutateConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_config:")?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  multithreading: {:?}", self.multithreading)
+        writeln!(f, "  par_fitness: {:?}", self.par_fitness)
     }
 }
 

@@ -68,16 +68,16 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// * [call_par_repeatedly](EvolveBuilder::call_par_repeatedly): this runs multiple independent
 ///   evolve strategies in parallel and returns the best one (or short circuits when the
 ///   target_fitness_score is reached). This is separate and independent from the
-///   `with_multithreading()` flag on the builder, which determines multithreading inside the evolve
-///   strategy. Both can be combined.
+///   `with_par_fitness()` flag on the builder, which determines multithreading of the fitness
+///   calculation inside the evolve strategy. Both can be combined.
 /// * [call_speciated](EvolveBuilder::call_speciated): this runs multiple independent
 ///   evolve strategies and then competes their best results against each other in one final evolve
 ///   strategy (or short circuits when the target_fitness_score is reached)
 /// * [call_par_speciated](EvolveBuilder::call_par_speciated): this runs multiple independent
 ///   evolve strategies in parallel and then competes their best results against each other in one
 ///   final evolve strategy (or short circuits when the target_fitness_score is reached). This is
-///   separate and independent from the `with_multithreading()` flag on the builder, which determines
-///   multithreading inside the evolve strategy. Both can be combined.
+///   separate and independent from the `with_par_fitness()` flag on the builder, which determines
+///   multithreading of the fitness calculation inside the evolve strategy. Both can be combined.
 ///
 /// All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 ///
@@ -105,7 +105,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .with_max_chromosome_age(10)                           // kill chromosomes after 10 generations
 ///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)      // aim for the least true values
-///     .with_multithreading(true)                             // optional, defaults to false, use all cores for calculating the fitness of the population
+///     .with_par_fitness(true)                                // optional, defaults to false, use parallel fitness calculation
 ///     .with_replace_on_equal_fitness(true)                   // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
 ///     .with_crossover(CrossoverUniform::new(true))           // crossover all individual genes between 2 chromosomes for offspring
 ///     .with_mutate(MutateSingleGene::new(0.2))               // mutate a single gene with a 20% probability per chromosome
@@ -150,7 +150,7 @@ pub struct EvolveConfig {
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
-    pub multithreading: bool,
+    pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
 }
 
@@ -184,7 +184,7 @@ impl<
         self.state.population = self.population_factory(rng);
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
-        if self.config.multithreading {
+        if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
@@ -335,8 +335,8 @@ impl StrategyConfig for EvolveConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
     }
-    fn multithreading(&self) -> bool {
-        self.multithreading
+    fn par_fitness(&self) -> bool {
+        self.par_fitness
     }
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
@@ -507,7 +507,7 @@ impl<
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
                     fitness_ordering: builder.fitness_ordering,
-                    multithreading: builder.multithreading,
+                    par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
                 },
                 state,
@@ -526,7 +526,7 @@ impl Default for EvolveConfig {
             target_fitness_score: None,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
-            multithreading: false,
+            par_fitness: false,
             replace_on_equal_fitness: false,
         }
     }
@@ -617,7 +617,7 @@ impl fmt::Display for EvolveConfig {
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  multithreading: {:?}", self.multithreading)
+        writeln!(f, "  par_fitness: {:?}", self.par_fitness)
     }
 }
 
