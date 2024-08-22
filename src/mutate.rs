@@ -17,7 +17,7 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
-pub trait Mutate: Clone + std::fmt::Debug {
+pub trait Mutate: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,

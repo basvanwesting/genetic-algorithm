@@ -14,12 +14,10 @@ fn main() {
     env_logger::init();
 
     // call_evolve();
-    //
     // call_hill_climb();
-    //
     // call_permutate();
-    //
-    call_hill_climb_repeatedly();
+    call_evolve_repeatedly();
+    // call_hill_climb_repeatedly();
 }
 
 #[allow(dead_code)]
@@ -118,6 +116,44 @@ fn call_permutate() {
         println!("permutate invalid solution with fitness score: None");
     }
     println!("permutate: {:?}", duration);
+    println!();
+}
+
+#[allow(dead_code)]
+fn call_evolve_repeatedly() {
+    let mut rng = SmallRng::from_entropy();
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(100)
+        .build()
+        .unwrap();
+
+    println!("evolve_repeatedly: start");
+    let evolve_builder = Evolve::builder()
+        .with_genotype(genotype.clone())
+        .with_target_population_size(100)
+        .with_max_stale_generations(100)
+        // .with_target_fitness_score(100)
+        .with_fitness(CountTrueWithSleep::new(1000, true))
+        .with_mutate(MutateSingleGene::new(0.2))
+        .with_crossover(CrossoverClone::new(true))
+        .with_compete(CompeteTournament::new(4))
+        .with_reporter(EvolveIterationReporter)
+        .with_multithreading(MULTITHREAD);
+
+    let now = std::time::Instant::now();
+    let evolve = if PAR_CALL {
+        evolve_builder.call_par_repeatedly(20, &mut rng).unwrap()
+    } else {
+        evolve_builder.call_repeatedly(3, &mut rng).unwrap()
+    };
+    let duration = now.elapsed();
+
+    if let Some(fitness_score) = evolve.best_fitness_score() {
+        println!("evolve_repeatedly fitness score: {}", fitness_score);
+    } else {
+        println!("evolve_repeatedly invalid solution with fitness score: None");
+    }
+    println!("evolve_repeatedly: {:?}", duration);
     println!();
 }
 

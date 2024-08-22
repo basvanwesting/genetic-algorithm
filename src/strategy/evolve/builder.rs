@@ -8,6 +8,8 @@ use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::strategy::Strategy;
 use rand::Rng;
+use rayon::prelude::*;
+use std::sync::mpsc::channel;
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -273,6 +275,70 @@ impl<
         }
         Ok(best_evolve.unwrap())
     }
+
+    pub fn call_par_repeatedly<R: Rng + Clone + Send + Sync>(
+        self,
+        max_repeats: usize,
+        rng: &mut R,
+    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+        let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
+        rayon::scope(|s| {
+            let builder = &self;
+            let rng = rng.clone();
+            let (sender, receiver) = channel();
+
+            s.spawn(move |_| {
+                (0..max_repeats)
+                    .map(|iteration| {
+                        let mut contending_run: Evolve<G, M, F, S, C, E, SR> =
+                            builder.clone().try_into().unwrap();
+                        contending_run.state.current_iteration = iteration;
+                        contending_run
+                    })
+                    .par_bridge()
+                    .map_with((sender, rng), |(sender, rng), mut contending_run| {
+                        contending_run.call(rng);
+                        let stop = contending_run.is_finished_by_target_fitness_score();
+                        sender.send(contending_run).unwrap();
+                        stop
+                    })
+                    .any(|x| x);
+            });
+
+            receiver.iter().for_each(|contending_run| {
+                if let Some(best_run) = best_evolve.as_ref() {
+                    match (
+                        best_run.best_fitness_score(),
+                        contending_run.best_fitness_score(),
+                    ) {
+                        (None, None) => {}
+                        (Some(_), None) => {}
+                        (None, Some(_)) => {
+                            best_evolve = Some(contending_run);
+                        }
+                        (Some(current_fitness_score), Some(contending_fitness_score)) => {
+                            match contending_run.config.fitness_ordering {
+                                FitnessOrdering::Maximize => {
+                                    if contending_fitness_score >= current_fitness_score {
+                                        best_evolve = Some(contending_run);
+                                    }
+                                }
+                                FitnessOrdering::Minimize => {
+                                    if contending_fitness_score <= current_fitness_score {
+                                        best_evolve = Some(contending_run);
+                                    }
+                                }
+                            }
+                        }
+                    }
+                } else {
+                    best_evolve = Some(contending_run);
+                }
+            });
+        });
+        Ok(best_evolve.unwrap())
+    }
+
     pub fn call_speciated<R: Rng>(
         self,
         number_of_species: usize,

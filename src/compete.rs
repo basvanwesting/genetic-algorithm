@@ -13,7 +13,7 @@ use crate::genotype::Allele;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
 
-pub trait Compete: Clone + std::fmt::Debug {
+pub trait Compete: Clone + Send + Sync + std::fmt::Debug {
     fn call<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
         &mut self,
         state: &mut EvolveState<A>,
