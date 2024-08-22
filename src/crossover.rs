@@ -18,6 +18,8 @@ pub use self::wrapper::Wrapper as CrossoverWrapper;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
+use std::cell::RefCell;
+use thread_local::ThreadLocal;
 
 pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: Genotype, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = G::Allele>>(
@@ -27,6 +29,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
+        thread_local: Option<&ThreadLocal<RefCell<R>>>,
     );
 
     /// to guard against invalid Crossover strategies which break the internal consistency

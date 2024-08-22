@@ -4,6 +4,8 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Distribution, Slice};
 use rand::Rng;
+use std::cell::RefCell;
+use thread_local::ThreadLocal;
 
 /// Crossover with a single gene position from which on the rest of the genes are taken from the
 /// other parent. The gene position is chosen with uniform probability.
@@ -22,6 +24,7 @@ impl Crossover for SinglePoint {
         _config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
+        _thread_local: Option<&ThreadLocal<RefCell<R>>>,
     ) {
         if state.population.size() < 2 {
             return;

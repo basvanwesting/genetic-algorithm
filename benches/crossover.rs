@@ -5,6 +5,7 @@ use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
+use thread_local::ThreadLocal;
 //use std::time::Duration;
 
 pub fn setup(
@@ -34,13 +35,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let genes_sizes = vec![10, 100, 1000, 10000];
 
     let crossovers: Vec<CrossoverWrapper> = vec![
-        CrossoverSingleGene::new(true).into(),
-        CrossoverSingleGene::new(false).into(),
-        CrossoverUniform::new(true).into(),
+        // CrossoverSingleGene::new(true).into(),
+        // CrossoverSingleGene::new(false).into(),
+        // CrossoverUniform::new(true).into(),
         CrossoverUniform::new(false).into(),
-        CrossoverSinglePoint::new(true).into(),
-        CrossoverSinglePoint::new(false).into(),
-        CrossoverClone::new(true).into(),
+        // CrossoverSinglePoint::new(true).into(),
+        // CrossoverSinglePoint::new(false).into(),
+        // CrossoverClone::new(true).into(),
         //CrossoverClone::new(false).into(), //noop
     ];
 
@@ -55,13 +56,43 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             group.throughput(Throughput::Elements(population_size as u64));
             let (genotype, state) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
-                BenchmarkId::new(format!("{:?}", crossover), genes_size),
+                BenchmarkId::new(format!("{:?}-single-thread", crossover), genes_size),
                 genes_size,
                 |b, &_genes_size| {
                     b.iter_batched(
                         || state.clone(),
                         |mut data| {
-                            crossover.call(&genotype, &mut data, &config, &mut reporter, &mut rng)
+                            crossover.call(
+                                &genotype,
+                                &mut data,
+                                &config,
+                                &mut reporter,
+                                &mut rng,
+                                None,
+                            )
+                        },
+                        BatchSize::SmallInput,
+                    )
+                },
+            );
+
+            // reuse thread fitness for all runs (as in evolve loop)
+            let rng_thread_local = Some(ThreadLocal::new());
+            group.bench_with_input(
+                BenchmarkId::new(format!("{:?}-multi-thread", crossover), genes_size),
+                genes_size,
+                |b, &_genes_size| {
+                    b.iter_batched(
+                        || state.clone(),
+                        |mut data| {
+                            crossover.call(
+                                &genotype,
+                                &mut data,
+                                &config,
+                                &mut reporter,
+                                &mut rng,
+                                rng_thread_local.as_ref(),
+                            )
                         },
                         BatchSize::SmallInput,
                     )

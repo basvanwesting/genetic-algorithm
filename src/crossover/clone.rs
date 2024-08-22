@@ -2,6 +2,8 @@ use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
+use std::cell::RefCell;
+use thread_local::ThreadLocal;
 
 /// Children are clones of the parents, effectively doubling the population if you keep the parents.
 /// Acts as no-op if the parents are not kept.
@@ -23,6 +25,7 @@ impl Crossover for Clone {
         _config: &EvolveConfig,
         _reporter: &mut SR,
         _rng: &mut R,
+        _thread_local: Option<&ThreadLocal<RefCell<R>>>,
     ) {
         if self.keep_parent {
             let mut clones = state.population.clone();

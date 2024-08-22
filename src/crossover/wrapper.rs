@@ -7,6 +7,8 @@ pub use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
+use std::cell::RefCell;
+use thread_local::ThreadLocal;
 
 #[derive(Clone, Debug)]
 pub enum Wrapper {
@@ -24,16 +26,21 @@ impl Crossover for Wrapper {
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
+        thread_local: Option<&ThreadLocal<RefCell<R>>>,
     ) {
         match self {
-            Wrapper::Clone(crossover) => crossover.call(genotype, state, config, reporter, rng),
+            Wrapper::Clone(crossover) => {
+                crossover.call(genotype, state, config, reporter, rng, thread_local)
+            }
             Wrapper::SingleGene(crossover) => {
-                crossover.call(genotype, state, config, reporter, rng)
+                crossover.call(genotype, state, config, reporter, rng, thread_local)
             }
             Wrapper::SinglePoint(crossover) => {
-                crossover.call(genotype, state, config, reporter, rng)
+                crossover.call(genotype, state, config, reporter, rng, thread_local)
             }
-            Wrapper::Uniform(crossover) => crossover.call(genotype, state, config, reporter, rng),
+            Wrapper::Uniform(crossover) => {
+                crossover.call(genotype, state, config, reporter, rng, thread_local)
+            }
         }
     }
 

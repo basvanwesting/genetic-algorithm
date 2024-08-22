@@ -1,5 +1,15 @@
+crossovers-pop1000/Uniform(Uniform { keep_parent: false })-single-thread/10    time: [55.650 µs]
+crossovers-pop1000/Uniform(Uniform { keep_parent: false })-multi-thread/10     time: [141.90 µs]
+crossovers-pop1000/Uniform(Uniform { keep_parent: false })-single-thread/100   time: [252.51 µs]
+crossovers-pop1000/Uniform(Uniform { keep_parent: false })-multi-thread/100    time: [292.78 µs]
+crossovers-pop1000/Uniform(Uniform { keep_parent: false })-single-thread/1000  time: [2.3076 ms]
+crossovers-pop1000/Uniform(Uniform { keep_parent: false })-multi-thread/1000   time: [1.4462 ms]
+crossovers-pop1000/Uniform(Uniform { keep_parent: false })-single-thread/10000 time: [21.631 ms]
+crossovers-pop1000/Uniform(Uniform { keep_parent: false })-multi-thread/10000  time: [9.5185 ms]
+
 Add on_equal_fitness to Evolve as well?
 still counts as stale generations
+
 
 [HillClimbVariant::Stochastic]:
   with_scaling: 
