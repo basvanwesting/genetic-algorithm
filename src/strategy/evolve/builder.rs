@@ -367,4 +367,38 @@ impl<
         final_run.call(rng);
         Ok(final_run)
     }
+
+    pub fn call_par_speciated<R: Rng + Clone + Send + Sync>(
+        self,
+        number_of_species: usize,
+        rng: &mut R,
+    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+        let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
+        let thread_rng = rng.clone();
+        let best_chromosomes: Vec<Chromosome<G::Allele>> = (0..number_of_species)
+            .filter_map(|iteration| {
+                let mut species_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into().ok()?;
+                species_run.state.current_iteration = iteration;
+                Some(species_run)
+            })
+            .par_bridge()
+            .map_with(thread_rng, |rng, mut species_run| {
+                species_run.call(rng);
+                species_run.best_chromosome()
+            })
+            .filter_map(|x| x)
+            .collect();
+
+        let seed_genes_list = best_chromosomes
+            .iter()
+            .map(|best_chromosome| best_chromosome.genes.clone())
+            .collect();
+        let mut final_genotype = self.genotype.clone().unwrap();
+        final_genotype.set_seed_genes_list(seed_genes_list);
+        let mut final_run: Evolve<G, M, F, S, C, E, SR> =
+            self.clone().with_genotype(final_genotype).try_into()?;
+
+        final_run.call(rng);
+        Ok(final_run)
+    }
 }

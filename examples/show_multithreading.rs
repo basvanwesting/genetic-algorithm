@@ -16,8 +16,9 @@ fn main() {
     // call_evolve();
     // call_hill_climb();
     // call_permutate();
-    call_evolve_repeatedly();
+    // call_evolve_repeatedly();
     // call_hill_climb_repeatedly();
+    call_evolve_speciated();
 }
 
 #[allow(dead_code)]
@@ -133,7 +134,7 @@ fn call_evolve_repeatedly() {
         .with_target_population_size(100)
         .with_max_stale_generations(100)
         // .with_target_fitness_score(100)
-        .with_fitness(CountTrueWithSleep::new(1000, true))
+        .with_fitness(CountTrueWithSleep::new(1000, false))
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
@@ -145,6 +146,44 @@ fn call_evolve_repeatedly() {
         evolve_builder.call_par_repeatedly(20, &mut rng).unwrap()
     } else {
         evolve_builder.call_repeatedly(3, &mut rng).unwrap()
+    };
+    let duration = now.elapsed();
+
+    if let Some(fitness_score) = evolve.best_fitness_score() {
+        println!("evolve_repeatedly fitness score: {}", fitness_score);
+    } else {
+        println!("evolve_repeatedly invalid solution with fitness score: None");
+    }
+    println!("evolve_repeatedly: {:?}", duration);
+    println!();
+}
+
+#[allow(dead_code)]
+fn call_evolve_speciated() {
+    let mut rng = SmallRng::from_entropy();
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(100)
+        .build()
+        .unwrap();
+
+    println!("evolve_repeatedly: start");
+    let evolve_builder = Evolve::builder()
+        .with_genotype(genotype.clone())
+        .with_target_population_size(100)
+        .with_max_stale_generations(100)
+        // .with_target_fitness_score(100)
+        .with_fitness(CountTrueWithSleep::new(1000, false))
+        .with_mutate(MutateSingleGene::new(0.2))
+        .with_crossover(CrossoverClone::new(true))
+        .with_compete(CompeteTournament::new(4))
+        .with_reporter(EvolveIterationReporter)
+        .with_multithreading(MULTITHREAD);
+
+    let now = std::time::Instant::now();
+    let evolve = if PAR_CALL {
+        evolve_builder.call_par_speciated(20, &mut rng).unwrap()
+    } else {
+        evolve_builder.call_speciated(3, &mut rng).unwrap()
     };
     let duration = now.elapsed();
 
@@ -173,7 +212,7 @@ fn call_hill_climb_repeatedly() {
         .with_variant(HillClimbVariant::Stochastic)
         .with_max_stale_generations(1000)
         // .with_target_fitness_score(100)
-        .with_fitness(CountTrueWithSleep::new(1000, true))
+        .with_fitness(CountTrueWithSleep::new(1000, false))
         .with_reporter(HillClimbIterationReporter)
         .with_multithreading(MULTITHREAD);
 
@@ -221,11 +260,15 @@ impl EvolveReporter for EvolveIterationReporter {
 
     fn on_start<G: Genotype>(
         &mut self,
-        _genotype: &G,
+        genotype: &G,
         state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
         println!("start - iteration: {}", state.current_iteration());
+        genotype
+            .seed_genes_list()
+            .iter()
+            .for_each(|genes| println!("start - seed_genes: {:?}", genes));
     }
     fn on_finish(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
         println!("finish - iteration: {}", state.current_iteration());
