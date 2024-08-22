@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.9.1] - 2024-08-22
+
+### Changed
+* Align all multithreading approaches of `Evolve`, `HillClimb` & `Permutate`
+  using [rayon::iter](https://docs.rs/rayon/latest/rayon/iter/index.html) and
+  [std::sync::mpsc](https://doc.rust-lang.org/1.78.0/std/sync/mpsc/index.html)
+* Distinguish between internal and external multithreading:
+  * Internal multithreading using the `with_multithreading()` builder step for all strategies
+  * External multithreading using the `call_par_repeatedly()` for the `EvolveBuilder` and `HillClimbBuilder`
+  * External multithreading using the `call_par_speciated()` for the `EvolveBuilder`
+  * Note that `Permutate` only has internal multithreading as repeated calls make no sense
+  * Note that internal and external multithreading can be combined
+* Require `Send + Sync` to Compete, Crossover, Extension and Mutate
+* Change `chromosome_permutations_into_iter()` return type from `Box<dyn Iterator>` to `impl Iterator`
+
+### Added
+* Add `CountTrueWithSleep` fitness placeholder for use in multithreading examples and benchmarking
+* Add `call_par_repeatedly()` and `call_par_speciated()` to `EvolveBuilder`
+* Add `call_par_repeatedly()` to `HillClimbBuilder`
+* Add short-circuit for `call_speciated()` and `call_par_speciated()` when target_fitness_score is reached during speciation
+
 ## [0.9.0] - 2024-08-20
 This is a major breaking release, see Changed:
 
