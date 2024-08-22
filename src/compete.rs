@@ -12,8 +12,6 @@ pub use self::wrapper::Wrapper as CompeteWrapper;
 use crate::genotype::Allele;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
-use std::cell::RefCell;
-use thread_local::ThreadLocal;
 
 pub trait Compete: Clone + Send + Sync + std::fmt::Debug {
     fn call<A: Allele, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = A>>(
@@ -22,6 +20,5 @@ pub trait Compete: Clone + Send + Sync + std::fmt::Debug {
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
-        thread_local: Option<&ThreadLocal<RefCell<R>>>,
     );
 }

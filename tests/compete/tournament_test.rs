@@ -33,7 +33,7 @@ fn maximize_population_surplus() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -63,7 +63,7 @@ fn maximize_population_shortage() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -97,7 +97,7 @@ fn minimize_population_surplus() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -127,7 +127,7 @@ fn minimize_population_shortage() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -160,7 +160,7 @@ fn minimize_population_surplus_with_none_fitness() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
@@ -193,7 +193,7 @@ fn minimize_population_shortage_with_none_fitness() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteTournament::new(4).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),

@@ -7,13 +7,12 @@ use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use thread_local::ThreadLocal;
 //use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::from_entropy();
-    let population_sizes = vec![100, 1000];
+    let population_sizes = vec![250, 500, 1000, 2000];
     let fitness_ordering = FitnessOrdering::Minimize;
 
     let competes: Vec<CompeteWrapper> = vec![
@@ -54,34 +53,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             CountTrue.call_for_population(&mut state.population, None);
 
             group.bench_with_input(
-                BenchmarkId::new(format!("{:?}-single-threaded", compete), population_size),
+                BenchmarkId::new(format!("{:?}", compete), population_size),
                 population_size,
                 |b, &_population_size| {
                     b.iter_batched(
                         || state.clone(),
-                        |mut data| compete.call(&mut data, &config, &mut reporter, &mut rng, None),
-                        BatchSize::SmallInput,
-                    )
-                },
-            );
-
-            // reuse thread rng for all runs (as in evolve loop)
-            let rng_thread_local = Some(ThreadLocal::new());
-            group.bench_with_input(
-                BenchmarkId::new(format!("{:?}-multi-threaded", compete), population_size),
-                population_size,
-                |b, &_population_size| {
-                    b.iter_batched(
-                        || state.clone(),
-                        |mut data| {
-                            compete.call(
-                                &mut data,
-                                &config,
-                                &mut reporter,
-                                &mut rng,
-                                rng_thread_local.as_ref(),
-                            )
-                        },
+                        |mut data| compete.call(&mut data, &config, &mut reporter, &mut rng),
                         BatchSize::SmallInput,
                     )
                 },
