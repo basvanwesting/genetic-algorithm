@@ -219,6 +219,7 @@ impl<
                 &self.config,
                 &mut self.reporter,
                 rng,
+                rng_thread_local.as_ref(),
             );
             self.fitness
                 .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
