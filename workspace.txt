@@ -12,7 +12,7 @@ Store samplers on mutate etc. Just like genotype
 
 Make fitness immutable?
 
-Add CountTrueWithWotk
+Add CountTrueWithWork
 
 
 multithreading for CrossoverUniform(false)

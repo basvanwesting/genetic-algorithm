@@ -45,10 +45,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             let config = EvolveConfig::new();
             CountTrue.call_for_population(&mut state.population, None);
 
-            group.bench_with_input(
+            group.bench_function(
                 BenchmarkId::new(format!("{:?}-single-threaded", mutate), population_size),
-                population_size,
-                |b, &_population_size| {
+                |b| {
                     b.iter_batched(
                         || state.clone(),
                         |mut data| {
@@ -68,10 +67,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
             // reuse thread rng for all runs (as in evolve loop)
             let rng_thread_local = Some(ThreadLocal::new());
-            group.bench_with_input(
+            group.bench_function(
                 BenchmarkId::new(format!("{:?}-multi-threaded", mutate), population_size),
-                population_size,
-                |b, &_population_size| {
+                |b| {
                     b.iter_batched(
                         || state.clone(),
                         |mut data| {

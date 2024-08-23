@@ -44,6 +44,10 @@ name = "fitness"
 harness = false
 
 [[bench]]
+name = "playground"
+harness = false
+
+[[bench]]
 name = "compete"
 harness = false
 
