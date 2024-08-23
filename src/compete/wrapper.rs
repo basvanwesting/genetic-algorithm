@@ -5,8 +5,6 @@ pub use super::Compete;
 use crate::genotype::Allele;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
-use std::cell::RefCell;
-use thread_local::ThreadLocal;
 
 #[derive(Clone, Debug)]
 pub enum Wrapper {
@@ -15,19 +13,17 @@ pub enum Wrapper {
 }
 
 impl Compete for Wrapper {
-    fn call<A: Allele, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = A>>(
+    fn call<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
         &mut self,
         state: &mut EvolveState<A>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
-        thread_local: Option<&ThreadLocal<RefCell<R>>>,
+        par: bool,
     ) {
         match self {
-            Wrapper::Elite(compete) => compete.call(state, config, reporter, rng, thread_local),
-            Wrapper::Tournament(compete) => {
-                compete.call(state, config, reporter, rng, thread_local)
-            }
+            Wrapper::Elite(compete) => compete.call(state, config, reporter, rng, par),
+            Wrapper::Tournament(compete) => compete.call(state, config, reporter, rng, par),
         }
     }
 }

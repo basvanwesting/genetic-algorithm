@@ -7,8 +7,6 @@ use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
 use rand::Rng;
 use rayon::prelude::*;
-use std::cell::RefCell;
-use thread_local::ThreadLocal;
 
 /// Run tournaments with randomly chosen chromosomes and pick a single winner. Do this
 /// target_population_size times until the required population level is reached. This approach kind
@@ -22,16 +20,16 @@ pub struct Tournament {
 }
 
 impl Compete for Tournament {
-    fn call<A: Allele, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = A>>(
+    fn call<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
         &mut self,
         state: &mut EvolveState<A>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
-        thread_local: Option<&ThreadLocal<RefCell<R>>>,
+        par: bool,
     ) {
-        if let Some(thread_local) = thread_local {
-            self.call_multi_thread(state, config, reporter, rng, thread_local);
+        if par {
+            self.call_multi_thread(state, config, reporter, rng);
         } else {
             self.call_single_thread(state, config, reporter, rng);
         }
@@ -39,11 +37,7 @@ impl Compete for Tournament {
 }
 
 impl Tournament {
-    fn call_single_thread<
-        A: Allele,
-        R: Rng + Clone + Send + Sync,
-        SR: EvolveReporter<Allele = A>,
-    >(
+    fn call_single_thread<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
         &mut self,
         state: &mut EvolveState<A>,
         config: &EvolveConfig,
@@ -101,17 +95,12 @@ impl Tournament {
 
         state.population.chromosomes = target_chromosomes;
     }
-    fn call_multi_thread<
-        A: Allele,
-        R: Rng + Clone + Send + Sync,
-        SR: EvolveReporter<Allele = A>,
-    >(
+    fn call_multi_thread<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
         &mut self,
         state: &mut EvolveState<A>,
         config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
-        _thread_local: &ThreadLocal<RefCell<R>>,
     ) {
         let mut working_population_size = state.population.size();
         let tournament_size = std::cmp::min(self.tournament_size, working_population_size);

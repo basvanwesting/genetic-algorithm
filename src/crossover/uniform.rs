@@ -5,8 +5,6 @@ use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 use rayon::prelude::*;
-use std::cell::RefCell;
-use thread_local::ThreadLocal;
 
 /// Crossover with 50% probability for each gene to come from one of the two parents.
 /// Optionally keep parents around to compete with children later on.
@@ -17,14 +15,14 @@ pub struct Uniform {
     pub keep_parent: bool,
 }
 impl Crossover for Uniform {
-    fn call<G: Genotype, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = G::Allele>>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G::Allele>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
-        thread_local: Option<&ThreadLocal<RefCell<R>>>,
+        par: bool,
     ) {
         if state.population.size() < 2 {
             return;
@@ -57,32 +55,25 @@ impl Crossover for Uniform {
             }
             state.population.chromosomes.append(&mut child_chromosomes);
         } else {
-            if let Some(thread_local) = thread_local {
+            if par {
                 state
                     .population
                     .chromosomes
                     .par_chunks_mut(2)
-                    .for_each_init(
-                        || {
-                            thread_local
-                                .get_or(|| std::cell::RefCell::new(rng.clone()))
-                                .borrow_mut()
-                        },
-                        |rng, chunk| {
-                            if let [father, mother] = chunk {
-                                for index in &crossover_indexes {
-                                    if rng.sample(bool_sampler) {
-                                        std::mem::swap(
-                                            &mut father.genes[*index],
-                                            &mut mother.genes[*index],
-                                        );
-                                    }
+                    .for_each_init(rand::thread_rng, |rng, chunk| {
+                        if let [father, mother] = chunk {
+                            for index in &crossover_indexes {
+                                if rng.sample(bool_sampler) {
+                                    std::mem::swap(
+                                        &mut father.genes[*index],
+                                        &mut mother.genes[*index],
+                                    );
                                 }
-                                mother.taint_fitness_score();
-                                father.taint_fitness_score();
                             }
-                        },
-                    );
+                            mother.taint_fitness_score();
+                            father.taint_fitness_score();
+                        }
+                    });
             } else {
                 state
                     .population

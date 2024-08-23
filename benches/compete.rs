@@ -7,7 +7,6 @@ use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use thread_local::ThreadLocal;
 //use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
@@ -59,29 +58,19 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 |b, &_population_size| {
                     b.iter_batched(
                         || state.clone(),
-                        |mut data| compete.call(&mut data, &config, &mut reporter, &mut rng, None),
+                        |mut data| compete.call(&mut data, &config, &mut reporter, &mut rng, false),
                         BatchSize::SmallInput,
                     )
                 },
             );
 
-            // reuse thread rng for all runs (as in evolve loop)
-            let rng_thread_local = Some(ThreadLocal::new());
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}-multi-threaded", compete), population_size),
                 population_size,
                 |b, &_population_size| {
                     b.iter_batched(
                         || state.clone(),
-                        |mut data| {
-                            compete.call(
-                                &mut data,
-                                &config,
-                                &mut reporter,
-                                &mut rng,
-                                rng_thread_local.as_ref(),
-                            )
-                        },
+                        |mut data| compete.call(&mut data, &config, &mut reporter, &mut rng, true),
                         BatchSize::SmallInput,
                     )
                 },

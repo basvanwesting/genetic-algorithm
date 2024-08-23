@@ -8,7 +8,6 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
-use thread_local::ThreadLocal;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
@@ -57,7 +56,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                                 &config,
                                 &mut reporter,
                                 &mut rng,
-                                None,
+                                false,
                             )
                         },
                         BatchSize::SmallInput,
@@ -65,8 +64,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 },
             );
 
-            // reuse thread rng for all runs (as in evolve loop)
-            let rng_thread_local = Some(ThreadLocal::new());
             group.bench_function(
                 BenchmarkId::new(format!("{:?}-multi-threaded", mutate), population_size),
                 |b| {
@@ -79,7 +76,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                                 &config,
                                 &mut reporter,
                                 &mut rng,
-                                rng_thread_local.as_ref(),
+                                true,
                             )
                         },
                         BatchSize::SmallInput,

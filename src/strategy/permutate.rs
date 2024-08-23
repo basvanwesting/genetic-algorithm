@@ -104,7 +104,7 @@ impl<
         SR: PermutateReporter<Allele = G::Allele>,
     > Strategy<G> for Permutate<G, F, SR>
 {
-    fn call<R: Rng + Clone + Send + Sync>(&mut self, rng: &mut R) {
+    fn call<R: Rng>(&mut self, rng: &mut R) {
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         if self.config.par_fitness {

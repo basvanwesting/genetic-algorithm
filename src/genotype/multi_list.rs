@@ -123,7 +123,7 @@ impl<T: Allele> Genotype for MultiList<T> {
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn random_genes_factory<R: Rng + Clone + Send + Sync>(&self, rng: &mut R) -> Vec<Self::Allele> {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
         if self.seed_genes_list.is_empty() {
             self.allele_lists
                 .iter()
@@ -136,14 +136,11 @@ impl<T: Allele> Genotype for MultiList<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng + Clone + Send + Sync>(
-        &self,
-        rng: &mut R,
-    ) -> Chromosome<Self::Allele> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome<R: Rng + Clone + Send + Sync>(
+    fn mutate_chromosome<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
         _scale_index: Option<usize>,
@@ -166,7 +163,7 @@ impl<T: Allele> Genotype for MultiList<T> {
 }
 
 impl<T: Allele> IncrementalGenotype for MultiList<T> {
-    fn neighbouring_chromosomes<R: Rng + Clone + Send + Sync>(
+    fn neighbouring_chromosomes<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
         _scale_index: Option<usize>,

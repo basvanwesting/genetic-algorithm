@@ -32,7 +32,7 @@ fn maximize_population_surplus() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, false);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -66,7 +66,7 @@ fn maximize_population_shortage() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, false);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -104,7 +104,7 @@ fn minimize_population_surplus() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, false);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -138,7 +138,7 @@ fn minimize_population_shortage() {
         target_population_size: 4,
         ..Default::default()
     };
-    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, false);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -172,7 +172,7 @@ fn fitness_ordering_with_none_fitness() {
         target_population_size: 5,
         ..Default::default()
     };
-    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, false);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
@@ -189,7 +189,7 @@ fn fitness_ordering_with_none_fitness() {
         target_population_size: 5,
         ..Default::default()
     };
-    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, None);
+    CompeteElite.call(&mut state, &config, &mut reporter, &mut rng, false);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![

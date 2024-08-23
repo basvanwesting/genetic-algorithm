@@ -40,7 +40,7 @@ fn binary_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     assert_eq!(mutate.mutation_probability, 0.2);
     fitness.call_for_population(&mut state.population, None);
@@ -50,7 +50,7 @@ fn binary_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     assert_eq!(mutate.mutation_probability, 0.4);
     fitness.call_for_population(&mut state.population, None);
@@ -60,7 +60,7 @@ fn binary_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     assert_eq!(mutate.mutation_probability, 0.2);
     fitness.call_for_population(&mut state.population, None);
@@ -70,7 +70,7 @@ fn binary_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     assert_eq!(mutate.mutation_probability, 0.0);
 

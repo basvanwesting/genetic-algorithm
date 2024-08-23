@@ -3,7 +3,6 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 use rand::Rng;
 use rayon::prelude::*;
-use std::cell::RefCell;
 use std::ops::DerefMut;
 use thread_local::ThreadLocal;
 
@@ -13,6 +12,14 @@ pub fn rand_benchmark(c: &mut Criterion) {
     group.bench_function("seq_thread_rng", |b| {
         let rng = &mut rand::thread_rng();
         b.iter(|| {
+            let mut v = vec![0u8; 100_000];
+            v.chunks_mut(1000).for_each(|chunk| rng.fill(chunk));
+        });
+    });
+
+    group.bench_function("seq_thread_rng_reinit", |b| {
+        b.iter(|| {
+            let rng = &mut rand::thread_rng();
             let mut v = vec![0u8; 100_000];
             v.chunks_mut(1000).for_each(|chunk| rng.fill(chunk));
         });
@@ -34,7 +41,7 @@ pub fn rand_benchmark(c: &mut Criterion) {
         });
     });
 
-    group.bench_function("seq_small_rng_with_from_entropy", |b| {
+    group.bench_function("seq_small_rng_reinit", |b| {
         b.iter(|| {
             let rng = &mut SmallRng::from_entropy();
             let mut v = vec![0u8; 100_000];

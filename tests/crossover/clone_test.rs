@@ -27,7 +27,7 @@ fn population_odd() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(
@@ -63,7 +63,7 @@ fn population_odd_keep_parents() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(
@@ -98,7 +98,7 @@ fn population_size_one() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(

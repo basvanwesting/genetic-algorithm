@@ -32,6 +32,10 @@ pub struct Builder<
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub par_fitness: bool,
+    pub par_compete: bool,
+    pub par_crossover: bool,
+    pub par_mutate: bool,
+    pub par_extension: bool,
     pub replace_on_equal_fitness: bool,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -54,6 +58,10 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
+            par_compete: false,
+            par_crossover: false,
+            par_mutate: false,
+            par_extension: false,
             replace_on_equal_fitness: false,
             mutate: None,
             fitness: None,
@@ -147,6 +155,22 @@ impl<
         self.par_fitness = par_fitness;
         self
     }
+    pub fn with_par_compete(mut self, par_compete: bool) -> Self {
+        self.par_compete = par_compete;
+        self
+    }
+    pub fn with_par_crossover(mut self, par_crossover: bool) -> Self {
+        self.par_crossover = par_crossover;
+        self
+    }
+    pub fn with_par_mutate(mut self, par_mutate: bool) -> Self {
+        self.par_mutate = par_mutate;
+        self
+    }
+    pub fn with_par_extension(mut self, par_extension: bool) -> Self {
+        self.par_extension = par_extension;
+        self
+    }
     pub fn with_replace_on_equal_fitness(mut self, replace_on_equal_fitness: bool) -> Self {
         self.replace_on_equal_fitness = replace_on_equal_fitness;
         self
@@ -177,6 +201,10 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             par_fitness: self.par_fitness,
+            par_compete: self.par_compete,
+            par_crossover: self.par_crossover,
+            par_mutate: self.par_mutate,
+            par_extension: self.par_extension,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,
@@ -199,6 +227,10 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             par_fitness: self.par_fitness,
+            par_compete: self.par_compete,
+            par_crossover: self.par_crossover,
+            par_mutate: self.par_mutate,
+            par_extension: self.par_extension,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,
@@ -221,7 +253,7 @@ impl<
         SR: EvolveReporter<Allele = G::Allele>,
     > Builder<G, M, F, S, C, E, SR>
 {
-    pub fn call<R: Rng + Clone + Send + Sync>(
+    pub fn call<R: Rng>(
         self,
         rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
@@ -229,7 +261,7 @@ impl<
         evolve.call(rng);
         Ok(evolve)
     }
-    pub fn call_repeatedly<R: Rng + Clone + Send + Sync>(
+    pub fn call_repeatedly<R: Rng>(
         self,
         max_repeats: usize,
         rng: &mut R,
@@ -275,16 +307,15 @@ impl<
         Ok(best_evolve.unwrap())
     }
 
-    pub fn call_par_repeatedly<R: Rng + Clone + Send + Sync>(
+    pub fn call_par_repeatedly<R: Rng>(
         self,
         max_repeats: usize,
-        rng: &mut R,
+        _rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
         rayon::scope(|s| {
             let builder = &self;
-            let rng = rng.clone();
             let (sender, receiver) = channel();
 
             s.spawn(move |_| {
@@ -296,13 +327,16 @@ impl<
                         Some(contending_run)
                     })
                     .par_bridge()
-                    .map_with((sender, rng), |(sender, rng), mut contending_run| {
-                        contending_run.call(rng);
-                        let finished_by_target_fitness_score =
-                            contending_run.is_finished_by_target_fitness_score();
-                        sender.send(contending_run).unwrap();
-                        finished_by_target_fitness_score
-                    })
+                    .map_init(
+                        || (sender.clone(), rand::thread_rng()),
+                        |(sender, rng), mut contending_run| {
+                            contending_run.call(rng);
+                            let finished_by_target_fitness_score =
+                                contending_run.is_finished_by_target_fitness_score();
+                            sender.send(contending_run).unwrap();
+                            finished_by_target_fitness_score
+                        },
+                    )
                     .any(|x| x);
             });
 
@@ -340,7 +374,7 @@ impl<
         Ok(best_evolve.unwrap())
     }
 
-    pub fn call_speciated<R: Rng + Clone + Send + Sync>(
+    pub fn call_speciated<R: Rng>(
         self,
         number_of_species: usize,
         rng: &mut R,
@@ -384,7 +418,7 @@ impl<
         Ok(final_run)
     }
 
-    pub fn call_par_speciated<R: Rng + Clone + Send + Sync>(
+    pub fn call_par_speciated<R: Rng>(
         self,
         number_of_species: usize,
         rng: &mut R,
@@ -393,7 +427,6 @@ impl<
         let mut species_runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
         rayon::scope(|s| {
             let builder = &self;
-            let thread_rng = rng.clone();
             let (sender, receiver) = channel();
 
             s.spawn(move |_| {
@@ -405,13 +438,16 @@ impl<
                         Some(species_run)
                     })
                     .par_bridge()
-                    .map_with((sender, thread_rng), |(sender, rng), mut species_run| {
-                        species_run.call(rng);
-                        let finished_by_target_fitness_score =
-                            species_run.is_finished_by_target_fitness_score();
-                        sender.send(species_run).unwrap();
-                        finished_by_target_fitness_score
-                    })
+                    .map_init(
+                        || (sender.clone(), rand::thread_rng()),
+                        |(sender, rng), mut species_run| {
+                            species_run.call(rng);
+                            let finished_by_target_fitness_score =
+                                species_run.is_finished_by_target_fitness_score();
+                            sender.send(species_run).unwrap();
+                            finished_by_target_fitness_score
+                        },
+                    )
                     .any(|x| x);
             });
 

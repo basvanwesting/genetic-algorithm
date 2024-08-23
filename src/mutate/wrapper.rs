@@ -7,8 +7,6 @@ pub use super::Mutate;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
-use std::cell::RefCell;
-use thread_local::ThreadLocal;
 
 #[derive(Clone, Debug)]
 pub enum Wrapper {
@@ -19,27 +17,23 @@ pub enum Wrapper {
 }
 
 impl Mutate for Wrapper {
-    fn call<G: Genotype, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = G::Allele>>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G::Allele>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
-        thread_local: Option<&ThreadLocal<RefCell<R>>>,
+        par: bool,
     ) {
         match self {
-            Wrapper::MultiGene(mutate) => {
-                mutate.call(genotype, state, config, reporter, rng, thread_local)
-            }
+            Wrapper::MultiGene(mutate) => mutate.call(genotype, state, config, reporter, rng, par),
             Wrapper::MultiGeneDynamic(mutate) => {
-                mutate.call(genotype, state, config, reporter, rng, thread_local)
+                mutate.call(genotype, state, config, reporter, rng, par)
             }
-            Wrapper::SingleGene(mutate) => {
-                mutate.call(genotype, state, config, reporter, rng, thread_local)
-            }
+            Wrapper::SingleGene(mutate) => mutate.call(genotype, state, config, reporter, rng, par),
             Wrapper::SingleGeneDynamic(mutate) => {
-                mutate.call(genotype, state, config, reporter, rng, thread_local)
+                mutate.call(genotype, state, config, reporter, rng, par)
             }
         }
     }

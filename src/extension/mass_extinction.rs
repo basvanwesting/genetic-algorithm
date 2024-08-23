@@ -13,7 +13,7 @@ pub struct MassExtinction {
 }
 
 impl Extension for MassExtinction {
-    fn call<G: Genotype, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = G::Allele>>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         _genotype: &G,
         state: &mut EvolveState<G::Allele>,

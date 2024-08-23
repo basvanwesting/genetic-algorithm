@@ -5,8 +5,6 @@ use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
-use thread_local::ThreadLocal;
-//use std::time::Duration;
 
 pub fn setup(
     genes_size: usize,
@@ -70,7 +68,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                                     &config,
                                     &mut reporter,
                                     &mut rng,
-                                    None,
+                                    false,
                                 )
                             },
                             BatchSize::SmallInput,
@@ -79,7 +77,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 );
 
                 // reuse thread fitness for all runs (as in evolve loop)
-                let rng_thread_local = Some(ThreadLocal::new());
                 group.bench_function(
                     BenchmarkId::new(
                         format!("{:?}-multi-thread", crossover),
@@ -95,7 +92,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                                     &config,
                                     &mut reporter,
                                     &mut rng,
-                                    rng_thread_local.as_ref(),
+                                    true,
                                 )
                             },
                             BatchSize::SmallInput,

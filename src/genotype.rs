@@ -64,14 +64,11 @@ pub trait Genotype:
     fn genes_size(&self) -> usize;
     /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     /// random genes unless seed genes are provided
-    fn chromosome_factory<R: Rng + Clone + Send + Sync>(
-        &self,
-        rng: &mut R,
-    ) -> Chromosome<Self::Allele>;
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele>;
     /// a random genes factory (respecting seed genes)
-    fn random_genes_factory<R: Rng + Clone + Send + Sync>(&self, rng: &mut R) -> Vec<Self::Allele>;
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
     /// a mutation of the chromosome, the genotype determines whether this is random, relative or scaled.
-    fn mutate_chromosome<R: Rng + Clone + Send + Sync>(
+    fn mutate_chromosome<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
         scale_index: Option<usize>,
@@ -102,14 +99,14 @@ pub trait Genotype:
 pub trait IncrementalGenotype: Genotype {
     /// all neighbouring mutations of the chromosome
     /// used in HillClimbVariant::SteepestAscent and SteepestAscentSecondary
-    fn neighbouring_chromosomes<R: Rng + Clone + Send + Sync>(
+    fn neighbouring_chromosomes<R: Rng>(
         &self,
         _chromosome: &Chromosome<Self::Allele>,
         _scale_index: Option<usize>,
         _rng: &mut R,
     ) -> Vec<Chromosome<Self::Allele>>;
 
-    fn neighbouring_population<R: Rng + Clone + Send + Sync>(
+    fn neighbouring_population<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
         scale_index: Option<usize>,

@@ -192,7 +192,7 @@ impl<
         SR: HillClimbReporter<Allele = G::Allele>,
     > Strategy<G> for HillClimb<G, F, SR>
 {
-    fn call<R: Rng + Clone + Send + Sync>(&mut self, rng: &mut R) {
+    fn call<R: Rng>(&mut self, rng: &mut R) {
         let mut seed_chromosome = self.genotype.chromosome_factory(rng);
         self.fitness.call_for_chromosome(&mut seed_chromosome);
         self.state.set_best_chromosome(&seed_chromosome, true);

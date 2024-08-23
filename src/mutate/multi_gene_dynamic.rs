@@ -3,8 +3,6 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
-use std::cell::RefCell;
-use thread_local::ThreadLocal;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the dynamically updated mutation_probability.
@@ -24,14 +22,14 @@ pub struct MultiGeneDynamic {
 }
 
 impl Mutate for MultiGeneDynamic {
-    fn call<G: Genotype, R: Rng + Clone + Send + Sync, SR: EvolveReporter<Allele = G::Allele>>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G::Allele>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
-        _thread_local: Option<&ThreadLocal<RefCell<R>>>,
+        _par: bool,
     ) {
         if state.population.fitness_score_cardinality() < self.target_cardinality {
             self.mutation_probability =

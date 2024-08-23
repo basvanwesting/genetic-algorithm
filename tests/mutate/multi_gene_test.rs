@@ -28,7 +28,7 @@ fn binary_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(
@@ -67,7 +67,7 @@ fn list_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(

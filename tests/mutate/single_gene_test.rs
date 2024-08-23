@@ -28,7 +28,7 @@ fn binary_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(
@@ -67,7 +67,7 @@ fn list_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(
@@ -102,7 +102,7 @@ fn range_float_genotype_unscaled() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert!(relative_population_eq(
@@ -122,7 +122,7 @@ fn range_float_genotype_unscaled() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     MutateSingleGene::new(0.5).call(
         &genotype,
@@ -130,7 +130,7 @@ fn range_float_genotype_unscaled() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     MutateSingleGene::new(0.5).call(
         &genotype,
@@ -138,7 +138,7 @@ fn range_float_genotype_unscaled() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert!(relative_population_eq(
@@ -179,7 +179,7 @@ fn range_float_genotype_scaled() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     assert!(relative_population_eq(
         inspect::population(&state.population),
@@ -198,7 +198,7 @@ fn range_float_genotype_scaled() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     assert!(relative_population_eq(
         inspect::population(&state.population),
@@ -218,7 +218,7 @@ fn range_float_genotype_scaled() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     assert!(relative_population_eq(
         inspect::population(&state.population),
@@ -258,7 +258,7 @@ fn range_integer_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(
@@ -272,7 +272,7 @@ fn range_integer_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     MutateSingleGene::new(0.5).call(
         &genotype,
@@ -280,7 +280,7 @@ fn range_integer_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
     MutateSingleGene::new(0.5).call(
         &genotype,
@@ -288,7 +288,7 @@ fn range_integer_genotype() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(

@@ -28,7 +28,7 @@ fn population_even() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(
@@ -67,7 +67,7 @@ fn population_odd() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(
@@ -106,7 +106,7 @@ fn population_even_keep_parent() {
         &config,
         &mut reporter,
         &mut rng,
-        None,
+        false,
     );
 
     assert_eq!(

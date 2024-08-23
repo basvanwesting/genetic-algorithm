@@ -145,16 +145,13 @@ impl<
         SR: HillClimbReporter<Allele = G::Allele>,
     > Builder<G, F, SR>
 {
-    pub fn call<R: Rng + Clone + Send + Sync>(
-        self,
-        rng: &mut R,
-    ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
+    pub fn call<R: Rng>(self, rng: &mut R) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         let mut hill_climb: HillClimb<G, F, SR> = self.try_into()?;
         hill_climb.call(rng);
         Ok(hill_climb)
     }
 
-    pub fn call_repeatedly<R: Rng + Clone + Send + Sync>(
+    pub fn call_repeatedly<R: Rng>(
         self,
         max_repeats: usize,
         rng: &mut R,
@@ -200,16 +197,15 @@ impl<
         Ok(best_hill_climb.unwrap())
     }
 
-    pub fn call_par_repeatedly<R: Rng + Clone + Send + Sync>(
+    pub fn call_par_repeatedly<R: Rng>(
         self,
         max_repeats: usize,
-        rng: &mut R,
+        _rng: &mut R,
     ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         let _valid_builder: HillClimb<G, F, SR> = self.clone().try_into()?;
         let mut best_hill_climb: Option<HillClimb<G, F, SR>> = None;
         rayon::scope(|s| {
             let builder = &self;
-            let rng = rng.clone();
             let (sender, receiver) = channel();
 
             s.spawn(move |_| {
@@ -221,12 +217,15 @@ impl<
                         Some(contending_run)
                     })
                     .par_bridge()
-                    .map_with((sender, rng), |(sender, rng), mut contending_run| {
-                        contending_run.call(rng);
-                        let stop = contending_run.is_finished_by_target_fitness_score();
-                        sender.send(contending_run).unwrap();
-                        stop
-                    })
+                    .map_init(
+                        || (sender.clone(), rand::thread_rng()),
+                        |(sender, rng), mut contending_run| {
+                            contending_run.call(rng);
+                            let stop = contending_run.is_finished_by_target_fitness_score();
+                            sender.send(contending_run).unwrap();
+                            stop
+                        },
+                    )
                     .any(|x| x);
             });
 

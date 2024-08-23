@@ -153,6 +153,10 @@ pub struct EvolveConfig {
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub par_fitness: bool,
+    pub par_compete: bool,
+    pub par_crossover: bool,
+    pub par_mutate: bool,
+    pub par_extension: bool,
     pub replace_on_equal_fitness: bool,
 }
 
@@ -182,17 +186,13 @@ impl<
         SR: EvolveReporter<Allele = G::Allele>,
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
-    fn call<R: Rng + Clone + Send + Sync>(&mut self, rng: &mut R) {
+    fn call<R: Rng>(&mut self, rng: &mut R) {
         self.state.population = self.population_factory(rng);
 
         // reuse same thread local variables for all loops
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
-        }
-        let mut rng_thread_local: Option<ThreadLocal<RefCell<R>>> = None;
-        if self.config.par_fitness {
-            rng_thread_local = Some(ThreadLocal::new());
         }
 
         self.reporter
@@ -207,6 +207,7 @@ impl<
                 &self.config,
                 &mut self.reporter,
                 rng,
+                //TODO: par_extension
             );
             self.plugins.crossover.call(
                 &self.genotype,
@@ -214,7 +215,7 @@ impl<
                 &self.config,
                 &mut self.reporter,
                 rng,
-                rng_thread_local.as_ref(),
+                self.config.par_crossover,
             );
             self.plugins.mutate.call(
                 &self.genotype,
@@ -222,7 +223,7 @@ impl<
                 &self.config,
                 &mut self.reporter,
                 rng,
-                rng_thread_local.as_ref(),
+                self.config.par_mutate,
             );
             self.fitness
                 .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
@@ -231,7 +232,7 @@ impl<
                 &self.config,
                 &mut self.reporter,
                 rng,
-                rng_thread_local.as_ref(),
+                self.config.par_compete,
             );
 
             if let Some(contending_chromosome) = self
@@ -336,10 +337,7 @@ impl<
         }
     }
 
-    pub fn population_factory<R: Rng + Clone + Send + Sync>(
-        &mut self,
-        rng: &mut R,
-    ) -> Population<G::Allele> {
+    pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G::Allele> {
         (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_factory(rng))
             .collect::<Vec<_>>()
@@ -524,6 +522,10 @@ impl<
                     valid_fitness_score: builder.valid_fitness_score,
                     fitness_ordering: builder.fitness_ordering,
                     par_fitness: builder.par_fitness,
+                    par_compete: builder.par_compete,
+                    par_crossover: builder.par_crossover,
+                    par_mutate: builder.par_mutate,
+                    par_extension: builder.par_extension,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
                 },
                 state,
@@ -543,6 +545,10 @@ impl Default for EvolveConfig {
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
+            par_compete: false,
+            par_crossover: false,
+            par_mutate: false,
+            par_extension: false,
             replace_on_equal_fitness: false,
         }
     }
@@ -633,7 +639,11 @@ impl fmt::Display for EvolveConfig {
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  par_fitness: {:?}", self.par_fitness)
+        writeln!(f, "  par_fitness: {:?}", self.par_fitness)?;
+        writeln!(f, "  par_compete: {:?}", self.par_compete)?;
+        writeln!(f, "  par_crossover: {:?}", self.par_crossover)?;
+        writeln!(f, "  par_mutate: {:?}", self.par_mutate)?;
+        writeln!(f, "  par_extension: {:?}", self.par_extension)
     }
 }
 
