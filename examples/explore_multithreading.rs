@@ -265,10 +265,10 @@ impl EvolveReporter for EvolveIterationReporter {
         _config: &EvolveConfig,
     ) {
         println!("start - iteration: {}", state.current_iteration());
-        genotype
-            .seed_genes_list()
-            .iter()
-            .for_each(|genes| println!("start - seed_genes: {:?}", genes));
+        let number_of_seed_genes = genotype.seed_genes_list().len();
+        if number_of_seed_genes > 0 {
+            println!("start - number of seed genes: {:?}", number_of_seed_genes);
+        }
     }
     fn on_finish(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
         println!("finish - iteration: {}", state.current_iteration());

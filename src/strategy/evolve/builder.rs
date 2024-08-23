@@ -275,16 +275,15 @@ impl<
         Ok(best_evolve.unwrap())
     }
 
-    pub fn call_par_repeatedly<R: Rng + Clone + Send + Sync>(
+    pub fn call_par_repeatedly<R: Rng>(
         self,
         max_repeats: usize,
-        rng: &mut R,
+        _rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
         rayon::scope(|s| {
             let builder = &self;
-            let rng = rng.clone();
             let (sender, receiver) = channel();
 
             s.spawn(move |_| {
@@ -296,13 +295,16 @@ impl<
                         Some(contending_run)
                     })
                     .par_bridge()
-                    .map_with((sender, rng), |(sender, rng), mut contending_run| {
-                        contending_run.call(rng);
-                        let finished_by_target_fitness_score =
-                            contending_run.is_finished_by_target_fitness_score();
-                        sender.send(contending_run).unwrap();
-                        finished_by_target_fitness_score
-                    })
+                    .map_init(
+                        || (sender.clone(), rand::thread_rng()),
+                        |(sender, rng), mut contending_run| {
+                            contending_run.call(rng);
+                            let finished_by_target_fitness_score =
+                                contending_run.is_finished_by_target_fitness_score();
+                            sender.send(contending_run).unwrap();
+                            finished_by_target_fitness_score
+                        },
+                    )
                     .any(|x| x);
             });
 
@@ -384,7 +386,7 @@ impl<
         Ok(final_run)
     }
 
-    pub fn call_par_speciated<R: Rng + Clone + Send + Sync>(
+    pub fn call_par_speciated<R: Rng>(
         self,
         number_of_species: usize,
         rng: &mut R,
@@ -393,7 +395,6 @@ impl<
         let mut species_runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
         rayon::scope(|s| {
             let builder = &self;
-            let thread_rng = rng.clone();
             let (sender, receiver) = channel();
 
             s.spawn(move |_| {
@@ -405,13 +406,16 @@ impl<
                         Some(species_run)
                     })
                     .par_bridge()
-                    .map_with((sender, thread_rng), |(sender, rng), mut species_run| {
-                        species_run.call(rng);
-                        let finished_by_target_fitness_score =
-                            species_run.is_finished_by_target_fitness_score();
-                        sender.send(species_run).unwrap();
-                        finished_by_target_fitness_score
-                    })
+                    .map_init(
+                        || (sender.clone(), rand::thread_rng()),
+                        |(sender, rng), mut species_run| {
+                            species_run.call(rng);
+                            let finished_by_target_fitness_score =
+                                species_run.is_finished_by_target_fitness_score();
+                            sender.send(species_run).unwrap();
+                            finished_by_target_fitness_score
+                        },
+                    )
                     .any(|x| x);
             });
 

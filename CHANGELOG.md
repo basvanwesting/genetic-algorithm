@@ -19,11 +19,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * Note that internal multithreading has been exlored for `Compete`,
     `Crossover` and `Mutate`. But the overhead of parallel execution was too
     high, resulting in severe degradation of performance. The breakeven point was
-    found only for huge genotypes (1000+ genes), where each gene was part of the
+    found only for huge populations or genes_size (1000+), where each gene was part of the
     calculation (e.g. `CrossoverUniform`). Since `Fitness` is a client
     implementation which could be very heavy depending on the domain, an explicit
     `with_par_fitness()` is used for enabling internal multithreading of the
-    fitness calculation only. Future releases could for instance support explicit
+    fitness calculation only. Future releases might for instance support explicit
     `with_par_crossover()` for specific use cases.
 * Require `Send + Sync` to Compete, Crossover, Extension and Mutate
 * Change `chromosome_permutations_into_iter()` return type from `Box<dyn Iterator>` to `impl Iterator`
@@ -31,9 +31,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Add `CountTrueWithSleep` fitness placeholder for use in multithreading examples and benchmarking
-* Add `call_par_repeatedly()` and `call_par_speciated()` to `EvolveBuilder`
-* Add `call_par_repeatedly()` to `HillClimbBuilder`
-* Add short-circuit for `call_speciated()` and `call_par_speciated()` when target_fitness_score is reached during speciation
+* Add `call_par_repeatedly()` and `call_par_speciated()` to `EvolveBuilder`.
+  The provided Rng is ignored and rand::thread_rng() in the parallel runs
+* Add `call_par_repeatedly()` to `HillClimbBuilder`. 
+  The provided Rng is ignored and rand::thread_rng() in the parallel runs
+* Add short-circuit for `call_speciated()` and `call_par_speciated()` when
+  target_fitness_score is reached during speciation
 
 ## [0.9.0] - 2024-08-20
 This is a major breaking release, see Changed:
