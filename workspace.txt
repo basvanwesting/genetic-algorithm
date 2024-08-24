@@ -6,6 +6,12 @@ Fixed type or RNG trait?
 Spawn for thread
 Is par deterministic? Maybe seed won”t help as work stealing is  not deterministic. Check rayon docs
 
+Use SmallRng as fixed type for EvolveBuilder and Evolve
+When cloning use SmallRng::from_rng(rand::thread_rng()).unwrap(), other wise the clone is identical rng
+SmallRng is notably faster than thread_rng in sequential usage.
+ThreadRng is the best option for parallel usage. This strikes a balance.
+Add with_rng_seed(u64) in builder for tests. Note that Rng and Parallel is never deterministic for tests
+
 par_mutate with call and call_par?
 Or seperate structs? MutateSingleGene & ParMutateSingleGene?
 Or internal with flag in paramaters?
@@ -16,7 +22,7 @@ Store samplers on mutate etc. Just like genotype
 
 Make fitness immutable?
 
-Add CountTrueWithWork
+Add CountTrueWithWork?
 
 
 multithreading for CrossoverUniform(false)
