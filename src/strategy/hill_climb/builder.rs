@@ -157,7 +157,8 @@ impl<
         if let Some(seed) = self.rng_seed {
             SmallRng::seed_from_u64(seed)
         } else {
-            SmallRng::from_entropy()
+            // SmallRng::from_entropy()
+            SmallRng::from_rng(rand::thread_rng()).unwrap()
         }
     }
     pub fn call(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
