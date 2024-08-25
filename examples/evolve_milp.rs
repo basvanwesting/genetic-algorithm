@@ -1,6 +1,4 @@
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 const TARGET_SCORE: isize = (59.0 / PRECISION) as isize;
 const PRECISION: f32 = 1e-5;
@@ -43,7 +41,6 @@ impl Fitness for MILPFitness {
 fn main() {
     env_logger::init();
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![(-10.0..=10.0), (0.0..=10.0)])
         .build()
@@ -62,7 +59,7 @@ fn main() {
 
     for _ in 0..10 {
         let now = std::time::Instant::now();
-        let evolve = evolve_builder.clone().call(&mut rng).unwrap();
+        let evolve = evolve_builder.clone().call().unwrap();
         let duration = now.elapsed();
 
         if let Some(best_chromosome) = evolve.best_chromosome() {

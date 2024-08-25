@@ -1,6 +1,4 @@
 use genetic_algorithm::strategy::hill_climb::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 #[derive(Clone, Debug)]
 pub struct DistanceTo(pub f32, pub f32); // target, precision
@@ -23,7 +21,6 @@ impl Fitness for DistanceTo {
 fn main() {
     env_logger::init();
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = RangeGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0)
@@ -58,7 +55,7 @@ fn main() {
         .with_fitness(DistanceTo(0.5, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_reporter(HillClimbReporterSimple::new_with_flags(1000, false, true))
-        .call(&mut rng)
+        .call()
         .unwrap();
 
     let duration = now.elapsed();

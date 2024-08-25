@@ -3,7 +3,7 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::Strategy;
 use rand::rngs::SmallRng;
-use rand::{Rng, SeedableRng};
+use rand::SeedableRng;
 use rayon::prelude::*;
 use std::sync::mpsc::channel;
 
@@ -11,7 +11,7 @@ use std::sync::mpsc::channel;
 pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an HillClimb struct.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Builder<
     G: IncrementalGenotype,
     F: Fitness<Allele = G::Allele>,
@@ -27,7 +27,7 @@ pub struct Builder<
     pub valid_fitness_score: Option<FitnessValue>,
     pub replace_on_equal_fitness: bool,
     pub reporter: SR,
-    pub rng: SmallRng,
+    pub rng_seed: Option<u64>,
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
@@ -45,7 +45,7 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
             valid_fitness_score: None,
             replace_on_equal_fitness: true,
             reporter: HillClimbReporterNoop::new(),
-            rng: SmallRng::from_entropy(),
+            rng_seed: None,
         }
     }
 }
@@ -54,28 +54,6 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>>
 {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-impl<
-        G: IncrementalGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Allele = G::Allele>,
-    > Clone for Builder<G, F, SR>
-{
-    fn clone(&self) -> Self {
-        Self {
-            genotype: self.genotype.clone(),
-            variant: self.variant.clone(),
-            fitness: self.fitness.clone(),
-            fitness_ordering: self.fitness_ordering,
-            par_fitness: self.par_fitness,
-            max_stale_generations: self.max_stale_generations,
-            target_fitness_score: self.target_fitness_score,
-            valid_fitness_score: self.valid_fitness_score,
-            replace_on_equal_fitness: self.replace_on_equal_fitness,
-            reporter: self.reporter.clone(),
-            rng: SmallRng::from_entropy(), // don't clone!
-        }
     }
 }
 
@@ -160,8 +138,12 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             reporter,
-            rng: self.rng,
+            rng_seed: self.rng_seed,
         }
+    }
+    pub fn with_rng_seed_from_u64(mut self, rng_seed: u64) -> Self {
+        self.rng_seed = Some(rng_seed);
+        self
     }
 }
 
@@ -171,22 +153,28 @@ impl<
         SR: HillClimbReporter<Allele = G::Allele>,
     > Builder<G, F, SR>
 {
-    pub fn call<R: Rng>(self, rng: &mut R) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
+    pub fn rng(&self) -> SmallRng {
+        if let Some(seed) = self.rng_seed {
+            SmallRng::seed_from_u64(seed)
+        } else {
+            SmallRng::from_entropy()
+        }
+    }
+    pub fn call(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         let mut hill_climb: HillClimb<G, F, SR> = self.try_into()?;
-        hill_climb.call(rng);
+        hill_climb.call();
         Ok(hill_climb)
     }
 
-    pub fn call_repeatedly<R: Rng>(
+    pub fn call_repeatedly(
         self,
         max_repeats: usize,
-        rng: &mut R,
     ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         let mut best_hill_climb: Option<HillClimb<G, F, SR>> = None;
         for iteration in 0..max_repeats {
             let mut contending_run: HillClimb<G, F, SR> = self.clone().try_into()?;
             contending_run.state.current_iteration = iteration;
-            contending_run.call(rng);
+            contending_run.call();
             if contending_run.is_finished_by_target_fitness_score() {
                 best_hill_climb = Some(contending_run);
                 break;
@@ -223,10 +211,9 @@ impl<
         Ok(best_hill_climb.unwrap())
     }
 
-    pub fn call_par_repeatedly<R: Rng>(
+    pub fn call_par_repeatedly(
         self,
         max_repeats: usize,
-        _rng: &mut R,
     ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         let _valid_builder: HillClimb<G, F, SR> = self.clone().try_into()?;
         let mut best_hill_climb: Option<HillClimb<G, F, SR>> = None;
@@ -243,15 +230,12 @@ impl<
                         Some(contending_run)
                     })
                     .par_bridge()
-                    .map_init(
-                        || (sender.clone(), rand::thread_rng()),
-                        |(sender, rng), mut contending_run| {
-                            contending_run.call(rng);
-                            let stop = contending_run.is_finished_by_target_fitness_score();
-                            sender.send(contending_run).unwrap();
-                            stop
-                        },
-                    )
+                    .map_with(sender, |sender, mut contending_run| {
+                        contending_run.call();
+                        let stop = contending_run.is_finished_by_target_fitness_score();
+                        sender.send(contending_run).unwrap();
+                        stop
+                    })
                     .any(|x| x);
             });
 

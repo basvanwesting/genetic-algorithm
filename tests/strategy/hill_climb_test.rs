@@ -40,13 +40,13 @@ fn call_range_max_stale_generations_maximize() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_max_stale_generations(1000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -68,14 +68,14 @@ fn call_range_max_stale_generations_minimize() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(100)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         // .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -97,14 +97,14 @@ fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_max_stale_generations(10)
         .with_valid_fitness_score(75000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -121,7 +121,6 @@ fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
@@ -129,7 +128,8 @@ fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_valid_fitness_score(25000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         // .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -146,13 +146,13 @@ fn call_range_target_fitness_score_maximize() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_target_fitness_score(8000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -174,14 +174,14 @@ fn call_range_target_fitness_score_minimize() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(1000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         // .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -203,7 +203,6 @@ fn call_range_par_fitness() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
@@ -211,7 +210,8 @@ fn call_range_par_fitness() {
         .with_target_fitness_score(1000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -231,7 +231,6 @@ fn call_binary_stochastic() {
         .with_genes_size(100)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::Stochastic)
@@ -239,7 +238,8 @@ fn call_binary_stochastic() {
         .with_target_fitness_score(0)
         .with_fitness(CountTrue)
         // .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -253,7 +253,6 @@ fn call_binary_stochastic_secondary() {
         .with_genes_size(100)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::StochasticSecondary)
@@ -261,7 +260,8 @@ fn call_binary_stochastic_secondary() {
         .with_target_fitness_score(0)
         .with_fitness(CountTrue)
         .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -275,7 +275,6 @@ fn call_binary_steepest_ascent() {
         .with_genes_size(100)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscent)
@@ -283,7 +282,8 @@ fn call_binary_steepest_ascent() {
         .with_target_fitness_score(0)
         .with_fitness(CountTrue)
         .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();
@@ -297,7 +297,6 @@ fn call_binary_steepest_ascent_secondary() {
         .with_genes_size(50)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscentSecondary)
@@ -305,7 +304,8 @@ fn call_binary_steepest_ascent_secondary() {
         .with_target_fitness_score(0)
         .with_fitness(CountTrue)
         .with_reporter(HillClimbReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = hill_climb.best_chromosome().unwrap();

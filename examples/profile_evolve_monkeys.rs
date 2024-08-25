@@ -3,8 +3,6 @@ use pprof::criterion::*;
 
 use distance::hamming;
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 // see https://en.wikipedia.org/wiki/Infinite_monkey_theorem
 
@@ -29,7 +27,6 @@ impl Fitness for MonkeyFitness {
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut rng = SmallRng::from_entropy();
     let genotype = ListGenotype::builder()
         .with_genes_size(TARGET_TEXT.len())
         .with_allele_list((MIN_CHAR..MAX_CHAR).collect())
@@ -50,7 +47,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("profile_evolve_monkeys", |b| {
         b.iter_batched(
             || evolve_builder.clone().build().unwrap(),
-            |mut e| e.call(&mut rng),
+            |mut e| e.call(),
             BatchSize::SmallInput,
         );
     });

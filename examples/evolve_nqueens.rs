@@ -1,6 +1,4 @@
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 // see https://en.wikipedia.org/wiki/Eight_queens_puzzle
 #[derive(Clone, Debug)]
@@ -34,7 +32,6 @@ fn main() {
 
     const BOARD_SIZE: u8 = 64;
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = UniqueGenotype::builder()
         .with_allele_list((0..BOARD_SIZE).collect())
         .build()
@@ -58,7 +55,7 @@ fn main() {
         .unwrap();
 
     let now = std::time::Instant::now();
-    evolve.call(&mut rng);
+    evolve.call();
     let duration = now.elapsed();
 
     println!("{}", evolve);

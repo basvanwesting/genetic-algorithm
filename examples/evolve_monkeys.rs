@@ -1,7 +1,5 @@
 use distance::hamming;
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 // see https://en.wikipedia.org/wiki/Infinite_monkey_theorem
 
@@ -29,7 +27,6 @@ impl Fitness for MonkeyFitness {
 fn main() {
     env_logger::init();
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = ListGenotype::builder()
         .with_genes_size(TARGET_TEXT.len())
         .with_allele_list((MIN_CHAR..MAX_CHAR).collect())
@@ -52,7 +49,7 @@ fn main() {
         .unwrap();
 
     let now = std::time::Instant::now();
-    evolve.call(&mut rng);
+    evolve.call();
     let duration = now.elapsed();
 
     println!("{}", evolve);

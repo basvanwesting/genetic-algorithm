@@ -2,14 +2,12 @@ use super::{Permutate, PermutateReporter, PermutateReporterNoop};
 use crate::fitness::{Fitness, FitnessOrdering};
 use crate::genotype::PermutableGenotype;
 use crate::strategy::Strategy;
-use rand::rngs::SmallRng;
-use rand::{Rng, SeedableRng};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an Permutate struct.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Builder<
     G: PermutableGenotype,
     F: Fitness<Allele = G::Allele>,
@@ -21,7 +19,6 @@ pub struct Builder<
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
     pub reporter: SR,
-    pub rng: SmallRng,
 }
 
 impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>> Default
@@ -35,7 +32,6 @@ impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>> Default
             replace_on_equal_fitness: false,
             fitness: None,
             reporter: PermutateReporterNoop::new(),
-            rng: SmallRng::from_entropy(),
         }
     }
 }
@@ -44,24 +40,6 @@ impl<G: PermutableGenotype, F: Fitness<Allele = G::Allele>>
 {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-impl<
-        G: PermutableGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: PermutateReporter<Allele = G::Allele>,
-    > Clone for Builder<G, F, SR>
-{
-    fn clone(&self) -> Self {
-        Self {
-            genotype: self.genotype.clone(),
-            fitness_ordering: self.fitness_ordering,
-            par_fitness: self.par_fitness,
-            replace_on_equal_fitness: self.replace_on_equal_fitness,
-            fitness: self.fitness.clone(),
-            reporter: self.reporter.clone(),
-            rng: SmallRng::from_entropy(), // don't clone!
-        }
     }
 }
 
@@ -105,7 +83,6 @@ impl<
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,
             reporter,
-            rng: self.rng,
         }
     }
 }
@@ -115,9 +92,9 @@ impl<
         SR: PermutateReporter<Allele = G::Allele>,
     > Builder<G, F, SR>
 {
-    pub fn call<R: Rng>(self, rng: &mut R) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
+    pub fn call(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         let mut permutate: Permutate<G, F, SR> = self.try_into()?;
-        permutate.call(rng);
+        permutate.call();
         Ok(permutate)
     }
 }

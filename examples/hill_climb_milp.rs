@@ -1,6 +1,4 @@
 use genetic_algorithm::strategy::hill_climb::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 //const TARGET_SCORE: isize = (59.0 / PRECISION) as isize;
 //const PENALTY: f32 = 1000.0;
@@ -43,7 +41,6 @@ impl Fitness for MILPFitness {
 fn main() {
     env_logger::init();
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![(-10.0..=10.0), (0.0..=10.0)])
         // .with_allele_mutation_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
@@ -71,10 +68,7 @@ fn main() {
 
     for _ in 0..10 {
         let now = std::time::Instant::now();
-        let hill_climb = hill_climb_builder
-            .clone()
-            .call_repeatedly(1000, &mut rng)
-            .unwrap();
+        let hill_climb = hill_climb_builder.clone().call_repeatedly(1000).unwrap();
         let duration = now.elapsed();
 
         if let Some(best_chromosome) = hill_climb.best_chromosome() {

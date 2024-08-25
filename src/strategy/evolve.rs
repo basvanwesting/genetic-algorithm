@@ -16,7 +16,7 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, Genotype};
 use crate::mutate::Mutate;
 use crate::population::Population;
-use rand::Rng;
+use rand::rngs::SmallRng;
 use std::cell::RefCell;
 use std::fmt;
 use thread_local::ThreadLocal;
@@ -95,7 +95,6 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .unwrap();
 ///
 /// // the search strategy
-/// let mut rng = rand::thread_rng(); // a randomness provider implementing Trait rand::Rng
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
 ///     .with_target_population_size(100)                      // evolve with 100 chromosomes
@@ -112,7 +111,8 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .with_compete(CompeteElite::new())                     // sort the chromosomes by fitness to determine crossover order
 ///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
 ///     .with_reporter(EvolveReporterSimple::new(100))         // optional builder step, report every 100 generations
-///     .call(&mut rng)
+///     .with_rng_seed_from_u64(0)                             // for testing with deterministic results
+///     .call()
 ///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
@@ -134,6 +134,7 @@ pub struct Evolve<
     pub config: EvolveConfig,
     pub state: EvolveState<G::Allele>,
     reporter: SR,
+    rng: SmallRng,
 }
 
 pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Compete, E: Extension> {
@@ -180,8 +181,8 @@ impl<
         SR: EvolveReporter<Allele = G::Allele>,
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
-    fn call<R: Rng>(&mut self, rng: &mut R) {
-        self.state.population = self.population_factory(rng);
+    fn call(&mut self) {
+        self.state.population = self.population_factory();
 
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.par_fitness {
@@ -199,27 +200,30 @@ impl<
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
-                rng,
+                &mut self.rng,
             );
             self.plugins.crossover.call(
                 &self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
-                rng,
+                &mut self.rng,
             );
             self.plugins.mutate.call(
                 &self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
-                rng,
+                &mut self.rng,
             );
             self.fitness
                 .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
-            self.plugins
-                .compete
-                .call(&mut self.state, &self.config, &mut self.reporter, rng);
+            self.plugins.compete.call(
+                &mut self.state,
+                &self.config,
+                &mut self.reporter,
+                &mut self.rng,
+            );
 
             if let Some(contending_chromosome) = self
                 .state
@@ -323,9 +327,9 @@ impl<
         }
     }
 
-    pub fn population_factory<R: Rng>(&mut self, rng: &mut R) -> Population<G::Allele> {
+    pub fn population_factory(&mut self) -> Population<G::Allele> {
         (0..self.config.target_population_size)
-            .map(|_| self.genotype.chromosome_factory(rng))
+            .map(|_| self.genotype.chromosome_factory(&mut self.rng))
             .collect::<Vec<_>>()
             .into()
     }
@@ -487,6 +491,7 @@ impl<
                 "Evolve requires at least a max_stale_generations or target_fitness_score ending condition",
             ))
         } else {
+            let rng = builder.rng();
             let genotype = builder.genotype.unwrap();
             let population = Population::new_empty();
             let state = EvolveState::new(&genotype, population);
@@ -512,6 +517,7 @@ impl<
                 },
                 state,
                 reporter: builder.reporter,
+                rng,
             })
         }
     }

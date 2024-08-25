@@ -1,6 +1,4 @@
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 // see https://en.wikipedia.org/wiki/Knapsack_problem
 // example data 10 items with (weight, value):
@@ -72,7 +70,6 @@ fn main() {
         weight_limit,
     };
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(items.len())
         .build()
@@ -92,7 +89,7 @@ fn main() {
         .unwrap();
 
     let now = std::time::Instant::now();
-    evolve.call(&mut rng);
+    evolve.call();
     let duration = now.elapsed();
 
     println!("{}", evolve);

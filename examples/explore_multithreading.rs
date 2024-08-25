@@ -2,8 +2,6 @@ use genetic_algorithm::fitness::placeholders::CountTrueWithSleep;
 use genetic_algorithm::strategy::evolve::prelude::*;
 use genetic_algorithm::strategy::hill_climb::prelude::*;
 use genetic_algorithm::strategy::permutate::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 // const INTERNAL_MULTITHREAD: bool = false;
 const INTERNAL_MULTITHREAD: bool = true;
@@ -23,7 +21,6 @@ fn main() {
 
 #[allow(dead_code)]
 fn call_evolve() {
-    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
@@ -45,7 +42,7 @@ fn call_evolve() {
         .unwrap();
 
     let now = std::time::Instant::now();
-    evolve.call(&mut rng);
+    evolve.call();
     let duration = now.elapsed();
 
     if let Some(fitness_score) = evolve.best_fitness_score() {
@@ -59,7 +56,6 @@ fn call_evolve() {
 
 #[allow(dead_code)]
 fn call_hill_climb() {
-    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
@@ -78,7 +74,7 @@ fn call_hill_climb() {
         .unwrap();
 
     let now = std::time::Instant::now();
-    hill_climb.call(&mut rng);
+    hill_climb.call();
     let duration = now.elapsed();
 
     if let Some(fitness_score) = hill_climb.best_fitness_score() {
@@ -92,7 +88,6 @@ fn call_hill_climb() {
 
 #[allow(dead_code)]
 fn call_permutate() {
-    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(12)
         .build()
@@ -108,7 +103,7 @@ fn call_permutate() {
         .unwrap();
 
     let now = std::time::Instant::now();
-    permutate.call(&mut rng);
+    permutate.call();
     let duration = now.elapsed();
 
     if let Some(fitness_score) = permutate.best_fitness_score() {
@@ -122,7 +117,6 @@ fn call_permutate() {
 
 #[allow(dead_code)]
 fn call_evolve_repeatedly() {
-    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
@@ -143,9 +137,9 @@ fn call_evolve_repeatedly() {
 
     let now = std::time::Instant::now();
     let evolve = if EXTERNAL_MULTITHREAD {
-        evolve_builder.call_par_repeatedly(20, &mut rng).unwrap()
+        evolve_builder.call_par_repeatedly(20).unwrap()
     } else {
-        evolve_builder.call_repeatedly(3, &mut rng).unwrap()
+        evolve_builder.call_repeatedly(3).unwrap()
     };
     let duration = now.elapsed();
 
@@ -160,7 +154,6 @@ fn call_evolve_repeatedly() {
 
 #[allow(dead_code)]
 fn call_evolve_speciated() {
-    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
@@ -181,9 +174,9 @@ fn call_evolve_speciated() {
 
     let now = std::time::Instant::now();
     let evolve = if EXTERNAL_MULTITHREAD {
-        evolve_builder.call_par_speciated(20, &mut rng).unwrap()
+        evolve_builder.call_par_speciated(20).unwrap()
     } else {
-        evolve_builder.call_speciated(3, &mut rng).unwrap()
+        evolve_builder.call_speciated(3).unwrap()
     };
     let duration = now.elapsed();
 
@@ -198,7 +191,6 @@ fn call_evolve_speciated() {
 
 #[allow(dead_code)]
 fn call_hill_climb_repeatedly() {
-    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
@@ -218,11 +210,9 @@ fn call_hill_climb_repeatedly() {
 
     let now = std::time::Instant::now();
     let hill_climb = if EXTERNAL_MULTITHREAD {
-        hill_climb_builder
-            .call_par_repeatedly(20, &mut rng)
-            .unwrap()
+        hill_climb_builder.call_par_repeatedly(20).unwrap()
     } else {
-        hill_climb_builder.call_repeatedly(3, &mut rng).unwrap()
+        hill_climb_builder.call_repeatedly(3).unwrap()
     };
     let duration = now.elapsed();
 

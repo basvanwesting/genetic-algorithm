@@ -43,7 +43,6 @@
 //! }
 //!
 //! // the search strategy
-//! let mut rng = rand::thread_rng(); // a randomness provider implementing Trait rand::Rng
 //! let evolve = Evolve::builder()
 //!     .with_genotype(genotype)
 //!     .with_target_population_size(100)              // evolve with 100 chromosomes
@@ -53,11 +52,15 @@
 //!     .with_mutate(MutateSingleGene::new(0.2))       // mutate a single gene with a 20% probability per chromosome
 //!     .with_compete(CompeteElite::new())             // sort the chromosomes by fitness to determine crossover order
 //!     .with_reporter(EvolveReporterSimple::new(100)) // optional builder step, report every 100 generations
-//!     .call(&mut rng)
+//!     .call()
 //!     .unwrap();
 //!
 //! println!("{}", evolve);
 //! ```
+//!
+//! ## Tests
+//!
+//! Use `.with_rng_seed_from_u64(0)` builder step to create deterministic tests results.
 //!
 //! ## Examples
 //!

@@ -1,12 +1,9 @@
 use criterion::*;
 use genetic_algorithm::fitness::placeholders::Zero;
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut rng = SmallRng::from_entropy();
     let genes_size = 100;
     let target_population_size = 100;
     let max_stale_generations = 100;
@@ -39,7 +36,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
             b.iter_batched(
                 || evolve_builder.clone().build().unwrap(),
-                |mut e| e.call(&mut rng),
+                |mut e| e.call(),
                 BatchSize::SmallInput,
             );
         },
@@ -68,7 +65,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
             b.iter_batched(
                 || evolve_builder.clone().build().unwrap(),
-                |mut e| e.call(&mut rng),
+                |mut e| e.call(),
                 BatchSize::SmallInput,
             );
         },

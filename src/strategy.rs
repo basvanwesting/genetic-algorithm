@@ -6,10 +6,9 @@ pub mod permutate;
 use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, Genotype};
-use rand::Rng;
 
 pub trait Strategy<G: Genotype> {
-    fn call<R: Rng>(&mut self, rng: &mut R);
+    fn call(&mut self);
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>>;
     fn best_generation(&self) -> usize;
     fn best_fitness_score(&self) -> Option<FitnessValue>;

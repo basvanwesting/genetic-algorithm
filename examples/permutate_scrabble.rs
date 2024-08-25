@@ -1,6 +1,4 @@
 use genetic_algorithm::strategy::permutate::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 use std::collections::{HashMap, HashSet};
 
 type Row = usize;
@@ -329,7 +327,6 @@ fn main() {
         }
     });
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = MultiListGenotype::builder()
         .with_allele_lists(allele_lists)
         .build()
@@ -364,14 +361,14 @@ fn main() {
             .build()
             .unwrap();
 
-        permutate.call(&mut rng);
+        permutate.call();
 
         if let Ok(report) = guard.report().build() {
             let file = std::fs::File::create("flamegraph_scrabble.svg").unwrap();
             report.flamegraph(file).unwrap();
         };
     } else {
-        permutate.call(&mut rng);
+        permutate.call();
     }
 
     let duration = now.elapsed();

@@ -2,8 +2,6 @@ use criterion::*;
 use pprof::criterion::*;
 
 use genetic_algorithm::strategy::hill_climb::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 // see https://en.wikipedia.org/wiki/Eight_queens_puzzle
 
@@ -34,7 +32,6 @@ impl Fitness for NQueensFitness {
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut rng = SmallRng::from_entropy();
     let genotype = UniqueGenotype::builder()
         .with_allele_list((0..64).collect())
         .build()
@@ -51,7 +48,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("profile_hill_climb_nqueens", |b| {
         b.iter_batched(
             || hill_climb_builder.clone().build().unwrap(),
-            |mut e| e.call(&mut rng),
+            |mut e| e.call(),
             BatchSize::SmallInput,
         );
     });

@@ -77,7 +77,6 @@ fn main() {
 
     println!("{}", genotype);
 
-    let mut rng = rand::thread_rng();
     let mut permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(fitness)
@@ -86,7 +85,7 @@ fn main() {
         .unwrap();
 
     let now = std::time::Instant::now();
-    permutate.call(&mut rng);
+    permutate.call();
     let duration = now.elapsed();
 
     println!("{}", permutate);

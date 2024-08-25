@@ -1,7 +1,5 @@
 use genetic_algorithm::strategy::evolve::prelude::*;
 use lru::LruCache;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 use std::{thread, time};
 
 pub type MicroSeconds = u64;
@@ -70,7 +68,6 @@ impl Clone for CachedExpensiveCount {
 fn main() {
     env_logger::init();
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
@@ -88,7 +85,7 @@ fn main() {
         .with_fitness(CachedExpensiveCount::new(1000, 1500))
         .with_crossover(CrossoverClone::new(true))
         .with_compete(CompeteTournament::new(4))
-        .call(&mut rng)
+        .call()
         .unwrap();
 
     println!("{}", evolve);

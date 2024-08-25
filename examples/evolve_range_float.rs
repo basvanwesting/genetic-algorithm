@@ -1,6 +1,4 @@
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 #[derive(Clone, Debug)]
 pub struct DistanceTo(pub f32, pub f32); // target, precision
@@ -23,7 +21,6 @@ impl Fitness for DistanceTo {
 fn main() {
     env_logger::init();
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = RangeGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
@@ -56,7 +53,7 @@ fn main() {
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
         .with_reporter(EvolveReporterSimple::new(100))
-        .call(&mut rng)
+        .call()
         .unwrap();
 
     let duration = now.elapsed();

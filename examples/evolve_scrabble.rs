@@ -1,6 +1,4 @@
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 use std::collections::{HashMap, HashSet};
 
 type Row = usize;
@@ -259,7 +257,6 @@ fn main() {
         }
     });
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = MultiListGenotype::builder()
         .with_allele_lists(allele_lists)
         .build()
@@ -299,8 +296,8 @@ fn main() {
         ));
 
     let now = std::time::Instant::now();
-    let evolve = evolve_builder.call_speciated(10, &mut rng).unwrap();
-    // let evolve = evolve_builder.call(&mut rng).unwrap();
+    let evolve = evolve_builder.call_speciated(10).unwrap();
+    // let evolve = evolve_builder.call().unwrap();
     let duration = now.elapsed();
     println!("{:?}", duration);
 

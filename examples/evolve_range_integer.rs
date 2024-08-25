@@ -1,12 +1,9 @@
 use genetic_algorithm::fitness::placeholders::SumGenes;
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 fn main() {
     env_logger::init();
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = RangeGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0..=10)
@@ -27,7 +24,7 @@ fn main() {
         .with_fitness(SumGenes::new())
         .with_crossover(CrossoverUniform::new(true))
         .with_compete(CompeteTournament::new(4))
-        .call(&mut rng)
+        .call()
         .unwrap();
 
     let duration = now.elapsed();

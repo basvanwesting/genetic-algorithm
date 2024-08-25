@@ -12,7 +12,6 @@ use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, PermutableGenotype};
 use num::BigUint;
-use rand::Rng;
 use rayon::prelude::*;
 use std::fmt;
 use std::sync::mpsc::sync_channel;
@@ -51,14 +50,13 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///     .unwrap();
 ///
 /// // the search strategy
-/// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
 /// let permutate = Permutate::builder()
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
 ///     .with_reporter(PermutateReporterSimple::new(100)) // optional builder step, report every 100 generations
-///     .call(&mut rng)
+///     .call()
 ///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
@@ -102,13 +100,13 @@ impl<
         SR: PermutateReporter<Allele = G::Allele>,
     > Strategy<G> for Permutate<G, F, SR>
 {
-    fn call<R: Rng>(&mut self, rng: &mut R) {
+    fn call(&mut self) {
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         if self.config.par_fitness {
-            self.call_parallel(rng)
+            self.call_parallel()
         } else {
-            self.call_sequential(rng)
+            self.call_sequential()
         }
         self.reporter.on_finish(&self.state, &self.config);
     }
@@ -137,7 +135,7 @@ impl<
         SR: PermutateReporter<Allele = G::Allele>,
     > Permutate<G, F, SR>
 {
-    fn call_sequential<R: Rng>(&mut self, _rng: &mut R) {
+    fn call_sequential(&mut self) {
         self.genotype
             .clone()
             .chromosome_permutations_into_iter()
@@ -152,7 +150,7 @@ impl<
                 self.reporter.on_new_generation(&self.state, &self.config);
             });
     }
-    fn call_parallel<R: Rng>(&mut self, _rng: &mut R) {
+    fn call_parallel(&mut self) {
         rayon::scope(|s| {
             let genotype = &self.genotype;
             let fitness = self.fitness.clone();

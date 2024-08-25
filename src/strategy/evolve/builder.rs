@@ -7,7 +7,7 @@ use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::strategy::Strategy;
 use rand::rngs::SmallRng;
-use rand::{Rng, SeedableRng};
+use rand::SeedableRng;
 use rayon::prelude::*;
 use std::sync::mpsc::channel;
 
@@ -15,7 +15,7 @@ use std::sync::mpsc::channel;
 pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an Evolve struct.
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct Builder<
     G: Genotype,
     M: Mutate,
@@ -40,7 +40,7 @@ pub struct Builder<
     pub compete: Option<C>,
     pub extension: E,
     pub reporter: SR,
-    pub rng: SmallRng,
+    pub rng_seed: Option<u64>,
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Compete> Default
@@ -63,7 +63,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
             compete: None,
             extension: ExtensionNoop::new(),
             reporter: EvolveReporterNoop::new(),
-            rng: SmallRng::from_entropy(),
+            rng_seed: None,
         }
     }
 }
@@ -72,37 +72,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
 {
     pub fn new() -> Self {
         Self::default()
-    }
-}
-impl<
-        G: Genotype,
-        M: Mutate,
-        F: Fitness<Allele = G::Allele>,
-        S: Crossover,
-        C: Compete,
-        E: Extension,
-        SR: EvolveReporter<Allele = G::Allele>,
-    > Clone for Builder<G, M, F, S, C, E, SR>
-{
-    fn clone(&self) -> Self {
-        Self {
-            genotype: self.genotype.clone(),
-            target_population_size: self.target_population_size,
-            max_stale_generations: self.max_stale_generations,
-            max_chromosome_age: self.max_chromosome_age,
-            target_fitness_score: self.target_fitness_score,
-            valid_fitness_score: self.valid_fitness_score,
-            fitness_ordering: self.fitness_ordering,
-            par_fitness: self.par_fitness,
-            replace_on_equal_fitness: self.replace_on_equal_fitness,
-            mutate: self.mutate.clone(),
-            fitness: self.fitness.clone(),
-            crossover: self.crossover.clone(),
-            compete: self.compete.clone(),
-            extension: self.extension.clone(),
-            reporter: self.reporter.clone(),
-            rng: SmallRng::from_entropy(), // don't clone!
-        }
     }
 }
 
@@ -218,7 +187,7 @@ impl<
             compete: self.compete,
             extension,
             reporter: self.reporter,
-            rng: self.rng,
+            rng_seed: self.rng_seed,
         }
     }
     pub fn with_reporter<SR2: EvolveReporter<Allele = G::Allele>>(
@@ -241,8 +210,12 @@ impl<
             compete: self.compete,
             extension: self.extension,
             reporter,
-            rng: self.rng,
+            rng_seed: self.rng_seed,
         }
+    }
+    pub fn with_rng_seed_from_u64(mut self, rng_seed: u64) -> Self {
+        self.rng_seed = Some(rng_seed);
+        self
     }
 }
 
@@ -257,24 +230,27 @@ impl<
         SR: EvolveReporter<Allele = G::Allele>,
     > Builder<G, M, F, S, C, E, SR>
 {
-    pub fn call<R: Rng>(
-        self,
-        rng: &mut R,
-    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+    pub fn rng(&self) -> SmallRng {
+        if let Some(seed) = self.rng_seed {
+            SmallRng::seed_from_u64(seed)
+        } else {
+            SmallRng::from_entropy()
+        }
+    }
+    pub fn call(self) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         let mut evolve: Evolve<G, M, F, S, C, E, SR> = self.try_into()?;
-        evolve.call(rng);
+        evolve.call();
         Ok(evolve)
     }
-    pub fn call_repeatedly<R: Rng>(
+    pub fn call_repeatedly(
         self,
         max_repeats: usize,
-        rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
         for iteration in 0..max_repeats {
             let mut contending_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
             contending_run.state.current_iteration = iteration;
-            contending_run.call(rng);
+            contending_run.call();
             if contending_run.is_finished_by_target_fitness_score() {
                 best_evolve = Some(contending_run);
                 break;
@@ -311,10 +287,9 @@ impl<
         Ok(best_evolve.unwrap())
     }
 
-    pub fn call_par_repeatedly<R: Rng>(
+    pub fn call_par_repeatedly(
         self,
         max_repeats: usize,
-        _rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
@@ -331,16 +306,13 @@ impl<
                         Some(contending_run)
                     })
                     .par_bridge()
-                    .map_init(
-                        || (sender.clone(), rand::thread_rng()),
-                        |(sender, rng), mut contending_run| {
-                            contending_run.call(rng);
-                            let finished_by_target_fitness_score =
-                                contending_run.is_finished_by_target_fitness_score();
-                            sender.send(contending_run).unwrap();
-                            finished_by_target_fitness_score
-                        },
-                    )
+                    .map_with(sender, |sender, mut contending_run| {
+                        contending_run.call();
+                        let finished_by_target_fitness_score =
+                            contending_run.is_finished_by_target_fitness_score();
+                        sender.send(contending_run).unwrap();
+                        finished_by_target_fitness_score
+                    })
                     .any(|x| x);
             });
 
@@ -378,10 +350,9 @@ impl<
         Ok(best_evolve.unwrap())
     }
 
-    pub fn call_speciated<R: Rng>(
+    pub fn call_speciated(
         self,
         number_of_species: usize,
-        rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut species_runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
@@ -392,7 +363,7 @@ impl<
                 Some(species_run)
             })
             .map(|mut species_run| {
-                species_run.call(rng);
+                species_run.call();
                 let finished_by_target_fitness_score =
                     species_run.is_finished_by_target_fitness_score();
                 species_runs.push(species_run);
@@ -416,16 +387,15 @@ impl<
             let mut final_run: Evolve<G, M, F, S, C, E, SR> =
                 self.clone().with_genotype(final_genotype).try_into()?;
 
-            final_run.call(rng);
+            final_run.call();
             final_run
         };
         Ok(final_run)
     }
 
-    pub fn call_par_speciated<R: Rng>(
+    pub fn call_par_speciated(
         self,
         number_of_species: usize,
-        rng: &mut R,
     ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut species_runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
@@ -442,16 +412,13 @@ impl<
                         Some(species_run)
                     })
                     .par_bridge()
-                    .map_init(
-                        || (sender.clone(), rand::thread_rng()),
-                        |(sender, rng), mut species_run| {
-                            species_run.call(rng);
-                            let finished_by_target_fitness_score =
-                                species_run.is_finished_by_target_fitness_score();
-                            sender.send(species_run).unwrap();
-                            finished_by_target_fitness_score
-                        },
-                    )
+                    .map_with(sender, |sender, mut species_run| {
+                        species_run.call();
+                        let finished_by_target_fitness_score =
+                            species_run.is_finished_by_target_fitness_score();
+                        sender.send(species_run).unwrap();
+                        finished_by_target_fitness_score
+                    })
                     .any(|x| x);
             });
 
@@ -480,7 +447,7 @@ impl<
             let mut final_run: Evolve<G, M, F, S, C, E, SR> =
                 self.clone().with_genotype(final_genotype).try_into()?;
 
-            final_run.call(rng);
+            final_run.call();
             final_run
         };
         Ok(final_run)

@@ -16,12 +16,11 @@ fn call_binary_maximize() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(CountTrue)
         // .with_reporter(PermutateReporterNoop::new())
-        .call(&mut rng)
+        .call()
         .unwrap();
 
     let best_chromosome = permutate.best_chromosome().unwrap();
@@ -41,13 +40,12 @@ fn call_binary_minimize() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(CountTrue)
         .with_reporter(PermutateReporterNoop::new())
-        .call(&mut rng)
+        .call()
         .unwrap();
 
     let best_chromosome = permutate.best_chromosome().unwrap();
@@ -68,12 +66,11 @@ fn call_list() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
         // .with_reporter(PermutateReporterNoop::new())
-        .call(&mut rng)
+        .call()
         .unwrap();
 
     let best_chromosome = permutate.best_chromosome().unwrap();
@@ -95,12 +92,11 @@ fn call_multi_list() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
         .with_reporter(PermutateReporterNoop::new())
-        .call(&mut rng)
+        .call()
         .unwrap();
 
     let best_chromosome = permutate.best_chromosome().unwrap();
@@ -118,13 +114,12 @@ fn call_par_fitness() {
         .build()
         .unwrap();
 
-    let mut rng = rand::thread_rng();
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
         .with_par_fitness(true)
         // .with_reporter(PermutateReporterNoop::new())
-        .call(&mut rng)
+        .call()
         .unwrap();
 
     let best_chromosome = permutate.best_chromosome().unwrap();

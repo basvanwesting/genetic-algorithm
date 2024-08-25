@@ -1,6 +1,4 @@
 use genetic_algorithm::strategy::hill_climb::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 use std::collections::{HashMap, HashSet};
 
 type Row = usize;
@@ -259,7 +257,6 @@ fn main() {
         }
     });
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = MultiListGenotype::builder()
         .with_allele_lists(allele_lists)
         .build()
@@ -283,7 +280,7 @@ fn main() {
         .with_reporter(HillClimbReporterSimple::new(100));
 
     let now = std::time::Instant::now();
-    let hill_climb = hill_climb_builder.call_repeatedly(4, &mut rng).unwrap();
+    let hill_climb = hill_climb_builder.call_repeatedly(4).unwrap();
     let duration = now.elapsed();
     println!("{:?}", duration);
 

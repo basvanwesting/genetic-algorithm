@@ -3,11 +3,8 @@ use pprof::criterion::*;
 
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::strategy::evolve::prelude::*;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let mut rng = SmallRng::from_entropy();
     let genotype = BinaryGenotype::builder()
         .with_genes_size(1000)
         .build()
@@ -27,7 +24,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     c.bench_function("profile_evolve_binary", |b| {
         b.iter_batched(
             || evolve_builder.clone().build().unwrap(),
-            |mut e| e.call(&mut rng),
+            |mut e| e.call(),
             BatchSize::SmallInput,
         );
     });

@@ -1,8 +1,6 @@
 use chrono::{Datelike, NaiveDate, Weekday};
 use genetic_algorithm::strategy::hill_climb::prelude::*;
 use itertools::Itertools;
-use rand::prelude::*;
-use rand::rngs::SmallRng;
 use statrs::statistics::Statistics;
 use std::collections::HashMap;
 use std::hash::{Hash, Hasher};
@@ -365,7 +363,6 @@ fn main() {
 
     // RUN
 
-    let mut rng = SmallRng::from_entropy();
     let genotype = UniqueGenotype::builder()
         .with_allele_list(
             adults
@@ -390,7 +387,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Maximize);
 
     let now = std::time::Instant::now();
-    let hill_climb = hill_climb_builder.call_repeatedly(1, &mut rng).unwrap();
+    let hill_climb = hill_climb_builder.call_repeatedly(1).unwrap();
     let duration = now.elapsed();
 
     println!("{}", hill_climb);

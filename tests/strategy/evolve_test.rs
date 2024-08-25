@@ -100,7 +100,6 @@ fn call_binary_max_stale_generations_maximize() {
         .with_genes_size(10)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -111,7 +110,8 @@ fn call_binary_max_stale_generations_maximize() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -130,7 +130,6 @@ fn call_binary_max_stale_generations_minimize() {
         .with_genes_size(10)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -142,7 +141,8 @@ fn call_binary_max_stale_generations_minimize() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -161,7 +161,6 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_genes_size(100)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(4)
@@ -173,7 +172,8 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -187,7 +187,6 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_genes_size(100)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(4)
@@ -200,7 +199,8 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -215,7 +215,6 @@ fn call_binary_target_fitness_score_maximize() {
         .with_genes_size(10)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -226,7 +225,8 @@ fn call_binary_target_fitness_score_maximize() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -245,7 +245,6 @@ fn call_binary_target_fitness_score_minimize() {
         .with_genes_size(10)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -257,7 +256,8 @@ fn call_binary_target_fitness_score_minimize() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -276,7 +276,6 @@ fn call_binary_mass_degeneration() {
         .with_genes_size(10)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -287,7 +286,8 @@ fn call_binary_mass_degeneration() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassDegeneration::new(10, 10))
         .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -306,7 +306,6 @@ fn call_binary_mass_extinction() {
         .with_genes_size(10)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -317,7 +316,8 @@ fn call_binary_mass_extinction() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassExtinction::new(10, 0.1))
         // .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -336,7 +336,6 @@ fn call_binary_mass_genesis() {
         .with_genes_size(10)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -347,7 +346,8 @@ fn call_binary_mass_genesis() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassGenesis::new(10))
         .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -366,7 +366,6 @@ fn call_binary_mass_invasion() {
         .with_genes_size(10)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -377,7 +376,8 @@ fn call_binary_mass_invasion() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassInvasion::new(10, 0.1))
         // .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -397,7 +397,6 @@ fn call_range_f32() {
         .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -408,7 +407,8 @@ fn call_range_f32() {
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -429,7 +429,6 @@ fn call_range_usize() {
         .with_allele_range(0..=9)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -440,7 +439,8 @@ fn call_range_usize() {
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -461,7 +461,6 @@ fn call_range_isize() {
         .with_allele_mutation_range(-1..=1)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -472,7 +471,8 @@ fn call_range_isize() {
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -493,7 +493,6 @@ fn call_list() {
         .build()
         .unwrap();
 
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -504,7 +503,8 @@ fn call_list() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -528,7 +528,6 @@ fn call_multi_list() {
         ])
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -539,7 +538,8 @@ fn call_multi_list() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -557,7 +557,6 @@ fn call_par_fitness() {
         .build()
         .unwrap();
 
-    let mut rng = SmallRng::seed_from_u64(0);
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -569,7 +568,8 @@ fn call_par_fitness() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
-        .call(&mut rng)
+        .with_rng_seed_from_u64(0)
+        .call()
         .unwrap();
 
     let best_chromosome = evolve.best_chromosome().unwrap();
@@ -588,7 +588,6 @@ fn population_factory_binary() {
         .with_genes_size(4)
         .build()
         .unwrap();
-    let mut rng = SmallRng::seed_from_u64(0);
     let mut evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(8)
@@ -599,10 +598,11 @@ fn population_factory_binary() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
+        .with_rng_seed_from_u64(0)
         .build()
         .unwrap();
 
-    let population = evolve.population_factory(&mut rng);
+    let population = evolve.population_factory();
     println!("{:#?}", population);
 
     assert_eq!(

@@ -13,7 +13,7 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, IncrementalGenotype};
 use crate::population::Population;
 use rand::prelude::SliceRandom;
-use rand::Rng;
+use rand::rngs::SmallRng;
 use std::cell::RefCell;
 use std::fmt;
 use thread_local::ThreadLocal;
@@ -124,7 +124,6 @@ pub enum HillClimbVariant {
 ///     .unwrap();
 ///
 /// // the search strategy
-/// let mut rng = rand::thread_rng(); // unused randomness provider implementing Trait rand::Rng
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
 ///     .with_variant(HillClimbVariant::SteepestAscent)   // check all neighbours for each round
@@ -136,7 +135,8 @@ pub enum HillClimbVariant {
 ///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_replace_on_equal_fitness(true)              // optional, defaults to true, crucial for some type of problems with discrete fitness steps like nqueens
 ///     .with_reporter(HillClimbReporterSimple::new(100)) // optional, report every 100 generations
-///     .call(&mut rng)
+///     .with_rng_seed_from_u64(0)                        // for testing with deterministic results
+///     .call()
 ///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
@@ -153,6 +153,7 @@ pub struct HillClimb<
     pub config: HillClimbConfig,
     pub state: HillClimbState<G::Allele>,
     reporter: SR,
+    rng: SmallRng,
 }
 
 pub struct HillClimbConfig {
@@ -190,8 +191,8 @@ impl<
         SR: HillClimbReporter<Allele = G::Allele>,
     > Strategy<G> for HillClimb<G, F, SR>
 {
-    fn call<R: Rng>(&mut self, rng: &mut R) {
-        let mut seed_chromosome = self.genotype.chromosome_factory(rng);
+    fn call(&mut self) {
+        let mut seed_chromosome = self.genotype.chromosome_factory(&mut self.rng);
         self.fitness.call_for_chromosome(&mut seed_chromosome);
         self.state.set_best_chromosome(&seed_chromosome, true);
 
@@ -210,7 +211,7 @@ impl<
                     self.genotype.mutate_chromosome(
                         &mut contending_chromosome,
                         self.state.current_scale_index,
-                        rng,
+                        &mut self.rng,
                     );
                     self.fitness.call_for_chromosome(&mut contending_chromosome);
                     self.state.update_best_chromosome_and_report(
@@ -225,7 +226,7 @@ impl<
                     self.genotype.mutate_chromosome(
                         &mut contending_chromosome_primary,
                         self.state.current_scale_index,
-                        rng,
+                        &mut self.rng,
                     );
                     self.fitness
                         .call_for_chromosome(&mut contending_chromosome_primary);
@@ -239,7 +240,7 @@ impl<
                     self.genotype.mutate_chromosome(
                         &mut contending_chromosome_secondary,
                         self.state.current_scale_index,
-                        rng,
+                        &mut self.rng,
                     );
                     self.fitness
                         .call_for_chromosome(&mut contending_chromosome_secondary);
@@ -255,7 +256,7 @@ impl<
                     let mut neighbouring_population = self.genotype.neighbouring_population(
                         best_chromosome,
                         self.state.current_scale_index,
-                        rng,
+                        &mut self.rng,
                     );
 
                     self.fitness.call_for_population(
@@ -264,7 +265,7 @@ impl<
                     );
 
                     // shuffle, so we don't repeatedly take the same best chromosome in sideways move
-                    neighbouring_population.chromosomes.shuffle(rng);
+                    neighbouring_population.chromosomes.shuffle(&mut self.rng);
                     if let Some(contending_chromosome) =
                         neighbouring_population.best_chromosome(self.config.fitness_ordering)
                     {
@@ -284,7 +285,7 @@ impl<
                     let mut neighbouring_chromosomes = self.genotype.neighbouring_chromosomes(
                         best_chromosome,
                         self.state.current_scale_index,
-                        rng,
+                        &mut self.rng,
                     );
 
                     neighbouring_chromosomes.append(
@@ -294,7 +295,7 @@ impl<
                                 self.genotype.neighbouring_chromosomes(
                                     chromosome,
                                     self.state.current_scale_index,
-                                    rng,
+                                    &mut self.rng,
                                 )
                             })
                             .collect(),
@@ -308,7 +309,7 @@ impl<
                     );
 
                     // shuffle, so we don't repeatedly take the same best chromosome in sideways move
-                    neighbouring_population.chromosomes.shuffle(rng);
+                    neighbouring_population.chromosomes.shuffle(&mut self.rng);
                     if let Some(contending_chromosome) =
                         neighbouring_population.best_chromosome(self.config.fitness_ordering)
                     {
@@ -509,6 +510,7 @@ impl<
                 "HillClimb requires at least a max_stale_generations or target_fitness_score ending condition",
             ))
         } else {
+            let rng = builder.rng();
             let genotype = builder.genotype.unwrap();
             let state = HillClimbState::new(&genotype);
 
@@ -526,6 +528,7 @@ impl<
                 },
                 state,
                 reporter: builder.reporter,
+                rng,
             })
         }
     }
