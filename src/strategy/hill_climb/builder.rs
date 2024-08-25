@@ -2,7 +2,8 @@ use super::{HillClimb, HillClimbReporter, HillClimbReporterNoop, HillClimbVarian
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::Strategy;
-use rand::Rng;
+use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
 use rayon::prelude::*;
 use std::sync::mpsc::channel;
 
@@ -10,7 +11,7 @@ use std::sync::mpsc::channel;
 pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an HillClimb struct.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Builder<
     G: IncrementalGenotype,
     F: Fitness<Allele = G::Allele>,
@@ -26,6 +27,7 @@ pub struct Builder<
     pub valid_fitness_score: Option<FitnessValue>,
     pub replace_on_equal_fitness: bool,
     pub reporter: SR,
+    pub rng: SmallRng,
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
@@ -43,6 +45,7 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
             valid_fitness_score: None,
             replace_on_equal_fitness: true,
             reporter: HillClimbReporterNoop::new(),
+            rng: SmallRng::from_entropy(),
         }
     }
 }
@@ -51,6 +54,28 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>>
 {
     pub fn new() -> Self {
         Self::default()
+    }
+}
+impl<
+        G: IncrementalGenotype,
+        F: Fitness<Allele = G::Allele>,
+        SR: HillClimbReporter<Allele = G::Allele>,
+    > Clone for Builder<G, F, SR>
+{
+    fn clone(&self) -> Self {
+        Self {
+            genotype: self.genotype.clone(),
+            variant: self.variant.clone(),
+            fitness: self.fitness.clone(),
+            fitness_ordering: self.fitness_ordering,
+            par_fitness: self.par_fitness,
+            max_stale_generations: self.max_stale_generations,
+            target_fitness_score: self.target_fitness_score,
+            valid_fitness_score: self.valid_fitness_score,
+            replace_on_equal_fitness: self.replace_on_equal_fitness,
+            reporter: self.reporter.clone(),
+            rng: SmallRng::from_entropy(), // don't clone!
+        }
     }
 }
 
@@ -135,6 +160,7 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             reporter,
+            rng: self.rng,
         }
     }
 }

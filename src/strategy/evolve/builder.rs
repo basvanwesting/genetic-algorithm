@@ -6,7 +6,8 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::strategy::Strategy;
-use rand::Rng;
+use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
 use rayon::prelude::*;
 use std::sync::mpsc::channel;
 
@@ -14,7 +15,7 @@ use std::sync::mpsc::channel;
 pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an Evolve struct.
-#[derive(Clone, Debug)]
+#[derive(Debug)]
 pub struct Builder<
     G: Genotype,
     M: Mutate,
@@ -39,6 +40,7 @@ pub struct Builder<
     pub compete: Option<C>,
     pub extension: E,
     pub reporter: SR,
+    pub rng: SmallRng,
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Compete> Default
@@ -61,6 +63,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
             compete: None,
             extension: ExtensionNoop::new(),
             reporter: EvolveReporterNoop::new(),
+            rng: SmallRng::from_entropy(),
         }
     }
 }
@@ -69,6 +72,37 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
 {
     pub fn new() -> Self {
         Self::default()
+    }
+}
+impl<
+        G: Genotype,
+        M: Mutate,
+        F: Fitness<Allele = G::Allele>,
+        S: Crossover,
+        C: Compete,
+        E: Extension,
+        SR: EvolveReporter<Allele = G::Allele>,
+    > Clone for Builder<G, M, F, S, C, E, SR>
+{
+    fn clone(&self) -> Self {
+        Self {
+            genotype: self.genotype.clone(),
+            target_population_size: self.target_population_size,
+            max_stale_generations: self.max_stale_generations,
+            max_chromosome_age: self.max_chromosome_age,
+            target_fitness_score: self.target_fitness_score,
+            valid_fitness_score: self.valid_fitness_score,
+            fitness_ordering: self.fitness_ordering,
+            par_fitness: self.par_fitness,
+            replace_on_equal_fitness: self.replace_on_equal_fitness,
+            mutate: self.mutate.clone(),
+            fitness: self.fitness.clone(),
+            crossover: self.crossover.clone(),
+            compete: self.compete.clone(),
+            extension: self.extension.clone(),
+            reporter: self.reporter.clone(),
+            rng: SmallRng::from_entropy(), // don't clone!
+        }
     }
 }
 
@@ -184,6 +218,7 @@ impl<
             compete: self.compete,
             extension,
             reporter: self.reporter,
+            rng: self.rng,
         }
     }
     pub fn with_reporter<SR2: EvolveReporter<Allele = G::Allele>>(
@@ -206,6 +241,7 @@ impl<
             compete: self.compete,
             extension: self.extension,
             reporter,
+            rng: self.rng,
         }
     }
 }
