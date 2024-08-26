@@ -6,9 +6,15 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.10.1] - 2024-08-26
 
+### Changed
+* Move `PartialEq` requirement from general `Allele` to `ListGenotype` and `MultiListGenotype` specific allele requirements
+
 ### Added
-* Implement Allele trait for tuple sizes 1 to 12 using impl-trait-for-tuples,
-  as 12 is the limit for PartialEq in tuples
+* Implement `Allele` trait for tuple sizes 1 to 12, as 12 is the limit for `PartialEq` in tuples
+
+### Removed
+* Remove `Default` requirement on `Allele` for `RangeGenotype` and `MultiRangeGenotype` (no longer used)
+* Remove `Zero` requirement on `Allele` for `RangeGenotype` and `MultiRangeGenotype` (no longer used)
 
 ## [0.10.0] - 2024-08-26
 
