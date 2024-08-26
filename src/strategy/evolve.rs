@@ -133,8 +133,8 @@ pub struct Evolve<
     pub plugins: EvolvePlugins<M, S, C, E>,
     pub config: EvolveConfig,
     pub state: EvolveState<G::Allele>,
-    reporter: SR,
-    rng: SmallRng,
+    pub reporter: SR,
+    pub rng: SmallRng,
 }
 
 pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Compete, E: Extension> {

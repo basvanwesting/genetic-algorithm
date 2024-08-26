@@ -68,11 +68,11 @@ pub struct Permutate<
     F: Fitness<Allele = G::Allele>,
     SR: PermutateReporter<Allele = G::Allele>,
 > {
-    genotype: G,
-    fitness: F,
+    pub genotype: G,
+    pub fitness: F,
     pub config: PermutateConfig,
     pub state: PermutateState<G::Allele>,
-    reporter: SR,
+    pub reporter: SR,
 }
 
 pub struct PermutateConfig {

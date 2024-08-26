@@ -148,12 +148,12 @@ pub struct HillClimb<
     F: Fitness<Allele = G::Allele>,
     SR: HillClimbReporter<Allele = G::Allele>,
 > {
-    genotype: G,
-    fitness: F,
+    pub genotype: G,
+    pub fitness: F,
     pub config: HillClimbConfig,
     pub state: HillClimbState<G::Allele>,
-    reporter: SR,
-    rng: SmallRng,
+    pub reporter: SR,
+    pub rng: SmallRng,
 }
 
 pub struct HillClimbConfig {
