@@ -29,7 +29,7 @@ use std::fmt;
 
 /// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
 #[impl_for_tuples(1, 12)]
-pub trait Allele: Clone + Copy + Send + Sync + PartialEq + std::fmt::Debug
+pub trait Allele: Clone + Copy + Send + Sync + std::fmt::Debug
 // use rand::distributions::uniform::SampleUniform;
 // + SampleUniform
 // Copy

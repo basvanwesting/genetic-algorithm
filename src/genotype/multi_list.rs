@@ -79,7 +79,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Clone, Debug)]
-pub struct MultiList<T: Allele = DefaultAllele> {
+pub struct MultiList<T: Allele + PartialEq = DefaultAllele> {
     genes_size: usize,
     pub allele_lists: Vec<Vec<T>>,
     gene_index_sampler: WeightedIndex<usize>,
@@ -88,7 +88,7 @@ pub struct MultiList<T: Allele = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: Allele> TryFrom<Builder<Self>> for MultiList<T> {
+impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for MultiList<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -118,7 +118,7 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiList<T> {
     }
 }
 
-impl<T: Allele> Genotype for MultiList<T> {
+impl<T: Allele + PartialEq> Genotype for MultiList<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -162,7 +162,7 @@ impl<T: Allele> Genotype for MultiList<T> {
     }
 }
 
-impl<T: Allele> IncrementalGenotype for MultiList<T> {
+impl<T: Allele + PartialEq> IncrementalGenotype for MultiList<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
         chromosome: &Chromosome<Self::Allele>,
@@ -191,7 +191,7 @@ impl<T: Allele> IncrementalGenotype for MultiList<T> {
     }
 }
 
-impl<T: Allele> PermutableGenotype for MultiList<T> {
+impl<T: Allele + PartialEq> PermutableGenotype for MultiList<T> {
     //noop
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
         vec![]
@@ -215,7 +215,7 @@ impl<T: Allele> PermutableGenotype for MultiList<T> {
     }
 }
 
-impl<T: Allele> fmt::Display for MultiList<T> {
+impl<T: Allele + PartialEq> fmt::Display for MultiList<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
