@@ -21,12 +21,14 @@ pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::Chromosome;
 use crate::population::Population;
+use impl_trait_for_tuples::impl_for_tuples;
 use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
 
 /// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
+#[impl_for_tuples(2, 8)]
 pub trait Allele: Clone + Copy + Send + Sync + PartialEq + std::fmt::Debug
 // use rand::distributions::uniform::SampleUniform;
 // + SampleUniform
