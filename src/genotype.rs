@@ -27,7 +27,7 @@ use rand::Rng;
 use std::fmt;
 
 /// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
-pub trait Allele: Clone + Send + Sync + PartialEq + std::fmt::Debug
+pub trait Allele: Clone + Copy + Send + Sync + PartialEq + std::fmt::Debug
 // use rand::distributions::uniform::SampleUniform;
 // + SampleUniform
 // Copy
@@ -53,7 +53,6 @@ impl Allele for u32 {}
 impl Allele for u64 {}
 impl Allele for u8 {}
 impl Allele for usize {}
-impl Allele for String {}
 
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.

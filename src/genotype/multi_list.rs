@@ -65,7 +65,7 @@ pub type DefaultAllele = usize;
 /// ```
 /// use genetic_algorithm::genotype::{Allele, Genotype, MultiListGenotype};
 ///
-/// #[derive(PartialEq, Clone, Debug)]
+/// #[derive(Clone, Copy, PartialEq, Debug)]
 /// struct Item(pub u16, pub u16);
 /// impl Allele for Item {}
 ///
@@ -129,7 +129,7 @@ impl<T: Allele> Genotype for MultiList<T> {
                 .iter()
                 .enumerate()
                 .map(|(index, allele_list)| {
-                    allele_list[self.allele_index_samplers[index].sample(rng)].clone()
+                    allele_list[self.allele_index_samplers[index].sample(rng)]
                 })
                 .collect()
         } else {
@@ -148,7 +148,7 @@ impl<T: Allele> Genotype for MultiList<T> {
     ) {
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] =
-            self.allele_lists[index][self.allele_index_samplers[index].sample(rng)].clone();
+            self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
         chromosome.taint_fitness_score();
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
@@ -178,7 +178,7 @@ impl<T: Allele> IncrementalGenotype for MultiList<T> {
                             None
                         } else {
                             let mut genes = chromosome.genes.clone();
-                            genes[index] = allele_value.clone();
+                            genes[index] = *allele_value;
                             Some(Chromosome::new(genes))
                         }
                     })

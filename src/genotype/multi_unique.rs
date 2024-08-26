@@ -41,7 +41,7 @@ pub type DefaultAllele = usize;
 /// ```
 /// use genetic_algorithm::genotype::{Allele, Genotype, MultiUniqueGenotype};
 ///
-/// #[derive(Clone, Debug, PartialEq)]
+/// #[derive(Clone, Copy, PartialEq, Debug)]
 /// struct Item(pub u16, pub u16);
 /// impl Allele for Item {}
 ///

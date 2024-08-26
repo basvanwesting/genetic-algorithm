@@ -4,13 +4,13 @@ use std::collections::{HashMap, HashSet};
 type Row = usize;
 type Column = usize;
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub enum Orientation {
     Horizontal,
     Vertical,
 }
 
-#[derive(Clone, Debug, Eq, PartialEq)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq)]
 pub struct WordPosition(pub Row, pub Column, pub Orientation);
 impl Allele for WordPosition {}
 
