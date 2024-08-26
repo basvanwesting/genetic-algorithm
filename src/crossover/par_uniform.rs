@@ -2,24 +2,24 @@ use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
-use rand::Rng;
+use rand::rngs::SmallRng;
+use rand::{Rng, SeedableRng};
+use rayon::prelude::*;
 
-/// Crossover with 50% probability for each gene to come from one of the two parents.
-/// Optionally keep parents around to compete with children later on.
-///
-/// Not allowed for unique genotypes as it would not preserve the gene uniqueness in the children.
+/// Multithreaded version of [super::CrossoverUniform]
+/// Only more efficient for large genes_sizes, so don't just default to this version
 #[derive(Clone, Debug)]
-pub struct Uniform {
+pub struct ParUniform {
     pub keep_parent: bool,
 }
-impl Crossover for Uniform {
+impl Crossover for ParUniform {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G::Allele>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
-        rng: &mut R,
+        _rng: &mut R,
     ) {
         if state.population.size() < 2 {
             return;
@@ -35,18 +35,24 @@ impl Crossover for Uniform {
         state
             .population
             .chromosomes
-            .chunks_mut(2)
-            .for_each(|chunk| {
-                if let [father, mother] = chunk {
-                    for index in &crossover_indexes {
-                        if bool_sampler.sample(rng) {
-                            std::mem::swap(&mut father.genes[*index], &mut mother.genes[*index]);
+            .par_chunks_mut(2)
+            .for_each_init(
+                || SmallRng::from_rng(rand::thread_rng()).unwrap(),
+                |rng, chunk| {
+                    if let [father, mother] = chunk {
+                        for index in &crossover_indexes {
+                            if bool_sampler.sample(rng) {
+                                std::mem::swap(
+                                    &mut father.genes[*index],
+                                    &mut mother.genes[*index],
+                                );
+                            }
                         }
+                        mother.taint_fitness_score();
+                        father.taint_fitness_score();
                     }
-                    mother.taint_fitness_score();
-                    father.taint_fitness_score();
-                }
-            });
+                },
+            );
 
         if self.keep_parent {
             state.population.chromosomes.append(&mut parent_chromosomes);
@@ -60,7 +66,7 @@ impl Crossover for Uniform {
     }
 }
 
-impl Uniform {
+impl ParUniform {
     pub fn new(keep_parent: bool) -> Self {
         Self { keep_parent }
     }

@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::crossover::{Crossover, CrossoverUniform};
+use genetic_algorithm::crossover::{Crossover, CrossoverParUniform};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
@@ -22,17 +22,10 @@ fn population_even() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverParUniform::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
-    assert_eq!(
-        inspect::population(&state.population),
-        vec![
-            vec![false, false, true, false, true],
-            vec![true, true, false, true, false],
-            vec![true, true, false, false, true],
-            vec![false, false, true, true, false],
-        ]
-    )
+    // cannot assert result as parallel execution in combination with randomness is not determinstic. Just assert it doens't panic
+    assert_eq!(state.population.size(), 4);
 }
 
 #[test]
@@ -54,18 +47,10 @@ fn population_odd() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverParUniform::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
-    assert_eq!(
-        inspect::population(&state.population),
-        vec![
-            vec![false, false, true, false, true],
-            vec![true, true, false, true, false],
-            vec![true, true, false, false, true],
-            vec![false, false, true, true, false],
-            vec![true, true, true, true, true],
-        ]
-    )
+    // cannot assert result as parallel execution in combination with randomness is not determinstic. Just assert it doens't panic
+    assert_eq!(state.population.size(), 5);
 }
 
 #[test]
@@ -86,21 +71,10 @@ fn population_even_keep_parent() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverParUniform::new(true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
-    assert_eq!(
-        inspect::population(&state.population),
-        vec![
-            vec![false, false, true, false, true],
-            vec![true, true, false, true, false],
-            vec![true, true, false, false, true],
-            vec![false, false, true, true, false],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-        ]
-    )
+    // cannot assert result as parallel execution in combination with randomness is not determinstic. Just assert it doens't panic
+    assert_eq!(state.population.size(), 8);
 }
 
 #[test]
@@ -122,21 +96,8 @@ fn population_odd_keep_parent() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverParUniform::new(true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
-    assert_eq!(
-        inspect::population(&state.population),
-        vec![
-            vec![false, false, true, false, true],
-            vec![true, true, false, true, false],
-            vec![true, true, false, false, true],
-            vec![false, false, true, true, false],
-            vec![true, true, true, true, true],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-            vec![true, true, true, true, true],
-        ]
-    )
+    // cannot assert result as parallel execution in combination with randomness is not determinstic. Just assert it doens't panic
+    assert_eq!(state.population.size(), 10);
 }

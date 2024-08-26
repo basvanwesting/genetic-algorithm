@@ -1,5 +1,4 @@
 use super::Crossover;
-use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Distribution, Slice};
@@ -28,36 +27,23 @@ impl Crossover for SingleGene {
         }
         let crossover_indexes = genotype.crossover_indexes();
         let crossover_index_sampler = Slice::new(&crossover_indexes).unwrap();
-        if self.keep_parent {
-            let mut child_chromosomes: Vec<Chromosome<G::Allele>> =
-                Vec::with_capacity(state.population.size());
-
-            for chunk in state.population.chromosomes.chunks(2) {
-                if let [father, mother] = chunk {
-                    let mut child_father_genes = father.genes.clone();
-                    let mut child_mother_genes = mother.genes.clone();
-
-                    let index = crossover_index_sampler.sample(rng);
-                    std::mem::swap(
-                        &mut child_father_genes[*index],
-                        &mut child_mother_genes[*index],
-                    );
-
-                    // no need to taint_fitness_score as it is initialized with None
-                    child_chromosomes.push(Chromosome::new(child_father_genes));
-                    child_chromosomes.push(Chromosome::new(child_mother_genes));
-                }
-            }
-            state.population.chromosomes.append(&mut child_chromosomes);
+        let mut parent_chromosomes = if self.keep_parent {
+            state.population.chromosomes.clone()
         } else {
-            for chunk in state.population.chromosomes.chunks_mut(2) {
-                if let [father, mother] = chunk {
-                    let index = crossover_index_sampler.sample(rng);
-                    std::mem::swap(&mut father.genes[*index], &mut mother.genes[*index]);
-                    mother.taint_fitness_score();
-                    father.taint_fitness_score();
-                }
+            vec![] // throwaway to keep compiler happy
+        };
+
+        for chunk in state.population.chromosomes.chunks_mut(2) {
+            if let [father, mother] = chunk {
+                let index = crossover_index_sampler.sample(rng);
+                std::mem::swap(&mut father.genes[*index], &mut mother.genes[*index]);
+                mother.taint_fitness_score();
+                father.taint_fitness_score();
             }
+        }
+
+        if self.keep_parent {
+            state.population.chromosomes.append(&mut parent_chromosomes);
         }
     }
     fn require_crossover_indexes(&self) -> bool {

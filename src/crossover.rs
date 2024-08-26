@@ -4,12 +4,14 @@
 //! children and the population is temporarily overbooked and half of it will be discarded in the
 //! [competition](crate::compete) phase.
 mod clone;
+mod par_uniform;
 mod single_gene;
 mod single_point;
 mod uniform;
 mod wrapper;
 
 pub use self::clone::Clone as CrossoverClone;
+pub use self::par_uniform::ParUniform as CrossoverParUniform;
 pub use self::single_gene::SingleGene as CrossoverSingleGene;
 pub use self::single_point::SinglePoint as CrossoverSinglePoint;
 pub use self::uniform::Uniform as CrossoverUniform;

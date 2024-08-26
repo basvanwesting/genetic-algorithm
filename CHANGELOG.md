@@ -4,39 +4,44 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.9.1] - 2024-08-22
+## [0.10.0] - 2024-08-..
 
 ### Changed
+* Make the randomness provider internal to the API. You no longer need to provide it in the `call()` methods
+* Add `with_rng_seed_from_u64()` functions to `EvolveBuilder` and `HillClimbBuider` for reproducible runs (e.g. testing)
 * Align all multithreading approaches of `Evolve`, `HillClimb` & `Permutate`
   using [rayon::iter](https://docs.rs/rayon/latest/rayon/iter/index.html) and
   [std::sync::mpsc](https://doc.rust-lang.org/1.78.0/std/sync/mpsc/index.html)
 * Distinguish between internal and external multithreading:
-  * Internal multithreading using the `with_par_fitness()` builder step for all strategies
-  * External multithreading using the `call_par_repeatedly()` for the `EvolveBuilder` and `HillClimbBuilder`
-  * External multithreading using the `call_par_speciated()` for the `EvolveBuilder`
+  * Internal multithreading means: parallel execution within an `Evolve`,
+    `HillClimb` or `Permutate` run (mainly `Fitness` calculations)
+  * External multithreading means: parallel execution of multiple independent
+    `Evolve` or `HillClimb` runs.
   * Note that `Permutate` only has internal multithreading as repeated calls make no sense
   * Note that internal and external multithreading can be combined
-  * Note that internal multithreading has been exlored for `Compete`,
+  * Note that internal multithreading has been explored for `Compete`,
     `Crossover` and `Mutate`. But the overhead of parallel execution was too
-    high, resulting in severe degradation of performance. The breakeven point was
-    found only for huge populations or genes_size (1000+), where each gene was part of the
-    calculation (e.g. `CrossoverUniform`). Since `Fitness` is a client
+    high, generally resulting in degradation of performance. The breakeven point was found
+    only for huge populations or genes_sizes, and only where each gene was part
+    of the calculation (e.g. `CrossoverUniform`). Since `Fitness` is a client
     implementation which could be very heavy depending on the domain, an explicit
     `with_par_fitness()` is used for enabling internal multithreading of the
-    fitness calculation only. Future releases might for instance support explicit
-    `with_par_crossover()` for specific use cases.
+    fitness calculation only. Adding `with_par_crossover()` and friends has been
+    considered, but due to the little expected gain, separate implementations
+    where possibly beneficial are added instead (e.g. `CrossoverParUniform`).
+* Rename `with_multithreading` to `with_par_fitness()`, as to properly reflect it's effects only in the fitness calculations (internal multithreading)
 * Require `Send + Sync` to Compete, Crossover, Extension and Mutate
 * Change `chromosome_permutations_into_iter()` return type from `Box<dyn Iterator>` to `impl Iterator`
 * Rename `with_multithreading()` to explicit `with_par_fitness()` for clarity of the effect
 
 ### Added
-* Add `CountTrueWithSleep` fitness placeholder for use in multithreading examples and benchmarking
-* Add `call_par_repeatedly()` and `call_par_speciated()` to `EvolveBuilder`.
-  The provided Rng is ignored and rand::thread_rng() in the parallel runs
-* Add `call_par_repeatedly()` to `HillClimbBuilder`. 
-  The provided Rng is ignored and rand::thread_rng() in the parallel runs
+* Add `call_par_repeatedly()` and `call_par_speciated()` to `EvolveBuilder` (external multithreading)
+* Add `call_par_repeatedly()` to `HillClimbBuilder` (external multithreading)
 * Add short-circuit for `call_speciated()` and `call_par_speciated()` when
   target_fitness_score is reached during speciation
+* Add `CountTrueWithSleep` fitness placeholder for use in multithreading examples and benchmarking
+* Add `CrossoverParUniform` for a multithreaded implemenation of `CrossoverUniform`
+* Add `reference_id: usize` to `Chromosome` for the GPU calculation use case described in [issue 5](https://github.com/basvanwesting/genetic-algorithm/issues/5)
 
 ## [0.9.0] - 2024-08-20
 This is a major breaking release, see Changed:

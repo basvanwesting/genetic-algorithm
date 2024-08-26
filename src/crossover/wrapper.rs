@@ -1,4 +1,5 @@
 pub use super::clone::Clone as CrossoverClone;
+pub use super::par_uniform::ParUniform as CrossoverParUniform;
 pub use super::single_gene::SingleGene as CrossoverSingleGene;
 pub use super::single_point::SinglePoint as CrossoverSinglePoint;
 pub use super::uniform::Uniform as CrossoverUniform;
@@ -14,6 +15,7 @@ pub enum Wrapper {
     SingleGene(CrossoverSingleGene),
     SinglePoint(CrossoverSinglePoint),
     Uniform(CrossoverUniform),
+    ParUniform(CrossoverParUniform),
 }
 
 impl Crossover for Wrapper {
@@ -34,6 +36,9 @@ impl Crossover for Wrapper {
                 crossover.call(genotype, state, config, reporter, rng)
             }
             Wrapper::Uniform(crossover) => crossover.call(genotype, state, config, reporter, rng),
+            Wrapper::ParUniform(crossover) => {
+                crossover.call(genotype, state, config, reporter, rng)
+            }
         }
     }
 
@@ -45,6 +50,7 @@ impl Crossover for Wrapper {
             Wrapper::SingleGene(crossover) => crossover.require_crossover_indexes(),
             Wrapper::SinglePoint(crossover) => crossover.require_crossover_indexes(),
             Wrapper::Uniform(crossover) => crossover.require_crossover_indexes(),
+            Wrapper::ParUniform(crossover) => crossover.require_crossover_indexes(),
         }
     }
     /// to guard against invalid Crossover strategies which break the internal consistency
@@ -55,6 +61,7 @@ impl Crossover for Wrapper {
             Wrapper::SingleGene(crossover) => crossover.require_crossover_points(),
             Wrapper::SinglePoint(crossover) => crossover.require_crossover_points(),
             Wrapper::Uniform(crossover) => crossover.require_crossover_points(),
+            Wrapper::ParUniform(crossover) => crossover.require_crossover_points(),
         }
     }
 }
@@ -77,5 +84,10 @@ impl From<CrossoverSinglePoint> for Wrapper {
 impl From<CrossoverUniform> for Wrapper {
     fn from(crossover: CrossoverUniform) -> Self {
         Wrapper::Uniform(crossover)
+    }
+}
+impl From<CrossoverParUniform> for Wrapper {
+    fn from(crossover: CrossoverParUniform) -> Self {
+        Wrapper::ParUniform(crossover)
     }
 }

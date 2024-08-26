@@ -31,18 +31,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::from_entropy();
     let population_size: usize = 1000;
-    let genes_sizes = vec![10, 100, 1000, 10000];
-
-    let crossovers: Vec<CrossoverWrapper> = vec![
-        CrossoverSingleGene::new(true).into(),
-        CrossoverSingleGene::new(false).into(),
-        CrossoverUniform::new(true).into(),
-        CrossoverUniform::new(false).into(),
-        CrossoverSinglePoint::new(true).into(),
-        CrossoverSinglePoint::new(false).into(),
-        CrossoverClone::new(true).into(),
-        //CrossoverClone::new(false).into(), //noop
-    ];
+    let genes_sizes = vec![10, 100];
 
     let mut group = c.benchmark_group(format!("crossovers-pop{}", population_size));
     //group.warm_up_time(Duration::from_secs(3));
@@ -50,8 +39,20 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    for mut crossover in crossovers {
-        for genes_size in &genes_sizes {
+    for genes_size in &genes_sizes {
+        let crossovers: Vec<CrossoverWrapper> = vec![
+            // CrossoverSingleGene::new(true).into(),
+            // CrossoverSingleGene::new(false).into(),
+            CrossoverUniform::new(true).into(),
+            CrossoverParUniform::new(true).into(),
+            CrossoverUniform::new(false).into(),
+            CrossoverParUniform::new(false).into(),
+            // CrossoverSinglePoint::new(true).into(),
+            // CrossoverSinglePoint::new(false).into(),
+            // CrossoverClone::new(true).into(),
+            //CrossoverClone::new(false).into(), //noop
+        ];
+        for mut crossover in crossovers {
             group.throughput(Throughput::Elements(population_size as u64));
             let (genotype, state) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
