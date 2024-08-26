@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.1] - 2024-08-26
+
+### Added
+* Implement Allele trait for tuple sizes 1 to 12 using impl-trait-for-tuples,
+  as 12 is the limit for PartialEq in tuples
+
 ## [0.10.0] - 2024-08-26
 
 ### Changed
