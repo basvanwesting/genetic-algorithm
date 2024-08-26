@@ -141,7 +141,7 @@ fn call_binary_max_stale_generations_minimize() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
-        .with_rng_seed_from_u64(0)
+        .with_rng_seed_from_u64_option(Some(0))
         .call()
         .unwrap();
 

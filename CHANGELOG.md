@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.2] - 2024-08-26
+
+### Added
+* Add `with_rng_seed_from_u64_option()` function to `EvolveBuilder` and `HillClimbBuider` for more flexible API
+
 ## [0.10.1] - 2024-08-26
 
 ### Changed
