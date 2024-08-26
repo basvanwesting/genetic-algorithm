@@ -140,7 +140,6 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 * Default max_stale_generations to 1 for SteepestAscent
 * Target cardinality range for Mutate Dynamic to avoid constant switching
 * Store samplers on mutate etc. Just like genotype?
-* Make fitness immutable? LRU cache would no longer be possible directly, but it is a bad idea anyway
 * Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
 
 ## ISSUES
