@@ -18,9 +18,13 @@ pub struct Chromosome<T: Allele> {
     pub genes: Vec<T>,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
+
+    /// User controlled alternative to `genes_key()`, set manually in
+    /// custom [Fitness](crate::fitness::Fitness) implementation. Defaults to 0
+    pub reference_id: usize,
 }
 
-// Cannot Hash floats
+/// Cannot Hash floats
 impl<T: Allele> Chromosome<T>
 where
     T: Hash,
@@ -38,6 +42,7 @@ impl<T: Allele> Chromosome<T> {
             genes,
             fitness_score: None,
             age: 0,
+            reference_id: 0,
         }
     }
 

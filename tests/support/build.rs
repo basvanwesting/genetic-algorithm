@@ -17,6 +17,7 @@ pub fn chromosome_with_fitness_score<T: Allele>(
         genes,
         fitness_score,
         age: 0,
+        reference_id: 0,
     }
 }
 
