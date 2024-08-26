@@ -4,7 +4,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-## [0.10.0] - 2024-08-..
+## [0.10.0] - 2024-08-26
 
 ### Changed
 * Add Copy to Allele trait, this drops support for String Alleles, but is fine for primitives, enum and structs
