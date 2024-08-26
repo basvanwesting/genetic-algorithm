@@ -7,6 +7,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.10.0] - 2024-08-..
 
 ### Changed
+* Add Copy to Allele trait, this drops support for String Alleles, but is fine for primitives, enum and structs
 * Make the randomness provider internal to the API. You no longer need to provide it in the `call()` methods
 * Add `with_rng_seed_from_u64()` functions to `EvolveBuilder` and `HillClimbBuider` for reproducible runs (e.g. testing)
 * Align all multithreading approaches of `Evolve`, `HillClimb` & `Permutate`
@@ -41,7 +42,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   target_fitness_score is reached during speciation
 * Add `CountTrueWithSleep` fitness placeholder for use in multithreading examples and benchmarking
 * Add `CrossoverParUniform` for a multithreaded implemenation of `CrossoverUniform`
-* Add `reference_id: usize` to `Chromosome` for the GPU calculation use case described in [issue 5](https://github.com/basvanwesting/genetic-algorithm/issues/5)
+* Add `reference_id: usize` to `Chromosome` as user controlled alternative to
+  `genes_key()` for the GPU calculation use case described in [issue 5](https://github.com/basvanwesting/genetic-algorithm/issues/5)
 
 ## [0.9.0] - 2024-08-20
 This is a major breaking release, see Changed:
