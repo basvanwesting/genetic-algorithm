@@ -2,7 +2,7 @@ use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
-use num::{BigUint, Zero};
+use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::prelude::*;
@@ -48,9 +48,8 @@ pub type DefaultAllele = f32;
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct Range<
-    T: Allele + Default + Zero + Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
-> where
+pub struct Range<T: Allele + Default + Add<Output = T> + std::cmp::PartialOrd = DefaultAllele>
+where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
@@ -65,7 +64,7 @@ pub struct Range<
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: Allele + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> TryFrom<Builder<Self>>
+impl<T: Allele + Default + Add<Output = T> + std::cmp::PartialOrd> TryFrom<Builder<Self>>
     for Range<T>
 where
     T: SampleUniform,
@@ -99,7 +98,7 @@ where
     }
 }
 
-impl<T: Allele + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Range<T>
+impl<T: Allele + Default + Add<Output = T> + std::cmp::PartialOrd> Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -147,7 +146,7 @@ where
     }
 }
 
-impl<T: Allele + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Genotype for Range<T>
+impl<T: Allele + Default + Add<Output = T> + std::cmp::PartialOrd> Genotype for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -198,8 +197,7 @@ where
     }
 }
 
-impl<T: Allele + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> IncrementalGenotype
-    for Range<T>
+impl<T: Allele + Default + Add<Output = T> + std::cmp::PartialOrd> IncrementalGenotype for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -308,7 +306,7 @@ where
     }
 }
 
-impl<T: Allele + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> Clone for Range<T>
+impl<T: Allele + Default + Add<Output = T> + std::cmp::PartialOrd> Clone for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -331,7 +329,7 @@ where
     }
 }
 
-impl<T: Allele + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> fmt::Debug for Range<T>
+impl<T: Allele + Default + Add<Output = T> + std::cmp::PartialOrd> fmt::Debug for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -347,7 +345,7 @@ where
     }
 }
 
-impl<T: Allele + Default + Zero + Add<Output = T> + std::cmp::PartialOrd> fmt::Display for Range<T>
+impl<T: Allele + Default + Add<Output = T> + std::cmp::PartialOrd> fmt::Display for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
