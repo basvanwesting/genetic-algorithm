@@ -145,6 +145,10 @@ impl<
         self.rng_seed = Some(rng_seed);
         self
     }
+    pub fn with_rng_seed_from_u64_option(mut self, rng_seed_option: Option<u64>) -> Self {
+        self.rng_seed = rng_seed_option;
+        self
+    }
 }
 
 impl<
