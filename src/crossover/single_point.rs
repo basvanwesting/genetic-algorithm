@@ -32,7 +32,7 @@ impl Crossover for SinglePoint {
 
         for chunk in state.population.chromosomes.chunks_mut(2) {
             if let [father, mother] = chunk {
-                genotype.crossover_chromosome_pair_point(father, mother, rng);
+                genotype.crossover_chromosome_pair_single_point(father, mother, rng);
             }
         }
 

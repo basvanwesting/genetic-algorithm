@@ -28,7 +28,7 @@ fn mutate_chomosome() {
 }
 
 #[test]
-fn crossover_chromosome_pair_gene() {
+fn crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![
@@ -43,13 +43,13 @@ fn crossover_chromosome_pair_gene() {
     assert_eq!(genotype.crossover_indexes(), (0..4).collect::<Vec<_>>());
     let mut father = build::chromosome(vec![0, 1, 2, 4]);
     let mut mother = build::chromosome(vec![3, 0, 1, 6]);
-    genotype.crossover_chromosome_pair_gene(&mut father, &mut mother, rng);
+    genotype.crossover_chromosome_pair_single_gene(&mut father, &mut mother, rng);
     assert_eq!(inspect::chromosome(&father), vec![0, 0, 2, 4]);
     assert_eq!(inspect::chromosome(&mother), vec![3, 1, 1, 6]);
 }
 
 #[test]
-fn crossover_chromosome_pair_point() {
+fn crossover_chromosome_pair_single_point() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![
@@ -64,7 +64,7 @@ fn crossover_chromosome_pair_point() {
     assert_eq!(genotype.crossover_points(), (0..4).collect::<Vec<_>>());
     let mut father = build::chromosome(vec![0, 1, 2, 4]);
     let mut mother = build::chromosome(vec![3, 0, 1, 6]);
-    genotype.crossover_chromosome_pair_point(&mut father, &mut mother, rng);
+    genotype.crossover_chromosome_pair_single_point(&mut father, &mut mother, rng);
     assert_eq!(inspect::chromosome(&father), vec![0, 0, 1, 6]);
     assert_eq!(inspect::chromosome(&mother), vec![3, 1, 2, 4]);
 }

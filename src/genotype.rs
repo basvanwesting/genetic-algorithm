@@ -79,7 +79,7 @@ pub trait Genotype:
 
     /// a crossover of a single gene between a pair of chromosomes
     /// panics if there are no valid crossover indexes
-    fn crossover_chromosome_pair_gene<R: Rng>(
+    fn crossover_chromosome_pair_single_gene<R: Rng>(
         &self,
         father: &mut Chromosome<Self::Allele>,
         mother: &mut Chromosome<Self::Allele>,
@@ -92,7 +92,7 @@ pub trait Genotype:
     }
     /// a crossover of a single point between a pair of chromosomes
     /// panics if there are no valid crossover points
-    fn crossover_chromosome_pair_point<R: Rng>(
+    fn crossover_chromosome_pair_single_point<R: Rng>(
         &self,
         father: &mut Chromosome<Self::Allele>,
         mother: &mut Chromosome<Self::Allele>,

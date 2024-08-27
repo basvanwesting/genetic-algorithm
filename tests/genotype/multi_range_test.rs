@@ -93,7 +93,7 @@ fn float_mutate_chromosome_scaled() {
 }
 
 #[test]
-fn float_crossover_chromosome_pair_gene() {
+fn float_crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -103,13 +103,13 @@ fn float_crossover_chromosome_pair_gene() {
     assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
     let mut father = build::chromosome(vec![0.1, 1.1, 10.1]);
     let mut mother = build::chromosome(vec![0.9, 3.9, 18.9]);
-    genotype.crossover_chromosome_pair_gene(&mut father, &mut mother, rng);
+    genotype.crossover_chromosome_pair_single_gene(&mut father, &mut mother, rng);
     assert_eq!(inspect::chromosome(&father), vec![0.1, 3.9, 10.1]);
     assert_eq!(inspect::chromosome(&mother), vec![0.9, 1.1, 18.9]);
 }
 
 #[test]
-fn float_crossover_chromosome_pair_point() {
+fn float_crossover_chromosome_pair_single_point() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -119,7 +119,7 @@ fn float_crossover_chromosome_pair_point() {
     assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<_>>());
     let mut father = build::chromosome(vec![0.1, 1.1, 10.1]);
     let mut mother = build::chromosome(vec![0.9, 3.9, 18.9]);
-    genotype.crossover_chromosome_pair_point(&mut father, &mut mother, rng);
+    genotype.crossover_chromosome_pair_single_point(&mut father, &mut mother, rng);
     assert_eq!(inspect::chromosome(&father), vec![0.1, 3.9, 18.9]);
     assert_eq!(inspect::chromosome(&mother), vec![0.9, 1.1, 10.1]);
 }

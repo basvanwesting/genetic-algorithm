@@ -152,7 +152,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
-    fn crossover_chromosome_pair_point<R: Rng>(
+    fn crossover_chromosome_pair_single_point<R: Rng>(
         &self,
         father: &mut Chromosome<Self::Allele>,
         mother: &mut Chromosome<Self::Allele>,
