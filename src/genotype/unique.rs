@@ -76,14 +76,6 @@ impl<T: Allele> Genotype for Unique<T> {
     fn genes_size(&self) -> usize {
         self.allele_list.len()
     }
-    ///unique genotypes can't simply exchange genes without gene duplication issues
-    fn crossover_points(&self) -> Vec<usize> {
-        vec![]
-    }
-    ///unique genotypes can't simply exchange genes without gene duplication issues
-    fn crossover_indexes(&self) -> Vec<usize> {
-        vec![]
-    }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
         if self.seed_genes_list.is_empty() {
             let mut genes = self.allele_list.clone();

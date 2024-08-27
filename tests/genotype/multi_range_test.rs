@@ -100,7 +100,6 @@ fn float_crossover_chromosome_pair_single_gene() {
         .build()
         .unwrap();
 
-    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
     let mut father = build::chromosome(vec![0.1, 1.1, 10.1]);
     let mut mother = build::chromosome(vec![0.9, 3.9, 18.9]);
     genotype.crossover_chromosome_pair_single_gene(&mut father, &mut mother, rng);
@@ -116,7 +115,6 @@ fn float_crossover_chromosome_pair_single_point() {
         .build()
         .unwrap();
 
-    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<_>>());
     let mut father = build::chromosome(vec![0.1, 1.1, 10.1]);
     let mut mother = build::chromosome(vec![0.9, 3.9, 18.9]);
     genotype.crossover_chromosome_pair_single_point(&mut father, &mut mother, rng);
@@ -251,9 +249,6 @@ fn integer_mutate_chromosome_random() {
 
     genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 20]);
-
-    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
-    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<_>>());
 }
 
 #[test]
@@ -270,9 +265,6 @@ fn integer_mutate_chromosome_relative() {
 
     genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 20]);
-
-    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
-    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<_>>());
 }
 
 #[test]

@@ -31,7 +31,6 @@ fn crossover_chromosome_pair_single_gene() {
         .build()
         .unwrap();
 
-    assert_eq!(genotype.crossover_indexes(), vec![]);
     let mut father = build::chromosome(vec![2, 3, 4, 5]);
     let mut mother = build::chromosome(vec![5, 4, 3, 2]);
     genotype.crossover_chromosome_pair_single_gene(&mut father, &mut mother, rng);
@@ -46,7 +45,6 @@ fn crossover_chromosome_pair_single_point() {
         .build()
         .unwrap();
 
-    assert_eq!(genotype.crossover_points(), vec![]);
     let mut father = build::chromosome(vec![2, 3, 4, 5]);
     let mut mother = build::chromosome(vec![5, 4, 3, 2]);
     genotype.crossover_chromosome_pair_single_point(&mut father, &mut mother, rng);

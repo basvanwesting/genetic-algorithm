@@ -189,13 +189,6 @@ impl<T: Allele> Genotype for MultiUnique<T> {
     fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
         self.crossover_point_sampler.as_ref()
     }
-    fn crossover_points(&self) -> Vec<usize> {
-        self.crossover_points.clone()
-    }
-    ///unique genotypes can't simply exchange genes without gene duplication issues
-    fn crossover_indexes(&self) -> Vec<usize> {
-        vec![]
-    }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
         self.seed_genes_list = seed_genes_list;
     }

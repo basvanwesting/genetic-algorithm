@@ -35,7 +35,6 @@ fn crossover_chromosome_pair_single_gene() {
         .build()
         .unwrap();
 
-    assert_eq!(genotype.crossover_indexes(), (0..10).collect::<Vec<_>>());
     let mut father = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
     let mut mother = build::chromosome(vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]);
     genotype.crossover_chromosome_pair_single_gene(&mut father, &mut mother, rng);
@@ -58,7 +57,6 @@ fn crossover_chromosome_pair_single_point() {
         .build()
         .unwrap();
 
-    assert_eq!(genotype.crossover_points(), (0..10).collect::<Vec<_>>());
     let mut father = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
     let mut mother = build::chromosome(vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]);
     genotype.crossover_chromosome_pair_single_point(&mut father, &mut mother, rng);
@@ -102,9 +100,6 @@ fn float_mutate_chomosome_relative() {
         vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.499, 0.456, 0.395, 0.818],
         0.001,
     ));
-
-    assert_eq!(genotype.crossover_indexes(), (0..10).collect::<Vec<_>>());
-    assert_eq!(genotype.crossover_points(), (0..10).collect::<Vec<_>>());
 }
 
 #[test]
@@ -137,9 +132,6 @@ fn float_mutate_chomosome_scaled() {
         vec![0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.578, 0.456, 0.395, 0.818],
         0.001,
     ));
-
-    assert_eq!(genotype.crossover_indexes(), (0..10).collect::<Vec<_>>());
-    assert_eq!(genotype.crossover_points(), (0..10).collect::<Vec<_>>());
 }
 
 #[test]
@@ -330,9 +322,6 @@ fn integer_mutate_chomosome_random() {
         inspect::chromosome(&chromosome),
         vec![4, 4, 9, 4, 8, 9, 0, 4, 3, 8],
     );
-
-    assert_eq!(genotype.crossover_indexes(), (0..10).collect::<Vec<_>>());
-    assert_eq!(genotype.crossover_points(), (0..10).collect::<Vec<_>>());
 }
 
 #[test]
@@ -357,9 +346,6 @@ fn integer_mutate_chomosome_relative() {
         inspect::chromosome(&chromosome),
         vec![4, 4, 9, 4, 8, 9, 4, 4, 3, 8],
     );
-
-    assert_eq!(genotype.crossover_indexes(), (0..10).collect::<Vec<_>>());
-    assert_eq!(genotype.crossover_points(), (0..10).collect::<Vec<_>>());
 }
 
 #[test]

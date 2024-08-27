@@ -153,17 +153,6 @@ pub trait Genotype:
     fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
         None
     }
-
-    /// to guard against invalid crossover strategies which break the internal consistency
-    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn crossover_points(&self) -> Vec<usize> {
-        (0..self.genes_size()).collect()
-    }
-    /// to guard against invalid crossover strategies which break the internal consistency
-    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn crossover_indexes(&self) -> Vec<usize> {
-        (0..self.genes_size()).collect()
-    }
     fn builder() -> GenotypeBuilder<Self> {
         GenotypeBuilder::<Self>::default()
     }
