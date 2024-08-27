@@ -3,17 +3,18 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
-/// Crossover a single gene position from which on the rest of the genes are taken from the
-/// other parent. The gene position is chosen with uniform probability. Optionally keep parents
-/// around to compete with children later on.
+/// Crossover multiple genes between the parents. The gene positions are chosen with uniform
+/// probability. Optionally keep parents around to compete with children later on.
 ///
-/// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) as it would not preserve the gene uniqueness in the children.
-/// Allowed for [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as there are valid crossover points between each new set
+/// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
+/// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
+/// uniqueness in the children.
 #[derive(Clone, Debug)]
-pub struct SinglePoint {
+pub struct MultiGene {
+    pub number_of_crossovers: usize,
     pub keep_parent: bool,
 }
-impl Crossover for SinglePoint {
+impl Crossover for MultiGene {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
@@ -33,7 +34,12 @@ impl Crossover for SinglePoint {
 
         for chunk in state.population.chromosomes.chunks_mut(2) {
             if let [father, mother] = chunk {
-                genotype.crossover_chromosome_pair_single_point(father, mother, rng);
+                genotype.crossover_chromosome_pair_multi_gene(
+                    self.number_of_crossovers,
+                    father,
+                    mother,
+                    rng,
+                );
             }
         }
 
@@ -42,15 +48,18 @@ impl Crossover for SinglePoint {
         }
     }
     fn require_crossover_indexes(&self) -> bool {
-        false
+        true
     }
     fn require_crossover_points(&self) -> bool {
-        true
+        false
     }
 }
 
-impl SinglePoint {
-    pub fn new(keep_parent: bool) -> Self {
-        Self { keep_parent }
+impl MultiGene {
+    pub fn new(number_of_crossovers: usize, keep_parent: bool) -> Self {
+        Self {
+            number_of_crossovers,
+            keep_parent,
+        }
     }
 }

@@ -3,11 +3,12 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
-/// Crossover starting with clones of the parents, with a single gene taken from the other parent.
-/// The single gene is chosen with uniform probability.
-/// Optionally keep parents around to compete with children later on.
+/// Crossover a single gene between the parents. The gene position is chosen with uniform
+/// probability. Optionally keep parents around to compete with children later on.
 ///
-/// Not allowed for unique genotypes as it would not preserve the gene uniqueness in the children.
+/// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
+/// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
+/// uniqueness in the children.
 #[derive(Clone, Debug)]
 pub struct SingleGene {
     pub keep_parent: bool,
