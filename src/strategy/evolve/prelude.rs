@@ -5,8 +5,7 @@ pub use crate::compete::{CompeteElite, CompeteTournament, CompeteWrapper};
 #[doc(no_inline)]
 pub use crate::crossover::{
     CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverParMultiPoint,
-    CrossoverParUniform, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
-    CrossoverWrapper,
+    CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform, CrossoverWrapper,
 };
 #[doc(no_inline)]
 pub use crate::extension::{
