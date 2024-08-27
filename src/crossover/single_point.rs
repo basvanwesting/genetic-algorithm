@@ -1,7 +1,6 @@
 use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use rand::distributions::{Distribution, Slice};
 use rand::Rng;
 
 /// Crossover with a single gene position from which on the rest of the genes are taken from the
@@ -25,9 +24,6 @@ impl Crossover for SinglePoint {
         if state.population.size() < 2 {
             return;
         }
-
-        let crossover_points = genotype.crossover_points();
-        let crossover_point_sampler = Slice::new(&crossover_points).unwrap();
         let mut parent_chromosomes = if self.keep_parent {
             state.population.chromosomes.clone()
         } else {
@@ -36,15 +32,7 @@ impl Crossover for SinglePoint {
 
         for chunk in state.population.chromosomes.chunks_mut(2) {
             if let [father, mother] = chunk {
-                let index = crossover_point_sampler.sample(rng);
-
-                let mut father_genes_split = father.genes.split_off(*index);
-                let mut mother_genes_split = mother.genes.split_off(*index);
-                father.genes.append(&mut mother_genes_split);
-                mother.genes.append(&mut father_genes_split);
-
-                mother.taint_fitness_score();
-                father.taint_fitness_score();
+                genotype.crossover_chromosome_pair_point(father, mother, rng);
             }
         }
 

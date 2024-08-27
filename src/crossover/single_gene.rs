@@ -1,7 +1,6 @@
 use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use rand::distributions::{Distribution, Slice};
 use rand::Rng;
 
 /// Crossover starting with clones of the parents, with a single gene taken from the other parent.
@@ -25,8 +24,6 @@ impl Crossover for SingleGene {
         if state.population.size() < 2 {
             return;
         }
-        let crossover_indexes = genotype.crossover_indexes();
-        let crossover_index_sampler = Slice::new(&crossover_indexes).unwrap();
         let mut parent_chromosomes = if self.keep_parent {
             state.population.chromosomes.clone()
         } else {
@@ -35,10 +32,7 @@ impl Crossover for SingleGene {
 
         for chunk in state.population.chromosomes.chunks_mut(2) {
             if let [father, mother] = chunk {
-                let index = crossover_index_sampler.sample(rng);
-                std::mem::swap(&mut father.genes[*index], &mut mother.genes[*index]);
-                mother.taint_fitness_score();
-                father.taint_fitness_score();
+                genotype.crossover_chromosome_pair_gene(father, mother, rng);
             }
         }
 
