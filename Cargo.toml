@@ -37,8 +37,8 @@ env_logger = "0.11.3"
 approx = "0.5.1"
 
 # for profiling and flamegraph
-#[profile.release]
-#debug = 1
+# [profile.release]
+# debug = 1
 
 [[bench]]
 name = "fitness"

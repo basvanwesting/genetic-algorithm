@@ -123,9 +123,15 @@ Implemented using criterion. Run benchmarks with `cargo bench`
 ## Profiling
 Implemented using criterion and pprof.
 
-Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
+Uncomment in Cargo.toml
+```
+[profile.release]
+debug = 1
+``````
 
 Run with `cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
+
+Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
 
 ## TODO
 * Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
