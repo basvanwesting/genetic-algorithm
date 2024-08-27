@@ -7,15 +7,15 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 #[test]
 fn population_even() {
     let genotype = BinaryGenotype::builder()
-        .with_genes_size(5)
+        .with_genes_size(10)
         .build()
         .unwrap();
 
     let population = build::population(vec![
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
+        vec![true; 10],
+        vec![false; 10],
+        vec![true; 10],
+        vec![false; 10],
     ]);
 
     let mut state = EvolveState::new(&genotype, population);
@@ -27,10 +27,10 @@ fn population_even() {
     assert_eq!(
         inspect::population(&state.population),
         vec![
-            vec![false, false, true, false, true],
-            vec![true, true, false, true, false],
-            vec![true, true, false, false, true],
-            vec![false, false, true, true, false],
+            vec![true, true, true, true, false, true, true, true, false, false],
+            vec![false, false, false, false, true, false, false, false, true, true],
+            vec![true, true, true, false, false, false, true, true, false, false],
+            vec![false, false, false, true, true, true, false, false, true, true],
         ]
     )
 }
@@ -38,16 +38,16 @@ fn population_even() {
 #[test]
 fn population_odd() {
     let genotype = BinaryGenotype::builder()
-        .with_genes_size(5)
+        .with_genes_size(10)
         .build()
         .unwrap();
 
     let population = build::population(vec![
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
-        vec![true, true, true, true, true],
+        vec![true; 10],
+        vec![false; 10],
+        vec![true; 10],
+        vec![false; 10],
+        vec![true; 10],
     ]);
 
     let mut state = EvolveState::new(&genotype, population);
@@ -59,84 +59,11 @@ fn population_odd() {
     assert_eq!(
         inspect::population(&state.population),
         vec![
-            vec![false, false, true, false, true],
-            vec![true, true, false, true, false],
-            vec![true, true, false, false, true],
-            vec![false, false, true, true, false],
-            vec![true, true, true, true, true],
-        ]
-    )
-}
-
-#[test]
-fn population_even_keep_parent() {
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(5)
-        .build()
-        .unwrap();
-
-    let population = build::population(vec![
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
-    ]);
-
-    let mut state = EvolveState::new(&genotype, population);
-    let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
-    let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-
-    assert_eq!(
-        inspect::population(&state.population),
-        vec![
-            vec![false, false, true, false, true],
-            vec![true, true, false, true, false],
-            vec![true, true, false, false, true],
-            vec![false, false, true, true, false],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-        ]
-    )
-}
-
-#[test]
-fn population_odd_keep_parent() {
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(5)
-        .build()
-        .unwrap();
-
-    let population = build::population(vec![
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
-        vec![true, true, true, true, true],
-    ]);
-
-    let mut state = EvolveState::new(&genotype, population);
-    let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
-    let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-
-    assert_eq!(
-        inspect::population(&state.population),
-        vec![
-            vec![false, false, true, false, true],
-            vec![true, true, false, true, false],
-            vec![true, true, false, false, true],
-            vec![false, false, true, true, false],
-            vec![true, true, true, true, true],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-            vec![true, true, true, true, true],
+            vec![true, true, true, true, false, true, true, true, false, false],
+            vec![false, false, false, false, true, false, false, false, true, true],
+            vec![true, true, true, false, false, false, true, true, false, false],
+            vec![false, false, false, true, true, true, false, false, true, true],
+            vec![true; 10],
         ]
     )
 }

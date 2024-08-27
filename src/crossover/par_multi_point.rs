@@ -5,17 +5,18 @@ use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
 use rayon::prelude::*;
 
-/// Multithreaded version of [super::CrossoverUniform]
-/// Only more efficient for large genes_sizes, so don't just default to this version. It is more fo
-/// an implementation example
+/// Multithreaded version of [CrossoverMultiPoint](super::CrossoverMultiPoint) as it is the worst
+/// performing crossover. Only more efficient for large genes_sizes and number_of_crossovers, so
+/// don't just default to this version. It is more of an implementation example.
 ///
-/// Actually implemented as `CrossoverMultiGene::new(<genes_size> / 2, keep_parent)` with parallel
-/// iterator
+/// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) as it would not preserve the gene uniqueness in the children.
+/// Allowed for [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as there are valid crossover points between each new set
 #[derive(Clone, Debug)]
-pub struct ParUniform {
+pub struct ParMultiPoint {
+    pub number_of_crossovers: usize,
     pub keep_parent: bool,
 }
-impl Crossover for ParUniform {
+impl Crossover for ParMultiPoint {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
         &mut self,
         genotype: &G,
@@ -33,7 +34,6 @@ impl Crossover for ParUniform {
             vec![] // throwaway to keep compiler happy
         };
 
-        let number_of_crossovers = genotype.genes_size() / 2;
         state
             .population
             .chromosomes
@@ -42,8 +42,8 @@ impl Crossover for ParUniform {
                 || SmallRng::from_rng(rand::thread_rng()).unwrap(),
                 |rng, chunk| {
                     if let [father, mother] = chunk {
-                        genotype.crossover_chromosome_pair_multi_gene(
-                            number_of_crossovers,
+                        genotype.crossover_chromosome_pair_multi_point(
+                            self.number_of_crossovers,
                             father,
                             mother,
                             rng,
@@ -57,15 +57,18 @@ impl Crossover for ParUniform {
         }
     }
     fn require_crossover_indexes(&self) -> bool {
-        true
+        false
     }
     fn require_crossover_points(&self) -> bool {
-        false
+        true
     }
 }
 
-impl ParUniform {
-    pub fn new(keep_parent: bool) -> Self {
-        Self { keep_parent }
+impl ParMultiPoint {
+    pub fn new(number_of_crossovers: usize, keep_parent: bool) -> Self {
+        Self {
+            number_of_crossovers,
+            keep_parent,
+        }
     }
 }

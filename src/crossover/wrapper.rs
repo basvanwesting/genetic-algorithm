@@ -1,6 +1,7 @@
 pub use super::clone::Clone as CrossoverClone;
 pub use super::multi_gene::MultiGene as CrossoverMultiGene;
 pub use super::multi_point::MultiPoint as CrossoverMultiPoint;
+pub use super::par_multi_point::ParMultiPoint as CrossoverParMultiPoint;
 pub use super::par_uniform::ParUniform as CrossoverParUniform;
 pub use super::single_gene::SingleGene as CrossoverSingleGene;
 pub use super::single_point::SinglePoint as CrossoverSinglePoint;
@@ -18,6 +19,7 @@ pub enum Wrapper {
     SinglePoint(CrossoverSinglePoint),
     MultiGene(CrossoverMultiGene),
     MultiPoint(CrossoverMultiPoint),
+    ParMultiPoint(CrossoverParMultiPoint),
     Uniform(CrossoverUniform),
     ParUniform(CrossoverParUniform),
 }
@@ -43,6 +45,9 @@ impl Crossover for Wrapper {
             Wrapper::MultiPoint(crossover) => {
                 crossover.call(genotype, state, config, reporter, rng)
             }
+            Wrapper::ParMultiPoint(crossover) => {
+                crossover.call(genotype, state, config, reporter, rng)
+            }
             Wrapper::Uniform(crossover) => crossover.call(genotype, state, config, reporter, rng),
             Wrapper::ParUniform(crossover) => {
                 crossover.call(genotype, state, config, reporter, rng)
@@ -59,6 +64,7 @@ impl Crossover for Wrapper {
             Wrapper::SinglePoint(crossover) => crossover.require_crossover_indexes(),
             Wrapper::MultiGene(crossover) => crossover.require_crossover_indexes(),
             Wrapper::MultiPoint(crossover) => crossover.require_crossover_indexes(),
+            Wrapper::ParMultiPoint(crossover) => crossover.require_crossover_indexes(),
             Wrapper::Uniform(crossover) => crossover.require_crossover_indexes(),
             Wrapper::ParUniform(crossover) => crossover.require_crossover_indexes(),
         }
@@ -72,6 +78,7 @@ impl Crossover for Wrapper {
             Wrapper::SinglePoint(crossover) => crossover.require_crossover_points(),
             Wrapper::MultiGene(crossover) => crossover.require_crossover_points(),
             Wrapper::MultiPoint(crossover) => crossover.require_crossover_points(),
+            Wrapper::ParMultiPoint(crossover) => crossover.require_crossover_points(),
             Wrapper::Uniform(crossover) => crossover.require_crossover_points(),
             Wrapper::ParUniform(crossover) => crossover.require_crossover_points(),
         }
@@ -91,6 +98,21 @@ impl From<CrossoverSingleGene> for Wrapper {
 impl From<CrossoverSinglePoint> for Wrapper {
     fn from(crossover: CrossoverSinglePoint) -> Self {
         Wrapper::SinglePoint(crossover)
+    }
+}
+impl From<CrossoverMultiGene> for Wrapper {
+    fn from(crossover: CrossoverMultiGene) -> Self {
+        Wrapper::MultiGene(crossover)
+    }
+}
+impl From<CrossoverMultiPoint> for Wrapper {
+    fn from(crossover: CrossoverMultiPoint) -> Self {
+        Wrapper::MultiPoint(crossover)
+    }
+}
+impl From<CrossoverParMultiPoint> for Wrapper {
+    fn from(crossover: CrossoverParMultiPoint) -> Self {
+        Wrapper::ParMultiPoint(crossover)
     }
 }
 impl From<CrossoverUniform> for Wrapper {

@@ -3,9 +3,14 @@
 //! fitter first). If you choose to keep the parents, the parents will compete with their own
 //! children and the population is temporarily overbooked and half of it will be discarded in the
 //! [competition](crate::compete) phase.
+//!
+//! It seems that [CrossoverMultiGene] with `number_of_crossovers = genes_size / 2`, is the
+//! best tradeoff between performance and effect. [CrossoverUniform] is an alias for the same
+//! approach, taking the genes_size from the genotype at runtime.
 mod clone;
 mod multi_gene;
 mod multi_point;
+mod par_multi_point;
 mod par_uniform;
 mod single_gene;
 mod single_point;
@@ -15,6 +20,7 @@ mod wrapper;
 pub use self::clone::Clone as CrossoverClone;
 pub use self::multi_gene::MultiGene as CrossoverMultiGene;
 pub use self::multi_point::MultiPoint as CrossoverMultiPoint;
+pub use self::par_multi_point::ParMultiPoint as CrossoverParMultiPoint;
 pub use self::par_uniform::ParUniform as CrossoverParUniform;
 pub use self::single_gene::SingleGene as CrossoverSingleGene;
 pub use self::single_point::SinglePoint as CrossoverSinglePoint;

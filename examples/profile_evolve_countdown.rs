@@ -15,7 +15,8 @@ fn main() {
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
         .with_compete(CompeteTournament::new(4))
-        .with_crossover(CrossoverSinglePoint::new(true))
+        // .with_crossover(CrossoverSinglePoint::new(true))
+        .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true))
         .with_mutate(MutateMultiGene::new(2, 0.2))
         // .with_reporter(EvolveReporterSimple::new(100))
         .with_fitness(CountdownNoisy::new(
@@ -60,7 +61,8 @@ fn main() {
 //     let evolve_builder = Evolve::builder()
 //         .with_genotype(genotype)
 //         .with_compete(CompeteTournament::new(4))
-//         .with_crossover(CrossoverSinglePoint::new(true))
+//         // .with_crossover(CrossoverSinglePoint::new(true))
+//         .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true))
 //         .with_mutate(MutateMultiGene::new(2, 0.2))
 //         // .with_reporter(EvolveReporterSimple::new(100))
 //         .with_fitness(CountdownNoisy::new(

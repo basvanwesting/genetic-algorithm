@@ -1,13 +1,16 @@
 use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
 /// Crossover with 50% probability for each gene to come from one of the two parents.
 /// Optionally keep parents around to compete with children later on.
 ///
-/// Not allowed for unique genotypes as it would not preserve the gene uniqueness in the children.
+/// Actually implemented as `CrossoverMultiGene::new(<genes_size> / 2, keep_parent)`
+///
+/// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
+/// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
+/// uniqueness in the children.
 #[derive(Clone, Debug)]
 pub struct Uniform {
     pub keep_parent: bool,
@@ -24,29 +27,23 @@ impl Crossover for Uniform {
         if state.population.size() < 2 {
             return;
         }
-        let crossover_indexes = genotype.crossover_indexes();
-        let bool_sampler = Bernoulli::new(0.5).unwrap();
         let mut parent_chromosomes = if self.keep_parent {
             state.population.chromosomes.clone()
         } else {
             vec![] // throwaway to keep compiler happy
         };
 
-        state
-            .population
-            .chromosomes
-            .chunks_mut(2)
-            .for_each(|chunk| {
-                if let [father, mother] = chunk {
-                    for index in &crossover_indexes {
-                        if bool_sampler.sample(rng) {
-                            std::mem::swap(&mut father.genes[*index], &mut mother.genes[*index]);
-                        }
-                    }
-                    mother.taint_fitness_score();
-                    father.taint_fitness_score();
-                }
-            });
+        let number_of_crossovers = genotype.genes_size() / 2;
+        for chunk in state.population.chromosomes.chunks_mut(2) {
+            if let [father, mother] = chunk {
+                genotype.crossover_chromosome_pair_multi_gene(
+                    number_of_crossovers,
+                    father,
+                    mother,
+                    rng,
+                );
+            }
+        }
 
         if self.keep_parent {
             state.population.chromosomes.append(&mut parent_chromosomes);
