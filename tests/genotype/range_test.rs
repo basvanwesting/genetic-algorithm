@@ -3,7 +3,7 @@ use crate::support::*;
 use genetic_algorithm::genotype::{Genotype, IncrementalGenotype, RangeGenotype};
 
 #[test]
-fn float_random() {
+fn float_mutate_chomosome_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
@@ -24,13 +24,56 @@ fn float_random() {
         vec![0.447, 0.439, 0.976, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
-
-    assert_eq!(genotype.crossover_indexes(), (0..10).collect::<Vec<_>>());
-    assert_eq!(genotype.crossover_points(), (0..10).collect::<Vec<_>>());
 }
 
 #[test]
-fn float_relative() {
+fn crossover_chromosome_pair_gene() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=2.0)
+        .build()
+        .unwrap();
+
+    assert_eq!(genotype.crossover_indexes(), (0..10).collect::<Vec<_>>());
+    let mut father = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let mut mother = build::chromosome(vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]);
+    genotype.crossover_chromosome_pair_gene(&mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![0.0, 0.1, 0.2, 0.3, 1.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![1.0, 1.1, 1.2, 1.3, 0.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+    );
+}
+
+#[test]
+fn crossover_chromosome_pair_point() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    assert_eq!(genotype.crossover_points(), (0..10).collect::<Vec<_>>());
+    let mut father = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let mut mother = build::chromosome(vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]);
+    genotype.crossover_chromosome_pair_point(&mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![0.0, 0.1, 0.2, 0.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![1.0, 1.1, 1.2, 1.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    );
+}
+
+#[test]
+fn float_mutate_chomosome_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
@@ -65,7 +108,7 @@ fn float_relative() {
 }
 
 #[test]
-fn float_scaled() {
+fn float_mutate_chomosome_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
@@ -267,7 +310,7 @@ fn float_neighbouring_population_3_one_sided() {
 }
 
 #[test]
-fn integer_random() {
+fn integer_mutate_chomosome_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
@@ -293,7 +336,7 @@ fn integer_random() {
 }
 
 #[test]
-fn integer_relative() {
+fn integer_mutate_chomosome_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)

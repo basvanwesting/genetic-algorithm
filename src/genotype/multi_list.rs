@@ -82,7 +82,8 @@ pub type DefaultAllele = usize;
 pub struct MultiList<T: Allele + PartialEq = DefaultAllele> {
     genes_size: usize,
     pub allele_lists: Vec<Vec<T>>,
-    gene_index_sampler: WeightedIndex<usize>,
+    gene_index_sampler: Uniform<usize>,
+    gene_weighted_index_sampler: WeightedIndex<usize>,
     allele_index_samplers: Vec<Uniform<usize>>,
     allele_list_sizes: Vec<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
@@ -102,12 +103,14 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for MultiList<T> {
             ))
         } else {
             let allele_lists = builder.allele_lists.unwrap();
+            let genes_size = allele_lists.len();
             let allele_list_sizes: Vec<usize> = allele_lists.iter().map(|v| v.len()).collect();
             Ok(Self {
-                genes_size: allele_lists.len(),
+                genes_size,
                 allele_list_sizes: allele_list_sizes.clone(),
                 allele_lists: allele_lists.clone(),
-                gene_index_sampler: WeightedIndex::new(allele_list_sizes.clone()).unwrap(),
+                gene_index_sampler: Uniform::from(0..genes_size),
+                gene_weighted_index_sampler: WeightedIndex::new(allele_list_sizes.clone()).unwrap(),
                 allele_index_samplers: allele_list_sizes
                     .iter()
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
@@ -146,10 +149,16 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        let index = self.gene_index_sampler.sample(rng);
+        let index = self.gene_weighted_index_sampler.sample(rng);
         chromosome.genes[index] =
             self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
         chromosome.taint_fitness_score();
+    }
+    fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
+    }
+    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
         self.seed_genes_list = seed_genes_list;

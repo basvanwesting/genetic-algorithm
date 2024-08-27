@@ -461,7 +461,7 @@ impl<
             && builder
                 .genotype
                 .as_ref()
-                .map(|o| o.crossover_indexes().is_empty())
+                .map(|o| o.crossover_index_sampler().is_none())
                 .unwrap()
         {
             Err(TryFromEvolveBuilderError(
@@ -475,7 +475,7 @@ impl<
             && builder
                 .genotype
                 .as_ref()
-                .map(|o| o.crossover_points().is_empty())
+                .map(|o| o.crossover_point_sampler().is_none())
                 .unwrap()
         {
             Err(TryFromEvolveBuilderError(

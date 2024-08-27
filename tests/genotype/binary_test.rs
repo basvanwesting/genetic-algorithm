@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{
 };
 
 #[test]
-fn general() {
+fn mutate_chomosome() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
@@ -29,13 +29,50 @@ fn general() {
         inspect::chromosome(&chromosome),
         vec![true, true, true, true, false, false, false, true, true, true]
     );
+}
 
-    assert_eq!(
-        genotype.chromosome_permutations_size(),
-        BigUint::from(1024u32)
-    );
+#[test]
+fn crossover_chromosome_pair_gene() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
     assert_eq!(genotype.crossover_indexes(), (0..10).collect::<Vec<_>>());
+    let mut father = build::chromosome(vec![true; 10]);
+    let mut mother = build::chromosome(vec![false; 10]);
+    genotype.crossover_chromosome_pair_gene(&mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![true, true, true, true, false, true, true, true, true, true]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![false, false, false, false, true, false, false, false, false, false]
+    );
+}
+
+#[test]
+fn crossover_chromosome_pair_point() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
     assert_eq!(genotype.crossover_points(), (0..10).collect::<Vec<_>>());
+    let mut father = build::chromosome(vec![true; 10]);
+    let mut mother = build::chromosome(vec![false; 10]);
+    genotype.crossover_chromosome_pair_point(&mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![true, true, true, true, false, false, false, false, false, false]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![false, false, false, false, true, true, true, true, true, true]
+    );
 }
 
 #[test]

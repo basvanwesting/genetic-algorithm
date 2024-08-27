@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{
 };
 
 #[test]
-fn general() {
+fn mutate_chomosome() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ListGenotype::builder()
         .with_genes_size(5)
@@ -21,13 +21,40 @@ fn general() {
 
     genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 2, 2, 3]);
+}
 
-    assert_eq!(
-        genotype.chromosome_permutations_size(),
-        BigUint::from(1024u32)
-    );
+#[test]
+fn crossover_chromosome_pair_gene() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = ListGenotype::builder()
+        .with_genes_size(5)
+        .with_allele_list(vec![5, 2, 3, 4])
+        .build()
+        .unwrap();
+
     assert_eq!(genotype.crossover_indexes(), (0..5).collect::<Vec<_>>());
+    let mut father = build::chromosome(vec![2, 2, 3, 3, 4]);
+    let mut mother = build::chromosome(vec![5, 5, 4, 4, 3]);
+    genotype.crossover_chromosome_pair_gene(&mut father, &mut mother, rng);
+    assert_eq!(inspect::chromosome(&father), vec![2, 2, 4, 3, 4]);
+    assert_eq!(inspect::chromosome(&mother), vec![5, 5, 3, 4, 3]);
+}
+
+#[test]
+fn crossover_chromosome_pair_point() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = ListGenotype::builder()
+        .with_genes_size(5)
+        .with_allele_list(vec![5, 2, 3, 4])
+        .build()
+        .unwrap();
+
     assert_eq!(genotype.crossover_points(), (0..5).collect::<Vec<_>>());
+    let mut father = build::chromosome(vec![2, 2, 3, 3, 4]);
+    let mut mother = build::chromosome(vec![5, 5, 4, 4, 3]);
+    genotype.crossover_chromosome_pair_point(&mut father, &mut mother, rng);
+    assert_eq!(inspect::chromosome(&father), vec![2, 2, 4, 4, 3]);
+    assert_eq!(inspect::chromosome(&mother), vec![5, 5, 3, 3, 4]);
 }
 
 #[test]

@@ -70,10 +70,16 @@ impl Genotype for Binary {
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        
         let index = self.gene_index_sampler.sample(rng);
         chromosome.genes[index] = !chromosome.genes[index];
         chromosome.taint_fitness_score();
+    }
+
+    fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
+    }
+    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<BinaryAllele>>) {
         self.seed_genes_list = seed_genes_list;

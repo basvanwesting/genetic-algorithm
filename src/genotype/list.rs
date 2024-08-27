@@ -107,6 +107,12 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
         chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
         chromosome.taint_fitness_score();
     }
+    fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
+    }
+    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
+    }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
         self.seed_genes_list = seed_genes_list;
     }

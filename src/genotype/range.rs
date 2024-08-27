@@ -183,6 +183,12 @@ where
         }
     }
 
+    fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
+    }
+    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
+    }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<Self::Allele>>) {
         self.seed_genes_list = seed_genes_list;
     }

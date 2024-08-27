@@ -84,7 +84,8 @@ pub struct MultiRange<
     pub allele_ranges: Vec<RangeInclusive<T>>,
     pub allele_mutation_ranges: Option<Vec<RangeInclusive<T>>>,
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<T>>>>,
-    gene_index_sampler: WeightedIndex<f64>,
+    gene_index_sampler: Uniform<usize>,
+    gene_weighted_index_sampler: WeightedIndex<f64>,
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
     sign_sampler: Bernoulli,
@@ -126,7 +127,8 @@ where
                 allele_ranges: allele_ranges.clone(),
                 allele_mutation_ranges: builder.allele_mutation_ranges.clone(),
                 allele_mutation_scaled_ranges: builder.allele_mutation_scaled_ranges.clone(),
-                gene_index_sampler: WeightedIndex::new(index_weights).unwrap(),
+                gene_index_sampler: Uniform::from(0..genes_size),
+                gene_weighted_index_sampler: WeightedIndex::new(index_weights).unwrap(),
                 allele_samplers: allele_ranges
                     .iter()
                     .map(|allele_range| Uniform::from(allele_range.clone()))
@@ -154,12 +156,12 @@ where
     Uniform<T>: Send + Sync,
 {
     fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
-        let index = self.gene_index_sampler.sample(rng);
+        let index = self.gene_weighted_index_sampler.sample(rng);
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
     fn mutate_chromosome_relative<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
-        let index = self.gene_index_sampler.sample(rng);
+        let index = self.gene_weighted_index_sampler.sample(rng);
         let allele_range = &self.allele_ranges[index];
 
         let value_diff = self.allele_relative_samplers.as_ref().unwrap()[index].sample(rng);
@@ -179,7 +181,7 @@ where
         scale_index: usize,
         rng: &mut R,
     ) {
-        let index = self.gene_index_sampler.sample(rng);
+        let index = self.gene_weighted_index_sampler.sample(rng);
         let allele_range = &self.allele_ranges[index];
 
         let working_range =
@@ -239,6 +241,12 @@ where
         }
     }
 
+    fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
+    }
+    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
+        Some(&self.gene_index_sampler)
+    }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
         self.seed_genes_list = seed_genes_list;
     }
@@ -378,7 +386,8 @@ where
             allele_ranges: self.allele_ranges.clone(),
             allele_mutation_ranges: self.allele_mutation_ranges.clone(),
             allele_mutation_scaled_ranges: self.allele_mutation_scaled_ranges.clone(),
-            gene_index_sampler: self.gene_index_sampler.clone(),
+            gene_index_sampler: self.gene_index_sampler,
+            gene_weighted_index_sampler: self.gene_weighted_index_sampler.clone(),
             allele_samplers: self
                 .allele_ranges
                 .iter()
@@ -408,7 +417,10 @@ where
             .field("genes_size", &self.genes_size)
             .field("allele_ranges", &self.allele_ranges)
             .field("allele_mutation_ranges", &self.allele_mutation_ranges)
-            .field("gene_index_sampler", &self.gene_index_sampler)
+            .field(
+                "gene_weighted_index_sampler",
+                &self.gene_weighted_index_sampler,
+            )
             .field("seed_genes_list", &self.seed_genes_list)
             .finish()
     }

@@ -24,6 +24,7 @@ use crate::population::Population;
 use impl_trait_for_tuples::impl_for_tuples;
 use itertools::Itertools;
 use num::BigUint;
+use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 use std::fmt;
 
@@ -75,6 +76,47 @@ pub trait Genotype:
         scale_index: Option<usize>,
         rng: &mut R,
     );
+
+    /// a crossover of a single gene between a pair of chromosomes
+    /// panics if there are no valid crossover indexes
+    fn crossover_chromosome_pair_gene<R: Rng>(
+        &self,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
+        let index = self.crossover_index_sampler().unwrap().sample(rng);
+        std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
+    }
+    /// a crossover of a single point between a pair of chromosomes
+    /// panics if there are no valid crossover points
+    fn crossover_chromosome_pair_point<R: Rng>(
+        &self,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
+        let index = self.crossover_point_sampler().unwrap().sample(rng);
+        let mut father_genes_split = father.genes.split_off(index);
+        let mut mother_genes_split = mother.genes.split_off(index);
+        father.genes.append(&mut mother_genes_split);
+        mother.genes.append(&mut father_genes_split);
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
+    }
+    /// to guard against invalid crossover strategies which break the internal consistency
+    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
+    fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
+        None
+    }
+    /// to guard against invalid crossover strategies which break the internal consistency
+    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
+    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
+        None
+    }
+
     /// to guard against invalid crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
     fn crossover_points(&self) -> Vec<usize> {

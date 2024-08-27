@@ -57,11 +57,13 @@ pub type DefaultAllele = usize;
 #[derive(Clone, Debug)]
 pub struct MultiUnique<T: Allele = DefaultAllele> {
     genes_size: usize,
-    allele_list_sizes: Vec<usize>,
-    allele_list_index_offsets: Vec<usize>,
+    pub allele_list_sizes: Vec<usize>,
+    pub allele_list_index_offsets: Vec<usize>,
     pub allele_lists: Vec<Vec<T>>,
     allele_list_index_sampler: WeightedIndex<usize>,
     allele_list_index_samplers: Vec<Uniform<usize>>,
+    pub crossover_points: Vec<usize>,
+    crossover_point_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
@@ -80,21 +82,34 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
         } else {
             let allele_lists = builder.allele_lists.unwrap();
             let allele_list_sizes: Vec<usize> = allele_lists.iter().map(|v| v.len()).collect();
+            // has one last index too many, but robust for chromosome_permutations_into_iter logic
             let allele_list_index_offsets =
                 allele_list_sizes.iter().fold(vec![0], |mut acc, size| {
                     acc.push(*acc.last().unwrap() + size);
                     acc
                 });
+
+            let mut crossover_points = allele_list_index_offsets.clone();
+            crossover_points.remove(0);
+            crossover_points.pop();
+            let crossover_point_sampler = if crossover_points.is_empty() {
+                None
+            } else {
+                Some(Uniform::from(0..crossover_points.len()))
+            };
+
             Ok(Self {
                 genes_size: allele_list_sizes.iter().sum(),
                 allele_list_sizes: allele_list_sizes.clone(),
-                allele_list_index_offsets,
+                allele_list_index_offsets: allele_list_index_offsets.clone(),
                 allele_lists: allele_lists.clone(),
                 allele_list_index_sampler: WeightedIndex::new(allele_list_sizes.clone()).unwrap(),
                 allele_list_index_samplers: allele_list_sizes
                     .iter()
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
                     .collect(),
+                crossover_points,
+                crossover_point_sampler,
                 seed_genes_list: builder.seed_genes_list,
             })
         }
@@ -105,15 +120,6 @@ impl<T: Allele> Genotype for MultiUnique<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
         self.genes_size
-    }
-    fn crossover_points(&self) -> Vec<usize> {
-        let mut crossover_points = self.allele_list_sizes.clone();
-        crossover_points.pop();
-        crossover_points
-    }
-    ///unique genotypes can't simply exchange genes without gene duplication issues
-    fn crossover_indexes(&self) -> Vec<usize> {
-        vec![]
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
         if self.seed_genes_list.is_empty() {
@@ -145,6 +151,31 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         let index2 = index_offset + self.allele_list_index_samplers[index].sample(rng);
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
+    }
+    fn crossover_chromosome_pair_point<R: Rng>(
+        &self,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
+        let point_index = self.crossover_point_sampler().unwrap().sample(rng);
+        let index = self.crossover_points[point_index];
+        let mut father_genes_split = father.genes.split_off(index);
+        let mut mother_genes_split = mother.genes.split_off(index);
+        father.genes.append(&mut mother_genes_split);
+        mother.genes.append(&mut father_genes_split);
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
+    }
+    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
+        self.crossover_point_sampler.as_ref()
+    }
+    fn crossover_points(&self) -> Vec<usize> {
+        self.crossover_points.clone()
+    }
+    ///unique genotypes can't simply exchange genes without gene duplication issues
+    fn crossover_indexes(&self) -> Vec<usize> {
+        vec![]
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
         self.seed_genes_list = seed_genes_list;

@@ -3,7 +3,7 @@ use crate::support::*;
 use genetic_algorithm::genotype::{Genotype, IncrementalGenotype, MultiRangeGenotype};
 
 #[test]
-fn float_random() {
+fn float_mutate_chromosome_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -23,13 +23,10 @@ fn float_random() {
         vec![0.447, 2.195, 18.970],
         0.001
     ));
-
-    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
-    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<_>>());
 }
 
 #[test]
-fn float_relative() {
+fn float_mutate_chromosome_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -58,13 +55,10 @@ fn float_relative() {
         vec![0.447, 2.196, 19.790],
         0.001
     ));
-
-    assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
-    assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<_>>());
 }
 
 #[test]
-fn float_scaled() {
+fn float_mutate_chromosome_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -96,9 +90,38 @@ fn float_scaled() {
         vec![0.447, 2.196, 19.999],
         0.001
     ));
+}
+
+#[test]
+fn float_crossover_chromosome_pair_gene() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = MultiRangeGenotype::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
+        .build()
+        .unwrap();
 
     assert_eq!(genotype.crossover_indexes(), (0..3).collect::<Vec<_>>());
+    let mut father = build::chromosome(vec![0.1, 1.1, 10.1]);
+    let mut mother = build::chromosome(vec![0.9, 3.9, 18.9]);
+    genotype.crossover_chromosome_pair_gene(&mut father, &mut mother, rng);
+    assert_eq!(inspect::chromosome(&father), vec![0.1, 3.9, 10.1]);
+    assert_eq!(inspect::chromosome(&mother), vec![0.9, 1.1, 18.9]);
+}
+
+#[test]
+fn float_crossover_chromosome_pair_point() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = MultiRangeGenotype::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
+        .build()
+        .unwrap();
+
     assert_eq!(genotype.crossover_points(), (0..3).collect::<Vec<_>>());
+    let mut father = build::chromosome(vec![0.1, 1.1, 10.1]);
+    let mut mother = build::chromosome(vec![0.9, 3.9, 18.9]);
+    genotype.crossover_chromosome_pair_point(&mut father, &mut mother, rng);
+    assert_eq!(inspect::chromosome(&father), vec![0.1, 3.9, 18.9]);
+    assert_eq!(inspect::chromosome(&mother), vec![0.9, 1.1, 10.1]);
 }
 
 #[test]
@@ -216,7 +239,7 @@ fn float_neighbouring_population_3_scaled() {
 }
 
 #[test]
-fn integer_random() {
+fn integer_mutate_chromosome_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
@@ -234,7 +257,7 @@ fn integer_random() {
 }
 
 #[test]
-fn integer_relative() {
+fn integer_mutate_chromosome_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])

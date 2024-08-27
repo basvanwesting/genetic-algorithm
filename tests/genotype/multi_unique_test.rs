@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{
 };
 
 #[test]
-fn general() {
+fn mutate_chomosome() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![vec![0, 1], vec![4, 5, 6, 7], vec![0, 1, 2]])
@@ -40,8 +40,45 @@ fn general() {
         genotype.chromosome_permutations_size(),
         BigUint::from(288u32)
     );
+}
+
+#[test]
+#[should_panic]
+fn crossover_chromosome_pair_gene() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_lists(vec![vec![0, 1], vec![4, 5, 6, 7], vec![0, 1, 2]])
+        .build()
+        .unwrap();
+
     assert_eq!(genotype.crossover_indexes(), vec![]);
-    assert_eq!(genotype.crossover_points(), vec![2, 4]);
+    let mut father = build::chromosome(vec![0, 1, 4, 5, 6, 7, 0, 1, 2]);
+    let mut mother = build::chromosome(vec![1, 0, 5, 6, 7, 4, 1, 2, 0]);
+    genotype.crossover_chromosome_pair_gene(&mut father, &mut mother, rng);
+}
+
+#[test]
+fn crossover_chromosome_pair_point() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_lists(vec![vec![0, 1], vec![4, 5, 6, 7], vec![0, 1, 2]])
+        .build()
+        .unwrap();
+
+    assert_eq!(genotype.allele_list_sizes, vec![2, 4, 3]);
+    assert_eq!(genotype.allele_list_index_offsets, vec![0, 2, 6, 9]);
+    assert_eq!(genotype.crossover_points(), vec![2, 6]);
+    let mut father = build::chromosome(vec![0, 1, 4, 5, 6, 7, 0, 1, 2]);
+    let mut mother = build::chromosome(vec![1, 0, 5, 6, 7, 4, 1, 2, 0]);
+    genotype.crossover_chromosome_pair_point(&mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![0, 1, 5, 6, 7, 4, 1, 2, 0]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![1, 0, 4, 5, 6, 7, 0, 1, 2]
+    );
 }
 
 #[test]
@@ -51,6 +88,9 @@ fn chromosome_permutations_genes_size_1() {
         .build()
         .unwrap();
 
+    assert_eq!(genotype.allele_list_sizes, vec![1]);
+    assert_eq!(genotype.allele_list_index_offsets, vec![0, 1]);
+    assert_eq!(genotype.crossover_points, vec![]);
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(1u32));
     assert_eq!(
         inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
@@ -65,6 +105,9 @@ fn chromosome_permutations_genes_size_4() {
         .build()
         .unwrap();
 
+    assert_eq!(genotype.allele_list_sizes, vec![1, 2, 3, 2]);
+    assert_eq!(genotype.allele_list_index_offsets, vec![0, 1, 3, 6, 8]);
+    assert_eq!(genotype.crossover_points, vec![1, 3, 6]);
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::from(24u32)
@@ -113,6 +156,12 @@ fn chromosome_permutations_genes_size_huge() {
         ])
         .build()
         .unwrap();
+    assert_eq!(genotype.allele_list_sizes, vec![10, 10, 10, 10, 10, 10]);
+    assert_eq!(
+        genotype.allele_list_index_offsets,
+        vec![0, 10, 20, 30, 40, 50, 60]
+    );
+    assert_eq!(genotype.crossover_points, vec![10, 20, 30, 40, 50]);
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::parse_bytes(b"2283380023591730815784976384000000000000", 10).unwrap()
