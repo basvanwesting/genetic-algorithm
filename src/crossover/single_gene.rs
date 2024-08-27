@@ -44,9 +44,6 @@ impl Crossover for SingleGene {
     fn require_crossover_indexes(&self) -> bool {
         true
     }
-    fn require_crossover_points(&self) -> bool {
-        false
-    }
 }
 
 impl SingleGene {

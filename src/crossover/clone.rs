@@ -26,13 +26,6 @@ impl Crossover for Clone {
             state.population.merge(&mut clones);
         }
     }
-
-    fn require_crossover_indexes(&self) -> bool {
-        false
-    }
-    fn require_crossover_points(&self) -> bool {
-        false
-    }
 }
 
 impl Clone {

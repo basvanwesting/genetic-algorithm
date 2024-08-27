@@ -41,8 +41,12 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
 
     /// to guard against invalid Crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn require_crossover_indexes(&self) -> bool;
+    fn require_crossover_indexes(&self) -> bool {
+        false
+    }
     /// to guard against invalid Crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn require_crossover_points(&self) -> bool;
+    fn require_crossover_points(&self) -> bool {
+        false
+    }
 }

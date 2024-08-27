@@ -50,9 +50,6 @@ impl Crossover for MultiGene {
     fn require_crossover_indexes(&self) -> bool {
         true
     }
-    fn require_crossover_points(&self) -> bool {
-        false
-    }
 }
 
 impl MultiGene {

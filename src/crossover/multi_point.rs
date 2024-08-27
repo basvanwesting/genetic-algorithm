@@ -47,9 +47,6 @@ impl Crossover for MultiPoint {
             state.population.chromosomes.append(&mut parent_chromosomes);
         }
     }
-    fn require_crossover_indexes(&self) -> bool {
-        false
-    }
     fn require_crossover_points(&self) -> bool {
         true
     }
