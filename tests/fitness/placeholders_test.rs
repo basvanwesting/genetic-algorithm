@@ -1,6 +1,8 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::{CountTrue, CountTrueWithSleep, SumGenes, Zero};
+use genetic_algorithm::fitness::placeholders::{
+    CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes, Zero,
+};
 use genetic_algorithm::fitness::Fitness;
 
 #[test]
@@ -136,4 +138,53 @@ fn count_true_with_sleep() {
         CountTrueWithSleep::new(1000, false).calculate_for_chromosome(&chromosome),
         Some(2)
     );
+}
+
+#[test]
+fn countdown() {
+    let mut fitness = Countdown::new(5);
+    let chromosome = build::chromosome(vec![0.1_f32, 0.2_f32, 0.3_f32]);
+    let fitness_scores: Vec<Option<isize>> = (0..6)
+        .map(|_| fitness.calculate_for_chromosome(&chromosome))
+        .collect();
+    assert_eq!(
+        fitness_scores,
+        vec![Some(4), Some(3), Some(2), Some(1), Some(0), Some(0)]
+    )
+}
+
+#[test]
+fn countdown_with_noise() {
+    let mut fitness = CountdownNoisy::new(20, 5, 0..2);
+    let chromosome = build::chromosome(vec![0.1_f32, 0.2_f32, 0.3_f32]);
+    let fitness_scores: Vec<Option<isize>> = (0..22)
+        .map(|_| fitness.calculate_for_chromosome(&chromosome))
+        .collect();
+    assert_eq!(
+        fitness_scores,
+        vec![
+            Some(20),
+            Some(20),
+            Some(21),
+            Some(20),
+            Some(21),
+            Some(16),
+            Some(16),
+            Some(15),
+            Some(15),
+            Some(16),
+            Some(10),
+            Some(11),
+            Some(11),
+            Some(10),
+            Some(11),
+            Some(5),
+            Some(5),
+            Some(5),
+            Some(6),
+            Some(6),
+            Some(0),
+            Some(0)
+        ]
+    )
 }

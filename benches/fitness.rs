@@ -1,6 +1,8 @@
 use criterion::*;
 use genetic_algorithm::chromosome::Chromosome;
-use genetic_algorithm::fitness::placeholders::{CountTrue, CountTrueWithSleep, SumGenes};
+use genetic_algorithm::fitness::placeholders::{
+    CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes,
+};
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
@@ -26,6 +28,18 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
     group.bench_function("sum_genes", |b| {
         let chromosome = Chromosome::new(vec![1; 1000]);
         let mut fitness = SumGenes::new();
+        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome)))
+    });
+
+    group.bench_function("countdown", |b| {
+        let chromosome = Chromosome::new(vec![1; 1000]);
+        let mut fitness = Countdown::new(usize::MAX);
+        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome)))
+    });
+
+    group.bench_function("countdown_with_noise", |b| {
+        let chromosome = Chromosome::new(vec![1; 1000]);
+        let mut fitness = CountdownNoisy::new(usize::MAX - 10_000, 1000, 1..10_000);
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome)))
     });
 }

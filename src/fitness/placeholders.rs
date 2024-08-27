@@ -2,7 +2,11 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{Allele, BinaryAllele};
+use rand::distributions::{Distribution, Uniform};
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
 use std::marker::PhantomData;
+use std::ops::Range;
 
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
@@ -117,6 +121,66 @@ impl Clone for CountTrueWithSleep {
         Self {
             micro_seconds: self.micro_seconds,
             print_on_clone: self.print_on_clone,
+        }
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+#[derive(Clone, Debug)]
+pub struct Countdown<T: Allele>(usize, PhantomData<T>);
+impl<T: Allele> Countdown<T> {
+    pub fn new(start: usize) -> Self {
+        Self(start, PhantomData)
+    }
+}
+impl<T: Allele> Fitness for Countdown<T> {
+    type Allele = T;
+    fn calculate_for_chromosome(
+        &mut self,
+        _chromosome: &Chromosome<Self::Allele>,
+    ) -> Option<FitnessValue> {
+        if self.0 == 0 {
+            Some(0)
+        } else {
+            self.0 -= 1;
+            Some(self.0 as isize)
+        }
+    }
+}
+///
+/// placeholder for testing and bootstrapping, not really used in practice
+#[derive(Clone, Debug)]
+pub struct CountdownNoisy<T: Allele> {
+    start: usize,
+    step: usize,
+    noise_sampler: Uniform<usize>,
+    rng: SmallRng,
+    _phantom: PhantomData<T>,
+}
+impl<T: Allele> CountdownNoisy<T> {
+    pub fn new(start: usize, step: usize, noise_range: Range<usize>) -> Self {
+        Self {
+            start,
+            step,
+            noise_sampler: Uniform::from(noise_range),
+            rng: SmallRng::seed_from_u64(0),
+            _phantom: PhantomData,
+        }
+    }
+}
+impl<T: Allele> Fitness for CountdownNoisy<T> {
+    type Allele = T;
+    fn calculate_for_chromosome(
+        &mut self,
+        _chromosome: &Chromosome<Self::Allele>,
+    ) -> Option<FitnessValue> {
+        if self.start == 0 {
+            Some(0)
+        } else {
+            self.start -= 1;
+            let base = (self.start / self.step + 1) * self.step;
+            let result = base + self.noise_sampler.sample(&mut self.rng);
+            Some(result as isize)
         }
     }
 }
