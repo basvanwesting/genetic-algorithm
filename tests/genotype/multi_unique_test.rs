@@ -80,6 +80,39 @@ fn crossover_chromosome_pair_single_point() {
         vec![1, 0, 4, 5, 6, 7, 0, 1, 2]
     );
 }
+#[test]
+fn crossover_chromosome_pair_multi_point() {
+    let rng = &mut SmallRng::seed_from_u64(1);
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_lists(vec![
+            vec![0, 1],
+            vec![4, 5, 6, 7],
+            vec![0, 1, 2],
+            vec![9, 8, 7],
+            vec![4, 5, 6],
+            vec![4, 3],
+        ])
+        .build()
+        .unwrap();
+
+    assert_eq!(genotype.allele_list_sizes, vec![2, 4, 3, 3, 3, 2]);
+    assert_eq!(
+        genotype.allele_list_index_offsets,
+        vec![0, 2, 6, 9, 12, 15, 17]
+    );
+    assert_eq!(genotype.crossover_points(), vec![2, 6, 9, 12, 15]);
+    let mut father = build::chromosome(vec![0, 1, 4, 5, 6, 7, 0, 1, 2, 7, 8, 9, 4, 5, 6, 3, 4]);
+    let mut mother = build::chromosome(vec![1, 0, 5, 6, 7, 4, 1, 2, 0, 9, 8, 7, 6, 5, 4, 4, 3]);
+    genotype.crossover_chromosome_pair_multi_point(2, &mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![0, 1, 5, 6, 7, 4, 1, 2, 0, 9, 8, 7, 4, 5, 6, 3, 4]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![1, 0, 4, 5, 6, 7, 0, 1, 2, 7, 8, 9, 6, 5, 4, 4, 3]
+    );
+}
 
 #[test]
 fn chromosome_permutations_genes_size_1() {

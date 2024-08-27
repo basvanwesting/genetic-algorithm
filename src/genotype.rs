@@ -90,6 +90,23 @@ pub trait Genotype:
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
+    /// a crossover of a multi gene between a pair of chromosomes
+    /// panics if there are no valid crossover indexes
+    fn crossover_chromosome_pair_multi_gene<R: Rng>(
+        &self,
+        number_of_crossovers: usize,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
+        rng.sample_iter(self.crossover_index_sampler().unwrap())
+            .take(number_of_crossovers)
+            .for_each(|index| {
+                std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+            });
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
+    }
     /// a crossover of a single point between a pair of chromosomes
     /// panics if there are no valid crossover points
     fn crossover_chromosome_pair_single_point<R: Rng>(
@@ -103,6 +120,26 @@ pub trait Genotype:
         let mut mother_genes_split = mother.genes.split_off(index);
         father.genes.append(&mut mother_genes_split);
         mother.genes.append(&mut father_genes_split);
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
+    }
+    /// a crossover of a multi point between a pair of chromosomes
+    /// panics if there are no valid crossover points
+    fn crossover_chromosome_pair_multi_point<R: Rng>(
+        &self,
+        number_of_crossovers: usize,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
+        rng: &mut R,
+    ) {
+        rng.sample_iter(self.crossover_point_sampler().unwrap())
+            .take(number_of_crossovers)
+            .for_each(|index| {
+                let mut father_genes_split = father.genes.split_off(index);
+                let mut mother_genes_split = mother.genes.split_off(index);
+                father.genes.append(&mut mother_genes_split);
+                mother.genes.append(&mut father_genes_split);
+            });
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
