@@ -99,6 +99,18 @@ pub trait Genotype:
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
+        // self.crossover_indexes()
+        //     .choose_multiple(rng, number_of_crossovers)
+        //     .for_each(|index| {
+        //         std::mem::swap(&mut father.genes[*index], &mut mother.genes[*index]);
+        //     });
+
+        // rand::seq::index::sample(rng, self.genes_size(), number_of_crossovers)
+        //     .iter()
+        //     .for_each(|index| {
+        //         std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+        //     });
+
         rng.sample_iter(self.crossover_index_sampler().unwrap())
             .take(number_of_crossovers)
             .for_each(|index| {
@@ -132,6 +144,24 @@ pub trait Genotype:
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
+        // self.crossover_points()
+        //     .choose_multiple(rng, number_of_crossovers)
+        //     .for_each(|index| {
+        //         let mut father_genes_split = father.genes.split_off(*index);
+        //         let mut mother_genes_split = mother.genes.split_off(*index);
+        //         father.genes.append(&mut mother_genes_split);
+        //         mother.genes.append(&mut father_genes_split);
+        //     });
+
+        // rand::seq::index::sample(rng, self.genes_size(), number_of_crossovers)
+        //     .iter()
+        //     .for_each(|index| {
+        //         let mut father_genes_split = father.genes.split_off(index);
+        //         let mut mother_genes_split = mother.genes.split_off(index);
+        //         father.genes.append(&mut mother_genes_split);
+        //         mother.genes.append(&mut father_genes_split);
+        //     });
+
         rng.sample_iter(self.crossover_point_sampler().unwrap())
             .take(number_of_crossovers)
             .for_each(|index| {

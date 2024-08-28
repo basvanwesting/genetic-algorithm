@@ -1,23 +1,26 @@
 use genetic_algorithm::fitness::placeholders::CountdownNoisy;
 use genetic_algorithm::strategy::evolve::prelude::*;
+use std::ops::RangeInclusive;
 
-const GENES_SIZE: usize = 50; // assumption
+const GENES_SIZE: usize = 40695;
+const ALLELE_RANGE: RangeInclusive<f32> = -150.0..=120.0;
 const POPULATION_SIZE: usize = 150;
 const TARGET_GENERATION: usize = 500;
+const TOURNAMENT_SIZE: usize = 4;
 
 fn main() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(GENES_SIZE)
-        .with_allele_range(-1.0..=1.0)
+        .with_allele_range(ALLELE_RANGE)
         .build()
         .unwrap();
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        .with_compete(CompeteTournament::new(4))
+        .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
         // .with_crossover(CrossoverSinglePoint::new(true))
         .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true))
-        .with_mutate(MutateMultiGene::new(2, 0.2))
+        .with_mutate(MutateMultiGene::new(50, 1.0))
         // .with_reporter(EvolveReporterSimple::new(100))
         .with_fitness(CountdownNoisy::new(
             POPULATION_SIZE * TARGET_GENERATION,
@@ -41,29 +44,21 @@ fn main() {
     );
 }
 
-// best_generation: 500, best fitness score: Some(0), duration: 28.202579ms
-// best_generation: 500, best fitness score: Some(0), duration: 21.239145ms
-// best_generation: 500, best fitness score: Some(0), duration: 23.615032ms
-// best_generation: 500, best fitness score: Some(0), duration: 23.711847ms
-// best_generation: 500, best fitness score: Some(0), duration: 24.961629ms
-// best_generation: 500, best fitness score: Some(0), duration: 21.501972ms
-// best_generation: 500, best fitness score: Some(0), duration: 25.519464ms
-
 // use criterion::*;
 // use pprof::criterion::*;
 // pub fn criterion_benchmark(c: &mut Criterion) {
 //     let genotype = RangeGenotype::builder()
 //         .with_genes_size(GENES_SIZE)
-//         .with_allele_range(-1.0..=1.0)
+//         .with_allele_range(ALLELE_RANGE)
 //         .build()
 //         .unwrap();
 //
 //     let evolve_builder = Evolve::builder()
 //         .with_genotype(genotype)
-//         .with_compete(CompeteTournament::new(4))
+//         .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
 //         // .with_crossover(CrossoverSinglePoint::new(true))
 //         .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true))
-//         .with_mutate(MutateMultiGene::new(2, 0.2))
+//         .with_mutate(MutateMultiGene::new(50, 1.0))
 //         // .with_reporter(EvolveReporterSimple::new(100))
 //         .with_fitness(CountdownNoisy::new(
 //             POPULATION_SIZE * TARGET_GENERATION,
