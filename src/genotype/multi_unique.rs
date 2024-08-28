@@ -61,10 +61,10 @@ pub struct MultiUnique<T: Allele = DefaultAllele> {
     pub allele_list_sizes: Vec<usize>,
     pub allele_list_index_offsets: Vec<usize>,
     pub allele_lists: Vec<Vec<T>>,
-    pub allele_list_index_sampler: WeightedIndex<usize>,
-    pub allele_list_index_samplers: Vec<Uniform<usize>>,
+    allele_list_index_sampler: WeightedIndex<usize>,
+    allele_list_index_samplers: Vec<Uniform<usize>>,
     pub crossover_points: Vec<usize>,
-    pub crossover_point_sampler: Option<Uniform<usize>>,
+    crossover_point_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 

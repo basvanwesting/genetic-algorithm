@@ -87,7 +87,7 @@ pub struct MultiRange<
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    genes_size: usize,
+    pub genes_size: usize,
     pub allele_ranges: Vec<RangeInclusive<T>>,
     pub allele_mutation_ranges: Option<Vec<RangeInclusive<T>>>,
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<T>>>>,
@@ -96,7 +96,7 @@ pub struct MultiRange<
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
     sign_sampler: Bernoulli,
-    index_weights: Vec<f64>,
+    pub index_weights: Vec<f64>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
