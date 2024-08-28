@@ -22,7 +22,7 @@ fn population_even() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
-    CrossoverParMultiPoint::new(3, false).call(
+    CrossoverParMultiPoint::new(3, false, false).call(
         &genotype,
         &mut state,
         &config,
@@ -52,7 +52,7 @@ fn population_even_keep_parents() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
-    CrossoverParMultiPoint::new(3, true).call(
+    CrossoverParMultiPoint::new(3, true, true).call(
         &genotype,
         &mut state,
         &config,

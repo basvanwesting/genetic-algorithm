@@ -93,6 +93,7 @@ fn crossover_chromosome_pair_multi_gene_with_duplicates() {
         vec![false, false, false, false, false, false, false, false, false, true]
     );
 }
+
 #[test]
 fn crossover_chromosome_pair_multi_gene_without_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
@@ -115,8 +116,8 @@ fn crossover_chromosome_pair_multi_gene_without_duplicates() {
 }
 
 #[test]
-fn crossover_chromosome_pair_multi_point() {
-    let rng = &mut SmallRng::seed_from_u64(1);
+fn crossover_chromosome_pair_multi_point_with_duplicates() {
+    let rng = &mut SmallRng::seed_from_u64(0);
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
@@ -124,14 +125,35 @@ fn crossover_chromosome_pair_multi_point() {
 
     let mut father = build::chromosome(vec![true; 10]);
     let mut mother = build::chromosome(vec![false; 10]);
-    genotype.crossover_chromosome_pair_multi_point(3, &mut father, &mut mother, rng);
+    genotype.crossover_chromosome_pair_multi_point(3, true, &mut father, &mut mother, rng);
     assert_eq!(
         inspect::chromosome(&father),
-        vec![false, true, true, true, true, true, true, false, false, false]
+        vec![true, true, true, true, true, true, true, true, true, false]
     );
     assert_eq!(
         inspect::chromosome(&mother),
-        vec![true, false, false, false, false, false, false, true, true, true]
+        vec![false, false, false, false, false, false, false, false, false, true]
+    );
+}
+
+#[test]
+fn crossover_chromosome_pair_multi_point_without_duplicates() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
+    let mut father = build::chromosome(vec![true; 10]);
+    let mut mother = build::chromosome(vec![false; 10]);
+    genotype.crossover_chromosome_pair_multi_point(3, false, &mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![true, true, true, true, false, false, false, true, false, false]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![false, false, false, false, true, true, true, false, true, true]
     );
 }
 

@@ -14,6 +14,7 @@ use rayon::prelude::*;
 #[derive(Clone, Debug)]
 pub struct ParMultiPoint {
     pub number_of_crossovers: usize,
+    pub allow_duplicates: bool,
     pub keep_parent: bool,
 }
 impl Crossover for ParMultiPoint {
@@ -44,6 +45,7 @@ impl Crossover for ParMultiPoint {
                     if let [father, mother] = chunk {
                         genotype.crossover_chromosome_pair_multi_point(
                             self.number_of_crossovers,
+                            self.allow_duplicates,
                             father,
                             mother,
                             rng,
@@ -62,9 +64,10 @@ impl Crossover for ParMultiPoint {
 }
 
 impl ParMultiPoint {
-    pub fn new(number_of_crossovers: usize, keep_parent: bool) -> Self {
+    pub fn new(number_of_crossovers: usize, allow_duplicates: bool, keep_parent: bool) -> Self {
         Self {
             number_of_crossovers,
+            allow_duplicates,
             keep_parent,
         }
     }

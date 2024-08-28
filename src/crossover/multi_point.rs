@@ -5,6 +5,7 @@ use rand::Rng;
 
 /// Crossover multiple gene positions from which on the rest of the genes are taken from the other
 /// parent. This goes back and forth. The gene positions are chosen with uniform probability.
+/// Choose between allowing duplicates or not (not much slower, as crossover itself is relatively expensive).
 /// Optionally keep parents around to compete with children later on.
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) as it would not preserve the gene uniqueness in the children.
@@ -12,6 +13,7 @@ use rand::Rng;
 #[derive(Clone, Debug)]
 pub struct MultiPoint {
     pub number_of_crossovers: usize,
+    pub allow_duplicates: bool,
     pub keep_parent: bool,
 }
 impl Crossover for MultiPoint {
@@ -36,6 +38,7 @@ impl Crossover for MultiPoint {
             if let [father, mother] = chunk {
                 genotype.crossover_chromosome_pair_multi_point(
                     self.number_of_crossovers,
+                    self.allow_duplicates,
                     father,
                     mother,
                     rng,
@@ -53,9 +56,10 @@ impl Crossover for MultiPoint {
 }
 
 impl MultiPoint {
-    pub fn new(number_of_crossovers: usize, keep_parent: bool) -> Self {
+    pub fn new(number_of_crossovers: usize, allow_duplicates: bool, keep_parent: bool) -> Self {
         Self {
             number_of_crossovers,
+            allow_duplicates,
             keep_parent,
         }
     }

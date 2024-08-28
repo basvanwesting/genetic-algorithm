@@ -90,7 +90,8 @@ pub trait Genotype:
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
-    /// a crossover of a multi gene between a pair of chromosomes
+    /// a crossover of a multi gene between a pair of chromosomes.
+    /// Choose between allowing duplicates or not (~2x slower).
     /// panics if there are no valid crossover indexes
     fn crossover_chromosome_pair_multi_gene<R: Rng>(
         &self,
@@ -100,15 +101,15 @@ pub trait Genotype:
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
+        let sampler = self.crossover_index_sampler().unwrap(); // trigger panic for no duplicates branch
         if allow_duplicates {
-            // fast with duplicates
-            rng.sample_iter(self.crossover_index_sampler().unwrap())
+            rng.sample_iter(sampler)
                 .take(number_of_crossovers)
                 .for_each(|index| {
                     std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
                 });
         } else {
-            // safe and slow
+            // assume all genes are valid indexes, handle otherwise in trait implmentaiton
             rand::seq::index::sample(rng, self.genes_size(), number_of_crossovers)
                 .iter()
                 .for_each(|index| {
@@ -134,23 +135,38 @@ pub trait Genotype:
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
-    /// a crossover of a multi point between a pair of chromosomes
+    /// a crossover of a multi point between a pair of chromosomes.
+    /// Choose between allowing duplicates or not (not much slower)
     /// panics if there are no valid crossover points
     fn crossover_chromosome_pair_multi_point<R: Rng>(
         &self,
         number_of_crossovers: usize,
+        allow_duplicates: bool,
         father: &mut Chromosome<Self::Allele>,
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
-        rng.sample_iter(self.crossover_point_sampler().unwrap())
-            .take(number_of_crossovers)
-            .for_each(|index| {
-                let mut father_genes_split = father.genes.split_off(index);
-                let mut mother_genes_split = mother.genes.split_off(index);
-                father.genes.append(&mut mother_genes_split);
-                mother.genes.append(&mut father_genes_split);
-            });
+        let sampler = self.crossover_point_sampler().unwrap(); // trigger panic for no duplicates branch
+        if allow_duplicates {
+            rng.sample_iter(sampler)
+                .take(number_of_crossovers)
+                .for_each(|index| {
+                    let mut father_genes_split = father.genes.split_off(index);
+                    let mut mother_genes_split = mother.genes.split_off(index);
+                    father.genes.append(&mut mother_genes_split);
+                    mother.genes.append(&mut father_genes_split);
+                });
+        } else {
+            // assume all genes are valid points, handle otherwise in trait implmentaiton
+            rand::seq::index::sample(rng, self.genes_size(), number_of_crossovers)
+                .iter()
+                .for_each(|index| {
+                    let mut father_genes_split = father.genes.split_off(index);
+                    let mut mother_genes_split = mother.genes.split_off(index);
+                    father.genes.append(&mut mother_genes_split);
+                    mother.genes.append(&mut father_genes_split);
+                });
+        }
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
