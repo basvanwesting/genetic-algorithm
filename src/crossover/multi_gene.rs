@@ -4,7 +4,9 @@ use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
 
 /// Crossover multiple genes between the parents. The gene positions are chosen with uniform
-/// probability. Optionally keep parents around to compete with children later on.
+/// probability.
+/// Choose between allowing duplicate crossovers of the same gene or not (~2x slower).
+/// Optionally keep parents around to compete with children later on.
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene

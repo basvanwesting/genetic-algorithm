@@ -7,7 +7,12 @@ use rand::Rng;
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the provided mutation_probability. Then
 /// mutates the selected chromosomes the provided number of times, where the [Genotype] determines
-/// whether this is random, relative or scaled. Useful when a single mutation
+/// whether this is random, relative or scaled.
+///
+/// Duplicate mutations of the same gene are allowed, as disallowing duplicates is very expensive
+/// and mutations should be quite small, so there is little chance for conflict.
+///
+/// Useful when a single mutation
 /// would generally not lead to improvement, because the problem space behaves more like a
 /// [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be swapped (but the
 /// UniqueGenotype doesn't map to the problem space well). Set number_of_mutations to two in that
@@ -35,9 +40,13 @@ impl Mutate for MultiGene {
             .filter(|c| c.age == 0)
         {
             if bool_sampler.sample(rng) {
-                for _ in 0..self.number_of_mutations {
-                    genotype.mutate_chromosome_single(chromosome, state.current_scale_index, rng);
-                }
+                genotype.mutate_chromosome_multi(
+                    self.number_of_mutations,
+                    true,
+                    chromosome,
+                    state.current_scale_index,
+                    rng,
+                );
             }
         }
     }

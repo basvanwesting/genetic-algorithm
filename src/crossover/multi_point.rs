@@ -5,8 +5,9 @@ use rand::Rng;
 
 /// Crossover multiple gene positions from which on the rest of the genes are taken from the other
 /// parent. This goes back and forth. The gene positions are chosen with uniform probability.
-/// Choose between allowing duplicates or not (not much slower, as crossover itself is relatively expensive).
-/// Optionally keep parents around to compete with children later on.
+/// Choose between allowing duplicate crossovers on the same point or not (not much slower, as
+/// crossover itself is relatively expensive). Optionally keep parents around to compete with
+/// children later on.
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) as it would not preserve the gene uniqueness in the children.
 /// Allowed for [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as there are valid crossover points between each new set
