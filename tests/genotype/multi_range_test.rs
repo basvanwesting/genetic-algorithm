@@ -3,7 +3,7 @@ use crate::support::*;
 use genetic_algorithm::genotype::{Genotype, IncrementalGenotype, MultiRangeGenotype};
 
 #[test]
-fn float_mutate_chromosome_random() {
+fn float_mutate_chromosome_single_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -17,7 +17,7 @@ fn float_mutate_chromosome_random() {
         0.001
     ));
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.195, 18.970],
@@ -26,7 +26,7 @@ fn float_mutate_chromosome_random() {
 }
 
 #[test]
-fn float_mutate_chromosome_relative() {
+fn float_mutate_chromosome_single_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -41,15 +41,15 @@ fn float_mutate_chromosome_relative() {
         0.001
     ));
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 20.0],
         0.001
     ));
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 19.790],
@@ -58,7 +58,7 @@ fn float_mutate_chromosome_relative() {
 }
 
 #[test]
-fn float_mutate_chromosome_scaled() {
+fn float_mutate_chromosome_single_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -77,14 +77,14 @@ fn float_mutate_chromosome_scaled() {
         0.001
     ));
 
-    genotype.mutate_chromosome(&mut chromosome, Some(2), &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 19.899],
         0.001
     ));
 
-    genotype.mutate_chromosome(&mut chromosome, Some(2), &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 19.999],
@@ -237,7 +237,7 @@ fn float_neighbouring_population_3_scaled() {
 }
 
 #[test]
-fn integer_mutate_chromosome_random() {
+fn integer_mutate_chromosome_single_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
@@ -247,12 +247,12 @@ fn integer_mutate_chromosome_random() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 2, 20]);
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 20]);
 }
 
 #[test]
-fn integer_mutate_chromosome_relative() {
+fn integer_mutate_chromosome_single_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
@@ -263,7 +263,7 @@ fn integer_mutate_chromosome_relative() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 2, 20]);
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 20]);
 }
 

@@ -55,7 +55,7 @@ impl Mutate for MultiGeneDynamic {
         {
             if bool_sampler.sample(rng) {
                 for _ in 0..self.number_of_mutations {
-                    genotype.mutate_chromosome(chromosome, state.current_scale_index, rng);
+                    genotype.mutate_chromosome_single(chromosome, state.current_scale_index, rng);
                 }
             }
         }

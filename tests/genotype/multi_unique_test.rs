@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{
 };
 
 #[test]
-fn mutate_chomosome() {
+fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![vec![0, 1], vec![4, 5, 6, 7], vec![0, 1, 2]])
@@ -18,19 +18,19 @@ fn mutate_chomosome() {
         vec![0, 1, 6, 5, 4, 7, 1, 2, 0]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 7, 4, 5, 1, 2, 0]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 7, 4, 5, 2, 1, 0]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 5, 4, 7, 2, 1, 0]

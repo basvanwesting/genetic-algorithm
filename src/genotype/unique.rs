@@ -89,7 +89,7 @@ impl<T: Allele> Genotype for Unique<T> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome<R: Rng>(
+    fn mutate_chromosome_single<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
         _scale_index: Option<usize>,

@@ -10,8 +10,7 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /crossover_chromosome_pair_gene/ => 'crossover_chromosome_pair_single_gene',
-  /crossover_chromosome_pair_point/ => 'crossover_chromosome_pair_single_point',
+  /mutate_chromosome/ => 'mutate_chromosome_single',
 }
 
 other_translations = {

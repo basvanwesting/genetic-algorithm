@@ -155,12 +155,12 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn mutate_chromosome_random<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
+    fn mutate_chromosome_single_random<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
         let index = self.gene_weighted_index_sampler.sample(rng);
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
-    fn mutate_chromosome_relative<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
+    fn mutate_chromosome_single_relative<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
         let index = self.gene_weighted_index_sampler.sample(rng);
         let allele_range = &self.allele_ranges[index];
 
@@ -175,7 +175,7 @@ where
         }
         chromosome.taint_fitness_score();
     }
-    fn mutate_chromosome_scaled<R: Rng>(
+    fn mutate_chromosome_single_scaled<R: Rng>(
         &self,
         chromosome: &mut Chromosome<T>,
         scale_index: usize,
@@ -226,18 +226,18 @@ where
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome<R: Rng>(
+    fn mutate_chromosome_single<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
         if self.allele_mutation_scaled_ranges.is_some() {
-            self.mutate_chromosome_scaled(chromosome, scale_index.unwrap(), rng);
+            self.mutate_chromosome_single_scaled(chromosome, scale_index.unwrap(), rng);
         } else if self.allele_mutation_ranges.is_some() {
-            self.mutate_chromosome_relative(chromosome, rng);
+            self.mutate_chromosome_single_relative(chromosome, rng);
         } else {
-            self.mutate_chromosome_random(chromosome, rng);
+            self.mutate_chromosome_single_random(chromosome, rng);
         }
     }
 

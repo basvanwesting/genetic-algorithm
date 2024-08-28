@@ -208,7 +208,7 @@ impl<
             match self.config.variant {
                 HillClimbVariant::Stochastic => {
                     let mut contending_chromosome = self.state.best_chromosome().unwrap();
-                    self.genotype.mutate_chromosome(
+                    self.genotype.mutate_chromosome_single(
                         &mut contending_chromosome,
                         self.state.current_scale_index,
                         &mut self.rng,
@@ -223,7 +223,7 @@ impl<
                 }
                 HillClimbVariant::StochasticSecondary => {
                     let mut contending_chromosome_primary = self.state.best_chromosome().unwrap();
-                    self.genotype.mutate_chromosome(
+                    self.genotype.mutate_chromosome_single(
                         &mut contending_chromosome_primary,
                         self.state.current_scale_index,
                         &mut self.rng,
@@ -237,7 +237,7 @@ impl<
                     );
 
                     let mut contending_chromosome_secondary = contending_chromosome_primary.clone();
-                    self.genotype.mutate_chromosome(
+                    self.genotype.mutate_chromosome_single(
                         &mut contending_chromosome_secondary,
                         self.state.current_scale_index,
                         &mut self.rng,

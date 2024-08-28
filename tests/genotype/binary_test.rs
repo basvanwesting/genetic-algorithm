@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{
 };
 
 #[test]
-fn mutate_chomosome() {
+fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
@@ -18,13 +18,13 @@ fn mutate_chomosome() {
         vec![true, true, false, true, false, false, false, true, true, false]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![true, true, true, true, false, false, false, true, true, false]
     );
 
-    genotype.mutate_chromosome(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![true, true, true, true, false, false, false, true, true, true]
