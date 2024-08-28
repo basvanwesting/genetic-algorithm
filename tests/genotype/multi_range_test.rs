@@ -109,7 +109,6 @@ fn mutate_chromosome_multi_random_with_duplicates() {
     ));
 }
 #[test]
-#[should_panic]
 fn mutate_chromosome_multi_random_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
@@ -118,7 +117,12 @@ fn mutate_chromosome_multi_random_without_duplicates() {
         .unwrap();
 
     let mut chromosome = build::chromosome(vec![0.0, 0.0, 10.0]);
-    genotype.mutate_chromosome_multi(3, false, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_multi(2, false, &mut chromosome, None, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.0, 4.485, 14.621],
+        0.001
+    ));
 }
 
 #[test]

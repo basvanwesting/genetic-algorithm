@@ -25,80 +25,6 @@ fn float_mutate_chromosome_single_random() {
         0.001,
     ));
 }
-#[test]
-fn mutate_chromosome_multi_with_duplicates() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = RangeGenotype::builder()
-        .with_genes_size(10)
-        .with_allele_range(0.0..=1.0)
-        .build()
-        .unwrap();
-
-    let mut chromosome = build::chromosome(vec![0.0; 10]);
-    genotype.mutate_chromosome_multi(5, true, &mut chromosome, None, &mut rng);
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.0, 0.0, 0.0, 0.818, 0.439, 0.456, 0.0, 0.0, 0.942, 0.462],
-        0.001
-    ));
-}
-#[test]
-#[should_panic]
-fn mutate_chromosome_multi_without_duplicates() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = RangeGenotype::builder()
-        .with_genes_size(10)
-        .with_allele_range(0.0..=1.0)
-        .build()
-        .unwrap();
-
-    let mut chromosome = build::chromosome(vec![0.0; 10]);
-    genotype.mutate_chromosome_multi(5, false, &mut chromosome, None, &mut rng);
-}
-
-#[test]
-fn crossover_chromosome_pair_single_gene() {
-    let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = RangeGenotype::builder()
-        .with_genes_size(10)
-        .with_allele_range(0.0..=2.0)
-        .build()
-        .unwrap();
-
-    let mut father = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
-    let mut mother = build::chromosome(vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]);
-    genotype.crossover_chromosome_pair_single_gene(&mut father, &mut mother, rng);
-    assert_eq!(
-        inspect::chromosome(&father),
-        vec![0.0, 0.1, 0.2, 0.3, 1.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    );
-    assert_eq!(
-        inspect::chromosome(&mother),
-        vec![1.0, 1.1, 1.2, 1.3, 0.4, 1.5, 1.6, 1.7, 1.8, 1.9]
-    );
-}
-
-#[test]
-fn crossover_chromosome_pair_single_point() {
-    let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = RangeGenotype::builder()
-        .with_genes_size(10)
-        .with_allele_range(0.0..=1.0)
-        .build()
-        .unwrap();
-
-    let mut father = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
-    let mut mother = build::chromosome(vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]);
-    genotype.crossover_chromosome_pair_single_point(&mut father, &mut mother, rng);
-    assert_eq!(
-        inspect::chromosome(&father),
-        vec![0.0, 0.1, 0.2, 0.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]
-    );
-    assert_eq!(
-        inspect::chromosome(&mother),
-        vec![1.0, 1.1, 1.2, 1.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
-    );
-}
 
 #[test]
 fn float_mutate_chromosome_single_relative() {
@@ -162,6 +88,85 @@ fn float_mutate_chromosome_single_scaled() {
         vec![0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.578, 0.456, 0.395, 0.818],
         0.001,
     ));
+}
+
+#[test]
+fn mutate_chromosome_multi_random_with_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![0.0; 10]);
+    genotype.mutate_chromosome_multi(5, true, &mut chromosome, None, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.0, 0.0, 0.0, 0.818, 0.439, 0.456, 0.0, 0.0, 0.942, 0.462],
+        0.001
+    ));
+}
+#[test]
+fn mutate_chromosome_multi_random_without_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![0.0; 10]);
+    genotype.mutate_chromosome_multi(5, false, &mut chromosome, None, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.0, 0.0, 0.395, 0.818, 0.644, 0.0, 0.0, 0.240, 0.976, 0.0],
+        0.001
+    ));
+}
+
+#[test]
+fn crossover_chromosome_pair_single_gene() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=2.0)
+        .build()
+        .unwrap();
+
+    let mut father = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let mut mother = build::chromosome(vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]);
+    genotype.crossover_chromosome_pair_single_gene(&mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![0.0, 0.1, 0.2, 0.3, 1.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![1.0, 1.1, 1.2, 1.3, 0.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+    );
+}
+
+#[test]
+fn crossover_chromosome_pair_single_point() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    let mut father = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let mut mother = build::chromosome(vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]);
+    genotype.crossover_chromosome_pair_single_point(&mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![0.0, 0.1, 0.2, 0.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![1.0, 1.1, 1.2, 1.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    );
 }
 
 #[test]

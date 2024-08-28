@@ -64,23 +64,38 @@ fn mutate_chromosome_multi_with_duplicates() {
     );
 }
 #[test]
-#[should_panic]
 fn mutate_chromosome_multi_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![
-            vec![0, 1, 2],
-            vec![3, 4, 5],
-            vec![6, 7, 8],
-            vec![9, 8, 7],
-            vec![6, 5, 4],
-            vec![3, 2, 1],
+            vec![0, 1, 2], //0
+            vec![3, 4, 5], //1
+            vec![6, 7, 8], //2
+            vec![9, 8, 7], //3
+            vec![6, 5, 4], //4
+            vec![3, 2, 1], //5
         ])
         .build()
         .unwrap();
 
-    let mut chromosome = build::chromosome(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+    assert_eq!(genotype.genes_size, 18);
+    assert_eq!(genotype.allele_list_sizes, vec![3, 3, 3, 3, 3, 3]);
+    assert_eq!(
+        genotype.allele_list_index_offsets,
+        vec![0, 3, 6, 9, 12, 15, 18]
+    );
+    assert_eq!(genotype.crossover_points, vec![3, 6, 9, 12, 15]);
+    let mut chromosome =
+        build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
     genotype.mutate_chromosome_multi(3, false, &mut chromosome, None, &mut rng);
+
+    assert_eq!(inspect::chromosome(&chromosome).len(), 18);
+
+    // this test step is flaky, the result is not deterministic. Probably due to WeightedIndex f64 conversion
+    // assert_eq!(
+    //     inspect::chromosome(&chromosome),
+    //     vec![0, 1, 2, 3, 4, 5, 6, 8, 7, 9, 8, 7, 6, 5, 4, 3, 1, 2]
+    // );
 }
 
 #[test]

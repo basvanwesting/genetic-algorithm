@@ -84,14 +84,7 @@ pub trait Genotype:
         chromosome: &mut Chromosome<Self::Allele>,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) {
-        if !allow_duplicates {
-            panic!("default implementation of mutate_chromosome_multi only supports allow_duplicates=true");
-        }
-        for _ in 0..number_of_mutations {
-            self.mutate_chromosome_single(chromosome, scale_index, rng)
-        }
-    }
+    );
 
     /// a crossover of a single gene between a pair of chromosomes
     /// panics if there are no valid crossover indexes

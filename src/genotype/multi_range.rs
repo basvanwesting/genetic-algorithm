@@ -11,6 +11,13 @@ use std::ops::{Add, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
+#[derive(Copy, Clone, Debug)]
+pub enum MutationType {
+    Random,
+    Relative,
+    Scaled,
+}
+
 /// Genes are a list of numberic values, each individually taken from its own allele_range. The
 /// genes_size is derived to be the allele_ranges length. On random initialization, each gene gets
 /// a value from its own allele_range with a uniform probability. Each gene has a weighted
@@ -89,6 +96,7 @@ pub struct MultiRange<
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
     sign_sampler: Bernoulli,
+    index_weights: Vec<f64>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
@@ -128,7 +136,7 @@ where
                 allele_mutation_ranges: builder.allele_mutation_ranges.clone(),
                 allele_mutation_scaled_ranges: builder.allele_mutation_scaled_ranges.clone(),
                 gene_index_sampler: Uniform::from(0..genes_size),
-                gene_weighted_index_sampler: WeightedIndex::new(index_weights).unwrap(),
+                gene_weighted_index_sampler: WeightedIndex::new(index_weights.clone()).unwrap(),
                 allele_samplers: allele_ranges
                     .iter()
                     .map(|allele_range| Uniform::from(allele_range.clone()))
@@ -144,6 +152,7 @@ where
                     },
                 ),
                 sign_sampler: Bernoulli::new(0.5).unwrap(),
+                index_weights,
                 seed_genes_list: builder.seed_genes_list,
             })
         }
@@ -155,19 +164,30 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn mutate_chromosome_single_random<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
-        let index = self.gene_weighted_index_sampler.sample(rng);
-        chromosome.genes[index] = self.allele_samplers[index].sample(rng);
-        chromosome.taint_fitness_score();
+    fn mutation_type(&self) -> MutationType {
+        if self.allele_mutation_scaled_ranges.is_some() {
+            MutationType::Scaled
+        } else if self.allele_mutation_ranges.is_some() {
+            MutationType::Relative
+        } else {
+            MutationType::Random
+        }
     }
-    fn mutate_chromosome_single_relative<R: Rng>(
+    fn mutate_chromosome_index_random<R: Rng>(
         &self,
+        index: usize,
         chromosome: &mut Chromosome<T>,
         rng: &mut R,
     ) {
-        let index = self.gene_weighted_index_sampler.sample(rng);
+        chromosome.genes[index] = self.allele_samplers[index].sample(rng);
+    }
+    fn mutate_chromosome_index_relative<R: Rng>(
+        &self,
+        index: usize,
+        chromosome: &mut Chromosome<T>,
+        rng: &mut R,
+    ) {
         let allele_range = &self.allele_ranges[index];
-
         let value_diff = self.allele_relative_samplers.as_ref().unwrap()[index].sample(rng);
         let new_value = chromosome.genes[index] + value_diff;
         if new_value < *allele_range.start() {
@@ -177,17 +197,15 @@ where
         } else {
             chromosome.genes[index] = new_value;
         }
-        chromosome.taint_fitness_score();
     }
-    fn mutate_chromosome_single_scaled<R: Rng>(
+    fn mutate_chromosome_index_scaled<R: Rng>(
         &self,
+        index: usize,
         chromosome: &mut Chromosome<T>,
         scale_index: usize,
         rng: &mut R,
     ) {
-        let index = self.gene_weighted_index_sampler.sample(rng);
         let allele_range = &self.allele_ranges[index];
-
         let working_range =
             &self.allele_mutation_scaled_ranges.as_ref().unwrap()[scale_index][index];
         let value_diff = if self.sign_sampler.sample(rng) {
@@ -204,7 +222,6 @@ where
         } else {
             chromosome.genes[index] = new_value;
         }
-        chromosome.taint_fitness_score();
     }
 }
 
@@ -236,13 +253,70 @@ where
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        if self.allele_mutation_scaled_ranges.is_some() {
-            self.mutate_chromosome_single_scaled(chromosome, scale_index.unwrap(), rng);
-        } else if self.allele_mutation_ranges.is_some() {
-            self.mutate_chromosome_single_relative(chromosome, rng);
+        let index = self.gene_weighted_index_sampler.sample(rng);
+        match self.mutation_type() {
+            MutationType::Scaled => {
+                self.mutate_chromosome_index_scaled(index, chromosome, scale_index.unwrap(), rng)
+            }
+            MutationType::Relative => self.mutate_chromosome_index_relative(index, chromosome, rng),
+            MutationType::Random => self.mutate_chromosome_index_random(index, chromosome, rng),
+        };
+        chromosome.taint_fitness_score();
+    }
+    fn mutate_chromosome_multi<R: Rng>(
+        &self,
+        number_of_mutations: usize,
+        allow_duplicates: bool,
+        chromosome: &mut Chromosome<Self::Allele>,
+        scale_index: Option<usize>,
+        rng: &mut R,
+    ) {
+        let mutation_type = self.mutation_type();
+        if allow_duplicates {
+            for _ in 0..number_of_mutations {
+                let index = self.gene_weighted_index_sampler.sample(rng);
+                match mutation_type {
+                    MutationType::Scaled => self.mutate_chromosome_index_scaled(
+                        index,
+                        chromosome,
+                        scale_index.unwrap(),
+                        rng,
+                    ),
+                    MutationType::Relative => {
+                        self.mutate_chromosome_index_relative(index, chromosome, rng)
+                    }
+                    MutationType::Random => {
+                        self.mutate_chromosome_index_random(index, chromosome, rng)
+                    }
+                };
+            }
         } else {
-            self.mutate_chromosome_single_random(chromosome, rng);
+            rand::seq::index::sample_weighted(
+                rng,
+                self.genes_size,
+                |i| self.index_weights[i],
+                number_of_mutations.min(self.genes_size),
+            )
+            .unwrap()
+            .iter()
+            .for_each(|index| {
+                match mutation_type {
+                    MutationType::Scaled => self.mutate_chromosome_index_scaled(
+                        index,
+                        chromosome,
+                        scale_index.unwrap(),
+                        rng,
+                    ),
+                    MutationType::Relative => {
+                        self.mutate_chromosome_index_relative(index, chromosome, rng)
+                    }
+                    MutationType::Random => {
+                        self.mutate_chromosome_index_random(index, chromosome, rng)
+                    }
+                };
+            });
         }
+        chromosome.taint_fitness_score();
     }
 
     fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
@@ -406,6 +480,7 @@ where
                 },
             ),
             sign_sampler: Bernoulli::new(0.5).unwrap(),
+            index_weights: self.index_weights.clone(),
             seed_genes_list: self.seed_genes_list.clone(),
         }
     }

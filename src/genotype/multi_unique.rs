@@ -6,6 +6,7 @@ use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
+use std::collections::HashMap;
 use std::fmt;
 
 pub type DefaultAllele = usize;
@@ -56,14 +57,14 @@ pub type DefaultAllele = usize;
 /// ```
 #[derive(Clone, Debug)]
 pub struct MultiUnique<T: Allele = DefaultAllele> {
-    genes_size: usize,
+    pub genes_size: usize,
     pub allele_list_sizes: Vec<usize>,
     pub allele_list_index_offsets: Vec<usize>,
     pub allele_lists: Vec<Vec<T>>,
-    allele_list_index_sampler: WeightedIndex<usize>,
-    allele_list_index_samplers: Vec<Uniform<usize>>,
+    pub allele_list_index_sampler: WeightedIndex<usize>,
+    pub allele_list_index_samplers: Vec<Uniform<usize>>,
     pub crossover_points: Vec<usize>,
-    crossover_point_sampler: Option<Uniform<usize>>,
+    pub crossover_point_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
@@ -145,11 +146,65 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        let index = self.allele_list_index_sampler.sample(rng);
-        let index_offset: usize = self.allele_list_index_offsets[index];
-        let index1 = index_offset + self.allele_list_index_samplers[index].sample(rng);
-        let index2 = index_offset + self.allele_list_index_samplers[index].sample(rng);
+        let allele_list_index = self.allele_list_index_sampler.sample(rng);
+        let allele_list_index_offset = self.allele_list_index_offsets[allele_list_index];
+        let index1 = allele_list_index_offset
+            + self.allele_list_index_samplers[allele_list_index].sample(rng);
+        let index2 = allele_list_index_offset
+            + self.allele_list_index_samplers[allele_list_index].sample(rng);
         chromosome.genes.swap(index1, index2);
+        chromosome.taint_fitness_score();
+    }
+    fn mutate_chromosome_multi<R: Rng>(
+        &self,
+        number_of_mutations: usize,
+        allow_duplicates: bool,
+        chromosome: &mut Chromosome<Self::Allele>,
+        _scale_index: Option<usize>,
+        rng: &mut R,
+    ) {
+        if allow_duplicates {
+            for _ in 0..number_of_mutations {
+                let allele_list_index = self.allele_list_index_sampler.sample(rng);
+                let allele_list_index_offset = self.allele_list_index_offsets[allele_list_index];
+                let index1 = allele_list_index_offset
+                    + self.allele_list_index_samplers[allele_list_index].sample(rng);
+                let index2 = allele_list_index_offset
+                    + self.allele_list_index_samplers[allele_list_index].sample(rng);
+                chromosome.genes.swap(index1, index2);
+            }
+        } else {
+            rng.sample_iter(&self.allele_list_index_sampler)
+                .take(number_of_mutations)
+                .fold(HashMap::<usize, usize>::new(), |mut m, x| {
+                    *m.entry(x).or_default() += 1;
+                    m
+                })
+                .into_iter()
+                .for_each(|(allele_list_index, count)| {
+                    let allele_list_size = self.allele_list_sizes[allele_list_index];
+                    let allele_list_index_offset =
+                        self.allele_list_index_offsets[allele_list_index];
+                    rand::seq::index::sample(
+                        rng,
+                        allele_list_size,
+                        allele_list_size.min(count * 2),
+                    )
+                    .iter()
+                    .chunks(2)
+                    .into_iter()
+                    .for_each(|mut chunk| {
+                        if let Some(index1) = chunk.next() {
+                            if let Some(index2) = chunk.next() {
+                                chromosome.genes.swap(
+                                    allele_list_index_offset + index1,
+                                    allele_list_index_offset + index2,
+                                );
+                            }
+                        }
+                    });
+                });
+        }
         chromosome.taint_fitness_score();
     }
 
