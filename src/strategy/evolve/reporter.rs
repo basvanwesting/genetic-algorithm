@@ -47,6 +47,13 @@ use std::marker::PhantomData;
 pub trait Reporter: Clone + Send + Sync {
     type Allele: Allele;
 
+    fn on_init<G: Genotype>(
+        &mut self,
+        _genotype: &G,
+        _state: &EvolveState<Self::Allele>,
+        _config: &EvolveConfig,
+    ) {
+    }
     fn on_start<G: Genotype>(
         &mut self,
         _genotype: &G,

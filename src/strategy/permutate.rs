@@ -102,6 +102,8 @@ impl<
 {
     fn call(&mut self) {
         self.reporter
+            .on_init(&self.genotype, &self.state, &self.config);
+        self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         if self.config.par_fitness {
             self.call_parallel()

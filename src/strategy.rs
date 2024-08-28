@@ -114,6 +114,7 @@ pub trait StrategyReporter: Clone + Send + Sync {
     type State: StrategyState<Self::Allele>;
     type Config: StrategyConfig;
 
+    fn on_init(&mut self, _state: &Self::State, _config: &Self::Config) {}
     fn on_start(&mut self, _state: &Self::State, _config: &Self::Config) {}
     fn on_finish(&mut self, _state: &Self::State, _config: &Self::Config) {}
     fn on_new_generation(&mut self, _state: &Self::State, _config: &Self::Config) {}

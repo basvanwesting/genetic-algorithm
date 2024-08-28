@@ -44,6 +44,13 @@ use std::marker::PhantomData;
 pub trait Reporter: Clone + Send + Sync {
     type Allele: Allele;
 
+    fn on_init<G: IncrementalGenotype>(
+        &mut self,
+        _genotype: &G,
+        _state: &HillClimbState<Self::Allele>,
+        _config: &HillClimbConfig,
+    ) {
+    }
     fn on_start<G: IncrementalGenotype>(
         &mut self,
         _genotype: &G,

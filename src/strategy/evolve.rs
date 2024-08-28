@@ -27,13 +27,15 @@ pub use self::reporter::Reporter as EvolveReporter;
 pub use self::reporter::Simple as EvolveReporterSimple;
 
 /// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
-/// seeds specific genes to start with).
+/// seeds specific genes to start with), calculates [fitness](crate::fitness) for all chromosomes
+/// and sets a first best chromosome (if any).
+///
 /// Then the Evolve strategy runs through generations of chromosomes in a loop:
 /// * [extension](crate::extension) an optional step (e.g. [MassExtinction](crate::extension::ExtensionMassExtinction))
+/// * [compete](crate::compete) to pair up chromosomes for crossover and drop excess chromosomes
 /// * [crossover](crate::crossover) to produce new offspring with a mix of parents chromosome genes
-/// * [mutate](crate::mutate) a subset of chromosomes to add some additional diversity
+/// * [mutate](crate::mutate) the offspring chromosomes to add some additional diversity
 /// * calculate [fitness](crate::fitness) for all chromosomes
-/// * [compete](crate::compete) to pair up chromosomes for crossover in next generation and drop excess chromosomes
 /// * store best chromosome and check ending conditions
 ///
 /// The ending conditions are one or more of the following:
@@ -97,20 +99,20 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// // the search strategy
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
+///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
+///     .with_compete(CompeteElite::new())                     // sort the chromosomes by fitness to determine crossover order
+///     .with_crossover(CrossoverUniform::new(true))           // crossover all individual genes between 2 chromosomes for offspring
+///     .with_mutate(MutateSingleGene::new(0.2))               // mutate a single gene with a 20% probability per chromosome
+///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
+///     .with_fitness_ordering(FitnessOrdering::Minimize)      // aim for the least true values
+///     .with_par_fitness(true)                                // optional, defaults to false, use parallel fitness calculation
 ///     .with_target_population_size(100)                      // evolve with 100 chromosomes
 ///     .with_target_fitness_score(0)                          // ending condition if 0 times true in the best chromosome
 ///     .with_valid_fitness_score(10)                          // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)                      // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_max_chromosome_age(10)                           // kill chromosomes after 10 generations
-///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
-///     .with_fitness_ordering(FitnessOrdering::Minimize)      // aim for the least true values
-///     .with_par_fitness(true)                                // optional, defaults to false, use parallel fitness calculation
-///     .with_replace_on_equal_fitness(true)                   // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
-///     .with_crossover(CrossoverUniform::new(true))           // crossover all individual genes between 2 chromosomes for offspring
-///     .with_mutate(MutateSingleGene::new(0.2))               // mutate a single gene with a 20% probability per chromosome
-///     .with_compete(CompeteElite::new())                     // sort the chromosomes by fitness to determine crossover order
-///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
 ///     .with_reporter(EvolveReporterSimple::new(100))         // optional builder step, report every 100 generations
+///     .with_replace_on_equal_fitness(true)                   // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
 ///     .with_rng_seed_from_u64(0)                             // for testing with deterministic results
 ///     .call()
 ///     .unwrap();
@@ -182,11 +184,27 @@ impl<
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
     fn call(&mut self) {
-        self.state.population = self.population_factory();
-
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
+        }
+
+        self.reporter
+            .on_init(&self.genotype, &self.state, &self.config);
+        self.state.population = self.population_factory();
+        self.fitness
+            .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
+        if let Some(contending_chromosome) = self
+            .state
+            .population
+            .best_chromosome(self.config.fitness_ordering)
+            .cloned()
+        {
+            self.state.update_best_chromosome_and_report(
+                &contending_chromosome,
+                &self.config,
+                &mut self.reporter,
+            );
         }
 
         self.reporter
@@ -197,6 +215,12 @@ impl<
 
             self.plugins.extension.call(
                 &self.genotype,
+                &mut self.state,
+                &self.config,
+                &mut self.reporter,
+                &mut self.rng,
+            );
+            self.plugins.compete.call(
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
@@ -218,12 +242,6 @@ impl<
             );
             self.fitness
                 .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
-            self.plugins.compete.call(
-                &mut self.state,
-                &self.config,
-                &mut self.reporter,
-                &mut self.rng,
-            );
 
             if let Some(contending_chromosome) = self
                 .state

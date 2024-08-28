@@ -414,10 +414,10 @@ fn call_range_f32() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9932));
+    assert_eq!(best_chromosome.fitness_score, Some(9942));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![0.997, 0.999, 0.996, 0.990, 0.998, 0.983, 0.990, 0.983, 0.997, 0.995],
+        vec![0.998, 0.999, 0.996, 0.990, 0.998, 0.992, 0.990, 0.983, 0.997, 0.995],
         0.001
     ));
 }

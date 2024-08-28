@@ -192,14 +192,16 @@ impl<
     > Strategy<G> for HillClimb<G, F, SR>
 {
     fn call(&mut self) {
-        let mut seed_chromosome = self.genotype.chromosome_factory(&mut self.rng);
-        self.fitness.call_for_chromosome(&mut seed_chromosome);
-        self.state.set_best_chromosome(&seed_chromosome, true);
-
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
         }
+
+        self.reporter
+            .on_init(&self.genotype, &self.state, &self.config);
+        let mut seed_chromosome = self.genotype.chromosome_factory(&mut self.rng);
+        self.fitness.call_for_chromosome(&mut seed_chromosome);
+        self.state.set_best_chromosome(&seed_chromosome, true);
 
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
