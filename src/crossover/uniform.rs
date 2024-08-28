@@ -6,7 +6,7 @@ use rand::Rng;
 /// Crossover with 50% probability for each gene to come from one of the two parents.
 /// Optionally keep parents around to compete with children later on.
 ///
-/// Actually implemented as `CrossoverMultiGene::new(<genes_size> / 2, keep_parent)`
+/// Actually implemented as `CrossoverMultiGene::new(<genes_size> / 2, allow_duplicates=true, keep_parent)`
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
@@ -57,8 +57,6 @@ impl Crossover for Uniform {
 
 impl Uniform {
     pub fn new(keep_parent: bool) -> Self {
-        Self {
-            keep_parent,
-        }
+        Self { keep_parent }
     }
 }

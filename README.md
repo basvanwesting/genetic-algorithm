@@ -134,19 +134,27 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
 
 ## TODO
-* Make duration stats return Duration, so we can choose sec/milli/micro afterwards.
-* Add simulated annealing strategy
-* Add scaling permutate? Can be done by grid search and then search within last grid with new scale
 
 ## MAYBE
+* Target cardinality range for Mutate Dynamic to avoid constant switching
+* Default max_stale_generations to 1 for SteepestAscent
+* Add scaling permutate? Can be done by grid search and then search within last grid with new scale
+* Add scaling helper function
+* Add simulated annealing strategy
 * Add Roulette competition with and without duplicates (with fitness ordering)
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for RangeGenotype?
-* Add scaling helper function
-* Default max_stale_generations to 1 for SteepestAscent
-* Target cardinality range for Mutate Dynamic to avoid constant switching
-* Store samplers on mutate etc. Just like genotype?
 * Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
+* Explore non-Vec genes:
+  * All Mutate and Crossover logic should be internal to the Genotype (where
+    the genes internal structure is known). Fitness would know about the genes
+    internal structure as well of course. Compete, Extension and the rest of the
+    main loop don't care, as these only care about the fitness value.
+  * Switch the user API associated trait back from Allele to Genotype. And then
+    Chromosome would store Genotype::Genes, which is not necessarily a Vec\<Allele\>
+    anymore.
+  * Then we could add PackedSimd, SmallVec or FixedBitSet genotypes.
+    And see how they perform differently
 
 ## ISSUES
 * permutate (and possibly others) with gene_size 0 panics. Maybe it should just return a empty chromosome?
