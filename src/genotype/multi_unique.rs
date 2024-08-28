@@ -187,15 +187,19 @@ impl<T: Allele> Genotype for MultiUnique<T> {
                     mother.genes.append(&mut father_genes_split);
                 });
         } else {
-            rand::seq::index::sample(rng, self.crossover_points.len(), number_of_crossovers)
-                .iter()
-                .for_each(|point_index| {
-                    let index = self.crossover_points[point_index];
-                    let mut father_genes_split = father.genes.split_off(index);
-                    let mut mother_genes_split = mother.genes.split_off(index);
-                    father.genes.append(&mut mother_genes_split);
-                    mother.genes.append(&mut father_genes_split);
-                });
+            rand::seq::index::sample(
+                rng,
+                self.crossover_points.len(),
+                number_of_crossovers.min(self.crossover_points.len()),
+            )
+            .iter()
+            .for_each(|point_index| {
+                let index = self.crossover_points[point_index];
+                let mut father_genes_split = father.genes.split_off(index);
+                let mut mother_genes_split = mother.genes.split_off(index);
+                father.genes.append(&mut mother_genes_split);
+                mother.genes.append(&mut father_genes_split);
+            });
         }
         mother.taint_fitness_score();
         father.taint_fitness_score();

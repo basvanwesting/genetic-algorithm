@@ -126,11 +126,15 @@ pub trait Genotype:
                 });
         } else {
             // assume all genes are valid indexes, handle otherwise in trait implmentaiton
-            rand::seq::index::sample(rng, self.genes_size(), number_of_crossovers)
-                .iter()
-                .for_each(|index| {
-                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-                });
+            rand::seq::index::sample(
+                rng,
+                self.genes_size(),
+                number_of_crossovers.min(self.genes_size()),
+            )
+            .iter()
+            .for_each(|index| {
+                std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+            });
         }
         mother.taint_fitness_score();
         father.taint_fitness_score();
@@ -174,14 +178,18 @@ pub trait Genotype:
                 });
         } else {
             // assume all genes are valid points, handle otherwise in trait implmentaiton
-            rand::seq::index::sample(rng, self.genes_size(), number_of_crossovers)
-                .iter()
-                .for_each(|index| {
-                    let mut father_genes_split = father.genes.split_off(index);
-                    let mut mother_genes_split = mother.genes.split_off(index);
-                    father.genes.append(&mut mother_genes_split);
-                    mother.genes.append(&mut father_genes_split);
-                });
+            rand::seq::index::sample(
+                rng,
+                self.genes_size(),
+                number_of_crossovers.min(self.genes_size()),
+            )
+            .iter()
+            .for_each(|index| {
+                let mut father_genes_split = father.genes.split_off(index);
+                let mut mother_genes_split = mother.genes.split_off(index);
+                father.genes.append(&mut mother_genes_split);
+                mother.genes.append(&mut father_genes_split);
+            });
         }
         mother.taint_fitness_score();
         father.taint_fitness_score();

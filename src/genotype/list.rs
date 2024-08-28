@@ -122,12 +122,15 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
                 chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
             }
         } else {
-            rand::seq::index::sample(rng, self.genes_size, number_of_mutations)
-                .iter()
-                .for_each(|index| {
-                    chromosome.genes[index] =
-                        self.allele_list[self.allele_index_sampler.sample(rng)];
-                });
+            rand::seq::index::sample(
+                rng,
+                self.genes_size,
+                number_of_mutations.min(self.genes_size),
+            )
+            .iter()
+            .for_each(|index| {
+                chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
+            });
         }
         chromosome.taint_fitness_score();
     }

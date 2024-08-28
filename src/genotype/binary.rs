@@ -90,11 +90,15 @@ impl Genotype for Binary {
                     chromosome.genes[index] = !chromosome.genes[index];
                 });
         } else {
-            rand::seq::index::sample(rng, self.genes_size, number_of_mutations)
-                .iter()
-                .for_each(|index| {
-                    chromosome.genes[index] = !chromosome.genes[index];
-                });
+            rand::seq::index::sample(
+                rng,
+                self.genes_size,
+                number_of_mutations.min(self.genes_size),
+            )
+            .iter()
+            .for_each(|index| {
+                chromosome.genes[index] = !chromosome.genes[index];
+            });
         }
         chromosome.taint_fitness_score();
     }

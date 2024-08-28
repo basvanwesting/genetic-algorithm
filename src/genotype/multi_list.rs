@@ -174,7 +174,7 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
                 rng,
                 self.genes_size,
                 |i| self.allele_list_sizes[i] as f64,
-                number_of_mutations,
+                number_of_mutations.min(self.genes_size),
             )
             .unwrap()
             .iter()
