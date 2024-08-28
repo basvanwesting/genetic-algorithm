@@ -74,8 +74,8 @@ fn crossover_chromosome_pair_single_point() {
 }
 
 #[test]
-fn crossover_chromosome_pair_multi_gene() {
-    let rng = &mut SmallRng::seed_from_u64(1);
+fn crossover_chromosome_pair_multi_gene_with_duplicates() {
+    let rng = &mut SmallRng::seed_from_u64(0);
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
@@ -83,14 +83,34 @@ fn crossover_chromosome_pair_multi_gene() {
 
     let mut father = build::chromosome(vec![true; 10]);
     let mut mother = build::chromosome(vec![false; 10]);
-    genotype.crossover_chromosome_pair_multi_gene(3, &mut father, &mut mother, rng);
+    genotype.crossover_chromosome_pair_multi_gene(3, true, &mut father, &mut mother, rng);
     assert_eq!(
         inspect::chromosome(&father),
-        vec![false, false, true, true, true, true, true, false, true, true]
+        vec![true, true, true, true, true, true, true, true, true, false]
     );
     assert_eq!(
         inspect::chromosome(&mother),
-        vec![true, true, false, false, false, false, false, true, false, false]
+        vec![false, false, false, false, false, false, false, false, false, true]
+    );
+}
+#[test]
+fn crossover_chromosome_pair_multi_gene_without_duplicates() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
+    let mut father = build::chromosome(vec![true; 10]);
+    let mut mother = build::chromosome(vec![false; 10]);
+    genotype.crossover_chromosome_pair_multi_gene(3, false, &mut father, &mut mother, rng);
+    assert_eq!(
+        inspect::chromosome(&father),
+        vec![true, true, true, true, false, true, true, false, false, true]
+    );
+    assert_eq!(
+        inspect::chromosome(&mother),
+        vec![false, false, false, false, true, false, false, true, true, false]
     );
 }
 

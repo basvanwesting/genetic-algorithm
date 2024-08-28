@@ -95,27 +95,26 @@ pub trait Genotype:
     fn crossover_chromosome_pair_multi_gene<R: Rng>(
         &self,
         number_of_crossovers: usize,
+        allow_duplicates: bool,
         father: &mut Chromosome<Self::Allele>,
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
-        // self.crossover_indexes()
-        //     .choose_multiple(rng, number_of_crossovers)
-        //     .for_each(|index| {
-        //         std::mem::swap(&mut father.genes[*index], &mut mother.genes[*index]);
-        //     });
-
-        // rand::seq::index::sample(rng, self.genes_size(), number_of_crossovers)
-        //     .iter()
-        //     .for_each(|index| {
-        //         std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-        //     });
-
-        rng.sample_iter(self.crossover_index_sampler().unwrap())
-            .take(number_of_crossovers)
-            .for_each(|index| {
-                std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-            });
+        if allow_duplicates {
+            // fast with duplicates
+            rng.sample_iter(self.crossover_index_sampler().unwrap())
+                .take(number_of_crossovers)
+                .for_each(|index| {
+                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                });
+        } else {
+            // safe and slow
+            rand::seq::index::sample(rng, self.genes_size(), number_of_crossovers)
+                .iter()
+                .for_each(|index| {
+                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                });
+        }
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
@@ -144,24 +143,6 @@ pub trait Genotype:
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
-        // self.crossover_points()
-        //     .choose_multiple(rng, number_of_crossovers)
-        //     .for_each(|index| {
-        //         let mut father_genes_split = father.genes.split_off(*index);
-        //         let mut mother_genes_split = mother.genes.split_off(*index);
-        //         father.genes.append(&mut mother_genes_split);
-        //         mother.genes.append(&mut father_genes_split);
-        //     });
-
-        // rand::seq::index::sample(rng, self.genes_size(), number_of_crossovers)
-        //     .iter()
-        //     .for_each(|index| {
-        //         let mut father_genes_split = father.genes.split_off(index);
-        //         let mut mother_genes_split = mother.genes.split_off(index);
-        //         father.genes.append(&mut mother_genes_split);
-        //         mother.genes.append(&mut father_genes_split);
-        //     });
-
         rng.sample_iter(self.crossover_point_sampler().unwrap())
             .take(number_of_crossovers)
             .for_each(|index| {
@@ -189,6 +170,9 @@ pub trait Genotype:
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<Self::Allele>>);
     fn seed_genes_list(&self) -> &Vec<Vec<Self::Allele>>;
     fn max_scale_index(&self) -> Option<usize>;
+    fn expected_number_of_sampled_index_collisions(&self, number_of_samples: usize) -> usize {
+        number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
+    }
 }
 
 //Evolvable is implicit, until proven otherwise

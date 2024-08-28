@@ -19,7 +19,7 @@ fn main() {
         .with_genotype(genotype)
         .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
         // .with_crossover(CrossoverSinglePoint::new(true))
-        .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true))
+        .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true, true))
         .with_mutate(MutateMultiGene::new(50, 1.0))
         // .with_reporter(EvolveReporterSimple::new(100))
         .with_fitness(CountdownNoisy::new(
@@ -57,7 +57,7 @@ fn main() {
 //         .with_genotype(genotype)
 //         .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
 //         // .with_crossover(CrossoverSinglePoint::new(true))
-//         .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true))
+//         .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true, true))
 //         .with_mutate(MutateMultiGene::new(50, 1.0))
 //         // .with_reporter(EvolveReporterSimple::new(100))
 //         .with_fitness(CountdownNoisy::new(

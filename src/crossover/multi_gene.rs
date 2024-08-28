@@ -12,6 +12,7 @@ use rand::Rng;
 #[derive(Clone, Debug)]
 pub struct MultiGene {
     pub number_of_crossovers: usize,
+    pub allow_duplicates: bool,
     pub keep_parent: bool,
 }
 impl Crossover for MultiGene {
@@ -36,6 +37,7 @@ impl Crossover for MultiGene {
             if let [father, mother] = chunk {
                 genotype.crossover_chromosome_pair_multi_gene(
                     self.number_of_crossovers,
+                    self.allow_duplicates,
                     father,
                     mother,
                     rng,
@@ -53,10 +55,11 @@ impl Crossover for MultiGene {
 }
 
 impl MultiGene {
-    pub fn new(number_of_crossovers: usize, keep_parent: bool) -> Self {
+    pub fn new(number_of_crossovers: usize, allow_duplicates: bool, keep_parent: bool) -> Self {
         Self {
             number_of_crossovers,
             keep_parent,
+            allow_duplicates,
         }
     }
 }

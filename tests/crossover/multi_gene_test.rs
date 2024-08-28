@@ -22,7 +22,13 @@ fn population_even() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverMultiGene::new(4, true, false).call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(&state.population),
@@ -54,7 +60,13 @@ fn population_odd() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverMultiGene::new(4, true, false).call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(&state.population),
@@ -86,7 +98,13 @@ fn population_even_keep_parents() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverMultiGene::new(4, true, true).call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(&state.population),
@@ -122,7 +140,13 @@ fn population_odd_keep_parents() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverMultiGene::new(4, true, true).call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(&state.population),
@@ -154,7 +178,13 @@ fn population_size_one() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(3, false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverMultiGene::new(3, true, false).call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(&state.population),

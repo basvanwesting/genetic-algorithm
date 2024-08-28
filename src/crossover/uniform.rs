@@ -38,6 +38,7 @@ impl Crossover for Uniform {
             if let [father, mother] = chunk {
                 genotype.crossover_chromosome_pair_multi_gene(
                     number_of_crossovers,
+                    true,
                     father,
                     mother,
                     rng,
@@ -56,6 +57,8 @@ impl Crossover for Uniform {
 
 impl Uniform {
     pub fn new(keep_parent: bool) -> Self {
-        Self { keep_parent }
+        Self {
+            keep_parent,
+        }
     }
 }

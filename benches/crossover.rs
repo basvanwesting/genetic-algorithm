@@ -44,7 +44,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             // CrossoverClone::new(false).into(), //noop
             // CrossoverSingleGene::new(false).into(),
             // CrossoverSinglePoint::new(false).into(),
-            CrossoverMultiGene::new(genes_size / 2, false).into(),
+            CrossoverMultiGene::new(genes_size / 2, false, false).into(),
+            CrossoverMultiGene::new(genes_size / 2, true, false).into(),
             // CrossoverMultiPoint::new(genes_size / 10, false).into(),
             // CrossoverParMultiPoint::new(genes_size / 10, false).into(),
             // CrossoverUniform::new(false).into(),
