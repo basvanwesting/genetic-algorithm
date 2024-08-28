@@ -45,6 +45,7 @@ pub type DefaultAllele = usize;
 /// ```
 #[derive(Debug, Clone)]
 pub struct Unique<T: Allele = DefaultAllele> {
+    pub genes_size: usize,
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
@@ -63,6 +64,7 @@ impl<T: Allele> TryFrom<Builder<Self>> for Unique<T> {
         } else {
             let allele_list = builder.allele_list.unwrap();
             Ok(Self {
+                genes_size: allele_list.len(),
                 allele_list: allele_list.clone(),
                 gene_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
@@ -74,7 +76,7 @@ impl<T: Allele> TryFrom<Builder<Self>> for Unique<T> {
 impl<T: Allele> Genotype for Unique<T> {
     type Allele = T;
     fn genes_size(&self) -> usize {
-        self.allele_list.len()
+        self.genes_size
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
         if self.seed_genes_list.is_empty() {
@@ -100,6 +102,37 @@ impl<T: Allele> Genotype for Unique<T> {
         chromosome.genes.swap(index1, index2);
         chromosome.taint_fitness_score();
     }
+
+    fn mutate_chromosome_multi<R: Rng>(
+        &self,
+        number_of_mutations: usize,
+        allow_duplicates: bool,
+        chromosome: &mut Chromosome<Self::Allele>,
+        _scale_index: Option<usize>,
+        rng: &mut R,
+    ) {
+        if allow_duplicates {
+            for _ in 0..number_of_mutations {
+                let index1 = self.gene_index_sampler.sample(rng);
+                let index2 = self.gene_index_sampler.sample(rng);
+                chromosome.genes.swap(index1, index2);
+            }
+        } else {
+            rand::seq::index::sample(rng, self.genes_size, number_of_mutations * 2)
+                .iter()
+                .chunks(2)
+                .into_iter()
+                .for_each(|mut chunk| {
+                    if let Some(index1) = chunk.next() {
+                        if let Some(index2) = chunk.next() {
+                            chromosome.genes.swap(index1, index2);
+                        }
+                    }
+                });
+        }
+        chromosome.taint_fitness_score();
+    }
+
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
         self.seed_genes_list = seed_genes_list;
     }
@@ -130,7 +163,7 @@ impl<T: Allele> IncrementalGenotype for Unique<T> {
     }
 
     fn neighbouring_population_size(&self) -> BigUint {
-        let n = BigUint::from(self.allele_list.len());
+        let n = BigUint::from(self.genes_size);
         let k = BigUint::from(2usize);
 
         n.factorial() / (k.factorial() * (n - k).factorial())
@@ -154,7 +187,7 @@ impl<T: Allele> PermutableGenotype for Unique<T> {
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {
-        BigUint::from(self.allele_list.len()).factorial()
+        BigUint::from(self.genes_size).factorial()
     }
 }
 

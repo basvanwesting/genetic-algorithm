@@ -25,6 +25,36 @@ fn float_mutate_chromosome_single_random() {
         0.001,
     ));
 }
+#[test]
+fn mutate_chromosome_multi_with_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![0.0; 10]);
+    genotype.mutate_chromosome_multi(5, true, &mut chromosome, None, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.0, 0.0, 0.0, 0.818, 0.439, 0.456, 0.0, 0.0, 0.942, 0.462],
+        0.001
+    ));
+}
+#[test]
+#[should_panic]
+fn mutate_chromosome_multi_without_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![0.0; 10]);
+    genotype.mutate_chromosome_multi(5, false, &mut chromosome, None, &mut rng);
+}
 
 #[test]
 fn crossover_chromosome_pair_single_gene() {

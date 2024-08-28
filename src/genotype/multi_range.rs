@@ -160,7 +160,11 @@ where
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
         chromosome.taint_fitness_score();
     }
-    fn mutate_chromosome_single_relative<R: Rng>(&self, chromosome: &mut Chromosome<T>, rng: &mut R) {
+    fn mutate_chromosome_single_relative<R: Rng>(
+        &self,
+        chromosome: &mut Chromosome<T>,
+        rng: &mut R,
+    ) {
         let index = self.gene_weighted_index_sampler.sample(rng);
         let allele_range = &self.allele_ranges[index];
 

@@ -93,6 +93,35 @@ fn float_mutate_chromosome_single_scaled() {
 }
 
 #[test]
+fn mutate_chromosome_multi_random_with_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiRangeGenotype::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![0.0, 0.0, 10.0]);
+    genotype.mutate_chromosome_multi(3, true, &mut chromosome, None, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.0, 0.0, 19.429],
+        0.001
+    ));
+}
+#[test]
+#[should_panic]
+fn mutate_chromosome_multi_random_without_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiRangeGenotype::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![0.0, 0.0, 10.0]);
+    genotype.mutate_chromosome_multi(3, false, &mut chromosome, None, &mut rng);
+}
+
+#[test]
 fn float_crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()

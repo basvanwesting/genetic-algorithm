@@ -69,13 +69,29 @@ pub trait Genotype:
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele>;
     /// a random genes factory (respecting seed genes)
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
-    /// a mutation of the chromosome, the genotype determines whether this is random, relative or scaled.
+    /// a single mutation of the chromosome, the genotype determines whether this is random, relative or scaled.
     fn mutate_chromosome_single<R: Rng>(
         &self,
         chromosome: &mut Chromosome<Self::Allele>,
         scale_index: Option<usize>,
         rng: &mut R,
     );
+    /// multiple mutations of the chromosome, the genotype determines whether this is random, relative or scaled.
+    fn mutate_chromosome_multi<R: Rng>(
+        &self,
+        number_of_mutations: usize,
+        allow_duplicates: bool,
+        chromosome: &mut Chromosome<Self::Allele>,
+        scale_index: Option<usize>,
+        rng: &mut R,
+    ) {
+        if !allow_duplicates {
+            panic!("default implementation of mutate_chromosome_multi only supports allow_duplicates=true");
+        }
+        for _ in 0..number_of_mutations {
+            self.mutate_chromosome_single(chromosome, scale_index, rng)
+        }
+    }
 
     /// a crossover of a single gene between a pair of chromosomes
     /// panics if there are no valid crossover indexes

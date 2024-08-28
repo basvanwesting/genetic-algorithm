@@ -154,6 +154,38 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
             self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
         chromosome.taint_fitness_score();
     }
+
+    fn mutate_chromosome_multi<R: Rng>(
+        &self,
+        number_of_mutations: usize,
+        allow_duplicates: bool,
+        chromosome: &mut Chromosome<Self::Allele>,
+        _scale_index: Option<usize>,
+        rng: &mut R,
+    ) {
+        if allow_duplicates {
+            for _ in 0..number_of_mutations {
+                let index = self.gene_weighted_index_sampler.sample(rng);
+                chromosome.genes[index] =
+                    self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
+            }
+        } else {
+            rand::seq::index::sample_weighted(
+                rng,
+                self.genes_size,
+                |i| self.allele_list_sizes[i] as f64,
+                number_of_mutations,
+            )
+            .unwrap()
+            .iter()
+            .for_each(|index| {
+                chromosome.genes[index] =
+                    self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
+            });
+        }
+        chromosome.taint_fitness_score();
+    }
+
     fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
         Some(&self.gene_index_sampler)
     }

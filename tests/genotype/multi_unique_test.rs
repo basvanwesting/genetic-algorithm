@@ -41,6 +41,47 @@ fn mutate_chromosome_single() {
         BigUint::from(288u32)
     );
 }
+#[test]
+fn mutate_chromosome_multi_with_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_lists(vec![
+            vec![0, 1, 2],
+            vec![3, 4, 5],
+            vec![6, 7, 8],
+            vec![9, 8, 7],
+            vec![6, 5, 4],
+            vec![3, 2, 1],
+        ])
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+    genotype.mutate_chromosome_multi(3, true, &mut chromosome, None, &mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![1, 2, 3, 4, 5, 6, 7, 9, 8, 8, 7, 6, 5, 4, 3, 2, 1]
+    );
+}
+#[test]
+#[should_panic]
+fn mutate_chromosome_multi_without_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_lists(vec![
+            vec![0, 1, 2],
+            vec![3, 4, 5],
+            vec![6, 7, 8],
+            vec![9, 8, 7],
+            vec![6, 5, 4],
+            vec![3, 2, 1],
+        ])
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
+    genotype.mutate_chromosome_multi(3, false, &mut chromosome, None, &mut rng);
+}
 
 #[test]
 #[should_panic]

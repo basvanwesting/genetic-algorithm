@@ -30,6 +30,36 @@ fn mutate_chromosome_single() {
         vec![true, true, true, true, false, false, false, true, true, true]
     );
 }
+#[test]
+fn mutate_chromosome_multi_with_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![true; 10]);
+    genotype.mutate_chromosome_multi(5, true, &mut chromosome, None, &mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![true, true, true, true, false, true, true, true, false, false]
+    );
+}
+#[test]
+fn mutate_chromosome_multi_without_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![true; 10]);
+    genotype.mutate_chromosome_multi(5, false, &mut chromosome, None, &mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![true, true, false, false, false, true, true, false, false, true]
+    );
+}
 
 #[test]
 fn crossover_chromosome_pair_single_gene() {

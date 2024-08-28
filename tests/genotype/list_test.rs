@@ -22,6 +22,38 @@ fn mutate_chromosome_single() {
     genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 2, 2, 2, 3]);
 }
+#[test]
+fn mutate_chromosome_multi_with_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = ListGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_list(vec![1, 2, 3, 4])
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![1; 10]);
+    genotype.mutate_chromosome_multi(5, true, &mut chromosome, None, &mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![1, 1, 1, 4, 2, 2, 1, 1, 4, 2]
+    );
+}
+#[test]
+fn mutate_chromosome_multi_without_duplicates() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = ListGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_list(vec![1, 2, 3, 4])
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![1; 10]);
+    genotype.mutate_chromosome_multi(5, false, &mut chromosome, None, &mut rng);
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![1, 1, 2, 4, 3, 1, 1, 1, 4, 1]
+    );
+}
 
 #[test]
 fn crossover_chromosome_pair_single_gene() {

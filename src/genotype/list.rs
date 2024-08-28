@@ -107,6 +107,31 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
         chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
         chromosome.taint_fitness_score();
     }
+
+    fn mutate_chromosome_multi<R: Rng>(
+        &self,
+        number_of_mutations: usize,
+        allow_duplicates: bool,
+        chromosome: &mut Chromosome<Self::Allele>,
+        _scale_index: Option<usize>,
+        rng: &mut R,
+    ) {
+        if allow_duplicates {
+            for _ in 0..number_of_mutations {
+                let index = self.gene_index_sampler.sample(rng);
+                chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
+            }
+        } else {
+            rand::seq::index::sample(rng, self.genes_size, number_of_mutations)
+                .iter()
+                .for_each(|index| {
+                    chromosome.genes[index] =
+                        self.allele_list[self.allele_index_sampler.sample(rng)];
+                });
+        }
+        chromosome.taint_fitness_score();
+    }
+
     fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
         Some(&self.gene_index_sampler)
     }

@@ -17,33 +17,83 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        group.bench_with_input(
-            BenchmarkId::new("binary-random", genes_size),
-            genes_size,
-            |b, &genes_size| {
-                let genotype = BinaryGenotype::builder()
-                    .with_genes_size(genes_size)
-                    .build()
-                    .unwrap();
-                let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(*genes_size)
+            .build()
+            .unwrap();
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+
+        group.bench_function(BenchmarkId::new("binary-random-single", genes_size), |b| {
+            b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+        });
+        group.bench_function(
+            BenchmarkId::new("binary-random-multi-10-with-duplicates", genes_size),
+            |b| {
+                b.iter(|| {
+                    genotype.mutate_chromosome_multi(
+                        10,
+                        true,
+                        black_box(&mut chromosome),
+                        None,
+                        &mut rng,
+                    )
+                })
+            },
+        );
+        group.bench_function(
+            BenchmarkId::new("binary-random-multi-10-without-duplicates", genes_size),
+            |b| {
+                b.iter(|| {
+                    genotype.mutate_chromosome_multi(
+                        10,
+                        false,
+                        black_box(&mut chromosome),
+                        None,
+                        &mut rng,
+                    )
+                })
             },
         );
     }
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        group.bench_with_input(
-            BenchmarkId::new("list-random", genes_size),
-            genes_size,
-            |b, &genes_size| {
-                let genotype = ListGenotype::builder()
-                    .with_genes_size(genes_size)
-                    .with_allele_list((0..10).collect())
-                    .build()
-                    .unwrap();
-                let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+        let genotype = ListGenotype::builder()
+            .with_genes_size(*genes_size)
+            .with_allele_list((0..10).collect())
+            .build()
+            .unwrap();
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+
+        group.bench_function(BenchmarkId::new("list-random-single", genes_size), |b| {
+            b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+        });
+        group.bench_function(
+            BenchmarkId::new("list-random-multi-10-with-duplicates", genes_size),
+            |b| {
+                b.iter(|| {
+                    genotype.mutate_chromosome_multi(
+                        10,
+                        true,
+                        black_box(&mut chromosome),
+                        None,
+                        &mut rng,
+                    )
+                })
+            },
+        );
+        group.bench_function(
+            BenchmarkId::new("list-random-multi-10-without-duplicates", genes_size),
+            |b| {
+                b.iter(|| {
+                    genotype.mutate_chromosome_multi(
+                        10,
+                        false,
+                        black_box(&mut chromosome),
+                        None,
+                        &mut rng,
+                    )
+                })
             },
         );
     }
@@ -60,7 +110,9 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+                b.iter(|| {
+                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
+                })
             },
         );
         group.bench_with_input(
@@ -74,7 +126,9 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+                b.iter(|| {
+                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
+                })
             },
         );
         group.bench_with_input(
@@ -92,24 +146,50 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), Some(1), &mut rng))
+                b.iter(|| {
+                    genotype.mutate_chromosome_single(black_box(&mut chromosome), Some(1), &mut rng)
+                })
             },
         );
     }
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        group.bench_with_input(
-            BenchmarkId::new("unique-random", genes_size),
-            genes_size,
-            |b, &genes_size| {
-                let genotype = UniqueGenotype::builder()
-                    .with_genes_size(genes_size)
-                    .with_allele_list((0..10).collect())
-                    .build()
-                    .unwrap();
-                let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+        let genotype = UniqueGenotype::builder()
+            .with_allele_list((0..*genes_size).collect())
+            .build()
+            .unwrap();
+        let mut chromosome = genotype.chromosome_factory(&mut rng);
+
+        group.bench_function(BenchmarkId::new("unique-random-single", genes_size), |b| {
+            b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+        });
+        group.bench_function(
+            BenchmarkId::new("unique-random-multi-10-with-duplicates", genes_size),
+            |b| {
+                b.iter(|| {
+                    genotype.mutate_chromosome_multi(
+                        10,
+                        true,
+                        black_box(&mut chromosome),
+                        None,
+                        &mut rng,
+                    )
+                })
+            },
+        );
+        group.bench_function(
+            BenchmarkId::new("unique-random-multi-10-without-duplicates", genes_size),
+            |b| {
+                b.iter(|| {
+                    genotype.mutate_chromosome_multi(
+                        10,
+                        false,
+                        black_box(&mut chromosome),
+                        None,
+                        &mut rng,
+                    )
+                })
             },
         );
     }
@@ -125,7 +205,9 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+                b.iter(|| {
+                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
+                })
             },
         );
     }
@@ -141,7 +223,9 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+                b.iter(|| {
+                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
+                })
             },
         );
         group.bench_with_input(
@@ -154,7 +238,9 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+                b.iter(|| {
+                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
+                })
             },
         );
         group.bench_with_input(
@@ -171,7 +257,9 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), Some(1), &mut rng))
+                b.iter(|| {
+                    genotype.mutate_chromosome_single(black_box(&mut chromosome), Some(1), &mut rng)
+                })
             },
         );
     }
@@ -192,7 +280,9 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                     .build()
                     .unwrap();
                 let mut chromosome = genotype.chromosome_factory(&mut rng);
-                b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
+                b.iter(|| {
+                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
+                })
             },
         );
     }
