@@ -4,7 +4,7 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
 
-pub fn criterion_benchmark(c: &mut Criterion) {
+pub fn mutation_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
     //let genes_sizes = vec![10, 100, 1000, 10000];
     let genes_sizes = vec![100];
@@ -198,5 +198,5 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     }
 }
 
-criterion_group!(benches, criterion_benchmark);
+criterion_group!(benches, mutation_benchmark);
 criterion_main!(benches);

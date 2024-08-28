@@ -170,15 +170,21 @@ pub trait Genotype:
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
-    /// to guard against invalid crossover strategies which break the internal consistency
-    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
     fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
+        None
+    }
+    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
         None
     }
     /// to guard against invalid crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
-        None
+    fn has_crossover_indexes(&self) -> bool {
+        self.crossover_index_sampler().is_some()
+    }
+    /// to guard against invalid crossover strategies which break the internal consistency
+    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
+    fn has_crossover_points(&self) -> bool {
+        self.crossover_point_sampler().is_some()
     }
     fn builder() -> GenotypeBuilder<Self> {
         GenotypeBuilder::<Self>::default()
