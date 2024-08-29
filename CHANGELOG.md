@@ -4,6 +4,27 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.10.3] - 2024-08-29
+
+### Added
+* Add performance considerations in documentation
+* Add `CrossoverMultiGene`, `CrossoverMultiPoint` and `CrossoverParMultiPoint`
+* Add `Fitness` placeholders `Countdown` and `CountdownNoisy`
+
+### Changed
+* Move all crossover and mutation logic to `Genotype`. The goal is to limit the
+  knowledge of the internal genes structure to the Genotype only. Lots of internal
+  changes, not relevant for API.
+* Improve `CrossoverSinglePoint` and `CrossoverMultiPoint` performance by avoiding cloning of genes
+* Reimplement `CrossoverUniform` as `CrossoverMultiGene` with
+  `number_of_crossovers = genes_size / 2` and `allow_duplicates = true`, 
+  no API change
+
+### Removed
+* Drop `CrossoverParUniform` in favor of `CrossoverParMultiPoint` as a more useful
+  example implementation, although parallel execution of crossovers have no
+  performance benefits for most situations
+
 ## [0.10.2] - 2024-08-26
 
 ### Added
