@@ -1,6 +1,7 @@
 use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use itertools::Itertools;
 use rand::Rng;
 
 /// Crossover multiple gene positions from which on the rest of the genes are taken from the other
@@ -35,16 +36,14 @@ impl Crossover for MultiPoint {
             vec![] // throwaway to keep compiler happy
         };
 
-        for chunk in state.population.chromosomes.chunks_mut(2) {
-            if let [father, mother] = chunk {
-                genotype.crossover_chromosome_pair_multi_point(
-                    self.number_of_crossovers,
-                    self.allow_duplicates,
-                    father,
-                    mother,
-                    rng,
-                );
-            }
+        for (father, mother) in state.population.chromosomes.iter_mut().tuples() {
+            genotype.crossover_chromosome_pair_multi_point(
+                self.number_of_crossovers,
+                self.allow_duplicates,
+                father,
+                mother,
+                rng,
+            );
         }
 
         if self.keep_parent {

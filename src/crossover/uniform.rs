@@ -1,6 +1,7 @@
 use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use itertools::Itertools;
 use rand::Rng;
 
 /// Crossover with 50% probability for each gene to come from one of the two parents.
@@ -34,16 +35,14 @@ impl Crossover for Uniform {
         };
 
         let number_of_crossovers = genotype.genes_size() / 2;
-        for chunk in state.population.chromosomes.chunks_mut(2) {
-            if let [father, mother] = chunk {
-                genotype.crossover_chromosome_pair_multi_gene(
-                    number_of_crossovers,
-                    true,
-                    father,
-                    mother,
-                    rng,
-                );
-            }
+        for (father, mother) in state.population.chromosomes.iter_mut().tuples() {
+            genotype.crossover_chromosome_pair_multi_gene(
+                number_of_crossovers,
+                true,
+                father,
+                mother,
+                rng,
+            );
         }
 
         if self.keep_parent {

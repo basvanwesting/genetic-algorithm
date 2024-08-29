@@ -1,6 +1,7 @@
 use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use itertools::Itertools;
 use rand::Rng;
 
 /// Crossover a single gene between the parents. The gene position is chosen with uniform
@@ -31,10 +32,8 @@ impl Crossover for SingleGene {
             vec![] // throwaway to keep compiler happy
         };
 
-        for chunk in state.population.chromosomes.chunks_mut(2) {
-            if let [father, mother] = chunk {
-                genotype.crossover_chromosome_pair_single_gene(father, mother, rng);
-            }
+        for (father, mother) in state.population.chromosomes.iter_mut().tuples() {
+            genotype.crossover_chromosome_pair_single_gene(father, mother, rng);
         }
 
         if self.keep_parent {

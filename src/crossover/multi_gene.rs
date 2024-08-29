@@ -1,6 +1,7 @@
 use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use itertools::Itertools;
 use rand::Rng;
 
 /// Crossover multiple genes between the parents. The gene positions are chosen with uniform
@@ -35,16 +36,14 @@ impl Crossover for MultiGene {
             vec![] // throwaway to keep compiler happy
         };
 
-        for chunk in state.population.chromosomes.chunks_mut(2) {
-            if let [father, mother] = chunk {
-                genotype.crossover_chromosome_pair_multi_gene(
-                    self.number_of_crossovers,
-                    self.allow_duplicates,
-                    father,
-                    mother,
-                    rng,
-                );
-            }
+        for (father, mother) in state.population.chromosomes.iter_mut().tuples() {
+            genotype.crossover_chromosome_pair_multi_gene(
+                self.number_of_crossovers,
+                self.allow_duplicates,
+                father,
+                mother,
+                rng,
+            );
         }
 
         if self.keep_parent {

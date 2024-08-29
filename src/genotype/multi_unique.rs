@@ -185,24 +185,15 @@ impl<T: Allele> Genotype for MultiUnique<T> {
                     let allele_list_size = self.allele_list_sizes[allele_list_index];
                     let allele_list_index_offset =
                         self.allele_list_index_offsets[allele_list_index];
-                    rand::seq::index::sample(
-                        rng,
-                        allele_list_size,
-                        allele_list_size.min(count * 2),
-                    )
-                    .iter()
-                    .chunks(2)
-                    .into_iter()
-                    .for_each(|mut chunk| {
-                        if let Some(index1) = chunk.next() {
-                            if let Some(index2) = chunk.next() {
-                                chromosome.genes.swap(
-                                    allele_list_index_offset + index1,
-                                    allele_list_index_offset + index2,
-                                );
-                            }
-                        }
-                    });
+                    rand::seq::index::sample(rng, allele_list_size, allele_list_size.min(count * 2))
+                        .iter()
+                        .tuples()
+                        .for_each(|(index1, index2)| {
+                            chromosome.genes.swap(
+                                allele_list_index_offset + index1,
+                                allele_list_index_offset + index2,
+                            )
+                        })
                 });
         }
         chromosome.taint_fitness_score();

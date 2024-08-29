@@ -124,15 +124,8 @@ impl<T: Allele> Genotype for Unique<T> {
                 (number_of_mutations * 2).min(self.genes_size),
             )
             .iter()
-            .chunks(2)
-            .into_iter()
-            .for_each(|mut chunk| {
-                if let Some(index1) = chunk.next() {
-                    if let Some(index2) = chunk.next() {
-                        chromosome.genes.swap(index1, index2);
-                    }
-                }
-            });
+            .tuples()
+            .for_each(|(index1, index2)| chromosome.genes.swap(index1, index2));
         }
         chromosome.taint_fitness_score();
     }
