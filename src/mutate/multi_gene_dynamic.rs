@@ -10,7 +10,7 @@ use rand::Rng;
 /// determines whether this is random, relative or scaled. The mutation probability is dynamically
 /// increased or decreased to achieve a target population cardinality.
 ///
-/// Duplicate mutations of the same gene are allowed, as disallowing duplicates is very expensive
+/// Duplicate mutations of the same gene are allowed, as disallowing duplicates is relatively expensive
 /// and mutations should be quite small, so there is little chance for conflict.
 ///
 /// Useful when a single

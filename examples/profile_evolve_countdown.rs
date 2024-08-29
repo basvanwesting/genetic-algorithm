@@ -28,13 +28,10 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        // .with_compete(CompeteElite)
         .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
-        // .with_crossover(CrossoverSinglePoint::new(false))
-        .with_crossover(CrossoverMultiPoint::new(2, false, false))
-        // .with_crossover(CrossoverMultiGene::new(1, true, false))
-        // .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true, false))
-        .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 1.0))
+        .with_crossover(CrossoverMultiPoint::new(10, false, true))
+        // .with_crossover(CrossoverParMultiPoint::new(10, false, false))
+        .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 0.2))
         // .with_reporter(EvolveReporterSimple::new(100))
         .with_fitness(CountdownNoisy::new(
             POPULATION_SIZE * TARGET_GENERATION,

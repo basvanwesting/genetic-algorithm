@@ -111,6 +111,34 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * Custom Reporting implementation
     * See [examples/permutate_scrabble](../main/examples/permutate_scrabble.rs)
 
+## Performance considerations
+
+For the Evolve strategy:
+
+* Compete: no considerations. All competes are basically some form of in-place
+  sorting of some kind. This is relatively fast compared to the rest of the
+  operations.
+* Crossover: the workhorse of internal parts. Crossover touches most genes each
+  generation and clones the whole population if you keep the parents around. See
+  performance tips below.
+* Mutate: no considerations. It touches genes like crossover does, but should
+  be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
+* Fitness: can be anything. This fully depends on the user domain. Parallelize
+  it using `with_par_fitness()` in the Builder. But beware that parallelization
+  has it's own overhead and is not always faster.
+
+**Performance Tips**
+* Small genes sizes
+  * It seems that CrossoverMultiGene with `number_of_crossovers = genes_size / 2`
+  and `allow_duplicates = true` is the best tradeoff between performance and
+  effect. CrossoverUniform is an alias for the same approach, taking the
+  genes_size from the genotype at runtime.
+  * Keeping the parents around doesn't matter that much as the cloning is relatively less
+  pronounced (but becomes more prominent for larger population sizes)
+* Large genes sizes
+  * It seems that CrossoverMultiPoint with `number_of_crossovers = genes_size / 9` 
+  and `allow_duplicates = false` is the best tradeoff between performance and effect.
+  * Keeping the parents around has major performance effects and should be avoided
 
 ## Tests
 Run tests with `cargo test`

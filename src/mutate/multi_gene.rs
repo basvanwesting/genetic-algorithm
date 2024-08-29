@@ -9,7 +9,7 @@ use rand::Rng;
 /// mutates the selected chromosomes the provided number of times, where the [Genotype] determines
 /// whether this is random, relative or scaled.
 ///
-/// Duplicate mutations of the same gene are allowed, as disallowing duplicates is very expensive
+/// Duplicate mutations of the same gene are allowed, as disallowing duplicates is relatively expensive
 /// and mutations should be quite small, so there is little chance for conflict.
 ///
 /// Useful when a single mutation
