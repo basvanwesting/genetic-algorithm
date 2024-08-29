@@ -1,4 +1,5 @@
 use criterion::*;
+use rand::distributions::Uniform;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use rand::Rng;
@@ -140,29 +141,52 @@ pub fn seq_benchmark(c: &mut Criterion) {
     let rng = &mut SmallRng::from_entropy();
 
     for (amount, length) in data {
+        let distribution = Uniform::from(0..length);
+        group.bench_function(format!("sample_iter-{}-{}", amount, length), |b| {
+            b.iter_batched(
+                || Vec::with_capacity(amount),
+                |mut target| {
+                    rng.sample_iter(distribution)
+                        .take(amount)
+                        .for_each(|x| target.push(x));
+                },
+                BatchSize::SmallInput,
+            );
+        });
+        group.bench_function(format!("sample_iter-sort-{}-{}", amount, length), |b| {
+            b.iter_batched(
+                || Vec::with_capacity(amount),
+                |mut target| {
+                    rng.sample_iter(distribution)
+                        .take(amount)
+                        .sorted_unstable()
+                        .dedup()
+                        .for_each(|x| target.push(x));
+                },
+                BatchSize::SmallInput,
+            );
+        });
+        group.bench_function(format!("sample_iter-unique-{}-{}", amount, length), |b| {
+            b.iter_batched(
+                || Vec::with_capacity(amount),
+                |mut target| {
+                    rng.sample_iter(distribution)
+                        .take(amount)
+                        .unique()
+                        .for_each(|x| target.push(x));
+                },
+                BatchSize::SmallInput,
+            );
+        });
+
         group.bench_function(
             format!("rand::seq::index::sample-{}-{}", amount, length),
             |b| {
                 b.iter_batched(
-                    || ((0..length).collect::<Vec<_>>(), Vec::with_capacity(amount)),
-                    |(_source, mut target)| {
+                    || Vec::with_capacity(amount),
+                    |mut target| {
                         rand::seq::index::sample(rng, length, amount)
                             .iter()
-                            .for_each(|x| target.push(x));
-                    },
-                    BatchSize::SmallInput,
-                );
-            },
-        );
-        group.bench_function(
-            format!("rand::seq::index::sample-sort-{}-{}", amount, length),
-            |b| {
-                b.iter_batched(
-                    || ((0..length).collect::<Vec<_>>(), Vec::with_capacity(amount)),
-                    |(_source, mut target)| {
-                        rand::seq::index::sample(rng, length, amount)
-                            .iter()
-                            .sorted_unstable()
                             .for_each(|x| target.push(x));
                     },
                     BatchSize::SmallInput,
@@ -173,8 +197,8 @@ pub fn seq_benchmark(c: &mut Criterion) {
             format!("rand::seq::index::sample-sort-dedup{}-{}", amount, length),
             |b| {
                 b.iter_batched(
-                    || ((0..length).collect::<Vec<_>>(), Vec::with_capacity(amount)),
-                    |(_source, mut target)| {
+                    || Vec::with_capacity(amount),
+                    |mut target| {
                         rand::seq::index::sample(rng, length, amount)
                             .iter()
                             .sorted_unstable()
@@ -189,8 +213,8 @@ pub fn seq_benchmark(c: &mut Criterion) {
             format!("rand::seq::index::sample-unique{}-{}", amount, length),
             |b| {
                 b.iter_batched(
-                    || ((0..length).collect::<Vec<_>>(), Vec::with_capacity(amount)),
-                    |(_source, mut target)| {
+                    || Vec::with_capacity(amount),
+                    |mut target| {
                         rand::seq::index::sample(rng, length, amount)
                             .iter()
                             .unique()
@@ -200,17 +224,6 @@ pub fn seq_benchmark(c: &mut Criterion) {
                 );
             },
         );
-        // group.bench_function(format!("MyIndexSampler-{}-{}", amount, length), |b| {
-        //     b.iter_batched(
-        //         || ((0..length).collect::<Vec<_>>(), Vec::with_capacity(amount)),
-        //         |(source, mut target)| {
-        //             MyIndexSampler::new(source.clone(), rng)
-        //                 .take(amount)
-        //                 .for_each(|x| target.push(x));
-        //         },
-        //         BatchSize::SmallInput,
-        //     );
-        // });
     }
 }
 
