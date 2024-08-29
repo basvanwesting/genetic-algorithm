@@ -82,10 +82,10 @@ pub type DefaultAllele = usize;
 pub struct MultiList<T: Allele + PartialEq = DefaultAllele> {
     pub genes_size: usize,
     pub allele_lists: Vec<Vec<T>>,
+    pub allele_list_sizes: Vec<usize>,
     gene_index_sampler: Uniform<usize>,
     gene_weighted_index_sampler: WeightedIndex<usize>,
     allele_index_samplers: Vec<Uniform<usize>>,
-    pub allele_list_sizes: Vec<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 

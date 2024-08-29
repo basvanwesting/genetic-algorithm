@@ -64,6 +64,7 @@ where
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
     pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<T>>>,
+    pub mutation_type: MutationType,
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
@@ -86,12 +87,20 @@ where
         } else {
             let genes_size = builder.genes_size.unwrap();
             let allele_range = builder.allele_range.unwrap();
+            let mutation_type = if builder.allele_mutation_scaled_range.is_some() {
+                MutationType::Scaled
+            } else if builder.allele_mutation_range.is_some() {
+                MutationType::Relative
+            } else {
+                MutationType::Random
+            };
 
             Ok(Self {
                 genes_size,
                 allele_range: allele_range.clone(),
                 allele_mutation_range: builder.allele_mutation_range.clone(),
                 allele_mutation_scaled_range: builder.allele_mutation_scaled_range.clone(),
+                mutation_type,
                 gene_index_sampler: Uniform::from(0..genes_size),
                 allele_sampler: Uniform::from(allele_range.clone()),
                 allele_relative_sampler: builder
@@ -109,15 +118,6 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn mutation_type(&self) -> MutationType {
-        if self.allele_mutation_scaled_range.is_some() {
-            MutationType::Scaled
-        } else if self.allele_mutation_range.is_some() {
-            MutationType::Relative
-        } else {
-            MutationType::Random
-        }
-    }
     fn mutate_chromosome_index_random<R: Rng>(
         &self,
         index: usize,
@@ -196,7 +196,7 @@ where
         rng: &mut R,
     ) {
         let index = self.gene_index_sampler.sample(rng);
-        match self.mutation_type() {
+        match self.mutation_type {
             MutationType::Scaled => {
                 self.mutate_chromosome_index_scaled(index, chromosome, scale_index.unwrap(), rng)
             }
@@ -214,11 +214,10 @@ where
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        let mutation_type = self.mutation_type();
         if allow_duplicates {
             for _ in 0..number_of_mutations {
                 let index = self.gene_index_sampler.sample(rng);
-                match mutation_type {
+                match self.mutation_type {
                     MutationType::Scaled => self.mutate_chromosome_index_scaled(
                         index,
                         chromosome,
@@ -241,7 +240,7 @@ where
             )
             .iter()
             .for_each(|index| {
-                match mutation_type {
+                match self.mutation_type {
                     MutationType::Scaled => self.mutate_chromosome_index_scaled(
                         index,
                         chromosome,
@@ -399,6 +398,7 @@ where
             allele_range: self.allele_range.clone(),
             allele_mutation_range: self.allele_mutation_range.clone(),
             allele_mutation_scaled_range: self.allele_mutation_scaled_range.clone(),
+            mutation_type: self.mutation_type,
             gene_index_sampler: self.gene_index_sampler,
             allele_sampler: Uniform::from(self.allele_range.clone()),
             allele_relative_sampler: self
@@ -421,7 +421,11 @@ where
             .field("genes_size", &self.genes_size)
             .field("allele_range", &self.allele_range)
             .field("allele_mutation_range", &self.allele_mutation_range)
-            .field("gene_index_sampler", &self.gene_index_sampler)
+            .field(
+                "allele_mutation_scaled_range",
+                &self.allele_mutation_scaled_range,
+            )
+            .field("mutation_type", &self.mutation_type)
             .field("seed_genes_list", &self.seed_genes_list)
             .finish()
     }
@@ -441,6 +445,12 @@ where
             "  allele_mutation_range: {:?}",
             self.allele_mutation_range
         )?;
+        writeln!(
+            f,
+            "  allele_mutation_scaled_range: {:?}",
+            self.allele_mutation_scaled_range
+        )?;
+        writeln!(f, "  mutation_type: {:?}", self.mutation_type)?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(
             f,
