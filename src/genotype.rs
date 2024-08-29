@@ -177,10 +177,21 @@ pub trait Genotype:
                 number_of_crossovers.min(self.genes_size()),
             )
             .iter()
-            .for_each(|index| {
-                let mother_back = &mut mother.genes[index..];
-                let father_back = &mut father.genes[index..];
-                father_back.swap_with_slice(mother_back);
+            .sorted_unstable()
+            .chunks(2)
+            .into_iter()
+            .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
+                (Some(start_index), Some(end_index)) => {
+                    let mother_back = &mut mother.genes[start_index..end_index];
+                    let father_back = &mut father.genes[start_index..end_index];
+                    father_back.swap_with_slice(mother_back);
+                }
+                (Some(start_index), _) => {
+                    let mother_back = &mut mother.genes[start_index..];
+                    let father_back = &mut father.genes[start_index..];
+                    father_back.swap_with_slice(mother_back);
+                }
+                _ => (),
             });
         }
         mother.taint_fitness_score();

@@ -215,9 +215,9 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         rng: &mut R,
     ) {
         let point_index = self.crossover_point_sampler().unwrap().sample(rng);
-        let index = self.crossover_points[point_index];
-        let mother_back = &mut mother.genes[index..];
-        let father_back = &mut father.genes[index..];
+        let gene_index = self.crossover_points[point_index];
+        let mother_back = &mut mother.genes[gene_index..];
+        let father_back = &mut father.genes[gene_index..];
         father_back.swap_with_slice(mother_back);
         mother.taint_fitness_score();
         father.taint_fitness_score();
@@ -234,9 +234,9 @@ impl<T: Allele> Genotype for MultiUnique<T> {
             rng.sample_iter(self.crossover_point_sampler().unwrap())
                 .take(number_of_crossovers)
                 .for_each(|point_index| {
-                    let index = self.crossover_points[point_index];
-                    let mother_back = &mut mother.genes[index..];
-                    let father_back = &mut father.genes[index..];
+                    let gene_index = self.crossover_points[point_index];
+                    let mother_back = &mut mother.genes[gene_index..];
+                    let father_back = &mut father.genes[gene_index..];
                     father_back.swap_with_slice(mother_back);
                 });
         } else {
@@ -246,11 +246,24 @@ impl<T: Allele> Genotype for MultiUnique<T> {
                 number_of_crossovers.min(self.crossover_points.len()),
             )
             .iter()
-            .for_each(|point_index| {
-                let index = self.crossover_points[point_index];
-                let mother_back = &mut mother.genes[index..];
-                let father_back = &mut father.genes[index..];
-                father_back.swap_with_slice(mother_back);
+            .sorted_unstable()
+            .chunks(2)
+            .into_iter()
+            .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
+                (Some(start_point_index), Some(end_point_index)) => {
+                    let start_gene_index = self.crossover_points[start_point_index];
+                    let end_gene_index = self.crossover_points[end_point_index];
+                    let mother_back = &mut mother.genes[start_gene_index..end_gene_index];
+                    let father_back = &mut father.genes[start_gene_index..end_gene_index];
+                    father_back.swap_with_slice(mother_back);
+                }
+                (Some(start_point_index), _) => {
+                    let start_gene_index = self.crossover_points[start_point_index];
+                    let mother_back = &mut mother.genes[start_gene_index..];
+                    let father_back = &mut father.genes[start_gene_index..];
+                    father_back.swap_with_slice(mother_back);
+                }
+                _ => (),
             });
         }
         mother.taint_fitness_score();
