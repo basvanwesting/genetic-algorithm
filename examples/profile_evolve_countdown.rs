@@ -6,7 +6,18 @@ const GENES_SIZE: usize = 40695;
 const ALLELE_RANGE: RangeInclusive<f32> = -150.0..=120.0;
 const POPULATION_SIZE: usize = 150;
 const TARGET_GENERATION: usize = 500;
-const TOURNAMENT_SIZE: usize = 4;
+const TOURNAMENT_SIZE: usize = 20;
+const MUTATIONS_PER_CHROMOSOME: usize = 50;
+
+// Crossover is where the main work is taking place in the base loop
+// * Total base runtime (60ms) using crossover with 1 gene, don't keep parents
+//   * crossover single point adds about 1s. Because the genes are partially cloned which is expensive
+//   * crossover number of genes scale linearly from 0 to 5s for 50% of the genes size.
+//   * crossover deny duplicates scales linearly from 0 to 5s for 50% of the genes size (so unique
+//     sampling is as expensive as swapping genes).
+//   * crossover keep_parents (+8s, cloning full population is very expensive)
+//   * mutation number of genes scale linearly from 0 to 5s for 50% of the genes size.
+//   * compete not a factor, it's basically some form of in-place sorting of some kind
 
 fn main() {
     let genotype = RangeGenotype::builder()
@@ -17,10 +28,12 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
+        // .with_compete(CompeteElite)
         .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
-        // .with_crossover(CrossoverSinglePoint::new(true))
-        .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true, true))
-        .with_mutate(MutateMultiGene::new(50, 1.0))
+        .with_crossover(CrossoverSinglePoint::new(false))
+        // .with_crossover(CrossoverMultiGene::new(1, true, false))
+        // .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true, false))
+        .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 1.0))
         // .with_reporter(EvolveReporterSimple::new(100))
         .with_fitness(CountdownNoisy::new(
             POPULATION_SIZE * TARGET_GENERATION,
@@ -58,7 +71,7 @@ fn main() {
 //         .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
 //         // .with_crossover(CrossoverSinglePoint::new(true))
 //         .with_crossover(CrossoverMultiGene::new(GENES_SIZE / 2, true, true))
-//         .with_mutate(MutateMultiGene::new(50, 1.0))
+//         .with_mutate(MutateMultiGene::new(50, 0.5))
 //         // .with_reporter(EvolveReporterSimple::new(100))
 //         .with_fitness(CountdownNoisy::new(
 //             POPULATION_SIZE * TARGET_GENERATION,
