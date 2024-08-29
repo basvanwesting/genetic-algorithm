@@ -141,10 +141,11 @@ pub trait Genotype:
         rng: &mut R,
     ) {
         let index = self.crossover_point_sampler().unwrap().sample(rng);
-        let mut father_genes_split = father.genes.split_off(index);
-        let mut mother_genes_split = mother.genes.split_off(index);
-        father.genes.append(&mut mother_genes_split);
-        mother.genes.append(&mut father_genes_split);
+
+        let mother_back = &mut mother.genes[index..];
+        let father_back = &mut father.genes[index..];
+        father_back.swap_with_slice(mother_back);
+
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
@@ -164,10 +165,9 @@ pub trait Genotype:
             rng.sample_iter(sampler)
                 .take(number_of_crossovers)
                 .for_each(|index| {
-                    let mut father_genes_split = father.genes.split_off(index);
-                    let mut mother_genes_split = mother.genes.split_off(index);
-                    father.genes.append(&mut mother_genes_split);
-                    mother.genes.append(&mut father_genes_split);
+                    let mother_back = &mut mother.genes[index..];
+                    let father_back = &mut father.genes[index..];
+                    father_back.swap_with_slice(mother_back);
                 });
         } else {
             // assume all genes are valid points, handle otherwise in trait implmentaiton
@@ -178,10 +178,9 @@ pub trait Genotype:
             )
             .iter()
             .for_each(|index| {
-                let mut father_genes_split = father.genes.split_off(index);
-                let mut mother_genes_split = mother.genes.split_off(index);
-                father.genes.append(&mut mother_genes_split);
-                mother.genes.append(&mut father_genes_split);
+                let mother_back = &mut mother.genes[index..];
+                let father_back = &mut father.genes[index..];
+                father_back.swap_with_slice(mother_back);
             });
         }
         mother.taint_fitness_score();
