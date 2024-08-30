@@ -3,6 +3,7 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use itertools::Itertools;
 use rand::Rng;
+use std::time::Instant;
 
 /// Crossover with 50% probability for each gene to come from one of the two parents.
 /// Optionally keep parents around to compete with children later on.
@@ -25,6 +26,7 @@ impl Crossover for Uniform {
         _reporter: &mut SR,
         rng: &mut R,
     ) {
+        let now = Instant::now();
         if state.population.size() < 2 {
             return;
         }
@@ -48,6 +50,7 @@ impl Crossover for Uniform {
         if self.keep_parent {
             state.population.chromosomes.append(&mut parent_chromosomes);
         }
+        *state.durations.entry("crossover").or_default() += now.elapsed();
     }
     fn require_crossover_indexes(&self) -> bool {
         true

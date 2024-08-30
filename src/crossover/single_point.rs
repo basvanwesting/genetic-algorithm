@@ -3,6 +3,7 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use itertools::Itertools;
 use rand::Rng;
+use std::time::Instant;
 
 /// Crossover a single gene position from which on the rest of the genes are taken from the
 /// other parent. The gene position is chosen with uniform probability. Optionally keep parents
@@ -23,6 +24,7 @@ impl Crossover for SinglePoint {
         _reporter: &mut SR,
         rng: &mut R,
     ) {
+        let now = Instant::now();
         if state.population.size() < 2 {
             return;
         }
@@ -39,6 +41,7 @@ impl Crossover for SinglePoint {
         if self.keep_parent {
             state.population.chromosomes.append(&mut parent_chromosomes);
         }
+        *state.durations.entry("crossover").or_default() += now.elapsed();
     }
     fn require_crossover_points(&self) -> bool {
         true

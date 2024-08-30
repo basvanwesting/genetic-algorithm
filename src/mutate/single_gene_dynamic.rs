@@ -3,6 +3,7 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
+use std::time::Instant;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the dynamically updated mutation_probability.
@@ -25,6 +26,7 @@ impl Mutate for SingleGeneDynamic {
         reporter: &mut SR,
         rng: &mut R,
     ) {
+        let now = Instant::now();
         if state.population.fitness_score_cardinality() < self.target_cardinality {
             self.mutation_probability =
                 (self.mutation_probability + self.mutation_probability_step).min(1.0);
@@ -52,6 +54,7 @@ impl Mutate for SingleGeneDynamic {
                 genotype.mutate_chromosome_single(chromosome, state.current_scale_index, rng);
             }
         }
+        *state.durations.entry("mutate").or_default() += now.elapsed();
     }
     fn report(&self) -> String {
         format!(

@@ -3,6 +3,7 @@ use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
+use std::time::Instant;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the provided mutation_probability. Then
@@ -22,6 +23,7 @@ impl Mutate for SingleGene {
         _reporter: &mut SR,
         rng: &mut R,
     ) {
+        let now = Instant::now();
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
         for chromosome in state
             .population
@@ -33,6 +35,7 @@ impl Mutate for SingleGene {
                 genotype.mutate_chromosome_single(chromosome, state.current_scale_index, rng);
             }
         }
+        *state.durations.entry("mutate").or_default() += now.elapsed();
     }
     fn report(&self) -> String {
         format!("single-gene-random: {:2.2}", self.mutation_probability)

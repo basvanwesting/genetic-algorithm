@@ -4,6 +4,7 @@ use crate::genotype::Allele;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
 use std::cmp::Reverse;
+use std::time::Instant;
 
 /// Simply sort the chromosomes with fittest first. This approach has the risk of locking in to a local optimum.
 ///
@@ -18,6 +19,7 @@ impl Compete for Elite {
         _reporter: &mut SR,
         _rng: &mut R,
     ) {
+        let now = Instant::now();
         match config.fitness_ordering {
             FitnessOrdering::Maximize => state
                 .population
@@ -36,6 +38,7 @@ impl Compete for Elite {
         state
             .population
             .truncate_front(config.target_population_size);
+        *state.durations.entry("compete").or_default() += now.elapsed();
     }
 }
 

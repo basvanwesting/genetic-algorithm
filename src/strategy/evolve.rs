@@ -18,7 +18,9 @@ use crate::mutate::Mutate;
 use crate::population::Population;
 use rand::rngs::SmallRng;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::fmt;
+use std::time::Duration;
 use thread_local::ThreadLocal;
 
 pub use self::reporter::Log as EvolveReporterLog;
@@ -167,6 +169,7 @@ pub struct EvolveState<A: Allele> {
     pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
+    pub durations: HashMap<&'static str, Duration>,
 
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
@@ -572,6 +575,7 @@ impl<A: Allele> Default for EvolveState<A> {
             best_generation: 0,
             best_chromosome: None,
             population: Population::new_empty(),
+            durations: HashMap::new(),
         }
     }
 }

@@ -5,6 +5,7 @@ use crate::fitness::FitnessValue;
 use crate::genotype::Allele;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::prelude::*;
+use std::time::Instant;
 
 /// Run tournaments with randomly chosen chromosomes and pick a single winner. Do this
 /// target_population_size times until the required population level is reached. This approach kind
@@ -25,6 +26,7 @@ impl Compete for Tournament {
         _reporter: &mut SR,
         rng: &mut R,
     ) {
+        let now = Instant::now();
         let mut working_population_size = state.population.size();
         let tournament_size = std::cmp::min(self.tournament_size, working_population_size);
         let target_population_size =
@@ -75,6 +77,7 @@ impl Compete for Tournament {
         }
 
         state.population.chromosomes = target_chromosomes;
+        *state.durations.entry("compete").or_default() += now.elapsed();
     }
 }
 

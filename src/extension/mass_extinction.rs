@@ -2,6 +2,7 @@ use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
+use std::time::Instant;
 
 /// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
 /// population. When this cardinality drops to the threshold, the population is randomly reduced
@@ -21,6 +22,7 @@ impl Extension for MassExtinction {
         reporter: &mut SR,
         rng: &mut R,
     ) {
+        let now = Instant::now();
         if state.population.size() >= config.target_population_size
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
@@ -37,6 +39,7 @@ impl Extension for MassExtinction {
             state.population.shuffle(rng);
             state.population.truncate(remaining_size);
         }
+        *state.durations.entry("extension").or_default() += now.elapsed();
     }
 }
 

@@ -4,6 +4,7 @@ use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::rngs::SmallRng;
 use rand::{Rng, SeedableRng};
 use rayon::prelude::*;
+use std::time::Instant;
 
 /// Multithreaded version of [CrossoverMultiPoint](super::CrossoverMultiPoint) as it is the worst
 /// performing crossover. Only more efficient for large genes_sizes and number_of_crossovers, so
@@ -26,6 +27,7 @@ impl Crossover for ParMultiPoint {
         _reporter: &mut SR,
         _rng: &mut R,
     ) {
+        let now = Instant::now();
         if state.population.size() < 2 {
             return;
         }
@@ -57,6 +59,7 @@ impl Crossover for ParMultiPoint {
         if self.keep_parent {
             state.population.chromosomes.append(&mut parent_chromosomes);
         }
+        *state.durations.entry("crossover").or_default() += now.elapsed();
     }
     fn require_crossover_points(&self) -> bool {
         true

@@ -2,6 +2,7 @@ use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
+use std::time::Instant;
 
 /// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where only an adam and eve of current best chromosomes survive
 #[derive(Debug, Clone)]
@@ -18,6 +19,7 @@ impl Extension for MassGenesis {
         reporter: &mut SR,
         _rng: &mut R,
     ) {
+        let now = Instant::now();
         if state.population.size() >= config.target_population_size
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
@@ -32,6 +34,7 @@ impl Extension for MassGenesis {
                 state.population.chromosomes.push(best_chromosome);
             }
         }
+        *state.durations.entry("extension").or_default() += now.elapsed();
     }
 }
 
