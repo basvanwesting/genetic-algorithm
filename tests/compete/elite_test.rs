@@ -22,6 +22,7 @@ fn maximize_population_surplus() {
         vec![true, true, false],
         vec![true, true, true],
     ]);
+    assert_eq!(population.chromosomes.capacity(), 8);
 
     let mut state = EvolveState::new(&genotype, population);
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
@@ -43,6 +44,7 @@ fn maximize_population_surplus() {
             vec![true, true, true],
         ]
     );
+    assert_eq!(state.population.chromosomes.capacity(), 8);
 }
 
 #[test]
@@ -56,6 +58,7 @@ fn maximize_population_shortage() {
         vec![false, false, true],
         vec![false, true, false],
     ]);
+    assert_eq!(population.chromosomes.capacity(), 3);
 
     let mut state = EvolveState::new(&genotype, population);
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
@@ -76,6 +79,7 @@ fn maximize_population_shortage() {
             vec![false, true, false],
         ]
     );
+    assert_eq!(state.population.chromosomes.capacity(), 3);
 }
 
 #[test]

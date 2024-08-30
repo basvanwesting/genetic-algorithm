@@ -9,7 +9,7 @@ use rand::rngs::SmallRng;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    let population_sizes = vec![250, 500, 1000, 2000];
+    let population_sizes = vec![100, 1000];
 
     let mut group = c.benchmark_group("population");
     //group.warm_up_time(Duration::from_secs(3));

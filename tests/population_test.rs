@@ -76,7 +76,7 @@ mod population_tests {
     }
 
     #[test]
-    fn trim_from_start_to() {
+    fn truncate_front() {
         let population = &mut build::population(vec![
             vec![false, true, true],
             vec![false, true, false],
@@ -89,12 +89,12 @@ mod population_tests {
         ]);
         assert_eq!(population.chromosomes.capacity(), 8);
 
-        population.drain_from_start_to(8);
+        population.truncate_front(8);
         assert_eq!(population.chromosomes.len(), 8);
-        population.drain_from_start_to(10);
+        population.truncate_front(10);
         assert_eq!(population.chromosomes.len(), 8);
 
-        population.drain_from_start_to(6);
+        population.truncate_front(6);
         assert_eq!(
             inspect::population(population),
             vec![
@@ -109,7 +109,7 @@ mod population_tests {
         assert_eq!(population.chromosomes.capacity(), 8);
     }
     #[test]
-    fn trim_from_end_to() {
+    fn truncate() {
         let population = &mut build::population(vec![
             vec![false, true, true],
             vec![false, true, false],

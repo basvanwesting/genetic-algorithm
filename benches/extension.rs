@@ -1,5 +1,7 @@
 use criterion::*;
 use genetic_algorithm::extension::*;
+use genetic_algorithm::fitness::placeholders::CountTrue;
+use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryAllele, BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
@@ -21,7 +23,8 @@ pub fn setup(
         .map(|_| genotype.chromosome_factory(rng))
         .collect();
 
-    let population = Population::new(chromosomes);
+    let mut population = Population::new(chromosomes);
+    CountTrue.call_for_population(&mut population, None);
     let state = EvolveState::new(&genotype, population);
     (genotype, state)
 }

@@ -48,7 +48,7 @@ impl<T: Allele> Population<T> {
         }
     }
 
-    pub fn drain_from_start_to(&mut self, target_size: usize) {
+    pub fn truncate_front(&mut self, target_size: usize) {
         if target_size < self.size() {
             self.chromosomes.drain(..self.size() - target_size);
         }

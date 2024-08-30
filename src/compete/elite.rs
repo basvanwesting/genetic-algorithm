@@ -33,10 +33,9 @@ impl Compete for Elite {
                     })
             }
         }
-        if state.population.size() > config.target_population_size {
-            let to_drain_from_first = state.population.size() - config.target_population_size;
-            state.population.chromosomes.drain(..to_drain_from_first);
-        }
+        state
+            .population
+            .truncate_front(config.target_population_size);
     }
 }
 

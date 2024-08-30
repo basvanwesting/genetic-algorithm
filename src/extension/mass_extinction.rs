@@ -5,7 +5,7 @@ use rand::Rng;
 
 /// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
 /// population. When this cardinality drops to the threshold, the population is randomly reduced
-/// using the survival_rate (fraction of population).
+/// regardless of fitness using the survival_rate (fraction of population).
 #[derive(Debug, Clone)]
 pub struct MassExtinction {
     pub cardinality_threshold: usize,
