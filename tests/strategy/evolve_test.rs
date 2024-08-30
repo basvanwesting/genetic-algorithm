@@ -571,11 +571,9 @@ fn population_factory_binary() {
         .build()
         .unwrap();
 
-    let population = evolve.population_factory();
-    println!("{:#?}", population);
-
+    evolve.init();
     assert_eq!(
-        inspect::population(&population),
+        inspect::population(&evolve.state.population),
         vec![
             vec![true, true, false, true],
             vec![false, false, false, true],

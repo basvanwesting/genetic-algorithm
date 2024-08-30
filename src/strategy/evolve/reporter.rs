@@ -4,6 +4,7 @@ use crate::genotype::{Allele, Genotype};
 use crate::mutate::MutateEvent;
 use crate::strategy::StrategyState;
 use std::marker::PhantomData;
+use std::time::Duration;
 
 /// Reporter with event hooks in the Evolve process.
 ///
@@ -172,7 +173,25 @@ impl<A: Allele> Reporter for Simple<A> {
     }
 
     fn on_finish(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
+        let zero_duration = Duration::default();
         println!("finish - iteration: {}", state.current_iteration());
+        [
+            "init",
+            "extension",
+            "compete",
+            "crossover",
+            "mutate",
+            "fitness",
+            "update_best_chromosome",
+        ]
+        .iter()
+        .for_each(|tag| {
+            println!(
+                "  {}: {:?}",
+                tag,
+                state.durations.get(tag).unwrap_or(&zero_duration)
+            );
+        });
     }
 
     fn on_new_generation(&mut self, state: &EvolveState<Self::Allele>, config: &EvolveConfig) {

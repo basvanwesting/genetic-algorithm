@@ -151,6 +151,9 @@ impl<A: Allele> Reporter for Simple<A> {
 
     fn on_finish(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
         println!("finish - iteration: {}", state.current_iteration());
+        state.durations.iter().for_each(|(tag, duration)| {
+            println!("  {}: {:?}", tag, duration);
+        })
     }
 
     fn on_new_generation(

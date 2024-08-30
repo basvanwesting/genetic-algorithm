@@ -162,6 +162,11 @@ impl<A: Allele> Reporter for Simple<A> {
             },
         );
     }
+    fn on_finish(&mut self, state: &PermutateState<Self::Allele>, _config: &PermutateConfig) {
+        state.durations.iter().for_each(|(tag, duration)| {
+            println!("  {}: {:?}", tag, duration);
+        })
+    }
 }
 
 /// A log-level based reporter for debug and trace, runs on each generation

@@ -20,7 +20,7 @@ use rand::rngs::SmallRng;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use thread_local::ThreadLocal;
 
 pub use self::reporter::Log as EvolveReporterLog;
@@ -192,23 +192,15 @@ impl<
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
-        self.reporter
-            .on_init(&self.genotype, &self.state, &self.config);
-        self.state.population = self.population_factory();
-        self.fitness
-            .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
-        if let Some(contending_chromosome) = self
-            .state
-            .population
-            .best_chromosome(self.config.fitness_ordering)
-            .cloned()
-        {
-            self.state.update_best_chromosome_and_report(
-                &contending_chromosome,
-                &self.config,
-                &mut self.reporter,
-            );
-        }
+        self.init();
+        self.fitness.call_for_evolve(
+            &mut self.state,
+            &self.config,
+            &mut self.reporter,
+            fitness_thread_local.as_ref(),
+        );
+        self.state
+            .update_best_chromosome_and_report(&self.config, &mut self.reporter);
 
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
@@ -243,23 +235,14 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
-            self.fitness
-                .call_for_population(&mut self.state.population, fitness_thread_local.as_ref());
-
-            if let Some(contending_chromosome) = self
-                .state
-                .population
-                .best_chromosome(self.config.fitness_ordering)
-                .cloned()
-            {
-                self.state.update_best_chromosome_and_report(
-                    &contending_chromosome,
-                    &self.config,
-                    &mut self.reporter,
-                );
-            } else {
-                self.state.increment_stale_generations();
-            }
+            self.fitness.call_for_evolve(
+                &mut self.state,
+                &self.config,
+                &mut self.reporter,
+                fitness_thread_local.as_ref(),
+            );
+            self.state
+                .update_best_chromosome_and_report(&self.config, &mut self.reporter);
             //self.ensure_best_chromosome(population);
             self.reporter.on_new_generation(&self.state, &self.config);
             self.state.scale(&self.config);
@@ -295,6 +278,18 @@ impl<
         SR: EvolveReporter<Allele = G::Allele>,
     > Evolve<G, M, F, S, C, E, SR>
 {
+    pub fn init(&mut self) {
+        let now = Instant::now();
+        self.reporter
+            .on_init(&self.genotype, &self.state, &self.config);
+
+        self.state.population.chromosomes = (0..self.config.target_population_size)
+            .map(|_| self.genotype.chromosome_factory(&mut self.rng))
+            .collect::<Vec<_>>();
+
+        self.state.add_duration("init", now.elapsed());
+    }
+
     #[allow(dead_code)]
     fn ensure_best_chromosome(&mut self, population: &mut Population<G::Allele>) {
         if let Some(best_chromosome) = &self.state.best_chromosome {
@@ -346,13 +341,6 @@ impl<
         } else {
             true
         }
-    }
-
-    pub fn population_factory(&mut self) -> Population<G::Allele> {
-        (0..self.config.target_population_size)
-            .map(|_| self.genotype.chromosome_factory(&mut self.rng))
-            .collect::<Vec<_>>()
-            .into()
     }
 }
 
@@ -411,28 +399,38 @@ impl<A: Allele> StrategyState<A> for EvolveState<A> {
         *self.durations.entry(tag).or_default() += duration;
     }
 }
+
 impl<A: Allele> EvolveState<A> {
     fn update_best_chromosome_and_report<SR: EvolveReporter<Allele = A>>(
         &mut self,
-        contending_chromosome: &Chromosome<A>,
         config: &EvolveConfig,
         reporter: &mut SR,
     ) {
-        match self.update_best_chromosome(
-            contending_chromosome,
-            &config.fitness_ordering,
-            config.replace_on_equal_fitness,
-        ) {
-            (true, true) => {
-                reporter.on_new_best_chromosome(self, config);
-                self.reset_stale_generations();
+        let now = Instant::now();
+        if let Some(contending_chromosome) = self
+            .population
+            .best_chromosome(config.fitness_ordering)
+            .cloned()
+        {
+            match self.update_best_chromosome(
+                &contending_chromosome,
+                &config.fitness_ordering,
+                config.replace_on_equal_fitness,
+            ) {
+                (true, true) => {
+                    reporter.on_new_best_chromosome(self, config);
+                    self.reset_stale_generations();
+                }
+                (true, false) => {
+                    reporter.on_new_best_chromosome_equal_fitness(self, config);
+                    self.increment_stale_generations()
+                }
+                _ => self.increment_stale_generations(),
             }
-            (true, false) => {
-                reporter.on_new_best_chromosome_equal_fitness(self, config);
-                self.increment_stale_generations()
-            }
-            _ => self.increment_stale_generations(),
+        } else {
+            self.increment_stale_generations();
         }
+        self.add_duration("update_best_chromosome", now.elapsed());
     }
     fn scale(&mut self, config: &EvolveConfig) {
         if let Some(current_scale_index) = self.current_scale_index {

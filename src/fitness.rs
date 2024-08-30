@@ -12,8 +12,11 @@ pub mod prelude;
 use crate::chromosome::Chromosome;
 use crate::genotype::Allele;
 use crate::population::Population;
+use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use crate::strategy::StrategyState;
 use rayon::prelude::*;
 use std::cell::RefCell;
+use std::time::Instant;
 use thread_local::ThreadLocal;
 
 /// Use isize for easy handling of scores (ordering, comparing) as floats are tricky in that regard.
@@ -48,6 +51,18 @@ pub enum FitnessOrdering {
 /// ```
 pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     type Allele: Allele;
+    fn call_for_evolve<SR: EvolveReporter<Allele = Self::Allele>>(
+        &mut self,
+        state: &mut EvolveState<Self::Allele>,
+        _config: &EvolveConfig,
+        _reporter: &mut SR,
+        thread_local: Option<&ThreadLocal<RefCell<Self>>>,
+    ) {
+        let now = Instant::now();
+        self.call_for_population(&mut state.population, thread_local);
+        state.add_duration("fitness", now.elapsed());
+    }
+
     /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,
