@@ -49,6 +49,10 @@ name = "compete"
 harness = false
 
 [[bench]]
+name = "extension"
+harness = false
+
+[[bench]]
 name = "mutate"
 harness = false
 
