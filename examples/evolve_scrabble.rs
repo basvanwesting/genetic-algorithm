@@ -277,7 +277,6 @@ fn main() {
         .with_compete(CompeteTournament::new(4))
         //.with_compete(CompeteElite::new())
         //.with_extension(ExtensionMassExtinction::new(10, 0.001))
-        // .with_extension(ExtensionMassInvasion::new(10, 0.1))
         .with_extension(ExtensionMassGenesis::new(10))
         // .with_extension(ExtensionMassDegeneration::new(10, 50))
         .with_par_fitness(true)

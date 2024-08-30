@@ -242,13 +242,6 @@ impl<A: Allele> Reporter for Simple<A> {
                         message
                     )
                 }
-                ExtensionEvent::MassInvasion(message) => {
-                    println!(
-                        "extension event - mass invasion - current generation {} - {}",
-                        state.current_generation(),
-                        message
-                    )
-                }
             }
         }
     }

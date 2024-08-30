@@ -44,7 +44,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             ExtensionMassGenesis::new(population_size).into(),
             ExtensionMassExtinction::new(population_size, 0.10).into(),
             ExtensionMassDegeneration::new(population_size, 10).into(),
-            ExtensionMassInvasion::new(population_size, 0.10).into(),
         ];
         for mut extension in extensions {
             group.throughput(Throughput::Elements(population_size as u64));

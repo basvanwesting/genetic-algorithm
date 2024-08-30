@@ -1,7 +1,6 @@
 pub use super::mass_degeneration::MassDegeneration as ExtensionMassDegeneration;
 pub use super::mass_extinction::MassExtinction as ExtensionMassExtinction;
 pub use super::mass_genesis::MassGenesis as ExtensionMassGenesis;
-pub use super::mass_invasion::MassInvasion as ExtensionMassInvasion;
 pub use super::noop::Noop as ExtensionNoop;
 pub use super::Extension;
 
@@ -14,7 +13,6 @@ pub enum Wrapper {
     Noop(ExtensionNoop),
     MassExtinction(ExtensionMassExtinction),
     MassGenesis(ExtensionMassGenesis),
-    MassInvasion(ExtensionMassInvasion),
     MassDegeneration(ExtensionMassDegeneration),
 }
 
@@ -33,9 +31,6 @@ impl Extension for Wrapper {
                 extension.call(genotype, state, config, reporter, rng)
             }
             Wrapper::MassGenesis(extension) => {
-                extension.call(genotype, state, config, reporter, rng)
-            }
-            Wrapper::MassInvasion(extension) => {
                 extension.call(genotype, state, config, reporter, rng)
             }
             Wrapper::MassDegeneration(extension) => {
@@ -58,11 +53,6 @@ impl From<ExtensionMassExtinction> for Wrapper {
 impl From<ExtensionMassGenesis> for Wrapper {
     fn from(extension: ExtensionMassGenesis) -> Self {
         Wrapper::MassGenesis(extension)
-    }
-}
-impl From<ExtensionMassInvasion> for Wrapper {
-    fn from(extension: ExtensionMassInvasion) -> Self {
-        Wrapper::MassInvasion(extension)
     }
 }
 impl From<ExtensionMassDegeneration> for Wrapper {

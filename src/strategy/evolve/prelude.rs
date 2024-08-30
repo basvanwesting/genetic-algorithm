@@ -10,7 +10,7 @@ pub use crate::crossover::{
 #[doc(no_inline)]
 pub use crate::extension::{
     ExtensionEvent, ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
-    ExtensionMassInvasion, ExtensionNoop, ExtensionWrapper,
+    ExtensionNoop, ExtensionWrapper,
 };
 #[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};

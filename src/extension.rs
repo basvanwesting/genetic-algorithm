@@ -4,14 +4,12 @@
 mod mass_degeneration;
 mod mass_extinction;
 mod mass_genesis;
-mod mass_invasion;
 mod noop;
 mod wrapper;
 
 pub use self::mass_degeneration::MassDegeneration as ExtensionMassDegeneration;
 pub use self::mass_extinction::MassExtinction as ExtensionMassExtinction;
 pub use self::mass_genesis::MassGenesis as ExtensionMassGenesis;
-pub use self::mass_invasion::MassInvasion as ExtensionMassInvasion;
 pub use self::noop::Noop as ExtensionNoop;
 pub use self::wrapper::Wrapper as ExtensionWrapper;
 
@@ -35,5 +33,4 @@ pub enum ExtensionEvent {
     MassDegeneration(String),
     MassExtinction(String),
     MassGenesis(String),
-    MassInvasion(String),
 }

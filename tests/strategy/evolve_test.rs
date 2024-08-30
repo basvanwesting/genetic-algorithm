@@ -3,8 +3,7 @@ use crate::support::*;
 use genetic_algorithm::compete::CompeteTournament;
 use genetic_algorithm::crossover::{CrossoverSingleGene, CrossoverSinglePoint};
 use genetic_algorithm::extension::{
-    ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis,
-    ExtensionMassInvasion, ExtensionNoop,
+    ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis, ExtensionNoop,
 };
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
@@ -346,36 +345,6 @@ fn call_binary_mass_genesis() {
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassGenesis::new(10))
         .with_reporter(EvolveReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(9));
-    assert_eq!(
-        inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
-    );
-}
-
-#[test]
-fn call_binary_mass_invasion() {
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(10)
-        .build()
-        .unwrap();
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_target_fitness_score(8)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
-        .with_compete(CompeteTournament::new(4))
-        .with_extension(ExtensionMassInvasion::new(10, 0.1))
-        // .with_reporter(EvolveReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
         .unwrap();
