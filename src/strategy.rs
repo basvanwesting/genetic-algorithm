@@ -51,12 +51,19 @@ pub trait StrategyConfig {
 /// * best_generation: `usize`
 /// * best_chromosome: `Option<Chromosome<G::Allele>>`
 pub trait StrategyState<A: Allele> {
-    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>>;
-    fn population_as_ref(&self) -> Option<&Population<A>>;
-    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>>;
-    fn population_as_mut(&mut self) -> Option<&mut Population<A>>;
+    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
+        None
+    }
+    fn population_as_ref(&self) -> Option<&Population<A>> {
+        None
+    }
+    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
+        None
+    }
+    fn population_as_mut(&mut self) -> Option<&mut Population<A>> {
+        None
+    }
     fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>>;
-    fn best_chromosome(&self) -> Option<Chromosome<A>>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;

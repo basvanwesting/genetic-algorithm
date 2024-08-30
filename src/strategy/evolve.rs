@@ -252,7 +252,7 @@ impl<
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
-        self.state.best_chromosome()
+        self.state.best_chromosome_as_ref().cloned()
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -359,20 +359,11 @@ impl StrategyConfig for EvolveConfig {
 }
 
 impl<A: Allele> StrategyState<A> for EvolveState<A> {
-    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
-        None
-    }
     fn population_as_ref(&self) -> Option<&Population<A>> {
         Some(&self.population)
     }
-    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
-        None
-    }
     fn population_as_mut(&mut self) -> Option<&mut Population<A>> {
         Some(&mut self.population)
-    }
-    fn best_chromosome(&self) -> Option<Chromosome<A>> {
-        self.best_chromosome.clone()
     }
     fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
         self.best_chromosome.as_ref()
