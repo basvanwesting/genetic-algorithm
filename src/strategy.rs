@@ -58,10 +58,11 @@ pub trait StrategyState<A: Allele> {
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
     fn add_duration(&mut self, action: StrategyAction, duration: Duration);
-    fn total_duration(&mut self) -> Duration;
+    fn total_duration(&self) -> Duration;
     fn close_duration(&mut self, total_duration: Duration) {
-        let other_duration = total_duration - self.total_duration();
-        self.add_duration(StrategyAction::Other, other_duration);
+        if let Some(other_duration) = total_duration.checked_sub(self.total_duration()) {
+            self.add_duration(StrategyAction::Other, other_duration);
+        }
     }
 
     fn increment_stale_generations(&mut self);

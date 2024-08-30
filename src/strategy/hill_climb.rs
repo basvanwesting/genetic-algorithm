@@ -17,7 +17,7 @@ use rand::rngs::SmallRng;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
-use std::time::Duration;
+use std::time::{Duration, Instant};
 use thread_local::ThreadLocal;
 
 pub use self::reporter::Log as HillClimbReporterLog;
@@ -195,6 +195,7 @@ impl<
     > Strategy<G> for HillClimb<G, F, SR>
 {
     fn call(&mut self) {
+        let now = Instant::now();
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
@@ -203,7 +204,12 @@ impl<
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
         let mut seed_chromosome = self.genotype.chromosome_factory(&mut self.rng);
-        self.fitness.call_for_chromosome(&mut seed_chromosome);
+        self.fitness.call_for_hill_climb_chromosome(
+            &mut seed_chromosome,
+            &mut self.state,
+            &self.config,
+            &mut self.reporter,
+        );
         self.state.set_best_chromosome(&seed_chromosome, true);
 
         self.reporter
@@ -218,43 +224,55 @@ impl<
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
-                    self.fitness.call_for_chromosome(&mut contending_chromosome);
-                    self.state.update_best_chromosome_and_report(
-                        &contending_chromosome,
+                    self.fitness.call_for_hill_climb_chromosome(
+                        &mut contending_chromosome,
+                        &mut self.state,
                         &self.config,
                         &mut self.reporter,
                     );
-                    self.state.contending_chromosome = Some(contending_chromosome);
+                    self.state.update_best_chromosome_for_stochastic(
+                        contending_chromosome,
+                        &self.config,
+                        &mut self.reporter,
+                    );
                 }
                 HillClimbVariant::StochasticSecondary => {
-                    let mut contending_chromosome_primary = self.state.best_chromosome().unwrap();
+                    let mut contending_chromosome = self.state.best_chromosome().unwrap();
                     self.genotype.mutate_chromosome_single(
-                        &mut contending_chromosome_primary,
+                        &mut contending_chromosome,
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
-                    self.fitness
-                        .call_for_chromosome(&mut contending_chromosome_primary);
-                    self.state.update_best_chromosome_and_report(
-                        &contending_chromosome_primary,
+                    self.fitness.call_for_hill_climb_chromosome(
+                        &mut contending_chromosome,
+                        &mut self.state,
                         &self.config,
                         &mut self.reporter,
                     );
 
-                    let mut contending_chromosome_secondary = contending_chromosome_primary.clone();
-                    self.genotype.mutate_chromosome_single(
-                        &mut contending_chromosome_secondary,
-                        self.state.current_scale_index,
-                        &mut self.rng,
-                    );
-                    self.fitness
-                        .call_for_chromosome(&mut contending_chromosome_secondary);
-                    self.state.update_best_chromosome_and_report(
-                        &contending_chromosome_secondary,
+                    self.state.update_best_chromosome_for_stochastic(
+                        contending_chromosome.clone(),
                         &self.config,
                         &mut self.reporter,
                     );
-                    self.state.contending_chromosome = Some(contending_chromosome_secondary);
+
+                    // second round
+                    self.genotype.mutate_chromosome_single(
+                        &mut contending_chromosome,
+                        self.state.current_scale_index,
+                        &mut self.rng,
+                    );
+                    self.fitness.call_for_hill_climb_chromosome(
+                        &mut contending_chromosome,
+                        &mut self.state,
+                        &self.config,
+                        &mut self.reporter,
+                    );
+                    self.state.update_best_chromosome_for_stochastic(
+                        contending_chromosome,
+                        &self.config,
+                        &mut self.reporter,
+                    );
                 }
                 HillClimbVariant::SteepestAscent => {
                     let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
@@ -264,26 +282,20 @@ impl<
                         &mut self.rng,
                     );
 
-                    self.fitness.call_for_population(
+                    self.fitness.call_for_hill_climb_population(
                         &mut neighbouring_population,
+                        &mut self.state,
+                        &self.config,
+                        &mut self.reporter,
                         fitness_thread_local.as_ref(),
                     );
 
-                    // shuffle, so we don't repeatedly take the same best chromosome in sideways move
-                    neighbouring_population.chromosomes.shuffle(&mut self.rng);
-                    if let Some(contending_chromosome) =
-                        neighbouring_population.best_chromosome(self.config.fitness_ordering)
-                    {
-                        self.state.update_best_chromosome_and_report(
-                            contending_chromosome,
-                            &self.config,
-                            &mut self.reporter,
-                        );
-                        self.state.contending_chromosome = Some(contending_chromosome.clone());
-                    } else {
-                        self.state.increment_stale_generations();
-                    }
-                    self.state.neighbouring_population = Some(neighbouring_population);
+                    self.state.update_best_chromosome_for_steepest_ascent(
+                        neighbouring_population,
+                        &self.config,
+                        &mut self.reporter,
+                        &mut self.rng,
+                    );
                 }
                 HillClimbVariant::SteepestAscentSecondary => {
                     let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
@@ -292,7 +304,6 @@ impl<
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
-
                     neighbouring_chromosomes.append(
                         &mut neighbouring_chromosomes
                             .iter()
@@ -305,34 +316,28 @@ impl<
                             })
                             .collect(),
                     );
-
                     let mut neighbouring_population = Population::new(neighbouring_chromosomes);
 
-                    self.fitness.call_for_population(
+                    self.fitness.call_for_hill_climb_population(
                         &mut neighbouring_population,
+                        &mut self.state,
+                        &self.config,
+                        &mut self.reporter,
                         fitness_thread_local.as_ref(),
                     );
 
-                    // shuffle, so we don't repeatedly take the same best chromosome in sideways move
-                    neighbouring_population.chromosomes.shuffle(&mut self.rng);
-                    if let Some(contending_chromosome) =
-                        neighbouring_population.best_chromosome(self.config.fitness_ordering)
-                    {
-                        self.state.update_best_chromosome_and_report(
-                            contending_chromosome,
-                            &self.config,
-                            &mut self.reporter,
-                        );
-                        self.state.contending_chromosome = Some(contending_chromosome.clone());
-                    } else {
-                        self.state.increment_stale_generations();
-                    }
-                    self.state.neighbouring_population = Some(neighbouring_population);
+                    self.state.update_best_chromosome_for_steepest_ascent(
+                        neighbouring_population,
+                        &self.config,
+                        &mut self.reporter,
+                        &mut self.rng,
+                    );
                 }
             }
             self.reporter.on_new_generation(&self.state, &self.config);
             self.state.scale(&self.config);
         }
+        self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
@@ -458,20 +463,21 @@ impl<A: Allele> StrategyState<A> for HillClimbState<A> {
     fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
         *self.durations.entry(action).or_default() += duration;
     }
-    fn total_duration(&mut self) -> Duration {
+    fn total_duration(&self) -> Duration {
         self.durations.values().sum()
     }
 }
 
 impl<A: Allele> HillClimbState<A> {
-    fn update_best_chromosome_and_report<SR: HillClimbReporter<Allele = A>>(
+    fn update_best_chromosome_for_stochastic<SR: HillClimbReporter<Allele = A>>(
         &mut self,
-        contending_chromosome: &Chromosome<A>,
+        contending_chromosome: Chromosome<A>,
         config: &HillClimbConfig,
         reporter: &mut SR,
     ) {
+        let now = Instant::now();
         match self.update_best_chromosome(
-            contending_chromosome,
+            &contending_chromosome,
             &config.fitness_ordering,
             config.replace_on_equal_fitness,
         ) {
@@ -485,6 +491,46 @@ impl<A: Allele> HillClimbState<A> {
             }
             _ => self.increment_stale_generations(),
         }
+
+        self.contending_chromosome = Some(contending_chromosome);
+        self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
+    }
+    fn update_best_chromosome_for_steepest_ascent<SR: HillClimbReporter<Allele = A>>(
+        &mut self,
+        mut neighbouring_population: Population<A>,
+        config: &HillClimbConfig,
+        reporter: &mut SR,
+        rng: &mut SmallRng,
+    ) {
+        let now = Instant::now();
+        if config.replace_on_equal_fitness {
+            // shuffle, so we don't repeatedly take the same best chromosome in sideways move
+            neighbouring_population.chromosomes.shuffle(rng);
+        }
+        if let Some(contending_chromosome) =
+            neighbouring_population.best_chromosome(config.fitness_ordering)
+        {
+            match self.update_best_chromosome(
+                contending_chromosome,
+                &config.fitness_ordering,
+                config.replace_on_equal_fitness,
+            ) {
+                (true, true) => {
+                    reporter.on_new_best_chromosome(self, config);
+                    self.reset_stale_generations();
+                }
+                (true, false) => {
+                    reporter.on_new_best_chromosome_equal_fitness(self, config);
+                    self.increment_stale_generations()
+                }
+                _ => self.increment_stale_generations(),
+            }
+            self.contending_chromosome = Some(contending_chromosome.clone());
+        } else {
+            self.increment_stale_generations();
+        }
+        self.neighbouring_population = Some(neighbouring_population);
+        self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
     fn scale(&mut self, config: &HillClimbConfig) {
         if let Some(current_scale_index) = self.current_scale_index {

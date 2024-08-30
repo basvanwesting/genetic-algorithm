@@ -178,6 +178,7 @@ impl<A: Allele> Reporter for Simple<A> {
                 println!("  {:?}: {:?}", action, duration,);
             }
         });
+        println!("  Total: {:?}", &state.total_duration());
     }
 
     fn on_new_generation(&mut self, state: &EvolveState<Self::Allele>, config: &EvolveConfig) {

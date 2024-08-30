@@ -15,8 +15,8 @@ use num::BigUint;
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
-use std::sync::mpsc::sync_channel;
-use std::time::Duration;
+use std::sync::mpsc::{channel, sync_channel};
+use std::time::{Duration, Instant};
 
 pub use self::reporter::Log as PermutateReporterLog;
 pub use self::reporter::Noop as PermutateReporterNoop;
@@ -104,6 +104,7 @@ impl<
     > Strategy<G> for Permutate<G, F, SR>
 {
     fn call(&mut self) {
+        let now = Instant::now();
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
         self.reporter
@@ -113,6 +114,7 @@ impl<
         } else {
             self.call_sequential()
         }
+        self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
@@ -146,7 +148,12 @@ impl<
             .chromosome_permutations_into_iter()
             .for_each(|mut chromosome| {
                 self.state.current_generation += 1;
-                self.fitness.call_for_chromosome(&mut chromosome);
+                self.fitness.call_for_permutate(
+                    &mut chromosome,
+                    &mut self.state,
+                    &self.config,
+                    &mut self.reporter,
+                );
                 self.state.update_best_chromosome_and_report(
                     &chromosome,
                     &self.config,
@@ -159,26 +166,36 @@ impl<
         rayon::scope(|s| {
             let genotype = &self.genotype;
             let fitness = self.fitness.clone();
-            let (sender, receiver) = sync_channel(1000);
+            let (chromosome_sender, chromosome_receiver) = sync_channel(1000);
+            let (fitness_duration_sender, fitness_duration_receiver) = channel();
 
             s.spawn(move |_| {
+                let now = Instant::now();
                 genotype
                     .chromosome_permutations_into_iter()
                     .par_bridge()
-                    .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
-                        fitness.call_for_chromosome(&mut chromosome);
-                        sender.send(chromosome).unwrap();
-                    });
+                    .for_each_with(
+                        (chromosome_sender, fitness),
+                        |(sender, fitness), mut chromosome| {
+                            fitness.call_for_chromosome(&mut chromosome);
+                            sender.send(chromosome).unwrap();
+                        },
+                    );
+                fitness_duration_sender.send(now.elapsed()).unwrap();
             });
 
-            receiver.iter().for_each(|chromosome| {
+            chromosome_receiver.iter().for_each(|chromosome| {
                 self.state.current_generation += 1;
                 self.state.update_best_chromosome_and_report(
                     &chromosome,
                     &self.config,
                     &mut self.reporter,
                 );
-            })
+            });
+            // only one
+            fitness_duration_receiver.iter().for_each(|duration| {
+                self.state.add_duration(StrategyAction::Fitness, duration);
+            });
         });
     }
 }
@@ -237,7 +254,7 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
     fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
         *self.durations.entry(action).or_default() += duration;
     }
-    fn total_duration(&mut self) -> Duration {
+    fn total_duration(&self) -> Duration {
         self.durations.values().sum()
     }
 }
@@ -249,6 +266,7 @@ impl<A: Allele> PermutateState<A> {
         config: &PermutateConfig,
         reporter: &mut SR,
     ) {
+        let now = Instant::now();
         match self.update_best_chromosome(
             contending_chromosome,
             &config.fitness_ordering,
@@ -264,6 +282,7 @@ impl<A: Allele> PermutateState<A> {
             }
             _ => self.increment_stale_generations(),
         }
+        self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
 }
 

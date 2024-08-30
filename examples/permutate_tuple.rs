@@ -43,6 +43,7 @@ fn main() {
     let mut permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(TupleFitness)
+        .with_reporter(PermutateReporterSimple::new(usize::MAX))
         .build()
         .unwrap();
 

@@ -400,7 +400,7 @@ impl<A: Allele> StrategyState<A> for EvolveState<A> {
     fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
         *self.durations.entry(action).or_default() += duration;
     }
-    fn total_duration(&mut self) -> Duration {
+    fn total_duration(&self) -> Duration {
         self.durations.values().sum()
     }
 }
