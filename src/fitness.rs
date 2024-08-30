@@ -100,6 +100,25 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
 
+    /// use when generalized
+    fn call_for_state_population<S: StrategyState<Self::Allele>>(
+        &mut self,
+        state: &mut S,
+        thread_local: Option<&ThreadLocal<RefCell<Self>>>,
+    ) {
+        if let Some(population) = state.population_as_mut() {
+            let now = Instant::now();
+            self.call_for_population(population, thread_local);
+            state.add_duration(StrategyAction::Fitness, now.elapsed());
+        }
+    }
+    fn call_for_state_chromosome<S: StrategyState<Self::Allele>>(&mut self, state: &mut S) {
+        if let Some(chromosome) = state.chromosome_as_mut() {
+            let now = Instant::now();
+            self.call_for_chromosome(chromosome);
+            state.add_duration(StrategyAction::Fitness, now.elapsed());
+        }
+    }
     /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,

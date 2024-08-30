@@ -422,6 +422,18 @@ impl StrategyConfig for HillClimbConfig {
 }
 
 impl<A: Allele> StrategyState<A> for HillClimbState<A> {
+    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
+        None
+    }
+    fn population_as_ref(&self) -> Option<&Population<A>> {
+        None
+    }
+    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
+        None
+    }
+    fn population_as_mut(&mut self) -> Option<&mut Population<A>> {
+        None
+    }
     fn best_chromosome(&self) -> Option<Chromosome<A>> {
         self.best_chromosome.clone()
     }

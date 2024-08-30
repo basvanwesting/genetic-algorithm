@@ -11,6 +11,7 @@ use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, PermutableGenotype};
+use crate::population::Population;
 use num::BigUint;
 use rayon::prelude::*;
 use std::collections::HashMap;
@@ -92,6 +93,7 @@ pub struct PermutateState<A: Allele> {
     pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
+    pub chromosome: Option<Chromosome<A>>,
     pub durations: HashMap<StrategyAction, Duration>,
 
     pub total_population_size: BigUint,
@@ -213,6 +215,18 @@ impl StrategyConfig for PermutateConfig {
 }
 
 impl<A: Allele> StrategyState<A> for PermutateState<A> {
+    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
+        self.chromosome.as_ref()
+    }
+    fn population_as_ref(&self) -> Option<&Population<A>> {
+        None
+    }
+    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
+        self.chromosome.as_mut()
+    }
+    fn population_as_mut(&mut self) -> Option<&mut Population<A>> {
+        None
+    }
     fn best_chromosome(&self) -> Option<Chromosome<A>> {
         self.best_chromosome.clone()
     }

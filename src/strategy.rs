@@ -6,6 +6,7 @@ pub mod permutate;
 use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, Genotype};
+use crate::population::Population;
 use std::time::Duration;
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -50,6 +51,10 @@ pub trait StrategyConfig {
 /// * best_generation: `usize`
 /// * best_chromosome: `Option<Chromosome<G::Allele>>`
 pub trait StrategyState<A: Allele> {
+    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>>;
+    fn population_as_ref(&self) -> Option<&Population<A>>;
+    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>>;
+    fn population_as_mut(&mut self) -> Option<&mut Population<A>>;
     fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>>;
     fn best_chromosome(&self) -> Option<Chromosome<A>>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;

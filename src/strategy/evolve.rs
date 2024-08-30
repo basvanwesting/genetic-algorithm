@@ -170,10 +170,10 @@ pub struct EvolveState<A: Allele> {
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
     pub durations: HashMap<StrategyAction, Duration>,
+    pub population: Population<A>,
 
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
-    pub population: Population<A>,
 }
 
 impl<
@@ -359,6 +359,18 @@ impl StrategyConfig for EvolveConfig {
 }
 
 impl<A: Allele> StrategyState<A> for EvolveState<A> {
+    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
+        None
+    }
+    fn population_as_ref(&self) -> Option<&Population<A>> {
+        Some(&self.population)
+    }
+    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
+        None
+    }
+    fn population_as_mut(&mut self) -> Option<&mut Population<A>> {
+        Some(&mut self.population)
+    }
     fn best_chromosome(&self) -> Option<Chromosome<A>> {
         self.best_chromosome.clone()
     }
