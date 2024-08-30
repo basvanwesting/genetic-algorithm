@@ -1,6 +1,7 @@
 use super::Mutate;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use crate::strategy::StrategyState;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 use std::time::Instant;
@@ -35,7 +36,7 @@ impl Mutate for SingleGene {
                 genotype.mutate_chromosome_single(chromosome, state.current_scale_index, rng);
             }
         }
-        *state.durations.entry("mutate").or_default() += now.elapsed();
+        state.add_duration("mutate", now.elapsed());
     }
     fn report(&self) -> String {
         format!("single-gene-random: {:2.2}", self.mutation_probability)

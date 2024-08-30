@@ -1,6 +1,7 @@
 use super::Mutate;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use crate::strategy::StrategyState;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 use std::time::Instant;
@@ -51,7 +52,7 @@ impl Mutate for MultiGene {
                 );
             }
         }
-        *state.durations.entry("mutate").or_default() += now.elapsed();
+        state.add_duration("mutate", now.elapsed());
     }
     fn report(&self) -> String {
         format!(

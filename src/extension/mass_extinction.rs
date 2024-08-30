@@ -1,6 +1,7 @@
 use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use crate::strategy::StrategyState;
 use rand::Rng;
 use std::time::Instant;
 
@@ -39,7 +40,7 @@ impl Extension for MassExtinction {
             state.population.shuffle(rng);
             state.population.truncate(remaining_size);
         }
-        *state.durations.entry("extension").or_default() += now.elapsed();
+        state.add_duration("extension", now.elapsed());
     }
 }
 

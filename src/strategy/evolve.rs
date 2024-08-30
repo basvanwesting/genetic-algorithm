@@ -407,6 +407,9 @@ impl<A: Allele> StrategyState<A> for EvolveState<A> {
         }
         (true, improved_fitness)
     }
+    fn add_duration(&mut self, tag: &'static str, duration: Duration) {
+        *self.durations.entry(tag).or_default() += duration;
+    }
 }
 impl<A: Allele> EvolveState<A> {
     fn update_best_chromosome_and_report<SR: EvolveReporter<Allele = A>>(

@@ -6,6 +6,7 @@ pub mod permutate;
 use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, Genotype};
+use std::time::Duration;
 
 pub trait Strategy<G: Genotype> {
     fn call(&mut self);
@@ -34,6 +35,7 @@ pub trait StrategyState<A: Allele> {
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
+    fn add_duration(&mut self, tag: &'static str, duration: Duration);
 
     fn increment_stale_generations(&mut self);
     fn reset_stale_generations(&mut self);

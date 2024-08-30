@@ -13,8 +13,10 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, PermutableGenotype};
 use num::BigUint;
 use rayon::prelude::*;
+use std::collections::HashMap;
 use std::fmt;
 use std::sync::mpsc::sync_channel;
+use std::time::Duration;
 
 pub use self::reporter::Log as PermutateReporterLog;
 pub use self::reporter::Noop as PermutateReporterNoop;
@@ -90,6 +92,7 @@ pub struct PermutateState<A: Allele> {
     pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
+    pub durations: HashMap<&'static str, Duration>,
 
     pub total_population_size: BigUint,
 }
@@ -231,6 +234,9 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
         }
         (true, improved_fitness)
     }
+    fn add_duration(&mut self, tag: &'static str, duration: Duration) {
+        *self.durations.entry(tag).or_default() += duration;
+    }
 }
 
 impl<A: Allele> PermutateState<A> {
@@ -320,6 +326,7 @@ impl<A: Allele> Default for PermutateState<A> {
             stale_generations: 0,
             best_generation: 0,
             best_chromosome: None,
+            durations: HashMap::new(),
         }
     }
 }

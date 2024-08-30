@@ -15,7 +15,9 @@ use crate::population::Population;
 use rand::prelude::SliceRandom;
 use rand::rngs::SmallRng;
 use std::cell::RefCell;
+use std::collections::HashMap;
 use std::fmt;
+use std::time::Duration;
 use thread_local::ThreadLocal;
 
 pub use self::reporter::Log as HillClimbReporterLog;
@@ -178,6 +180,7 @@ pub struct HillClimbState<A: Allele> {
     pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
+    pub durations: HashMap<&'static str, Duration>,
 
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
@@ -452,6 +455,9 @@ impl<A: Allele> StrategyState<A> for HillClimbState<A> {
         }
         (true, improved_fitness)
     }
+    fn add_duration(&mut self, tag: &'static str, duration: Duration) {
+        *self.durations.entry(tag).or_default() += duration;
+    }
 }
 
 impl<A: Allele> HillClimbState<A> {
@@ -567,6 +573,7 @@ impl<A: Allele> Default for HillClimbState<A> {
             best_chromosome: None,
             contending_chromosome: None,
             neighbouring_population: None,
+            durations: HashMap::new(),
         }
     }
 }

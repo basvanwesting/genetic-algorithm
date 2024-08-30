@@ -2,6 +2,7 @@ use super::Compete;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Allele;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use crate::strategy::StrategyState;
 use rand::prelude::*;
 use std::cmp::Reverse;
 use std::time::Instant;
@@ -38,7 +39,7 @@ impl Compete for Elite {
         state
             .population
             .truncate_front(config.target_population_size);
-        *state.durations.entry("compete").or_default() += now.elapsed();
+        state.add_duration("compete", now.elapsed());
     }
 }
 
