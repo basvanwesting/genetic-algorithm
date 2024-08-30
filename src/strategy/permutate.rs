@@ -7,7 +7,7 @@ pub use self::builder::{
     Builder as PermutateBuilder, TryFromBuilderError as TryFromPermutateBuilderError,
 };
 
-use super::{Strategy, StrategyConfig, StrategyState};
+use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, PermutableGenotype};
@@ -92,7 +92,7 @@ pub struct PermutateState<A: Allele> {
     pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
-    pub durations: HashMap<&'static str, Duration>,
+    pub durations: HashMap<StrategyAction, Duration>,
 
     pub total_population_size: BigUint,
 }
@@ -234,8 +234,11 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
         }
         (true, improved_fitness)
     }
-    fn add_duration(&mut self, tag: &'static str, duration: Duration) {
-        *self.durations.entry(tag).or_default() += duration;
+    fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
+        *self.durations.entry(action).or_default() += duration;
+    }
+    fn total_duration(&mut self) -> Duration {
+        self.durations.values().sum()
     }
 }
 

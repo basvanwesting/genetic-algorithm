@@ -1,6 +1,6 @@
 use super::{PermutateConfig, PermutateState};
 use crate::genotype::{Allele, PermutableGenotype};
-use crate::strategy::StrategyState;
+use crate::strategy::{StrategyState, STRATEGY_ACTIONS};
 use num::BigUint;
 use std::marker::PhantomData;
 
@@ -163,9 +163,11 @@ impl<A: Allele> Reporter for Simple<A> {
         );
     }
     fn on_finish(&mut self, state: &PermutateState<Self::Allele>, _config: &PermutateConfig) {
-        state.durations.iter().for_each(|(tag, duration)| {
-            println!("  {}: {:?}", tag, duration);
-        })
+        STRATEGY_ACTIONS.iter().for_each(|action| {
+            if let Some(duration) = state.durations.get(action) {
+                println!("  {:?}: {:?}", action, duration,);
+            }
+        });
     }
 }
 

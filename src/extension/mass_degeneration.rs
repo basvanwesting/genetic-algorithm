@@ -1,7 +1,7 @@
 use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use crate::strategy::StrategyState;
+use crate::strategy::{StrategyAction, StrategyState};
 use rand::Rng;
 use std::time::Instant;
 
@@ -44,7 +44,7 @@ impl Extension for MassDegeneration {
                 );
             }
         }
-        state.add_duration("extension", now.elapsed());
+        state.add_duration(StrategyAction::Extension, now.elapsed());
     }
 }
 

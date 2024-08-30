@@ -1,6 +1,6 @@
 use super::{HillClimbConfig, HillClimbState};
 use crate::genotype::{Allele, IncrementalGenotype};
-use crate::strategy::StrategyState;
+use crate::strategy::{StrategyState, STRATEGY_ACTIONS};
 use std::marker::PhantomData;
 
 /// Reporter with event hooks in the HillClimb process.
@@ -151,9 +151,11 @@ impl<A: Allele> Reporter for Simple<A> {
 
     fn on_finish(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
         println!("finish - iteration: {}", state.current_iteration());
-        state.durations.iter().for_each(|(tag, duration)| {
-            println!("  {}: {:?}", tag, duration);
-        })
+        STRATEGY_ACTIONS.iter().for_each(|action| {
+            if let Some(duration) = state.durations.get(action) {
+                println!("  {:?}: {:?}", action, duration,);
+            }
+        });
     }
 
     fn on_new_generation(

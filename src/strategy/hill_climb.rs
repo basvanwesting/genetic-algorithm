@@ -7,7 +7,7 @@ pub use self::builder::{
     Builder as HillClimbBuilder, TryFromBuilderError as TryFromHillClimbBuilderError,
 };
 
-use super::{Strategy, StrategyConfig, StrategyState};
+use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, IncrementalGenotype};
@@ -180,7 +180,7 @@ pub struct HillClimbState<A: Allele> {
     pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
-    pub durations: HashMap<&'static str, Duration>,
+    pub durations: HashMap<StrategyAction, Duration>,
 
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
@@ -455,8 +455,11 @@ impl<A: Allele> StrategyState<A> for HillClimbState<A> {
         }
         (true, improved_fitness)
     }
-    fn add_duration(&mut self, tag: &'static str, duration: Duration) {
-        *self.durations.entry(tag).or_default() += duration;
+    fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
+        *self.durations.entry(action).or_default() += duration;
+    }
+    fn total_duration(&mut self) -> Duration {
+        self.durations.values().sum()
     }
 }
 

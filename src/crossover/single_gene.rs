@@ -1,7 +1,7 @@
 use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use crate::strategy::StrategyState;
+use crate::strategy::{StrategyAction, StrategyState};
 use itertools::Itertools;
 use rand::Rng;
 use std::time::Instant;
@@ -42,7 +42,7 @@ impl Crossover for SingleGene {
         if self.keep_parent {
             state.population.chromosomes.append(&mut parent_chromosomes);
         }
-        state.add_duration("crossover", now.elapsed());
+        state.add_duration(StrategyAction::Crossover, now.elapsed());
     }
     fn require_crossover_indexes(&self) -> bool {
         true

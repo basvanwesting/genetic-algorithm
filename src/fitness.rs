@@ -13,7 +13,7 @@ use crate::chromosome::Chromosome;
 use crate::genotype::Allele;
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use crate::strategy::StrategyState;
+use crate::strategy::{StrategyAction, StrategyState};
 use rayon::prelude::*;
 use std::cell::RefCell;
 use std::time::Instant;
@@ -60,7 +60,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     ) {
         let now = Instant::now();
         self.call_for_population(&mut state.population, thread_local);
-        state.add_duration("fitness", now.elapsed());
+        state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
 
     /// pass thread_local for external control of fitness caching in multithreading

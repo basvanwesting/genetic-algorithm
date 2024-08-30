@@ -1,7 +1,7 @@
 use super::Crossover;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use crate::strategy::StrategyState;
+use crate::strategy::{StrategyAction, StrategyState};
 use rand::Rng;
 use std::time::Instant;
 
@@ -28,7 +28,7 @@ impl Crossover for Clone {
             clones.reset_age();
             state.population.merge(&mut clones);
         }
-        state.add_duration("crossover", now.elapsed());
+        state.add_duration(StrategyAction::Crossover, now.elapsed());
     }
 }
 

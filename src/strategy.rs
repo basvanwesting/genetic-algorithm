@@ -8,6 +8,28 @@ use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, Genotype};
 use std::time::Duration;
 
+#[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
+pub enum StrategyAction {
+    Init,
+    Extension,
+    Compete,
+    Crossover,
+    Mutate,
+    Fitness,
+    UpdateBestChromosome,
+    Other,
+}
+const STRATEGY_ACTIONS: [StrategyAction; 8] = [
+    StrategyAction::Init,
+    StrategyAction::Extension,
+    StrategyAction::Compete,
+    StrategyAction::Crossover,
+    StrategyAction::Mutate,
+    StrategyAction::Fitness,
+    StrategyAction::UpdateBestChromosome,
+    StrategyAction::Other,
+];
+
 pub trait Strategy<G: Genotype> {
     fn call(&mut self);
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>>;
@@ -35,7 +57,12 @@ pub trait StrategyState<A: Allele> {
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
-    fn add_duration(&mut self, tag: &'static str, duration: Duration);
+    fn add_duration(&mut self, action: StrategyAction, duration: Duration);
+    fn total_duration(&mut self) -> Duration;
+    fn close_duration(&mut self, total_duration: Duration) {
+        let other_duration = total_duration - self.total_duration();
+        self.add_duration(StrategyAction::Other, other_duration);
+    }
 
     fn increment_stale_generations(&mut self);
     fn reset_stale_generations(&mut self);

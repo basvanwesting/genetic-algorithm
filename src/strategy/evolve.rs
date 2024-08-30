@@ -7,7 +7,7 @@ pub use self::builder::{
     Builder as EvolveBuilder, TryFromBuilderError as TryFromEvolveBuilderError,
 };
 
-use super::{Strategy, StrategyConfig, StrategyState};
+use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::compete::Compete;
 use crate::crossover::Crossover;
@@ -169,7 +169,7 @@ pub struct EvolveState<A: Allele> {
     pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
-    pub durations: HashMap<&'static str, Duration>,
+    pub durations: HashMap<StrategyAction, Duration>,
 
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
@@ -187,6 +187,7 @@ impl<
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
     fn call(&mut self) {
+        let now = Instant::now();
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
@@ -247,6 +248,7 @@ impl<
             self.reporter.on_new_generation(&self.state, &self.config);
             self.state.scale(&self.config);
         }
+        self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
@@ -287,7 +289,7 @@ impl<
             .map(|_| self.genotype.chromosome_factory(&mut self.rng))
             .collect::<Vec<_>>();
 
-        self.state.add_duration("init", now.elapsed());
+        self.state.add_duration(StrategyAction::Init, now.elapsed());
     }
 
     #[allow(dead_code)]
@@ -395,8 +397,11 @@ impl<A: Allele> StrategyState<A> for EvolveState<A> {
         }
         (true, improved_fitness)
     }
-    fn add_duration(&mut self, tag: &'static str, duration: Duration) {
-        *self.durations.entry(tag).or_default() += duration;
+    fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
+        *self.durations.entry(action).or_default() += duration;
+    }
+    fn total_duration(&mut self) -> Duration {
+        self.durations.values().sum()
     }
 }
 
@@ -430,7 +435,7 @@ impl<A: Allele> EvolveState<A> {
         } else {
             self.increment_stale_generations();
         }
-        self.add_duration("update_best_chromosome", now.elapsed());
+        self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
     fn scale(&mut self, config: &EvolveConfig) {
         if let Some(current_scale_index) = self.current_scale_index {

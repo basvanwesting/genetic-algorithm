@@ -4,7 +4,7 @@ use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
 use crate::genotype::Allele;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use crate::strategy::StrategyState;
+use crate::strategy::{StrategyAction, StrategyState};
 use rand::prelude::*;
 use std::time::Instant;
 
@@ -78,7 +78,7 @@ impl Compete for Tournament {
         }
 
         state.population.chromosomes = target_chromosomes;
-        state.add_duration("compete", now.elapsed());
+        state.add_duration(StrategyAction::Compete, now.elapsed());
     }
 }
 
