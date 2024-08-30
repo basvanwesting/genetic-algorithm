@@ -76,8 +76,7 @@ mod population_tests {
     }
 
     #[test]
-    fn trim() {
-        let mut rng = SmallRng::seed_from_u64(0);
+    fn trim_from_start_to() {
         let population = &mut build::population(vec![
             vec![false, true, true],
             vec![false, true, false],
@@ -88,24 +87,29 @@ mod population_tests {
             vec![true, false, true],
             vec![true, false, false],
         ]);
+        assert_eq!(population.chromosomes.capacity(), 8);
 
-        population.trim(0.75, &mut rng);
+        population.drain_from_start_to(8);
+        assert_eq!(population.chromosomes.len(), 8);
+        population.drain_from_start_to(10);
+        assert_eq!(population.chromosomes.len(), 8);
+
+        population.drain_from_start_to(6);
         assert_eq!(
             inspect::population(population),
             vec![
-                vec![true, true, true],
-                vec![false, true, false],
-                vec![false, true, true],
-                vec![true, true, false],
                 vec![false, false, true],
                 vec![false, false, false],
+                vec![true, true, true],
+                vec![true, true, false],
+                vec![true, false, true],
+                vec![true, false, false],
             ]
         );
+        assert_eq!(population.chromosomes.capacity(), 8);
     }
-
     #[test]
-    fn trim_never_less_than_two() {
-        let mut rng = SmallRng::seed_from_u64(0);
+    fn trim_from_end_to() {
         let population = &mut build::population(vec![
             vec![false, true, true],
             vec![false, true, false],
@@ -116,11 +120,25 @@ mod population_tests {
             vec![true, false, true],
             vec![true, false, false],
         ]);
+        assert_eq!(population.chromosomes.capacity(), 8);
 
-        population.trim(0.01, &mut rng);
+        population.truncate(8);
+        assert_eq!(population.chromosomes.len(), 8);
+        population.truncate(10);
+        assert_eq!(population.chromosomes.len(), 8);
+
+        population.truncate(6);
         assert_eq!(
             inspect::population(population),
-            vec![vec![true, true, true], vec![false, true, false],]
+            vec![
+                vec![false, true, true],
+                vec![false, true, false],
+                vec![false, false, true],
+                vec![false, false, false],
+                vec![true, true, true],
+                vec![true, true, false],
+            ]
         );
+        assert_eq!(population.chromosomes.capacity(), 8);
     }
 }

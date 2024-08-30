@@ -48,16 +48,16 @@ impl<T: Allele> Population<T> {
         }
     }
 
-    pub fn trim<R: Rng>(&mut self, remaining_percentage: f32, rng: &mut R) {
-        let remaining_size: usize = std::cmp::max(
-            (self.size() as f32 * remaining_percentage).ceil() as usize,
-            2,
-        );
-
-        if self.size() > remaining_size {
-            self.chromosomes.shuffle(rng);
-            self.chromosomes.drain(remaining_size..);
+    pub fn drain_from_start_to(&mut self, target_size: usize) {
+        if target_size < self.size() {
+            self.chromosomes.drain(..self.size() - target_size);
         }
+    }
+    pub fn truncate(&mut self, target_size: usize) {
+        self.chromosomes.truncate(target_size);
+    }
+    pub fn shuffle<R: Rng>(&mut self, rng: &mut R) {
+        self.chromosomes.shuffle(rng);
     }
 
     /// fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out

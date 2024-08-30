@@ -29,7 +29,13 @@ impl Extension for MassExtinction {
                 state,
                 config,
             );
-            state.population.trim(self.survival_rate, rng);
+
+            let remaining_size: usize = std::cmp::max(
+                (state.population.size() as f32 * self.survival_rate).ceil() as usize,
+                2,
+            );
+            state.population.shuffle(rng);
+            state.population.truncate(remaining_size);
         }
     }
 }

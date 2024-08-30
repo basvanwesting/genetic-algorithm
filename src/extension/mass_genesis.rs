@@ -22,10 +22,14 @@ impl Extension for MassGenesis {
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
             reporter.on_extension_event(ExtensionEvent::MassGenesis("".to_string()), state, config);
-            if let Some(best_chromosome) = state.population.best_chromosome(config.fitness_ordering)
+            if let Some(best_chromosome) = state
+                .population
+                .best_chromosome(config.fitness_ordering)
+                .cloned()
             {
-                state.population.chromosomes =
-                    vec![best_chromosome.clone(), best_chromosome.clone()]
+                state.population.truncate(0);
+                state.population.chromosomes.push(best_chromosome.clone());
+                state.population.chromosomes.push(best_chromosome);
             }
         }
     }

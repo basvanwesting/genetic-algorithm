@@ -1,16 +1,17 @@
 use super::{Extension, ExtensionEvent};
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 
 /// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
-/// population. When this cardinality drops to the threshold, the population is randomly mutated N
-/// number of rounds.
+/// population. When this cardinality drops to the threshold, the full population is mutated the
+/// provided number of times, where the [Genotype] determines whether this is random, relative or
+/// scaled.
+/// Duplicate mutations of the same gene are allowed.
 #[derive(Debug, Clone)]
 pub struct MassDegeneration {
     pub cardinality_threshold: usize,
-    pub number_of_rounds: usize,
+    pub number_of_mutations: usize,
 }
 
 impl Extension for MassDegeneration {
@@ -30,13 +31,14 @@ impl Extension for MassDegeneration {
                 state,
                 config,
             );
-            let bool_sampler = Bernoulli::new(0.2).unwrap();
-            for _ in 0..self.number_of_rounds {
-                for chromosome in &mut state.population.chromosomes {
-                    if bool_sampler.sample(rng) {
-                        genotype.mutate_chromosome_single(chromosome, state.current_scale_index, rng);
-                    }
-                }
+            for chromosome in state.population.chromosomes.iter_mut() {
+                genotype.mutate_chromosome_multi(
+                    self.number_of_mutations,
+                    true,
+                    chromosome,
+                    state.current_scale_index,
+                    rng,
+                );
             }
         }
     }
@@ -46,7 +48,7 @@ impl MassDegeneration {
     pub fn new(cardinality_threshold: usize, number_of_rounds: usize) -> Self {
         Self {
             cardinality_threshold,
-            number_of_rounds,
+            number_of_mutations: number_of_rounds,
         }
     }
 }
