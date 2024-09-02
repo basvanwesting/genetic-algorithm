@@ -9,10 +9,10 @@ type HostsWithTableSizesPerRound = Vec<Vec<(Person, TableSize)>>;
 #[derive(Clone, Debug)]
 struct TableSeatingFitness(pub HostsWithTableSizesPerRound);
 impl Fitness for TableSeatingFitness {
-    type Allele = Person;
+    type Genotype = MultiUniqueGenotype<Person>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let hosts_with_table_sizes_per_round = &self.0;
         let mut people = chromosome.genes.clone();

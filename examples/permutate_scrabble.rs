@@ -27,10 +27,10 @@ struct ScrabbleFitness {
     letter_board: Vec<Vec<char>>,
 }
 impl Fitness for ScrabbleFitness {
-    type Allele = WordPosition;
+    type Genotype = MultiListGenotype<WordPosition>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let mut score: isize = 0;
 
@@ -225,11 +225,11 @@ impl ScrabbleFitness {
 #[derive(Clone)]
 pub struct CustomReporter(usize);
 impl PermutateReporter for CustomReporter {
-    type Allele = WordPosition;
+    type Genotype = MultiListGenotype<WordPosition>;
 
     fn on_new_generation(
         &mut self,
-        state: &PermutateState<Self::Allele>,
+        state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.0 == 0 {
@@ -245,7 +245,7 @@ impl PermutateReporter for CustomReporter {
 
     fn on_new_best_chromosome(
         &mut self,
-        state: &PermutateState<Self::Allele>,
+        state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
         println!(
@@ -260,11 +260,11 @@ impl PermutateReporter for CustomReporter {
 #[derive(Clone)]
 pub struct CustomLogReporter(usize);
 impl PermutateReporter for CustomLogReporter {
-    type Allele = WordPosition;
+    type Genotype = MultiListGenotype<WordPosition>;
 
     fn on_new_generation(
         &mut self,
-        state: &PermutateState<Self::Allele>,
+        state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
         if state.current_generation() % self.0 == 0 {

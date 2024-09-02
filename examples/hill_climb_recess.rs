@@ -56,10 +56,10 @@ impl Hash for Adult {
 #[derive(Clone, Debug)]
 struct RecessFitness<'a>(pub &'a Vec<Adult>, pub &'a Vec<NaiveDate>);
 impl<'a> Fitness for RecessFitness<'a> {
-    type Allele = usize;
+    type Genotype = UniqueGenotype<usize>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let adults = self.0;
         let dates = self.1;

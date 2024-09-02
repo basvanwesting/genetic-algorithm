@@ -4,10 +4,10 @@ use genetic_algorithm::strategy::evolve::prelude::*;
 #[derive(Clone, Debug)]
 struct NQueensFitness;
 impl Fitness for NQueensFitness {
-    type Allele = u8;
+    type Genotype = UniqueGenotype<u8>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let mut score = 0;
         let max_index = chromosome.genes.len() - 1;

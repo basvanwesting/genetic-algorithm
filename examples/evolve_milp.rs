@@ -8,10 +8,10 @@ const PENALTY: f32 = 1000.0;
 #[derive(Clone, Debug)]
 struct MILPFitness;
 impl Fitness for MILPFitness {
-    type Allele = f32;
+    type Genotype = RangeGenotype<f32>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let x1 = chromosome.genes[0];
         let x2 = chromosome.genes[1].floor();

@@ -16,10 +16,10 @@ impl ExpensiveCount {
     }
 }
 impl Fitness for ExpensiveCount {
-    type Allele = BinaryAllele;
+    type Genotype = BinaryGenotype;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
@@ -42,10 +42,10 @@ impl CachedExpensiveCount {
     }
 }
 impl Fitness for CachedExpensiveCount {
-    type Allele = BinaryAllele;
+    type Genotype = BinaryGenotype;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         // print!("cache try ({}), ", self.cache.len());
         print!("cache try, ");

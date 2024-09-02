@@ -1,29 +1,29 @@
 use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::fitness::FitnessValue;
-use genetic_algorithm::genotype::Allele;
+use genetic_algorithm::genotype::Genotype;
 use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
-pub fn chromosome<T: Allele>(chromosome: &Chromosome<T>) -> Vec<T> {
+pub fn chromosome<G: Genotype>(chromosome: &Chromosome<G>) -> Vec<G::Allele> {
     chromosome.genes.clone()
 }
 
 #[allow(dead_code)]
-pub fn chromosome_with_fitness_score<T: Allele>(
-    chromosome: &Chromosome<T>,
-) -> (Vec<T>, Option<FitnessValue>) {
+pub fn chromosome_with_fitness_score<G: Genotype>(
+    chromosome: &Chromosome<G>,
+) -> (Vec<G::Allele>, Option<FitnessValue>) {
     (chromosome.genes.clone(), chromosome.fitness_score)
 }
 
 #[allow(dead_code)]
-pub fn chromosomes<T: Allele>(chromosomes: &Vec<Chromosome<T>>) -> Vec<Vec<T>> {
+pub fn chromosomes<G: Genotype>(chromosomes: &Vec<Chromosome<G>>) -> Vec<Vec<G::Allele>> {
     chromosomes.iter().map(|c| chromosome(&c)).collect()
 }
 
 #[allow(dead_code)]
-pub fn chromosomes_with_fitness_score<T: Allele>(
-    chromosomes: &Vec<Chromosome<T>>,
-) -> Vec<(Vec<T>, Option<FitnessValue>)> {
+pub fn chromosomes_with_fitness_score<G: Genotype>(
+    chromosomes: &Vec<Chromosome<G>>,
+) -> Vec<(Vec<G::Allele>, Option<FitnessValue>)> {
     chromosomes
         .iter()
         .map(|c| chromosome_with_fitness_score(&c))
@@ -31,7 +31,7 @@ pub fn chromosomes_with_fitness_score<T: Allele>(
 }
 
 #[allow(dead_code)]
-pub fn population<T: Allele>(population: &Population<T>) -> Vec<Vec<T>> {
+pub fn population<G: Genotype>(population: &Population<G>) -> Vec<Vec<G::Allele>> {
     population
         .chromosomes
         .iter()
@@ -40,9 +40,9 @@ pub fn population<T: Allele>(population: &Population<T>) -> Vec<Vec<T>> {
 }
 
 #[allow(dead_code)]
-pub fn population_with_fitness_scores<T: Allele>(
-    population: &Population<T>,
-) -> Vec<(Vec<T>, Option<FitnessValue>)> {
+pub fn population_with_fitness_scores<G: Genotype>(
+    population: &Population<G>,
+) -> Vec<(Vec<G::Allele>, Option<FitnessValue>)> {
     population
         .chromosomes
         .iter()

@@ -3,17 +3,17 @@ use genetic_algorithm::strategy::hill_climb::prelude::*;
 #[derive(Clone, Debug)]
 pub struct DistanceTo(pub f32, pub f32); // target, precision
 impl Fitness for DistanceTo {
-    type Allele = f32;
+    type Genotype = RangeGenotype<f32>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         Some(
             chromosome
                 .genes
                 .iter()
                 .map(|v| (v - self.0).abs() / self.1)
-                .sum::<Self::Allele>() as FitnessValue,
+                .sum::<Self::Genotype::Allele>() as FitnessValue,
         )
     }
 }

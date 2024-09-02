@@ -13,10 +13,10 @@ const MAX_CHAR: char = '~'; // 0x7e;
 #[derive(Clone, Debug)]
 struct MonkeyFitness;
 impl Fitness for MonkeyFitness {
-    type Allele = char;
+    type Genotype = ListGenotype<char>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let string = String::from_iter(chromosome.genes.clone());
         println!("{}", string);

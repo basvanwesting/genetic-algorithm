@@ -1,18 +1,18 @@
 use genetic_algorithm::chromosome::Chromosome;
 use genetic_algorithm::fitness::FitnessValue;
-use genetic_algorithm::genotype::Allele;
+use genetic_algorithm::genotype::Genotype;
 use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
-pub fn chromosome<T: Allele>(genes: Vec<T>) -> Chromosome<T> {
+pub fn chromosome<G: Genotype>(genes: Vec<G::Allele>) -> Chromosome<G> {
     Chromosome::new(genes)
 }
 
 #[allow(dead_code)]
-pub fn chromosome_with_fitness_score<T: Allele>(
-    genes: Vec<T>,
+pub fn chromosome_with_fitness_score<G: Genotype>(
+    genes: Vec<G::Allele>,
     fitness_score: Option<FitnessValue>,
-) -> Chromosome<T> {
+) -> Chromosome<G> {
     Chromosome {
         genes,
         fitness_score,
@@ -22,16 +22,16 @@ pub fn chromosome_with_fitness_score<T: Allele>(
 }
 
 #[allow(dead_code)]
-pub fn population<T: Allele>(data: Vec<Vec<T>>) -> Population<T> {
+pub fn population<G: Genotype>(data: Vec<Vec<G::Allele>>) -> Population<G> {
     let chromosomes = data.into_iter().map(|genes| chromosome(genes)).collect();
 
     Population::new(chromosomes)
 }
 
 #[allow(dead_code)]
-pub fn population_with_fitness_scores<T: Allele>(
-    data: Vec<(Vec<T>, Option<FitnessValue>)>,
-) -> Population<T> {
+pub fn population_with_fitness_scores<G: Genotype>(
+    data: Vec<(Vec<G::Allele>, Option<FitnessValue>)>,
+) -> Population<G> {
     let chromosomes = data
         .into_iter()
         .map(|tuple| chromosome_with_fitness_score(tuple.0, tuple.1))

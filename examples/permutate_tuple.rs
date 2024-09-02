@@ -5,11 +5,11 @@ type Item = (u8, u16, i8);
 #[derive(Clone, Debug)]
 struct TupleFitness;
 impl Fitness for TupleFitness {
-    type Allele = Item;
+    type Genotype = ListGenotype<Item>;
 
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let score: isize = chromosome
             .genes
