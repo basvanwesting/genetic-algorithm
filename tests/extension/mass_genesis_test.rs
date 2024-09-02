@@ -11,7 +11,7 @@ fn removes_randomly() {
         .build()
         .unwrap();
 
-    let population = build::population_with_fitness_scores(vec![
+    let mut population = build::population_with_fitness_scores(vec![
         (vec![false, true, true], Some(1)),
         (vec![false, true, false], Some(2)),
         (vec![false, false, true], Some(3)),
@@ -21,8 +21,9 @@ fn removes_randomly() {
         (vec![true, false, true], Some(2)),
         (vec![true, false, false], Some(1)),
     ]);
+    population.chromosomes.reserve_exact(2);
     assert_eq!(population.fitness_score_cardinality(), 5);
-    assert_eq!(population.chromosomes.capacity(), 8);
+    assert_eq!(population.chromosomes.capacity(), 10);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
@@ -35,5 +36,5 @@ fn removes_randomly() {
         inspect::population(&state.population),
         vec![vec![true, true, true], vec![true, true, true],]
     );
-    assert_eq!(state.population.chromosomes.capacity(), 8);
+    assert_eq!(state.population.chromosomes.capacity(), 10);
 }

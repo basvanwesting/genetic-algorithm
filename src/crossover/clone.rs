@@ -23,11 +23,20 @@ impl Crossover for Clone {
         _rng: &mut R,
     ) {
         let now = Instant::now();
+        let population_size = state.population.size();
         if self.keep_parent {
-            let mut clones = state.population.clone();
-            clones.reset_age();
-            state.population.merge(&mut clones);
-        }
+            state
+                .population
+                .chromosomes
+                .extend_from_within(..population_size);
+        };
+        state
+            .population
+            .chromosomes
+            .iter_mut()
+            .take(population_size)
+            .for_each(|c| c.age = 0);
+
         state.add_duration(StrategyAction::Crossover, now.elapsed());
     }
 }

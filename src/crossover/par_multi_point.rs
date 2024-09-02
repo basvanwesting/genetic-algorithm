@@ -29,19 +29,22 @@ impl Crossover for ParMultiPoint {
         _rng: &mut R,
     ) {
         let now = Instant::now();
-        if state.population.size() < 2 {
+        let population_size = state.population.size();
+        if population_size < 2 {
             return;
         }
-        let mut parent_chromosomes = if self.keep_parent {
-            state.population.chromosomes.clone()
-        } else {
-            vec![] // throwaway to keep compiler happy
+        if self.keep_parent {
+            state
+                .population
+                .chromosomes
+                .extend_from_within(..population_size);
         };
 
         state
             .population
             .chromosomes
             .par_chunks_mut(2)
+            .take(population_size)
             .for_each_init(
                 || SmallRng::from_rng(rand::thread_rng()).unwrap(),
                 |rng, chunk| {
@@ -57,9 +60,6 @@ impl Crossover for ParMultiPoint {
                 },
             );
 
-        if self.keep_parent {
-            state.population.chromosomes.append(&mut parent_chromosomes);
-        }
         state.add_duration(StrategyAction::Crossover, now.elapsed());
     }
     fn require_crossover_points(&self) -> bool {

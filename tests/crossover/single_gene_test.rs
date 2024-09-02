@@ -17,6 +17,7 @@ fn population_even() {
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
     ]);
+    assert_eq!(population.chromosomes.capacity(), 4);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
@@ -33,7 +34,8 @@ fn population_even() {
             vec![true, true, false, true, true],
             vec![false, false, true, false, false],
         ]
-    )
+    );
+    assert_eq!(state.population.chromosomes.capacity(), 4);
 }
 
 #[test]
@@ -50,6 +52,7 @@ fn population_odd() {
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
     ]);
+    assert_eq!(population.chromosomes.capacity(), 5);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
@@ -67,7 +70,8 @@ fn population_odd() {
             vec![false, false, true, false, false],
             vec![true, true, true, true, true],
         ]
-    )
+    );
+    assert_eq!(state.population.chromosomes.capacity(), 5);
 }
 
 #[test]
@@ -77,12 +81,14 @@ fn population_even_keep_parents() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let mut population = build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
     ]);
+    population.chromosomes.reserve_exact(10);
+    assert_eq!(population.chromosomes.capacity(), 14);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
@@ -103,7 +109,8 @@ fn population_even_keep_parents() {
             vec![true, true, true, true, true],
             vec![false, false, false, false, false],
         ]
-    )
+    );
+    assert_eq!(state.population.chromosomes.capacity(), 14);
 }
 
 #[test]
@@ -113,13 +120,15 @@ fn population_odd_keep_parents() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let mut population = build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
     ]);
+    population.chromosomes.reserve_exact(10);
+    assert_eq!(population.chromosomes.capacity(), 15);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
@@ -142,7 +151,8 @@ fn population_odd_keep_parents() {
             vec![false, false, false, false, false],
             vec![true, true, true, true, true],
         ]
-    )
+    );
+    assert_eq!(state.population.chromosomes.capacity(), 15);
 }
 
 #[test]

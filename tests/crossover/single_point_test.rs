@@ -43,12 +43,14 @@ fn population_even_keep_parents() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let mut population = build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
     ]);
+    population.chromosomes.reserve_exact(10);
+    assert_eq!(population.chromosomes.capacity(), 14);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
@@ -69,5 +71,6 @@ fn population_even_keep_parents() {
             vec![true, true, true, true, true],
             vec![false, false, false, false, false],
         ]
-    )
+    );
+    assert_eq!(state.population.chromosomes.capacity(), 14);
 }
