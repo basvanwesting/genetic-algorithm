@@ -16,24 +16,24 @@ rust-version = "1.71.1"
 
 [dependencies]
 rand = { version = "0.8.5", features = ["small_rng", "alloc"] }
-itertools = "0.10.3"
+itertools = "0.13.0"
 streaming-stats = "0.2.3"
-factorial = "0.2.1"
+factorial = "0.4.0"
 num = "0.4.0"
-rayon = "1.5.3"
-thread_local = "1.1"
+rayon = "1.10.0"
+thread_local = "1.1.8"
 log = "0.4.0"
 cardinality-estimator = "1.0.2"
 impl-trait-for-tuples = "0.2.2"
 
 [dev-dependencies]
-lru = "0.7.5"
-criterion = "0.5"
+lru = "0.12.4"
+criterion = "0.5.1"
 pprof = { version = "0.13", features = ["criterion", "flamegraph"] }
 distance = "0.4.0"
-chrono = "0.4.22"
-statrs = "0.16.0"
-env_logger = "0.11.3"
+chrono = "0.4.38"
+statrs = "0.17.1"
+env_logger = "0.11.5"
 approx = "0.5.1"
 
 # for profiling and flamegraph

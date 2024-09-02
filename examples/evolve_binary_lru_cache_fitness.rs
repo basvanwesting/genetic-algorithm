@@ -1,5 +1,6 @@
 use genetic_algorithm::strategy::evolve::prelude::*;
 use lru::LruCache;
+use std::num::NonZeroUsize;
 use std::{thread, time};
 
 pub type MicroSeconds = u64;
@@ -36,7 +37,7 @@ impl CachedExpensiveCount {
         Self {
             micro_seconds,
             cache_size,
-            cache: LruCache::new(cache_size),
+            cache: LruCache::new(NonZeroUsize::new(cache_size).unwrap()),
         }
     }
 }
@@ -46,17 +47,19 @@ impl Fitness for CachedExpensiveCount {
         &mut self,
         chromosome: &Chromosome<Self::Allele>,
     ) -> Option<FitnessValue> {
-        //print!("cache try ({}), ", self.cache.len());
-        Some(
-            *self
-                .cache
-                .get_or_insert(chromosome.genes_key(), || {
-                    //println!("miss");
-                    thread::sleep(time::Duration::from_micros(self.micro_seconds));
-                    chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue
-                })
-                .unwrap(),
-        )
+        // print!("cache try ({}), ", self.cache.len());
+        print!("cache try, ");
+        let key = chromosome.genes_key();
+        if let Some(value) = self.cache.get(&key) {
+            println!("hit");
+            Some(*value)
+        } else {
+            println!("miss");
+            thread::sleep(time::Duration::from_micros(self.micro_seconds));
+            let value = chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue;
+            self.cache.put(key, value);
+            Some(value)
+        }
     }
 }
 impl Clone for CachedExpensiveCount {
@@ -90,3 +93,12 @@ fn main() {
 
     println!("{}", evolve);
 }
+
+// Not very useful:
+//
+// +-----------------+-------+
+// | Word            | Count |
+// +-----------------+-------+
+// | cache try, miss |  1252 |
+// | cache try, hit  |   243 |
+// +-----------------+-------+
