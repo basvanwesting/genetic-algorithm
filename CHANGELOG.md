@@ -5,7 +5,7 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
-## [0.10.4] - 2024-09-02
+## [0.11.0] - 2024-09-02
 
 ### Changed
 * Change `Crossover`'s `keep_parent` parameter to `parent_survival_rate`. This
