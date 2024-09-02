@@ -18,17 +18,12 @@ fn binary_genotype() {
         vec![true, true, true],
     ]);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateMultiGene::new(2, 0.5).call(
-        &genotype,
-        &mut state,
-        &config,
-        &mut reporter,
-        &mut rng,
-    );
+    MutateMultiGene::new(2, 0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -56,17 +51,12 @@ fn list_genotype() {
         vec![0, 0, 0],
     ]);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    MutateMultiGene::new(2, 0.5).call(
-        &genotype,
-        &mut state,
-        &config,
-        &mut reporter,
-        &mut rng,
-    );
+    MutateMultiGene::new(2, 0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),

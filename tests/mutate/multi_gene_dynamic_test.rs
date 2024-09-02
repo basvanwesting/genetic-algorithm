@@ -26,7 +26,8 @@ fn binary_genotype() {
         vec![true, true, true],
     ]);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);

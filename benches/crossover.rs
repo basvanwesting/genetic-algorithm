@@ -22,7 +22,8 @@ pub fn setup(
         .collect();
 
     let population = Population::new(chromosomes);
-    let state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     (genotype, state)
 }
 

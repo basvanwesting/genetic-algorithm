@@ -23,7 +23,8 @@ fn removes_randomly() {
     ]);
     assert_eq!(population.fitness_score_cardinality(), 8);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -67,7 +68,8 @@ fn never_leaves_less_than_tow() {
     ]);
     assert_eq!(population.fitness_score_cardinality(), 8);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);

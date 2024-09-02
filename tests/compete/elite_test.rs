@@ -24,7 +24,8 @@ fn maximize_population_surplus() {
     ]);
     assert_eq!(population.chromosomes.capacity(), 8);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
@@ -60,7 +61,8 @@ fn maximize_population_shortage() {
     ]);
     assert_eq!(population.chromosomes.capacity(), 3);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
@@ -99,7 +101,8 @@ fn minimize_population_surplus() {
         vec![true, true, true],
     ]);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
@@ -133,7 +136,8 @@ fn minimize_population_shortage() {
         vec![false, true, false],
     ]);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, None);
@@ -168,7 +172,8 @@ fn fitness_ordering_with_none_fitness() {
         (vec![true, true, false], None),
     ]);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let mut reporter = EvolveReporterNoop::<BinaryAllele>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     let config = EvolveConfig {

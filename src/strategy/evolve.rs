@@ -509,8 +509,7 @@ impl<
         } else {
             let rng = builder.rng();
             let genotype = builder.genotype.unwrap();
-            let population = Population::new_empty();
-            let state = EvolveState::new(&genotype, population);
+            let state = EvolveState::new(&genotype);
 
             Ok(Self {
                 genotype,
@@ -577,19 +576,15 @@ impl<A: Allele> Default for EvolveState<A> {
     }
 }
 impl<A: Allele> EvolveState<A> {
-    pub fn new<G: Genotype>(genotype: &G, population: Population<A>) -> Self {
+    pub fn new<G: Genotype>(genotype: &G) -> Self {
         if let Some(max_scale_index) = genotype.max_scale_index() {
             Self {
                 current_scale_index: Some(0),
                 max_scale_index,
-                population,
                 ..Default::default()
             }
         } else {
-            Self {
-                population,
-                ..Default::default()
-            }
+            Self::default()
         }
     }
 }

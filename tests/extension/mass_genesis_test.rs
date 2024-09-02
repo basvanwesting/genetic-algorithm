@@ -24,7 +24,8 @@ fn removes_randomly() {
     assert_eq!(population.fitness_score_cardinality(), 5);
     assert_eq!(population.chromosomes.capacity(), 8);
 
-    let mut state = EvolveState::new(&genotype, population);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
