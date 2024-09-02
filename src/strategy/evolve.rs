@@ -283,9 +283,15 @@ impl<
         self.fitness.call_for_state_chromosome(&mut self.state);
         self.fitness
             .call_for_state_population(&mut self.state, fitness_thread_local);
-        self.state.store_best_chromosome(true); // best by definition
-        self.reporter
-            .on_new_best_chromosome(&mut self.state, &self.config);
+        self.state
+            .update_best_chromosome_and_report(&self.config, &mut self.reporter);
+
+        if self.state.best_chromosome.is_empty() {
+            self.state.store_best_chromosome(true); // best by definition
+            self.reporter
+                .on_new_best_chromosome(&self.state, &self.config);
+        }
+        self.state.reset_stale_generations();
     }
 
     fn is_finished(&self) -> bool {

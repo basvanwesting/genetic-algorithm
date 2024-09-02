@@ -6,6 +6,9 @@ use rand::Rng;
 use std::time::Instant;
 
 /// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where only an adam and eve of current best chromosomes survive
+///
+/// Ensure you have some population growth in compete/crossover by setting a parent_survival_rate >
+/// 0 in order for the population to recover
 #[derive(Debug, Clone)]
 pub struct MassGenesis {
     pub cardinality_threshold: usize,

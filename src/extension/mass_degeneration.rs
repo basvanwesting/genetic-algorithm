@@ -9,7 +9,7 @@ use std::time::Instant;
 /// population. When this cardinality drops to the threshold, the full population is mutated the
 /// provided number of times, where the [Genotype] determines whether this is random, relative or
 /// scaled.
-/// Duplicate mutations of the same gene are allowed.
+/// Duplicate mutations of the same gene are allowed. There is no change in population size.
 #[derive(Debug, Clone)]
 pub struct MassDegeneration {
     pub cardinality_threshold: usize,

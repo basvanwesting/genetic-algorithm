@@ -8,6 +8,9 @@ use std::time::Instant;
 /// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
 /// population. When this cardinality drops to the threshold, the population is randomly reduced
 /// regardless of fitness using the survival_rate (fraction of population).
+///
+/// Ensure you have some population growth in compete/crossover by setting a parent_survival_rate >
+/// 0 in order for the population to recover
 #[derive(Debug, Clone)]
 pub struct MassExtinction {
     pub cardinality_threshold: usize,

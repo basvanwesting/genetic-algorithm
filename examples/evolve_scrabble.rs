@@ -267,24 +267,22 @@ fn main() {
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(1000)
-        .with_max_stale_generations(2500)
-        .with_max_chromosome_age(50)
+        .with_max_stale_generations(250)
+        // .with_max_chromosome_age(50)
         .with_mutate(MutateMultiGene::new(2, 0.2))
         //.with_mutate(MutateSingleGeneDynamic::new(0.01, 250))
         // .with_mutate(MutateMultiGeneDynamic::new(2, 0.1, 250))
-        //.with_crossover(CrossoverSinglePoint::new(0.5))
+        // .with_crossover(CrossoverSinglePoint::new(0.5))
         .with_crossover(CrossoverUniform::new(0.5))
         .with_compete(CompeteTournament::new(4))
         //.with_compete(CompeteElite::new())
-        //.with_extension(ExtensionMassExtinction::new(10, 0.001))
-        .with_extension(ExtensionMassGenesis::new(10))
-        // .with_extension(ExtensionMassDegeneration::new(10, 50))
-        .with_par_fitness(true)
+        .with_extension(ExtensionMassDegeneration::new(180, 10))
         // .with_reporter(EvolveReporterSimple::default())
         // .with_reporter(EvolveReporterSimple::new_with_flags(
         //     100, false, false, true,
         // ))
-        .with_reporter(EvolveReporterSimple::new(100))
+        .with_reporter(EvolveReporterSimple::new(usize::MAX))
+        .with_par_fitness(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
             rows,

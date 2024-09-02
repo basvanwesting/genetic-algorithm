@@ -333,7 +333,7 @@ impl<
         self.fitness.call_for_state_chromosome(&mut self.state);
         self.state.store_best_chromosome(true); // best by definition
         self.reporter
-            .on_new_best_chromosome(&mut self.state, &self.config);
+            .on_new_best_chromosome(&self.state, &self.config);
     }
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
