@@ -4,6 +4,7 @@ use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGeneDynamic};
+use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -13,7 +14,7 @@ fn binary_genotype() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let population: Population<BinaryGenotype> = build::population(vec![
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],

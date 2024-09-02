@@ -2,6 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::crossover::{Crossover, CrossoverClone};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
+use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -11,7 +12,7 @@ fn population_odd() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let population: Population<BinaryGenotype> = build::population(vec![
         vec![true, true, true],
         vec![false, false, false],
         vec![true, true, true],
@@ -41,7 +42,7 @@ fn population_odd_keep_parents() {
         .build()
         .unwrap();
 
-    let mut population = build::population(vec![
+    let mut population: Population<BinaryGenotype> = build::population(vec![
         vec![true, true, true],
         vec![false, false, false],
         vec![true, true, true],
@@ -77,7 +78,8 @@ fn population_size_one() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![vec![true, false, true, false, true]]);
+    let population: Population<BinaryGenotype> =
+        build::population(vec![vec![true, false, true, false, true]]);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;

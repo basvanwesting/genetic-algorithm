@@ -42,7 +42,7 @@ mod population_tests {
 
     #[test]
     fn best_chromosome() {
-        let population = &mut build::population_with_fitness_scores(vec![
+        let population: Population<BinaryGenotype> = build::population_with_fitness_scores(vec![
             (vec![false, false, false], Some(0)),
             (vec![false, false, true], Some(1)),
             (vec![false, true, true], Some(2)),
@@ -64,7 +64,7 @@ mod population_tests {
 
     #[test]
     fn fitness_score_cardinality() {
-        let population = &mut build::population_with_fitness_scores(vec![
+        let population: Population<BinaryGenotype> = build::population_with_fitness_scores(vec![
             (vec![false, false, false], Some(0)),
             (vec![false, false, true], Some(2)),
             (vec![false, true, true], Some(2)),
@@ -77,7 +77,7 @@ mod population_tests {
 
     #[test]
     fn truncate_front() {
-        let population = &mut build::population(vec![
+        let mut population: Population<BinaryGenotype> = build::population(vec![
             vec![false, true, true],
             vec![false, true, false],
             vec![false, false, true],
@@ -96,7 +96,7 @@ mod population_tests {
 
         population.truncate_front(6);
         assert_eq!(
-            inspect::population(population),
+            inspect::population(&population),
             vec![
                 vec![false, false, true],
                 vec![false, false, false],
@@ -110,7 +110,7 @@ mod population_tests {
     }
     #[test]
     fn truncate() {
-        let population = &mut build::population(vec![
+        let mut population: Population<BinaryGenotype> = build::population(vec![
             vec![false, true, true],
             vec![false, true, false],
             vec![false, false, true],
@@ -129,7 +129,7 @@ mod population_tests {
 
         population.truncate(6);
         assert_eq!(
-            inspect::population(population),
+            inspect::population(&population),
             vec![
                 vec![false, true, true],
                 vec![false, true, false],

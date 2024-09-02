@@ -5,6 +5,12 @@ pub mod inspect;
 pub use approx::relative_eq;
 pub use approx::RelativeEq;
 #[allow(unused_imports)]
+pub use genetic_algorithm::chromosome::Chromosome;
+#[allow(unused_imports)]
+pub use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, RangeGenotype};
+#[allow(unused_imports)]
+pub use genetic_algorithm::population::Population;
+#[allow(unused_imports)]
 pub use num::BigUint;
 #[allow(unused_imports)]
 pub use rand::rngs::SmallRng;

@@ -243,9 +243,9 @@ pub struct EvolveIterationReporter;
 impl EvolveReporter for EvolveIterationReporter {
     type Genotype = BinaryGenotype;
 
-    fn on_init<G: Genotype>(
+    fn on_init(
         &mut self,
-        genotype: &G,
+        genotype: &Self::Genotype,
         state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {

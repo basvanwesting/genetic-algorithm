@@ -11,7 +11,7 @@ fn population_even() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let population: Population<BinaryGenotype> = build::population(vec![
         vec![true; 10],
         vec![false; 10],
         vec![true; 10],
@@ -49,7 +49,7 @@ fn population_odd() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let population: Population<BinaryGenotype> = build::population(vec![
         vec![true; 10],
         vec![false; 10],
         vec![true; 10],
@@ -89,7 +89,7 @@ fn population_even_keep_parents() {
         .build()
         .unwrap();
 
-    let mut population = build::population(vec![
+    let mut population: Population<BinaryGenotype> = build::population(vec![
         vec![true; 10],
         vec![false; 10],
         vec![true; 10],
@@ -134,7 +134,7 @@ fn population_odd_keep_parents() {
         .build()
         .unwrap();
 
-    let mut population = build::population(vec![
+    let mut population: Population<BinaryGenotype> = build::population(vec![
         vec![true; 10],
         vec![false; 10],
         vec![true; 10],
@@ -182,7 +182,8 @@ fn population_size_one() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![vec![true, false, true, false, true]]);
+    let population: Population<BinaryGenotype> =
+        build::population(vec![vec![true, false, true, false, true]]);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;

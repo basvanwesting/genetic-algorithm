@@ -8,7 +8,7 @@ const PRECISION: f32 = 1e-5;
 #[derive(Clone, Debug)]
 struct MILPFitness;
 impl Fitness for MILPFitness {
-    type Genotype = RangeGenotype<f32>;
+    type Genotype = MultiRangeGenotype<f32>;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,

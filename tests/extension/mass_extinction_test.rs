@@ -2,6 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::extension::{Extension, ExtensionMassExtinction};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
+use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -11,7 +12,7 @@ fn removes_randomly() {
         .build()
         .unwrap();
 
-    let mut population = build::population(vec![
+    let mut population: Population<BinaryGenotype> = build::population(vec![
         vec![false, true, true],
         vec![false, true, false],
         vec![false, false, true],
@@ -59,7 +60,7 @@ fn never_leaves_less_than_tow() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let population: Population<BinaryGenotype> = build::population(vec![
         vec![false, true, true],
         vec![false, true, false],
         vec![false, false, true],

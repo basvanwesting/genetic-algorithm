@@ -2,6 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::crossover::{Crossover, CrossoverSinglePoint};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
+use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -11,7 +12,7 @@ fn population_even() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let population: Population<BinaryGenotype> = build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],
@@ -43,7 +44,7 @@ fn population_even_keep_parents() {
         .build()
         .unwrap();
 
-    let mut population = build::population(vec![
+    let mut population: Population<BinaryGenotype> = build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],

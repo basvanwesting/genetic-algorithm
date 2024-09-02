@@ -2,6 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype};
 use genetic_algorithm::mutate::{Mutate, MutateMultiGene};
+use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -11,7 +12,7 @@ fn binary_genotype() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let population: Population<BinaryGenotype> = build::population(vec![
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],
@@ -44,7 +45,7 @@ fn list_genotype() {
         .build()
         .unwrap();
 
-    let population = build::population(vec![
+    let population: Population<ListGenotype<u8>> = build::population(vec![
         vec![0, 0, 0],
         vec![0, 0, 0],
         vec![0, 0, 0],

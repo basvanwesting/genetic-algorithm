@@ -2,6 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::extension::{Extension, ExtensionMassGenesis};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
+use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -11,7 +12,7 @@ fn removes_randomly() {
         .build()
         .unwrap();
 
-    let mut population = build::population_with_fitness_scores(vec![
+    let mut population: Population<BinaryGenotype> = build::population_with_fitness_scores(vec![
         (vec![false, true, true], Some(1)),
         (vec![false, true, false], Some(2)),
         (vec![false, false, true], Some(3)),
