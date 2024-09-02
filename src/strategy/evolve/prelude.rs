@@ -31,4 +31,4 @@ pub use crate::strategy::evolve::{
     EvolveReporterSimple, EvolveState, TryFromEvolveBuilderError,
 };
 #[doc(no_inline)]
-pub use crate::strategy::{Strategy, StrategyState};
+pub use crate::strategy::{Strategy, StrategyState, STRATEGY_ACTIONS};

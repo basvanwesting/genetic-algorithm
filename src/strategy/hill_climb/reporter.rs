@@ -39,6 +39,18 @@ use std::marker::PhantomData;
 ///             state.current_scale_index.as_ref(),
 ///         );
 ///     }
+///
+///     fn on_finish(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
+///         println!("finish - iteration: {}", state.current_iteration());
+///         STRATEGY_ACTIONS.iter().for_each(|action| {
+///             if let Some(duration) = state.durations.get(action) {
+///                 println!("  {:?}: {:?}", action, duration,);
+///             }
+///         });
+///         println!("  Total: {:?}", &state.total_duration());
+///     }
+///
+///
 /// }
 /// ```
 pub trait Reporter: Clone + Send + Sync {

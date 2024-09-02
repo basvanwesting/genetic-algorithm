@@ -38,6 +38,17 @@ use std::marker::PhantomData;
 ///             state.best_chromosome_as_ref().genes,
 ///         );
 ///     }
+///
+///     fn on_finish(&mut self, state: &PermutateState<Self::Allele>, _config: &PermutateConfig) {
+///         println!("finish - generation: {}", state.current_generation());
+///         STRATEGY_ACTIONS.iter().for_each(|action| {
+///             if let Some(duration) = state.durations.get(action) {
+///                 println!("  {:?}: {:?}", action, duration,);
+///             }
+///         });
+///         println!("  Total: {:?}", &state.total_duration());
+///     }
+///
 /// }
 /// ```
 pub trait Reporter: Clone + Send + Sync {
@@ -50,12 +61,7 @@ pub trait Reporter: Clone + Send + Sync {
         _config: &PermutateConfig,
     ) {
     }
-    fn on_start(
-        &mut self,
-        _state: &PermutateState<Self::Allele>,
-        _config: &PermutateConfig,
-    ) {
-    }
+    fn on_start(&mut self, _state: &PermutateState<Self::Allele>, _config: &PermutateConfig) {}
     fn on_finish(&mut self, _state: &PermutateState<Self::Allele>, _config: &PermutateConfig) {}
     fn on_new_generation(
         &mut self,
@@ -161,6 +167,7 @@ impl<A: Allele> Reporter for Simple<A> {
             },
         );
     }
+
     fn on_finish(&mut self, state: &PermutateState<Self::Allele>, _config: &PermutateConfig) {
         println!("finish - generation: {}", state.current_generation());
         STRATEGY_ACTIONS.iter().for_each(|action| {

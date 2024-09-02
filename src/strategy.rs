@@ -20,7 +20,7 @@ pub enum StrategyAction {
     UpdateBestChromosome,
     Other,
 }
-const STRATEGY_ACTIONS: [StrategyAction; 8] = [
+pub const STRATEGY_ACTIONS: [StrategyAction; 8] = [
     StrategyAction::Init,
     StrategyAction::Extension,
     StrategyAction::Compete,

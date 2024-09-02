@@ -295,7 +295,7 @@ fn call_binary_mass_degeneration() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, true, true, false]
+        vec![true, true, true, true, true, true, true, false, true, true]
     );
 }
 
@@ -322,10 +322,10 @@ fn call_binary_mass_extinction() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(8));
+    assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, false, true, true, false]
+        vec![true, true, true, true, true, true, true, false, true, true]
     );
 }
 

@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.10.4] - 2024-09-02
+
+### Changed
+* Change `Crossover`'s `keep_parent` parameter to `parent_survival_rate`. This
+  keeps a fraction of the top parents, instead of the previous all or nothing boolean.
+* Add duration tracking of interal actions for `Evolve`, `HillClimb` & `Permutate` 
+* Add duration tracking results in `EvolveReporterSimple`,
+  `HillClimbReporterSimple` and `PermutateReporterSimple`
+* Remove `Genotype` parameter from `EvolveReporter`, `HillClimbReporter` and
+  `PermutateReporter` `on_start` event, use `on_init` event for reporting about
+  `Genotype`
+
+### Removed
+* Drop `ExtensionMassInvasion` as reseeding the population conflicts with
+  scaling. And reseeding can better be done by `call_repeatedly` or
+  `call_speciated` anyway
+
 ## [0.10.3] - 2024-08-29
 
 ### Added

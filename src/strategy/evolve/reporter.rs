@@ -42,6 +42,17 @@ use std::marker::PhantomData;
 ///             state.population.size(),
 ///         );
 ///     }
+///
+///     fn on_finish(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
+///         println!("finish - iteration: {}", state.current_iteration());
+///         STRATEGY_ACTIONS.iter().for_each(|action| {
+///             if let Some(duration) = state.durations.get(action) {
+///                 println!("  {:?}: {:?}", action, duration,);
+///             }
+///         });
+///         println!("  Total: {:?}", &state.total_duration());
+///     }
+///
 /// }
 /// ```
 pub trait Reporter: Clone + Send + Sync {
