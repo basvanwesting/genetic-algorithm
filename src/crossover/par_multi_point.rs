@@ -17,7 +17,7 @@ use std::time::Instant;
 pub struct ParMultiPoint {
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
-    pub keep_parent: bool,
+    pub parent_survival_rate: f32,
 }
 impl Crossover for ParMultiPoint {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
@@ -30,15 +30,14 @@ impl Crossover for ParMultiPoint {
     ) {
         let now = Instant::now();
         let population_size = state.population.size();
-        if population_size < 2 {
-            return;
-        }
-        if self.keep_parent {
-            state
-                .population
-                .chromosomes
-                .extend_from_within(..population_size);
-        };
+        let parent_survivors = std::cmp::min(
+            (population_size as f32 * self.parent_survival_rate) as usize,
+            population_size,
+        );
+        state
+            .population
+            .chromosomes
+            .extend_from_within(..parent_survivors);
 
         state
             .population
@@ -68,11 +67,15 @@ impl Crossover for ParMultiPoint {
 }
 
 impl ParMultiPoint {
-    pub fn new(number_of_crossovers: usize, allow_duplicates: bool, keep_parent: bool) -> Self {
+    pub fn new(
+        number_of_crossovers: usize,
+        allow_duplicates: bool,
+        parent_survival_rate: f32,
+    ) -> Self {
         Self {
             number_of_crossovers,
             allow_duplicates,
-            keep_parent,
+            parent_survival_rate,
         }
     }
 }

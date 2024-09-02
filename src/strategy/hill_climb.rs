@@ -202,8 +202,7 @@ impl<
         }
 
         self.init();
-        self.reporter
-            .on_start(&self.state, &self.config);
+        self.reporter.on_start(&self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
             match self.config.variant {
@@ -300,7 +299,7 @@ impl<
         if self.state.best_chromosome.is_empty() {
             None
         } else {
-           Some(self.state.best_chromosome.clone())
+            Some(self.state.best_chromosome.clone())
         }
     }
     fn best_generation(&self) -> usize {
@@ -333,7 +332,8 @@ impl<
 
         self.fitness.call_for_state_chromosome(&mut self.state);
         self.state.store_best_chromosome(true); // best by definition
-        self.reporter.on_new_best_chromosome(&mut self.state, &self.config);
+        self.reporter
+            .on_new_best_chromosome(&mut self.state, &self.config);
     }
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
@@ -585,7 +585,7 @@ impl<A: Allele> Default for HillClimbState<A> {
             max_scale_index: 0,
             best_generation: 0,
             best_chromosome: Chromosome::new_empty(), // invalid, temporary
-            chromosome: Chromosome::new_empty(), // invalid, temporary
+            chromosome: Chromosome::new_empty(),      // invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         }

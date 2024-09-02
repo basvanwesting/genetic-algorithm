@@ -103,7 +103,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .with_genotype(genotype)
 ///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
 ///     .with_compete(CompeteElite::new())                     // sort the chromosomes by fitness to determine crossover order
-///     .with_crossover(CrossoverUniform::new(true))           // crossover all individual genes between 2 chromosomes for offspring
+///     .with_crossover(CrossoverUniform::new(0.5))            // crossover all individual genes between 2 chromosomes for offspring, keep 50% of best parents around for next generation
 ///     .with_mutate(MutateSingleGene::new(0.2))               // mutate a single gene with a 20% probability per chromosome
 ///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)      // aim for the least true values
@@ -195,8 +195,7 @@ impl<
         }
         self.init(fitness_thread_local.as_ref());
 
-        self.reporter
-            .on_start(&self.state, &self.config);
+        self.reporter.on_start(&self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
             self.state.population.increment_and_filter_age(&self.config);
@@ -242,7 +241,7 @@ impl<
         if self.state.best_chromosome.is_empty() {
             None
         } else {
-           Some(self.state.best_chromosome.clone())
+            Some(self.state.best_chromosome.clone())
         }
     }
     fn best_generation(&self) -> usize {
@@ -285,7 +284,8 @@ impl<
         self.fitness
             .call_for_state_population(&mut self.state, fitness_thread_local);
         self.state.store_best_chromosome(true); // best by definition
-        self.reporter.on_new_best_chromosome(&mut self.state, &self.config);
+        self.reporter
+            .on_new_best_chromosome(&mut self.state, &self.config);
     }
 
     fn is_finished(&self) -> bool {
@@ -569,7 +569,7 @@ impl<A: Allele> Default for EvolveState<A> {
             max_scale_index: 0,
             best_generation: 0,
             best_chromosome: Chromosome::new_empty(), // invalid, temporary
-            chromosome: Chromosome::new_empty(), // invalid, temporary
+            chromosome: Chromosome::new_empty(),      // invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         }

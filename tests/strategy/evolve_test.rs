@@ -25,7 +25,7 @@ fn build_invalid_missing_ending_condition() {
         .with_target_population_size(100)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
@@ -52,7 +52,7 @@ fn build_invalid_require_crossover_indexes() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
@@ -78,7 +78,7 @@ fn build_invalid_require_crossover_points() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSinglePoint::new(true))
+        .with_crossover(CrossoverSinglePoint::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
@@ -105,7 +105,7 @@ fn call_binary_max_stale_generations_maximize() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
@@ -136,7 +136,7 @@ fn call_binary_max_stale_generations_minimize() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
@@ -167,7 +167,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_valid_fitness_score(75)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
@@ -194,7 +194,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_valid_fitness_score(25)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
@@ -220,7 +220,7 @@ fn call_binary_target_fitness_score_maximize() {
         .with_target_fitness_score(8)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
@@ -251,7 +251,7 @@ fn call_binary_target_fitness_score_minimize() {
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
@@ -281,7 +281,7 @@ fn call_binary_mass_degeneration() {
         .with_target_fitness_score(8)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassDegeneration::new(10, 10))
         .with_reporter(EvolveReporterNoop::new())
@@ -295,7 +295,7 @@ fn call_binary_mass_degeneration() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, false, true, true, true, true, true, true, true]
+        vec![true, true, true, true, true, true, true, true, true, false]
     );
 }
 
@@ -311,7 +311,7 @@ fn call_binary_mass_extinction() {
         .with_target_fitness_score(8)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassExtinction::new(10, 0.1))
         // .with_reporter(EvolveReporterNoop::new())
@@ -341,7 +341,7 @@ fn call_binary_mass_genesis() {
         .with_target_fitness_score(8)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionMassGenesis::new(10))
         .with_reporter(EvolveReporterNoop::new())
@@ -372,7 +372,7 @@ fn call_range_f32() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new_with_precision(1e-3))
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
@@ -383,10 +383,10 @@ fn call_range_f32() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9885));
+    assert_eq!(best_chromosome.fitness_score, Some(9911));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![ 0.988, 0.996, 0.987, 0.975, 0.998, 0.983, 0.986, 0.982, 0.992, 0.995, ],
+        vec![0.978, 0.993, 0.979, 0.995, 0.999, 0.999, 0.992, 0.997, 0.980, 0.995],
         0.001
     ));
 }
@@ -404,7 +404,7 @@ fn call_range_usize() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
@@ -415,10 +415,10 @@ fn call_range_usize() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(89));
+    assert_eq!(best_chromosome.fitness_score, Some(90));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![9, 9, 8, 9, 9, 9, 9, 9, 9, 9]
+        vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
     );
 }
 
@@ -436,7 +436,7 @@ fn call_range_isize() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
@@ -468,7 +468,7 @@ fn call_list() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
@@ -503,7 +503,7 @@ fn call_multi_list() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
@@ -533,7 +533,7 @@ fn call_par_fitness() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
         .with_par_fitness(true)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(EvolveReporterNoop::new())
@@ -563,7 +563,7 @@ fn population_factory_binary() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(EvolveReporterNoop::new())
@@ -583,7 +583,6 @@ fn population_factory_binary() {
             vec![true, false, false, true],
             vec![false, true, false, true],
             vec![true, false, true, true],
-
         ]
     )
 }

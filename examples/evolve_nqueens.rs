@@ -48,7 +48,7 @@ fn main() {
         .with_target_fitness_score(0)
         // .with_replace_on_equal_fitness(true) // not crucial for this problem
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverClone::new(true))
+        .with_crossover(CrossoverClone::new(0.5))
         .with_compete(CompeteElite::new())
         .with_reporter(EvolveReporterSimple::new(100))
         .build()

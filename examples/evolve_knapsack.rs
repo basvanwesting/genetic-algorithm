@@ -82,7 +82,7 @@ fn main() {
         .with_max_stale_generations(100)
         .with_fitness(fitness)
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverSinglePoint::new(true))
+        .with_crossover(CrossoverSinglePoint::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .build()
         .unwrap();

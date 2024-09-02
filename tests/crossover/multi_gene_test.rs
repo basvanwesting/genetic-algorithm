@@ -23,7 +23,7 @@ fn population_even() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, true, false).call(
+    CrossoverMultiGene::new(4, true, 0.0).call(
         &genotype,
         &mut state,
         &config,
@@ -62,7 +62,7 @@ fn population_odd() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, true, false).call(
+    CrossoverMultiGene::new(4, true, 0.0).call(
         &genotype,
         &mut state,
         &config,
@@ -103,7 +103,7 @@ fn population_even_keep_parents() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, true, true).call(
+    CrossoverMultiGene::new(4, true, 0.5).call(
         &genotype,
         &mut state,
         &config,
@@ -120,8 +120,8 @@ fn population_even_keep_parents() {
             vec![false, false, false, false, true, true, false, false, true, true],
             vec![true; 10],
             vec![false; 10],
-            vec![true; 10],
-            vec![false; 10],
+            // vec![true; 10],
+            // vec![false; 10],
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 14);
@@ -149,7 +149,7 @@ fn population_odd_keep_parents() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, true, true).call(
+    CrossoverMultiGene::new(4, true, 0.55).call(
         &genotype,
         &mut state,
         &config,
@@ -167,9 +167,9 @@ fn population_odd_keep_parents() {
             vec![true; 10],
             vec![true; 10],
             vec![false; 10],
-            vec![true; 10],
-            vec![false; 10],
-            vec![true; 10],
+            // vec![true; 10],
+            // vec![false; 10],
+            // vec![true; 10],
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 15);
@@ -189,7 +189,7 @@ fn population_size_one() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(3, true, false).call(
+    CrossoverMultiGene::new(3, true, 0.0).call(
         &genotype,
         &mut state,
         &config,

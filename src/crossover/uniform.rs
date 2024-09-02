@@ -7,16 +7,16 @@ use rand::Rng;
 use std::time::Instant;
 
 /// Crossover with 50% probability for each gene to come from one of the two parents.
-/// Optionally keep parents around to compete with children later on.
+/// Optionally keep a percentage of the parents around to compete with children later on.
 ///
-/// Actually implemented as `CrossoverMultiGene::new(<genes_size> / 2, allow_duplicates=true, keep_parent)`
+/// Actually implemented as `CrossoverMultiGene::new(<genes_size> / 2, allow_duplicates=true, parent_survival_rate)`
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
 /// uniqueness in the children.
 #[derive(Clone, Debug)]
 pub struct Uniform {
-    pub keep_parent: bool,
+    pub parent_survival_rate: f32,
 }
 impl Crossover for Uniform {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
@@ -29,15 +29,14 @@ impl Crossover for Uniform {
     ) {
         let now = Instant::now();
         let population_size = state.population.size();
-        if population_size < 2 {
-            return;
-        }
-        if self.keep_parent {
-            state
-                .population
-                .chromosomes
-                .extend_from_within(..population_size);
-        };
+        let parent_survivors = std::cmp::min(
+            (population_size as f32 * self.parent_survival_rate) as usize,
+            population_size,
+        );
+        state
+            .population
+            .chromosomes
+            .extend_from_within(..parent_survivors);
 
         let number_of_crossovers = genotype.genes_size() / 2;
         for (father, mother) in state
@@ -64,7 +63,9 @@ impl Crossover for Uniform {
 }
 
 impl Uniform {
-    pub fn new(keep_parent: bool) -> Self {
-        Self { keep_parent }
+    pub fn new(parent_survival_rate: f32) -> Self {
+        Self {
+            parent_survival_rate,
+        }
     }
 }

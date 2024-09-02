@@ -23,7 +23,7 @@ fn population_even() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverUniform::new(0.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -56,7 +56,7 @@ fn population_odd() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(false).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverUniform::new(0.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),

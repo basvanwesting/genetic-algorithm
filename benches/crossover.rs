@@ -42,21 +42,21 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         let crossovers: Vec<CrossoverWrapper> = vec![
-            // CrossoverClone::new(false).into(), //noop
-            // CrossoverSingleGene::new(false).into(),
-            // CrossoverSinglePoint::new(false).into(),
-            // CrossoverMultiGene::new(genes_size / 2, false, false).into(),
-            // CrossoverMultiGene::new(genes_size / 2, true, false).into(),
-            CrossoverMultiPoint::new(genes_size / 10, false, false).into(),
-            CrossoverMultiPoint::new(genes_size / 10, true, false).into(),
-            // CrossoverParMultiPoint::new(genes_size / 10, false).into(),
-            // CrossoverUniform::new(false).into(),
-            // CrossoverClone::new(true).into(), //noop
-            // CrossoverSingleGene::new(true).into(),
-            // CrossoverSinglePoint::new(true).into(),
-            // CrossoverMultiGene::new(genes_size / 2, true).into(),
-            // CrossoverMultiPoint::new(genes_size / 10, true).into(),
-            // CrossoverUniform::new(true).into(),
+            // CrossoverClone::new(0.0).into(), //noop
+            // CrossoverSingleGene::new(0.0).into(),
+            // CrossoverSinglePoint::new(0.0).into(),
+            // CrossoverMultiGene::new(genes_size / 2, false, 0.0).into(),
+            // CrossoverMultiGene::new(genes_size / 2, true, 0.0).into(),
+            CrossoverMultiPoint::new(genes_size / 10, false, 0.0).into(),
+            CrossoverMultiPoint::new(genes_size / 10, true, 0.0).into(),
+            // CrossoverParMultiPoint::new(genes_size / 10, 0.0).into(),
+            // CrossoverUniform::new(0.0).into(),
+            // CrossoverClone::new(1.0).into(), //noop
+            // CrossoverSingleGene::new(1.0).into(),
+            // CrossoverSinglePoint::new(1.0).into(),
+            // CrossoverMultiGene::new(genes_size / 2, 1.0).into(),
+            // CrossoverMultiPoint::new(genes_size / 10, 1.0).into(),
+            // CrossoverUniform::new(1.0).into(),
         ];
         for mut crossover in crossovers {
             group.throughput(Throughput::Elements(population_size as u64));

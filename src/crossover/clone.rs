@@ -5,13 +5,13 @@ use crate::strategy::{StrategyAction, StrategyState};
 use rand::Rng;
 use std::time::Instant;
 
-/// Children are clones of the parents, effectively doubling the population if you keep the parents.
-/// Acts as no-op if the parents are not kept.
+/// Children are clones of the parents, effectively doubling the population if you keep all the
+/// parents. Acts as no-op if no percentage of parents is kept (age is reset).
 ///
 /// Allowed for unique genotypes.
 #[derive(Clone, Debug)]
 pub struct Clone {
-    pub keep_parent: bool,
+    pub parent_survival_rate: f32,
 }
 impl Crossover for Clone {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
@@ -24,12 +24,14 @@ impl Crossover for Clone {
     ) {
         let now = Instant::now();
         let population_size = state.population.size();
-        if self.keep_parent {
-            state
-                .population
-                .chromosomes
-                .extend_from_within(..population_size);
-        };
+        let parent_survivors = std::cmp::min(
+            (population_size as f32 * self.parent_survival_rate) as usize,
+            population_size,
+        );
+        state
+            .population
+            .chromosomes
+            .extend_from_within(..parent_survivors);
         state
             .population
             .chromosomes
@@ -42,7 +44,9 @@ impl Crossover for Clone {
 }
 
 impl Clone {
-    pub fn new(keep_parent: bool) -> Self {
-        Self { keep_parent }
+    pub fn new(parent_survival_rate: f32) -> Self {
+        Self {
+            parent_survival_rate,
+        }
     }
 }

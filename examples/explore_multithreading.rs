@@ -35,7 +35,7 @@ fn call_evolve() {
         .with_fitness(CountTrueWithSleep::new(1000, true))
         .with_par_fitness(INTERNAL_MULTITHREAD)
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverClone::new(true))
+        .with_crossover(CrossoverClone::new(0.5))
         .with_compete(CompeteTournament::new(4))
         // .with_reporter(EvolveReporterSimple::new(1000))
         .build()
@@ -130,7 +130,7 @@ fn call_evolve_repeatedly() {
         // .with_target_fitness_score(100) // short-circuit
         .with_fitness(CountTrueWithSleep::new(1000, false))
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverClone::new(true))
+        .with_crossover(CrossoverClone::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_reporter(EvolveIterationReporter)
         .with_par_fitness(INTERNAL_MULTITHREAD);
@@ -167,7 +167,7 @@ fn call_evolve_speciated() {
         // .with_target_fitness_score(100) // short-circuit
         .with_fitness(CountTrueWithSleep::new(1000, false))
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverClone::new(true))
+        .with_crossover(CrossoverClone::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .with_reporter(EvolveIterationReporter)
         .with_par_fitness(INTERNAL_MULTITHREAD);

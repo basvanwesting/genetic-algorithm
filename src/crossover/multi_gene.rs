@@ -9,7 +9,7 @@ use std::time::Instant;
 /// Crossover multiple genes between the parents. The gene positions are chosen with uniform
 /// probability.
 /// Choose between allowing duplicate crossovers of the same gene or not (~2x slower).
-/// Optionally keep parents around to compete with children later on.
+/// Optionally keep a percentage of the parents around to compete with children later on.
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
@@ -18,7 +18,7 @@ use std::time::Instant;
 pub struct MultiGene {
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
-    pub keep_parent: bool,
+    pub parent_survival_rate: f32,
 }
 impl Crossover for MultiGene {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
@@ -31,16 +31,14 @@ impl Crossover for MultiGene {
     ) {
         let now = Instant::now();
         let population_size = state.population.size();
-        if population_size < 2 {
-            return;
-        }
-        if self.keep_parent {
-            state
-                .population
-                .chromosomes
-                .extend_from_within(..population_size);
-        };
-
+        let parent_survivors = std::cmp::min(
+            (population_size as f32 * self.parent_survival_rate) as usize,
+            population_size,
+        );
+        state
+            .population
+            .chromosomes
+            .extend_from_within(..parent_survivors);
         for (father, mother) in state
             .population
             .chromosomes
@@ -64,10 +62,14 @@ impl Crossover for MultiGene {
 }
 
 impl MultiGene {
-    pub fn new(number_of_crossovers: usize, allow_duplicates: bool, keep_parent: bool) -> Self {
+    pub fn new(
+        number_of_crossovers: usize,
+        allow_duplicates: bool,
+        parent_survival_rate: f32,
+    ) -> Self {
         Self {
             number_of_crossovers,
-            keep_parent,
+            parent_survival_rate,
             allow_duplicates,
         }
     }

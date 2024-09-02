@@ -23,7 +23,7 @@ fn population_even() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
-    CrossoverParMultiPoint::new(3, false, false).call(
+    CrossoverParMultiPoint::new(3, false, 0.0).call(
         &genotype,
         &mut state,
         &config,
@@ -56,7 +56,7 @@ fn population_even_keep_parents() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
-    CrossoverParMultiPoint::new(3, true, true).call(
+    CrossoverParMultiPoint::new(3, true, 0.55).call(
         &genotype,
         &mut state,
         &config,
@@ -65,6 +65,6 @@ fn population_even_keep_parents() {
     );
 
     // cannot assert result as parallel execution in combination with randomness is not determinstic. Just assert it doens't panic
-    assert_eq!(state.population.size(), 8);
+    assert_eq!(state.population.size(), 6);
     assert_eq!(state.population.chromosomes.capacity(), 14);
 }

@@ -22,7 +22,7 @@ fn main() {
         // .with_par_fitness(true) // 2x slower in this case
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverUniform::new(true))
+        .with_crossover(CrossoverUniform::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .call()
         .unwrap();

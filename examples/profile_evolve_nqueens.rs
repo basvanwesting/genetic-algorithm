@@ -45,7 +45,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(NQueensFitness)
-        .with_crossover(CrossoverClone::new(true))
+        .with_crossover(CrossoverClone::new(0.5))
         .with_compete(CompeteElite::new());
 
     c.bench_function("profile_evolve_nqueens", |b| {

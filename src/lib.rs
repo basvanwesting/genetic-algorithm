@@ -46,7 +46,7 @@
 //! let evolve = Evolve::builder()
 //!     .with_genotype(genotype)
 //!     .with_compete(CompeteElite::new())             // sort the chromosomes by fitness to determine crossover order
-//!     .with_crossover(CrossoverUniform::new(true))   // crossover all individual genes between 2 chromosomes for offspring
+//!     .with_crossover(CrossoverUniform::new(0.5))    // crossover all individual genes between 2 chromosomes for offspring, keep 50% parents around for next generation
 //!     .with_mutate(MutateSingleGene::new(0.2))       // mutate a single gene with a 20% probability per chromosome
 //!     .with_fitness(CountTrue)                       // count the number of true values in the chromosomes
 //!     .with_target_population_size(100)              // evolve with 100 chromosomes

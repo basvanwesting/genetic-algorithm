@@ -13,7 +13,7 @@ fn main() {
         .with_target_population_size(1000)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new(true))
+        .with_crossover(CrossoverSingleGene::new(0.5))
         .with_compete(CompeteTournament::new(4))
         .build();
 
