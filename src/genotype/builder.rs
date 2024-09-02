@@ -14,15 +14,15 @@ pub struct TryFromBuilderError(pub &'static str);
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {
     pub genes_size: Option<usize>,
-    pub allele_list: Option<Vec<<G as Genotype>::Allele>>,
-    pub allele_lists: Option<Vec<Vec<<G as Genotype>::Allele>>>,
-    pub allele_range: Option<RangeInclusive<<G as Genotype>::Allele>>,
-    pub allele_ranges: Option<Vec<RangeInclusive<<G as Genotype>::Allele>>>,
-    pub allele_mutation_range: Option<RangeInclusive<<G as Genotype>::Allele>>,
-    pub allele_mutation_ranges: Option<Vec<RangeInclusive<<G as Genotype>::Allele>>>,
-    pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<<G as Genotype>::Allele>>>,
-    pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<<G as Genotype>::Allele>>>>,
-    pub seed_genes_list: Vec<Vec<<G as Genotype>::Allele>>,
+    pub allele_list: Option<Vec<G::Allele>>,
+    pub allele_lists: Option<Vec<Vec<G::Allele>>>,
+    pub allele_range: Option<RangeInclusive<G::Allele>>,
+    pub allele_ranges: Option<Vec<RangeInclusive<G::Allele>>>,
+    pub allele_mutation_range: Option<RangeInclusive<G::Allele>>,
+    pub allele_mutation_ranges: Option<Vec<RangeInclusive<G::Allele>>>,
+    pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<G::Allele>>>,
+    pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<G::Allele>>>>,
+    pub seed_genes_list: Vec<Vec<G::Allele>>,
 }
 
 impl<G: Genotype> Builder<G> {

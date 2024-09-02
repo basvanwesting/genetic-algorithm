@@ -13,7 +13,7 @@ impl Fitness for DistanceTo {
                 .genes
                 .iter()
                 .map(|v| (v - self.0).abs() / self.1)
-                .sum::<<Self::Genotype as Genotype>::Allele>() as FitnessValue,
+                .sum::<f32>() as FitnessValue,
         )
     }
 }
