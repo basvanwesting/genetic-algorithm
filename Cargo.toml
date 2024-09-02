@@ -25,6 +25,7 @@ thread_local = "1.1.8"
 log = "0.4.0"
 cardinality-estimator = "1.0.2"
 impl-trait-for-tuples = "0.2.2"
+fixedbitset = "0.5.7"
 
 [dev-dependencies]
 lru = "0.12.4"

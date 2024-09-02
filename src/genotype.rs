@@ -21,6 +21,7 @@ pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::Chromosome;
 use crate::population::Population;
+use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
 use itertools::Itertools;
 use num::BigUint;
@@ -56,6 +57,10 @@ impl Allele for u32 {}
 impl Allele for u64 {}
 impl Allele for u8 {}
 impl Allele for usize {}
+
+pub trait Genes: Clone + Send + Sync + std::fmt::Debug {}
+impl<T: Allele> Genes for Vec<T> {}
+impl Genes for FixedBitSet {}
 
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
