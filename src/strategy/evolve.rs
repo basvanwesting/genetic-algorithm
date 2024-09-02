@@ -194,11 +194,7 @@ impl<
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
-        self.init();
-        self.fitness
-            .call_for_state_population(&mut self.state, fitness_thread_local.as_ref());
-        self.state
-            .update_best_chromosome_and_report(&self.config, &mut self.reporter);
+        self.init(fitness_thread_local.as_ref());
 
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
@@ -273,16 +269,19 @@ impl<
         SR: EvolveReporter<Allele = G::Allele>,
     > Evolve<G, M, F, S, C, E, SR>
 {
-    pub fn init(&mut self) {
+    pub fn init(&mut self, fitness_thread_local: Option<&ThreadLocal<RefCell<F>>>) {
         let now = Instant::now();
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
-
         self.state.population.chromosomes = (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_factory(&mut self.rng))
             .collect::<Vec<_>>();
-
         self.state.add_duration(StrategyAction::Init, now.elapsed());
+
+        self.fitness
+            .call_for_state_population(&mut self.state, fitness_thread_local);
+        self.state
+            .update_best_chromosome_and_report(&self.config, &mut self.reporter);
     }
 
     #[allow(dead_code)]

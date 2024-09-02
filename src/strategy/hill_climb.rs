@@ -201,12 +201,7 @@ impl<
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
-        self.reporter
-            .on_init(&self.genotype, &self.state, &self.config);
-        self.state.chromosome = self.genotype.chromosome_factory(&mut self.rng);
-        self.fitness.call_for_state_chromosome(&mut self.state);
-        self.state.store_best_chromosome(true); // best by definition
-
+        self.init();
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
@@ -325,6 +320,16 @@ impl<
         SR: HillClimbReporter<Allele = G::Allele>,
     > HillClimb<G, F, SR>
 {
+    pub fn init(&mut self) {
+        let now = Instant::now();
+        self.reporter
+            .on_init(&self.genotype, &self.state, &self.config);
+        self.state.chromosome = self.genotype.chromosome_factory(&mut self.rng);
+        self.state.add_duration(StrategyAction::Init, now.elapsed());
+
+        self.fitness.call_for_state_chromosome(&mut self.state);
+        self.state.store_best_chromosome(true); // best by definition
+    }
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
             && (self.is_finished_by_max_stale_generations()

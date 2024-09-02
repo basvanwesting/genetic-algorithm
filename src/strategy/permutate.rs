@@ -106,8 +106,7 @@ impl<
 {
     fn call(&mut self) {
         let now = Instant::now();
-        self.reporter
-            .on_init(&self.genotype, &self.state, &self.config);
+        self.init();
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         if self.config.par_fitness {
@@ -143,6 +142,10 @@ impl<
         SR: PermutateReporter<Allele = G::Allele>,
     > Permutate<G, F, SR>
 {
+    pub fn init(&mut self) {
+        self.reporter
+            .on_init(&self.genotype, &self.state, &self.config);
+    }
     fn call_sequential(&mut self) {
         self.genotype
             .clone()
@@ -280,7 +283,7 @@ impl<
             Err(TryFromPermutateBuilderError("Permutate requires a Fitness"))
         } else {
             let genotype = builder.genotype.unwrap();
-            let total_population_size = genotype.chromosome_permutations_size();
+            let state = PermutateState::new(&genotype);
 
             Ok(Self {
                 genotype,
@@ -291,10 +294,7 @@ impl<
                     par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
                 },
-                state: PermutateState {
-                    total_population_size,
-                    ..Default::default()
-                },
+                state,
                 reporter: builder.reporter,
             })
         }
@@ -331,8 +331,12 @@ impl<A: Allele> Default for PermutateState<A> {
     }
 }
 impl<A: Allele> PermutateState<A> {
-    pub fn new() -> Self {
-        Self::default()
+    pub fn new<G: PermutableGenotype>(genotype: &G) -> Self {
+        let total_population_size = genotype.chromosome_permutations_size();
+        Self {
+            total_population_size,
+            ..Default::default()
+        }
     }
 }
 

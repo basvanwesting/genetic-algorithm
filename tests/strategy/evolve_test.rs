@@ -571,7 +571,7 @@ fn population_factory_binary() {
         .build()
         .unwrap();
 
-    evolve.init();
+    evolve.init(None);
     assert_eq!(
         inspect::population(&evolve.state.population),
         vec![
