@@ -24,7 +24,7 @@ fn main() {
     env_logger::init();
 
     let genotype = ListGenotype::builder()
-        .with_genes_size(6)
+        .with_genes_size(7)
         .with_allele_list(vec![
             (1, 100, -10),
             (2, 200, -20),
@@ -43,6 +43,7 @@ fn main() {
     let mut permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(TupleFitness)
+        // .with_par_fitness(true)
         .with_reporter(PermutateReporterSimple::new(usize::MAX))
         .build()
         .unwrap();

@@ -249,22 +249,18 @@ impl<A: Allele> Reporter for Log<A> {
             state.best_chromosome_as_ref().map(|c| &c.genes)
         );
         if log::log_enabled!(log::Level::Trace) {
-            if let Some(chromosome) = state.contending_chromosome.as_ref() {
+            log::trace!(
+                "contending - fitness score: {:?}, genes: {:?}",
+                state.chromosome.fitness_score,
+                state.chromosome.genes,
+            );
+            state.population.chromosomes.iter().for_each(|chromosome| {
                 log::trace!(
-                    "contending - fitness score: {:?}, genes: {:?}",
+                    "neighbour - fitness score: {:?}, genes: {:?}",
                     chromosome.fitness_score,
                     chromosome.genes,
                 );
-            }
-            if let Some(population) = state.neighbouring_population.as_ref() {
-                population.chromosomes.iter().for_each(|chromosome| {
-                    log::trace!(
-                        "neighbour - fitness score: {:?}, genes: {:?}",
-                        chromosome.fitness_score,
-                        chromosome.genes,
-                    );
-                })
-            }
+            })
         }
     }
 }

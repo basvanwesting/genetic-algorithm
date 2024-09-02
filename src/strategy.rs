@@ -64,7 +64,9 @@ pub trait StrategyState<A: Allele> {
         None
     }
     fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>>;
-    fn best_fitness_score(&self) -> Option<FitnessValue>;
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.best_chromosome_as_ref().and_then(|c| c.fitness_score)
+    }
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
@@ -83,53 +85,48 @@ pub trait StrategyState<A: Allele> {
     // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
     // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
     // distinguished for reporting purposes
-    fn set_best_chromosome(
-        &mut self,
-        best_chromosome: &Chromosome<A>,
-        improved_fitness: bool,
-    ) -> (bool, bool);
+    fn store_best_chromosome(&mut self, improved_fitness: bool) -> (bool, bool);
 
     // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
     // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
     // distinguished for reporting purposes
     // TODO: because the StrategyReporter trait is not used, all StrategyState are implementing a
-    // specialized update_best_chromosome_and_report function
+    // specialized version of this function for additional reporting
     fn update_best_chromosome(
         &mut self,
-        contending_chromosome: &Chromosome<A>,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {
         match self.best_chromosome_as_ref() {
-            None => self.set_best_chromosome(contending_chromosome, true),
+            None => self.store_best_chromosome(true),
             Some(current_best_chromosome) => {
                 match (
                     current_best_chromosome.fitness_score,
-                    contending_chromosome.fitness_score,
+                    self.chromosome_as_ref().and_then(|c| c.fitness_score),
                 ) {
                     (None, None) => (false, false),
                     (Some(_), None) => (false, false),
-                    (None, Some(_)) => self.set_best_chromosome(contending_chromosome, true),
+                    (None, Some(_)) => self.store_best_chromosome(true),
                     (Some(current_fitness_score), Some(contending_fitness_score)) => {
                         match fitness_ordering {
                             FitnessOrdering::Maximize => {
                                 if contending_fitness_score > current_fitness_score {
-                                    self.set_best_chromosome(contending_chromosome, true)
+                                    self.store_best_chromosome(true)
                                 } else if replace_on_equal_fitness
                                     && contending_fitness_score == current_fitness_score
                                 {
-                                    self.set_best_chromosome(contending_chromosome, false)
+                                    self.store_best_chromosome(false)
                                 } else {
                                     (false, false)
                                 }
                             }
                             FitnessOrdering::Minimize => {
                                 if contending_fitness_score < current_fitness_score {
-                                    self.set_best_chromosome(contending_chromosome, true)
+                                    self.store_best_chromosome(true)
                                 } else if replace_on_equal_fitness
                                     && contending_fitness_score == current_fitness_score
                                 {
-                                    self.set_best_chromosome(contending_chromosome, false)
+                                    self.store_best_chromosome(false)
                                 } else {
                                     (false, false)
                                 }

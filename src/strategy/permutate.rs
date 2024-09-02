@@ -15,7 +15,7 @@ use num::BigUint;
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
-use std::sync::mpsc::{channel, sync_channel};
+use std::sync::mpsc::sync_channel;
 use std::time::{Duration, Instant};
 
 pub use self::reporter::Log as PermutateReporterLog;
@@ -92,7 +92,7 @@ pub struct PermutateState<A: Allele> {
     pub stale_generations: usize,
     pub best_generation: usize,
     pub best_chromosome: Option<Chromosome<A>>,
-    pub chromosome: Option<Chromosome<A>>,
+    pub chromosome: Chromosome<A>,
     pub durations: HashMap<StrategyAction, Duration>,
 
     pub total_population_size: BigUint,
@@ -147,19 +147,12 @@ impl<
         self.genotype
             .clone()
             .chromosome_permutations_into_iter()
-            .for_each(|mut chromosome| {
+            .for_each(|chromosome| {
                 self.state.current_generation += 1;
-                self.fitness.call_for_permutate(
-                    &mut chromosome,
-                    &mut self.state,
-                    &self.config,
-                    &mut self.reporter,
-                );
-                self.state.update_best_chromosome_and_report(
-                    &chromosome,
-                    &self.config,
-                    &mut self.reporter,
-                );
+                self.state.chromosome = chromosome;
+                self.fitness.call_for_state_chromosome(&mut self.state);
+                self.state
+                    .update_best_chromosome_and_report(&self.config, &mut self.reporter);
                 self.reporter.on_new_generation(&self.state, &self.config);
             });
     }
@@ -167,35 +160,26 @@ impl<
         rayon::scope(|s| {
             let genotype = &self.genotype;
             let fitness = self.fitness.clone();
-            let (chromosome_sender, chromosome_receiver) = sync_channel(1000);
-            let (fitness_duration_sender, fitness_duration_receiver) = channel();
+            let (sender, receiver) = sync_channel(1000);
 
             s.spawn(move |_| {
-                let now = Instant::now();
                 genotype
                     .chromosome_permutations_into_iter()
                     .par_bridge()
-                    .for_each_with(
-                        (chromosome_sender, fitness),
-                        |(sender, fitness), mut chromosome| {
-                            fitness.call_for_chromosome(&mut chromosome);
-                            sender.send(chromosome).unwrap();
-                        },
-                    );
-                fitness_duration_sender.send(now.elapsed()).unwrap();
+                    .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
+                        let now = Instant::now();
+                        fitness.call_for_chromosome(&mut chromosome);
+                        sender.send((chromosome, now.elapsed())).unwrap();
+                    });
             });
 
-            chromosome_receiver.iter().for_each(|chromosome| {
+            receiver.iter().for_each(|(chromosome, fitness_duration)| {
                 self.state.current_generation += 1;
-                self.state.update_best_chromosome_and_report(
-                    &chromosome,
-                    &self.config,
-                    &mut self.reporter,
-                );
-            });
-            // only one
-            fitness_duration_receiver.iter().for_each(|duration| {
-                self.state.add_duration(StrategyAction::Fitness, duration);
+                self.state.chromosome = chromosome;
+                self.state
+                    .update_best_chromosome_and_report(&self.config, &mut self.reporter);
+                self.state
+                    .add_duration(StrategyAction::Fitness, fitness_duration);
             });
         });
     }
@@ -215,16 +199,13 @@ impl StrategyConfig for PermutateConfig {
 
 impl<A: Allele> StrategyState<A> for PermutateState<A> {
     fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
-        self.chromosome.as_ref()
+        Some(&self.chromosome)
     }
     fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
-        self.chromosome.as_mut()
+        Some(&mut self.chromosome)
     }
     fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
         self.best_chromosome.as_ref()
-    }
-    fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.best_chromosome.as_ref().and_then(|c| c.fitness_score)
     }
     fn best_generation(&self) -> usize {
         self.best_generation
@@ -244,12 +225,8 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
     fn reset_stale_generations(&mut self) {
         self.stale_generations = 0;
     }
-    fn set_best_chromosome(
-        &mut self,
-        best_chromosome: &Chromosome<A>,
-        improved_fitness: bool,
-    ) -> (bool, bool) {
-        self.best_chromosome = Some(best_chromosome.clone());
+    fn store_best_chromosome(&mut self, improved_fitness: bool) -> (bool, bool) {
+        self.best_chromosome = Some(self.chromosome.clone());
         if improved_fitness {
             self.best_generation = self.current_generation;
         }
@@ -266,16 +243,12 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
 impl<A: Allele> PermutateState<A> {
     fn update_best_chromosome_and_report<SR: PermutateReporter<Allele = A>>(
         &mut self,
-        contending_chromosome: &Chromosome<A>,
         config: &PermutateConfig,
         reporter: &mut SR,
     ) {
         let now = Instant::now();
-        match self.update_best_chromosome(
-            contending_chromosome,
-            &config.fitness_ordering,
-            config.replace_on_equal_fitness,
-        ) {
+        match self.update_best_chromosome(&config.fitness_ordering, config.replace_on_equal_fitness)
+        {
             (true, true) => {
                 reporter.on_new_best_chromosome(self, config);
                 self.reset_stale_generations();
@@ -353,7 +326,7 @@ impl<A: Allele> Default for PermutateState<A> {
             best_generation: 0,
             best_chromosome: None,
             durations: HashMap::new(),
-            chromosome: None,
+            chromosome: Chromosome::new_empty(),
         }
     }
 }

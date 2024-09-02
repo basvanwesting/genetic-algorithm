@@ -45,6 +45,14 @@ impl<T: Allele> Chromosome<T> {
             reference_id: 0,
         }
     }
+    pub fn new_empty() -> Self {
+        Self {
+            genes: vec![],
+            fitness_score: None,
+            age: 0,
+            reference_id: 0,
+        }
+    }
 
     /// Reset fitness_score for recalculation
     pub fn taint_fitness_score(&mut self) {
