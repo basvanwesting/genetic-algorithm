@@ -8,10 +8,10 @@ use rand::Rng;
 pub struct Noop;
 
 impl Extension for Noop {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
-        _state: &mut EvolveState<G::Allele>,
+        _state: &mut EvolveState<G>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
         _rng: &mut R,

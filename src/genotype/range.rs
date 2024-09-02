@@ -121,7 +121,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut Chromosome<T>,
+        chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         chromosome.genes[index] = self.allele_sampler.sample(rng);
@@ -129,7 +129,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut Chromosome<T>,
+        chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
@@ -145,7 +145,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut Chromosome<T>,
+        chromosome: &mut Chromosome<Self>,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -185,13 +185,13 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
     fn mutate_chromosome_single<R: Rng>(
         &self,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -210,7 +210,7 @@ where
         &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -285,10 +285,10 @@ where
 {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) -> Vec<Chromosome<Self::Allele>> {
+    ) -> Vec<Chromosome<Self>> {
         let allele_range_start = *self.allele_range.start();
         let allele_range_end = *self.allele_range.end();
 

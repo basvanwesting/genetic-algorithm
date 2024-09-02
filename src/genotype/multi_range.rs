@@ -176,7 +176,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut Chromosome<T>,
+        chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
@@ -184,7 +184,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut Chromosome<T>,
+        chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         let allele_range = &self.allele_ranges[index];
@@ -201,7 +201,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut Chromosome<T>,
+        chromosome: &mut Chromosome<Self>,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -243,13 +243,13 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
     fn mutate_chromosome_single<R: Rng>(
         &self,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -267,7 +267,7 @@ where
         &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -345,10 +345,10 @@ where
 {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) -> Vec<Chromosome<Self::Allele>> {
+    ) -> Vec<Chromosome<Self>> {
         if let Some(scale_index) = scale_index {
             self.allele_ranges
                 .iter()

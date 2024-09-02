@@ -5,7 +5,7 @@ pub mod permutate;
 
 use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
-use crate::genotype::{Allele, Genotype};
+use crate::genotype::Genotype;
 use crate::population::Population;
 use std::time::Duration;
 
@@ -33,7 +33,7 @@ pub const STRATEGY_ACTIONS: [StrategyAction; 8] = [
 
 pub trait Strategy<G: Genotype> {
     fn call(&mut self);
-    fn best_chromosome(&self) -> Option<Chromosome<G::Allele>>;
+    fn best_chromosome(&self) -> Option<Chromosome<G>>;
     fn best_generation(&self) -> usize;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
 }
@@ -52,12 +52,12 @@ pub trait StrategyConfig {
 /// * best_chromosome: `Chromosome<G::Allele>`
 /// * chromosome: `Chromosome<G::Allele>`
 /// * populatoin: `Population<G::Allele>` // may be empty
-pub trait StrategyState<A: Allele> {
-    fn chromosome_as_ref(&self) -> &Chromosome<A>;
-    fn population_as_ref(&self) -> &Population<A>;
-    fn chromosome_as_mut(&mut self) -> &mut Chromosome<A>;
-    fn population_as_mut(&mut self) -> &mut Population<A>;
-    fn best_chromosome_as_ref(&self) -> &Chromosome<A>;
+pub trait StrategyState<G: Genotype> {
+    fn chromosome_as_ref(&self) -> &Chromosome<G>;
+    fn population_as_ref(&self) -> &Population<G>;
+    fn chromosome_as_mut(&mut self) -> &mut Chromosome<G>;
+    fn population_as_mut(&mut self) -> &mut Population<G>;
+    fn best_chromosome_as_ref(&self) -> &Chromosome<G>;
     fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome_as_ref().fitness_score
     }
@@ -137,8 +137,8 @@ pub trait StrategyState<A: Allele> {
 /// existed as a supertrait for now.
 ///
 pub trait StrategyReporter: Clone + Send + Sync {
-    type Allele: Allele;
-    type State: StrategyState<Self::Allele>;
+    type Genotype: Genotype;
+    type State: StrategyState<Self::Genotype>;
     type Config: StrategyConfig;
 
     fn on_init(&mut self, _state: &Self::State, _config: &Self::Config) {}

@@ -20,10 +20,10 @@ pub struct ParMultiPoint {
     pub parent_survival_rate: f32,
 }
 impl Crossover for ParMultiPoint {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        state: &mut EvolveState<G::Allele>,
+        state: &mut EvolveState<G>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
         _rng: &mut R,

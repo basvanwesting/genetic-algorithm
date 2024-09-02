@@ -93,13 +93,13 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
     fn mutate_chromosome_single<R: Rng>(
         &self,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -112,7 +112,7 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
         &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -155,10 +155,10 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
 impl<T: Allele + PartialEq> IncrementalGenotype for List<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Chromosome<Self::Allele>> {
+    ) -> Vec<Chromosome<Self>> {
         (0..self.genes_size)
             .flat_map(|index| {
                 self.allele_list.iter().filter_map(move |allele_value| {

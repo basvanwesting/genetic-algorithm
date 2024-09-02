@@ -14,8 +14,8 @@ pub struct TryFromBuilderError(pub &'static str);
 #[derive(Clone, Debug)]
 pub struct Builder<
     G: IncrementalGenotype,
-    F: Fitness<Allele = G::Allele>,
-    SR: HillClimbReporter<Allele = G::Allele>,
+    F: Fitness<Genotype = G>,
+    SR: HillClimbReporter<Genotype = G>,
 > {
     pub genotype: Option<G>,
     pub variant: Option<HillClimbVariant>,
@@ -30,8 +30,8 @@ pub struct Builder<
     pub rng_seed: Option<u64>,
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
-    for Builder<G, F, HillClimbReporterNoop<G::Allele>>
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default
+    for Builder<G, F, HillClimbReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -49,19 +49,14 @@ impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>> Default
         }
     }
 }
-impl<G: IncrementalGenotype, F: Fitness<Allele = G::Allele>>
-    Builder<G, F, HillClimbReporterNoop<G::Allele>>
-{
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F, HillClimbReporterNoop<G>> {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<
-        G: IncrementalGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Allele = G::Allele>,
-    > Builder<G, F, SR>
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
+    Builder<G, F, SR>
 {
     pub fn build(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         self.try_into()
@@ -123,7 +118,7 @@ impl<
         self.replace_on_equal_fitness = replace_on_equal_fitness;
         self
     }
-    pub fn with_reporter<SR2: HillClimbReporter<Allele = G::Allele>>(
+    pub fn with_reporter<SR2: HillClimbReporter<Genotype = G>>(
         self,
         reporter: SR2,
     ) -> Builder<G, F, SR2> {
@@ -151,11 +146,8 @@ impl<
     }
 }
 
-impl<
-        G: IncrementalGenotype,
-        F: Fitness<Allele = G::Allele>,
-        SR: HillClimbReporter<Allele = G::Allele>,
-    > Builder<G, F, SR>
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
+    Builder<G, F, SR>
 {
     pub fn rng(&self) -> SmallRng {
         if let Some(seed) = self.rng_seed {

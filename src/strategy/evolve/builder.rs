@@ -19,11 +19,11 @@ pub struct TryFromBuilderError(pub &'static str);
 pub struct Builder<
     G: Genotype,
     M: Mutate,
-    F: Fitness<Allele = G::Allele>,
+    F: Fitness<Genotype = G>,
     S: Crossover,
     C: Compete,
     E: Extension,
-    SR: EvolveReporter<Allele = G::Allele>,
+    SR: EvolveReporter<Genotype = G>,
 > {
     pub genotype: Option<G>,
     pub target_population_size: usize,
@@ -43,8 +43,8 @@ pub struct Builder<
     pub rng_seed: Option<u64>,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Compete> Default
-    for Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G::Allele>>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Default
+    for Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -67,8 +67,8 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
         }
     }
 }
-impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Compete>
-    Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G::Allele>>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+    Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     pub fn new() -> Self {
         Self::default()
@@ -79,11 +79,11 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Allele = G::Allele>,
+        F: Fitness<Genotype = G>,
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Allele = G::Allele>,
+        SR: EvolveReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn build(self) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
@@ -190,7 +190,7 @@ impl<
             rng_seed: self.rng_seed,
         }
     }
-    pub fn with_reporter<SR2: EvolveReporter<Allele = G::Allele>>(
+    pub fn with_reporter<SR2: EvolveReporter<Genotype = G>>(
         self,
         reporter: SR2,
     ) -> Builder<G, M, F, S, C, E, SR2> {
@@ -227,11 +227,11 @@ impl<
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Allele = G::Allele>,
+        F: Fitness<Genotype = G>,
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Allele = G::Allele>,
+        SR: EvolveReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn rng(&self) -> SmallRng {

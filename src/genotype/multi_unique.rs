@@ -136,13 +136,13 @@ impl<T: Allele> Genotype for MultiUnique<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
     fn mutate_chromosome_single<R: Rng>(
         &self,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -159,7 +159,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -201,8 +201,8 @@ impl<T: Allele> Genotype for MultiUnique<T> {
 
     fn crossover_chromosome_pair_single_point<R: Rng>(
         &self,
-        father: &mut Chromosome<Self::Allele>,
-        mother: &mut Chromosome<Self::Allele>,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         let point_index = self.crossover_point_sampler().unwrap().sample(rng);
@@ -217,8 +217,8 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self::Allele>,
-        mother: &mut Chromosome<Self::Allele>,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -277,10 +277,10 @@ impl<T: Allele> Genotype for MultiUnique<T> {
 impl<T: Allele> IncrementalGenotype for MultiUnique<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Chromosome<Self::Allele>> {
+    ) -> Vec<Chromosome<Self>> {
         self.allele_list_sizes
             .iter()
             .enumerate()
@@ -320,9 +320,7 @@ impl<T: Allele> PermutableGenotype for MultiUnique<T> {
         vec![]
     }
 
-    fn chromosome_permutations_into_iter(
-        &self,
-    ) -> impl Iterator<Item = Chromosome<Self::Allele>> + Send {
+    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send {
         self.allele_lists
             .clone()
             .into_iter()

@@ -19,10 +19,10 @@ pub struct SingleGeneDynamic {
 }
 
 impl Mutate for SingleGeneDynamic {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Allele = G::Allele>>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
-        state: &mut EvolveState<G::Allele>,
+        state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,

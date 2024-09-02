@@ -1,7 +1,7 @@
 //! placeholders for testing and bootstrapping, not really used in practice
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessValue};
-use crate::genotype::{Allele, BinaryAllele};
+use crate::genotype::{BinaryGenotype, Genotype};
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
@@ -10,22 +10,22 @@ use std::ops::Range;
 
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
-pub struct Zero<T: Allele>(PhantomData<T>);
-impl<T: Allele> Zero<T> {
+pub struct Zero<G: Genotype>(PhantomData<G>);
+impl<G: Genotype> Zero<G> {
     pub fn new() -> Self {
         Self(PhantomData)
     }
 }
-impl<T: Allele> Default for Zero<T> {
+impl<G: Genotype> Default for Zero<G> {
     fn default() -> Self {
         Self::new()
     }
 }
-impl<T: Allele> Fitness for Zero<T> {
-    type Allele = T;
+impl<G: Genotype> Fitness for Zero<G> {
+    type Genotype = G;
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &Chromosome<Self::Allele>,
+        _chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         Some(0)
     }
@@ -35,10 +35,10 @@ impl<T: Allele> Fitness for Zero<T> {
 #[derive(Clone, Debug)]
 pub struct CountTrue;
 impl Fitness for CountTrue {
-    type Allele = BinaryAllele;
+    type Genotype = BinaryGenotype;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
     }
@@ -50,11 +50,11 @@ impl Fitness for CountTrue {
 /// * new(), precision is defaulted to 1.0
 /// * new_with_precision(precision)
 #[derive(Clone, Debug)]
-pub struct SumGenes<T: Allele + Into<f64>> {
+pub struct SumGenes<G: Genotype> {
     precision: f64,
-    _phantom: PhantomData<T>,
+    _phantom: PhantomData<G>,
 }
-impl<T: Allele + Into<f64>> SumGenes<T> {
+impl<G: Genotype> SumGenes<G> {
     pub fn new() -> Self {
         Self::default()
     }
@@ -65,7 +65,7 @@ impl<T: Allele + Into<f64>> SumGenes<T> {
         }
     }
 }
-impl<T: Allele + Into<f64>> Default for SumGenes<T> {
+impl<G: Genotype> Default for SumGenes<G> {
     fn default() -> Self {
         Self {
             precision: 1.0_f64,
@@ -73,11 +73,14 @@ impl<T: Allele + Into<f64>> Default for SumGenes<T> {
         }
     }
 }
-impl<T: Allele + Into<f64>> Fitness for SumGenes<T> {
-    type Allele = T;
+impl<G: Genotype> Fitness for SumGenes<G>
+where
+    G::Allele: Into<f64>,
+{
+    type Genotype = G;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         let sum: f64 = chromosome
             .genes
@@ -104,10 +107,10 @@ impl CountTrueWithSleep {
     }
 }
 impl Fitness for CountTrueWithSleep {
-    type Allele = BinaryAllele;
+    type Genotype = BinaryGenotype;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
@@ -127,17 +130,17 @@ impl Clone for CountTrueWithSleep {
 
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
-pub struct Countdown<T: Allele>(usize, PhantomData<T>);
-impl<T: Allele> Countdown<T> {
+pub struct Countdown<G: Genotype>(usize, PhantomData<G>);
+impl<G: Genotype> Countdown<G> {
     pub fn new(start: usize) -> Self {
         Self(start, PhantomData)
     }
 }
-impl<T: Allele> Fitness for Countdown<T> {
-    type Allele = T;
+impl<G: Genotype> Fitness for Countdown<G> {
+    type Genotype = G;
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &Chromosome<Self::Allele>,
+        _chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         if self.0 == 0 {
             Some(0)
@@ -150,14 +153,14 @@ impl<T: Allele> Fitness for Countdown<T> {
 ///
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
-pub struct CountdownNoisy<T: Allele> {
+pub struct CountdownNoisy<G: Genotype> {
     start: usize,
     step: usize,
     noise_sampler: Uniform<usize>,
     rng: SmallRng,
-    _phantom: PhantomData<T>,
+    _phantom: PhantomData<G>,
 }
-impl<T: Allele> CountdownNoisy<T> {
+impl<G: Genotype> CountdownNoisy<G> {
     pub fn new(start: usize, step: usize, noise_range: Range<usize>) -> Self {
         Self {
             start,
@@ -168,11 +171,11 @@ impl<T: Allele> CountdownNoisy<T> {
         }
     }
 }
-impl<T: Allele> Fitness for CountdownNoisy<T> {
-    type Allele = T;
+impl<G: Genotype> Fitness for CountdownNoisy<G> {
+    type Genotype = G;
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &Chromosome<Self::Allele>,
+        _chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         if self.start == 0 {
             Some(0)

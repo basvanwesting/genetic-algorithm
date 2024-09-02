@@ -10,7 +10,7 @@ pub mod placeholders;
 pub mod prelude;
 
 use crate::chromosome::Chromosome;
-use crate::genotype::Allele;
+use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::{StrategyAction, StrategyState};
 use rayon::prelude::*;
@@ -42,15 +42,15 @@ pub enum FitnessOrdering {
 /// #[derive(Clone, Debug)]
 /// pub struct CountTrue;
 /// impl Fitness for CountTrue {
-///     type Allele = BinaryAllele;
-///     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Allele>) -> Option<FitnessValue> {
+///     type Genotype = BinaryGenotype;
+///     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
 ///         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
 ///     }
 /// }
 /// ```
 pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
-    type Allele: Allele;
-    fn call_for_state_population<S: StrategyState<Self::Allele>>(
+    type Genotype: Genotype;
+    fn call_for_state_population<S: StrategyState<Self::Genotype>>(
         &mut self,
         state: &mut S,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
@@ -59,7 +59,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         self.call_for_population(state.population_as_mut(), thread_local);
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
-    fn call_for_state_chromosome<S: StrategyState<Self::Allele>>(&mut self, state: &mut S) {
+    fn call_for_state_chromosome<S: StrategyState<Self::Genotype>>(&mut self, state: &mut S) {
         let now = Instant::now();
         self.call_for_chromosome(state.chromosome_as_mut());
         state.add_duration(StrategyAction::Fitness, now.elapsed());
@@ -67,7 +67,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,
-        population: &mut Population<Self::Allele>,
+        population: &mut Population<Self::Genotype>,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         if let Some(thread_local) = thread_local {
@@ -93,11 +93,11 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                 .for_each(|c| self.call_for_chromosome(c));
         }
     }
-    fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Allele>) {
+    fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Genotype>) {
         chromosome.fitness_score = self.calculate_for_chromosome(chromosome);
     }
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue>;
 }

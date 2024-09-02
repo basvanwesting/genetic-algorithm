@@ -71,13 +71,13 @@ pub trait Genotype:
     fn genes_size(&self) -> usize;
     /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     /// random genes unless seed genes are provided
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele>;
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     /// a random genes factory (respecting seed genes)
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
     /// a single mutation of the chromosome, the genotype determines whether this is random, relative or scaled.
     fn mutate_chromosome_single<R: Rng>(
         &self,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
     );
@@ -86,7 +86,7 @@ pub trait Genotype:
         &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self::Allele>,
+        chromosome: &mut Chromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
     );
@@ -95,8 +95,8 @@ pub trait Genotype:
     /// panics if there are no valid crossover indexes
     fn crossover_chromosome_pair_single_gene<R: Rng>(
         &self,
-        father: &mut Chromosome<Self::Allele>,
-        mother: &mut Chromosome<Self::Allele>,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         let index = self.crossover_index_sampler().unwrap().sample(rng);
@@ -111,8 +111,8 @@ pub trait Genotype:
         &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self::Allele>,
-        mother: &mut Chromosome<Self::Allele>,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         let sampler = self.crossover_index_sampler().unwrap(); // trigger panic for no duplicates branch
@@ -141,8 +141,8 @@ pub trait Genotype:
     /// panics if there are no valid crossover points
     fn crossover_chromosome_pair_single_point<R: Rng>(
         &self,
-        father: &mut Chromosome<Self::Allele>,
-        mother: &mut Chromosome<Self::Allele>,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         let index = self.crossover_point_sampler().unwrap().sample(rng);
@@ -161,8 +161,8 @@ pub trait Genotype:
         &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self::Allele>,
-        mother: &mut Chromosome<Self::Allele>,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
         let sampler = self.crossover_point_sampler().unwrap(); // trigger panic for no duplicates branch
@@ -238,17 +238,17 @@ pub trait IncrementalGenotype: Genotype {
     /// used in HillClimbVariant::SteepestAscent and SteepestAscentSecondary
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        _chromosome: &Chromosome<Self::Allele>,
+        _chromosome: &Chromosome<Self>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Chromosome<Self::Allele>>;
+    ) -> Vec<Chromosome<Self>>;
 
     fn neighbouring_population<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self::Allele>,
+        chromosome: &Chromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) -> Population<Self::Allele> {
+    ) -> Population<Self> {
         self.neighbouring_chromosomes(chromosome, scale_index, rng)
             .into()
     }
@@ -263,9 +263,7 @@ pub trait PermutableGenotype: Genotype {
     fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele>;
 
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
-    fn chromosome_permutations_into_iter(
-        &self,
-    ) -> impl Iterator<Item = Chromosome<Self::Allele>> + Send {
+    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send {
         (0..self.genes_size())
             .map(|_| self.allele_list_for_chromosome_permutations())
             .multi_cartesian_product()

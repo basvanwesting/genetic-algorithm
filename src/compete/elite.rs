@@ -1,6 +1,6 @@
 use super::Compete;
 use crate::fitness::{FitnessOrdering, FitnessValue};
-use crate::genotype::Allele;
+use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use crate::strategy::{StrategyAction, StrategyState};
 use rand::prelude::*;
@@ -13,9 +13,9 @@ use std::time::Instant;
 #[derive(Clone, Debug)]
 pub struct Elite;
 impl Compete for Elite {
-    fn call<A: Allele, R: Rng, SR: EvolveReporter<Allele = A>>(
+    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        state: &mut EvolveState<A>,
+        state: &mut EvolveState<G>,
         config: &EvolveConfig,
         _reporter: &mut SR,
         _rng: &mut R,

@@ -13,7 +13,7 @@ use crate::compete::Compete;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::{Allele, Genotype};
+use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
 use rand::rngs::SmallRng;
@@ -126,17 +126,17 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 pub struct Evolve<
     G: Genotype,
     M: Mutate,
-    F: Fitness<Allele = G::Allele>,
+    F: Fitness<Genotype = G>,
     S: Crossover,
     C: Compete,
     E: Extension,
-    SR: EvolveReporter<Allele = G::Allele>,
+    SR: EvolveReporter<Genotype = G>,
 > {
     pub genotype: G,
     pub fitness: F,
     pub plugins: EvolvePlugins<M, S, C, E>,
     pub config: EvolveConfig,
-    pub state: EvolveState<G::Allele>,
+    pub state: EvolveState<G>,
     pub reporter: SR,
     pub rng: SmallRng,
 }
@@ -163,15 +163,15 @@ pub struct EvolveConfig {
 /// strategy specific fields are added:
 /// * population: the population of the current generation
 #[derive(Clone)]
-pub struct EvolveState<A: Allele> {
+pub struct EvolveState<G: Genotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: Chromosome<A>,
+    pub best_chromosome: Chromosome<G>,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub chromosome: Chromosome<A>,
-    pub population: Population<A>,
+    pub chromosome: Chromosome<G>,
+    pub population: Population<G>,
 
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
@@ -180,11 +180,11 @@ pub struct EvolveState<A: Allele> {
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Allele = G::Allele>,
+        F: Fitness<Genotype = G>,
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Allele = G::Allele>,
+        SR: EvolveReporter<Genotype = G>,
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
     fn call(&mut self) {
@@ -237,7 +237,7 @@ impl<
         self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
+    fn best_chromosome(&self) -> Option<Chromosome<G>> {
         if self.state.best_chromosome.is_empty() {
             None
         } else {
@@ -252,10 +252,10 @@ impl<
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Compete>
-    Evolve<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G::Allele>>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+    Evolve<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
-    pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G::Allele>> {
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>> {
         EvolveBuilder::new()
     }
 }
@@ -263,11 +263,11 @@ impl<G: Genotype, M: Mutate, F: Fitness<Allele = G::Allele>, S: Crossover, C: Co
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Allele = G::Allele>,
+        F: Fitness<Genotype = G>,
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Allele = G::Allele>,
+        SR: EvolveReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
 {
     pub fn init(&mut self, fitness_thread_local: Option<&ThreadLocal<RefCell<F>>>) {
@@ -351,20 +351,20 @@ impl StrategyConfig for EvolveConfig {
     }
 }
 
-impl<A: Allele> StrategyState<A> for EvolveState<A> {
-    fn chromosome_as_ref(&self) -> &Chromosome<A> {
+impl<G: Genotype> StrategyState<G> for EvolveState<G> {
+    fn chromosome_as_ref(&self) -> &Chromosome<G> {
         &self.chromosome
     }
-    fn chromosome_as_mut(&mut self) -> &mut Chromosome<A> {
+    fn chromosome_as_mut(&mut self) -> &mut Chromosome<G> {
         &mut self.chromosome
     }
-    fn population_as_ref(&self) -> &Population<A> {
+    fn population_as_ref(&self) -> &Population<G> {
         &self.population
     }
-    fn population_as_mut(&mut self) -> &mut Population<A> {
+    fn population_as_mut(&mut self) -> &mut Population<G> {
         &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> &Chromosome<A> {
+    fn best_chromosome_as_ref(&self) -> &Chromosome<G> {
         &self.best_chromosome
     }
     fn best_generation(&self) -> usize {
@@ -400,8 +400,8 @@ impl<A: Allele> StrategyState<A> for EvolveState<A> {
     }
 }
 
-impl<A: Allele> EvolveState<A> {
-    fn update_best_chromosome_and_report<SR: EvolveReporter<Allele = A>>(
+impl<G: Genotype> EvolveState<G> {
+    fn update_best_chromosome_and_report<SR: EvolveReporter<Genotype = G>>(
         &mut self,
         config: &EvolveConfig,
         reporter: &mut SR,
@@ -449,11 +449,11 @@ impl<A: Allele> EvolveState<A> {
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Allele = G::Allele>,
+        F: Fitness<Genotype = G>,
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Allele = G::Allele>,
+        SR: EvolveReporter<Genotype = G>,
     > TryFrom<EvolveBuilder<G, M, F, S, C, E, SR>> for Evolve<G, M, F, S, C, E, SR>
 {
     type Error = TryFromEvolveBuilderError;
@@ -564,7 +564,7 @@ impl EvolveConfig {
     }
 }
 
-impl<A: Allele> Default for EvolveState<A> {
+impl<G: Genotype> Default for EvolveState<G> {
     // functionally invalid until Evove::init() is called
     fn default() -> Self {
         Self {
@@ -581,8 +581,8 @@ impl<A: Allele> Default for EvolveState<A> {
         }
     }
 }
-impl<A: Allele> EvolveState<A> {
-    pub fn new<G: Genotype>(genotype: &G) -> Self {
+impl<G: Genotype> EvolveState<G> {
+    pub fn new(genotype: &G) -> Self {
         if let Some(max_scale_index) = genotype.max_scale_index() {
             Self {
                 current_scale_index: Some(0),
@@ -598,11 +598,11 @@ impl<A: Allele> EvolveState<A> {
 impl<
         G: Genotype,
         M: Mutate,
-        F: Fitness<Allele = G::Allele>,
+        F: Fitness<Genotype = G>,
         S: Crossover,
         C: Compete,
         E: Extension,
-        SR: EvolveReporter<Allele = G::Allele>,
+        SR: EvolveReporter<Genotype = G>,
     > fmt::Display for Evolve<G, M, F, S, C, E, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -647,7 +647,7 @@ impl fmt::Display for EvolveConfig {
     }
 }
 
-impl<A: Allele> fmt::Display for EvolveState<A> {
+impl<G: Genotype> fmt::Display for EvolveState<G> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;

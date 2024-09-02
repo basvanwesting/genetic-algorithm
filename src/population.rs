@@ -1,18 +1,18 @@
 //! The population is a  container for [Chromosomes](Chromosome)
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
-use crate::genotype::Allele;
+use crate::genotype::Genotype;
 use crate::strategy::evolve::EvolveConfig;
 use cardinality_estimator::CardinalityEstimator;
 use rand::prelude::*;
 
 #[derive(Clone, Debug)]
-pub struct Population<T: Allele> {
-    pub chromosomes: Vec<Chromosome<T>>,
+pub struct Population<G: Genotype> {
+    pub chromosomes: Vec<Chromosome<G>>,
 }
 
-impl<T: Allele> Population<T> {
-    pub fn new(chromosomes: Vec<Chromosome<T>>) -> Self {
+impl<G: Genotype> Population<G> {
+    pub fn new(chromosomes: Vec<Chromosome<G>>) -> Self {
         Self { chromosomes }
     }
 
@@ -62,7 +62,7 @@ impl<T: Allele> Population<T> {
 
     /// fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out
     /// when minimizing the fitness score, otherwise None would end up as best.
-    pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&Chromosome<T>> {
+    pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&Chromosome<G>> {
         match fitness_ordering {
             FitnessOrdering::Maximize => self.chromosomes.iter().max(),
             FitnessOrdering::Minimize => self
@@ -110,8 +110,8 @@ impl<T: Allele> Population<T> {
     }
 }
 
-impl<T: Allele> From<Vec<Chromosome<T>>> for Population<T> {
-    fn from(chromosomes: Vec<Chromosome<T>>) -> Self {
+impl<G: Genotype> From<Vec<Chromosome<G>>> for Population<G> {
+    fn from(chromosomes: Vec<Chromosome<G>>) -> Self {
         Self::new(chromosomes)
     }
 }
