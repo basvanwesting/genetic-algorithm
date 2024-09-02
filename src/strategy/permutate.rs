@@ -110,7 +110,7 @@ impl<
         let now = Instant::now();
         self.init();
         self.reporter
-            .on_start(&self.genotype, &self.state, &self.config);
+            .on_start(&self.state, &self.config);
         if self.config.par_fitness {
             self.call_parallel()
         } else {

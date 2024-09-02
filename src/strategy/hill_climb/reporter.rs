@@ -51,13 +51,7 @@ pub trait Reporter: Clone + Send + Sync {
         _config: &HillClimbConfig,
     ) {
     }
-    fn on_start<G: IncrementalGenotype>(
-        &mut self,
-        _genotype: &G,
-        _state: &HillClimbState<Self::Allele>,
-        _config: &HillClimbConfig,
-    ) {
-    }
+    fn on_start(&mut self, _state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {}
     fn on_finish(&mut self, _state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {}
     fn on_new_generation(
         &mut self,
@@ -136,17 +130,20 @@ impl<A: Allele> Simple<A> {
 impl<A: Allele> Reporter for Simple<A> {
     type Allele = A;
 
-    fn on_start<G: IncrementalGenotype>(
+    fn on_init<G: IncrementalGenotype>(
         &mut self,
         genotype: &G,
         state: &HillClimbState<Self::Allele>,
         _config: &HillClimbConfig,
     ) {
-        println!("start - iteration: {}", state.current_iteration());
+        println!("init - iteration: {}", state.current_iteration());
         genotype
             .seed_genes_list()
             .iter()
-            .for_each(|genes| println!("start - seed_genes: {:?}", genes));
+            .for_each(|genes| println!("init - seed_genes: {:?}", genes));
+    }
+    fn on_start(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
+        println!("start - iteration: {}", state.current_iteration());
     }
 
     fn on_finish(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {

@@ -203,7 +203,7 @@ impl<
 
         self.init();
         self.reporter
-            .on_start(&self.genotype, &self.state, &self.config);
+            .on_start(&self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
             match self.config.variant {

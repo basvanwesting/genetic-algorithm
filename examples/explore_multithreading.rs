@@ -230,12 +230,7 @@ pub struct HillClimbIterationReporter;
 impl HillClimbReporter for HillClimbIterationReporter {
     type Allele = BinaryAllele;
 
-    fn on_start<G: Genotype>(
-        &mut self,
-        _genotype: &G,
-        state: &HillClimbState<Self::Allele>,
-        _config: &HillClimbConfig,
-    ) {
+    fn on_start(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
         println!("start - iteration: {}", state.current_iteration());
     }
     fn on_finish(&mut self, state: &HillClimbState<Self::Allele>, _config: &HillClimbConfig) {
@@ -248,17 +243,20 @@ pub struct EvolveIterationReporter;
 impl EvolveReporter for EvolveIterationReporter {
     type Allele = BinaryAllele;
 
-    fn on_start<G: Genotype>(
+    fn on_init<G: Genotype>(
         &mut self,
         genotype: &G,
         state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
-        println!("start - iteration: {}", state.current_iteration());
+        println!("init - iteration: {}", state.current_iteration());
         let number_of_seed_genes = genotype.seed_genes_list().len();
         if number_of_seed_genes > 0 {
-            println!("start - number of seed genes: {:?}", number_of_seed_genes);
+            println!("init - number of seed genes: {:?}", number_of_seed_genes);
         }
+    }
+    fn on_start(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
+        println!("start - iteration: {}", state.current_iteration());
     }
     fn on_finish(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
         println!("finish - iteration: {}", state.current_iteration());

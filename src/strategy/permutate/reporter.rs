@@ -50,9 +50,8 @@ pub trait Reporter: Clone + Send + Sync {
         _config: &PermutateConfig,
     ) {
     }
-    fn on_start<G: PermutableGenotype>(
+    fn on_start(
         &mut self,
-        _genotype: &G,
         _state: &PermutateState<Self::Allele>,
         _config: &PermutateConfig,
     ) {

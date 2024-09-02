@@ -196,7 +196,7 @@ impl<
         self.init(fitness_thread_local.as_ref());
 
         self.reporter
-            .on_start(&self.genotype, &self.state, &self.config);
+            .on_start(&self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
             self.state.population.increment_and_filter_age(&self.config);

@@ -54,13 +54,7 @@ pub trait Reporter: Clone + Send + Sync {
         _config: &EvolveConfig,
     ) {
     }
-    fn on_start<G: Genotype>(
-        &mut self,
-        _genotype: &G,
-        _state: &EvolveState<Self::Allele>,
-        _config: &EvolveConfig,
-    ) {
-    }
+    fn on_start(&mut self, _state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {}
     fn on_finish(&mut self, _state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {}
     fn on_new_generation(&mut self, _state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {}
     fn on_new_best_chromosome(
@@ -158,17 +152,20 @@ impl<A: Allele> Simple<A> {
 impl<A: Allele> Reporter for Simple<A> {
     type Allele = A;
 
-    fn on_start<G: Genotype>(
+    fn on_init<G: Genotype>(
         &mut self,
         genotype: &G,
         state: &EvolveState<Self::Allele>,
         _config: &EvolveConfig,
     ) {
-        println!("start - iteration: {}", state.current_iteration());
+        println!("init - iteration: {}", state.current_iteration());
         genotype
             .seed_genes_list()
             .iter()
-            .for_each(|genes| println!("start - seed_genes: {:?}", genes));
+            .for_each(|genes| println!("init - seed_genes: {:?}", genes));
+    }
+    fn on_start(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
+        println!("start - iteration: {}", state.current_iteration());
     }
 
     fn on_finish(&mut self, state: &EvolveState<Self::Allele>, _config: &EvolveConfig) {
