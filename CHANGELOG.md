@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   scaling. And reseeding can better be done by `call_repeatedly` or
   `call_speciated` anyway
 
+### Fixed
+* Remove yanked package warning for `bytemuck v1.16.1` in Cargo.lock by updating all dependencies to latest versions
+
 ## [0.10.3] - 2024-08-29
 
 ### Added
