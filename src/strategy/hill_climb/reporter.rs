@@ -35,7 +35,7 @@ use std::marker::PhantomData;
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
-///             state.best_chromosome_as_ref().map(|c| &c.genes),
+///             state.best_chromosome_as_ref().genes,
 ///             state.current_scale_index.as_ref(),
 ///         );
 ///     }
@@ -185,7 +185,7 @@ impl<A: Allele> Reporter for Simple<A> {
             state.current_generation(),
             state.best_fitness_score(),
             if self.show_genes {
-                state.best_chromosome_as_ref().map(|c| &c.genes)
+                Some(&state.best_chromosome_as_ref().genes)
             } else {
                 None
             },
@@ -204,7 +204,7 @@ impl<A: Allele> Reporter for Simple<A> {
                 state.current_generation(),
                 state.best_fitness_score(),
                 if self.show_genes {
-                    state.best_chromosome_as_ref().map(|c| &c.genes)
+                    Some(&state.best_chromosome_as_ref().genes)
                 } else {
                     None
                 },
@@ -246,7 +246,7 @@ impl<A: Allele> Reporter for Log<A> {
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
             state.best_fitness_score(),
-            state.best_chromosome_as_ref().map(|c| &c.genes)
+            state.best_chromosome_as_ref().genes
         );
         if log::log_enabled!(log::Level::Trace) {
             log::trace!(

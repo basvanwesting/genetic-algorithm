@@ -168,7 +168,7 @@ pub struct EvolveState<A: Allele> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: Option<Chromosome<A>>,
+    pub best_chromosome: Chromosome<A>,
     pub durations: HashMap<StrategyAction, Duration>,
     pub chromosome: Chromosome<A>,
     pub population: Population<A>,
@@ -193,7 +193,6 @@ impl<
         if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
         }
-
         self.init(fitness_thread_local.as_ref());
 
         self.reporter
@@ -233,7 +232,6 @@ impl<
                 .call_for_state_population(&mut self.state, fitness_thread_local.as_ref());
             self.state
                 .update_best_chromosome_and_report(&self.config, &mut self.reporter);
-            //self.ensure_best_chromosome(population);
             self.reporter.on_new_generation(&self.state, &self.config);
             self.state.scale(&self.config);
         }
@@ -241,7 +239,11 @@ impl<
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
-        self.state.best_chromosome_as_ref().cloned()
+        if self.state.best_chromosome.is_empty() {
+            None
+        } else {
+           Some(self.state.best_chromosome.clone())
+        }
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -273,24 +275,17 @@ impl<
         let now = Instant::now();
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
+        self.state.chromosome = self.genotype.chromosome_factory(&mut self.rng);
         self.state.population.chromosomes = (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_factory(&mut self.rng))
             .collect::<Vec<_>>();
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
+        self.fitness.call_for_state_chromosome(&mut self.state);
         self.fitness
             .call_for_state_population(&mut self.state, fitness_thread_local);
-        self.state
-            .update_best_chromosome_and_report(&self.config, &mut self.reporter);
-    }
-
-    #[allow(dead_code)]
-    fn ensure_best_chromosome(&mut self, population: &mut Population<G::Allele>) {
-        if let Some(best_chromosome) = &self.state.best_chromosome {
-            if !population.fitness_score_present(best_chromosome.fitness_score) {
-                population.chromosomes.push(best_chromosome.clone());
-            }
-        }
+        self.state.store_best_chromosome(true); // best by definition
+        self.reporter.on_new_best_chromosome(&mut self.state, &self.config);
     }
 
     fn is_finished(&self) -> bool {
@@ -351,20 +346,20 @@ impl StrategyConfig for EvolveConfig {
 }
 
 impl<A: Allele> StrategyState<A> for EvolveState<A> {
-    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
-        Some(&self.chromosome)
+    fn chromosome_as_ref(&self) -> &Chromosome<A> {
+        &self.chromosome
     }
-    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
-        Some(&mut self.chromosome)
+    fn chromosome_as_mut(&mut self) -> &mut Chromosome<A> {
+        &mut self.chromosome
     }
-    fn population_as_ref(&self) -> Option<&Population<A>> {
-        Some(&self.population)
+    fn population_as_ref(&self) -> &Population<A> {
+        &self.population
     }
-    fn population_as_mut(&mut self) -> Option<&mut Population<A>> {
-        Some(&mut self.population)
+    fn population_as_mut(&mut self) -> &mut Population<A> {
+        &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
-        self.best_chromosome.as_ref()
+    fn best_chromosome_as_ref(&self) -> &Chromosome<A> {
+        &self.best_chromosome
     }
     fn best_generation(&self) -> usize {
         self.best_generation
@@ -385,7 +380,7 @@ impl<A: Allele> StrategyState<A> for EvolveState<A> {
         self.stale_generations = 0;
     }
     fn store_best_chromosome(&mut self, improved_fitness: bool) -> (bool, bool) {
-        self.best_chromosome = Some(self.chromosome.clone());
+        self.best_chromosome = self.chromosome.clone();
         if improved_fitness {
             self.best_generation = self.current_generation;
         }
@@ -411,6 +406,7 @@ impl<A: Allele> EvolveState<A> {
             .best_chromosome(config.fitness_ordering)
             .cloned()
         {
+            // TODO: reference would be better
             self.chromosome = contending_chromosome.clone();
             match self
                 .update_best_chromosome(&config.fitness_ordering, config.replace_on_equal_fitness)
@@ -564,6 +560,7 @@ impl EvolveConfig {
 }
 
 impl<A: Allele> Default for EvolveState<A> {
+    // functionally invalid until Evove::init() is called
     fn default() -> Self {
         Self {
             current_iteration: 0,
@@ -572,8 +569,8 @@ impl<A: Allele> Default for EvolveState<A> {
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
-            best_chromosome: None,
-            chromosome: Chromosome::new_empty(),
+            best_chromosome: Chromosome::new_empty(), // invalid, temporary
+            chromosome: Chromosome::new_empty(), // invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         }
@@ -661,6 +658,6 @@ impl<A: Allele> fmt::Display for EvolveState<A> {
             self.current_scale_index, self.max_scale_index
         )?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
-        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
+        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome)
     }
 }

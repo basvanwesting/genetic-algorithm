@@ -45,6 +45,7 @@ impl<T: Allele> Chromosome<T> {
             reference_id: 0,
         }
     }
+    // functionally invalid placeholder
     pub fn new_empty() -> Self {
         Self {
             genes: vec![],
@@ -52,6 +53,9 @@ impl<T: Allele> Chromosome<T> {
             age: 0,
             reference_id: 0,
         }
+    }
+    pub fn is_empty(&self) -> bool {
+        self.genes.is_empty()
     }
 
     /// Reset fitness_score for recalculation

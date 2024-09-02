@@ -179,7 +179,7 @@ pub struct HillClimbState<A: Allele> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: Option<Chromosome<A>>,
+    pub best_chromosome: Chromosome<A>,
     pub durations: HashMap<StrategyAction, Duration>,
 
     pub current_scale_index: Option<usize>,
@@ -208,7 +208,7 @@ impl<
             self.state.current_generation += 1;
             match self.config.variant {
                 HillClimbVariant::Stochastic => {
-                    self.state.chromosome = self.state.best_chromosome_as_ref().cloned().unwrap();
+                    self.state.chromosome = self.state.best_chromosome_as_ref().clone();
                     self.genotype.mutate_chromosome_single(
                         &mut self.state.chromosome,
                         self.state.current_scale_index,
@@ -221,7 +221,7 @@ impl<
                     );
                 }
                 HillClimbVariant::StochasticSecondary => {
-                    self.state.chromosome = self.state.best_chromosome_as_ref().cloned().unwrap();
+                    self.state.chromosome = self.state.best_chromosome_as_ref().clone();
                     self.genotype.mutate_chromosome_single(
                         &mut self.state.chromosome,
                         self.state.current_scale_index,
@@ -247,7 +247,7 @@ impl<
                     );
                 }
                 HillClimbVariant::SteepestAscent => {
-                    let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
+                    let best_chromosome = self.state.best_chromosome_as_ref();
                     self.state.population = self.genotype.neighbouring_population(
                         best_chromosome,
                         self.state.current_scale_index,
@@ -262,7 +262,7 @@ impl<
                     );
                 }
                 HillClimbVariant::SteepestAscentSecondary => {
-                    let best_chromosome = self.state.best_chromosome_as_ref().unwrap();
+                    let best_chromosome = self.state.best_chromosome_as_ref();
                     let mut neighbouring_chromosomes = self.genotype.neighbouring_chromosomes(
                         best_chromosome,
                         self.state.current_scale_index,
@@ -297,7 +297,11 @@ impl<
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
-        self.state.best_chromosome_as_ref().cloned()
+        if self.state.best_chromosome.is_empty() {
+            None
+        } else {
+           Some(self.state.best_chromosome.clone())
+        }
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -329,6 +333,7 @@ impl<
 
         self.fitness.call_for_state_chromosome(&mut self.state);
         self.state.store_best_chromosome(true); // best by definition
+        self.reporter.on_new_best_chromosome(&mut self.state, &self.config);
     }
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
@@ -388,20 +393,20 @@ impl StrategyConfig for HillClimbConfig {
 }
 
 impl<A: Allele> StrategyState<A> for HillClimbState<A> {
-    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
-        Some(&self.chromosome)
+    fn chromosome_as_ref(&self) -> &Chromosome<A> {
+        &self.chromosome
     }
-    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
-        Some(&mut self.chromosome)
+    fn chromosome_as_mut(&mut self) -> &mut Chromosome<A> {
+        &mut self.chromosome
     }
-    fn population_as_ref(&self) -> Option<&Population<A>> {
-        Some(&self.population)
+    fn population_as_ref(&self) -> &Population<A> {
+        &self.population
     }
-    fn population_as_mut(&mut self) -> Option<&mut Population<A>> {
-        Some(&mut self.population)
+    fn population_as_mut(&mut self) -> &mut Population<A> {
+        &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
-        self.best_chromosome.as_ref()
+    fn best_chromosome_as_ref(&self) -> &Chromosome<A> {
+        &self.best_chromosome
     }
     fn best_generation(&self) -> usize {
         self.best_generation
@@ -422,7 +427,7 @@ impl<A: Allele> StrategyState<A> for HillClimbState<A> {
         self.stale_generations = 0;
     }
     fn store_best_chromosome(&mut self, improved_fitness: bool) -> (bool, bool) {
-        self.best_chromosome = Some(self.chromosome.clone());
+        self.best_chromosome = self.chromosome.clone();
         if improved_fitness {
             self.best_generation = self.current_generation;
         }
@@ -471,6 +476,7 @@ impl<A: Allele> HillClimbState<A> {
         if let Some(contending_chromosome) =
             self.population.best_chromosome(config.fitness_ordering)
         {
+            // TODO: reference would be better
             self.chromosome = contending_chromosome.clone();
             match self
                 .update_best_chromosome(&config.fitness_ordering, config.replace_on_equal_fitness)
@@ -569,6 +575,7 @@ impl HillClimbConfig {
 }
 
 impl<A: Allele> Default for HillClimbState<A> {
+    // functionally invalid until HillClimb::init() is called
     fn default() -> Self {
         Self {
             current_iteration: 0,
@@ -577,8 +584,8 @@ impl<A: Allele> Default for HillClimbState<A> {
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
-            best_chromosome: None,
-            chromosome: Chromosome::new_empty(),
+            best_chromosome: Chromosome::new_empty(), // invalid, temporary
+            chromosome: Chromosome::new_empty(), // invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         }
@@ -643,6 +650,6 @@ impl<A: Allele> fmt::Display for HillClimbState<A> {
             self.current_scale_index, self.max_scale_index
         )?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
-        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
+        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome)
     }
 }

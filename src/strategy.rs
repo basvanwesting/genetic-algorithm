@@ -49,23 +49,17 @@ pub trait StrategyConfig {
 /// * current_iteration: `usize`
 /// * current_generation: `usize`
 /// * best_generation: `usize`
-/// * best_chromosome: `Option<Chromosome<G::Allele>>`
+/// * best_chromosome: `Chromosome<G::Allele>`
+/// * chromosome: `Chromosome<G::Allele>`
+/// * populatoin: `Population<G::Allele>` // may be empty
 pub trait StrategyState<A: Allele> {
-    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
-        None
-    }
-    fn population_as_ref(&self) -> Option<&Population<A>> {
-        None
-    }
-    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
-        None
-    }
-    fn population_as_mut(&mut self) -> Option<&mut Population<A>> {
-        None
-    }
-    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>>;
+    fn chromosome_as_ref(&self) -> &Chromosome<A>;
+    fn population_as_ref(&self) -> &Population<A>;
+    fn chromosome_as_mut(&mut self) -> &mut Chromosome<A>;
+    fn population_as_mut(&mut self) -> &mut Population<A>;
+    fn best_chromosome_as_ref(&self) -> &Chromosome<A>;
     fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.best_chromosome_as_ref().and_then(|c| c.fitness_score)
+        self.best_chromosome_as_ref().fitness_score
     }
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
@@ -97,44 +91,38 @@ pub trait StrategyState<A: Allele> {
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {
-        match self.best_chromosome_as_ref() {
-            None => self.store_best_chromosome(true),
-            Some(current_best_chromosome) => {
-                match (
-                    current_best_chromosome.fitness_score,
-                    self.chromosome_as_ref().and_then(|c| c.fitness_score),
-                ) {
-                    (None, None) => (false, false),
-                    (Some(_), None) => (false, false),
-                    (None, Some(_)) => self.store_best_chromosome(true),
-                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match fitness_ordering {
-                            FitnessOrdering::Maximize => {
-                                if contending_fitness_score > current_fitness_score {
-                                    self.store_best_chromosome(true)
-                                } else if replace_on_equal_fitness
-                                    && contending_fitness_score == current_fitness_score
-                                {
-                                    self.store_best_chromosome(false)
-                                } else {
-                                    (false, false)
-                                }
-                            }
-                            FitnessOrdering::Minimize => {
-                                if contending_fitness_score < current_fitness_score {
-                                    self.store_best_chromosome(true)
-                                } else if replace_on_equal_fitness
-                                    && contending_fitness_score == current_fitness_score
-                                {
-                                    self.store_best_chromosome(false)
-                                } else {
-                                    (false, false)
-                                }
-                            }
-                        }
+        match (
+            self.best_chromosome_as_ref().fitness_score,
+            self.chromosome_as_ref().fitness_score,
+        ) {
+            (None, None) => (false, false),
+            (Some(_), None) => (false, false),
+            (None, Some(_)) => self.store_best_chromosome(true),
+            (Some(current_fitness_score), Some(contending_fitness_score)) => match fitness_ordering
+            {
+                FitnessOrdering::Maximize => {
+                    if contending_fitness_score > current_fitness_score {
+                        self.store_best_chromosome(true)
+                    } else if replace_on_equal_fitness
+                        && contending_fitness_score == current_fitness_score
+                    {
+                        self.store_best_chromosome(false)
+                    } else {
+                        (false, false)
                     }
                 }
-            }
+                FitnessOrdering::Minimize => {
+                    if contending_fitness_score < current_fitness_score {
+                        self.store_best_chromosome(true)
+                    } else if replace_on_equal_fitness
+                        && contending_fitness_score == current_fitness_score
+                    {
+                        self.store_best_chromosome(false)
+                    } else {
+                        (false, false)
+                    }
+                }
+            },
         }
     }
 }

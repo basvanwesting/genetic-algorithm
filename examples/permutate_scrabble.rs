@@ -252,7 +252,7 @@ impl PermutateReporter for CustomReporter {
             "new best - current_generation: {}, best_fitness_score: {:?}, best_genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
-            state.best_chromosome_as_ref().map(|c| &c.genes)
+            state.best_chromosome_as_ref().genes,
         );
     }
 }
@@ -285,9 +285,7 @@ impl PermutateReporter for CustomLogReporter {
             state.current_generation(),
             state.best_generation(),
             state.best_fitness_score(),
-            state
-                .best_chromosome_as_ref()
-                .map_or(vec![], |c| c.genes.clone()),
+            state.best_chromosome_as_ref().genes,
         );
     }
 }

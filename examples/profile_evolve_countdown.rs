@@ -28,8 +28,8 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        .with_compete(CompeteElite)
-        // .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
+        // .with_compete(CompeteElite)
+        .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
         .with_crossover(CrossoverMultiPoint::new(9, false, false))
         // .with_crossover(CrossoverParMultiPoint::new(10, false, false))
         .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 0.2))

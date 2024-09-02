@@ -295,7 +295,7 @@ fn call_binary_mass_degeneration() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![true, true, false, true, true, true, true, true, true, true]
     );
 }
 
@@ -322,10 +322,10 @@ fn call_binary_mass_extinction() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    assert_eq!(best_chromosome.fitness_score, Some(8));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![true, true, true, true, true, true, false, true, true, false]
     );
 }
 
@@ -383,10 +383,10 @@ fn call_range_f32() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9942));
+    assert_eq!(best_chromosome.fitness_score, Some(9885));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![0.998, 0.999, 0.996, 0.990, 0.998, 0.992, 0.990, 0.983, 0.997, 0.995],
+        vec![ 0.988, 0.996, 0.987, 0.975, 0.998, 0.983, 0.986, 0.982, 0.992, 0.995, ],
         0.001
     ));
 }
@@ -415,10 +415,10 @@ fn call_range_usize() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(90));
+    assert_eq!(best_chromosome.fitness_score, Some(89));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+        vec![9, 9, 8, 9, 9, 9, 9, 9, 9, 9]
     );
 }
 
@@ -575,7 +575,6 @@ fn population_factory_binary() {
     assert_eq!(
         inspect::population(&evolve.state.population),
         vec![
-            vec![true, true, false, true],
             vec![false, false, false, true],
             vec![true, false, true, false],
             vec![false, true, false, true],
@@ -583,6 +582,8 @@ fn population_factory_binary() {
             vec![false, true, true, false],
             vec![true, false, false, true],
             vec![false, true, false, true],
+            vec![true, false, true, true],
+
         ]
     )
 }

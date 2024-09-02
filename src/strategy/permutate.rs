@@ -11,6 +11,7 @@ use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{Allele, PermutableGenotype};
+use crate::population::Population;
 use num::BigUint;
 use rayon::prelude::*;
 use std::collections::HashMap;
@@ -91,8 +92,9 @@ pub struct PermutateState<A: Allele> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: Option<Chromosome<A>>,
+    pub best_chromosome: Chromosome<A>,
     pub chromosome: Chromosome<A>,
+    pub population: Population<A>,
     pub durations: HashMap<StrategyAction, Duration>,
 
     pub total_population_size: BigUint,
@@ -118,7 +120,11 @@ impl<
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
-        self.state.best_chromosome_as_ref().cloned()
+        if self.state.best_chromosome.is_empty() {
+            None
+        } else {
+           Some(self.state.best_chromosome.clone())
+        }
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -143,12 +149,21 @@ impl<
     > Permutate<G, F, SR>
 {
     pub fn init(&mut self) {
+        let now = Instant::now();
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
+        self.state.chromosome = self
+            .genotype
+            .chromosome_permutations_into_iter()
+            .next()
+            .unwrap();
+        self.state.add_duration(StrategyAction::Init, now.elapsed());
+        self.fitness.call_for_state_chromosome(&mut self.state);
+        self.state.store_best_chromosome(true); // best by definition
+        self.reporter.on_new_best_chromosome(&mut self.state, &self.config);
     }
     fn call_sequential(&mut self) {
         self.genotype
-            .clone()
             .chromosome_permutations_into_iter()
             .for_each(|chromosome| {
                 self.state.current_generation += 1;
@@ -201,14 +216,20 @@ impl StrategyConfig for PermutateConfig {
 }
 
 impl<A: Allele> StrategyState<A> for PermutateState<A> {
-    fn chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
-        Some(&self.chromosome)
+    fn chromosome_as_ref(&self) -> &Chromosome<A> {
+        &self.chromosome
     }
-    fn chromosome_as_mut(&mut self) -> Option<&mut Chromosome<A>> {
-        Some(&mut self.chromosome)
+    fn chromosome_as_mut(&mut self) -> &mut Chromosome<A> {
+        &mut self.chromosome
     }
-    fn best_chromosome_as_ref(&self) -> Option<&Chromosome<A>> {
-        self.best_chromosome.as_ref()
+    fn population_as_ref(&self) -> &Population<A> {
+        &self.population
+    }
+    fn population_as_mut(&mut self) -> &mut Population<A> {
+        &mut self.population
+    }
+    fn best_chromosome_as_ref(&self) -> &Chromosome<A> {
+        &self.best_chromosome
     }
     fn best_generation(&self) -> usize {
         self.best_generation
@@ -229,7 +250,7 @@ impl<A: Allele> StrategyState<A> for PermutateState<A> {
         self.stale_generations = 0;
     }
     fn store_best_chromosome(&mut self, improved_fitness: bool) -> (bool, bool) {
-        self.best_chromosome = Some(self.chromosome.clone());
+        self.best_chromosome = self.chromosome.clone();
         if improved_fitness {
             self.best_generation = self.current_generation;
         }
@@ -317,6 +338,7 @@ impl PermutateConfig {
 }
 
 impl<A: Allele> Default for PermutateState<A> {
+    // functionally invalid until Permutate::init() is called
     fn default() -> Self {
         Self {
             total_population_size: BigUint::default(),
@@ -324,9 +346,10 @@ impl<A: Allele> Default for PermutateState<A> {
             current_generation: 0,
             stale_generations: 0,
             best_generation: 0,
-            best_chromosome: None,
+            best_chromosome: Chromosome::new_empty(), // invalid, temporary
+            chromosome: Chromosome::new_empty(), // invalid, temporary
+            population: Population::new_empty(),
             durations: HashMap::new(),
-            chromosome: Chromosome::new_empty(),
         }
     }
 }
@@ -371,6 +394,6 @@ impl<A: Allele> fmt::Display for PermutateState<A> {
         writeln!(f, "  current iteration: -")?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
-        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome.as_ref())
+        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome)
     }
 }
