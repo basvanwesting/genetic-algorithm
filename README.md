@@ -162,6 +162,8 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
 
 ## TODO
+* MassExtinction and MassGenenis don't recover the population size if parents arent kept during crossover. 
+  Maybe keep a percentage of the parents in crossover
 
 ## MAYBE
 * Target cardinality range for Mutate Dynamic to avoid constant switching

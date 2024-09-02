@@ -77,7 +77,8 @@ impl Compete for Tournament {
             working_population_size -= 1;
         }
 
-        state.population.chromosomes = target_chromosomes;
+        state.population.chromosomes.clear();
+        state.population.chromosomes.append(&mut target_chromosomes);
         state.add_duration(StrategyAction::Compete, now.elapsed());
     }
 }

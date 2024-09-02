@@ -30,7 +30,7 @@ impl Extension for MassGenesis {
                 .best_chromosome(config.fitness_ordering)
                 .cloned()
             {
-                state.population.truncate(0);
+                state.population.chromosomes.clear();
                 state.population.chromosomes.push(best_chromosome.clone());
                 state.population.chromosomes.push(best_chromosome);
             }

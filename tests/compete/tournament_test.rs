@@ -46,7 +46,7 @@ fn maximize_population_surplus() {
             vec![true, false, false],
         ]
     );
-    // assert_eq!(state.population.chromosomes.capacity(), 8);
+    assert_eq!(state.population.chromosomes.capacity(), 8);
 }
 
 #[test]
