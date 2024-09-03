@@ -31,7 +31,7 @@ Terminology:
 * Chromosome: a chromosome has `genes_size` number of genes
 * Allele: alleles are the possible values of the genes
 * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
-* Genes: storage trait of the genes for a chromosome, mostly `Vec<Allele>` but alternatives possible
+* Genes: storage trait of the genes for a chromosome, mostly `Vec<Allele>`, but alternatives possible
 * Genotype: Knows how to generate, mutate and crossover chromosomes efficiently
 * Fitness: knows how to determine the fitness of a chromosome
 
@@ -60,10 +60,11 @@ println!("{}", genotype);
 #[derive(Clone, Debug)]
 pub struct CountTrue;
 impl Fitness for CountTrue {
-    type Allele = BinaryGenotype; // bool
-    fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Allele>) -> Option<FitnessValue> {
-        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
-    }
+   type Genotype = BinaryGenotype; // Genes = Vec<bool>
+      fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
+         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
+      }
+   }
 }
 
 // the search strategy
@@ -71,7 +72,7 @@ let evolve = Evolve::builder()
     .with_genotype(genotype)
     .with_compete(CompeteElite::new())             // sort the chromosomes by fitness to determine crossover order
     .with_crossover(CrossoverUniform::new(0.5))    // crossover all individual genes between 2 chromosomes for offspring, keep 50% of parents around for next generation
-    .with_mutate(MutateOnce::new(0.2))             // mutate a single gene with a 20% probability per chromosome
+    .with_mutate(MutateSingleGene::new(0.2))       // mutate a single gene with a 20% probability per chromosome
     .with_fitness(CountTrue)                       // count the number of true values in the chromosomes
     .with_target_population_size(100)              // evolve with 100 chromosomes
     .with_target_fitness_score(100)                // goal is 100 times true in the best chromosome
@@ -178,7 +179,7 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for RangeGenotype?
 * Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
-* Explore non-Vec genes: PackedSimd
+* Explore more non-Vec genes: PackedSimd, ArrayVec
 
 ## ISSUES
 * permutate (and possibly others) with gene_size 0 panics. Maybe it should just return a empty chromosome?

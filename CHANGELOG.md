@@ -5,6 +5,26 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.12.0] - 2024-09-03
+This is a major breaking release (back to pre-v0.9.0 API), see Changed:
+
+### Changed
+* Add formal `Genes` trait: `Genes: Clone + Send + Sync + Debug`
+* Change associated type from `Allele` to `Genotype` for: `Fitness`,
+  `EvolveReporter`, `HillClimbReporter` and `PermutateReporter`
+* Change generic type `Allele` to `Genotype` for: `Chromosome`, `Population`
+  and other structs/functions using these types
+* Store `Genotype::Genes` instead of `Vec<Genotype::Allele>` in the `Chromosome`
+  `genes` field
+
+### Addded
+* Allow for non-`Vec` based genes in `Genotype.` Most existing `Genotype`
+  implementations use `Vec<Allele>` as genes, but now alternatives are possible
+* Add `BitGenotype` using `FixedBitSet` for genes storage. Functionally the same as
+  `BinaryGenotype,` but better for large genes sizes as storage is much more
+  efficient than `Vec<bool>`.
+* Add `Fitness` placeholder `CountOnes` for `BitGenotype`
+
 ## [0.11.0] - 2024-09-02
 
 ### Changed

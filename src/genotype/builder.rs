@@ -7,7 +7,7 @@ pub struct TryFromBuilderError(pub &'static str);
 /// The builder for a Genotype struct
 ///
 /// Shared initialization options for all Genotypes:
-/// * Builder `with_seed_genes_list(Vec<Vec<_>>)`, optional, list of start genes of all chromosomes
+/// * Builder `with_seed_genes_list(Vec<Genotype::Genes>)`, optional, list of start genes of all chromosomes
 ///   which are distributed randomly in the population (instead of the default random genes).
 ///   Sometimes it is efficient to start with a certain population
 ///
