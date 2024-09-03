@@ -15,7 +15,7 @@ pub type GenesKey = u64;
 /// [Evolve](crate::strategy::evolve::Evolve) strategy
 #[derive(Clone, Debug)]
 pub struct Chromosome<G: Genotype> {
-    pub genes: Vec<G::Allele>,
+    pub genes: G::Genes,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
 
@@ -27,7 +27,7 @@ pub struct Chromosome<G: Genotype> {
 /// Cannot Hash floats
 impl<G: Genotype> Chromosome<G>
 where
-    G::Allele: Hash,
+    G::Genes: Hash,
 {
     pub fn genes_key(&self) -> GenesKey {
         let mut s = DefaultHasher::new();
@@ -37,7 +37,7 @@ where
 }
 
 impl<G: Genotype> Chromosome<G> {
-    pub fn new(genes: Vec<G::Allele>) -> Self {
+    pub fn new(genes: G::Genes) -> Self {
         Self {
             genes,
             fitness_score: None,

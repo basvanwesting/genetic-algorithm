@@ -49,10 +49,12 @@ impl TryFrom<Builder<Self>> for Binary {
 
 impl Genotype for Binary {
     type Allele = BinaryAllele;
+    type Genes = Vec<Self::Allele>;
+
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
                 .map(|_| self.allele_sampler.sample(rng))
@@ -177,10 +179,10 @@ impl Genotype for Binary {
     fn has_crossover_points(&self) -> bool {
         true
     }
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<BinaryAllele>>) {
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
         self.seed_genes_list = seed_genes_list;
     }
-    fn seed_genes_list(&self) -> &Vec<Vec<BinaryAllele>> {
+    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
         &self.seed_genes_list
     }
     fn max_scale_index(&self) -> Option<usize> {

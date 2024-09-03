@@ -66,6 +66,8 @@ pub trait Genotype:
     Clone + Send + Sync + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>>
 {
     type Allele: Allele;
+    type Genes: Genes;
+
     fn genes_size(&self) -> usize;
     /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     /// random genes unless seed genes are provided
@@ -122,8 +124,8 @@ pub trait Genotype:
     fn builder() -> GenotypeBuilder<Self> {
         GenotypeBuilder::<Self>::default()
     }
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<Self::Allele>>);
-    fn seed_genes_list(&self) -> &Vec<Vec<Self::Allele>>;
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>);
+    fn seed_genes_list(&self) -> &Vec<Self::Genes>;
     fn max_scale_index(&self) -> Option<usize>;
     fn expected_number_of_sampled_index_collisions(&self, number_of_samples: usize) -> usize {
         number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())

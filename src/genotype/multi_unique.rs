@@ -119,10 +119,12 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
 
 impl<T: Allele> Genotype for MultiUnique<T> {
     type Allele = T;
+    type Genes = Vec<Self::Allele>;
+
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele> {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
         if self.seed_genes_list.is_empty() {
             self.allele_lists
                 .iter()
@@ -250,10 +252,10 @@ impl<T: Allele> Genotype for MultiUnique<T> {
     fn has_crossover_points(&self) -> bool {
         true
     }
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
         self.seed_genes_list = seed_genes_list;
     }
-    fn seed_genes_list(&self) -> &Vec<Vec<T>> {
+    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
         &self.seed_genes_list
     }
     fn max_scale_index(&self) -> Option<usize> {

@@ -4,13 +4,13 @@ use genetic_algorithm::genotype::Genotype;
 use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
-pub fn chromosome<G: Genotype>(genes: Vec<G::Allele>) -> Chromosome<G> {
+pub fn chromosome<G: Genotype>(genes: G::Genes) -> Chromosome<G> {
     Chromosome::new(genes)
 }
 
 #[allow(dead_code)]
 pub fn chromosome_with_fitness_score<G: Genotype>(
-    genes: Vec<G::Allele>,
+    genes: G::Genes,
     fitness_score: Option<FitnessValue>,
 ) -> Chromosome<G> {
     Chromosome {
@@ -22,7 +22,7 @@ pub fn chromosome_with_fitness_score<G: Genotype>(
 }
 
 #[allow(dead_code)]
-pub fn population<G: Genotype>(data: Vec<Vec<G::Allele>>) -> Population<G> {
+pub fn population<G: Genotype>(data: Vec<G::Genes>) -> Population<G> {
     let chromosomes = data.into_iter().map(|genes| chromosome(genes)).collect();
 
     Population::new(chromosomes)
@@ -30,7 +30,7 @@ pub fn population<G: Genotype>(data: Vec<Vec<G::Allele>>) -> Population<G> {
 
 #[allow(dead_code)]
 pub fn population_with_fitness_scores<G: Genotype>(
-    data: Vec<(Vec<G::Allele>, Option<FitnessValue>)>,
+    data: Vec<(G::Genes, Option<FitnessValue>)>,
 ) -> Population<G> {
     let chromosomes = data
         .into_iter()

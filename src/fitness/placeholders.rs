@@ -76,6 +76,7 @@ impl<G: Genotype> Default for SumGenes<G> {
 impl<G: Genotype> Fitness for SumGenes<G>
 where
     G::Allele: Into<f64>,
+    G::Genes: IntoIterator<Item = G::Allele>,
 {
     type Genotype = G;
     fn calculate_for_chromosome(
