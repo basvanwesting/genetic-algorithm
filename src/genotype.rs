@@ -72,15 +72,9 @@ pub trait Genotype:
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     /// a random genes factory (respecting seed genes)
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
-    /// a single mutation of the chromosome, the genotype determines whether this is random, relative or scaled.
-    fn mutate_chromosome_single<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self>,
-        scale_index: Option<usize>,
-        rng: &mut R,
-    );
-    /// multiple mutations of the chromosome, the genotype determines whether this is random, relative or scaled.
-    fn mutate_chromosome_multi<R: Rng>(
+    /// Mutate the chromosome, the genotype determines whether this is random, relative or scaled.
+    /// Choose between allowing duplicates or not (~2x slower).
+    fn mutate_chromosome_genes<R: Rng>(
         &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
@@ -89,18 +83,10 @@ pub trait Genotype:
         rng: &mut R,
     );
 
-    /// a crossover of a single gene between a pair of chromosomes
-    /// panics if there are no valid crossover indexes
-    fn crossover_chromosome_pair_single_gene<R: Rng>(
-        &self,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
-        rng: &mut R,
-    );
-    /// a crossover of a multi gene between a pair of chromosomes.
+    /// Crossover genes between a pair of chromosomes.
     /// Choose between allowing duplicates or not (~2x slower).
     /// panics if there are no valid crossover indexes
-    fn crossover_chromosome_pair_multi_gene<R: Rng>(
+    fn crossover_chromosome_genes<R: Rng>(
         &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
@@ -108,18 +94,10 @@ pub trait Genotype:
         mother: &mut Chromosome<Self>,
         rng: &mut R,
     );
-    /// a crossover of a single point between a pair of chromosomes
-    /// panics if there are no valid crossover points
-    fn crossover_chromosome_pair_single_point<R: Rng>(
-        &self,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
-        rng: &mut R,
-    );
-    /// a crossover of a multi point between a pair of chromosomes.
+    /// Crossover points between a pair of chromosomes.
     /// Choose between allowing duplicates or not (not much slower)
     /// panics if there are no valid crossover points
-    fn crossover_chromosome_pair_multi_point<R: Rng>(
+    fn crossover_chromosome_points<R: Rng>(
         &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,

@@ -205,7 +205,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
             match self.config.variant {
                 HillClimbVariant::Stochastic => {
                     self.state.chromosome = self.state.best_chromosome_as_ref().clone();
-                    self.genotype.mutate_chromosome_single(
+                    self.genotype.mutate_chromosome_genes(
+                        1,
+                        true,
                         &mut self.state.chromosome,
                         self.state.current_scale_index,
                         &mut self.rng,
@@ -218,7 +220,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                 }
                 HillClimbVariant::StochasticSecondary => {
                     self.state.chromosome = self.state.best_chromosome_as_ref().clone();
-                    self.genotype.mutate_chromosome_single(
+                    self.genotype.mutate_chromosome_genes(
+                        1,
+                        true,
                         &mut self.state.chromosome,
                         self.state.current_scale_index,
                         &mut self.rng,
@@ -231,7 +235,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     );
 
                     // second round
-                    self.genotype.mutate_chromosome_single(
+                    self.genotype.mutate_chromosome_genes(
+                        1,
+                        true,
                         &mut self.state.chromosome,
                         self.state.current_scale_index,
                         &mut self.rng,

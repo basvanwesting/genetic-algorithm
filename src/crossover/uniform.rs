@@ -46,7 +46,7 @@ impl Crossover for Uniform {
             .take(population_size)
             .tuples()
         {
-            genotype.crossover_chromosome_pair_multi_gene(
+            genotype.crossover_chromosome_genes(
                 number_of_crossovers,
                 true,
                 father,

@@ -17,7 +17,7 @@ fn float_mutate_chromosome_single_random() {
         0.001
     ));
 
-    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.195, 18.970],
@@ -41,15 +41,15 @@ fn float_mutate_chromosome_single_relative() {
         0.001
     ));
 
-    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 20.0],
         0.001
     ));
 
-    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
-    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 19.790],
@@ -77,14 +77,14 @@ fn float_mutate_chromosome_single_scaled() {
         0.001
     ));
 
-    genotype.mutate_chromosome_single(&mut chromosome, Some(2), &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 19.899],
         0.001
     ));
 
-    genotype.mutate_chromosome_single(&mut chromosome, Some(2), &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 2.196, 19.999],
@@ -93,7 +93,7 @@ fn float_mutate_chromosome_single_scaled() {
 }
 
 #[test]
-fn mutate_chromosome_multi_random_with_duplicates() {
+fn mutate_chromosome_genes_random_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -101,7 +101,7 @@ fn mutate_chromosome_multi_random_with_duplicates() {
         .unwrap();
 
     let mut chromosome = build::chromosome(vec![0.0, 0.0, 10.0]);
-    genotype.mutate_chromosome_multi(3, true, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(3, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.0, 0.0, 19.429],
@@ -109,7 +109,7 @@ fn mutate_chromosome_multi_random_with_duplicates() {
     ));
 }
 #[test]
-fn mutate_chromosome_multi_random_without_duplicates() {
+fn mutate_chromosome_genes_random_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -117,7 +117,7 @@ fn mutate_chromosome_multi_random_without_duplicates() {
         .unwrap();
 
     let mut chromosome = build::chromosome(vec![0.0, 0.0, 10.0]);
-    genotype.mutate_chromosome_multi(2, false, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(2, false, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.0, 4.485, 14.621],
@@ -135,7 +135,7 @@ fn float_crossover_chromosome_pair_single_gene() {
 
     let mut father = build::chromosome(vec![0.1, 1.1, 10.1]);
     let mut mother = build::chromosome(vec![0.9, 3.9, 18.9]);
-    genotype.crossover_chromosome_pair_single_gene(&mut father, &mut mother, rng);
+    genotype.crossover_chromosome_genes(1, true, &mut father, &mut mother, rng);
     assert_eq!(inspect::chromosome(&father), vec![0.1, 3.9, 10.1]);
     assert_eq!(inspect::chromosome(&mother), vec![0.9, 1.1, 18.9]);
 }
@@ -150,7 +150,7 @@ fn float_crossover_chromosome_pair_single_point() {
 
     let mut father = build::chromosome(vec![0.1, 1.1, 10.1]);
     let mut mother = build::chromosome(vec![0.9, 3.9, 18.9]);
-    genotype.crossover_chromosome_pair_single_point(&mut father, &mut mother, rng);
+    genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
     assert_eq!(inspect::chromosome(&father), vec![0.1, 3.9, 18.9]);
     assert_eq!(inspect::chromosome(&mother), vec![0.9, 1.1, 10.1]);
 }
@@ -280,7 +280,7 @@ fn integer_mutate_chromosome_single_random() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 2, 20]);
 
-    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 20]);
 }
 
@@ -296,7 +296,7 @@ fn integer_mutate_chromosome_single_relative() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 2, 20]);
 
-    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 20]);
 }
 

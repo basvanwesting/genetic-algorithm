@@ -23,14 +23,11 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
 
-        group.bench_function(BenchmarkId::new("binary-random-single", genes_size), |b| {
-            b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
-        });
         group.bench_function(
             BenchmarkId::new("binary-random-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -44,7 +41,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("binary-random-multi-10-without-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -65,14 +62,11 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
 
-        group.bench_function(BenchmarkId::new("list-random-single", genes_size), |b| {
-            b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
-        });
         group.bench_function(
             BenchmarkId::new("list-random-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -86,7 +80,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("list-random-multi-10-without-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -107,14 +101,11 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
 
-        group.bench_function(BenchmarkId::new("range-random-single", genes_size), |b| {
-            b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
-        });
         group.bench_function(
             BenchmarkId::new("range-random-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -128,7 +119,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("range-random-multi-10-without-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -146,14 +137,11 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
-        group.bench_function(BenchmarkId::new("range-relative-single", genes_size), |b| {
-            b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
-        });
         group.bench_function(
             BenchmarkId::new("range-relative-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -167,7 +155,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("range-relative-multi-10-without-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -186,16 +174,11 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
 
-        group.bench_function(BenchmarkId::new("range-scaled-single", genes_size), |b| {
-            b.iter(|| {
-                genotype.mutate_chromosome_single(black_box(&mut chromosome), Some(1), &mut rng)
-            })
-        });
         group.bench_function(
             BenchmarkId::new("range-scaled-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -209,7 +192,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("range-scaled-multi-10-without-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -229,14 +212,11 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
 
-        group.bench_function(BenchmarkId::new("unique-random-single", genes_size), |b| {
-            b.iter(|| genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng))
-        });
         group.bench_function(
             BenchmarkId::new("unique-random-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -250,7 +230,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("unique-random-multi-10-without-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -271,18 +251,10 @@ pub fn mutation_benchmark(c: &mut Criterion) {
         let mut chromosome = genotype.chromosome_factory(&mut rng);
 
         group.bench_function(
-            BenchmarkId::new("multi_list-random-single", genes_size),
-            |b| {
-                b.iter(|| {
-                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
-                })
-            },
-        );
-        group.bench_function(
             BenchmarkId::new("multi_list-random-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -296,7 +268,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("multi_list-random-multi-10-without-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -316,18 +288,10 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         group.bench_function(
-            BenchmarkId::new("multi_range-random-single", genes_size),
-            |b| {
-                b.iter(|| {
-                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
-                })
-            },
-        );
-        group.bench_function(
             BenchmarkId::new("multi_range-random-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -341,7 +305,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("multi_range-random-multi-10-without-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -359,18 +323,10 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         group.bench_function(
-            BenchmarkId::new("multi_range-relative-single", genes_size),
-            |b| {
-                b.iter(|| {
-                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
-                })
-            },
-        );
-        group.bench_function(
             BenchmarkId::new("multi_range-relative-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -387,7 +343,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             ),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -409,18 +365,10 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         group.bench_function(
-            BenchmarkId::new("multi_range-scaled-single", genes_size),
-            |b| {
-                b.iter(|| {
-                    genotype.mutate_chromosome_single(black_box(&mut chromosome), Some(1), &mut rng)
-                })
-            },
-        );
-        group.bench_function(
             BenchmarkId::new("multi_range-scaled-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -434,7 +382,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("multi_range-scaled-multi-10-without-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),
@@ -465,18 +413,10 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .unwrap();
         let mut chromosome = genotype.chromosome_factory(&mut rng);
         group.bench_function(
-            BenchmarkId::new("multi_unique-random-single", genes_size),
-            |b| {
-                b.iter(|| {
-                    genotype.mutate_chromosome_single(black_box(&mut chromosome), None, &mut rng)
-                })
-            },
-        );
-        group.bench_function(
             BenchmarkId::new("multi_unique-random-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         true,
                         black_box(&mut chromosome),
@@ -493,7 +433,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             ),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_multi(
+                    genotype.mutate_chromosome_genes(
                         10,
                         false,
                         black_box(&mut chromosome),

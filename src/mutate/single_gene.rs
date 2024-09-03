@@ -33,7 +33,13 @@ impl Mutate for SingleGene {
             .filter(|c| c.age == 0)
         {
             if bool_sampler.sample(rng) {
-                genotype.mutate_chromosome_single(chromosome, state.current_scale_index, rng);
+                genotype.mutate_chromosome_genes(
+                    1,
+                    true,
+                    chromosome,
+                    state.current_scale_index,
+                    rng,
+                );
             }
         }
         state.add_duration(StrategyAction::Mutate, now.elapsed());

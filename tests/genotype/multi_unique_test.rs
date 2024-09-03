@@ -18,19 +18,19 @@ fn mutate_chromosome_single() {
         vec![0, 1, 6, 5, 4, 7, 1, 2, 0]
     );
 
-    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 7, 4, 5, 1, 2, 0]
     );
 
-    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 7, 4, 5, 2, 1, 0]
     );
 
-    genotype.mutate_chromosome_single(&mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 5, 4, 7, 2, 1, 0]
@@ -42,7 +42,7 @@ fn mutate_chromosome_single() {
     );
 }
 #[test]
-fn mutate_chromosome_multi_with_duplicates() {
+fn mutate_chromosome_genes_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![
@@ -57,14 +57,14 @@ fn mutate_chromosome_multi_with_duplicates() {
         .unwrap();
 
     let mut chromosome = build::chromosome(vec![1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
-    genotype.mutate_chromosome_multi(3, true, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(3, true, &mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![1, 2, 3, 4, 5, 6, 7, 9, 8, 8, 7, 6, 5, 4, 3, 2, 1]
     );
 }
 #[test]
-fn mutate_chromosome_multi_without_duplicates() {
+fn mutate_chromosome_genes_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![
@@ -87,7 +87,7 @@ fn mutate_chromosome_multi_without_duplicates() {
     assert_eq!(genotype.crossover_points, vec![3, 6, 9, 12, 15]);
     let mut chromosome =
         build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 8, 7, 6, 5, 4, 3, 2, 1]);
-    genotype.mutate_chromosome_multi(3, false, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(3, false, &mut chromosome, None, &mut rng);
 
     assert_eq!(inspect::chromosome(&chromosome).len(), 18);
 
@@ -109,7 +109,7 @@ fn crossover_chromosome_pair_single_gene() {
 
     let mut father = build::chromosome(vec![0, 1, 4, 5, 6, 7, 0, 1, 2]);
     let mut mother = build::chromosome(vec![1, 0, 5, 6, 7, 4, 1, 2, 0]);
-    genotype.crossover_chromosome_pair_single_gene(&mut father, &mut mother, rng);
+    genotype.crossover_chromosome_genes(1, true, &mut father, &mut mother, rng);
 }
 
 #[test]
@@ -125,7 +125,7 @@ fn crossover_chromosome_pair_single_point() {
     assert_eq!(genotype.crossover_points, vec![2, 6]);
     let mut father = build::chromosome(vec![0, 1, 4, 5, 6, 7, 0, 1, 2]);
     let mut mother = build::chromosome(vec![1, 0, 5, 6, 7, 4, 1, 2, 0]);
-    genotype.crossover_chromosome_pair_single_point(&mut father, &mut mother, rng);
+    genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
     assert_eq!(
         inspect::chromosome(&father),
         vec![0, 1, 5, 6, 7, 4, 1, 2, 0]
@@ -136,7 +136,7 @@ fn crossover_chromosome_pair_single_point() {
     );
 }
 #[test]
-fn crossover_chromosome_pair_multi_point_with_duplicates() {
+fn crossover_chromosome_points_with_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![
@@ -158,7 +158,7 @@ fn crossover_chromosome_pair_multi_point_with_duplicates() {
     assert_eq!(genotype.crossover_points, vec![2, 6, 9, 12, 15]);
     let mut father = build::chromosome(vec![0, 1, 4, 5, 6, 7, 0, 1, 2, 7, 8, 9, 4, 5, 6, 3, 4]);
     let mut mother = build::chromosome(vec![1, 0, 5, 6, 7, 4, 1, 2, 0, 9, 8, 7, 6, 5, 4, 4, 3]);
-    genotype.crossover_chromosome_pair_multi_point(3, true, &mut father, &mut mother, rng);
+    genotype.crossover_chromosome_points(3, true, &mut father, &mut mother, rng);
     assert_eq!(
         inspect::chromosome(&father),
         vec![0, 1, 4, 5, 6, 7, 0, 1, 2, 7, 8, 9, 4, 5, 6, 4, 3]
@@ -169,7 +169,7 @@ fn crossover_chromosome_pair_multi_point_with_duplicates() {
     );
 }
 #[test]
-fn crossover_chromosome_pair_multi_point_without_duplicates() {
+fn crossover_chromosome_points_without_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![
@@ -191,7 +191,7 @@ fn crossover_chromosome_pair_multi_point_without_duplicates() {
     assert_eq!(genotype.crossover_points, vec![2, 6, 9, 12, 15]);
     let mut father = build::chromosome(vec![0, 1, 4, 5, 6, 7, 0, 1, 2, 7, 8, 9, 4, 5, 6, 3, 4]);
     let mut mother = build::chromosome(vec![1, 0, 5, 6, 7, 4, 1, 2, 0, 9, 8, 7, 6, 5, 4, 4, 3]);
-    genotype.crossover_chromosome_pair_multi_point(2, false, &mut father, &mut mother, rng);
+    genotype.crossover_chromosome_points(2, false, &mut father, &mut mother, rng);
     assert_eq!(
         inspect::chromosome(&father),
         vec![0, 1, 4, 5, 6, 7, 0, 1, 2, 9, 8, 7, 6, 5, 4, 3, 4]

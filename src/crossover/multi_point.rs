@@ -46,7 +46,7 @@ impl Crossover for MultiPoint {
             .take(population_size)
             .tuples()
         {
-            genotype.crossover_chromosome_pair_multi_point(
+            genotype.crossover_chromosome_points(
                 self.number_of_crossovers,
                 self.allow_duplicates,
                 father,

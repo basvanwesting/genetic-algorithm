@@ -46,7 +46,7 @@ impl Crossover for MultiGene {
             .take(population_size)
             .tuples()
         {
-            genotype.crossover_chromosome_pair_multi_gene(
+            genotype.crossover_chromosome_genes(
                 self.number_of_crossovers,
                 self.allow_duplicates,
                 father,

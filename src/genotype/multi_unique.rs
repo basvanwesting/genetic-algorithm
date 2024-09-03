@@ -140,22 +140,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_single<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self>,
-        _scale_index: Option<usize>,
-        rng: &mut R,
-    ) {
-        let allele_list_index = self.allele_list_index_sampler.sample(rng);
-        let allele_list_index_offset = self.allele_list_index_offsets[allele_list_index];
-        let index1 = allele_list_index_offset
-            + self.allele_list_index_samplers[allele_list_index].sample(rng);
-        let index2 = allele_list_index_offset
-            + self.allele_list_index_samplers[allele_list_index].sample(rng);
-        chromosome.genes.swap(index1, index2);
-        chromosome.taint_fitness_score();
-    }
-    fn mutate_chromosome_multi<R: Rng>(
+    fn mutate_chromosome_genes<R: Rng>(
         &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
@@ -199,15 +184,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         chromosome.taint_fitness_score();
     }
 
-    fn crossover_chromosome_pair_single_gene<R: Rng>(
-        &self,
-        _father: &mut Chromosome<Self>,
-        _mother: &mut Chromosome<Self>,
-        _rng: &mut R,
-    ) {
-        panic!("MultiUniqueGenotype does not support gene crossover")
-    }
-    fn crossover_chromosome_pair_multi_gene<R: Rng>(
+    fn crossover_chromosome_genes<R: Rng>(
         &self,
         _number_of_crossovers: usize,
         _allow_duplicates: bool,
@@ -217,21 +194,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
     ) {
         panic!("MultiUniqueGenotype does not support gene crossover")
     }
-    fn crossover_chromosome_pair_single_point<R: Rng>(
-        &self,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
-        rng: &mut R,
-    ) {
-        let point_index = self.crossover_point_index_sampler.unwrap().sample(rng);
-        let gene_index = self.crossover_points[point_index];
-        let mother_back = &mut mother.genes[gene_index..];
-        let father_back = &mut father.genes[gene_index..];
-        father_back.swap_with_slice(mother_back);
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
-    }
-    fn crossover_chromosome_pair_multi_point<R: Rng>(
+    fn crossover_chromosome_points<R: Rng>(
         &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,

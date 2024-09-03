@@ -43,7 +43,7 @@ impl Crossover for SinglePoint {
             .take(population_size)
             .tuples()
         {
-            genotype.crossover_chromosome_pair_single_point(father, mother, rng);
+            genotype.crossover_chromosome_points(1, true, father, mother, rng);
         }
 
         state.add_duration(StrategyAction::Crossover, now.elapsed());

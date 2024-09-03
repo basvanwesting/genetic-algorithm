@@ -44,7 +44,7 @@ impl Crossover for SingleGene {
             .take(population_size)
             .tuples()
         {
-            genotype.crossover_chromosome_pair_single_gene(father, mother, rng);
+            genotype.crossover_chromosome_genes(1, true, father, mother, rng);
         }
 
         state.add_duration(StrategyAction::Crossover, now.elapsed());

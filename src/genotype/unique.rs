@@ -91,19 +91,7 @@ impl<T: Allele> Genotype for Unique<T> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_single<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self>,
-        _scale_index: Option<usize>,
-        rng: &mut R,
-    ) {
-        let index1 = self.gene_index_sampler.sample(rng);
-        let index2 = self.gene_index_sampler.sample(rng);
-        chromosome.genes.swap(index1, index2);
-        chromosome.taint_fitness_score();
-    }
-
-    fn mutate_chromosome_multi<R: Rng>(
+    fn mutate_chromosome_genes<R: Rng>(
         &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
@@ -129,15 +117,7 @@ impl<T: Allele> Genotype for Unique<T> {
         }
         chromosome.taint_fitness_score();
     }
-    fn crossover_chromosome_pair_single_gene<R: Rng>(
-        &self,
-        _father: &mut Chromosome<Self>,
-        _mother: &mut Chromosome<Self>,
-        _rng: &mut R,
-    ) {
-        panic!("UniqueGenotype does not support gene crossover")
-    }
-    fn crossover_chromosome_pair_multi_gene<R: Rng>(
+    fn crossover_chromosome_genes<R: Rng>(
         &self,
         _number_of_crossovers: usize,
         _allow_duplicates: bool,
@@ -147,15 +127,7 @@ impl<T: Allele> Genotype for Unique<T> {
     ) {
         panic!("UniqueGenotype does not support gene crossover")
     }
-    fn crossover_chromosome_pair_single_point<R: Rng>(
-        &self,
-        _father: &mut Chromosome<Self>,
-        _mother: &mut Chromosome<Self>,
-        _rng: &mut R,
-    ) {
-        panic!("UniqueGenotype does not support point crossover")
-    }
-    fn crossover_chromosome_pair_multi_point<R: Rng>(
+    fn crossover_chromosome_points<R: Rng>(
         &self,
         _number_of_crossovers: usize,
         _allow_duplicates: bool,

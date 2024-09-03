@@ -43,7 +43,7 @@ impl Mutate for MultiGene {
             .filter(|c| c.age == 0)
         {
             if bool_sampler.sample(rng) {
-                genotype.mutate_chromosome_multi(
+                genotype.mutate_chromosome_genes(
                     self.number_of_mutations,
                     true,
                     chromosome,

@@ -143,19 +143,7 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
         Chromosome::new(self.random_genes_factory(rng))
     }
 
-    fn mutate_chromosome_single<R: Rng>(
-        &self,
-        chromosome: &mut Chromosome<Self>,
-        _scale_index: Option<usize>,
-        rng: &mut R,
-    ) {
-        let index = self.gene_weighted_index_sampler.sample(rng);
-        chromosome.genes[index] =
-            self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
-        chromosome.taint_fitness_score();
-    }
-
-    fn mutate_chromosome_multi<R: Rng>(
+    fn mutate_chromosome_genes<R: Rng>(
         &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
@@ -186,18 +174,7 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
         chromosome.taint_fitness_score();
     }
 
-    fn crossover_chromosome_pair_single_gene<R: Rng>(
-        &self,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
-        rng: &mut R,
-    ) {
-        let index = self.gene_index_sampler.sample(rng);
-        std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
-    }
-    fn crossover_chromosome_pair_multi_gene<R: Rng>(
+    fn crossover_chromosome_genes<R: Rng>(
         &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
@@ -225,21 +202,7 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
-    fn crossover_chromosome_pair_single_point<R: Rng>(
-        &self,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
-        rng: &mut R,
-    ) {
-        let index = self.gene_index_sampler.sample(rng);
-        let mother_back = &mut mother.genes[index..];
-        let father_back = &mut father.genes[index..];
-        father_back.swap_with_slice(mother_back);
-
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
-    }
-    fn crossover_chromosome_pair_multi_point<R: Rng>(
+    fn crossover_chromosome_points<R: Rng>(
         &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,

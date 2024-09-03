@@ -35,7 +35,7 @@ impl Extension for MassDegeneration {
                 config,
             );
             for chromosome in state.population.chromosomes.iter_mut() {
-                genotype.mutate_chromosome_multi(
+                genotype.mutate_chromosome_genes(
                     self.number_of_mutations,
                     true,
                     chromosome,
