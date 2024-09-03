@@ -14,8 +14,8 @@
 //! * [Chromosome](crate::chromosome): a chromosome has `genes_size` number of genes
 //! * [Allele](crate::genotype::Allele): alleles are the possible values of the genes
 //! * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
-//! * [Genes](crate::genotype::Genes): storage trait of the genes for a chromosome
-//! * [Genotype](crate::genotype): holds the `genes_size` and alleles and knows how to generate, mutate and crossover chromosomes efficiently
+//! * [Genes](crate::genotype::Genes): storage trait of the genes for a chromosome, mostly `Vec<Allele>` but alternatives possible
+//! * [Genotype](crate::genotype): Knows how to generate, mutate and crossover chromosomes efficiently
 //! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
 //!
 //! All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
@@ -85,6 +85,8 @@
 //! * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
 //!     * See [examples/hill_climb_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_nqueens.rs)
 //!     * See [examples/hill_climb_table_seating](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_table_seating.rs)
+//! * Explore vector genes [BinaryGenotype](genotype::BinaryGenotype) versus other storage [BitGenotype](genotype::BitGenotype)
+//!     * See [examples/evolve_bit_v_binary](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_bit_v_binary.rs)
 //! * Explore internal and external multithreading options
 //!     * See [examples/explore_multithreading](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_multithreading.rs)
 //! * Custom Fitness function with LRU cache
@@ -101,7 +103,7 @@
 //!   sorting of some kind. This is relatively fast compared to the rest of the
 //!   operations.
 //! * [Crossover](crossover): the workhorse of internal parts. Crossover touches most genes each
-//!   generation and clones the whole population if you keep the parents around. See
+//!   generation and clones up to the whole population if you keep all the parents around. See
 //!   performance tips below.
 //! * [Mutate](mutate): no considerations. It touches genes like crossover does, but should
 //!   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
@@ -122,7 +124,9 @@
 //!   * It seems that [CrossoverMultiPoint](crossover::CrossoverMultiPoint) with
 //!     `number_of_crossovers = genes_size / 9` and `allow_duplicates = false` is
 //!     the best tradeoff between performance and effect.
-//!   * Keeping the parents around has major performance effects and should be avoided
+//!   * Keeping the parents around has major performance effects and should be avoided. Use low
+//!     parent_survival_rate or none at all. Explore non-Vec based genotypes like
+//!     [BitGenotype](genotype::BitGenotype).
 
 pub mod chromosome;
 pub mod compete;

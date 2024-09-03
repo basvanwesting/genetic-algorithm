@@ -18,7 +18,7 @@ pub enum MutationType {
     Scaled,
 }
 
-/// Genes are a list of numeric values, each taken from the allele_range. On random initialization,
+/// Genes are a vector of numeric values, each taken from the allele_range. On random initialization,
 /// each gene gets a value from the allele_range with a uniform probability. Each gene has an equal
 /// probability of mutating. If a gene mutates, a new value is taken from allele_range with a
 /// uniform probability.

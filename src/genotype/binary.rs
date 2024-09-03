@@ -9,7 +9,7 @@ use std::fmt;
 
 pub type BinaryAllele = bool;
 
-/// Genes are a list of booleans. On random initialization, each gene has a 50% probability of
+/// Genes are a vector of booleans. On random initialization, each gene has a 50% probability of
 /// becoming true or false. Each gene has an equal probability of mutating. If a gene mutates, its
 /// value is flipped.
 ///

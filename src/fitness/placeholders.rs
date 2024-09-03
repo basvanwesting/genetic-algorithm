@@ -1,7 +1,7 @@
 //! placeholders for testing and bootstrapping, not really used in practice
 use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessValue};
-use crate::genotype::{BinaryGenotype, Genotype};
+use crate::genotype::{BinaryGenotype, BitGenotype, Genotype};
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
@@ -41,6 +41,18 @@ impl Fitness for CountTrue {
         chromosome: &Chromosome<Self::Genotype>,
     ) -> Option<FitnessValue> {
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
+    }
+}
+
+#[derive(Clone, Debug)]
+pub struct CountOnes;
+impl Fitness for CountOnes {
+    type Genotype = BitGenotype;
+    fn calculate_for_chromosome(
+        &mut self,
+        chromosome: &Chromosome<Self::Genotype>,
+    ) -> Option<FitnessValue> {
+        Some(chromosome.genes.count_ones(..) as FitnessValue)
     }
 }
 

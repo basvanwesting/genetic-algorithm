@@ -10,7 +10,7 @@ use std::fmt;
 
 pub type DefaultAllele = usize;
 
-/// Genes are a list of unique values, taken from the allele_list using clone(), each value occurs
+/// Genes are a vector of unique values, taken from the allele_list using clone(), each value occurs
 /// exactly once. The genes_size is derived to be the same as allele_list length. On random
 /// initialization, the allele_list are shuffled to form the genes. Each pair of genes has an equal
 /// probability of mutating. If a pair of genes mutates, the values are switched, ensuring the list

@@ -18,7 +18,7 @@ pub enum MutationType {
     Scaled,
 }
 
-/// Genes are a list of numberic values, each individually taken from its own allele_range. The
+/// Genes are a vector of numberic values, each individually taken from its own allele_range. The
 /// genes_size is derived to be the allele_ranges length. On random initialization, each gene gets
 /// a value from its own allele_range with a uniform probability. Each gene has a weighted
 /// probability of mutating, depending on its allele_range size. If a gene mutates, a new values is

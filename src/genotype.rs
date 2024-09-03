@@ -1,5 +1,6 @@
 //! The search space for the algorithm.
 mod binary;
+mod bit;
 mod builder;
 mod list;
 mod multi_list;
@@ -9,6 +10,7 @@ mod range;
 mod unique;
 
 pub use self::binary::{Binary as BinaryGenotype, BinaryAllele};
+pub use self::bit::Bit as BitGenotype;
 pub use self::builder::{
     Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
 };
@@ -56,6 +58,7 @@ impl Allele for u64 {}
 impl Allele for u8 {}
 impl Allele for usize {}
 
+/// Standard Genes, suitable for [Genotype]. Implemented for `Vec<Allele>` and [FixedBitSet]
 pub trait Genes: Clone + Send + Sync + std::fmt::Debug {}
 impl<T: Allele> Genes for Vec<T> {}
 impl Genes for FixedBitSet {}

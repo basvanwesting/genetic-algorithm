@@ -9,7 +9,7 @@ use std::fmt;
 
 pub type DefaultAllele = usize;
 
-/// Genes are a list of values, each individually taken from its own allele_list using clone(). The
+/// Genes are a vector of values, each individually taken from its own allele_list using clone(). The
 /// allele_lists are taken as unrelated, unorderable set with no concept op distance between the
 /// values. The genes_size is derived to be the allele_lists length. All allele_list have to be of
 /// the same type, but can have different values and lengths. On random initialization, each gene

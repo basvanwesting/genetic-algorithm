@@ -3,6 +3,7 @@ use genetic_algorithm::strategy::evolve::prelude::*;
 use std::ops::RangeInclusive;
 
 const GENES_SIZE: usize = 40695;
+#[allow(dead_code)]
 const ALLELE_RANGE: RangeInclusive<f32> = -150.0..=120.0;
 const POPULATION_SIZE: usize = 150;
 const TARGET_GENERATION: usize = 500;
@@ -20,9 +21,17 @@ const MUTATIONS_PER_CHROMOSOME: usize = 50;
 //   * compete not a factor, it's basically some form of in-place sorting of some kind
 
 fn main() {
-    let genotype = RangeGenotype::builder()
+    // let genotype = RangeGenotype::builder()
+    //     .with_genes_size(GENES_SIZE)
+    //     .with_allele_range(ALLELE_RANGE)
+    //     .build()
+    //     .unwrap();
+    // let genotype = BinaryGenotype::builder()
+    //     .with_genes_size(GENES_SIZE)
+    //     .build()
+    //     .unwrap();
+    let genotype = BitGenotype::builder()
         .with_genes_size(GENES_SIZE)
-        .with_allele_range(ALLELE_RANGE)
         .build()
         .unwrap();
 

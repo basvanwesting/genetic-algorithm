@@ -31,8 +31,8 @@ Terminology:
 * Chromosome: a chromosome has `genes_size` number of genes
 * Allele: alleles are the possible values of the genes
 * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
-* Genes: storage trait of the genes for a chromosome
-* Genotype: holds the `genes_size` and alleles and knows how to generate, mutate and crossover chromosomes efficiently
+* Genes: storage trait of the genes for a chromosome, mostly `Vec<Allele>` but alternatives possible
+* Genotype: Knows how to generate, mutate and crossover chromosomes efficiently
 * Fitness: knows how to determine the fitness of a chromosome
 
 All multithreading mechanisms are implemented using
@@ -104,6 +104,8 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
     * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
     * See [examples/hill_climb_table_seating](../main/examples/hill_climb_table_seating.rs)
+* Explore vector genes (BinaryGenotype) versus other storage (BitGenotype)
+    * See [examples/evolve_bit_v_binary](../main/examples/evolve_bit_v_binary.rs)
 * Explore internal and external multithreading options
     * See [examples/explore_multithreading](../main/examples/explore_multithreading.rs)
 * Custom Fitness function with LRU cache
@@ -120,8 +122,8 @@ For the Evolve strategy:
   sorting of some kind. This is relatively fast compared to the rest of the
   operations.
 * Crossover: the workhorse of internal parts. Crossover touches most genes each
-  generation and clones the whole population if you keep the parents around. See
-  performance tips below.
+  generation and clones up to the whole population if you keep all the parents
+  around. See performance tips below.
 * Mutate: no considerations. It touches genes like crossover does, but should
   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
 * Fitness: can be anything. This fully depends on the user domain. Parallelize
@@ -139,7 +141,9 @@ For the Evolve strategy:
 * Large genes sizes
   * It seems that CrossoverMultiPoint with `number_of_crossovers = genes_size / 9` 
   and `allow_duplicates = false` is the best tradeoff between performance and effect.
-  * Keeping the parents around has major performance effects and should be avoided
+  * Keeping the parents around has major performance effects and should be
+  avoided. Use low parent_survival_rate or none at all. Explore non-Vec based
+  genotypes like [BitGenotype](genotype::BitGenotype).
 
 ## Tests
 Run tests with `cargo test`
@@ -174,16 +178,7 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for RangeGenotype?
 * Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
-* Explore non-Vec genes:
-  * All Mutate and Crossover logic should be internal to the Genotype (where
-    the genes internal structure is known). Fitness would know about the genes
-    internal structure as well of course. Compete, Extension and the rest of the
-    main loop don't care, as these only care about the fitness value.
-  * Switch the user API associated trait back from Allele to Genotype. And then
-    Chromosome would store Genotype::Genes, which is not necessarily a Vec\<Allele\>
-    anymore.
-  * Then we could add PackedSimd, SmallVec or FixedBitSet genotypes.
-    And see how they perform differently
+* Explore non-Vec genes: PackedSimd
 
 ## ISSUES
 * permutate (and possibly others) with gene_size 0 panics. Maybe it should just return a empty chromosome?
