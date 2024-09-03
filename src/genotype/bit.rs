@@ -8,8 +8,6 @@ use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
-pub type BitAllele = bool;
-
 /// Genes are a [FixedBitSet]. Functionally the same as [BinaryGenotype](super::BinaryGenotype), but
 /// better for large genes sizes as storage is much more efficient than `Vec<bool>`.
 ///
@@ -113,7 +111,7 @@ impl Bit {
 }
 
 impl Genotype for Bit {
-    type Allele = BitAllele;
+    type Allele = ();
     type Genes = FixedBitSet;
 
     fn genes_size(&self) -> usize {
