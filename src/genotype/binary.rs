@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
+use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::prelude::*;
@@ -142,8 +143,14 @@ impl IncrementalGenotype for Binary {
 }
 
 impl PermutableGenotype for Binary {
-    fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
-        vec![true, false]
+    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send {
+        (0..self.genes_size())
+            .map(|_| vec![true, false])
+            .multi_cartesian_product()
+            .map(Chromosome::new)
+    }
+    fn chromosome_permutations_size(&self) -> BigUint {
+        BigUint::from(2u8).pow(self.genes_size() as u32)
     }
 }
 

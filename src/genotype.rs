@@ -259,20 +259,9 @@ pub trait IncrementalGenotype: Genotype {
 /// Genotype suitable for [Permutate](crate::strategy::permutate::Permutate).
 /// Not all genotypes are permutable, only countable ones (e.g. range genotypes cannot be permutated).
 pub trait PermutableGenotype: Genotype {
-    /// used for default chromosome_permutations_into_iter implementation
-    fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele>;
-
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
-    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send {
-        (0..self.genes_size())
-            .map(|_| self.allele_list_for_chromosome_permutations())
-            .multi_cartesian_product()
-            .map(Chromosome::new)
-    }
+    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send;
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
-    fn chromosome_permutations_size(&self) -> BigUint {
-        BigUint::from(self.allele_list_for_chromosome_permutations().len())
-            .pow(self.genes_size() as u32)
-    }
+    fn chromosome_permutations_size(&self) -> BigUint;
 }

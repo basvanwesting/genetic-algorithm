@@ -233,11 +233,6 @@ impl<T: Allele + PartialEq> IncrementalGenotype for MultiList<T> {
 }
 
 impl<T: Allele + PartialEq> PermutableGenotype for MultiList<T> {
-    //noop
-    fn allele_list_for_chromosome_permutations(&self) -> Vec<Self::Allele> {
-        vec![]
-    }
-
     fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send {
         self.allele_lists
             .clone()
