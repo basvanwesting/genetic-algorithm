@@ -238,7 +238,10 @@ impl<
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
-        if self.state.best_chromosome.is_empty() {
+        if self
+            .genotype
+            .chromosome_is_empty(&self.state.best_chromosome)
+        {
             None
         } else {
             Some(self.state.best_chromosome.clone())
@@ -286,7 +289,10 @@ impl<
         self.state
             .update_best_chromosome_and_report(&self.config, &mut self.reporter);
 
-        if self.state.best_chromosome.is_empty() {
+        if self
+            .genotype
+            .chromosome_is_empty(&self.state.best_chromosome)
+        {
             self.state.store_best_chromosome(true); // best by definition
             self.reporter
                 .on_new_best_chromosome(&self.state, &self.config);
@@ -564,33 +570,28 @@ impl EvolveConfig {
     }
 }
 
-impl<G: Genotype> Default for EvolveState<G> {
-    // functionally invalid until Evove::init() is called
-    fn default() -> Self {
-        Self {
+impl<G: Genotype> EvolveState<G> {
+    pub fn new(genotype: &G) -> Self {
+        let base = Self {
             current_iteration: 0,
             current_generation: 0,
             stale_generations: 0,
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
-            best_chromosome: Chromosome::new_empty(), // invalid, temporary
-            chromosome: Chromosome::new_empty(),      // invalid, temporary
+            best_chromosome: genotype.chromosome_factory_empty(), //invalid, temporary
+            chromosome: genotype.chromosome_factory_empty(),      //invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
-        }
-    }
-}
-impl<G: Genotype> EvolveState<G> {
-    pub fn new(genotype: &G) -> Self {
+        };
         if let Some(max_scale_index) = genotype.max_scale_index() {
             Self {
                 current_scale_index: Some(0),
                 max_scale_index,
-                ..Default::default()
+                ..base
             }
         } else {
-            Self::default()
+            base
         }
     }
 }

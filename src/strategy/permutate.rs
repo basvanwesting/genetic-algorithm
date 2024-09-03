@@ -116,7 +116,10 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
-        if self.state.best_chromosome.is_empty() {
+        if self
+            .genotype
+            .chromosome_is_empty(&self.state.best_chromosome)
+        {
             None
         } else {
             Some(self.state.best_chromosome.clone())
@@ -326,28 +329,19 @@ impl PermutateConfig {
     }
 }
 
-impl<G: PermutableGenotype> Default for PermutateState<G> {
-    // functionally invalid until Permutate::init() is called
-    fn default() -> Self {
-        Self {
-            total_population_size: BigUint::default(),
-            current_iteration: 0,
-            current_generation: 0,
-            stale_generations: 0,
-            best_generation: 0,
-            best_chromosome: Chromosome::new_empty(), // invalid, temporary
-            chromosome: Chromosome::new_empty(),      // invalid, temporary
-            population: Population::new_empty(),
-            durations: HashMap::new(),
-        }
-    }
-}
 impl<G: PermutableGenotype> PermutateState<G> {
     pub fn new(genotype: &G) -> Self {
         let total_population_size = genotype.chromosome_permutations_size();
         Self {
             total_population_size,
-            ..Default::default()
+            current_iteration: 0,
+            current_generation: 0,
+            stale_generations: 0,
+            best_generation: 0,
+            best_chromosome: genotype.chromosome_factory_empty(), //invalid, temporary
+            chromosome: genotype.chromosome_factory_empty(),      //invalid, temporary
+            population: Population::new_empty(),
+            durations: HashMap::new(),
         }
     }
 }

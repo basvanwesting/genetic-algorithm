@@ -45,19 +45,6 @@ impl<G: Genotype> Chromosome<G> {
             reference_id: 0,
         }
     }
-    // functionally invalid placeholder
-    pub fn new_empty() -> Self {
-        Self {
-            genes: vec![],
-            fitness_score: None,
-            age: 0,
-            reference_id: 0,
-        }
-    }
-    pub fn is_empty(&self) -> bool {
-        self.genes.is_empty()
-    }
-
     /// Reset fitness_score for recalculation
     pub fn taint_fitness_score(&mut self) {
         self.age = 0;

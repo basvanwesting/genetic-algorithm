@@ -299,7 +299,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         self.reporter.on_finish(&self.state, &self.config);
     }
     fn best_chromosome(&self) -> Option<Chromosome<G>> {
-        if self.state.best_chromosome.is_empty() {
+        if self
+            .genotype
+            .chromosome_is_empty(&self.state.best_chromosome)
+        {
             None
         } else {
             Some(self.state.best_chromosome.clone())
@@ -569,33 +572,28 @@ impl HillClimbConfig {
     }
 }
 
-impl<G: IncrementalGenotype> Default for HillClimbState<G> {
-    // functionally invalid until HillClimb::init() is called
-    fn default() -> Self {
-        Self {
+impl<G: IncrementalGenotype> HillClimbState<G> {
+    pub fn new(genotype: &G) -> Self {
+        let base = Self {
             current_iteration: 0,
             current_generation: 0,
             stale_generations: 0,
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
-            best_chromosome: Chromosome::new_empty(), // invalid, temporary
-            chromosome: Chromosome::new_empty(),      // invalid, temporary
+            best_chromosome: genotype.chromosome_factory_empty(), //invalid, temporary
+            chromosome: genotype.chromosome_factory_empty(),      //invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
-        }
-    }
-}
-impl<G: IncrementalGenotype> HillClimbState<G> {
-    pub fn new(genotype: &G) -> Self {
+        };
         if let Some(max_scale_index) = genotype.max_scale_index() {
             Self {
                 current_scale_index: Some(0),
                 max_scale_index,
-                ..Default::default()
+                ..base
             }
         } else {
-            Self::default()
+            base
         }
     }
 }

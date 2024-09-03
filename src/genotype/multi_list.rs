@@ -142,6 +142,12 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))
     }
+    fn chromosome_factory_empty(&self) -> Chromosome<Self> {
+        Chromosome::new(vec![])
+    }
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+        chromosome.genes.is_empty()
+    }
 
     fn mutate_chromosome_genes<R: Rng>(
         &self,

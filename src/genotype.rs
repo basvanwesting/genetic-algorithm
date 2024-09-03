@@ -72,6 +72,10 @@ pub trait Genotype:
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     /// a random genes factory (respecting seed genes)
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<Self::Allele>;
+    // functionally invalid placeholder
+    fn chromosome_factory_empty(&self) -> Chromosome<Self>;
+    // test for functionally invalid placeholder
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool;
     /// Mutate the chromosome, the genotype determines whether this is random, relative or scaled.
     /// Choose between allowing duplicates or not (~2x slower).
     fn mutate_chromosome_genes<R: Rng>(
