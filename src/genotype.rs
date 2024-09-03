@@ -23,9 +23,7 @@ use crate::chromosome::Chromosome;
 use crate::population::Population;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
-use itertools::Itertools;
 use num::BigUint;
-use rand::distributions::{Distribution, Uniform};
 use rand::Rng;
 use std::fmt;
 
@@ -98,12 +96,7 @@ pub trait Genotype:
         father: &mut Chromosome<Self>,
         mother: &mut Chromosome<Self>,
         rng: &mut R,
-    ) {
-        let index = self.crossover_index_sampler().unwrap().sample(rng);
-        std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
-    }
+    );
     /// a crossover of a multi gene between a pair of chromosomes.
     /// Choose between allowing duplicates or not (~2x slower).
     /// panics if there are no valid crossover indexes
@@ -114,29 +107,7 @@ pub trait Genotype:
         father: &mut Chromosome<Self>,
         mother: &mut Chromosome<Self>,
         rng: &mut R,
-    ) {
-        let sampler = self.crossover_index_sampler().unwrap(); // trigger panic for no duplicates branch
-        if allow_duplicates {
-            rng.sample_iter(sampler)
-                .take(number_of_crossovers)
-                .for_each(|index| {
-                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-                });
-        } else {
-            // assume all genes are valid indexes, handle otherwise in trait implmentaiton
-            rand::seq::index::sample(
-                rng,
-                self.genes_size(),
-                number_of_crossovers.min(self.genes_size()),
-            )
-            .iter()
-            .for_each(|index| {
-                std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-            });
-        }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
-    }
+    );
     /// a crossover of a single point between a pair of chromosomes
     /// panics if there are no valid crossover points
     fn crossover_chromosome_pair_single_point<R: Rng>(
@@ -144,16 +115,7 @@ pub trait Genotype:
         father: &mut Chromosome<Self>,
         mother: &mut Chromosome<Self>,
         rng: &mut R,
-    ) {
-        let index = self.crossover_point_sampler().unwrap().sample(rng);
-
-        let mother_back = &mut mother.genes[index..];
-        let father_back = &mut father.genes[index..];
-        father_back.swap_with_slice(mother_back);
-
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
-    }
+    );
     /// a crossover of a multi point between a pair of chromosomes.
     /// Choose between allowing duplicates or not (not much slower)
     /// panics if there are no valid crossover points
@@ -164,59 +126,16 @@ pub trait Genotype:
         father: &mut Chromosome<Self>,
         mother: &mut Chromosome<Self>,
         rng: &mut R,
-    ) {
-        let sampler = self.crossover_point_sampler().unwrap(); // trigger panic for no duplicates branch
-        if allow_duplicates {
-            rng.sample_iter(sampler)
-                .take(number_of_crossovers)
-                .for_each(|index| {
-                    let mother_back = &mut mother.genes[index..];
-                    let father_back = &mut father.genes[index..];
-                    father_back.swap_with_slice(mother_back);
-                });
-        } else {
-            // assume all genes are valid points, handle otherwise in trait implmentaiton
-            rand::seq::index::sample(
-                rng,
-                self.genes_size(),
-                number_of_crossovers.min(self.genes_size()),
-            )
-            .iter()
-            .sorted_unstable()
-            .chunks(2)
-            .into_iter()
-            .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
-                (Some(start_index), Some(end_index)) => {
-                    let mother_back = &mut mother.genes[start_index..end_index];
-                    let father_back = &mut father.genes[start_index..end_index];
-                    father_back.swap_with_slice(mother_back);
-                }
-                (Some(start_index), _) => {
-                    let mother_back = &mut mother.genes[start_index..];
-                    let father_back = &mut father.genes[start_index..];
-                    father_back.swap_with_slice(mother_back);
-                }
-                _ => (),
-            });
-        }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
-    }
-    fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
-        None
-    }
-    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
-        None
-    }
+    );
     /// to guard against invalid crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
     fn has_crossover_indexes(&self) -> bool {
-        self.crossover_index_sampler().is_some()
+        false
     }
     /// to guard against invalid crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
     fn has_crossover_points(&self) -> bool {
-        self.crossover_point_sampler().is_some()
+        false
     }
     fn builder() -> GenotypeBuilder<Self> {
         GenotypeBuilder::<Self>::default()

@@ -129,6 +129,42 @@ impl<T: Allele> Genotype for Unique<T> {
         }
         chromosome.taint_fitness_score();
     }
+    fn crossover_chromosome_pair_single_gene<R: Rng>(
+        &self,
+        _father: &mut Chromosome<Self>,
+        _mother: &mut Chromosome<Self>,
+        _rng: &mut R,
+    ) {
+        panic!("UniqueGenotype does not support gene crossover")
+    }
+    fn crossover_chromosome_pair_multi_gene<R: Rng>(
+        &self,
+        _number_of_crossovers: usize,
+        _allow_duplicates: bool,
+        _father: &mut Chromosome<Self>,
+        _mother: &mut Chromosome<Self>,
+        _rng: &mut R,
+    ) {
+        panic!("UniqueGenotype does not support gene crossover")
+    }
+    fn crossover_chromosome_pair_single_point<R: Rng>(
+        &self,
+        _father: &mut Chromosome<Self>,
+        _mother: &mut Chromosome<Self>,
+        _rng: &mut R,
+    ) {
+        panic!("UniqueGenotype does not support point crossover")
+    }
+    fn crossover_chromosome_pair_multi_point<R: Rng>(
+        &self,
+        _number_of_crossovers: usize,
+        _allow_duplicates: bool,
+        _father: &mut Chromosome<Self>,
+        _mother: &mut Chromosome<Self>,
+        _rng: &mut R,
+    ) {
+        panic!("UniqueGenotype does not support point crossover")
+    }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
         self.seed_genes_list = seed_genes_list;

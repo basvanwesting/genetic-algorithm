@@ -64,7 +64,7 @@ pub struct MultiUnique<T: Allele = DefaultAllele> {
     allele_list_index_sampler: WeightedIndex<usize>,
     allele_list_index_samplers: Vec<Uniform<usize>>,
     pub crossover_points: Vec<usize>,
-    crossover_point_sampler: Option<Uniform<usize>>,
+    crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
@@ -93,7 +93,7 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
             let mut crossover_points = allele_list_index_offsets.clone();
             crossover_points.remove(0);
             crossover_points.pop();
-            let crossover_point_sampler = if crossover_points.is_empty() {
+            let crossover_point_index_sampler = if crossover_points.is_empty() {
                 None
             } else {
                 Some(Uniform::from(0..crossover_points.len()))
@@ -110,7 +110,7 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
                     .collect(),
                 crossover_points,
-                crossover_point_sampler,
+                crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
             })
         }
@@ -199,13 +199,31 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         chromosome.taint_fitness_score();
     }
 
+    fn crossover_chromosome_pair_single_gene<R: Rng>(
+        &self,
+        _father: &mut Chromosome<Self>,
+        _mother: &mut Chromosome<Self>,
+        _rng: &mut R,
+    ) {
+        panic!("MultiUniqueGenotype does not support gene crossover")
+    }
+    fn crossover_chromosome_pair_multi_gene<R: Rng>(
+        &self,
+        _number_of_crossovers: usize,
+        _allow_duplicates: bool,
+        _father: &mut Chromosome<Self>,
+        _mother: &mut Chromosome<Self>,
+        _rng: &mut R,
+    ) {
+        panic!("MultiUniqueGenotype does not support gene crossover")
+    }
     fn crossover_chromosome_pair_single_point<R: Rng>(
         &self,
         father: &mut Chromosome<Self>,
         mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        let point_index = self.crossover_point_sampler().unwrap().sample(rng);
+        let point_index = self.crossover_point_index_sampler.unwrap().sample(rng);
         let gene_index = self.crossover_points[point_index];
         let mother_back = &mut mother.genes[gene_index..];
         let father_back = &mut father.genes[gene_index..];
@@ -222,7 +240,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         rng: &mut R,
     ) {
         if allow_duplicates {
-            rng.sample_iter(self.crossover_point_sampler().unwrap())
+            rng.sample_iter(self.crossover_point_index_sampler.unwrap())
                 .take(number_of_crossovers)
                 .for_each(|point_index| {
                     let gene_index = self.crossover_points[point_index];
@@ -260,8 +278,8 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         mother.taint_fitness_score();
         father.taint_fitness_score();
     }
-    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
-        self.crossover_point_sampler.as_ref()
+    fn has_crossover_points(&self) -> bool {
+        true
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<T>>) {
         self.seed_genes_list = seed_genes_list;

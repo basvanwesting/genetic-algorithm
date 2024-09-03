@@ -259,11 +259,108 @@ where
         chromosome.taint_fitness_score();
     }
 
-    fn crossover_index_sampler(&self) -> Option<&Uniform<usize>> {
-        Some(&self.gene_index_sampler)
+    fn crossover_chromosome_pair_single_gene<R: Rng>(
+        &self,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
+        rng: &mut R,
+    ) {
+        let index = self.gene_index_sampler.sample(rng);
+        std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
     }
-    fn crossover_point_sampler(&self) -> Option<&Uniform<usize>> {
-        Some(&self.gene_index_sampler)
+    fn crossover_chromosome_pair_multi_gene<R: Rng>(
+        &self,
+        number_of_crossovers: usize,
+        allow_duplicates: bool,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
+        rng: &mut R,
+    ) {
+        if allow_duplicates {
+            rng.sample_iter(self.gene_index_sampler)
+                .take(number_of_crossovers)
+                .for_each(|index| {
+                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                });
+        } else {
+            rand::seq::index::sample(
+                rng,
+                self.genes_size(),
+                number_of_crossovers.min(self.genes_size()),
+            )
+            .iter()
+            .for_each(|index| {
+                std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+            });
+        }
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
+    }
+    fn crossover_chromosome_pair_single_point<R: Rng>(
+        &self,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
+        rng: &mut R,
+    ) {
+        let index = self.gene_index_sampler.sample(rng);
+        let mother_back = &mut mother.genes[index..];
+        let father_back = &mut father.genes[index..];
+        father_back.swap_with_slice(mother_back);
+
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
+    }
+    fn crossover_chromosome_pair_multi_point<R: Rng>(
+        &self,
+        number_of_crossovers: usize,
+        allow_duplicates: bool,
+        father: &mut Chromosome<Self>,
+        mother: &mut Chromosome<Self>,
+        rng: &mut R,
+    ) {
+        if allow_duplicates {
+            rng.sample_iter(self.gene_index_sampler)
+                .take(number_of_crossovers)
+                .for_each(|index| {
+                    let mother_back = &mut mother.genes[index..];
+                    let father_back = &mut father.genes[index..];
+                    father_back.swap_with_slice(mother_back);
+                });
+        } else {
+            rand::seq::index::sample(
+                rng,
+                self.genes_size(),
+                number_of_crossovers.min(self.genes_size()),
+            )
+            .iter()
+            .sorted_unstable()
+            .chunks(2)
+            .into_iter()
+            .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
+                (Some(start_index), Some(end_index)) => {
+                    let mother_back = &mut mother.genes[start_index..end_index];
+                    let father_back = &mut father.genes[start_index..end_index];
+                    father_back.swap_with_slice(mother_back);
+                }
+                (Some(start_index), _) => {
+                    let mother_back = &mut mother.genes[start_index..];
+                    let father_back = &mut father.genes[start_index..];
+                    father_back.swap_with_slice(mother_back);
+                }
+                _ => (),
+            });
+        }
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
+    }
+
+    fn has_crossover_indexes(&self) -> bool {
+        true
+    }
+    fn has_crossover_points(&self) -> bool {
+        true
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Vec<Self::Allele>>) {
         self.seed_genes_list = seed_genes_list;
