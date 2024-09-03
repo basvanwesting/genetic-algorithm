@@ -7,8 +7,6 @@ use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
-pub type BinaryAllele = bool;
-
 /// Genes are a vector of booleans. On random initialization, each gene has a 50% probability of
 /// becoming true or false. Each gene has an equal probability of mutating. If a gene mutates, its
 /// value is flipped.
@@ -27,7 +25,7 @@ pub struct Binary {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Bernoulli,
-    pub seed_genes_list: Vec<Vec<BinaryAllele>>,
+    pub seed_genes_list: Vec<Vec<bool>>,
 }
 
 impl TryFrom<Builder<Self>> for Binary {
@@ -48,7 +46,7 @@ impl TryFrom<Builder<Self>> for Binary {
 }
 
 impl Genotype for Binary {
-    type Allele = BinaryAllele;
+    type Allele = bool;
     type Genes = Vec<Self::Allele>;
 
     fn genes_size(&self) -> usize {

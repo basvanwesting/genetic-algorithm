@@ -9,7 +9,7 @@ mod multi_unique;
 mod range;
 mod unique;
 
-pub use self::binary::{Binary as BinaryGenotype, BinaryAllele};
+pub use self::binary::Binary as BinaryGenotype;
 pub use self::bit::Bit as BitGenotype;
 pub use self::builder::{
     Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
