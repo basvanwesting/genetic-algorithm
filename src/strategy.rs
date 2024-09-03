@@ -49,9 +49,9 @@ pub trait StrategyConfig {
 /// * current_iteration: `usize`
 /// * current_generation: `usize`
 /// * best_generation: `usize`
-/// * best_chromosome: `Chromosome<G::Allele>`
-/// * chromosome: `Chromosome<G::Allele>`
-/// * populatoin: `Population<G::Allele>` // may be empty
+/// * best_chromosome: `Chromosome<G>`
+/// * chromosome: `Chromosome<G>`
+/// * populatoin: `Population<G>` // may be empty
 pub trait StrategyState<G: Genotype> {
     fn chromosome_as_ref(&self) -> &Chromosome<G>;
     fn population_as_ref(&self) -> &Population<G>;
