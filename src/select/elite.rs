@@ -1,4 +1,4 @@
-use super::Compete;
+use super::Select;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
@@ -14,7 +14,7 @@ pub struct Elite {
     pub selection_rate: f32,
 }
 
-impl Compete for Elite {
+impl Select for Elite {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         state: &mut EvolveState<G>,
@@ -51,7 +51,7 @@ impl Compete for Elite {
             }
         }
         state.population.truncate(selected_population_size);
-        state.add_duration(StrategyAction::Compete, now.elapsed());
+        state.add_duration(StrategyAction::Select, now.elapsed());
     }
 }
 

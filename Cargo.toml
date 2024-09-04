@@ -46,7 +46,7 @@ name = "fitness"
 harness = false
 
 [[bench]]
-name = "compete"
+name = "select"
 harness = false
 
 [[bench]]

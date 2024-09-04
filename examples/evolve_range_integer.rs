@@ -23,7 +23,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(SumGenes::new())
         .with_crossover(CrossoverUniform::new())
-        .with_compete(CompeteTournament::new(4, 0.9))
+        .with_select(SelectTournament::new(4, 0.9))
         .call()
         .unwrap();
 

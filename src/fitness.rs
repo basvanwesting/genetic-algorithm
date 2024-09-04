@@ -33,7 +33,7 @@ pub enum FitnessOrdering {
 /// maximized in the search strategy (e.g. [Evolve](crate::strategy::evolve::Evolve) or
 /// [Permutate](crate::strategy::permutate::Permutate)) by providing the [FitnessOrdering].
 ///
-/// If the fitness returns `None`, the chromosome is assumed invalid and taken last in the [competition](crate::compete) phase (also when minimizing).
+/// If the fitness returns `None`, the chromosome is assumed invalid and taken last in the [selection](crate::select) phase (also when minimizing).
 ///
 /// # Example:
 /// ```rust

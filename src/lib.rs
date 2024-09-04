@@ -46,7 +46,7 @@
 //! // the search strategy
 //! let evolve = Evolve::builder()
 //!     .with_genotype(genotype)
-//!     .with_compete(CompeteElite::new(0.9))          // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
+//!     .with_select(SelectElite::new(0.9))          // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
 //!     .with_crossover(CrossoverUniform::new())       // crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
 //!     .with_mutate(MutateSingleGene::new(0.2))       // mutate offspring for a single gene with a 20% probability per chromosome
 //!     .with_fitness(CountTrue)                       // count the number of true values in the chromosomes
@@ -99,7 +99,7 @@
 //!
 //! For the [Evolve](strategy::evolve::Evolve) strategy:
 //!
-//! * [Compete](compete): no considerations. All competes are basically some form of in-place
+//! * [Select](select): no considerations. All selects are basically some form of in-place
 //!   sorting of some kind. This is relatively fast compared to the rest of the
 //!   operations.
 //! * [Crossover](crossover): the workhorse of internal parts. Crossover touches most genes each
@@ -129,7 +129,7 @@
 //!     genotypes like [BitGenotype](genotype::BitGenotype).
 
 pub mod chromosome;
-pub mod compete;
+pub mod select;
 pub mod crossover;
 pub mod extension;
 pub mod fitness;

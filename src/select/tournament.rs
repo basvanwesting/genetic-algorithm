@@ -1,4 +1,4 @@
-use super::Compete;
+use super::Select;
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
@@ -18,7 +18,7 @@ pub struct Tournament {
     pub selection_rate: f32,
 }
 
-impl Compete for Tournament {
+impl Select for Tournament {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         state: &mut EvolveState<G>,
@@ -85,7 +85,7 @@ impl Compete for Tournament {
             .population
             .chromosomes
             .append(&mut selected_chromosomes);
-        state.add_duration(StrategyAction::Compete, now.elapsed());
+        state.add_duration(StrategyAction::Select, now.elapsed());
     }
 }
 

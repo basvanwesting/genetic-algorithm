@@ -1,8 +1,8 @@
 //! The crossover phase where every two parent chromosomes create two children chromosomes. The
-//! [competition](crate::compete) phase determines the order and the amount of the parent pairing
+//! [selection](crate::select) phase determines the order and the amount of the parent pairing
 //! (overall with fitter first). If you choose to a keep a percentage of the top parents, the
-//! parents will compete with their own children and the population is temporarily overbooked and
-//! part of it will be discarded in the [competition](crate::compete) phase of the next generation.
+//! parents will select with their own children and the population is temporarily overbooked and
+//! part of it will be discarded in the [selection](crate::select) phase of the next generation.
 mod clone;
 mod multi_gene;
 mod multi_point;

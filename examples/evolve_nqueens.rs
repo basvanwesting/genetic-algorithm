@@ -49,7 +49,7 @@ fn main() {
         // .with_replace_on_equal_fitness(true) // not crucial for this problem
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new())
-        .with_compete(CompeteElite::new(0.9))
+        .with_select(SelectElite::new(0.9))
         .with_reporter(EvolveReporterSimple::new(100))
         .build()
         .unwrap();

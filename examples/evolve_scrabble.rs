@@ -274,8 +274,8 @@ fn main() {
         // .with_mutate(MutateMultiGeneDynamic::new(2, 0.1, 250))
         // .with_crossover(CrossoverSinglePoint::new())
         .with_crossover(CrossoverUniform::new())
-        // .with_compete(CompeteTournament::new(4, 0.9))
-        .with_compete(CompeteElite::new(0.5))
+        // .with_select(SelectTournament::new(4, 0.9))
+        .with_select(SelectElite::new(0.5))
         .with_extension(ExtensionMassDegeneration::new(180, 10))
         // .with_reporter(EvolveReporterSimple::default())
         // .with_reporter(EvolveReporterSimple::new_with_flags(

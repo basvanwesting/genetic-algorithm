@@ -55,7 +55,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.4))
         .with_fitness(MILPFitness)
         .with_crossover(CrossoverSingleGene::new())
-        .with_compete(CompeteElite::new(0.9));
+        .with_select(SelectElite::new(0.9));
 
     for _ in 0..10 {
         let now = std::time::Instant::now();

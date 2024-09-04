@@ -18,7 +18,7 @@ const MUTATIONS_PER_CHROMOSOME: usize = 50;
 //     sampling is as expensive as swapping genes).
 //   * crossover keep_parents (+8s, cloning full population is very expensive)
 //   * mutation number of genes scale linearly from 0 to 5s for 50% of the genes size.
-//   * compete not a factor, it's basically some form of in-place sorting of some kind
+//   * select not a factor, it's basically some form of in-place sorting of some kind
 
 fn main() {
     let genotype = RangeGenotype::builder()
@@ -37,8 +37,8 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        // .with_compete(CompeteElite)
-        .with_compete(CompeteTournament::new(TOURNAMENT_SIZE, 0.8))
+        // .with_select(SelectElite)
+        .with_select(SelectTournament::new(TOURNAMENT_SIZE, 0.8))
         // .with_crossover(CrossoverClone::new())
         .with_crossover(CrossoverMultiPoint::new(9, false))
         // .with_crossover(CrossoverParMultiPoint::new(10, false))
@@ -77,7 +77,7 @@ fn main() {
 //
 //     let evolve_builder = Evolve::builder()
 //         .with_genotype(genotype)
-//         .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
+//         .with_select(SelectTournament::new(TOURNAMENT_SIZE))
 //         .with_crossover(CrossoverMultiPoint::new(9, false))
 //         // .with_crossover(CrossoverParMultiPoint::new(10, false))
 //         .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 0.2))

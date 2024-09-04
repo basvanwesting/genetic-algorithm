@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::compete::{Compete, CompeteElite};
+use genetic_algorithm::select::{Select, SelectElite};
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
@@ -34,7 +34,7 @@ fn maximize() {
         fitness_ordering: FitnessOrdering::Maximize,
         ..Default::default()
     };
-    CompeteElite::new(0.74).call(&mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new(0.74).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -76,7 +76,7 @@ fn minimize() {
         fitness_ordering: FitnessOrdering::Minimize,
         ..Default::default()
     };
-    CompeteElite::new(0.74).call(&mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new(0.74).call(&mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -113,7 +113,7 @@ fn fitness_ordering_with_none_fitness() {
         fitness_ordering: FitnessOrdering::Maximize,
         ..Default::default()
     };
-    CompeteElite::new(1.0).call(&mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new(1.0).call(&mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
@@ -129,7 +129,7 @@ fn fitness_ordering_with_none_fitness() {
         fitness_ordering: FitnessOrdering::Minimize,
         ..Default::default()
     };
-    CompeteElite::new(1.0).call(&mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new(1.0).call(&mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![

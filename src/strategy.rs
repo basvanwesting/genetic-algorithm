@@ -13,7 +13,7 @@ use std::time::Duration;
 pub enum StrategyAction {
     Init,
     Extension,
-    Compete,
+    Select,
     Crossover,
     Mutate,
     Fitness,
@@ -23,7 +23,7 @@ pub enum StrategyAction {
 pub const STRATEGY_ACTIONS: [StrategyAction; 8] = [
     StrategyAction::Init,
     StrategyAction::Extension,
-    StrategyAction::Compete,
+    StrategyAction::Select,
     StrategyAction::Crossover,
     StrategyAction::Mutate,
     StrategyAction::Fitness,

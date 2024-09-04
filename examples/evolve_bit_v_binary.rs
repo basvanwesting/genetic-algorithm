@@ -22,7 +22,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverMultiPoint::new(10, true))
-        .with_compete(CompeteTournament::new(4, 0.9))
+        .with_select(SelectTournament::new(4, 0.9))
         // .with_reporter(EvolveReporterSimple::new(usize::MAX))
         .call()
         .unwrap();
@@ -54,7 +54,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverMultiPoint::new(10, true))
-        .with_compete(CompeteTournament::new(4, 0.9))
+        .with_select(SelectTournament::new(4, 0.9))
         // .with_reporter(EvolveReporterSimple::new(usize::MAX))
         .call()
         .unwrap();

@@ -1,8 +1,6 @@
 
 Check Copy + Sync
-
 Rename Compete to Select?
-Add selection-rate to Compete
 
 Add MatrixGenotype which stores a population x genes_size matrix and keeps the genes internal. CHromosome just references the ID using reference-id. Population can be sorted etc. verylightly as the Chromosome is just a light pointer.
 use nalgebra (2D). Make sure to allow a dealloc call for chromosomes which are dropped from the population

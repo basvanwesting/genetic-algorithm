@@ -1,5 +1,5 @@
 use super::{Evolve, EvolveReporter, EvolveReporterNoop};
-use crate::compete::Compete;
+use crate::select::Select;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
@@ -21,7 +21,7 @@ pub struct Builder<
     M: Mutate,
     F: Fitness<Genotype = G>,
     S: Crossover,
-    C: Compete,
+    C: Select,
     E: Extension,
     SR: EvolveReporter<Genotype = G>,
 > {
@@ -37,13 +37,13 @@ pub struct Builder<
     pub mutate: Option<M>,
     pub fitness: Option<F>,
     pub crossover: Option<S>,
-    pub compete: Option<C>,
+    pub select: Option<C>,
     pub extension: E,
     pub reporter: SR,
     pub rng_seed: Option<u64>,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete> Default
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
     for Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     fn default() -> Self {
@@ -60,14 +60,14 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
             mutate: None,
             fitness: None,
             crossover: None,
-            compete: None,
+            select: None,
             extension: ExtensionNoop::new(),
             reporter: EvolveReporterNoop::new(),
             rng_seed: None,
         }
     }
 }
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
     Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     pub fn new() -> Self {
@@ -81,7 +81,7 @@ impl<
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
-        C: Compete,
+        C: Select,
         E: Extension,
         SR: EvolveReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
@@ -166,8 +166,8 @@ impl<
         self.crossover = Some(crossover);
         self
     }
-    pub fn with_compete(mut self, compete: C) -> Self {
-        self.compete = Some(compete);
+    pub fn with_select(mut self, select: C) -> Self {
+        self.select = Some(select);
         self
     }
     pub fn with_extension<E2: Extension>(self, extension: E2) -> Builder<G, M, F, S, C, E2, SR> {
@@ -184,7 +184,7 @@ impl<
             mutate: self.mutate,
             fitness: self.fitness,
             crossover: self.crossover,
-            compete: self.compete,
+            select: self.select,
             extension,
             reporter: self.reporter,
             rng_seed: self.rng_seed,
@@ -207,7 +207,7 @@ impl<
             mutate: self.mutate,
             fitness: self.fitness,
             crossover: self.crossover,
-            compete: self.compete,
+            select: self.select,
             extension: self.extension,
             reporter,
             rng_seed: self.rng_seed,
@@ -229,7 +229,7 @@ impl<
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
-        C: Compete,
+        C: Select,
         E: Extension,
         SR: EvolveReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>

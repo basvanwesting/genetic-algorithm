@@ -44,7 +44,7 @@ fn main() {
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.3))
         .with_crossover(CrossoverClone::new())
-        .with_compete(CompeteElite::new(0.9))
+        .with_select(SelectElite::new(0.9))
         .build()
         .unwrap();
 

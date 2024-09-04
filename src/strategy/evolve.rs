@@ -9,7 +9,7 @@ pub use self::builder::{
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
-use crate::compete::Compete;
+use crate::select::Select;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
@@ -34,7 +34,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///
 /// Then the Evolve strategy runs through generations of chromosomes in a loop:
 /// * [extension](crate::extension) an optional step (e.g. [MassExtinction](crate::extension::ExtensionMassExtinction))
-/// * [compete](crate::compete) to pair up chromosomes for crossover and drop excess chromosomes
+/// * [select](crate::select) to pair up chromosomes for crossover and drop excess chromosomes
 /// * [crossover](crate::crossover) to produce new offspring with a mix of parents chromosome genes
 /// * [mutate](crate::mutate) the offspring chromosomes to add some additional diversity
 /// * calculate [fitness](crate::fitness) for all chromosomes
@@ -75,10 +75,10 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///   `with_par_fitness()` flag on the builder, which determines multithreading of the fitness
 ///   calculation inside the evolve strategy. Both can be combined.
 /// * [call_speciated](EvolveBuilder::call_speciated): this runs multiple independent
-///   evolve strategies and then competes their best results against each other in one final evolve
+///   evolve strategies and then selects their best results against each other in one final evolve
 ///   strategy (or short circuits when the target_fitness_score is reached)
 /// * [call_par_speciated](EvolveBuilder::call_par_speciated): this runs multiple independent
-///   evolve strategies in parallel and then competes their best results against each other in one
+///   evolve strategies in parallel and then selects their best results against each other in one
 ///   final evolve strategy (or short circuits when the target_fitness_score is reached). This is
 ///   separate and independent from the `with_par_fitness()` flag on the builder, which determines
 ///   multithreading of the fitness calculation inside the evolve strategy. Both can be combined.
@@ -102,7 +102,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
 ///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
-///     .with_compete(CompeteElite::new(0.9))                  // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
+///     .with_select(SelectElite::new(0.9))                  // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
 ///     .with_crossover(CrossoverUniform::new())               // crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
 ///     .with_mutate(MutateSingleGene::new(0.2))               // mutate offspring for a single gene with a 20% probability per chromosome
 ///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
@@ -128,7 +128,7 @@ pub struct Evolve<
     M: Mutate,
     F: Fitness<Genotype = G>,
     S: Crossover,
-    C: Compete,
+    C: Select,
     E: Extension,
     SR: EvolveReporter<Genotype = G>,
 > {
@@ -141,10 +141,10 @@ pub struct Evolve<
     pub rng: SmallRng,
 }
 
-pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Compete, E: Extension> {
+pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Select, E: Extension> {
     pub mutate: M,
     pub crossover: S,
-    pub compete: C,
+    pub select: C,
     pub extension: E,
 }
 
@@ -182,7 +182,7 @@ impl<
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
-        C: Compete,
+        C: Select,
         E: Extension,
         SR: EvolveReporter<Genotype = G>,
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
@@ -207,7 +207,7 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
-            self.plugins.compete.call(
+            self.plugins.select.call(
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
@@ -255,7 +255,7 @@ impl<
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Compete>
+impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
     Evolve<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
 {
     pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>> {
@@ -268,7 +268,7 @@ impl<
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
-        C: Compete,
+        C: Select,
         E: Extension,
         SR: EvolveReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
@@ -457,7 +457,7 @@ impl<
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
-        C: Compete,
+        C: Select,
         E: Extension,
         SR: EvolveReporter<Genotype = G>,
     > TryFrom<EvolveBuilder<G, M, F, S, C, E, SR>> for Evolve<G, M, F, S, C, E, SR>
@@ -477,9 +477,9 @@ impl<
             Err(TryFromEvolveBuilderError(
                 "Evolve requires a Crossover strategy",
             ))
-        } else if builder.compete.is_none() {
+        } else if builder.select.is_none() {
             Err(TryFromEvolveBuilderError(
-                "Evolve requires a Compete strategy",
+                "Evolve requires a Select strategy",
             ))
         } else if builder
             .crossover
@@ -529,7 +529,7 @@ impl<
                 plugins: EvolvePlugins {
                     mutate: builder.mutate.unwrap(),
                     crossover: builder.crossover.unwrap(),
-                    compete: builder.compete.unwrap(),
+                    select: builder.select.unwrap(),
                     extension: builder.extension,
                 },
                 config: EvolveConfig {
@@ -601,7 +601,7 @@ impl<
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
-        C: Compete,
+        C: Select,
         E: Extension,
         SR: EvolveReporter<Genotype = G>,
     > fmt::Display for Evolve<G, M, F, S, C, E, SR>
@@ -617,12 +617,12 @@ impl<
     }
 }
 
-impl<M: Mutate, S: Crossover, C: Compete, E: Extension> fmt::Display for EvolvePlugins<M, S, C, E> {
+impl<M: Mutate, S: Crossover, C: Select, E: Extension> fmt::Display for EvolvePlugins<M, S, C, E> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve_plugins:")?;
         writeln!(f, "  mutate: {:?}", self.mutate)?;
         writeln!(f, "  crossover: {:?}", self.crossover)?;
-        writeln!(f, "  compete: {:?}", self.compete)?;
+        writeln!(f, "  select: {:?}", self.select)?;
         writeln!(f, "  extension: {:?}", self.extension)
     }
 }

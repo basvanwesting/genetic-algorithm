@@ -1,5 +1,5 @@
 mod support;
-mod compete {
+mod select {
     mod elite_test;
     mod tournament_test;
 }

@@ -11,7 +11,7 @@ pub type GenesKey = u64;
 
 /// The Chromosome is used as an individual in the [Population](crate::population::Population). It
 /// holds the genes and knows how to sort between itself with regard to it's fitness score.
-/// Chromosomes [crossover](crate::crossover), [mutate](crate::mutate) and [compete](crate::compete) with each other in the
+/// Chromosomes [select](crate::select), [crossover](crate::crossover) and [mutate](crate::mutate) with each other in the
 /// [Evolve](crate::strategy::evolve::Evolve) strategy
 #[derive(Clone, Debug)]
 pub struct Chromosome<G: Genotype> {

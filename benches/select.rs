@@ -1,5 +1,5 @@
 use criterion::*;
-use genetic_algorithm::compete::*;
+use genetic_algorithm::select::*;
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
@@ -37,28 +37,28 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let population_size: usize = 1000;
     let genes_sizes = vec![100, 10000];
 
-    let mut group = c.benchmark_group(format!("competes-pop{}", population_size));
+    let mut group = c.benchmark_group(format!("selects-pop{}", population_size));
     //group.warm_up_time(Duration::from_secs(3));
     //group.measurement_time(Duration::from_secs(3));
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
     for genes_size in &genes_sizes {
-        let competes: Vec<CompeteWrapper> = vec![
-            CompeteElite::new(0.9).into(),
-            CompeteTournament::new(4, 0.9).into(),
-            CompeteTournament::new(8, 0.9).into(),
+        let selects: Vec<SelectWrapper> = vec![
+            SelectElite::new(0.9).into(),
+            SelectTournament::new(4, 0.9).into(),
+            SelectTournament::new(8, 0.9).into(),
         ];
-        for mut compete in competes {
+        for mut select in selects {
             group.throughput(Throughput::Elements(population_size as u64));
             let (_genotype, state) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
-                BenchmarkId::new(format!("{:?}", compete), genes_size),
+                BenchmarkId::new(format!("{:?}", select), genes_size),
                 genes_size,
                 |b, &_genes_size| {
                     b.iter_batched(
                         || state.clone(),
-                        |mut data| compete.call(&mut data, &config, &mut reporter, &mut rng),
+                        |mut data| select.call(&mut data, &config, &mut reporter, &mut rng),
                         BatchSize::SmallInput,
                     )
                 },
