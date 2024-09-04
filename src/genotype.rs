@@ -64,6 +64,7 @@ impl Allele for usize {}
 pub trait Genes: Clone + Send + Sync + std::fmt::Debug {}
 impl<T: Allele> Genes for Vec<T> {}
 impl Genes for FixedBitSet {}
+impl Genes for () {}
 
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
@@ -84,7 +85,7 @@ pub trait Genotype:
     /// Mutate the chromosome, the genotype determines whether this is random, relative or scaled.
     /// Choose between allowing duplicates or not (~2x slower).
     fn mutate_chromosome_genes<R: Rng>(
-        &self,
+        &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self>,

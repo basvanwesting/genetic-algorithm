@@ -18,7 +18,7 @@ pub struct SingleGene {
 impl Mutate for SingleGene {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         _config: &EvolveConfig,
         _reporter: &mut SR,

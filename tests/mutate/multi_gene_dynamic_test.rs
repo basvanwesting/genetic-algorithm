@@ -9,7 +9,7 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 
 #[test]
 fn binary_genotype() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -36,16 +36,16 @@ fn binary_genotype() {
     let mut fitness = CountTrue;
     assert_eq!(mutate.mutation_probability, 0.0);
     fitness.call_for_population(&mut state.population, None);
-    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.2);
     fitness.call_for_population(&mut state.population, None);
-    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.4);
     fitness.call_for_population(&mut state.population, None);
-    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.2);
     fitness.call_for_population(&mut state.population, None);
-    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.0);
 
     assert_eq!(

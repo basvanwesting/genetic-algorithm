@@ -222,7 +222,7 @@ impl<
                 &mut self.rng,
             );
             self.plugins.mutate.call(
-                &self.genotype,
+                &mut self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,

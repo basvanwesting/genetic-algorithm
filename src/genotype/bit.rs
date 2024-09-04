@@ -134,7 +134,7 @@ impl Genotype for Bit {
     }
 
     fn mutate_chromosome_genes<R: Rng>(
-        &self,
+        &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self>,

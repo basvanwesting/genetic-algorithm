@@ -13,14 +13,14 @@ fn chromosome_factory() {
 
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
+        genotype.inspect_genes(&chromosome),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
+        genotype.inspect_genes(&chromosome),
         vec![0.447, 0.439, 0.976, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));

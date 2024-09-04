@@ -7,6 +7,7 @@ use num::{BigUint, Zero};
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
+use std::collections::HashSet;
 use std::fmt;
 use std::ops::{Add, RangeInclusive};
 
@@ -63,6 +64,7 @@ pub struct Matrix<
     Uniform<T>: Send + Sync,
 {
     pub matrix: SMatrix<T, N, M>,
+    pub free_ids: HashSet<usize>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
@@ -71,7 +73,7 @@ pub struct Matrix<
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
-    pub seed_genes_list: Vec<Vec<T>>,
+    pub seed_genes_list: Vec<()>,
 }
 
 impl<
@@ -103,6 +105,7 @@ where
 
             Ok(Self {
                 matrix: SMatrix::<T, N, M>::zeros(),
+                free_ids: HashSet::from_iter(0..N),
                 genes_size,
                 allele_range: allele_range.clone(),
                 allele_mutation_range: builder.allele_mutation_range.clone(),
@@ -129,12 +132,12 @@ where
     Uniform<T>: Send + Sync,
 {
     fn mutate_chromosome_index_random<R: Rng>(
-        &self,
+        &mut self,
         index: usize,
         chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        chromosome.genes[index] = self.allele_sampler.sample(rng);
+        self.matrix[(chromosome.reference_id, index)] = self.allele_sampler.sample(rng);
     }
     fn mutate_chromosome_index_relative<R: Rng>(
         &self,
@@ -142,15 +145,7 @@ where
         chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-        let new_value = chromosome.genes[index] + value_diff;
-        if new_value < *self.allele_range.start() {
-            chromosome.genes[index] = *self.allele_range.start();
-        } else if new_value > *self.allele_range.end() {
-            chromosome.genes[index] = *self.allele_range.end();
-        } else {
-            chromosome.genes[index] = new_value;
-        }
+        todo!()
     }
     fn mutate_chromosome_index_scaled<R: Rng>(
         &self,
@@ -159,20 +154,12 @@ where
         scale_index: usize,
         rng: &mut R,
     ) {
-        let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
-        let value_diff = if rng.gen() {
-            *working_range.start()
-        } else {
-            *working_range.end()
-        };
-        let new_value = chromosome.genes[index] + value_diff;
-        if new_value < *self.allele_range.start() {
-            chromosome.genes[index] = *self.allele_range.start();
-        } else if new_value > *self.allele_range.end() {
-            chromosome.genes[index] = *self.allele_range.end();
-        } else {
-            chromosome.genes[index] = new_value;
-        }
+        todo!()
+    }
+    pub fn inspect_genes(&self, chromosome: &Chromosome<Self>) -> Vec<T> {
+        (0..self.genes_size)
+            .map(|i| self.matrix[(chromosome.reference_id, i)])
+            .collect()
     }
 }
 
@@ -186,31 +173,40 @@ where
     Uniform<T>: Send + Sync,
 {
     type Allele = T;
-    type Genes = Vec<Self::Allele>;
+    type Genes = ();
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
 
     fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        let genes = if self.seed_genes_list.is_empty() {
-            (0..self.genes_size)
-                .map(|_| self.allele_sampler.sample(rng))
-                .collect()
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        };
-        Chromosome::new(genes)
+        let free_id = *self.free_ids.iter().next().unwrap();
+        self.free_ids.remove(&free_id);
+
+        (0..self.genes_size)
+            .for_each(|i| self.matrix[(free_id, i)] = self.allele_sampler.sample(rng));
+
+        Chromosome {
+            reference_id: free_id,
+            genes: (),
+            fitness_score: None,
+            age: 0,
+        }
     }
     fn chromosome_factory_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(vec![])
+        Chromosome {
+            reference_id: 0,
+            genes: (),
+            fitness_score: None,
+            age: 0,
+        }
     }
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-        chromosome.genes.is_empty()
+        chromosome.reference_id == 0
     }
 
     fn mutate_chromosome_genes<R: Rng>(
-        &self,
+        &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self>,
@@ -270,25 +266,7 @@ where
         mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        if allow_duplicates {
-            rng.sample_iter(self.gene_index_sampler)
-                .take(number_of_crossovers)
-                .for_each(|index| {
-                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-                });
-        } else {
-            rand::seq::index::sample(
-                rng,
-                self.genes_size(),
-                number_of_crossovers.min(self.genes_size()),
-            )
-            .iter()
-            .for_each(|index| {
-                std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-            });
-        }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        todo!()
     }
     fn crossover_chromosome_points<R: Rng>(
         &self,
@@ -298,40 +276,7 @@ where
         mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        if allow_duplicates {
-            rng.sample_iter(self.gene_index_sampler)
-                .take(number_of_crossovers)
-                .for_each(|index| {
-                    let mother_back = &mut mother.genes[index..];
-                    let father_back = &mut father.genes[index..];
-                    father_back.swap_with_slice(mother_back);
-                });
-        } else {
-            rand::seq::index::sample(
-                rng,
-                self.genes_size(),
-                number_of_crossovers.min(self.genes_size()),
-            )
-            .iter()
-            .sorted_unstable()
-            .chunks(2)
-            .into_iter()
-            .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
-                (Some(start_index), Some(end_index)) => {
-                    let mother_back = &mut mother.genes[start_index..end_index];
-                    let father_back = &mut father.genes[start_index..end_index];
-                    father_back.swap_with_slice(mother_back);
-                }
-                (Some(start_index), _) => {
-                    let mother_back = &mut mother.genes[start_index..];
-                    let father_back = &mut father.genes[start_index..];
-                    father_back.swap_with_slice(mother_back);
-                }
-                _ => (),
-            });
-        }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        todo!()
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -368,97 +313,7 @@ where
         scale_index: Option<usize>,
         rng: &mut R,
     ) -> Vec<Chromosome<Self>> {
-        let allele_range_start = *self.allele_range.start();
-        let allele_range_end = *self.allele_range.end();
-
-        if let Some(scale_index) = scale_index {
-            let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
-            let working_range_start = *working_range.start();
-            let working_range_end = *working_range.end();
-
-            (0..self.genes_size)
-                .flat_map(|index| {
-                    let base_value = chromosome.genes[index];
-                    let value_start = if base_value + working_range_start < allele_range_start {
-                        allele_range_start
-                    } else {
-                        base_value + working_range_start
-                    };
-                    let value_end = if base_value + working_range_end > allele_range_end {
-                        allele_range_end
-                    } else {
-                        base_value + working_range_end
-                    };
-
-                    [
-                        if value_start < base_value {
-                            let mut genes = chromosome.genes.clone();
-                            genes[index] = value_start;
-                            Some(genes)
-                        } else {
-                            None
-                        },
-                        if base_value < value_end {
-                            let mut genes = chromosome.genes.clone();
-                            genes[index] = value_end;
-                            Some(genes)
-                        } else {
-                            None
-                        },
-                    ]
-                })
-                .flatten()
-                .dedup()
-                .filter(|genes| *genes != chromosome.genes)
-                .map(Chromosome::new)
-                .collect::<Vec<_>>()
-        } else {
-            let working_range = &self.allele_mutation_range.as_ref().unwrap();
-            let working_range_start = *working_range.start();
-            let working_range_end = *working_range.end();
-
-            (0..self.genes_size)
-                .flat_map(|index| {
-                    let base_value = chromosome.genes[index];
-                    let range_start = if base_value + working_range_start < allele_range_start {
-                        allele_range_start
-                    } else {
-                        base_value + working_range_start
-                    };
-                    let range_end = if base_value + working_range_end > allele_range_end {
-                        allele_range_end
-                    } else {
-                        base_value + working_range_end
-                    };
-
-                    [
-                        if range_start < base_value {
-                            let mut genes = chromosome.genes.clone();
-                            genes[index] = rng.gen_range(range_start..base_value);
-                            Some(genes)
-                        } else {
-                            None
-                        },
-                        if base_value < range_end {
-                            let mut genes = chromosome.genes.clone();
-                            let mut new_value = rng.gen_range(base_value..=range_end);
-                            // FIXME: ugly loop, goal is to have an exclusive below range
-                            while new_value <= base_value {
-                                new_value = rng.gen_range(base_value..=range_end);
-                            }
-                            genes[index] = new_value;
-                            Some(genes)
-                        } else {
-                            None
-                        },
-                    ]
-                })
-                .flatten()
-                .dedup()
-                .filter(|genes| *genes != chromosome.genes)
-                .map(Chromosome::new)
-                .collect::<Vec<_>>()
-        }
+        todo!()
     }
 
     fn neighbouring_population_size(&self) -> BigUint {
@@ -478,6 +333,7 @@ where
     fn clone(&self) -> Self {
         Self {
             matrix: SMatrix::<T, N, M>::zeros(),
+            free_ids: HashSet::from_iter(0..N),
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
             allele_mutation_range: self.allele_mutation_range.clone(),

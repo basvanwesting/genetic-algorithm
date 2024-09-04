@@ -20,7 +20,7 @@ use rand::Rng;
 pub trait Mutate: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,

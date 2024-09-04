@@ -152,7 +152,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
     }
 
     fn mutate_chromosome_genes<R: Rng>(
-        &self,
+        &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self>,

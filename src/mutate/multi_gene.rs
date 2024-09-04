@@ -28,7 +28,7 @@ pub struct MultiGene {
 impl Mutate for MultiGene {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         _config: &EvolveConfig,
         _reporter: &mut SR,

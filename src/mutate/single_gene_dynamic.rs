@@ -21,7 +21,7 @@ pub struct SingleGeneDynamic {
 impl Mutate for SingleGeneDynamic {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,
