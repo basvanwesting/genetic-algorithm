@@ -17,7 +17,7 @@ pub struct MassGenesis {
 impl Extension for MassGenesis {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        _genotype: &mut G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,
@@ -36,6 +36,7 @@ impl Extension for MassGenesis {
                 state.population.chromosomes.clear();
                 state.population.chromosomes.push(best_chromosome.clone());
                 state.population.chromosomes.push(best_chromosome);
+                genotype.population_sync(&mut state.population);
             }
         }
         state.add_duration(StrategyAction::Extension, now.elapsed());

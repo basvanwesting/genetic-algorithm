@@ -28,7 +28,6 @@ use impl_trait_for_tuples::impl_for_tuples;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
-use std::ops::RangeBounds;
 
 /// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
 #[impl_for_tuples(0, 12)]
@@ -131,12 +130,8 @@ pub trait Genotype:
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>);
     fn seed_genes_list(&self) -> &Vec<Self::Genes>;
     fn max_scale_index(&self) -> Option<usize>;
-    fn population_garbage_collect(&mut self, _population: &Population<Self>) {}
-    fn population_extend_from_within<Src>(&mut self, _population: &Population<Self>, _src: Src)
-    where
-        Src: RangeBounds<usize>,
-    {
-    }
+    // drop unreferenced IDs and handle cloned IDs (clone and new ID)
+    fn population_sync(&mut self, _population: &mut Population<Self>) {}
     fn expected_number_of_sampled_index_collisions(&self, number_of_samples: usize) -> usize {
         number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
     }

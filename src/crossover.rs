@@ -43,7 +43,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     /// the population is returned
     fn prepare_population<G: Genotype>(
         &mut self,
-        _genotype: &mut G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
     ) -> usize {
@@ -56,9 +56,11 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
                     .population
                     .chromosomes
                     .extend_from_within(..parent_survivors);
+                genotype.population_sync(&mut state.population);
             }
             Ordering::Less => {
                 state.population.truncate(config.target_population_size);
+                genotype.population_sync(&mut state.population);
             }
             Ordering::Equal => (),
         }

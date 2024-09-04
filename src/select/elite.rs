@@ -17,7 +17,7 @@ pub struct Elite {
 impl Select for Elite {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        _genotype: &mut G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         _reporter: &mut SR,
@@ -52,6 +52,7 @@ impl Select for Elite {
             }
         }
         state.population.truncate(selected_population_size);
+        genotype.population_sync(&mut state.population);
         state.add_duration(StrategyAction::Select, now.elapsed());
     }
 }

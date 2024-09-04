@@ -20,7 +20,7 @@ pub struct MassExtinction {
 impl Extension for MassExtinction {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        _genotype: &mut G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,
@@ -42,6 +42,7 @@ impl Extension for MassExtinction {
             );
             state.population.shuffle(rng);
             state.population.truncate(remaining_size);
+            genotype.population_sync(&mut state.population);
         }
         state.add_duration(StrategyAction::Extension, now.elapsed());
     }
