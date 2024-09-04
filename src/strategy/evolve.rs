@@ -208,6 +208,7 @@ impl<
                 &mut self.rng,
             );
             self.plugins.select.call(
+                &self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,

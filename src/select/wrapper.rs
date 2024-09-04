@@ -15,14 +15,15 @@ pub enum Wrapper {
 impl Select for Wrapper {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
+        genotype: &G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
     ) {
         match self {
-            Wrapper::Elite(select) => select.call(state, config, reporter, rng),
-            Wrapper::Tournament(select) => select.call(state, config, reporter, rng),
+            Wrapper::Elite(select) => select.call(genotype, state, config, reporter, rng),
+            Wrapper::Tournament(select) => select.call(genotype, state, config, reporter, rng),
         }
     }
 }

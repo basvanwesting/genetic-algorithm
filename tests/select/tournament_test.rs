@@ -1,10 +1,10 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::select::{Select, SelectTournament};
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
+use genetic_algorithm::select::{Select, SelectTournament};
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
@@ -35,7 +35,7 @@ fn maximize() {
         fitness_ordering: FitnessOrdering::Maximize,
         ..Default::default()
     };
-    SelectTournament::new(4, 0.74).call(&mut state, &config, &mut reporter, &mut rng);
+    SelectTournament::new(4, 0.74).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -77,7 +77,7 @@ fn minimize() {
         fitness_ordering: FitnessOrdering::Minimize,
         ..Default::default()
     };
-    SelectTournament::new(4, 0.74).call(&mut state, &config, &mut reporter, &mut rng);
+    SelectTournament::new(4, 0.74).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -117,7 +117,7 @@ fn fitness_ordering_with_none_fitness() {
         fitness_ordering: FitnessOrdering::Minimize,
         ..Default::default()
     };
-    SelectTournament::new(4, 1.0).call(&mut state, &config, &mut reporter, &mut rng);
+    SelectTournament::new(4, 1.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
@@ -136,7 +136,7 @@ fn fitness_ordering_with_none_fitness() {
         fitness_ordering: FitnessOrdering::Maximize,
         ..Default::default()
     };
-    SelectTournament::new(4, 1.0).call(&mut state, &config, &mut reporter, &mut rng);
+    SelectTournament::new(4, 1.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
