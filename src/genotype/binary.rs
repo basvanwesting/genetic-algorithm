@@ -3,7 +3,7 @@ use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
-use rand::distributions::{Bernoulli, Distribution, Uniform};
+use rand::distributions::{Standard, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
@@ -24,7 +24,6 @@ use std::fmt;
 pub struct Binary {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
-    allele_sampler: Bernoulli,
     pub seed_genes_list: Vec<Vec<bool>>,
 }
 
@@ -38,7 +37,6 @@ impl TryFrom<Builder<Self>> for Binary {
             Ok(Self {
                 genes_size: builder.genes_size.unwrap(),
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
-                allele_sampler: Bernoulli::new(0.5).unwrap(),
                 seed_genes_list: builder.seed_genes_list,
             })
         }
@@ -54,9 +52,7 @@ impl Genotype for Binary {
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
         if self.seed_genes_list.is_empty() {
-            (0..self.genes_size)
-                .map(|_| self.allele_sampler.sample(rng))
-                .collect()
+            rng.sample_iter(Standard).take(self.genes_size).collect()
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }

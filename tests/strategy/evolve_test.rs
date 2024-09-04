@@ -231,10 +231,10 @@ fn call_binary_target_fitness_score_maximize() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    assert_eq!(best_chromosome.fitness_score, Some(8));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![false, true, true, false, true, true, true, true, true, true]
     );
 }
 
@@ -278,7 +278,7 @@ fn call_binary_mass_degeneration() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
-        .with_target_fitness_score(8)
+        .with_target_fitness_score(9)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.5))
@@ -308,7 +308,7 @@ fn call_binary_mass_extinction() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
-        .with_target_fitness_score(8)
+        .with_target_fitness_score(9)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.5))
@@ -325,7 +325,7 @@ fn call_binary_mass_extinction() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![true, true, false, true, true, true, true, true, true, true]
     );
 }
 
@@ -338,7 +338,7 @@ fn call_binary_mass_genesis() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
-        .with_target_fitness_score(8)
+        .with_target_fitness_score(9)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.5))
@@ -355,7 +355,7 @@ fn call_binary_mass_genesis() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, true, false, true, true]
+        vec![true, true, true, false, true, true, true, true, true, true]
     );
 }
 
@@ -575,14 +575,14 @@ fn population_factory_binary() {
     assert_eq!(
         inspect::population(&evolve.state.population),
         vec![
-            vec![false, false, false, true],
+            vec![true, true, true, false],
+            vec![false, true, false, true],
             vec![true, false, true, false],
-            vec![false, true, false, true],
-            vec![true, true, false, false],
-            vec![false, true, true, false],
+            vec![false, false, true, true],
             vec![true, false, false, true],
-            vec![false, true, false, true],
-            vec![true, false, true, true],
+            vec![false, true, true, false],
+            vec![true, false, true, false],
+            vec![false, true, false, false],
         ]
     )
 }

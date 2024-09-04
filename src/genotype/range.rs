@@ -4,7 +4,7 @@ use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
-use rand::distributions::{Bernoulli, Distribution, Uniform};
+use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 use std::ops::{Add, RangeInclusive};
@@ -68,7 +68,6 @@ where
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
-    sign_sampler: Bernoulli,
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
@@ -106,7 +105,6 @@ where
                 allele_relative_sampler: builder
                     .allele_mutation_range
                     .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
-                sign_sampler: Bernoulli::new(0.5).unwrap(),
                 seed_genes_list: builder.seed_genes_list,
             })
         }
@@ -150,7 +148,7 @@ where
         rng: &mut R,
     ) {
         let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
-        let value_diff = if self.sign_sampler.sample(rng) {
+        let value_diff = if rng.gen() {
             *working_range.start()
         } else {
             *working_range.end()
@@ -468,7 +466,6 @@ where
                 .allele_mutation_range
                 .clone()
                 .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
-            sign_sampler: Bernoulli::new(0.5).unwrap(),
             seed_genes_list: self.seed_genes_list.clone(),
         }
     }

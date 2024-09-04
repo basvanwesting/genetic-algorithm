@@ -71,21 +71,21 @@ fn float_mutate_chromosome_single_scaled() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
+        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
+        vec![0.447, 0.439, 0.969, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 0.989, 0.462, 0.897, 0.942, 0.578, 0.456, 0.395, 0.818],
+        vec![0.447, 0.439, 0.969, 0.462, 0.897, 0.942, 0.598, 0.456, 0.395, 0.818],
         0.001,
     ));
 }

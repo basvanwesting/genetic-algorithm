@@ -15,19 +15,19 @@ fn mutate_chromosome_single() {
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
-        vec![true, true, false, true, false, false, false, true, true, false]
+        vec![false, false, true, false, true, true, true, false, false, true]
     );
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
-        vec![true, true, true, true, false, false, false, true, true, false]
+        vec![false, false, false, false, true, true, true, false, false, true]
     );
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
-        vec![true, true, true, true, false, false, false, true, true, true]
+        vec![false, false, false, false, true, true, true, false, false, false]
     );
 }
 #[test]
@@ -198,7 +198,7 @@ fn neighbouring_population() {
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
-        vec![true, true, false, true, false, false, false, true, true, false]
+        vec![false, false, true, false, true, true, true, false, false, true]
     );
 
     assert_eq!(
@@ -208,16 +208,16 @@ fn neighbouring_population() {
     assert_eq!(
         inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
         vec![
-            vec![false, true, false, true, false, false, false, true, true, false],
-            vec![true, false, false, true, false, false, false, true, true, false],
-            vec![true, true, true, true, false, false, false, true, true, false],
-            vec![true, true, false, false, false, false, false, true, true, false],
-            vec![true, true, false, true, true, false, false, true, true, false],
-            vec![true, true, false, true, false, true, false, true, true, false],
-            vec![true, true, false, true, false, false, true, true, true, false],
-            vec![true, true, false, true, false, false, false, false, true, false],
-            vec![true, true, false, true, false, false, false, true, false, false],
-            vec![true, true, false, true, false, false, false, true, true, true],
+            vec![true, false, true, false, true, true, true, false, false, true],
+            vec![false, true, true, false, true, true, true, false, false, true],
+            vec![false, false, false, false, true, true, true, false, false, true],
+            vec![false, false, true, true, true, true, true, false, false, true],
+            vec![false, false, true, false, false, true, true, false, false, true],
+            vec![false, false, true, false, true, false, true, false, false, true],
+            vec![false, false, true, false, true, true, false, false, false, true],
+            vec![false, false, true, false, true, true, true, true, false, true],
+            vec![false, false, true, false, true, true, true, false, true, true],
+            vec![false, false, true, false, true, true, true, false, false, false],
         ]
     );
 }

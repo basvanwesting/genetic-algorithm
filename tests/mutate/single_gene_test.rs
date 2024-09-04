@@ -140,10 +140,10 @@ fn range_float_genotype_scaled() {
     assert!(relative_population_eq(
         inspect::population(&state.population),
         vec![
-            vec![0.5, 0.6, 0.5],
-            vec![0.5, 0.5, 0.6],
+            vec![0.5, 0.4, 0.5],
+            vec![0.5, 0.5, 0.4],
             vec![0.5, 0.5, 0.5],
-            vec![0.5, 0.6, 0.5],
+            vec![0.5, 0.4, 0.5],
         ],
         0.001,
     ));
@@ -152,10 +152,10 @@ fn range_float_genotype_scaled() {
     assert!(relative_population_eq(
         inspect::population(&state.population),
         vec![
-            vec![0.5, 0.6, 0.6],
+            vec![0.5, 0.4, 0.4],
             vec![0.5, 0.5, 0.5],
-            vec![0.6, 0.5, 0.5],
-            vec![0.5, 0.6, 0.5],
+            vec![0.4, 0.5, 0.5],
+            vec![0.5, 0.4, 0.5],
         ],
         0.001,
     ));
@@ -165,10 +165,10 @@ fn range_float_genotype_scaled() {
     assert!(relative_population_eq(
         inspect::population(&state.population),
         vec![
-            vec![0.5, 0.6, 0.6],
-            vec![0.51, 0.5, 0.5],
-            vec![0.6, 0.5, 0.51],
-            vec![0.5, 0.6, 0.49]
+            vec![0.5, 0.4, 0.4],
+            vec![0.49, 0.5, 0.5],
+            vec![0.4, 0.5, 0.49],
+            vec![0.5, 0.4, 0.51],
         ],
         0.001
     ));

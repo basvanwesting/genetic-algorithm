@@ -4,7 +4,7 @@ use crate::chromosome::Chromosome;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
-use rand::distributions::{Bernoulli, Distribution, Uniform, WeightedIndex};
+use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
 use std::ops::{Add, RangeInclusive};
@@ -96,7 +96,6 @@ pub struct MultiRange<
     gene_weighted_index_sampler: WeightedIndex<f64>,
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
-    sign_sampler: Bernoulli,
     pub index_weights: Vec<f64>,
     pub seed_genes_list: Vec<Vec<T>>,
 }
@@ -160,7 +159,6 @@ where
                             .collect()
                     },
                 ),
-                sign_sampler: Bernoulli::new(0.5).unwrap(),
                 index_weights,
                 seed_genes_list: builder.seed_genes_list,
             })
@@ -208,7 +206,7 @@ where
         let allele_range = &self.allele_ranges[index];
         let working_range =
             &self.allele_mutation_scaled_ranges.as_ref().unwrap()[scale_index][index];
-        let value_diff = if self.sign_sampler.sample(rng) {
+        let value_diff = if rng.gen() {
             *working_range.start()
         } else {
             *working_range.end()
@@ -543,7 +541,6 @@ where
                         .collect()
                 },
             ),
-            sign_sampler: Bernoulli::new(0.5).unwrap(),
             index_weights: self.index_weights.clone(),
             seed_genes_list: self.seed_genes_list.clone(),
         }
