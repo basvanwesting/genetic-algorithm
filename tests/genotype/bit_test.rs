@@ -22,13 +22,13 @@ fn mutate_chromosome_single() {
     let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
 
     let mut chromosome = genotype.chromosome_factory(&mut rng);
-    assert_eq!(inspect::chromosome_to_str(&chromosome), "1101000110");
+    assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
-    assert_eq!(inspect::chromosome_to_str(&chromosome), "1111000110");
+    assert_eq!(inspect::chromosome_to_str(&chromosome), "0011100100");
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
-    assert_eq!(inspect::chromosome_to_str(&chromosome), "1111000111");
+    assert_eq!(inspect::chromosome_to_str(&chromosome), "0011100101");
 }
 #[test]
 fn mutate_chromosome_genes_with_duplicates() {
@@ -133,7 +133,7 @@ fn neighbouring_population() {
     let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
 
     let chromosome = genotype.chromosome_factory(&mut rng);
-    assert_eq!(inspect::chromosome_to_str(&chromosome), "1101000110");
+    assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
 
     assert_eq!(
         genotype.neighbouring_population_size(),
@@ -142,16 +142,16 @@ fn neighbouring_population() {
     assert_eq!(
         inspect::population_to_str(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
         vec![
-            "0101000110",
-            "1001000110",
-            "1111000110",
-            "1100000110",
-            "1101100110",
-            "1101010110",
-            "1101001110",
-            "1101000010",
-            "1101000100",
-            "1101000111",
+            "1011000100",
+            "0111000100",
+            "0001000100",
+            "0010000100",
+            "0011100100",
+            "0011010100",
+            "0011001100",
+            "0011000000",
+            "0011000110",
+            "0011000101",
         ]
     );
 }

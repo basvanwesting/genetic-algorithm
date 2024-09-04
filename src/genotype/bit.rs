@@ -4,7 +4,7 @@ use crate::chromosome::Chromosome;
 use fixedbitset::{Block, FixedBitSet};
 use itertools::Itertools;
 use num::BigUint;
-use rand::distributions::{Bernoulli, Distribution, Uniform};
+use rand::distributions::{Standard, Uniform};
 use rand::prelude::*;
 use std::fmt;
 
@@ -32,7 +32,6 @@ use std::fmt;
 pub struct Bit {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
-    allele_sampler: Bernoulli,
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<FixedBitSet>,
@@ -57,7 +56,6 @@ impl TryFrom<Builder<Self>> for Bit {
             Ok(Self {
                 genes_size,
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
-                allele_sampler: Bernoulli::new(0.5).unwrap(),
                 crossover_points,
                 crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
@@ -119,9 +117,7 @@ impl Genotype for Bit {
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
         if self.seed_genes_list.is_empty() {
-            let mut bits = FixedBitSet::with_capacity(self.genes_size);
-            (0..self.genes_size).for_each(|i| bits.set(i, self.allele_sampler.sample(rng)));
-            bits
+            FixedBitSet::with_capacity_and_blocks(self.genes_size, rng.sample_iter(Standard))
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
