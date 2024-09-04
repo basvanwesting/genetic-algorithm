@@ -3,6 +3,7 @@ mod binary;
 mod bit;
 mod builder;
 mod list;
+mod matrix;
 mod multi_list;
 mod multi_range;
 mod multi_unique;
@@ -15,6 +16,7 @@ pub use self::builder::{
     Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
 };
 pub use self::list::List as ListGenotype;
+pub use self::matrix::Matrix as MatrixGenotype;
 pub use self::multi_list::MultiList as MultiListGenotype;
 pub use self::multi_range::MultiRange as MultiRangeGenotype;
 pub use self::multi_unique::MultiUnique as MultiUniqueGenotype;
