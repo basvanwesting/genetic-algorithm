@@ -19,7 +19,7 @@ fn builders() {
 #[test]
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
 
     let mut chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
@@ -33,7 +33,7 @@ fn mutate_chromosome_single() {
 #[test]
 fn mutate_chromosome_genes_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
 
     let mut chromosome = build::chromosome_from_str("1111111111");
     genotype.mutate_chromosome_genes(5, true, &mut chromosome, None, &mut rng);
@@ -42,7 +42,7 @@ fn mutate_chromosome_genes_with_duplicates() {
 #[test]
 fn mutate_chromosome_genes_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
 
     let mut chromosome = build::chromosome_from_str("1111111111");
     genotype.mutate_chromosome_genes(5, false, &mut chromosome, None, &mut rng);
@@ -52,7 +52,7 @@ fn mutate_chromosome_genes_without_duplicates() {
 #[test]
 fn crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
 
     let mut father = build::chromosome_from_str("1111111111");
     let mut mother = build::chromosome_from_str("0000000000");
@@ -63,17 +63,17 @@ fn crossover_chromosome_pair_single_gene() {
 
 #[test]
 fn crossover_points() {
-    let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
     assert_eq!(genotype.crossover_points, vec![]);
 
-    let genotype = BitGenotype::builder().with_genes_size(200).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(200).build().unwrap();
     assert_eq!(genotype.crossover_points, vec![64, 128, 192]);
 }
 
 #[test]
 fn crossover_chromosome_pair_single_point() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(300).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(300).build().unwrap();
     let mut father = build::chromosome_from_blocks(300, [1, 1, 1, 1, 1]);
     let mut mother = build::chromosome_from_blocks(300, [0, 0, 0, 0, 0]);
     genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
@@ -84,7 +84,7 @@ fn crossover_chromosome_pair_single_point() {
 #[test]
 fn crossover_chromosome_genes_with_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
 
     let mut father = build::chromosome_from_str("1111111111");
     let mut mother = build::chromosome_from_str("0000000000");
@@ -96,7 +96,7 @@ fn crossover_chromosome_genes_with_duplicates() {
 #[test]
 fn crossover_chromosome_genes_without_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
 
     let mut father = build::chromosome_from_str("1111111111");
     let mut mother = build::chromosome_from_str("0000000000");
@@ -108,7 +108,7 @@ fn crossover_chromosome_genes_without_duplicates() {
 #[test]
 fn crossover_chromosome_points_with_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(300).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(300).build().unwrap();
     let mut father = build::chromosome_from_blocks(300, [1, 1, 1, 1, 1]);
     let mut mother = build::chromosome_from_blocks(300, [0, 0, 0, 0, 0]);
     genotype.crossover_chromosome_points(3, true, &mut father, &mut mother, rng);
@@ -119,7 +119,7 @@ fn crossover_chromosome_points_with_duplicates() {
 #[test]
 fn crossover_chromosome_points_without_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(300).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(300).build().unwrap();
     let mut father = build::chromosome_from_blocks(300, [1, 1, 1, 1, 1]);
     let mut mother = build::chromosome_from_blocks(300, [0, 0, 0, 0, 0]);
     genotype.crossover_chromosome_points(3, false, &mut father, &mut mother, rng);
@@ -130,7 +130,7 @@ fn crossover_chromosome_points_without_duplicates() {
 #[test]
 fn neighbouring_population() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
 
     let chromosome = genotype.chromosome_factory(&mut rng);
     assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
@@ -158,7 +158,7 @@ fn neighbouring_population() {
 
 #[test]
 fn chromosome_permutations_genes_size_1() {
-    let genotype = BitGenotype::builder().with_genes_size(1).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(1).build().unwrap();
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(2u32));
     assert_eq!(
@@ -169,7 +169,7 @@ fn chromosome_permutations_genes_size_1() {
 
 #[test]
 fn chromosome_permutations_genes_size_2() {
-    let genotype = BitGenotype::builder().with_genes_size(2).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(2).build().unwrap();
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(4u32));
     assert_eq!(
@@ -180,7 +180,7 @@ fn chromosome_permutations_genes_size_2() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let genotype = BitGenotype::builder().with_genes_size(100).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(100).build().unwrap();
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::parse_bytes(b"1267650600228229401496703205376", 10).unwrap()
@@ -200,7 +200,7 @@ fn chromosome_permutations_genes_size_huge() {
 
 #[test]
 fn chromosome_permutations_genes_size_3() {
-    let genotype = BitGenotype::builder().with_genes_size(3).build().unwrap();
+    let mut genotype = BitGenotype::builder().with_genes_size(3).build().unwrap();
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(8u32));
     assert_eq!(
@@ -212,7 +212,7 @@ fn chromosome_permutations_genes_size_3() {
 #[test]
 fn chromosome_factory_with_seed_genes_list() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BitGenotype::builder()
+    let mut genotype = BitGenotype::builder()
         .with_genes_size(4)
         .with_seed_genes_list(vec![
             BitGenotype::genes_from_str("1100"),

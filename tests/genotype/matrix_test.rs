@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{Genotype, MatrixGenotype};
 #[test]
 fn chromosome_factory() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = MatrixGenotype::<f32, 100, 10>::builder()
+    let mut genotype = MatrixGenotype::<f32, 100, 10>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()

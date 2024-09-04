@@ -7,7 +7,7 @@ use genetic_algorithm::genotype::{
 #[test]
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = ListGenotype::builder()
+    let mut genotype = ListGenotype::builder()
         .with_genes_size(5)
         .with_allele_list(vec![5, 2, 3, 4])
         .build()
@@ -25,7 +25,7 @@ fn mutate_chromosome_single() {
 #[test]
 fn mutate_chromosome_genes_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = ListGenotype::builder()
+    let mut genotype = ListGenotype::builder()
         .with_genes_size(10)
         .with_allele_list(vec![1, 2, 3, 4])
         .build()
@@ -41,7 +41,7 @@ fn mutate_chromosome_genes_with_duplicates() {
 #[test]
 fn mutate_chromosome_genes_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = ListGenotype::builder()
+    let mut genotype = ListGenotype::builder()
         .with_genes_size(10)
         .with_allele_list(vec![1, 2, 3, 4])
         .build()
@@ -58,7 +58,7 @@ fn mutate_chromosome_genes_without_duplicates() {
 #[test]
 fn crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = ListGenotype::builder()
+    let mut genotype = ListGenotype::builder()
         .with_genes_size(5)
         .with_allele_list(vec![5, 2, 3, 4])
         .build()
@@ -74,7 +74,7 @@ fn crossover_chromosome_pair_single_gene() {
 #[test]
 fn crossover_chromosome_pair_single_point() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = ListGenotype::builder()
+    let mut genotype = ListGenotype::builder()
         .with_genes_size(5)
         .with_allele_list(vec![5, 2, 3, 4])
         .build()
@@ -90,7 +90,7 @@ fn crossover_chromosome_pair_single_point() {
 #[test]
 fn neighbouring_population() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = ListGenotype::builder()
+    let mut genotype = ListGenotype::builder()
         .with_genes_size(5)
         .with_allele_list(vec![5, 2, 3, 4])
         .build()
@@ -127,7 +127,7 @@ fn neighbouring_population() {
 
 #[test]
 fn chromosome_permutations() {
-    let genotype = ListGenotype::builder()
+    let mut genotype = ListGenotype::builder()
         .with_genes_size(3)
         .with_allele_list(vec![0, 1, 2])
         .build()
@@ -173,7 +173,7 @@ fn chromosome_permutations() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let genotype = ListGenotype::builder()
+    let mut genotype = ListGenotype::builder()
         .with_genes_size(30)
         .with_allele_list((0..10).collect())
         .build()

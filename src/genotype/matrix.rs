@@ -192,7 +192,7 @@ where
         self.genes_size
     }
 
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
         let genes = if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
                 .map(|_| self.allele_sampler.sample(rng))

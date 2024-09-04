@@ -92,7 +92,7 @@ impl<T: Allele> Genotype for Unique<T> {
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))
     }
     fn chromosome_factory_empty(&self) -> Chromosome<Self> {

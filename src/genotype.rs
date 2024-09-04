@@ -76,7 +76,7 @@ pub trait Genotype:
     fn genes_size(&self) -> usize;
     /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
     /// random genes unless seed genes are provided
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
+    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self>;
     /// a random genes factory (respecting seed genes)
     fn chromosome_factory_empty(&self) -> Chromosome<Self>;
     // test for functionally invalid placeholder

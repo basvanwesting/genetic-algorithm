@@ -7,7 +7,7 @@ use genetic_algorithm::genotype::{
 #[test]
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -33,7 +33,7 @@ fn mutate_chromosome_single() {
 #[test]
 fn mutate_chromosome_genes_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -48,7 +48,7 @@ fn mutate_chromosome_genes_with_duplicates() {
 #[test]
 fn mutate_chromosome_genes_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -64,7 +64,7 @@ fn mutate_chromosome_genes_without_duplicates() {
 #[test]
 fn crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -85,7 +85,7 @@ fn crossover_chromosome_pair_single_gene() {
 #[test]
 fn crossover_chromosome_pair_single_point() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -106,7 +106,7 @@ fn crossover_chromosome_pair_single_point() {
 #[test]
 fn crossover_chromosome_genes_with_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -127,7 +127,7 @@ fn crossover_chromosome_genes_with_duplicates() {
 #[test]
 fn crossover_chromosome_genes_without_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -148,7 +148,7 @@ fn crossover_chromosome_genes_without_duplicates() {
 #[test]
 fn crossover_chromosome_points_with_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -169,7 +169,7 @@ fn crossover_chromosome_points_with_duplicates() {
 #[test]
 fn crossover_chromosome_points_without_duplicates() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -190,7 +190,7 @@ fn crossover_chromosome_points_without_duplicates() {
 #[test]
 fn neighbouring_population() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -224,7 +224,7 @@ fn neighbouring_population() {
 
 #[test]
 fn chromosome_permutations_genes_size_1() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(1)
         .build()
         .unwrap();
@@ -238,7 +238,7 @@ fn chromosome_permutations_genes_size_1() {
 
 #[test]
 fn chromosome_permutations_genes_size_2() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(2)
         .build()
         .unwrap();
@@ -257,7 +257,7 @@ fn chromosome_permutations_genes_size_2() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
         .unwrap();
@@ -280,7 +280,7 @@ fn chromosome_permutations_genes_size_huge() {
 
 #[test]
 fn chromosome_permutations_genes_size_3() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -304,7 +304,7 @@ fn chromosome_permutations_genes_size_3() {
 #[test]
 fn chromosome_factory_with_seed_genes_list() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(4)
         .with_seed_genes_list(vec![
             vec![true, true, false, false],
