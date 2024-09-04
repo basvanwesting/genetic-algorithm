@@ -1,5 +1,5 @@
 use criterion::*;
-use rand::distributions::Uniform;
+use rand::distributions::{Bernoulli, Standard, Uniform};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 use rand::Rng;
@@ -12,6 +12,21 @@ pub fn rng_benchmark(c: &mut Criterion) {
 
     const CHUNK_SIZE: usize = 1000;
     const VEC_SIZE: usize = 100 * CHUNK_SIZE;
+
+    group.bench_function("coin-flip: bernoulli", |b| {
+        let rng = &mut rand::thread_rng();
+        let sampler = Bernoulli::new(0.5).unwrap();
+        b.iter(|| {
+            let _result: bool = rng.sample(sampler);
+        });
+    });
+
+    group.bench_function("coin-flip: Standard", |b| {
+        let rng = &mut rand::thread_rng();
+        b.iter(|| {
+            let _result: bool = rng.sample(Standard);
+        });
+    });
 
     group.bench_function("seq_thread_rng", |b| {
         let rng = &mut rand::thread_rng();
