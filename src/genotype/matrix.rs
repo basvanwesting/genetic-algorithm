@@ -18,17 +18,9 @@ pub enum MutationType {
     Scaled,
 }
 
-/// Genes are a vector of numeric values, each taken from the allele_range. On random initialization,
-/// each gene gets a value from the allele_range with a uniform probability. Each gene has an equal
-/// probability of mutating. If a gene mutates, a new value is taken from allele_range with a
-/// uniform probability.
-///
-/// Optionally the mutation range can be bound by relative allele_mutation_range or
-/// allele_mutation_scaled_range. When allele_mutation_range is provided the mutation is restricted
-/// to modify the existing value by a difference taken from allele_mutation_range with a uniform
-/// probability. When allele_mutation_scaled_range is provided the mutation is restricted to modify
-/// the existing value by a difference taken from start and end of the scaled range (depending on
-/// current scale)
+/// All matrices of nalgebra are stored in column-major order. This means that any two consecutive elements of a single matrix column will be contiguous in memory as well. Therefore a column will store a chromosome's genes
+/// N = R = genes_size
+/// M = C = population_size
 ///
 /// # Example (f32, default):
 /// ```
@@ -137,7 +129,7 @@ where
         chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        self.matrix[(chromosome.reference_id, index)] = self.allele_sampler.sample(rng);
+        self.matrix[(index, chromosome.reference_id)] = self.allele_sampler.sample(rng);
     }
     fn mutate_chromosome_index_relative<R: Rng>(
         &mut self,
@@ -146,13 +138,13 @@ where
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-        let new_value = self.matrix[(chromosome.reference_id, index)] + value_diff;
+        let new_value = self.matrix[(index, chromosome.reference_id)] + value_diff;
         if new_value < *self.allele_range.start() {
-            self.matrix[(chromosome.reference_id, index)] = *self.allele_range.start();
+            self.matrix[(index, chromosome.reference_id)] = *self.allele_range.start();
         } else if new_value > *self.allele_range.end() {
-            self.matrix[(chromosome.reference_id, index)] = *self.allele_range.end();
+            self.matrix[(index, chromosome.reference_id)] = *self.allele_range.end();
         } else {
-            self.matrix[(chromosome.reference_id, index)] = new_value;
+            self.matrix[(index, chromosome.reference_id)] = new_value;
         }
     }
     fn mutate_chromosome_index_scaled<R: Rng>(
@@ -168,18 +160,18 @@ where
         } else {
             *working_range.end()
         };
-        let new_value = self.matrix[(chromosome.reference_id, index)] + value_diff;
+        let new_value = self.matrix[(index, chromosome.reference_id)] + value_diff;
         if new_value < *self.allele_range.start() {
-            self.matrix[(chromosome.reference_id, index)] = *self.allele_range.start();
+            self.matrix[(index, chromosome.reference_id)] = *self.allele_range.start();
         } else if new_value > *self.allele_range.end() {
-            self.matrix[(chromosome.reference_id, index)] = *self.allele_range.end();
+            self.matrix[(index, chromosome.reference_id)] = *self.allele_range.end();
         } else {
-            self.matrix[(chromosome.reference_id, index)] = new_value;
+            self.matrix[(index, chromosome.reference_id)] = new_value;
         }
     }
     pub fn inspect_genes(&self, chromosome: &Chromosome<Self>) -> Vec<T> {
         (0..self.genes_size)
-            .map(|i| self.matrix[(chromosome.reference_id, i)])
+            .map(|i| self.matrix[(i, chromosome.reference_id)])
             .collect()
     }
 }
@@ -205,7 +197,7 @@ where
         self.free_ids.remove(&free_id);
 
         (0..self.genes_size)
-            .for_each(|i| self.matrix[(free_id, i)] = self.allele_sampler.sample(rng));
+            .for_each(|i| self.matrix[(i, free_id)] = self.allele_sampler.sample(rng));
 
         Chromosome {
             reference_id: free_id,
