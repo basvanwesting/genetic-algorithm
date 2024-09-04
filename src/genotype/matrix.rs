@@ -2,15 +2,13 @@ use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
 use itertools::Itertools;
-use nalgebra::DMatrix;
+use nalgebra::SMatrix;
 use num::{BigUint, Zero};
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
 use std::ops::{Add, RangeInclusive};
-
-pub type DefaultAllele = f32;
 
 #[derive(Copy, Clone, Debug)]
 pub enum MutationType {
@@ -57,12 +55,14 @@ pub enum MutationType {
 ///     .unwrap();
 /// ```
 pub struct Matrix<
-    T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static = DefaultAllele,
+    T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
+    const N: usize,
+    const M: usize,
 > where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    pub matrix: DMatrix<T>,
+    pub matrix: SMatrix<T, N, M>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
@@ -74,8 +74,11 @@ pub struct Matrix<
     pub seed_genes_list: Vec<Vec<T>>,
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static> TryFrom<Builder<Self>>
-    for Matrix<T>
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
+        const N: usize,
+        const M: usize,
+    > TryFrom<Builder<Self>> for Matrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -99,7 +102,7 @@ where
             };
 
             Ok(Self {
-                matrix: DMatrix::<T>::zeros(2, 3),
+                matrix: SMatrix::<T, N, M>::zeros(),
                 genes_size,
                 allele_range: allele_range.clone(),
                 allele_mutation_range: builder.allele_mutation_range.clone(),
@@ -116,7 +119,11 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static> Matrix<T>
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
+        const N: usize,
+        const M: usize,
+    > Matrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -169,7 +176,11 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static> Genotype for Matrix<T>
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
+        const N: usize,
+        const M: usize,
+    > Genotype for Matrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -344,8 +355,11 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static> IncrementalGenotype
-    for Matrix<T>
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
+        const N: usize,
+        const M: usize,
+    > IncrementalGenotype for Matrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -454,14 +468,18 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static> Clone for Matrix<T>
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
+        const N: usize,
+        const M: usize,
+    > Clone for Matrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn clone(&self) -> Self {
         Self {
-            matrix: DMatrix::<T>::zeros(2, 3),
+            matrix: SMatrix::<T, N, M>::zeros(),
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
             allele_mutation_range: self.allele_mutation_range.clone(),
@@ -478,7 +496,11 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static> fmt::Debug for Matrix<T>
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
+        const N: usize,
+        const M: usize,
+    > fmt::Debug for Matrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -498,7 +520,11 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static> fmt::Display for Matrix<T>
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
+        const N: usize,
+        const M: usize,
+    > fmt::Display for Matrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
