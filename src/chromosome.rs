@@ -42,7 +42,7 @@ impl<G: Genotype> Chromosome<G> {
             genes,
             fitness_score: None,
             age: 0,
-            reference_id: 0,
+            reference_id: usize::MAX,
         }
     }
     /// Reset fitness_score for recalculation

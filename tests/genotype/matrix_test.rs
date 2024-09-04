@@ -134,3 +134,71 @@ fn mutate_chromosome_genes_random_without_duplicates() {
         0.001,
     ));
 }
+
+#[test]
+fn crossover_chromosome_pair_single_gene() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let mut genotype = MatrixGenotype::<f32, 10, 100>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    let mut father = genotype.chromosome_factory(rng);
+    let mut mother = genotype.chromosome_factory(rng);
+    assert!(relative_chromosome_eq(
+        genotype.inspect_genes(&father),
+        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
+        0.001
+    ));
+    assert!(relative_chromosome_eq(
+        genotype.inspect_genes(&mother),
+        vec![0.240, 0.976, 0.644, 0.054, 0.921, 0.225, 0.232, 0.296, 0.787, 0.724],
+        0.001
+    ));
+    genotype.crossover_chromosome_genes(3, false, &mut father, &mut mother, rng);
+    assert!(relative_chromosome_eq(
+        genotype.inspect_genes(&father),
+        vec![0.447, 0.976, 0.644, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.724],
+        0.001
+    ));
+    assert!(relative_chromosome_eq(
+        genotype.inspect_genes(&mother),
+        vec![0.240, 0.439, 0.979, 0.054, 0.921, 0.225, 0.232, 0.296, 0.787, 0.818],
+        0.001
+    ));
+}
+
+#[test]
+fn crossover_chromosome_pair_single_point() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let mut genotype = MatrixGenotype::<f32, 10, 100>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    let mut father = genotype.chromosome_factory(rng);
+    let mut mother = genotype.chromosome_factory(rng);
+    assert!(relative_chromosome_eq(
+        genotype.inspect_genes(&father),
+        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
+        0.001
+    ));
+    assert!(relative_chromosome_eq(
+        genotype.inspect_genes(&mother),
+        vec![0.240, 0.976, 0.644, 0.054, 0.921, 0.225, 0.232, 0.296, 0.787, 0.724],
+        0.001
+    ));
+    genotype.crossover_chromosome_points(2, false, &mut father, &mut mother, rng);
+    assert!(relative_chromosome_eq(
+        genotype.inspect_genes(&father),
+        vec![0.447, 0.439, 0.644, 0.054, 0.921, 0.942, 0.588, 0.456, 0.395, 0.818],
+        0.001
+    ));
+    assert!(relative_chromosome_eq(
+        genotype.inspect_genes(&mother),
+        vec![0.240, 0.976, 0.979, 0.462, 0.897, 0.225, 0.232, 0.296, 0.787, 0.724],
+        0.001
+    ));
+}

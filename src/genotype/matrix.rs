@@ -208,14 +208,14 @@ where
     }
     fn chromosome_factory_empty(&self) -> Chromosome<Self> {
         Chromosome {
-            reference_id: 0,
+            reference_id: usize::MAX,
             genes: (),
             fitness_score: None,
             age: 0,
         }
     }
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-        chromosome.reference_id == 0
+        chromosome.reference_id == usize::MAX
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -284,7 +284,7 @@ where
                 .take(number_of_crossovers)
                 .for_each(|index| {
                     self.matrix
-                        .swap((father.reference_id, index), (mother.reference_id, index));
+                        .swap((index, father.reference_id), (index, mother.reference_id));
                 });
         } else {
             rand::seq::index::sample(
@@ -295,7 +295,7 @@ where
             .iter()
             .for_each(|index| {
                 self.matrix
-                    .swap((father.reference_id, index), (mother.reference_id, index));
+                    .swap((index, father.reference_id), (index, mother.reference_id));
             });
         }
         mother.taint_fitness_score();
@@ -309,7 +309,48 @@ where
         mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        todo!()
+        if allow_duplicates {
+            rng.sample_iter(self.gene_index_sampler)
+                .take(number_of_crossovers)
+                .for_each(|index| {
+                    // let mother_back =
+                    //     &mut self.matrix.column_mut(mother.reference_id).as_mut_slice()[index..];
+                    // let father_back =
+                    //     &mut self.matrix.column_mut(father.reference_id).as_mut_slice()[index..];
+                    // father_back.swap_with_slice(mother_back);
+                    for i in index..self.genes_size() {
+                        self.matrix
+                            .swap((i, father.reference_id), (i, mother.reference_id));
+                    }
+                });
+        } else {
+            rand::seq::index::sample(
+                rng,
+                self.genes_size(),
+                number_of_crossovers.min(self.genes_size()),
+            )
+            .iter()
+            .sorted_unstable()
+            .chunks(2)
+            .into_iter()
+            .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
+                (Some(start_index), Some(end_index)) => {
+                    for i in start_index..end_index {
+                        self.matrix
+                            .swap((i, father.reference_id), (i, mother.reference_id));
+                    }
+                }
+                (Some(start_index), _) => {
+                    for i in start_index..self.genes_size() {
+                        self.matrix
+                            .swap((i, father.reference_id), (i, mother.reference_id));
+                    }
+                }
+                _ => (),
+            });
+        }
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
     }
 
     fn has_crossover_indexes(&self) -> bool {
