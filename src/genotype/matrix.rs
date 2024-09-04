@@ -310,7 +310,7 @@ where
         father.taint_fitness_score();
     }
     fn crossover_chromosome_points<R: Rng>(
-        &self,
+        &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self>,
@@ -336,29 +336,6 @@ where
         self.allele_mutation_scaled_range
             .as_ref()
             .map(|r| r.len() - 1)
-    }
-}
-
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
-        const N: usize,
-        const M: usize,
-    > IncrementalGenotype for Matrix<T, N, M>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
-    fn neighbouring_chromosomes<R: Rng>(
-        &self,
-        chromosome: &Chromosome<Self>,
-        scale_index: Option<usize>,
-        rng: &mut R,
-    ) -> Vec<Chromosome<Self>> {
-        todo!()
-    }
-
-    fn neighbouring_population_size(&self) -> BigUint {
-        BigUint::from(2 * self.genes_size)
     }
 }
 
@@ -440,11 +417,6 @@ where
         )?;
         writeln!(f, "  mutation_type: {:?}", self.mutation_type)?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
-        writeln!(
-            f,
-            "  neighbouring_population_size: {}",
-            self.neighbouring_population_size()
-        )?;
         writeln!(f, "  seed_genes_list: {:?}", self.seed_genes_list)
     }
 }

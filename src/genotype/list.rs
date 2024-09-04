@@ -164,7 +164,7 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
         father.taint_fitness_score();
     }
     fn crossover_chromosome_points<R: Rng>(
-        &self,
+        &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self>,

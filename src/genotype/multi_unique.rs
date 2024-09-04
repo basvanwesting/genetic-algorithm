@@ -206,7 +206,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         panic!("MultiUniqueGenotype does not support gene crossover")
     }
     fn crossover_chromosome_points<R: Rng>(
-        &self,
+        &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self>,

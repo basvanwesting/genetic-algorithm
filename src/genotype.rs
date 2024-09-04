@@ -108,7 +108,7 @@ pub trait Genotype:
     /// Choose between allowing duplicates or not (not much slower)
     /// panics if there are no valid crossover points
     fn crossover_chromosome_points<R: Rng>(
-        &self,
+        &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self>,

@@ -28,26 +28,26 @@ impl Crossover for ParMultiPoint {
         _rng: &mut R,
     ) {
         let now = Instant::now();
-        let crossover_size = self.prepare_population(genotype, state, config);
-        state
-            .population
-            .chromosomes
-            .par_chunks_mut(2)
-            .take(crossover_size)
-            .for_each_init(
-                || SmallRng::from_rng(rand::thread_rng()).unwrap(),
-                |rng, chunk| {
-                    if let [father, mother] = chunk {
-                        genotype.crossover_chromosome_points(
-                            self.number_of_crossovers,
-                            self.allow_duplicates,
-                            father,
-                            mother,
-                            rng,
-                        );
-                    }
-                },
-            );
+        let _crossover_size = self.prepare_population(genotype, state, config);
+        // state
+        //     .population
+        //     .chromosomes
+        //     .par_chunks_mut(2)
+        //     .take(crossover_size)
+        //     .for_each_init(
+        //         || SmallRng::from_rng(rand::thread_rng()).unwrap(),
+        //         |rng, chunk| {
+        //             if let [father, mother] = chunk {
+        //                 genotype.crossover_chromosome_points(
+        //                     self.number_of_crossovers,
+        //                     self.allow_duplicates,
+        //                     father,
+        //                     mother,
+        //                     rng,
+        //                 );
+        //             }
+        //         },
+        //     );
 
         state.add_duration(StrategyAction::Crossover, now.elapsed());
     }

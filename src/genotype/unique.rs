@@ -139,7 +139,7 @@ impl<T: Allele> Genotype for Unique<T> {
         panic!("UniqueGenotype does not support gene crossover")
     }
     fn crossover_chromosome_points<R: Rng>(
-        &self,
+        &mut self,
         _number_of_crossovers: usize,
         _allow_duplicates: bool,
         _father: &mut Chromosome<Self>,
