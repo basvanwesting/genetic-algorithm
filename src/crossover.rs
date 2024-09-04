@@ -1,8 +1,10 @@
 //! The crossover phase where every two parent chromosomes create two children chromosomes. The
 //! [selection](crate::select) phase determines the order and the amount of the parent pairing
-//! (overall with fitter first). If you choose to a keep a percentage of the top parents, the
-//! parents will select with their own children and the population is temporarily overbooked and
-//! part of it will be discarded in the [selection](crate::select) phase of the next generation.
+//! (overall with fitter first).
+//!
+//! If the [selection](crate::select) dropped some chromosomes due to the selection_rate, the
+//! crossover will restore the population towards the target_population_size by keeping the best
+//! parents alive. Excess parents are dropped.
 mod clone;
 mod multi_gene;
 mod multi_point;

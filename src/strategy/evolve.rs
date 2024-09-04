@@ -9,13 +9,13 @@ pub use self::builder::{
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
 use crate::chromosome::Chromosome;
-use crate::select::Select;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
+use crate::select::Select;
 use rand::rngs::SmallRng;
 use std::cell::RefCell;
 use std::collections::HashMap;
@@ -34,8 +34,8 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///
 /// Then the Evolve strategy runs through generations of chromosomes in a loop:
 /// * [extension](crate::extension) an optional step (e.g. [MassExtinction](crate::extension::ExtensionMassExtinction))
-/// * [select](crate::select) to pair up chromosomes for crossover and drop excess chromosomes
-/// * [crossover](crate::crossover) to produce new offspring with a mix of parents chromosome genes
+/// * [select](crate::select) and pair up chromosomes for crossover
+/// * [crossover](crate::crossover) to produce new offspring with a mix of parents chromosome.
 /// * [mutate](crate::mutate) the offspring chromosomes to add some additional diversity
 /// * calculate [fitness](crate::fitness) for all chromosomes
 /// * store best chromosome and check ending conditions

@@ -70,7 +70,7 @@ impl Fitness for CountTrue {
 // the search strategy
 let evolve = Evolve::builder()
     .with_genotype(genotype)
-    .with_compete(CompeteElite::new(0.9))          // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
+    .with_select(SelectElite::new(0.9))            // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
     .with_crossover(CrossoverUniform::new())       // crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
     .with_mutate(MutateSingleGene::new(0.2))       // mutate offspring for a single gene with a 20% probability per chromosome
     .with_fitness(CountTrue)                       // count the number of true values in the chromosomes
@@ -119,7 +119,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 
 For the Evolve strategy:
 
-* Compete: no considerations. All competes are basically some form of in-place
+* Select: no considerations. All selects are basically some form of in-place
   sorting of some kind. This is relatively fast compared to the rest of the
   operations.
 * Crossover: the workhorse of internal parts. Crossover touches most genes each
@@ -175,7 +175,7 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 * Add scaling permutate? Can be done by grid search and then search within last grid with new scale
 * Add scaling helper function
 * Add simulated annealing strategy
-* Add Roulette competition with and without duplicates (with fitness ordering)
+* Add Roulette selection with and without duplicates (with fitness ordering)
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for RangeGenotype?
 * Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?

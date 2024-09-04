@@ -1,5 +1,6 @@
 //! The selection phase, where chromosomes are lined up for pairing in the
-//! [crossover](crate::crossover) phase.
+//! [crossover](crate::crossover) phase, dropping the chromosomes outside of the selection_rate.
+//! Ensure the selection_rate >= 0.5 otherwise the population will decline and can't restore.
 mod elite;
 mod tournament;
 mod wrapper;
