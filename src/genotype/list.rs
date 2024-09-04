@@ -79,15 +79,8 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
         }
     }
 }
-
-impl<T: Allele + PartialEq> Genotype for List<T> {
-    type Allele = T;
-    type Genes = Vec<Self::Allele>;
-
-    fn genes_size(&self) -> usize {
-        self.genes_size
-    }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
+impl<T: Allele + PartialEq> List<T> {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
                 .map(|_| self.allele_list[self.allele_index_sampler.sample(rng)])
@@ -95,6 +88,15 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
+    }
+}
+
+impl<T: Allele + PartialEq> Genotype for List<T> {
+    type Allele = T;
+    type Genes = Vec<Self::Allele>;
+
+    fn genes_size(&self) -> usize {
+        self.genes_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))

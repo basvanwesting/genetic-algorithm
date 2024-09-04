@@ -192,17 +192,15 @@ where
         self.genes_size
     }
 
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
-        if self.seed_genes_list.is_empty() {
+    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
+        let genes = if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
                 .map(|_| self.allele_sampler.sample(rng))
                 .collect()
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()
-        }
-    }
-    fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
-        Chromosome::new(self.random_genes_factory(rng))
+        };
+        Chromosome::new(genes)
     }
     fn chromosome_factory_empty(&self) -> Chromosome<Self> {
         Chromosome::new(vec![])

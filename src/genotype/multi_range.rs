@@ -223,6 +223,22 @@ where
     }
 }
 
+impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> MultiRange<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+        if self.seed_genes_list.is_empty() {
+            (0..self.genes_size)
+                .map(|index| self.allele_samplers[index].sample(rng))
+                .collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
+}
+
 impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> Genotype for MultiRange<T>
 where
     T: SampleUniform,
@@ -233,15 +249,6 @@ where
 
     fn genes_size(&self) -> usize {
         self.genes_size
-    }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
-        if self.seed_genes_list.is_empty() {
-            (0..self.genes_size)
-                .map(|index| self.allele_samplers[index].sample(rng))
-                .collect()
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))

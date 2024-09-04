@@ -78,8 +78,6 @@ pub trait Genotype:
     /// random genes unless seed genes are provided
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self>;
     /// a random genes factory (respecting seed genes)
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes;
-    // functionally invalid placeholder
     fn chromosome_factory_empty(&self) -> Chromosome<Self>;
     // test for functionally invalid placeholder
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool;

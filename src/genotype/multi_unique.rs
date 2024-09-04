@@ -117,14 +117,8 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
     }
 }
 
-impl<T: Allele> Genotype for MultiUnique<T> {
-    type Allele = T;
-    type Genes = Vec<Self::Allele>;
-
-    fn genes_size(&self) -> usize {
-        self.genes_size
-    }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
+impl<T: Allele> MultiUnique<T> {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
         if self.seed_genes_list.is_empty() {
             self.allele_lists
                 .iter()
@@ -137,6 +131,15 @@ impl<T: Allele> Genotype for MultiUnique<T> {
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
+    }
+}
+
+impl<T: Allele> Genotype for MultiUnique<T> {
+    type Allele = T;
+    type Genes = Vec<Self::Allele>;
+
+    fn genes_size(&self) -> usize {
+        self.genes_size
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))

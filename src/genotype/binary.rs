@@ -43,19 +43,22 @@ impl TryFrom<Builder<Self>> for Binary {
     }
 }
 
+impl Binary {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+        if self.seed_genes_list.is_empty() {
+            rng.sample_iter(Standard).take(self.genes_size).collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
+}
+
 impl Genotype for Binary {
     type Allele = bool;
     type Genes = Vec<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
-    }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
-        if self.seed_genes_list.is_empty() {
-            rng.sample_iter(Standard).take(self.genes_size).collect()
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))

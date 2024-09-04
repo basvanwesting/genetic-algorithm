@@ -106,6 +106,14 @@ impl Bit {
     pub fn genes_from_blocks<I: IntoIterator<Item = Block>>(bits: usize, blocks: I) -> FixedBitSet {
         FixedBitSet::with_capacity_and_blocks(bits, blocks)
     }
+
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+        if self.seed_genes_list.is_empty() {
+            FixedBitSet::with_capacity_and_blocks(self.genes_size, rng.sample_iter(Standard))
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
 }
 
 impl Genotype for Bit {
@@ -114,13 +122,6 @@ impl Genotype for Bit {
 
     fn genes_size(&self) -> usize {
         self.genes_size
-    }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Self::Genes {
-        if self.seed_genes_list.is_empty() {
-            FixedBitSet::with_capacity_and_blocks(self.genes_size, rng.sample_iter(Standard))
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
     }
     fn chromosome_factory<R: Rng>(&self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))
