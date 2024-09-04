@@ -17,7 +17,7 @@ pub struct Elite {
 impl Select for Elite {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        _genotype: &G,
+        _genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         _reporter: &mut SR,

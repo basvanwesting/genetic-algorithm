@@ -7,7 +7,7 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 
 #[test]
 fn population_even_no_shortage() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -30,7 +30,7 @@ fn population_even_no_shortage() {
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
     CrossoverParMultiPoint::new(3, false).call(
-        &genotype,
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -44,7 +44,7 @@ fn population_even_no_shortage() {
 
 #[test]
 fn population_even_shortage() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -67,7 +67,7 @@ fn population_even_shortage() {
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
     CrossoverParMultiPoint::new(3, true).call(
-        &genotype,
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,

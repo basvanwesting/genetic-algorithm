@@ -6,7 +6,7 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 
 #[test]
 fn population_even_shortage() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -26,7 +26,13 @@ fn population_even_shortage() {
     };
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverMultiGene::new(4, true).call(
+        &mut genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(&state.population),
@@ -42,7 +48,7 @@ fn population_even_shortage() {
 
 #[test]
 fn population_shortage_below_target() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(5)
         .build()
         .unwrap();
@@ -58,7 +64,13 @@ fn population_shortage_below_target() {
     };
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(3, true).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverMultiGene::new(3, true).call(
+        &mut genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(&state.population),

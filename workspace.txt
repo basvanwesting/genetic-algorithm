@@ -1,0 +1,31 @@
+src/select/elite.rs
+    state.population.truncate(selected_population_size);
+    => genoype.population_garbage_collect(population)
+src/select/tournament.rs
+    state.population.chromosomes.clear();
+    state
+       .population
+       .chromosomes
+       .append(&mut selected_chromosomes);
+    => genoype.population_garbage_collect(population)
+
+src/crossover.rs
+    state
+        .population
+        .chromosomes
+        .extend_from_within(..parent_survivors);
+
+    => genoype.population_extend_from_within(population, ..slice)
+
+    state.population.truncate(config.target_population_size);
+    => genoype.population_garbage_collect(population)
+
+src/extension/mass_extinction.rs
+    state.population.shuffle(rng);
+    state.population.truncate(remaining_size);
+    => genoype.population_garbage_collect(population)
+src/extension/mass_genesis.rs
+    state.population.chromosomes.clear();
+    state.population.chromosomes.push(best_chromosome.clone());
+    state.population.chromosomes.push(best_chromosome);
+    => genoype.population_garbage_collect(population)

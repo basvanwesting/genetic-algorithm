@@ -9,7 +9,7 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 
 #[test]
 fn maximize() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -34,7 +34,7 @@ fn maximize() {
         fitness_ordering: FitnessOrdering::Maximize,
         ..Default::default()
     };
-    SelectElite::new(0.74).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new(0.74).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -52,7 +52,7 @@ fn maximize() {
 
 #[test]
 fn minimize() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -76,7 +76,7 @@ fn minimize() {
         fitness_ordering: FitnessOrdering::Minimize,
         ..Default::default()
     };
-    SelectElite::new(0.74).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new(0.74).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -93,7 +93,7 @@ fn minimize() {
 
 #[test]
 fn fitness_ordering_with_none_fitness() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -113,7 +113,7 @@ fn fitness_ordering_with_none_fitness() {
         fitness_ordering: FitnessOrdering::Maximize,
         ..Default::default()
     };
-    SelectElite::new(1.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new(1.0).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
@@ -129,7 +129,7 @@ fn fitness_ordering_with_none_fitness() {
         fitness_ordering: FitnessOrdering::Minimize,
         ..Default::default()
     };
-    SelectElite::new(1.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new(1.0).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![

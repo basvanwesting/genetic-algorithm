@@ -31,7 +31,7 @@ use std::cmp::Ordering;
 pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        genotype: &G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,
@@ -43,7 +43,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     /// the population is returned
     fn prepare_population<G: Genotype>(
         &mut self,
-        _genotype: &G,
+        _genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
     ) -> usize {

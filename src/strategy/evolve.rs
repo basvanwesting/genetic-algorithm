@@ -201,21 +201,21 @@ impl<
             self.state.population.increment_and_filter_age(&self.config);
 
             self.plugins.extension.call(
-                &self.genotype,
+                &mut self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
                 &mut self.rng,
             );
             self.plugins.select.call(
-                &self.genotype,
+                &mut self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
                 &mut self.rng,
             );
             self.plugins.crossover.call(
-                &self.genotype,
+                &mut self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,

@@ -7,7 +7,7 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 
 #[test]
 fn removes_randomly() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -31,7 +31,7 @@ fn removes_randomly() {
     let config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassGenesis::new(5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    ExtensionMassGenesis::new(5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),

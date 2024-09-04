@@ -7,7 +7,7 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, Evol
 
 #[test]
 fn removes_randomly() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -32,7 +32,7 @@ fn removes_randomly() {
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassExtinction::new(8, 0.75).call(
-        &genotype,
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -55,7 +55,7 @@ fn removes_randomly() {
 
 #[test]
 fn never_leaves_less_than_tow() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -78,7 +78,7 @@ fn never_leaves_less_than_tow() {
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassExtinction::new(8, 0.01).call(
-        &genotype,
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,
