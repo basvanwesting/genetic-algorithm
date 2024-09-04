@@ -15,14 +15,14 @@ pub struct Clone;
 impl Crossover for Clone {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
-        _genotype: &G,
+        genotype: &G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         _reporter: &mut SR,
         _rng: &mut R,
     ) {
         let now = Instant::now();
-        let crossover_size = self.prepare_population(state, config);
+        let crossover_size = self.prepare_population(genotype, state, config);
         state
             .population
             .chromosomes

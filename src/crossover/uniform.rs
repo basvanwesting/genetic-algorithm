@@ -27,7 +27,7 @@ impl Crossover for Uniform {
         rng: &mut R,
     ) {
         let now = Instant::now();
-        let crossover_size = self.prepare_population(state, config);
+        let crossover_size = self.prepare_population(genotype, state, config);
         let number_of_crossovers = genotype.genes_size() / 2;
         for (father, mother) in state
             .population

@@ -43,6 +43,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     /// the population is returned
     fn prepare_population<G: Genotype>(
         &mut self,
+        _genotype: &G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
     ) -> usize {

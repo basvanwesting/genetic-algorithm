@@ -26,7 +26,7 @@ impl Crossover for SingleGene {
         rng: &mut R,
     ) {
         let now = Instant::now();
-        let crossover_size = self.prepare_population(state, config);
+        let crossover_size = self.prepare_population(genotype, state, config);
         for (father, mother) in state
             .population
             .chromosomes
