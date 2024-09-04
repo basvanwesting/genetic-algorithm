@@ -70,9 +70,9 @@ impl Fitness for CountTrue {
 // the search strategy
 let evolve = Evolve::builder()
     .with_genotype(genotype)
-    .with_compete(CompeteElite::new())             // sort the chromosomes by fitness to determine crossover order
-    .with_crossover(CrossoverUniform::new(0.5))    // crossover all individual genes between 2 chromosomes for offspring, keep 50% of parents around for next generation
-    .with_mutate(MutateSingleGene::new(0.2))       // mutate a single gene with a 20% probability per chromosome
+    .with_compete(CompeteElite::new(0.9))          // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
+    .with_crossover(CrossoverUniform::new())       // crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
+    .with_mutate(MutateSingleGene::new(0.2))       // mutate offspring for a single gene with a 20% probability per chromosome
     .with_fitness(CountTrue)                       // count the number of true values in the chromosomes
     .with_target_population_size(100)              // evolve with 100 chromosomes
     .with_target_fitness_score(100)                // goal is 100 times true in the best chromosome
@@ -142,9 +142,9 @@ For the Evolve strategy:
 * Large genes sizes
   * It seems that CrossoverMultiPoint with `number_of_crossovers = genes_size / 9` 
   and `allow_duplicates = false` is the best tradeoff between performance and effect.
-  * Keeping the parents around has major performance effects and should be
-  avoided. Use low parent_survival_rate or none at all. Explore non-Vec based
-  genotypes like [BitGenotype](genotype::BitGenotype).
+  * Keeping the parents around has major performance effects and should be avoided. Use a high
+  selection_rate or even 100%, so there is little parent cloning. Explore non-Vec based
+  genotypes like BitGenotype.
 
 ## Tests
 Run tests with `cargo test`

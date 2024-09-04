@@ -9,8 +9,8 @@ use std::time::Instant;
 /// population. When this cardinality drops to the threshold, the population is randomly reduced
 /// regardless of fitness using the survival_rate (fraction of population).
 ///
-/// Ensure you have some population growth in compete/crossover by setting a parent_survival_rate >
-/// 0 in order for the population to recover
+/// Ensure you have some population growth in compete/crossover by setting the
+/// [Compete](crate::compete::Compete) selection_rate > 0.5 in order for the population to recover
 #[derive(Debug, Clone)]
 pub struct MassExtinction {
     pub cardinality_threshold: usize,

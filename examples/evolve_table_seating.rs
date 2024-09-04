@@ -93,8 +93,8 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.3))
-        .with_crossover(CrossoverSinglePoint::new(0.5))
-        .with_compete(CompeteTournament::new(4))
+        .with_crossover(CrossoverSinglePoint::new())
+        .with_compete(CompeteTournament::new(4, 0.9))
         .with_reporter(EvolveReporterSimple::new(1000));
 
     //let now = std::time::Instant::now();

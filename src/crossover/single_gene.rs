@@ -7,41 +7,31 @@ use rand::Rng;
 use std::time::Instant;
 
 /// Crossover a single gene between the parents. The gene position is chosen with uniform
-/// probability. Optionally keep a percentage of the parents around to compete with children later
-/// on.
+/// probability.
+/// The population is restored towards the target_population_size by keeping the best parents
+/// alive. Excess parents are dropped.
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
 /// uniqueness in the children.
-#[derive(Clone, Debug)]
-pub struct SingleGene {
-    pub parent_survival_rate: f32,
-}
+#[derive(Clone, Debug, Default)]
+pub struct SingleGene;
 impl Crossover for SingleGene {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
-        _config: &EvolveConfig,
+        config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
     ) {
         let now = Instant::now();
-        let population_size = state.population.size();
-        let parent_survivors = std::cmp::min(
-            (population_size as f32 * self.parent_survival_rate) as usize,
-            population_size,
-        );
-        state
-            .population
-            .chromosomes
-            .extend_from_within(..parent_survivors);
-
+        let crossover_size = self.prepare_population(state, config);
         for (father, mother) in state
             .population
             .chromosomes
             .iter_mut()
-            .take(population_size)
+            .take(crossover_size)
             .tuples()
         {
             genotype.crossover_chromosome_genes(1, true, father, mother, rng);
@@ -55,9 +45,7 @@ impl Crossover for SingleGene {
 }
 
 impl SingleGene {
-    pub fn new(parent_survival_rate: f32) -> Self {
-        Self {
-            parent_survival_rate,
-        }
+    pub fn new() -> Self {
+        Self
     }
 }

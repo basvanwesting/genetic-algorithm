@@ -6,7 +6,7 @@ use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
-fn population_even() {
+fn population_even_no_shortage() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(6)
         .build()
@@ -21,10 +21,13 @@ fn population_even() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 4,
+        ..Default::default()
+    };
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSinglePoint::new(0.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverSinglePoint::new().call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -35,43 +38,4 @@ fn population_even() {
             vec![false, false, true, true, true],
         ]
     )
-}
-
-#[test]
-fn population_even_keep_parents() {
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(6)
-        .build()
-        .unwrap();
-
-    let mut population: Population<BinaryGenotype> = build::population(vec![
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
-        vec![true, true, true, true, true],
-        vec![false, false, false, false, false],
-    ]);
-    population.chromosomes.reserve_exact(10);
-    assert_eq!(population.chromosomes.capacity(), 14);
-
-    let mut state = EvolveState::new(&genotype);
-    state.population = population;
-    let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
-    let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSinglePoint::new(0.55).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-
-    assert_eq!(
-        inspect::population(&state.population),
-        vec![
-            vec![true, true, false, false, false],
-            vec![false, false, true, true, true],
-            vec![true, true, false, false, false],
-            vec![false, false, true, true, true],
-            vec![true, true, true, true, true],
-            vec![false, false, false, false, false],
-            // vec![true, true, true, true, true],
-            // vec![false, false, false, false, false],
-        ]
-    );
-    assert_eq!(state.population.chromosomes.capacity(), 14);
 }

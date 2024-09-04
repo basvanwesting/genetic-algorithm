@@ -6,7 +6,7 @@ use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
-fn population_even() {
+fn population_even_no_shortage() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
@@ -21,10 +21,13 @@ fn population_even() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 4,
+        ..Default::default()
+    };
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(0.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverUniform::new().call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -33,40 +36,6 @@ fn population_even() {
             vec![false, false, false, false, true, false, false, false, true, true],
             vec![true, true, true, false, false, false, true, true, false, false],
             vec![false, false, false, true, true, true, false, false, true, true],
-        ]
-    )
-}
-
-#[test]
-fn population_odd() {
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(10)
-        .build()
-        .unwrap();
-
-    let population: Population<BinaryGenotype> = build::population(vec![
-        vec![true; 10],
-        vec![false; 10],
-        vec![true; 10],
-        vec![false; 10],
-        vec![true; 10],
-    ]);
-
-    let mut state = EvolveState::new(&genotype);
-    state.population = population;
-    let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
-    let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverUniform::new(0.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
-
-    assert_eq!(
-        inspect::population(&state.population),
-        vec![
-            vec![true, true, true, true, false, true, true, true, false, false],
-            vec![false, false, false, false, true, false, false, false, true, true],
-            vec![true, true, true, false, false, false, true, true, false, false],
-            vec![false, false, false, true, true, true, false, false, true, true],
-            vec![true; 10],
         ]
     )
 }

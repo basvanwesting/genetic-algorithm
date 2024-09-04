@@ -6,7 +6,7 @@ use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
-fn population_odd() {
+fn population_no_shortage() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
@@ -20,10 +20,13 @@ fn population_odd() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 3,
+        ..Default::default()
+    };
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverClone::new(0.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverClone::new().call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -36,26 +39,27 @@ fn population_odd() {
 }
 
 #[test]
-fn population_odd_keep_parents() {
+fn population_odd_shortage() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
 
-    let mut population: Population<BinaryGenotype> = build::population(vec![
+    let population: Population<BinaryGenotype> = build::population(vec![
         vec![true, true, true],
         vec![false, false, false],
         vec![true, true, true],
     ]);
-    population.chromosomes.reserve_exact(10);
-    assert_eq!(population.chromosomes.capacity(), 13);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 4,
+        ..Default::default()
+    };
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverClone::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverClone::new().call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -64,15 +68,48 @@ fn population_odd_keep_parents() {
             vec![false, false, false],
             vec![true, true, true],
             vec![true, true, true],
-            // vec![false, false, false],
-            // vec![true, true, true],
         ]
-    );
-    assert_eq!(state.population.chromosomes.capacity(), 13);
+    )
 }
 
 #[test]
-fn population_size_one() {
+fn population_even_shortage() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
+
+    let population: Population<BinaryGenotype> = build::population(vec![
+        vec![true, true, true],
+        vec![false, false, false],
+        vec![true, true, true],
+        vec![false, false, false],
+    ]);
+
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
+    let config = EvolveConfig {
+        target_population_size: 5,
+        ..Default::default()
+    };
+    let mut reporter = EvolveReporterNoop::new();
+    let mut rng = SmallRng::seed_from_u64(0);
+    CrossoverClone::new().call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+
+    assert_eq!(
+        inspect::population(&state.population),
+        vec![
+            vec![true, true, true],
+            vec![false, false, false],
+            vec![true, true, true],
+            vec![false, false, false],
+            vec![true, true, true],
+        ]
+    )
+}
+
+#[test]
+fn population_shortage_below_target() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(5)
         .build()
@@ -83,13 +120,55 @@ fn population_size_one() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 4,
+        ..Default::default()
+    };
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverClone::new(0.0).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    CrossoverClone::new().call(&genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
-        vec![vec![true, false, true, false, true]]
+        vec![
+            vec![true, false, true, false, true],
+            vec![true, false, true, false, true],
+        ]
+    )
+}
+
+#[test]
+fn population_excess() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
+
+    let population: Population<BinaryGenotype> = build::population(vec![
+        vec![true, true, true],
+        vec![false, false, false],
+        vec![true, true, true],
+        vec![false, false, false],
+        vec![true, true, true],
+    ]);
+
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
+    let config = EvolveConfig {
+        target_population_size: 4,
+        ..Default::default()
+    };
+    let mut reporter = EvolveReporterNoop::new();
+    let mut rng = SmallRng::seed_from_u64(0);
+    CrossoverClone::new().call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+
+    assert_eq!(
+        inspect::population(&state.population),
+        vec![
+            vec![true, true, true],
+            vec![false, false, false],
+            vec![true, true, true],
+            vec![false, false, false],
+        ]
     )
 }

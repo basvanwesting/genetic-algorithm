@@ -102,9 +102,9 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
 ///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
-///     .with_compete(CompeteElite::new())                     // sort the chromosomes by fitness to determine crossover order
-///     .with_crossover(CrossoverUniform::new(0.5))            // crossover all individual genes between 2 chromosomes for offspring, keep 50% of best parents around for next generation
-///     .with_mutate(MutateSingleGene::new(0.2))               // mutate a single gene with a 20% probability per chromosome
+///     .with_compete(CompeteElite::new(0.9))                  // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
+///     .with_crossover(CrossoverUniform::new())               // crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
+///     .with_mutate(MutateSingleGene::new(0.2))               // mutate offspring for a single gene with a 20% probability per chromosome
 ///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)      // aim for the least true values
 ///     .with_par_fitness(true)                                // optional, defaults to false, use parallel fitness calculation

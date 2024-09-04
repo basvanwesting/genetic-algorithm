@@ -50,8 +50,8 @@ fn main() {
         .with_fitness(DistanceTo(0.5, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverUniform::new(0.5))
-        .with_compete(CompeteTournament::new(4))
+        .with_crossover(CrossoverUniform::new())
+        .with_compete(CompeteTournament::new(4, 0.9))
         .with_reporter(EvolveReporterSimple::new(100))
         .call()
         .unwrap();

@@ -86,8 +86,8 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.05))
         //.with_fitness(ExpensiveCount::new(1000))
         .with_fitness(CachedExpensiveCount::new(1000, 1500))
-        .with_crossover(CrossoverClone::new(0.5))
-        .with_compete(CompeteTournament::new(4))
+        .with_crossover(CrossoverClone::new())
+        .with_compete(CompeteTournament::new(4, 0.9))
         .call()
         .unwrap();
 

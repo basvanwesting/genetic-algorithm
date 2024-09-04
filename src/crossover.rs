@@ -24,6 +24,7 @@ pub use self::wrapper::Wrapper as CrossoverWrapper;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use rand::Rng;
+use std::cmp::Ordering;
 
 pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
@@ -34,6 +35,32 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
         reporter: &mut SR,
         rng: &mut R,
     );
+
+    /// The population is restored towards the target_population_size by keeping the best parents
+    /// alive. Excess parents are dropped. The number of crossovers to execute from the front of
+    /// the population is returned
+    fn prepare_population<G: Genotype>(
+        &mut self,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+    ) -> usize {
+        let population_size = state.population.size();
+        match config.target_population_size.cmp(&population_size) {
+            Ordering::Greater => {
+                let parent_survivors =
+                    (config.target_population_size - population_size).min(population_size);
+                state
+                    .population
+                    .chromosomes
+                    .extend_from_within(..parent_survivors);
+            }
+            Ordering::Less => {
+                state.population.truncate(config.target_population_size);
+            }
+            Ordering::Equal => (),
+        }
+        population_size.min(config.target_population_size)
+    }
 
     /// to guard against invalid Crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues

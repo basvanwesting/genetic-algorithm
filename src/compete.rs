@@ -1,6 +1,5 @@
 //! The competition phase, where chromosomes are lined up for pairing in the
-//! [crossover](crate::crossover) phase. Excess chromosomes, beyond the target_population_size,
-//! are dropped.
+//! [crossover](crate::crossover) phase.
 mod elite;
 mod tournament;
 mod wrapper;

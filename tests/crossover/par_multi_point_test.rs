@@ -6,25 +6,30 @@ use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
-fn population_even() {
+fn population_even_no_shortage() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
 
-    let population: Population<BinaryGenotype> = build::population(vec![
+    let mut population: Population<BinaryGenotype> = build::population(vec![
         vec![true; 10],
         vec![false; 10],
         vec![true; 10],
         vec![false; 10],
     ]);
+    population.chromosomes.reserve_exact(10);
+    assert_eq!(population.chromosomes.capacity(), 14);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 4,
+        ..Default::default()
+    };
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
-    CrossoverParMultiPoint::new(3, false, 0.0).call(
+    CrossoverParMultiPoint::new(3, false).call(
         &genotype,
         &mut state,
         &config,
@@ -34,6 +39,7 @@ fn population_even() {
 
     // cannot assert result as parallel execution in combination with randomness is not determinstic. Just assert it doens't panic
     assert_eq!(state.population.size(), 4);
+    assert_eq!(state.population.chromosomes.capacity(), 14);
 }
 
 #[test]
@@ -54,10 +60,13 @@ fn population_even_keep_parents() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 6,
+        ..Default::default()
+    };
     let mut reporter = EvolveReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
-    CrossoverParMultiPoint::new(3, true, 0.55).call(
+    CrossoverParMultiPoint::new(3, true).call(
         &genotype,
         &mut state,
         &config,

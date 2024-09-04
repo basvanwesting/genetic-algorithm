@@ -18,8 +18,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_fitness(CountTrue)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverSinglePoint::new(0.5))
-        .with_compete(CompeteTournament::new(4));
+        .with_crossover(CrossoverSinglePoint::new())
+        .with_compete(CompeteTournament::new(4, 0.9));
 
     c.bench_function("profile_evolve_binary", |b| {
         b.iter_batched(

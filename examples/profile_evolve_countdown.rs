@@ -21,27 +21,27 @@ const MUTATIONS_PER_CHROMOSOME: usize = 50;
 //   * compete not a factor, it's basically some form of in-place sorting of some kind
 
 fn main() {
-    // let genotype = RangeGenotype::builder()
-    //     .with_genes_size(GENES_SIZE)
-    //     .with_allele_range(ALLELE_RANGE)
-    //     .build()
-    //     .unwrap();
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(GENES_SIZE)
+        .with_allele_range(ALLELE_RANGE)
+        .build()
+        .unwrap();
     // let genotype = BinaryGenotype::builder()
     //     .with_genes_size(GENES_SIZE)
     //     .build()
     //     .unwrap();
-    let genotype = BitGenotype::builder()
-        .with_genes_size(GENES_SIZE)
-        .build()
-        .unwrap();
+    // let genotype = BitGenotype::builder()
+    //     .with_genes_size(GENES_SIZE)
+    //     .build()
+    //     .unwrap();
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
         // .with_compete(CompeteElite)
-        .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
-        // .with_crossover(CrossoverClone::new(0.0))
-        .with_crossover(CrossoverMultiPoint::new(9, false, 0.5))
-        // .with_crossover(CrossoverParMultiPoint::new(10, false, 0.0))
+        .with_compete(CompeteTournament::new(TOURNAMENT_SIZE, 0.8))
+        // .with_crossover(CrossoverClone::new())
+        .with_crossover(CrossoverMultiPoint::new(9, false))
+        // .with_crossover(CrossoverParMultiPoint::new(10, false))
         .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 0.2))
         .with_reporter(EvolveReporterSimple::new(100))
         .with_fitness(CountdownNoisy::new(
@@ -78,8 +78,8 @@ fn main() {
 //     let evolve_builder = Evolve::builder()
 //         .with_genotype(genotype)
 //         .with_compete(CompeteTournament::new(TOURNAMENT_SIZE))
-//         .with_crossover(CrossoverMultiPoint::new(9, false, 0.0))
-//         // .with_crossover(CrossoverParMultiPoint::new(10, false, 0.0))
+//         .with_crossover(CrossoverMultiPoint::new(9, false))
+//         // .with_crossover(CrossoverParMultiPoint::new(10, false))
 //         .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 0.2))
 //         // .with_reporter(EvolveReporterSimple::new(100))
 //         .with_fitness(CountdownNoisy::new(

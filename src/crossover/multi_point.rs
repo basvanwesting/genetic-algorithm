@@ -9,8 +9,9 @@ use std::time::Instant;
 /// Crossover multiple gene positions from which on the rest of the genes are taken from the other
 /// parent. This goes back and forth. The gene positions are chosen with uniform probability.
 /// Choose between allowing duplicate crossovers on the same point or not (not much slower, as
-/// crossover itself is relatively expensive). Optionally keep a percentage of the parents around
-/// to compete with children later on.
+/// crossover itself is relatively expensive).
+/// The population is restored towards the target_population_size by keeping the best parents
+/// alive. Excess parents are dropped.
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) as it would not preserve the gene uniqueness in the children.
 /// Allowed for [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as there are valid crossover points between each new set
@@ -18,32 +19,23 @@ use std::time::Instant;
 pub struct MultiPoint {
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
-    pub parent_survival_rate: f32,
 }
 impl Crossover for MultiPoint {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
-        _config: &EvolveConfig,
+        config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
     ) {
         let now = Instant::now();
-        let population_size = state.population.size();
-        let parent_survivors = std::cmp::min(
-            (population_size as f32 * self.parent_survival_rate) as usize,
-            population_size,
-        );
-        state
-            .population
-            .chromosomes
-            .extend_from_within(..parent_survivors);
+        let crossover_size = self.prepare_population(state, config);
         for (father, mother) in state
             .population
             .chromosomes
             .iter_mut()
-            .take(population_size)
+            .take(crossover_size)
             .tuples()
         {
             genotype.crossover_chromosome_points(
@@ -62,15 +54,10 @@ impl Crossover for MultiPoint {
 }
 
 impl MultiPoint {
-    pub fn new(
-        number_of_crossovers: usize,
-        allow_duplicates: bool,
-        parent_survival_rate: f32,
-    ) -> Self {
+    pub fn new(number_of_crossovers: usize, allow_duplicates: bool) -> Self {
         Self {
             number_of_crossovers,
             allow_duplicates,
-            parent_survival_rate,
         }
     }
 }

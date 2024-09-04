@@ -9,7 +9,8 @@ use std::time::Instant;
 /// Crossover multiple genes between the parents. The gene positions are chosen with uniform
 /// probability.
 /// Choose between allowing duplicate crossovers of the same gene or not (~2x slower).
-/// Optionally keep a percentage of the parents around to compete with children later on.
+/// The population is restored towards the target_population_size by keeping the best parents
+/// alive. Excess parents are dropped.
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
@@ -18,32 +19,23 @@ use std::time::Instant;
 pub struct MultiGene {
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
-    pub parent_survival_rate: f32,
 }
 impl Crossover for MultiGene {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
-        _config: &EvolveConfig,
+        config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
     ) {
         let now = Instant::now();
-        let population_size = state.population.size();
-        let parent_survivors = std::cmp::min(
-            (population_size as f32 * self.parent_survival_rate) as usize,
-            population_size,
-        );
-        state
-            .population
-            .chromosomes
-            .extend_from_within(..parent_survivors);
+        let crossover_size = self.prepare_population(state, config);
         for (father, mother) in state
             .population
             .chromosomes
             .iter_mut()
-            .take(population_size)
+            .take(crossover_size)
             .tuples()
         {
             genotype.crossover_chromosome_genes(
@@ -62,14 +54,9 @@ impl Crossover for MultiGene {
 }
 
 impl MultiGene {
-    pub fn new(
-        number_of_crossovers: usize,
-        allow_duplicates: bool,
-        parent_survival_rate: f32,
-    ) -> Self {
+    pub fn new(number_of_crossovers: usize, allow_duplicates: bool) -> Self {
         Self {
             number_of_crossovers,
-            parent_survival_rate,
             allow_duplicates,
         }
     }

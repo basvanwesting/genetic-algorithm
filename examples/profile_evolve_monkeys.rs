@@ -41,8 +41,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(MonkeyFitness)
-        .with_crossover(CrossoverSinglePoint::new(0.5))
-        .with_compete(CompeteTournament::new(4));
+        .with_crossover(CrossoverSinglePoint::new())
+        .with_compete(CompeteTournament::new(4, 0.9));
 
     c.bench_function("profile_evolve_monkeys", |b| {
         b.iter_batched(
