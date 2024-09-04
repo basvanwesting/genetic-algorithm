@@ -129,7 +129,7 @@ impl<T: Allele> Genotype for Unique<T> {
         chromosome.taint_fitness_score();
     }
     fn crossover_chromosome_genes<R: Rng>(
-        &self,
+        &mut self,
         _number_of_crossovers: usize,
         _allow_duplicates: bool,
         _father: &mut Chromosome<Self>,

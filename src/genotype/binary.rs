@@ -99,7 +99,7 @@ impl Genotype for Binary {
     }
 
     fn crossover_chromosome_genes<R: Rng>(
-        &self,
+        &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self>,

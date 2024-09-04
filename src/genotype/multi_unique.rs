@@ -196,7 +196,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
     }
 
     fn crossover_chromosome_genes<R: Rng>(
-        &self,
+        &mut self,
         _number_of_crossovers: usize,
         _allow_duplicates: bool,
         _father: &mut Chromosome<Self>,

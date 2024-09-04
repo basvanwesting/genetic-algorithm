@@ -140,21 +140,42 @@ where
         self.matrix[(chromosome.reference_id, index)] = self.allele_sampler.sample(rng);
     }
     fn mutate_chromosome_index_relative<R: Rng>(
-        &self,
+        &mut self,
         index: usize,
         chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        todo!()
+        let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
+        let new_value = self.matrix[(chromosome.reference_id, index)] + value_diff;
+        if new_value < *self.allele_range.start() {
+            self.matrix[(chromosome.reference_id, index)] = *self.allele_range.start();
+        } else if new_value > *self.allele_range.end() {
+            self.matrix[(chromosome.reference_id, index)] = *self.allele_range.end();
+        } else {
+            self.matrix[(chromosome.reference_id, index)] = new_value;
+        }
     }
     fn mutate_chromosome_index_scaled<R: Rng>(
-        &self,
+        &mut self,
         index: usize,
         chromosome: &mut Chromosome<Self>,
         scale_index: usize,
         rng: &mut R,
     ) {
-        todo!()
+        let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
+        let value_diff = if rng.gen() {
+            *working_range.start()
+        } else {
+            *working_range.end()
+        };
+        let new_value = self.matrix[(chromosome.reference_id, index)] + value_diff;
+        if new_value < *self.allele_range.start() {
+            self.matrix[(chromosome.reference_id, index)] = *self.allele_range.start();
+        } else if new_value > *self.allele_range.end() {
+            self.matrix[(chromosome.reference_id, index)] = *self.allele_range.end();
+        } else {
+            self.matrix[(chromosome.reference_id, index)] = new_value;
+        }
     }
     pub fn inspect_genes(&self, chromosome: &Chromosome<Self>) -> Vec<T> {
         (0..self.genes_size)
@@ -259,14 +280,34 @@ where
     }
 
     fn crossover_chromosome_genes<R: Rng>(
-        &self,
+        &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self>,
         mother: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        todo!()
+        if allow_duplicates {
+            rng.sample_iter(self.gene_index_sampler)
+                .take(number_of_crossovers)
+                .for_each(|index| {
+                    self.matrix
+                        .swap((father.reference_id, index), (mother.reference_id, index));
+                });
+        } else {
+            rand::seq::index::sample(
+                rng,
+                self.genes_size(),
+                number_of_crossovers.min(self.genes_size()),
+            )
+            .iter()
+            .for_each(|index| {
+                self.matrix
+                    .swap((father.reference_id, index), (mother.reference_id, index));
+            });
+        }
+        mother.taint_fitness_score();
+        father.taint_fitness_score();
     }
     fn crossover_chromosome_points<R: Rng>(
         &self,
