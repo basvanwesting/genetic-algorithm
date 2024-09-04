@@ -123,8 +123,8 @@ For the Evolve strategy:
   sorting of some kind. This is relatively fast compared to the rest of the
   operations.
 * Crossover: the workhorse of internal parts. Crossover touches most genes each
-  generation and clones up to the whole population if you keep all the parents
-  around. See performance tips below.
+  generation and clones up to the whole population to restore lost population
+  size in selection. See performance tips below.
 * Mutate: no considerations. It touches genes like crossover does, but should
   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
 * Fitness: can be anything. This fully depends on the user domain. Parallelize
@@ -137,14 +137,15 @@ For the Evolve strategy:
   and `allow_duplicates = true` is the best tradeoff between performance and
   effect. CrossoverUniform is an alias for the same approach, taking the
   genes_size from the genotype at runtime.
-  * Keeping the parents around doesn't matter that much as the cloning is relatively less
-  pronounced (but becomes more prominent for larger population sizes)
+  * Restoring the population doesn't matter that much as the cloning is
+  relatively less pronounced (but becomes more prominent for larger population
+  sizes)
 * Large genes sizes
   * It seems that CrossoverMultiPoint with `number_of_crossovers = genes_size / 9` 
   and `allow_duplicates = false` is the best tradeoff between performance and effect.
-  * Keeping the parents around has major performance effects and should be avoided. Use a high
-  selection_rate or even 100%, so there is little parent cloning. Explore non-Vec based
-  genotypes like BitGenotype.
+  * Restoring the population has major performance effects and should be
+  avoided. Use a high selection_rate or even 100%, so there is little parent
+  cloning. Explore non-Vec based genotypes like BitGenotype.
 
 ## Tests
 Run tests with `cargo test`
@@ -179,7 +180,17 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for RangeGenotype?
 * Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
-* Explore more non-Vec genes: PackedSimd, ArrayVec
+* Explore more non-Vec genes: 
+  * PackedSimd, ArrayVec, TinyVec?
+  * Add MatrixGenotype which stores a `population x genes_size` matrix and keeps
+  the genes internal to the Genotype. Chromosomes just reference the ID using reference-id.
+  Population can be handled very lightly as the Chromosome is just a light
+  pointer. Use nalgebra (2D)? Make sure to allow a dealloc call for chromosomes
+  which are dropped from the population (send the population, and crosscheck
+  reference-ids?)
+* Maybe use TinyVec for Population? (it us usually less than 1000 anyway),
+  maybe useful paired with MatrixGenotype, where the chromosomes are lightweight
+  (and Copyable)
 
 ## ISSUES
 * permutate (and possibly others) with gene_size 0 panics. Maybe it should just return a empty chromosome?

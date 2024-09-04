@@ -62,7 +62,7 @@ fn main() {
     // println!("{}", evolve);
     // println!("genes: {:b}", evolve.best_chromosome().unwrap().genes);
     println!(
-        "BinaryGenotype, duration: {:?} - more cloning overhead, keeping parents",
+        "BinaryGenotype, duration: {:?} - more cloning overhead, restoring population",
         duration
     );
     println!(

@@ -43,7 +43,7 @@ fn population_even_no_shortage() {
 }
 
 #[test]
-fn population_even_keep_parents() {
+fn population_even_shortage() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
