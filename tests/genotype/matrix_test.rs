@@ -5,7 +5,7 @@ use genetic_algorithm::genotype::{Genotype, MatrixGenotype};
 #[test]
 fn chromosome_factory() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = MatrixGenotype::<f32, 10, 100>::builder()
+    let mut genotype = MatrixGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -29,7 +29,7 @@ fn chromosome_factory() {
 #[test]
 fn float_mutate_chromosome_single_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = MatrixGenotype::<f32, 10, 100>::builder()
+    let mut genotype = MatrixGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -61,7 +61,7 @@ fn float_mutate_chromosome_single_relative() {
 #[test]
 fn float_mutate_chromosome_single_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = MatrixGenotype::<f32, 10, 100>::builder()
+    let mut genotype = MatrixGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_scaled_range(vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01])
@@ -93,7 +93,7 @@ fn float_mutate_chromosome_single_scaled() {
 #[test]
 fn mutate_chromosome_genes_random_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = MatrixGenotype::<f32, 10, 100>::builder()
+    let mut genotype = MatrixGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -115,7 +115,7 @@ fn mutate_chromosome_genes_random_with_duplicates() {
 #[test]
 fn mutate_chromosome_genes_random_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = MatrixGenotype::<f32, 10, 100>::builder()
+    let mut genotype = MatrixGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -138,7 +138,7 @@ fn mutate_chromosome_genes_random_without_duplicates() {
 #[test]
 fn crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = MatrixGenotype::<f32, 10, 100>::builder()
+    let mut genotype = MatrixGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -172,7 +172,7 @@ fn crossover_chromosome_pair_single_gene() {
 #[test]
 fn crossover_chromosome_pair_single_point() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = MatrixGenotype::<f32, 10, 100>::builder()
+    let mut genotype = MatrixGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -199,6 +199,92 @@ fn crossover_chromosome_pair_single_point() {
     assert!(relative_chromosome_eq(
         genotype.inspect_genes(&mother),
         vec![0.240, 0.976, 0.979, 0.462, 0.897, 0.225, 0.232, 0.296, 0.787, 0.724],
+        0.001
+    ));
+}
+
+#[test]
+fn population_sync() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let mut genotype = MatrixGenotype::<f32, 5, 4>::builder()
+        .with_genes_size(5)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    let mut population = Population::new(
+        (0..4)
+            .map(|_| genotype.chromosome_factory(rng))
+            .collect::<Vec<_>>(),
+    );
+
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.inspect_genes(c))
+            .collect(),
+        vec![
+            vec![0.447, 0.439, 0.979, 0.462, 0.897],
+            vec![0.942, 0.588, 0.456, 0.395, 0.818],
+            vec![0.240, 0.976, 0.644, 0.054, 0.921],
+            vec![0.225, 0.232, 0.296, 0.787, 0.724],
+        ],
+        0.001
+    ));
+
+    population.truncate(2);
+    genotype.population_sync(&mut population);
+
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.inspect_genes(c))
+            .collect(),
+        vec![
+            vec![0.447, 0.439, 0.979, 0.462, 0.897],
+            vec![0.942, 0.588, 0.456, 0.395, 0.818],
+        ],
+        0.001
+    ));
+
+    population.chromosomes.extend_from_within(..);
+    genotype.population_sync(&mut population);
+
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.inspect_genes(c))
+            .collect(),
+        vec![
+            vec![0.447, 0.439, 0.979, 0.462, 0.897],
+            vec![0.942, 0.588, 0.456, 0.395, 0.818],
+            vec![0.447, 0.439, 0.979, 0.462, 0.897],
+            vec![0.942, 0.588, 0.456, 0.395, 0.818],
+        ],
+        0.001
+    ));
+
+    population
+        .chromosomes
+        .iter_mut()
+        .take(2)
+        .for_each(|c| genotype.mutate_chromosome_genes(3, false, c, None, rng));
+
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.inspect_genes(c))
+            .collect(),
+        vec![
+            vec![0.447, 0.900, 0.979, 0.390, 0.971],
+            vec![0.848, 0.588, 0.346, 0.014, 0.818],
+            vec![0.447, 0.439, 0.979, 0.462, 0.897],
+            vec![0.942, 0.588, 0.456, 0.395, 0.818],
+        ],
         0.001
     ));
 }

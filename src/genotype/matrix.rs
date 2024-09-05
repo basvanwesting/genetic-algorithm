@@ -1,15 +1,16 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype};
 use crate::chromosome::Chromosome;
+use crate::population::Population;
 use itertools::Itertools;
-use nalgebra::SMatrix;
+use nalgebra::{SMatrix, SVector};
 use num::{BigUint, Zero};
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::collections::HashSet;
 use std::fmt;
-use std::ops::{Add, RangeInclusive};
+use std::ops::{Add, Bound, RangeBounds, RangeInclusive};
 
 #[derive(Copy, Clone, Debug)]
 pub enum MutationType {
@@ -21,32 +22,6 @@ pub enum MutationType {
 /// All matrices of nalgebra are stored in column-major order. This means that any two consecutive elements of a single matrix column will be contiguous in memory as well. Therefore a column will store a chromosome's genes
 /// N = R = genes_size
 /// M = C = population_size
-///
-/// # Example (f32, default):
-/// ```
-/// use genetic_algorithm::genotype::{Genotype, RangeGenotype};
-///
-/// let genotype = RangeGenotype::builder()
-///     .with_genes_size(100)
-///     .with_allele_range(0.0..=1.0) // also default mutation range
-///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
-///     .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001]) // optional, restricts mutations to relative start/end of each scale
-///     .build()
-///     .unwrap();
-/// ```
-///
-/// # Example (isize):
-/// ```
-/// use genetic_algorithm::genotype::{Genotype, RangeGenotype};
-///
-/// let genotype = RangeGenotype::<isize>::builder()
-///     .with_genes_size(100)
-///     .with_allele_range(0..=100) // also default mutation range
-///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range
-///     .with_allele_mutation_scaled_range(vec![-10..=10, -3..=3, -1..=1]) // optional, restricts mutations to relative start/end of each scale
-///     .build()
-///     .unwrap();
-/// ```
 pub struct Matrix<
     T: Allele + Add<Output = T> + std::cmp::PartialOrd + Zero + 'static,
     const N: usize,
@@ -56,6 +31,7 @@ pub struct Matrix<
     Uniform<T>: Send + Sync,
 {
     pub matrix: SMatrix<T, N, M>,
+    pub vector: SVector<T, N>,
     pub free_ids: HashSet<usize>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
@@ -97,7 +73,8 @@ where
 
             Ok(Self {
                 matrix: SMatrix::<T, N, M>::zeros(),
-                free_ids: HashSet::from_iter(0..N),
+                vector: SVector::<T, N>::zeros(),
+                free_ids: HashSet::from_iter(0..M),
                 genes_size,
                 allele_range: allele_range.clone(),
                 allele_mutation_range: builder.allele_mutation_range.clone(),
@@ -129,7 +106,11 @@ where
         chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        self.matrix[(index, chromosome.reference_id)] = self.allele_sampler.sample(rng);
+        self.set_gene(
+            chromosome.reference_id,
+            index,
+            self.allele_sampler.sample(rng),
+        );
     }
     fn mutate_chromosome_index_relative<R: Rng>(
         &mut self,
@@ -138,13 +119,13 @@ where
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-        let new_value = self.matrix[(index, chromosome.reference_id)] + value_diff;
+        let new_value = self.get_gene(chromosome.reference_id, index) + value_diff;
         if new_value < *self.allele_range.start() {
-            self.matrix[(index, chromosome.reference_id)] = *self.allele_range.start();
+            self.set_gene(chromosome.reference_id, index, *self.allele_range.start());
         } else if new_value > *self.allele_range.end() {
-            self.matrix[(index, chromosome.reference_id)] = *self.allele_range.end();
+            self.set_gene(chromosome.reference_id, index, *self.allele_range.end());
         } else {
-            self.matrix[(index, chromosome.reference_id)] = new_value;
+            self.set_gene(chromosome.reference_id, index, new_value);
         }
     }
     fn mutate_chromosome_index_scaled<R: Rng>(
@@ -160,19 +141,111 @@ where
         } else {
             *working_range.end()
         };
-        let new_value = self.matrix[(index, chromosome.reference_id)] + value_diff;
+        let new_value = self.get_gene(chromosome.reference_id, index) + value_diff;
         if new_value < *self.allele_range.start() {
-            self.matrix[(index, chromosome.reference_id)] = *self.allele_range.start();
+            self.set_gene(chromosome.reference_id, index, *self.allele_range.start());
         } else if new_value > *self.allele_range.end() {
-            self.matrix[(index, chromosome.reference_id)] = *self.allele_range.end();
+            self.set_gene(chromosome.reference_id, index, *self.allele_range.end());
         } else {
-            self.matrix[(index, chromosome.reference_id)] = new_value;
+            self.set_gene(chromosome.reference_id, index, new_value);
         }
     }
     pub fn inspect_genes(&self, chromosome: &Chromosome<Self>) -> Vec<T> {
         (0..self.genes_size)
-            .map(|i| self.matrix[(i, chromosome.reference_id)])
+            .map(|i| self.get_gene(chromosome.reference_id, i))
             .collect()
+    }
+
+    pub fn reset_ids(&mut self) {
+        self.free_ids.clear();
+        (0..M).for_each(|i| {
+            self.free_ids.insert(i);
+        });
+    }
+
+    pub fn claim_id_forced(&mut self, id: usize) -> bool {
+        self.free_ids.remove(&id)
+    }
+    pub fn claim_id(&mut self) -> usize {
+        let id = *self.free_ids.iter().next().unwrap();
+        self.free_ids.remove(&id);
+        id
+    }
+
+    pub fn get_gene(&self, id: usize, index: usize) -> T {
+        self.matrix[(index, id)]
+    }
+    pub fn set_gene(&mut self, id: usize, index: usize, value: T) {
+        self.matrix[(index, id)] = value;
+    }
+    pub fn swap_gene(&mut self, father_id: usize, mother_id: usize, index: usize) {
+        self.matrix.swap((index, father_id), (index, mother_id));
+    }
+    pub fn swap_gene_range<B: RangeBounds<usize>>(
+        &mut self,
+        father_id: usize,
+        mother_id: usize,
+        range: B,
+    ) {
+        let min_index = match range.start_bound() {
+            Bound::Unbounded => 0,
+            Bound::Included(&i) => i,
+            Bound::Excluded(&i) => i + 1,
+        }
+        .max(0);
+        let max_index = match range.end_bound() {
+            Bound::Unbounded => self.genes_size,
+            Bound::Included(&i) => i + 1,
+            Bound::Excluded(&i) => i,
+        }
+        .min(N);
+
+        // let mother_back =
+        //     &mut self.matrix.column_mut(mother.reference_id).as_mut_slice()[index..];
+        // let father_back =
+        //     &mut self.matrix.column_mut(father.reference_id).as_mut_slice()[index..];
+        // father_back.swap_with_slice(mother_back);
+
+        // let temp_slice = &mut self.vector.as_mut_slice();
+        // let mother_col = &self.matrix.column(mother.reference_id).as_slice();
+        // let mother_slice = &mother_col[index..];
+        // temp_slice.copy_from_slice(mother_slice);
+        //
+        // let mother_slice =
+        //     &mut self.matrix.column_mut(mother.reference_id).as_mut_slice()[index..];
+        // let father_slice = &self.matrix.column(father.reference_id).as_slice()[index..];
+        // mother_slice.copy_from_slice(father_slice);
+        //
+        // let father_slice =
+        //     &mut self.matrix.column_mut(father.reference_id).as_mut_slice()[index..];
+        // let temp_slice = &self.vector.as_slice();
+        // father_slice.copy_from_slice(temp_slice);
+
+        for i in min_index..max_index {
+            self.swap_gene(father_id, mother_id, i);
+        }
+    }
+    pub fn copy_gene_range<B: RangeBounds<usize>>(
+        &mut self,
+        source_id: usize,
+        target_id: usize,
+        range: B,
+    ) {
+        let min_index = match range.start_bound() {
+            Bound::Unbounded => 0,
+            Bound::Included(&i) => i,
+            Bound::Excluded(&i) => i + 1,
+        }
+        .max(0);
+        let max_index = match range.end_bound() {
+            Bound::Unbounded => self.genes_size,
+            Bound::Included(&i) => i + 1,
+            Bound::Excluded(&i) => i,
+        }
+        .min(N);
+        for i in min_index..max_index {
+            self.set_gene(target_id, i, self.get_gene(source_id, i));
+        }
     }
 }
 
@@ -192,15 +265,28 @@ where
         self.genes_size
     }
 
-    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        let free_id = *self.free_ids.iter().next().unwrap();
-        self.free_ids.remove(&free_id);
+    fn population_sync(&mut self, population: &mut Population<Self>) {
+        // recycle ids
+        self.reset_ids();
+        population.chromosomes.iter_mut().for_each(|c| {
+            if self.claim_id_forced(c.reference_id) {
+                // first occurence, claim ID, use existing data
+            } else {
+                // it is a clone, copy data to new ID
+                let new_id = self.claim_id();
+                self.copy_gene_range(c.reference_id, new_id, ..);
+                c.reference_id = new_id;
+            }
+        });
+    }
 
-        (0..self.genes_size)
-            .for_each(|i| self.matrix[(i, free_id)] = self.allele_sampler.sample(rng));
+    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
+        let id = self.claim_id();
+
+        (0..self.genes_size).for_each(|i| self.set_gene(id, i, self.allele_sampler.sample(rng)));
 
         Chromosome {
-            reference_id: free_id,
+            reference_id: id,
             genes: (),
             fitness_score: None,
             age: 0,
@@ -283,8 +369,7 @@ where
             rng.sample_iter(self.gene_index_sampler)
                 .take(number_of_crossovers)
                 .for_each(|index| {
-                    self.matrix
-                        .swap((index, father.reference_id), (index, mother.reference_id));
+                    self.swap_gene(father.reference_id, mother.reference_id, index);
                 });
         } else {
             rand::seq::index::sample(
@@ -294,8 +379,7 @@ where
             )
             .iter()
             .for_each(|index| {
-                self.matrix
-                    .swap((index, father.reference_id), (index, mother.reference_id));
+                self.swap_gene(father.reference_id, mother.reference_id, index);
             });
         }
         mother.taint_fitness_score();
@@ -313,15 +397,7 @@ where
             rng.sample_iter(self.gene_index_sampler)
                 .take(number_of_crossovers)
                 .for_each(|index| {
-                    // let mother_back =
-                    //     &mut self.matrix.column_mut(mother.reference_id).as_mut_slice()[index..];
-                    // let father_back =
-                    //     &mut self.matrix.column_mut(father.reference_id).as_mut_slice()[index..];
-                    // father_back.swap_with_slice(mother_back);
-                    for i in index..self.genes_size() {
-                        self.matrix
-                            .swap((i, father.reference_id), (i, mother.reference_id));
-                    }
+                    self.swap_gene_range(father.reference_id, mother.reference_id, index..);
                 });
         } else {
             rand::seq::index::sample(
@@ -335,16 +411,14 @@ where
             .into_iter()
             .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
                 (Some(start_index), Some(end_index)) => {
-                    for i in start_index..end_index {
-                        self.matrix
-                            .swap((i, father.reference_id), (i, mother.reference_id));
-                    }
+                    self.swap_gene_range(
+                        father.reference_id,
+                        mother.reference_id,
+                        start_index..end_index,
+                    );
                 }
                 (Some(start_index), _) => {
-                    for i in start_index..self.genes_size() {
-                        self.matrix
-                            .swap((i, father.reference_id), (i, mother.reference_id));
-                    }
+                    self.swap_gene_range(father.reference_id, mother.reference_id, start_index..);
                 }
                 _ => (),
             });
@@ -384,7 +458,8 @@ where
     fn clone(&self) -> Self {
         Self {
             matrix: SMatrix::<T, N, M>::zeros(),
-            free_ids: HashSet::from_iter(0..N),
+            vector: SVector::<T, N>::zeros(),
+            free_ids: HashSet::from_iter(0..M),
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
             allele_mutation_range: self.allele_mutation_range.clone(),

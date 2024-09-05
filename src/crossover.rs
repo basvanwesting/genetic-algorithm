@@ -59,6 +59,11 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
                 genotype.population_sync(&mut state.population);
             }
             Ordering::Less => {
+                log::warn!(
+                    "Crossover: population-size {} is more than target-population-size {}, this should never happen",
+                    population_size,
+                    config.target_population_size
+                );
                 state.population.truncate(config.target_population_size);
                 genotype.population_sync(&mut state.population);
             }

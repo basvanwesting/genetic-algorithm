@@ -1,16 +1,17 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::select::SelectTournament;
 use genetic_algorithm::crossover::{CrossoverSingleGene, CrossoverSinglePoint};
 use genetic_algorithm::extension::{
     ExtensionMassDegeneration, ExtensionMassExtinction, ExtensionMassGenesis, ExtensionNoop,
 };
-use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
+use genetic_algorithm::fitness::placeholders::{CountTrue, Countdown, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{
-    BinaryGenotype, Genotype, ListGenotype, MultiListGenotype, RangeGenotype, UniqueGenotype,
+    BinaryGenotype, Genotype, ListGenotype, MatrixGenotype, MultiListGenotype, RangeGenotype,
+    UniqueGenotype,
 };
 use genetic_algorithm::mutate::MutateSingleGene;
+use genetic_algorithm::select::SelectTournament;
 use genetic_algorithm::strategy::evolve::{Evolve, EvolveReporterNoop, TryFromEvolveBuilderError};
 use genetic_algorithm::strategy::Strategy;
 
@@ -516,6 +517,40 @@ fn call_multi_list() {
 
     assert_eq!(best_chromosome.fitness_score, Some(8));
     assert_eq!(inspect::chromosome(&best_chromosome), vec![4, 1, 0, 3]);
+}
+
+#[test]
+fn call_matrix() {
+    // FIXME need population_size + 1 for seed chromosome
+    let genotype = MatrixGenotype::<u16, 10, 101>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0..=10)
+        .build()
+        .unwrap();
+
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(100)
+        .with_max_stale_generations(20)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_fitness(Countdown::new(100 * 20))
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_crossover(CrossoverSingleGene::new())
+        .with_select(SelectTournament::new(4, 0.9))
+        .with_extension(ExtensionNoop::new())
+        // .with_reporter(EvolveReporterNoop::new())
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    let best_chromosome = evolve.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(0));
+    // assert_eq!(
+    //     inspect::chromosome(&best_chromosome),
+    //     vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
+    // );
 }
 
 #[test]
