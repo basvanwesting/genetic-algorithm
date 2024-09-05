@@ -229,8 +229,11 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
-            self.fitness
-                .call_for_state_population(&mut self.state, fitness_thread_local.as_ref());
+            self.fitness.call_for_state_population(
+                &mut self.state,
+                &self.genotype,
+                fitness_thread_local.as_ref(),
+            );
             self.state
                 .update_best_chromosome_and_report(&self.config, &mut self.reporter);
             self.reporter.on_new_generation(&self.state, &self.config);
@@ -286,8 +289,11 @@ impl<
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
         self.fitness.call_for_state_chromosome(&mut self.state);
-        self.fitness
-            .call_for_state_population(&mut self.state, fitness_thread_local);
+        self.fitness.call_for_state_population(
+            &mut self.state,
+            &self.genotype,
+            fitness_thread_local,
+        );
         self.state
             .update_best_chromosome_and_report(&self.config, &mut self.reporter);
 

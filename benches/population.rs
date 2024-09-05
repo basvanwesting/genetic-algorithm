@@ -17,7 +17,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
         .unwrap();
@@ -29,7 +29,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| genotype.chromosome_factory(&mut rng))
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountTrue.call_for_population(population, None);
+        CountTrue.call_for_population(population, &genotype, None);
 
         group.bench_with_input(
             BenchmarkId::new("fitness_score_cardinality, low", population_size),
@@ -48,7 +48,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| random_chromosome.clone())
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountTrue.call_for_population(population, None);
+        CountTrue.call_for_population(population, &genotype, None);
 
         group.bench_with_input(
             BenchmarkId::new("fitness_score_cardinality, high", population_size),

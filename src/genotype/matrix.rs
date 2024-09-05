@@ -147,19 +147,12 @@ where
             self.set_gene(chromosome.reference_id, index, new_value);
         }
     }
-    pub fn inspect_genes(&self, chromosome: &Chromosome<Self>) -> Vec<T> {
-        (0..self.genes_size)
-            .map(|i| self.get_gene(chromosome.reference_id, i))
-            .collect()
-    }
-
     pub fn reset_ids(&mut self) {
         self.free_ids.clear();
         (0..M).for_each(|i| {
             self.free_ids.insert(i);
         });
     }
-
     pub fn claim_id_forced(&mut self, id: usize) -> bool {
         self.free_ids.remove(&id)
     }
@@ -174,6 +167,10 @@ where
     }
     pub fn set_gene(&mut self, id: usize, index: usize, value: T) {
         self.matrix[id][index] = value;
+    }
+    /// returns a slice of genes_size <= N
+    pub fn get_genes(&self, id: usize) -> &[T] {
+        &self.matrix[id][..self.genes_size]
     }
     pub fn copy_genes(&mut self, source_id: usize, target_id: usize) {
         let (source, target) = self.gene_slice_pair_mut((source_id, target_id));

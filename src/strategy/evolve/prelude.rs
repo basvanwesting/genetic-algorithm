@@ -24,6 +24,8 @@ pub use crate::mutate::{
     MutateSingleGeneDynamic, MutateWrapper,
 };
 #[doc(no_inline)]
+pub use crate::population::Population;
+#[doc(no_inline)]
 pub use crate::select::{SelectElite, SelectTournament, SelectWrapper};
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{
@@ -32,3 +34,7 @@ pub use crate::strategy::evolve::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::{Strategy, StrategyState, STRATEGY_ACTIONS};
+#[doc(no_inline)]
+pub use std::cell::RefCell;
+#[doc(no_inline)]
+pub use thread_local::ThreadLocal;

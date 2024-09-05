@@ -48,7 +48,7 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("fitness-multithreading");
 
     let mut rng = SmallRng::from_entropy();
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
         .unwrap();
@@ -64,7 +64,7 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
         b.iter_batched(
             || population.clone(),
             |mut data| {
-                fitness.call_for_population(&mut data, None);
+                fitness.call_for_population(&mut data, &genotype, None);
             },
             BatchSize::SmallInput,
         );
@@ -79,7 +79,7 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
             || population.clone(),
             |mut data| {
                 // println!("run benchmark batch");
-                fitness.call_for_population(&mut data, fitness_thread_local.as_ref());
+                fitness.call_for_population(&mut data, &genotype, fitness_thread_local.as_ref());
             },
             BatchSize::SmallInput,
         );

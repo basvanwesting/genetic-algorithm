@@ -1,9 +1,9 @@
 use criterion::*;
-use genetic_algorithm::select::*;
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
+use genetic_algorithm::select::*;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -14,7 +14,7 @@ pub fn setup(
     population_size: usize,
     rng: &mut SmallRng,
 ) -> (BinaryGenotype, EvolveState<BinaryGenotype>) {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(genes_size)
         .build()
         .unwrap();
@@ -24,7 +24,7 @@ pub fn setup(
         .collect();
 
     let mut population = Population::new(chromosomes);
-    CountTrue.call_for_population(&mut population, None);
+    CountTrue.call_for_population(&mut population, &genotype, None);
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     (genotype, state)

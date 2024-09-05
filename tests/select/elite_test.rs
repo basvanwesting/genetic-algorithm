@@ -29,7 +29,7 @@ fn maximize() {
     state.population = population;
     let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(&mut state.population, None);
+    CountTrue.call_for_population(&mut state.population, &genotype, None);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Maximize,
         ..Default::default()
@@ -71,7 +71,7 @@ fn minimize() {
     state.population = population;
     let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CountTrue.call_for_population(&mut state.population, None);
+    CountTrue.call_for_population(&mut state.population, &genotype, None);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,
         ..Default::default()

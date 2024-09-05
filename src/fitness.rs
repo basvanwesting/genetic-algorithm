@@ -53,10 +53,11 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     fn call_for_state_population<S: StrategyState<Self::Genotype>>(
         &mut self,
         state: &mut S,
+        genotype: &Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         let now = Instant::now();
-        self.call_for_population(state.population_as_mut(), thread_local);
+        self.call_for_population(state.population_as_mut(), genotype, thread_local);
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
     fn call_for_state_chromosome<S: StrategyState<Self::Genotype>>(&mut self, state: &mut S) {
@@ -64,10 +65,12 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         self.call_for_chromosome(state.chromosome_as_mut());
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
+    /// Implement by Client for MatrixGenotype
     /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,
         population: &mut Population<Self::Genotype>,
+        _genotype: &Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         if let Some(thread_local) = thread_local {
@@ -96,6 +99,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Genotype>) {
         chromosome.fitness_score = self.calculate_for_chromosome(chromosome);
     }
+    /// Implement by Client for normal Genotypes
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
