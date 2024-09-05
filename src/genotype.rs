@@ -25,6 +25,7 @@ pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::Chromosome;
 use crate::population::Population;
+use crate::strategy::StrategyState;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
 use num::BigUint;
@@ -133,12 +134,7 @@ pub trait Genotype:
     fn max_scale_index(&self) -> Option<usize>;
     // drop unreferenced IDs and handle cloned IDs (clone and new ID)
     // in case the genotype stores the gene data
-    fn population_sync(
-        &mut self,
-        _population: &mut Population<Self>,
-        _best_chromosome: &Chromosome<Self>,
-    ) {
-    }
+    fn population_sync<S: StrategyState<Self>>(&mut self, _state: &mut S) {}
     fn expected_number_of_sampled_index_collisions(&self, number_of_samples: usize) -> usize {
         number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
     }

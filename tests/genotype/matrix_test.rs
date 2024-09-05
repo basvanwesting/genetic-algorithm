@@ -1,6 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{Genotype, MatrixGenotype};
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 
 #[test]
 fn chromosome_factory() {
@@ -212,20 +213,27 @@ fn population_sync() {
         .build()
         .unwrap();
 
-    let mut population = Population::new(
+    let population = Population::new(
         (0..4)
             .map(|_| genotype.chromosome_factory(rng))
             .collect::<Vec<_>>(),
     );
     let best_chromosome = genotype.chromosome_factory(rng);
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
+    state.best_chromosome = best_chromosome;
+
     assert!(relative_chromosome_eq(
-        genotype.get_genes(best_chromosome.reference_id).to_vec(),
+        genotype
+            .get_genes(state.best_chromosome.reference_id)
+            .to_vec(),
         vec![0.582, 0.186, 0.253, 0.864, 0.390],
         0.001
     ));
 
     assert!(relative_population_eq(
-        population
+        state
+            .population
             .chromosomes
             .iter()
             .map(|c| genotype.get_genes(c.reference_id).to_vec())
@@ -239,11 +247,12 @@ fn population_sync() {
         0.001
     ));
 
-    population.truncate(2);
-    genotype.population_sync(&mut population, &best_chromosome);
+    state.population.truncate(2);
+    genotype.population_sync(&mut state);
 
     assert!(relative_population_eq(
-        population
+        state
+            .population
             .chromosomes
             .iter()
             .map(|c| genotype.get_genes(c.reference_id).to_vec())
@@ -255,11 +264,12 @@ fn population_sync() {
         0.001
     ));
 
-    population.chromosomes.extend_from_within(..);
-    genotype.population_sync(&mut population, &best_chromosome);
+    state.population.chromosomes.extend_from_within(..);
+    genotype.population_sync(&mut state);
 
     assert!(relative_population_eq(
-        population
+        state
+            .population
             .chromosomes
             .iter()
             .map(|c| genotype.get_genes(c.reference_id).to_vec())
@@ -273,14 +283,16 @@ fn population_sync() {
         0.001
     ));
 
-    population
+    state
+        .population
         .chromosomes
         .iter_mut()
         .take(2)
         .for_each(|c| genotype.mutate_chromosome_genes(3, false, c, None, rng));
 
     assert!(relative_population_eq(
-        population
+        state
+            .population
             .chromosomes
             .iter()
             .map(|c| genotype.get_genes(c.reference_id).to_vec())
@@ -294,7 +306,9 @@ fn population_sync() {
         0.001
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(best_chromosome.reference_id).to_vec(),
+        genotype
+            .get_genes(state.best_chromosome.reference_id)
+            .to_vec(),
         vec![0.582, 0.186, 0.253, 0.864, 0.390],
         0.001
     ));

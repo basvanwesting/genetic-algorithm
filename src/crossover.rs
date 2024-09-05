@@ -22,7 +22,9 @@ pub use self::uniform::Uniform as CrossoverUniform;
 pub use self::wrapper::Wrapper as CrossoverWrapper;
 
 use crate::genotype::Genotype;
+use std::time::Instant;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use crate::strategy::{StrategyState, StrategyAction};
 use rand::Rng;
 use std::cmp::Ordering;
 
@@ -48,23 +50,27 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
         let population_size = state.population.size();
         match config.target_population_size.cmp(&population_size) {
             Ordering::Greater => {
+                let now = Instant::now();
                 let parent_survivors =
                     (config.target_population_size - population_size).min(population_size);
                 state
                     .population
                     .chromosomes
                     .extend_from_within(..parent_survivors);
-                genotype.population_sync(&mut state.population, &state.best_chromosome);
-            }
+                state.add_duration(StrategyAction::Crossover, now.elapsed());
+                genotype.population_sync(state);
+            },
             Ordering::Less => {
+                let now = Instant::now();
                 log::warn!(
                     "Crossover: population-size {} is more than target-population-size {}, this should never happen",
                     population_size,
                     config.target_population_size
                 );
                 state.population.truncate(config.target_population_size);
-                genotype.population_sync(&mut state.population, &state.best_chromosome);
-            }
+                state.add_duration(StrategyAction::Crossover, now.elapsed());
+                genotype.population_sync(state);
+            },
             Ordering::Equal => (),
         }
         population_size.min(config.target_population_size)

@@ -86,8 +86,8 @@ impl Select for Tournament {
             .population
             .chromosomes
             .append(&mut selected_chromosomes);
-        genotype.population_sync(&mut state.population, &state.best_chromosome);
         state.add_duration(StrategyAction::Select, now.elapsed());
+        genotype.population_sync(state);
     }
 }
 

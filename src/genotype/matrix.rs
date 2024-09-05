@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype};
 use crate::chromosome::Chromosome;
-use crate::population::Population;
+use crate::strategy::{StrategyAction, StrategyState};
 use itertools::Itertools;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
@@ -10,6 +10,8 @@ use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
 use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
+use std::time::Duration;
+use std::time::Instant;
 
 #[derive(Copy, Clone, Debug)]
 pub enum MutationType {
@@ -270,15 +272,13 @@ where
         self.genes_size
     }
 
-    fn population_sync(
-        &mut self,
-        population: &mut Population<Self>,
-        best_chromosome: &Chromosome<Self>,
-    ) {
+    fn population_sync<S: StrategyState<Self>>(&mut self, state: &mut S) {
+        let now = Instant::now();
+        let mut data_elapsed = Duration::default();
         // recycle ids
         self.reset_ids();
-        self.claim_id_forced(best_chromosome.reference_id); // not always in population
-        population.chromosomes.retain_mut(|c| {
+        self.claim_id_forced(state.best_chromosome_as_ref().reference_id); // not always in population
+        state.population_as_mut().chromosomes.retain_mut(|c| {
             if c.reference_id == usize::MAX {
                 // empty chromosome, drop
                 false
@@ -288,7 +288,9 @@ where
             } else {
                 // it is a clone, copy data to new ID
                 if let Some(new_id) = self.claim_id() {
+                    let data_now = Instant::now();
                     self.copy_genes(c.reference_id, new_id);
+                    data_elapsed += data_now.elapsed();
                     c.reference_id = new_id;
                     true
                 } else {
@@ -297,6 +299,12 @@ where
                 }
             }
         });
+        let total_duration = now.elapsed();
+        state.add_duration(StrategyAction::GenotypeDataCopy, data_elapsed);
+        state.add_duration(
+            StrategyAction::GenotypeDataClaim,
+            total_duration - data_elapsed,
+        );
     }
 
     fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {

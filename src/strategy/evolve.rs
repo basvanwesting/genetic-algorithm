@@ -199,8 +199,7 @@ impl<
         while !self.is_finished() {
             self.state.current_generation += 1;
             self.state.population.increment_and_filter_age(&self.config);
-            self.genotype
-                .population_sync(&mut self.state.population, &self.state.best_chromosome);
+            self.genotype.population_sync(&mut self.state);
 
             self.plugins.extension.call(
                 &mut self.genotype,

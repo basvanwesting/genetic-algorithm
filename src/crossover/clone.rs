@@ -21,8 +21,8 @@ impl Crossover for Clone {
         _reporter: &mut SR,
         _rng: &mut R,
     ) {
-        let now = Instant::now();
         let crossover_size = self.prepare_population(genotype, state, config);
+        let now = Instant::now();
         state
             .population
             .chromosomes

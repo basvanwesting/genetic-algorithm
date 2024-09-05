@@ -18,9 +18,11 @@ pub enum StrategyAction {
     Mutate,
     Fitness,
     UpdateBestChromosome,
+    GenotypeDataCopy,
+    GenotypeDataClaim,
     Other,
 }
-pub const STRATEGY_ACTIONS: [StrategyAction; 8] = [
+pub const STRATEGY_ACTIONS: [StrategyAction; 10] = [
     StrategyAction::Init,
     StrategyAction::Extension,
     StrategyAction::Select,
@@ -28,6 +30,8 @@ pub const STRATEGY_ACTIONS: [StrategyAction; 8] = [
     StrategyAction::Mutate,
     StrategyAction::Fitness,
     StrategyAction::UpdateBestChromosome,
+    StrategyAction::GenotypeDataCopy,
+    StrategyAction::GenotypeDataClaim,
     StrategyAction::Other,
 ];
 

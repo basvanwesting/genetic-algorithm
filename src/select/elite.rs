@@ -52,8 +52,8 @@ impl Select for Elite {
             }
         }
         state.population.truncate(selected_population_size);
-        genotype.population_sync(&mut state.population, &state.best_chromosome);
         state.add_duration(StrategyAction::Select, now.elapsed());
+        genotype.population_sync(state);
     }
 }
 

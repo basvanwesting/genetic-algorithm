@@ -42,9 +42,11 @@ impl Extension for MassExtinction {
             );
             state.population.shuffle(rng);
             state.population.truncate(remaining_size);
-            genotype.population_sync(&mut state.population, &state.best_chromosome);
+            state.add_duration(StrategyAction::Extension, now.elapsed());
+            genotype.population_sync(state);
+        } else {
+            state.add_duration(StrategyAction::Extension, now.elapsed());
         }
-        state.add_duration(StrategyAction::Extension, now.elapsed());
     }
 }
 
