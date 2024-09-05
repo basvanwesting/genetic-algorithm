@@ -43,7 +43,7 @@ pub enum FitnessOrdering {
 /// pub struct CountTrue;
 /// impl Fitness for CountTrue {
 ///     type Genotype = BinaryGenotype;
-///     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>) -> Option<FitnessValue> {
+///     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>, _genotype: &Self::Genotype) -> Option<FitnessValue> {
 ///         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
 ///     }
 /// }
@@ -53,16 +53,20 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     fn call_for_state_population<S: StrategyState<Self::Genotype>>(
         &mut self,
         state: &mut S,
-        genotype: &Self::Genotype,
+        genotype: &mut Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         let now = Instant::now();
         self.call_for_population(state.population_as_mut(), genotype, thread_local);
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
-    fn call_for_state_chromosome<S: StrategyState<Self::Genotype>>(&mut self, state: &mut S) {
+    fn call_for_state_chromosome<S: StrategyState<Self::Genotype>>(
+        &mut self,
+        state: &mut S,
+        genotype: &Self::Genotype,
+    ) {
         let now = Instant::now();
-        self.call_for_chromosome(state.chromosome_as_mut());
+        self.call_for_chromosome(state.chromosome_as_mut(), genotype);
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
     /// Implement by Client for MatrixGenotype
@@ -70,7 +74,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     fn call_for_population(
         &mut self,
         population: &mut Population<Self::Genotype>,
-        _genotype: &Self::Genotype,
+        genotype: &mut Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         if let Some(thread_local) = thread_local {
@@ -85,7 +89,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                             .borrow_mut()
                     },
                     |fitness, chromosome| {
-                        fitness.call_for_chromosome(chromosome);
+                        fitness.call_for_chromosome(chromosome, genotype);
                     },
                 );
         } else {
@@ -93,15 +97,20 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                 .chromosomes
                 .iter_mut()
                 .filter(|c| c.fitness_score.is_none())
-                .for_each(|c| self.call_for_chromosome(c));
+                .for_each(|c| self.call_for_chromosome(c, genotype));
         }
     }
-    fn call_for_chromosome(&mut self, chromosome: &mut Chromosome<Self::Genotype>) {
-        chromosome.fitness_score = self.calculate_for_chromosome(chromosome);
+    fn call_for_chromosome(
+        &mut self,
+        chromosome: &mut Chromosome<Self::Genotype>,
+        genotype: &Self::Genotype,
+    ) {
+        chromosome.fitness_score = self.calculate_for_chromosome(chromosome, genotype);
     }
     /// Implement by Client for normal Genotypes
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        genotype: &Self::Genotype,
     ) -> Option<FitnessValue>;
 }

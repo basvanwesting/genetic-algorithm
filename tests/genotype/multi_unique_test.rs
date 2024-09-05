@@ -204,7 +204,7 @@ fn crossover_chromosome_points_without_duplicates() {
 
 #[test]
 fn chromosome_permutations_genes_size_1() {
-    let mut genotype = MultiUniqueGenotype::builder()
+    let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![vec![0]])
         .build()
         .unwrap();
@@ -221,7 +221,7 @@ fn chromosome_permutations_genes_size_1() {
 
 #[test]
 fn chromosome_permutations_genes_size_4() {
-    let mut genotype = MultiUniqueGenotype::builder()
+    let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1]])
         .build()
         .unwrap();
@@ -266,7 +266,7 @@ fn chromosome_permutations_genes_size_4() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let mut genotype = MultiUniqueGenotype::builder()
+    let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![
             (0..10).collect(),
             (0..10).collect(),

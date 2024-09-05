@@ -26,6 +26,7 @@ impl<G: Genotype> Fitness for Zero<G> {
     fn calculate_for_chromosome(
         &mut self,
         _chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         Some(0)
     }
@@ -39,6 +40,7 @@ impl Fitness for CountTrue {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
     }
@@ -51,6 +53,7 @@ impl Fitness for CountOnes {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         Some(chromosome.genes.count_ones(..) as FitnessValue)
     }
@@ -94,6 +97,7 @@ where
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let sum: f64 = chromosome
             .genes
@@ -124,6 +128,7 @@ impl Fitness for CountTrueWithSleep {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
@@ -154,6 +159,7 @@ impl<G: Genotype> Fitness for Countdown<G> {
     fn calculate_for_chromosome(
         &mut self,
         _chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         if self.0 == 0 {
             Some(0)
@@ -189,6 +195,7 @@ impl<G: Genotype> Fitness for CountdownNoisy<G> {
     fn calculate_for_chromosome(
         &mut self,
         _chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         if self.start == 0 {
             Some(0)

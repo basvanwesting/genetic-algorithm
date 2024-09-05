@@ -12,6 +12,7 @@ impl Fitness for NQueensFitness {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let mut score = 0;
         let max_index = chromosome.genes.len() - 1;

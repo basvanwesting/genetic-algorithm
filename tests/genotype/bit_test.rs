@@ -63,10 +63,10 @@ fn crossover_chromosome_pair_single_gene() {
 
 #[test]
 fn crossover_points() {
-    let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    let genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
     assert_eq!(genotype.crossover_points, vec![]);
 
-    let mut genotype = BitGenotype::builder().with_genes_size(200).build().unwrap();
+    let genotype = BitGenotype::builder().with_genes_size(200).build().unwrap();
     assert_eq!(genotype.crossover_points, vec![64, 128, 192]);
 }
 
@@ -158,7 +158,7 @@ fn neighbouring_population() {
 
 #[test]
 fn chromosome_permutations_genes_size_1() {
-    let mut genotype = BitGenotype::builder().with_genes_size(1).build().unwrap();
+    let genotype = BitGenotype::builder().with_genes_size(1).build().unwrap();
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(2u32));
     assert_eq!(
@@ -169,7 +169,7 @@ fn chromosome_permutations_genes_size_1() {
 
 #[test]
 fn chromosome_permutations_genes_size_2() {
-    let mut genotype = BitGenotype::builder().with_genes_size(2).build().unwrap();
+    let genotype = BitGenotype::builder().with_genes_size(2).build().unwrap();
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(4u32));
     assert_eq!(
@@ -180,7 +180,7 @@ fn chromosome_permutations_genes_size_2() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let mut genotype = BitGenotype::builder().with_genes_size(100).build().unwrap();
+    let genotype = BitGenotype::builder().with_genes_size(100).build().unwrap();
     assert_eq!(
         genotype.chromosome_permutations_size(),
         BigUint::parse_bytes(b"1267650600228229401496703205376", 10).unwrap()
@@ -200,7 +200,7 @@ fn chromosome_permutations_genes_size_huge() {
 
 #[test]
 fn chromosome_permutations_genes_size_3() {
-    let mut genotype = BitGenotype::builder().with_genes_size(3).build().unwrap();
+    let genotype = BitGenotype::builder().with_genes_size(3).build().unwrap();
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(8u32));
     assert_eq!(

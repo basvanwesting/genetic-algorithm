@@ -3,11 +3,11 @@ use genetic_algorithm::strategy::evolve::prelude::*;
 #[derive(Clone, Debug)]
 pub struct DistanceTo(pub f32, pub f32); // target, precision
 impl Fitness for DistanceTo {
-    type Genotype = MatrixGenotype<f32, 100, 200>;
+    type Genotype = MatrixGenotype<f32, 100, { 100 + 1 }>;
     fn call_for_population(
         &mut self,
         population: &mut Population<Self::Genotype>,
-        genotype: &Self::Genotype,
+        genotype: &mut Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         for chromosome in population.chromosomes.iter_mut() {
@@ -19,18 +19,26 @@ impl Fitness for DistanceTo {
             chromosome.fitness_score = Some(score);
         }
     }
+    // FIXME: let NxM cap the generation of chromsomes, resulting in empty one for the seed
+    // for first seed chromosome, called on init
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &Chromosome<Self::Genotype>,
+        chromosome: &Chromosome<Self::Genotype>,
+        genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
-        None
+        let score = genotype
+            .get_genes(chromosome.reference_id)
+            .iter()
+            .map(|v| (v - self.0).abs() / self.1)
+            .sum::<f32>() as FitnessValue;
+        Some(score)
     }
 }
 
 fn main() {
     env_logger::init();
 
-    let genotype = MatrixGenotype::<f32, 100, 200>::builder()
+    let genotype = MatrixGenotype::<f32, 100, { 100 + 1 }>::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
         // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations

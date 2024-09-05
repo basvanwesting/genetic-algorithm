@@ -20,6 +20,7 @@ impl Fitness for ExpensiveCount {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
@@ -46,6 +47,7 @@ impl Fitness for CachedExpensiveCount {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         // print!("cache try ({}), ", self.cache.len());
         print!("cache try, ");

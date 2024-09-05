@@ -13,6 +13,7 @@ impl Fitness for TableSeatingFitness {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let hosts_with_table_sizes_per_round = &self.0;
         let mut people = chromosome.genes.clone();

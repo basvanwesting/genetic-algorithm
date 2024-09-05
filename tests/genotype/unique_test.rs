@@ -82,7 +82,7 @@ fn crossover_chromosome_pair_single_point() {
 
 #[test]
 fn chromosome_permutations() {
-    let mut genotype = UniqueGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![0, 1, 2, 3])
         .build()
         .unwrap();
@@ -124,7 +124,7 @@ fn chromosome_permutations() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let mut genotype = UniqueGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_list((0..30).collect())
         .build()
         .unwrap();

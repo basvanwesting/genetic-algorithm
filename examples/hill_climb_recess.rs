@@ -60,6 +60,7 @@ impl<'a> Fitness for RecessFitness<'a> {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let adults = self.0;
         let dates = self.1;

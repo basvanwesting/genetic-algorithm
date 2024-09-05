@@ -35,16 +35,16 @@ fn binary_genotype() {
     let mut mutate = MutateMultiGeneDynamic::new(2, 0.2, 2);
     let mut fitness = CountTrue;
     assert_eq!(mutate.mutation_probability, 0.0);
-    fitness.call_for_population(&mut state.population, &genotype, None);
+    fitness.call_for_population(&mut state.population, &mut genotype, None);
     mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.2);
-    fitness.call_for_population(&mut state.population, &genotype, None);
+    fitness.call_for_population(&mut state.population, &mut genotype, None);
     mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.4);
-    fitness.call_for_population(&mut state.population, &genotype, None);
+    fitness.call_for_population(&mut state.population, &mut genotype, None);
     mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.2);
-    fitness.call_for_population(&mut state.population, &genotype, None);
+    fitness.call_for_population(&mut state.population, &mut genotype, None);
     mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.0);
 

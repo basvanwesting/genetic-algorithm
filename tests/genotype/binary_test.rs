@@ -224,7 +224,7 @@ fn neighbouring_population() {
 
 #[test]
 fn chromosome_permutations_genes_size_1() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(1)
         .build()
         .unwrap();
@@ -238,7 +238,7 @@ fn chromosome_permutations_genes_size_1() {
 
 #[test]
 fn chromosome_permutations_genes_size_2() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(2)
         .build()
         .unwrap();
@@ -257,7 +257,7 @@ fn chromosome_permutations_genes_size_2() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
         .unwrap();
@@ -280,7 +280,7 @@ fn chromosome_permutations_genes_size_huge() {
 
 #[test]
 fn chromosome_permutations_genes_size_3() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();

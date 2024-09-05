@@ -231,7 +231,7 @@ impl<
             );
             self.fitness.call_for_state_population(
                 &mut self.state,
-                &self.genotype,
+                &mut self.genotype,
                 fitness_thread_local.as_ref(),
             );
             self.state
@@ -288,10 +288,11 @@ impl<
             .collect::<Vec<_>>();
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
-        self.fitness.call_for_state_chromosome(&mut self.state);
+        self.fitness
+            .call_for_state_chromosome(&mut self.state, &self.genotype);
         self.fitness.call_for_state_population(
             &mut self.state,
-            &self.genotype,
+            &mut self.genotype,
             fitness_thread_local,
         );
         self.state

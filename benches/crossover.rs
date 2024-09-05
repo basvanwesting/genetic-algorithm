@@ -12,7 +12,7 @@ pub fn setup(
     population_size: usize,
     rng: &mut SmallRng,
 ) -> (BinaryGenotype, EvolveState<BinaryGenotype>) {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(genes_size)
         .build()
         .unwrap();
@@ -52,7 +52,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         ];
         for mut crossover in crossovers {
             group.throughput(Throughput::Elements(population_size as u64));
-            let (genotype, state) = setup(*genes_size, population_size, &mut rng);
+            let (mut genotype, state) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}", crossover), genes_size),
                 genes_size,
@@ -60,7 +60,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     b.iter_batched(
                         || state.clone(),
                         |mut data| {
-                            crossover.call(&genotype, &mut data, &config, &mut reporter, &mut rng)
+                            crossover.call(
+                                &mut genotype,
+                                &mut data,
+                                &config,
+                                &mut reporter,
+                                &mut rng,
+                            )
                         },
                         BatchSize::SmallInput,
                     )

@@ -127,7 +127,7 @@ fn neighbouring_population() {
 
 #[test]
 fn chromosome_permutations() {
-    let mut genotype = ListGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(3)
         .with_allele_list(vec![0, 1, 2])
         .build()
@@ -173,7 +173,7 @@ fn chromosome_permutations() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let mut genotype = ListGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(30)
         .with_allele_list((0..10).collect())
         .build()

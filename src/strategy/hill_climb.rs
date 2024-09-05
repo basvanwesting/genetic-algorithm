@@ -212,7 +212,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
-                    self.fitness.call_for_state_chromosome(&mut self.state);
+                    self.fitness
+                        .call_for_state_chromosome(&mut self.state, &self.genotype);
                     self.state.update_best_chromosome_from_state_chromosome(
                         &self.config,
                         &mut self.reporter,
@@ -227,7 +228,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
-                    self.fitness.call_for_state_chromosome(&mut self.state);
+                    self.fitness
+                        .call_for_state_chromosome(&mut self.state, &self.genotype);
 
                     self.state.update_best_chromosome_from_state_chromosome(
                         &self.config,
@@ -242,7 +244,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
-                    self.fitness.call_for_state_chromosome(&mut self.state);
+                    self.fitness
+                        .call_for_state_chromosome(&mut self.state, &self.genotype);
                     self.state.update_best_chromosome_from_state_chromosome(
                         &self.config,
                         &mut self.reporter,
@@ -257,7 +260,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     );
                     self.fitness.call_for_state_population(
                         &mut self.state,
-                        &self.genotype,
+                        &mut self.genotype,
                         fitness_thread_local.as_ref(),
                     );
                     self.state.update_best_chromosome_from_state_population(
@@ -288,7 +291,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     self.state.population = Population::new(neighbouring_chromosomes);
                     self.fitness.call_for_state_population(
                         &mut self.state,
-                        &self.genotype,
+                        &mut self.genotype,
                         fitness_thread_local.as_ref(),
                     );
                     self.state.update_best_chromosome_from_state_population(
@@ -337,7 +340,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         self.state.chromosome = self.genotype.chromosome_factory(&mut self.rng);
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
-        self.fitness.call_for_state_chromosome(&mut self.state);
+        self.fitness
+            .call_for_state_chromosome(&mut self.state, &self.genotype);
         self.state.store_best_chromosome(true); // best by definition
         self.reporter
             .on_new_best_chromosome(&self.state, &self.config);

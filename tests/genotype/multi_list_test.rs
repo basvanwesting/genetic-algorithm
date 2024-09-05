@@ -132,7 +132,7 @@ fn neighbouring_population_size() {
 
 #[test]
 fn chromosome_permutations_genes_size_1() {
-    let mut genotype = MultiListGenotype::builder()
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![vec![0]])
         .build()
         .unwrap();
@@ -146,7 +146,7 @@ fn chromosome_permutations_genes_size_1() {
 
 #[test]
 fn chromosome_permutations_genes_size_4() {
-    let mut genotype = MultiListGenotype::builder()
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1, 2, 3]])
         .build()
         .unwrap();
@@ -188,7 +188,7 @@ fn chromosome_permutations_genes_size_4() {
 
 #[test]
 fn chromosome_permutations_genes_size_huge() {
-    let mut genotype = MultiListGenotype::builder()
+    let genotype = MultiListGenotype::builder()
         .with_allele_lists(vec![
             (0..1000).collect(),
             (0..1000).collect(),

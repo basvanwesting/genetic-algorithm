@@ -24,7 +24,7 @@ pub fn setup(
         .collect();
 
     let mut population = Population::new(chromosomes);
-    CountTrue.call_for_population(&mut population, &genotype, None);
+    CountTrue.call_for_population(&mut population, &mut genotype, None);
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     (genotype, state)
@@ -51,7 +51,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         ];
         for mut extension in extensions {
             group.throughput(Throughput::Elements(population_size as u64));
-            let (genotype, state) = setup(*genes_size, population_size, &mut rng);
+            let (mut genotype, state) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}", extension), genes_size),
                 genes_size,
@@ -59,7 +59,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     b.iter_batched(
                         || state.clone(),
                         |mut data| {
-                            extension.call(&genotype, &mut data, &config, &mut reporter, &mut rng)
+                            extension.call(
+                                &mut genotype,
+                                &mut data,
+                                &config,
+                                &mut reporter,
+                                &mut rng,
+                            )
                         },
                         BatchSize::SmallInput,
                     )

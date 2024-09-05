@@ -31,6 +31,7 @@ impl Fitness for ScrabbleFitness {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let mut score: isize = 0;
 
@@ -310,7 +311,7 @@ fn main() {
                 column_scores.clone(),
                 true,
             );
-            fitness.calculate_for_chromosome(&best_chromosome);
+            fitness.calculate_for_chromosome(&best_chromosome, &evolve.genotype);
             fitness.letter_board.iter().for_each(|columns| {
                 let string = String::from_iter(columns.iter());
                 println!("{}", string.replace(" ", "."));

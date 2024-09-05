@@ -54,39 +54,3 @@ const POPULATION_SIZE: usize = 100;
         Total: 102.995888ms
 
 
-
-   let mut a: [[f32; 5]; 4] = Default::default();
-   println!("{:?}", a);
-   
-   a[0][0] = 1.0;
-   println!("{:?}", a);
-   
-   let b = &mut a[0];
-   b.swap(0, 2);
-   
-   println!("{:?}", a);
-   
-   for i in 0..4 {
-     let b = &mut a[i];
-     b.iter_mut().for_each(|c| *c = i as f32);
-    }
-   println!("{:?}", a);
-   
-   let first = 0;
-   let second = 2;
-   let (_, tmp) = a.split_at_mut(first);
-   let (x, rest) = tmp.split_at_mut(1);
-   let (_, y) = rest.split_at_mut(second - first - 1);
-   
-   println!("{:?}", x[0]);
-   println!("{:?}", y[0]);
-   
-   (&mut x[0][1..3]).swap_with_slice(&mut y[0][1..3]);
-   println!("{:?}", a);
-   
-   let (_, tmp) = a.split_at_mut(first);
-   let (x, rest) = tmp.split_at_mut(1);
-   let (_, y) = rest.split_at_mut(second - first - 1);
-   
-   std::mem::swap(&mut x[0][0], &mut y[0][0]);
-   println!("{:?}", a);

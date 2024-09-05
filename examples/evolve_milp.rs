@@ -12,6 +12,7 @@ impl Fitness for MILPFitness {
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let x1 = chromosome.genes[0];
         let x2 = chromosome.genes[1].floor();

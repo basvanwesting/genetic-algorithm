@@ -152,7 +152,8 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             .next()
             .unwrap();
         self.state.add_duration(StrategyAction::Init, now.elapsed());
-        self.fitness.call_for_state_chromosome(&mut self.state);
+        self.fitness
+            .call_for_state_chromosome(&mut self.state, &self.genotype);
         self.state.store_best_chromosome(true); // best by definition
         self.reporter
             .on_new_best_chromosome(&self.state, &self.config);
@@ -163,7 +164,8 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             .for_each(|chromosome| {
                 self.state.current_generation += 1;
                 self.state.chromosome = chromosome;
-                self.fitness.call_for_state_chromosome(&mut self.state);
+                self.fitness
+                    .call_for_state_chromosome(&mut self.state, &self.genotype);
                 self.state
                     .update_best_chromosome_and_report(&self.config, &mut self.reporter);
                 self.reporter.on_new_generation(&self.state, &self.config);
@@ -181,7 +183,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
                     .par_bridge()
                     .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
                         let now = Instant::now();
-                        fitness.call_for_chromosome(&mut chromosome);
+                        fitness.call_for_chromosome(&mut chromosome, &genotype);
                         sender.send((chromosome, now.elapsed())).unwrap();
                     });
             });

@@ -14,33 +14,57 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("fitness-placeholders");
 
     group.bench_function("count_true", |b| {
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(1000)
+            .build()
+            .unwrap();
         let chromosome = Chromosome::new(vec![true; 1000]);
         let mut fitness = CountTrue;
-        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome)))
+        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
 
     group.bench_function("sum_genes_with_precision", |b| {
+        let genotype = RangeGenotype::builder()
+            .with_genes_size(1000)
+            .with_allele_range(0.0..=1.0)
+            .build()
+            .unwrap();
         let chromosome: Chromosome<RangeGenotype<f32>> = Chromosome::new(vec![1.0; 1000]);
         let mut fitness = SumGenes::new_with_precision(1e-5);
-        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome)))
+        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
 
     group.bench_function("sum_genes", |b| {
+        let genotype = ListGenotype::builder()
+            .with_genes_size(1000)
+            .with_allele_list((0_u32..100_u32).collect())
+            .build()
+            .unwrap();
         let chromosome: Chromosome<ListGenotype<u32>> = Chromosome::new(vec![1; 1000]);
         let mut fitness = SumGenes::new();
-        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome)))
+        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
 
     group.bench_function("countdown", |b| {
+        let genotype = ListGenotype::builder()
+            .with_genes_size(1000)
+            .with_allele_list((0_u32..100_u32).collect())
+            .build()
+            .unwrap();
         let chromosome: Chromosome<ListGenotype<u32>> = Chromosome::new(vec![1; 1000]);
         let mut fitness = Countdown::new(usize::MAX);
-        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome)))
+        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
 
     group.bench_function("countdown_with_noise", |b| {
+        let genotype = ListGenotype::builder()
+            .with_genes_size(1000)
+            .with_allele_list((0_u32..100_u32).collect())
+            .build()
+            .unwrap();
         let chromosome: Chromosome<ListGenotype<u32>> = Chromosome::new(vec![1; 1000]);
         let mut fitness = CountdownNoisy::new(usize::MAX - 10_000, 1000, 1..10_000);
-        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome)))
+        b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
 }
 
@@ -64,7 +88,7 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
         b.iter_batched(
             || population.clone(),
             |mut data| {
-                fitness.call_for_population(&mut data, &genotype, None);
+                fitness.call_for_population(&mut data, &mut genotype, None);
             },
             BatchSize::SmallInput,
         );
@@ -79,7 +103,11 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
             || population.clone(),
             |mut data| {
                 // println!("run benchmark batch");
-                fitness.call_for_population(&mut data, &genotype, fitness_thread_local.as_ref());
+                fitness.call_for_population(
+                    &mut data,
+                    &mut genotype,
+                    fitness_thread_local.as_ref(),
+                );
             },
             BatchSize::SmallInput,
         );

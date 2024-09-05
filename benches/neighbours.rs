@@ -13,7 +13,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng2 = SmallRng::from_entropy();
 
     group.bench_function("range-neighbouring_population-relative", |b| {
-        let genotype = RangeGenotype::builder()
+        let mut genotype = RangeGenotype::builder()
             .with_genes_size(10)
             .with_allele_range(-1.0..=1.0)
             .with_allele_mutation_range(-0.1..=0.1)
@@ -21,14 +21,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .unwrap();
 
         b.iter_batched(
-            || genotype.chromosome_factory(&mut rng1),
-            |c| genotype.neighbouring_population(&c, None, &mut rng2),
+            || (genotype.chromosome_factory(&mut rng1), genotype.clone()),
+            |(c, g)| g.neighbouring_population(&c, None, &mut rng2),
             BatchSize::SmallInput,
         );
     });
 
     group.bench_function("range-neighbouring_population-scaled", |b| {
-        let genotype = RangeGenotype::builder()
+        let mut genotype = RangeGenotype::builder()
             .with_genes_size(10)
             .with_allele_range(-1.0..=1.0)
             .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
@@ -36,8 +36,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .unwrap();
 
         b.iter_batched(
-            || genotype.chromosome_factory(&mut rng1),
-            |c| genotype.neighbouring_population(&c, Some(1), &mut rng2),
+            || (genotype.chromosome_factory(&mut rng1), genotype.clone()),
+            |(c, g)| g.neighbouring_population(&c, Some(1), &mut rng2),
             BatchSize::SmallInput,
         );
     });

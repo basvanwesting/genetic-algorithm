@@ -29,7 +29,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| genotype.chromosome_factory(&mut rng))
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountTrue.call_for_population(population, &genotype, None);
+        CountTrue.call_for_population(population, &mut genotype, None);
 
         group.bench_with_input(
             BenchmarkId::new("fitness_score_cardinality, low", population_size),
@@ -48,7 +48,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| random_chromosome.clone())
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountTrue.call_for_population(population, &genotype, None);
+        CountTrue.call_for_population(population, &mut genotype, None);
 
         group.bench_with_input(
             BenchmarkId::new("fitness_score_cardinality, high", population_size),

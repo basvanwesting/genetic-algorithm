@@ -17,7 +17,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        let genotype = BinaryGenotype::builder()
+        let mut genotype = BinaryGenotype::builder()
             .with_genes_size(*genes_size)
             .build()
             .unwrap();
@@ -55,7 +55,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        let genotype = ListGenotype::builder()
+        let mut genotype = ListGenotype::builder()
             .with_genes_size(*genes_size)
             .with_allele_list((0..10).collect())
             .build()
@@ -94,7 +94,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        let genotype = RangeGenotype::builder()
+        let mut genotype = RangeGenotype::builder()
             .with_genes_size(*genes_size)
             .with_allele_range(0.0..=1.0)
             .build()
@@ -130,7 +130,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             },
         );
 
-        let genotype = RangeGenotype::builder()
+        let mut genotype = RangeGenotype::builder()
             .with_genes_size(*genes_size)
             .with_allele_range(0.0..=1.0)
             .with_allele_mutation_range(-0.1..=0.1)
@@ -166,7 +166,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             },
         );
 
-        let genotype = RangeGenotype::builder()
+        let mut genotype = RangeGenotype::builder()
             .with_genes_size(*genes_size)
             .with_allele_range(0.0..=1.0)
             .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
@@ -206,7 +206,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        let genotype = UniqueGenotype::builder()
+        let mut genotype = UniqueGenotype::builder()
             .with_allele_list((0..*genes_size).collect())
             .build()
             .unwrap();
@@ -244,7 +244,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        let genotype = MultiListGenotype::builder()
+        let mut genotype = MultiListGenotype::builder()
             .with_allele_lists((0..*genes_size).map(|_| (0..10).collect()).collect())
             .build()
             .unwrap();
@@ -282,7 +282,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        let genotype = MultiRangeGenotype::builder()
+        let mut genotype = MultiRangeGenotype::builder()
             .with_allele_ranges((0..*genes_size).map(|_| (0.0..=1.0)).collect())
             .build()
             .unwrap();
@@ -316,7 +316,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             },
         );
 
-        let genotype = MultiRangeGenotype::builder()
+        let mut genotype = MultiRangeGenotype::builder()
             .with_allele_ranges((0..*genes_size).map(|_| (0.0..=1.0)).collect())
             .with_allele_mutation_ranges((0..*genes_size).map(|_| (-0.1..=0.1)).collect())
             .build()
@@ -354,7 +354,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             },
         );
 
-        let genotype = MultiRangeGenotype::builder()
+        let mut genotype = MultiRangeGenotype::builder()
             .with_allele_ranges((0..*genes_size).map(|_| (0.0..=1.0)).collect())
             .with_allele_mutation_scaled_ranges(vec![
                 (0..*genes_size).map(|_| (-0.1..=0.1)).collect(),
@@ -396,7 +396,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         //group.throughput(Throughput::Elements(*genes_size as u64));
-        let genotype = MultiUniqueGenotype::builder()
+        let mut genotype = MultiUniqueGenotype::builder()
             .with_allele_lists(vec![
                 (0..*genes_size / 10).collect(),
                 (0..*genes_size / 10).collect(),
