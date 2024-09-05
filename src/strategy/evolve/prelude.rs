@@ -2,8 +2,8 @@
 pub use crate::chromosome::{Chromosome, GenesKey};
 #[doc(no_inline)]
 pub use crate::crossover::{
-    CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverParMultiPoint,
-    CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform, CrossoverWrapper,
+    CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverSingleGene,
+    CrossoverSinglePoint, CrossoverUniform, CrossoverWrapper,
 };
 #[doc(no_inline)]
 pub use crate::extension::{

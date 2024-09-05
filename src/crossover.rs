@@ -8,7 +8,6 @@
 mod clone;
 mod multi_gene;
 mod multi_point;
-mod par_multi_point;
 mod single_gene;
 mod single_point;
 mod uniform;
@@ -17,7 +16,6 @@ mod wrapper;
 pub use self::clone::Clone as CrossoverClone;
 pub use self::multi_gene::MultiGene as CrossoverMultiGene;
 pub use self::multi_point::MultiPoint as CrossoverMultiPoint;
-pub use self::par_multi_point::ParMultiPoint as CrossoverParMultiPoint;
 pub use self::single_gene::SingleGene as CrossoverSingleGene;
 pub use self::single_point::SinglePoint as CrossoverSinglePoint;
 pub use self::uniform::Uniform as CrossoverUniform;
