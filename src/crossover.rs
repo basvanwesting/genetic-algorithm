@@ -54,7 +54,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
                     .population
                     .chromosomes
                     .extend_from_within(..parent_survivors);
-                genotype.population_sync(&mut state.population);
+                genotype.population_sync(&mut state.population, &state.best_chromosome);
             }
             Ordering::Less => {
                 log::warn!(
@@ -63,7 +63,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
                     config.target_population_size
                 );
                 state.population.truncate(config.target_population_size);
-                genotype.population_sync(&mut state.population);
+                genotype.population_sync(&mut state.population, &state.best_chromosome);
             }
             Ordering::Equal => (),
         }

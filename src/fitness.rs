@@ -105,7 +105,9 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         chromosome: &mut Chromosome<Self::Genotype>,
         genotype: &Self::Genotype,
     ) {
-        chromosome.fitness_score = self.calculate_for_chromosome(chromosome, genotype);
+        if !genotype.chromosome_is_empty(chromosome) {
+            chromosome.fitness_score = self.calculate_for_chromosome(chromosome, genotype);
+        }
     }
     /// Implement by Client for normal Genotypes
     fn calculate_for_chromosome(

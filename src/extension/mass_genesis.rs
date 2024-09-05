@@ -36,7 +36,7 @@ impl Extension for MassGenesis {
                 state.population.chromosomes.clear();
                 state.population.chromosomes.push(best_chromosome.clone());
                 state.population.chromosomes.push(best_chromosome);
-                genotype.population_sync(&mut state.population);
+                genotype.population_sync(&mut state.population, &state.best_chromosome);
             }
         }
         state.add_duration(StrategyAction::Extension, now.elapsed());

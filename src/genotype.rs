@@ -132,7 +132,13 @@ pub trait Genotype:
     fn seed_genes_list(&self) -> &Vec<Self::Genes>;
     fn max_scale_index(&self) -> Option<usize>;
     // drop unreferenced IDs and handle cloned IDs (clone and new ID)
-    fn population_sync(&mut self, _population: &mut Population<Self>) {}
+    // in case the genotype stores the gene data
+    fn population_sync(
+        &mut self,
+        _population: &mut Population<Self>,
+        _best_chromosome: &Chromosome<Self>,
+    ) {
+    }
     fn expected_number_of_sampled_index_collisions(&self, number_of_samples: usize) -> usize {
         number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
     }

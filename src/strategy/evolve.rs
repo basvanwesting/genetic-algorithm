@@ -199,7 +199,8 @@ impl<
         while !self.is_finished() {
             self.state.current_generation += 1;
             self.state.population.increment_and_filter_age(&self.config);
-            self.genotype.population_sync(&mut self.state.population);
+            self.genotype
+                .population_sync(&mut self.state.population, &self.state.best_chromosome);
 
             self.plugins.extension.call(
                 &mut self.genotype,
@@ -282,9 +283,12 @@ impl<
         let now = Instant::now();
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
+        // first initialize population
         self.state.population.chromosomes = (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_factory(&mut self.rng))
             .collect::<Vec<_>>();
+        // then initialize seed chromosome, as population may already have exceeded capacity
+        // we want to skip the call to calculate_for_chromosome in that case
         self.state.chromosome = self.genotype.chromosome_factory(&mut self.rng);
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
@@ -294,14 +298,8 @@ impl<
             fitness_thread_local,
         );
 
-        // could be empty when the Genotype cannot exceed target_population_size
-        if !self
-            .genotype
-            .chromosome_is_empty(&self.state.best_chromosome)
-        {
-            self.fitness
-                .call_for_state_chromosome(&mut self.state, &self.genotype);
-        }
+        self.fitness
+            .call_for_state_chromosome(&mut self.state, &self.genotype);
         self.state
             .update_best_chromosome_and_report(&self.config, &mut self.reporter);
 

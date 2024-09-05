@@ -534,28 +534,28 @@ fn call_multi_list() {
     assert_eq!(inspect::chromosome(&best_chromosome), vec![4, 1, 0, 3]);
 }
 
-#[test]
-fn call_matrix() {
-    #[derive(Clone, Debug)]
-    pub struct SumMatrixGenes;
-    impl Fitness for SumMatrixGenes {
-        type Genotype = MatrixGenotype<u16, 10, 100>;
-        fn call_for_population(
-            &mut self,
-            population: &mut Population<Self::Genotype>,
-            genotype: &mut Self::Genotype,
-            _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
-        ) {
-            for chromosome in population.chromosomes.iter_mut() {
-                let score = genotype
-                    .get_genes(chromosome.reference_id)
-                    .iter()
-                    .sum::<u16>() as FitnessValue;
-                chromosome.fitness_score = Some(score);
-            }
+#[derive(Clone, Debug)]
+pub struct SumMatrixGenes;
+impl Fitness for SumMatrixGenes {
+    type Genotype = MatrixGenotype<u16, 10, 100>;
+    fn call_for_population(
+        &mut self,
+        population: &mut Population<Self::Genotype>,
+        genotype: &mut Self::Genotype,
+        _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
+    ) {
+        for chromosome in population.chromosomes.iter_mut() {
+            let score = genotype
+                .get_genes(chromosome.reference_id)
+                .iter()
+                .sum::<u16>();
+            chromosome.fitness_score = Some(score as FitnessValue);
         }
     }
+}
 
+#[test]
+fn call_matrix() {
     let genotype = MatrixGenotype::<u16, 10, 100>::builder()
         .with_genes_size(10)
         .with_allele_range(0..=10)
@@ -572,7 +572,7 @@ fn call_matrix() {
         .with_crossover(CrossoverSingleGene::new())
         .with_select(SelectTournament::new(4, 0.9))
         .with_extension(ExtensionNoop::new())
-        // .with_reporter(EvolveReporterNoop::new())
+        // .with_reporter(EvolveReporterSimple::new(1))
         .with_rng_seed_from_u64(0)
         .call()
         .unwrap();
@@ -581,14 +581,12 @@ fn call_matrix() {
     println!("{:#?}", best_chromosome);
 
     assert_eq!(best_chromosome.fitness_score, Some(0));
-    assert_eq!(best_chromosome.reference_id, 31);
-    // FIXME: incorrect!!!
     assert_eq!(
         evolve
             .genotype
             .get_genes(best_chromosome.reference_id)
             .to_vec(),
-        vec![0, 0, 0, 0, 0, 0, 0, 0, 6, 3]
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
 }
 

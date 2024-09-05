@@ -206,7 +206,7 @@ fn crossover_chromosome_pair_single_point() {
 #[test]
 fn population_sync() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = MatrixGenotype::<f32, 5, 4>::builder()
+    let mut genotype = MatrixGenotype::<f32, 5, 5>::builder()
         .with_genes_size(5)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -217,6 +217,12 @@ fn population_sync() {
             .map(|_| genotype.chromosome_factory(rng))
             .collect::<Vec<_>>(),
     );
+    let best_chromosome = genotype.chromosome_factory(rng);
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(best_chromosome.reference_id).to_vec(),
+        vec![0.582, 0.186, 0.253, 0.864, 0.390],
+        0.001
+    ));
 
     assert!(relative_population_eq(
         population
@@ -234,7 +240,7 @@ fn population_sync() {
     ));
 
     population.truncate(2);
-    genotype.population_sync(&mut population);
+    genotype.population_sync(&mut population, &best_chromosome);
 
     assert!(relative_population_eq(
         population
@@ -250,7 +256,7 @@ fn population_sync() {
     ));
 
     population.chromosomes.extend_from_within(..);
-    genotype.population_sync(&mut population);
+    genotype.population_sync(&mut population, &best_chromosome);
 
     assert!(relative_population_eq(
         population
@@ -280,11 +286,16 @@ fn population_sync() {
             .map(|c| genotype.get_genes(c.reference_id).to_vec())
             .collect(),
         vec![
-            vec![0.447, 0.900, 0.979, 0.390, 0.971],
-            vec![0.848, 0.588, 0.346, 0.014, 0.818],
+            vec![0.848, 0.439, 0.435, 0.462, 0.014],
+            vec![0.942, 0.021, 0.456, 0.687, 0.409],
             vec![0.447, 0.439, 0.979, 0.462, 0.897],
             vec![0.942, 0.588, 0.456, 0.395, 0.818],
         ],
+        0.001
+    ));
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(best_chromosome.reference_id).to_vec(),
+        vec![0.582, 0.186, 0.253, 0.864, 0.390],
         0.001
     ));
 }

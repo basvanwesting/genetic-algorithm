@@ -1,17 +1,3 @@
-
-RangeGenotype
-   finish - iteration: 0
-     Init: 23.138947ms
-     Select: 208.40888ms
-     Crossover: 1.676026371s
-     Mutate: 12.974238ms
-     Fitness: 1.241883ms
-     UpdateBestChromosome: 139.69575ms
-     Other: 1.667295ms
-     Total: 2.063153364s
-   best_generation: 624, best fitness score: Some(0), duration: 2.063198549s
-
-
 const GENES_SIZE: usize = 4100;
 const POPULATION_SIZE: usize = 100;
 !!! Bordering stack overflow !!!
@@ -31,7 +17,7 @@ const POPULATION_SIZE: usize = 100;
         Other: 3.183911ms
         Total: 51.65018ms
 
-   MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 1 }> plain => nalgebra poses no overhead, even when iterating swap.
+   MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 1 }> plain => nalgebra adds no overhead, even when iterating swap.
     finish - iteration: 0
       Init: 882.161µs
       Select: 9.849975ms
@@ -52,5 +38,3 @@ const POPULATION_SIZE: usize = 100;
         UpdateBestChromosome: 6.734772ms
         Other: 911.445µs
         Total: 102.995888ms
-
-

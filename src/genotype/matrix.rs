@@ -270,19 +270,31 @@ where
         self.genes_size
     }
 
-    fn population_sync(&mut self, population: &mut Population<Self>) {
+    fn population_sync(
+        &mut self,
+        population: &mut Population<Self>,
+        best_chromosome: &Chromosome<Self>,
+    ) {
         // recycle ids
         self.reset_ids();
-        population.chromosomes.iter_mut().for_each(|c| {
+        self.claim_id_forced(best_chromosome.reference_id); // not always in population
+        population.chromosomes.retain_mut(|c| {
             if c.reference_id == usize::MAX {
-                // empty chromosome, ignore
+                // empty chromosome, drop
+                false
             } else if self.claim_id_forced(c.reference_id) {
                 // first occurence, claim ID, use existing data
+                true
             } else {
                 // it is a clone, copy data to new ID
-                let new_id = self.claim_id().unwrap();
-                self.copy_genes(c.reference_id, new_id);
-                c.reference_id = new_id;
+                if let Some(new_id) = self.claim_id() {
+                    self.copy_genes(c.reference_id, new_id);
+                    c.reference_id = new_id;
+                    true
+                } else {
+                    // could not reserve data, drop chromosome
+                    false
+                }
             }
         });
     }
