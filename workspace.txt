@@ -1,0 +1,81 @@
+
+RangeGenotype
+   finish - iteration: 0
+     Init: 23.138947ms
+     Select: 208.40888ms
+     Crossover: 1.676026371s
+     Mutate: 12.974238ms
+     Fitness: 1.241883ms
+     UpdateBestChromosome: 139.69575ms
+     Other: 1.667295ms
+     Total: 2.063153364s
+   best_generation: 624, best fitness score: Some(0), duration: 2.063198549s
+
+
+const GENES_SIZE: usize = 4100;
+const POPULATION_SIZE: usize = 100;
+!!! Bordering stack overflow !!!
+
+
+const GENES_SIZE: usize = 4000;
+const POPULATION_SIZE: usize = 100;
+
+   MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 1 }>
+      finish - iteration: 0
+        Init: 695.91µs
+        Select: 8.690551ms
+        Crossover: 34.889828ms
+        Mutate: 2.877416ms
+        Fitness: 610.161µs
+        UpdateBestChromosome: 702.403µs
+        Other: 3.183911ms
+        Total: 51.65018ms
+
+   RangeGenotype
+      finish - iteration: 0
+        Init: 2.676198ms
+        Select: 11.464497ms
+        Crossover: 75.495566ms
+        Mutate: 4.736304ms
+        Fitness: 977.106µs
+        UpdateBestChromosome: 6.734772ms
+        Other: 911.445µs
+        Total: 102.995888ms
+
+
+
+   let mut a: [[f32; 5]; 4] = Default::default();
+   println!("{:?}", a);
+   
+   a[0][0] = 1.0;
+   println!("{:?}", a);
+   
+   let b = &mut a[0];
+   b.swap(0, 2);
+   
+   println!("{:?}", a);
+   
+   for i in 0..4 {
+     let b = &mut a[i];
+     b.iter_mut().for_each(|c| *c = i as f32);
+    }
+   println!("{:?}", a);
+   
+   let first = 0;
+   let second = 2;
+   let (_, tmp) = a.split_at_mut(first);
+   let (x, rest) = tmp.split_at_mut(1);
+   let (_, y) = rest.split_at_mut(second - first - 1);
+   
+   println!("{:?}", x[0]);
+   println!("{:?}", y[0]);
+   
+   (&mut x[0][1..3]).swap_with_slice(&mut y[0][1..3]);
+   println!("{:?}", a);
+   
+   let (_, tmp) = a.split_at_mut(first);
+   let (x, rest) = tmp.split_at_mut(1);
+   let (_, y) = rest.split_at_mut(second - first - 1);
+   
+   std::mem::swap(&mut x[0][0], &mut y[0][0]);
+   println!("{:?}", a);

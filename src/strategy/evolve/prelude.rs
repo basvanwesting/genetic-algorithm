@@ -1,8 +1,6 @@
 #[doc(no_inline)]
 pub use crate::chromosome::{Chromosome, GenesKey};
 #[doc(no_inline)]
-pub use crate::select::{SelectElite, SelectTournament, SelectWrapper};
-#[doc(no_inline)]
 pub use crate::crossover::{
     CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverParMultiPoint,
     CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform, CrossoverWrapper,
@@ -16,7 +14,7 @@ pub use crate::extension::{
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]
 pub use crate::genotype::{
-    Allele, BinaryGenotype, BitGenotype, Genotype, GenotypeBuilder, ListGenotype,
+    Allele, BinaryGenotype, BitGenotype, Genotype, GenotypeBuilder, ListGenotype, MatrixGenotype,
     MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeGenotype,
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
@@ -25,6 +23,8 @@ pub use crate::mutate::{
     MutateEvent, MutateMultiGene, MutateMultiGeneDynamic, MutateSingleGene,
     MutateSingleGeneDynamic, MutateWrapper,
 };
+#[doc(no_inline)]
+pub use crate::select::{SelectElite, SelectTournament, SelectWrapper};
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{
     Evolve, EvolveBuilder, EvolveConfig, EvolveReporter, EvolveReporterLog, EvolveReporterNoop,
