@@ -1,15 +1,15 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype, IncrementalGenotype};
+use super::{Allele, Genotype};
 use crate::chromosome::Chromosome;
 use crate::population::Population;
 use itertools::Itertools;
-use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
+use std::cmp::Ordering;
 use std::collections::HashSet;
 use std::fmt;
-use std::ops::{Add, Bound, RangeBounds, RangeInclusive};
+use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
 
 #[derive(Copy, Clone, Debug)]
 pub enum MutationType {
@@ -22,7 +22,7 @@ pub enum MutationType {
 /// N = R = genes_size
 /// M = C = population_size
 pub struct Matrix<
-    T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default + 'static,
+    T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
     const N: usize,
     const M: usize,
 > where
@@ -43,7 +43,7 @@ pub struct Matrix<
 }
 
 impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default + 'static,
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
     > TryFrom<Builder<Self>> for Matrix<T, N, M>
@@ -89,7 +89,7 @@ where
 }
 
 impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default + 'static,
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
     > Matrix<T, N, M>
@@ -175,69 +175,24 @@ where
     pub fn set_gene(&mut self, id: usize, index: usize, value: T) {
         self.matrix[id][index] = value;
     }
-    pub fn swap_gene(&mut self, father_id: usize, mother_id: usize, index: usize) {
-        let (first, second) = (
-            std::cmp::min(father_id, mother_id),
-            std::cmp::max(father_id, mother_id),
-        );
-        let (_, tmp) = self.matrix.split_at_mut(first);
-        let (x, rest) = tmp.split_at_mut(1);
-        let (_, y) = rest.split_at_mut(second - first - 1);
-
-        std::mem::swap(&mut x[0][index], &mut y[0][index]);
+    pub fn copy_genes(&mut self, source_id: usize, target_id: usize) {
+        let (source, target) = self.gene_slice_pair_mut((source_id, target_id));
+        (target).copy_from_slice(&source[..]);
     }
-    pub fn swap_gene_range<B: RangeBounds<usize>>(
-        &mut self,
-        father_id: usize,
-        mother_id: usize,
-        range: B,
-    ) {
-        let min_index = match range.start_bound() {
-            Bound::Unbounded => 0,
-            Bound::Included(&i) => i,
-            Bound::Excluded(&i) => i + 1,
-        }
-        .max(0);
-        let max_index = match range.end_bound() {
-            Bound::Unbounded => self.genes_size,
-            Bound::Included(&i) => i + 1,
-            Bound::Excluded(&i) => i,
-        }
-        .min(N);
+    pub fn swap_gene(&mut self, father_id: usize, mother_id: usize, index: usize) {
+        let (father, mother) = self.gene_slice_pair_mut((father_id, mother_id));
+        std::mem::swap(&mut father[index], &mut mother[index]);
 
-        let (first, second) = (
-            std::cmp::min(father_id, mother_id),
-            std::cmp::max(father_id, mother_id),
-        );
-        let (_, tmp) = self.matrix.split_at_mut(first);
-        let (x, rest) = tmp.split_at_mut(1);
-        let (_, y) = rest.split_at_mut(second - first - 1);
-
-        (&mut x[0][min_index..max_index]).swap_with_slice(&mut y[0][min_index..max_index]);
-
-        // let mother_back =
-        //     &mut self.matrix.column_mut(mother.reference_id).as_mut_slice()[index..];
-        // let father_back =
-        //     &mut self.matrix.column_mut(father.reference_id).as_mut_slice()[index..];
-        // father_back.swap_with_slice(mother_back);
-
-        // let temp_slice = &mut self.vector.as_mut_slice();
-        // let mother_col = &self.matrix.column(mother.reference_id).as_slice();
-        // let mother_slice = &mother_col[index..];
-        // temp_slice.copy_from_slice(mother_slice);
-        //
-        // let mother_slice =
-        //     &mut self.matrix.column_mut(mother.reference_id).as_mut_slice()[index..];
-        // let father_slice = &self.matrix.column(father.reference_id).as_slice()[index..];
-        // mother_slice.copy_from_slice(father_slice);
-        //
-        // let father_slice =
-        //     &mut self.matrix.column_mut(father.reference_id).as_mut_slice()[index..];
-        // let temp_slice = &self.vector.as_slice();
-        // father_slice.copy_from_slice(temp_slice);
-
-        // for i in min_index..max_index {
-        //     self.swap_gene(father_id, mother_id, i);
+        // // unsafe version, not much faster
+        // // Can't take two mutable loans from one vector, so instead use raw pointers.
+        // let pa = std::ptr::addr_of_mut!(self.matrix[father_id][index]);
+        // let pb = std::ptr::addr_of_mut!(self.matrix[mother_id][index]);
+        // // SAFETY: `pa` and `pb` have been created from safe mutable references and refer
+        // // to elements in the slice and therefore are guaranteed to be valid and aligned.
+        // // Note that accessing the elements behind `a` and `b` is checked and will
+        // // panic when out of bounds.
+        // unsafe {
+        //     std::ptr::swap(pa, pb);
         // }
     }
     pub fn copy_gene_range<B: RangeBounds<usize>>(
@@ -246,6 +201,43 @@ where
         target_id: usize,
         range: B,
     ) {
+        let (source_range, target_range) = self.gene_slice_pair_range(range);
+        let (source, target) = self.gene_slice_pair_mut((source_id, target_id));
+        (target[target_range]).copy_from_slice(&source[source_range]);
+    }
+    pub fn swap_gene_range<B: RangeBounds<usize>>(
+        &mut self,
+        father_id: usize,
+        mother_id: usize,
+        range: B,
+    ) {
+        let (father_range, mother_range) = self.gene_slice_pair_range(range);
+        let (father, mother) = self.gene_slice_pair_mut((father_id, mother_id));
+        (mother[mother_range]).swap_with_slice(&mut father[father_range]);
+    }
+    pub fn gene_slice_pair_mut(&mut self, ids: (usize, usize)) -> (&mut [T; N], &mut [T; N]) {
+        match ids.0.cmp(&ids.1) {
+            Ordering::Greater => {
+                let (_, tmp) = self.matrix.split_at_mut(ids.1);
+                let (x, rest) = tmp.split_at_mut(1);
+                let (_, y) = rest.split_at_mut(ids.0 - ids.1 - 1);
+
+                (&mut y[0], &mut x[0])
+            }
+            Ordering::Less => {
+                let (_, tmp) = self.matrix.split_at_mut(ids.0);
+                let (x, rest) = tmp.split_at_mut(1);
+                let (_, y) = rest.split_at_mut(ids.1 - ids.0 - 1);
+
+                (&mut x[0], &mut y[0])
+            }
+            Ordering::Equal => panic!("ids cannot be the same"),
+        }
+    }
+    pub fn gene_slice_pair_range<B: RangeBounds<usize>>(
+        &self,
+        range: B,
+    ) -> (Range<usize>, Range<usize>) {
         let min_index = match range.start_bound() {
             Bound::Unbounded => 0,
             Bound::Included(&i) => i,
@@ -258,14 +250,12 @@ where
             Bound::Excluded(&i) => i,
         }
         .min(N);
-        for i in min_index..max_index {
-            self.set_gene(target_id, i, self.get_gene(source_id, i));
-        }
+        (min_index..max_index, min_index..max_index)
     }
 }
 
 impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default + 'static,
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
     > Genotype for Matrix<T, N, M>
@@ -289,7 +279,7 @@ where
             } else {
                 // it is a clone, copy data to new ID
                 let new_id = self.claim_id();
-                self.copy_gene_range(c.reference_id, new_id, ..);
+                self.copy_genes(c.reference_id, new_id);
                 c.reference_id = new_id;
             }
         });
@@ -462,7 +452,7 @@ where
 }
 
 impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default + 'static,
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
     > Clone for Matrix<T, N, M>
@@ -491,7 +481,7 @@ where
 }
 
 impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default + 'static,
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
     > fmt::Debug for Matrix<T, N, M>
@@ -515,7 +505,7 @@ where
 }
 
 impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default + 'static,
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
     > fmt::Display for Matrix<T, N, M>

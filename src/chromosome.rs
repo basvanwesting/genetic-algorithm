@@ -35,6 +35,8 @@ where
         s.finish()
     }
 }
+/// Impl Copy of Genes are Copy
+impl<G: Genotype> Copy for Chromosome<G> where G::Genes: Copy {}
 
 impl<G: Genotype> Chromosome<G> {
     pub fn new(genes: G::Genes) -> Self {

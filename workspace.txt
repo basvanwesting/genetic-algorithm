@@ -20,7 +20,7 @@ const POPULATION_SIZE: usize = 100;
 const GENES_SIZE: usize = 4000;
 const POPULATION_SIZE: usize = 100;
 
-   MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 1 }>
+   MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 1 }> nalgebra
       finish - iteration: 0
         Init: 695.91µs
         Select: 8.690551ms
@@ -30,6 +30,17 @@ const POPULATION_SIZE: usize = 100;
         UpdateBestChromosome: 702.403µs
         Other: 3.183911ms
         Total: 51.65018ms
+
+   MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 1 }> plain => nalgebra poses no overhead, even when iterating swap.
+    finish - iteration: 0
+      Init: 882.161µs
+      Select: 9.849975ms
+      Crossover: 37.083578ms
+      Mutate: 2.926757ms
+      Fitness: 665.537µs
+      UpdateBestChromosome: 770.802µs
+      Other: 3.386176ms
+      Total: 55.564986ms
 
    RangeGenotype
       finish - iteration: 0
