@@ -156,10 +156,13 @@ where
     pub fn claim_id_forced(&mut self, id: usize) -> bool {
         self.free_ids.remove(&id)
     }
-    pub fn claim_id(&mut self) -> usize {
-        let id = *self.free_ids.iter().next().unwrap();
-        self.free_ids.remove(&id);
-        id
+    pub fn claim_id(&mut self) -> Option<usize> {
+        if let Some(id) = self.free_ids.iter().next().copied() {
+            self.free_ids.remove(&id);
+            Some(id)
+        } else {
+            None
+        }
     }
 
     pub fn get_gene(&self, id: usize, index: usize) -> T {
@@ -271,11 +274,13 @@ where
         // recycle ids
         self.reset_ids();
         population.chromosomes.iter_mut().for_each(|c| {
-            if self.claim_id_forced(c.reference_id) {
+            if c.reference_id == usize::MAX {
+                // empty chromosome, ignore
+            } else if self.claim_id_forced(c.reference_id) {
                 // first occurence, claim ID, use existing data
             } else {
                 // it is a clone, copy data to new ID
-                let new_id = self.claim_id();
+                let new_id = self.claim_id().unwrap();
                 self.copy_genes(c.reference_id, new_id);
                 c.reference_id = new_id;
             }
@@ -283,15 +288,18 @@ where
     }
 
     fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        let id = self.claim_id();
+        if let Some(id) = self.claim_id() {
+            (0..self.genes_size)
+                .for_each(|i| self.set_gene(id, i, self.allele_sampler.sample(rng)));
 
-        (0..self.genes_size).for_each(|i| self.set_gene(id, i, self.allele_sampler.sample(rng)));
-
-        Chromosome {
-            reference_id: id,
-            genes: (),
-            fitness_score: None,
-            age: 0,
+            Chromosome {
+                reference_id: id,
+                genes: (),
+                fitness_score: None,
+                age: 0,
+            }
+        } else {
+            self.chromosome_factory_empty()
         }
     }
     fn chromosome_factory_empty(&self) -> Chromosome<Self> {

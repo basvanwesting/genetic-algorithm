@@ -26,7 +26,7 @@ fn main() {
     //     .with_allele_range(ALLELE_RANGE)
     //     .build()
     //     .unwrap();
-    let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 1 }>::builder()
+    let genotype = MatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(ALLELE_RANGE)
         .build()

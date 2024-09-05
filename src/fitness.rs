@@ -110,7 +110,9 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     /// Implement by Client for normal Genotypes
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Genotype>,
-        genotype: &Self::Genotype,
-    ) -> Option<FitnessValue>;
+        _chromosome: &Chromosome<Self::Genotype>,
+        _genotype: &Self::Genotype,
+    ) -> Option<FitnessValue> {
+        panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using MatrixGenotype)");
+    }
 }

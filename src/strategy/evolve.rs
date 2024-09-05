@@ -282,19 +282,26 @@ impl<
         let now = Instant::now();
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
-        self.state.chromosome = self.genotype.chromosome_factory(&mut self.rng);
         self.state.population.chromosomes = (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_factory(&mut self.rng))
             .collect::<Vec<_>>();
+        self.state.chromosome = self.genotype.chromosome_factory(&mut self.rng);
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
-        self.fitness
-            .call_for_state_chromosome(&mut self.state, &self.genotype);
         self.fitness.call_for_state_population(
             &mut self.state,
             &mut self.genotype,
             fitness_thread_local,
         );
+
+        // could be empty when the Genotype cannot exceed target_population_size
+        if !self
+            .genotype
+            .chromosome_is_empty(&self.state.best_chromosome)
+        {
+            self.fitness
+                .call_for_state_chromosome(&mut self.state, &self.genotype);
+        }
         self.state
             .update_best_chromosome_and_report(&self.config, &mut self.reporter);
 
