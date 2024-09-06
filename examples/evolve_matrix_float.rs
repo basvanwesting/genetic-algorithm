@@ -15,7 +15,7 @@ impl Fitness for DistanceTo {
     ) {
         for chromosome in population.chromosomes.iter_mut() {
             let score = genotype
-                .get_genes(chromosome.reference_id)
+                .get_genes(&chromosome)
                 .iter()
                 .map(|v| (v - self.0).abs() / self.1)
                 .sum::<f32>() as FitnessValue;
@@ -65,10 +65,10 @@ fn main() {
     let duration = now.elapsed();
 
     println!("{}", evolve);
-    if let Some(reference_id) = evolve.best_chromosome().map(|c| c.reference_id) {
+    if let Some(best_chromosome) = evolve.best_chromosome() {
         println!(
             "genes from store: {:?}",
-            &evolve.genotype.get_genes(reference_id)
+            &evolve.genotype.get_genes(&best_chromosome)
         );
     }
     println!("duration: {:?}", duration);

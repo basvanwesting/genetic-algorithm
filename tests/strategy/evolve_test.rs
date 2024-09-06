@@ -545,10 +545,7 @@ impl Fitness for SumMatrixGenes {
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         for chromosome in population.chromosomes.iter_mut() {
-            let score = genotype
-                .get_genes(chromosome.reference_id)
-                .iter()
-                .sum::<u16>();
+            let score = genotype.get_genes(&chromosome).iter().sum::<u16>();
             chromosome.fitness_score = Some(score as FitnessValue);
         }
     }
@@ -582,10 +579,7 @@ fn call_matrix() {
 
     assert_eq!(best_chromosome.fitness_score, Some(0));
     assert_eq!(
-        evolve
-            .genotype
-            .get_genes(best_chromosome.reference_id)
-            .to_vec(),
+        evolve.genotype.get_genes(&best_chromosome).to_vec(),
         vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
 }

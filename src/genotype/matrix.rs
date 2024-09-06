@@ -101,7 +101,7 @@ where
         chromosome: &mut Chromosome<Self>,
         rng: &mut R,
     ) {
-        self.set_gene(
+        self.set_gene_by_id(
             chromosome.reference_id,
             index,
             self.allele_sampler.sample(rng),
@@ -114,13 +114,13 @@ where
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-        let new_value = self.get_gene(chromosome.reference_id, index) + value_diff;
+        let new_value = self.get_gene_by_id(chromosome.reference_id, index) + value_diff;
         if new_value < *self.allele_range.start() {
-            self.set_gene(chromosome.reference_id, index, *self.allele_range.start());
+            self.set_gene_by_id(chromosome.reference_id, index, *self.allele_range.start());
         } else if new_value > *self.allele_range.end() {
-            self.set_gene(chromosome.reference_id, index, *self.allele_range.end());
+            self.set_gene_by_id(chromosome.reference_id, index, *self.allele_range.end());
         } else {
-            self.set_gene(chromosome.reference_id, index, new_value);
+            self.set_gene_by_id(chromosome.reference_id, index, new_value);
         }
     }
     fn mutate_chromosome_index_scaled<R: Rng>(
@@ -136,31 +136,35 @@ where
         } else {
             *working_range.end()
         };
-        let new_value = self.get_gene(chromosome.reference_id, index) + value_diff;
+        let new_value = self.get_gene_by_id(chromosome.reference_id, index) + value_diff;
         if new_value < *self.allele_range.start() {
-            self.set_gene(chromosome.reference_id, index, *self.allele_range.start());
+            self.set_gene_by_id(chromosome.reference_id, index, *self.allele_range.start());
         } else if new_value > *self.allele_range.end() {
-            self.set_gene(chromosome.reference_id, index, *self.allele_range.end());
+            self.set_gene_by_id(chromosome.reference_id, index, *self.allele_range.end());
         } else {
-            self.set_gene(chromosome.reference_id, index, new_value);
+            self.set_gene_by_id(chromosome.reference_id, index, new_value);
         }
     }
 
-    pub fn get_gene(&self, id: usize, index: usize) -> T {
-        self.matrix[id][index]
-    }
-    pub fn set_gene(&mut self, id: usize, index: usize, value: T) {
-        self.matrix[id][index] = value;
+    /// returns a slice of genes_size <= N
+    pub fn get_genes(&self, chromosome: &Chromosome<Self>) -> &[T] {
+        self.get_genes_by_id(chromosome.reference_id)
     }
     /// returns a slice of genes_size <= N
-    pub fn get_genes(&self, id: usize) -> &[T] {
+    fn get_genes_by_id(&self, id: usize) -> &[T] {
         &self.matrix[id][..self.genes_size]
     }
-    pub fn copy_genes_by_id(&mut self, source_id: usize, target_id: usize) {
+    fn get_gene_by_id(&self, id: usize, index: usize) -> T {
+        self.matrix[id][index]
+    }
+    fn set_gene_by_id(&mut self, id: usize, index: usize, value: T) {
+        self.matrix[id][index] = value;
+    }
+    fn copy_genes_by_id(&mut self, source_id: usize, target_id: usize) {
         let (source, target) = self.gene_slice_pair_mut((source_id, target_id));
         (target).copy_from_slice(&source[..]);
     }
-    pub fn swap_gene(&mut self, father_id: usize, mother_id: usize, index: usize) {
+    fn swap_gene_by_id(&mut self, father_id: usize, mother_id: usize, index: usize) {
         let (father, mother) = self.gene_slice_pair_mut((father_id, mother_id));
         std::mem::swap(&mut father[index], &mut mother[index]);
 
@@ -176,7 +180,8 @@ where
         //     std::ptr::swap(pa, pb);
         // }
     }
-    pub fn copy_gene_range<B: RangeBounds<usize>>(
+    #[allow(dead_code)]
+    fn copy_gene_range_by_id<B: RangeBounds<usize>>(
         &mut self,
         source_id: usize,
         target_id: usize,
@@ -186,7 +191,7 @@ where
         let (source, target) = self.gene_slice_pair_mut((source_id, target_id));
         (target[target_range]).copy_from_slice(&source[source_range]);
     }
-    pub fn swap_gene_range<B: RangeBounds<usize>>(
+    fn swap_gene_range_by_id<B: RangeBounds<usize>>(
         &mut self,
         father_id: usize,
         mother_id: usize,
@@ -310,7 +315,7 @@ where
             rng.sample_iter(self.gene_index_sampler)
                 .take(number_of_crossovers)
                 .for_each(|index| {
-                    self.swap_gene(father.reference_id, mother.reference_id, index);
+                    self.swap_gene_by_id(father.reference_id, mother.reference_id, index);
                 });
         } else {
             rand::seq::index::sample(
@@ -320,7 +325,7 @@ where
             )
             .iter()
             .for_each(|index| {
-                self.swap_gene(father.reference_id, mother.reference_id, index);
+                self.swap_gene_by_id(father.reference_id, mother.reference_id, index);
             });
         }
         mother.taint_fitness_score();
@@ -338,7 +343,7 @@ where
             rng.sample_iter(self.gene_index_sampler)
                 .take(number_of_crossovers)
                 .for_each(|index| {
-                    self.swap_gene_range(father.reference_id, mother.reference_id, index..);
+                    self.swap_gene_range_by_id(father.reference_id, mother.reference_id, index..);
                 });
         } else {
             rand::seq::index::sample(
@@ -352,14 +357,18 @@ where
             .into_iter()
             .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
                 (Some(start_index), Some(end_index)) => {
-                    self.swap_gene_range(
+                    self.swap_gene_range_by_id(
                         father.reference_id,
                         mother.reference_id,
                         start_index..end_index,
                     );
                 }
                 (Some(start_index), _) => {
-                    self.swap_gene_range(father.reference_id, mother.reference_id, start_index..);
+                    self.swap_gene_range_by_id(
+                        father.reference_id,
+                        mother.reference_id,
+                        start_index..,
+                    );
                 }
                 _ => (),
             });
@@ -464,7 +473,7 @@ where
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
         if let Some(chromosome) = self.chromosome_stack.pop() {
             (0..self.genes_size).for_each(|i| {
-                self.set_gene(chromosome.reference_id, i, self.allele_sampler.sample(rng))
+                self.set_gene_by_id(chromosome.reference_id, i, self.allele_sampler.sample(rng))
             });
             chromosome
         } else {
