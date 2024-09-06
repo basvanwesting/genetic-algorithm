@@ -2,28 +2,23 @@ use genetic_algorithm::fitness::placeholders::CountdownNoisy;
 use genetic_algorithm::strategy::evolve::prelude::*;
 use std::ops::RangeInclusive;
 
-const GENES_SIZE: usize = 40000;
+const GENES_SIZE: usize = 100_000;
 #[allow(dead_code)]
 const ALLELE_RANGE: RangeInclusive<f32> = -150.0..=120.0;
+const SELECTION_RATE: f32 = 0.8;
 const POPULATION_SIZE: usize = 200;
-const TARGET_GENERATION: usize = 500;
+const TARGET_GENERATION: usize = (500_f32 * SELECTION_RATE) as usize;
 const TOURNAMENT_SIZE: usize = 20;
 const MUTATIONS_PER_CHROMOSOME: usize = 50;
+const USE_CHROMOSOME_STACK: bool = true;
 
 // Crossover is where the main work is taking place in the base loop
-// * Total base runtime (60ms) using crossover with 1 gene, don't keep parents
-//   * crossover single point adds about 1s. Because the genes are partially cloned which is expensive
-//   * crossover number of genes scale linearly from 0 to 5s for 50% of the genes size.
-//   * crossover deny duplicates scales linearly from 0 to 5s for 50% of the genes size (so unique
-//     sampling is as expensive as swapping genes).
-//   * crossover keep_parents (+8s, cloning full population is very expensive)
-//   * mutation number of genes scale linearly from 0 to 5s for 50% of the genes size.
-//   * select not a factor, it's basically some form of in-place sorting of some kind
 
 fn main() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(ALLELE_RANGE)
+        .with_chromosome_stack(USE_CHROMOSOME_STACK)
         .build()
         .unwrap();
     // let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
@@ -33,10 +28,12 @@ fn main() {
     //     .unwrap();
     // let genotype = BinaryGenotype::builder()
     //     .with_genes_size(GENES_SIZE)
+    //     .with_chromosome_stack(USE_CHROMOSOME_STACK)
     //     .build()
     //     .unwrap();
     // let genotype = BitGenotype::builder()
     //     .with_genes_size(GENES_SIZE)
+    //     .with_chromosome_stack(USE_CHROMOSOME_STACK)
     //     .build()
     //     .unwrap();
 

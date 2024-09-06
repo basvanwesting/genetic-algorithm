@@ -92,7 +92,7 @@ impl<G: Genotype> Builder<G> {
         self.seed_genes_list = seed_genes_list;
         self
     }
-    pub fn with_chromesome_stack(mut self, use_chromosome_stack: bool) -> Self {
+    pub fn with_chromosome_stack(mut self, use_chromosome_stack: bool) -> Self {
         self.use_chromosome_stack = use_chromosome_stack;
         self
     }

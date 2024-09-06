@@ -29,11 +29,12 @@ pub fn setup(
 }
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let config = EvolveConfig::new();
+    let mut config = EvolveConfig::new();
     let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::from_entropy();
     let population_size: usize = 1000;
     let genes_sizes = vec![100, 10000];
+    config.target_population_size = population_size;
 
     let mut group = c.benchmark_group(format!("crossovers-pop{}", population_size));
     //group.warm_up_time(Duration::from_secs(3));
