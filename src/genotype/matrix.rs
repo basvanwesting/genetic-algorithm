@@ -424,17 +424,11 @@ where
     fn random_genes_factory<R: Rng>(&self, _rng: &mut R) -> <Self as Genotype>::Genes {}
     fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
         Chromosome::new(())
-        // Chromosome {
-        //     reference_id: usize::MAX,
-        //     genes: (),
-        //     fitness_score: None,
-        //     age: 0,
-        // }
     }
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.reference_id == usize::MAX
     }
-    fn chromosome_use_stack(&self) -> bool {
+    fn use_chromosome_stack(&self) -> bool {
         true
     }
     fn chromosomes_init(&mut self) {

@@ -24,8 +24,9 @@ use std::fmt;
 pub struct Binary {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
-    pub chromosome_stack: Vec<Chromosome<Self>>,
     pub seed_genes_list: Vec<Vec<bool>>,
+    pub use_chromosome_stack: bool,
+    pub chromosome_stack: Vec<Chromosome<Self>>,
 }
 
 impl TryFrom<Builder<Self>> for Binary {
@@ -38,8 +39,9 @@ impl TryFrom<Builder<Self>> for Binary {
             Ok(Self {
                 genes_size: builder.genes_size.unwrap(),
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
-                chromosome_stack: vec![],
                 seed_genes_list: builder.seed_genes_list,
+                use_chromosome_stack: builder.use_chromosome_stack,
+                chromosome_stack: vec![],
             })
         }
     }
@@ -217,24 +219,24 @@ impl ChromosomeManager<Self> for Binary {
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
-    // fn chromosome_use_stack(&self) -> bool {
-    //     true
-    // }
-    // fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
-    //     self.chromosome_stack.push(chromosome);
-    // }
-    // fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
-    //     self.chromosome_stack.pop()
-    // }
-    // fn copy_genes(
-    //     &mut self,
-    //     source_chromosome: &Chromosome<Self>,
-    //     target_chromosome: &mut Chromosome<Self>,
-    // ) {
-    //     let target_slice = &mut target_chromosome.genes[..];
-    //     let source_slice = &source_chromosome.genes[..];
-    //     target_slice.copy_from_slice(source_slice);
-    // }
+    fn use_chromosome_stack(&self) -> bool {
+        self.use_chromosome_stack
+    }
+    fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_stack.push(chromosome);
+    }
+    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
+        self.chromosome_stack.pop()
+    }
+    fn copy_genes(
+        &mut self,
+        source_chromosome: &Chromosome<Self>,
+        target_chromosome: &mut Chromosome<Self>,
+    ) {
+        let target_slice = &mut target_chromosome.genes[..];
+        let source_slice = &source_chromosome.genes[..];
+        target_slice.copy_from_slice(source_slice);
+    }
 }
 
 impl fmt::Display for Binary {

@@ -98,6 +98,8 @@ pub struct MultiRange<
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
     pub index_weights: Vec<f64>,
     pub seed_genes_list: Vec<Vec<T>>,
+    pub use_chromosome_stack: bool,
+    pub chromosome_stack: Vec<Chromosome<Self>>,
 }
 
 impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> TryFrom<Builder<Self>>
@@ -161,6 +163,8 @@ where
                 ),
                 index_weights,
                 seed_genes_list: builder.seed_genes_list,
+                use_chromosome_stack: builder.use_chromosome_stack,
+                chromosome_stack: vec![],
             })
         }
     }
@@ -517,24 +521,24 @@ where
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
-    // fn chromosome_use_stack(&self) -> bool {
-    //     true
-    // }
-    // fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
-    //     self.chromosome_stack.push(chromosome);
-    // }
-    // fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
-    //     self.chromosome_stack.pop()
-    // }
-    // fn copy_genes(
-    //     &mut self,
-    //     source_chromosome: &Chromosome<Self>,
-    //     target_chromosome: &mut Chromosome<Self>,
-    // ) {
-    //     let target_slice = &mut target_chromosome.genes[..];
-    //     let source_slice = &source_chromosome.genes[..];
-    //     target_slice.copy_from_slice(source_slice);
-    // }
+    fn use_chromosome_stack(&self) -> bool {
+        self.use_chromosome_stack
+    }
+    fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_stack.push(chromosome);
+    }
+    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
+        self.chromosome_stack.pop()
+    }
+    fn copy_genes(
+        &mut self,
+        source_chromosome: &Chromosome<Self>,
+        target_chromosome: &mut Chromosome<Self>,
+    ) {
+        let target_slice = &mut target_chromosome.genes[..];
+        let source_slice = &source_chromosome.genes[..];
+        target_slice.copy_from_slice(source_slice);
+    }
 }
 
 impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> Clone for MultiRange<T>
@@ -566,6 +570,8 @@ where
             ),
             index_weights: self.index_weights.clone(),
             seed_genes_list: self.seed_genes_list.clone(),
+            use_chromosome_stack: self.use_chromosome_stack,
+            chromosome_stack: vec![],
         }
     }
 }

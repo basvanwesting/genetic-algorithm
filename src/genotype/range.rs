@@ -68,8 +68,9 @@ where
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
-    pub chromosome_stack: Vec<Chromosome<Self>>,
     pub seed_genes_list: Vec<Vec<T>>,
+    pub use_chromosome_stack: bool,
+    pub chromosome_stack: Vec<Chromosome<Self>>,
 }
 
 impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> TryFrom<Builder<Self>> for Range<T>
@@ -106,8 +107,9 @@ where
                 allele_relative_sampler: builder
                     .allele_mutation_range
                     .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
-                chromosome_stack: vec![],
                 seed_genes_list: builder.seed_genes_list,
+                use_chromosome_stack: builder.use_chromosome_stack,
+                chromosome_stack: vec![],
             })
         }
     }
@@ -451,8 +453,8 @@ where
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
-    fn chromosome_use_stack(&self) -> bool {
-        true
+    fn use_chromosome_stack(&self) -> bool {
+        self.use_chromosome_stack
     }
     fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
         self.chromosome_stack.push(chromosome);
@@ -489,8 +491,9 @@ where
                 .allele_mutation_range
                 .clone()
                 .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
-            chromosome_stack: vec![],
             seed_genes_list: self.seed_genes_list.clone(),
+            use_chromosome_stack: self.use_chromosome_stack,
+            chromosome_stack: vec![],
         }
     }
 }

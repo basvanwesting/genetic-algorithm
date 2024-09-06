@@ -66,6 +66,8 @@ pub struct MultiUnique<T: Allele = DefaultAllele> {
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
+    pub use_chromosome_stack: bool,
+    pub chromosome_stack: Vec<Chromosome<Self>>,
 }
 
 impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
@@ -112,6 +114,8 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
                 crossover_points,
                 crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
+                use_chromosome_stack: builder.use_chromosome_stack,
+                chromosome_stack: vec![],
             })
         }
     }
@@ -323,24 +327,24 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
-    // fn chromosome_use_stack(&self) -> bool {
-    //     true
-    // }
-    // fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
-    //     self.chromosome_stack.push(chromosome);
-    // }
-    // fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
-    //     self.chromosome_stack.pop()
-    // }
-    // fn copy_genes(
-    //     &mut self,
-    //     source_chromosome: &Chromosome<Self>,
-    //     target_chromosome: &mut Chromosome<Self>,
-    // ) {
-    //     let target_slice = &mut target_chromosome.genes[..];
-    //     let source_slice = &source_chromosome.genes[..];
-    //     target_slice.copy_from_slice(source_slice);
-    // }
+    fn use_chromosome_stack(&self) -> bool {
+        self.use_chromosome_stack
+    }
+    fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_stack.push(chromosome);
+    }
+    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
+        self.chromosome_stack.pop()
+    }
+    fn copy_genes(
+        &mut self,
+        source_chromosome: &Chromosome<Self>,
+        target_chromosome: &mut Chromosome<Self>,
+    ) {
+        let target_slice = &mut target_chromosome.genes[..];
+        let source_slice = &source_chromosome.genes[..];
+        target_slice.copy_from_slice(source_slice);
+    }
 }
 
 impl<T: Allele> fmt::Display for MultiUnique<T> {

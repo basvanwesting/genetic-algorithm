@@ -95,7 +95,7 @@ pub trait ChromosomeManager<G: Genotype> {
     fn chromosome_is_empty(&self, chromosome: &Chromosome<G>) -> bool;
 
     /// provided, disable stack by default override using stack
-    fn chromosome_use_stack(&self) -> bool {
+    fn use_chromosome_stack(&self) -> bool {
         false
     }
     /// provided, override if stack needs initialization
@@ -118,7 +118,7 @@ pub trait ChromosomeManager<G: Genotype> {
     /// make stack panic when empty if the fallback to cloning is unwanted
 
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G> {
-        if self.chromosome_use_stack() {
+        if self.use_chromosome_stack() {
             if let Some(mut new_chromosome) = self.chromosome_stack_pop() {
                 new_chromosome.genes = self.random_genes_factory(rng);
                 new_chromosome.age = 0;
@@ -132,7 +132,7 @@ pub trait ChromosomeManager<G: Genotype> {
         }
     }
     fn chromosome_destructor(&mut self, chromosome: Chromosome<G>) {
-        if self.chromosome_use_stack() && !self.chromosome_is_empty(&chromosome) {
+        if self.use_chromosome_stack() && !self.chromosome_is_empty(&chromosome) {
             self.chromosome_stack_push(chromosome)
         }
     }
@@ -141,7 +141,7 @@ pub trait ChromosomeManager<G: Genotype> {
         chromosomes: &mut Vec<Chromosome<G>>,
         target_population_size: usize,
     ) {
-        if self.chromosome_use_stack() {
+        if self.use_chromosome_stack() {
             chromosomes
                 .drain(target_population_size..)
                 .for_each(|c| self.chromosome_destructor(c));
@@ -150,7 +150,7 @@ pub trait ChromosomeManager<G: Genotype> {
         }
     }
     fn chromosome_cloner(&mut self, chromosome: &Chromosome<G>) -> Chromosome<G> {
-        if self.chromosome_use_stack() && !self.chromosome_is_empty(chromosome) {
+        if self.use_chromosome_stack() && !self.chromosome_is_empty(chromosome) {
             if let Some(mut new_chromosome) = self.chromosome_stack_pop() {
                 self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.age = chromosome.age;
@@ -168,7 +168,7 @@ pub trait ChromosomeManager<G: Genotype> {
         chromosomes: &mut Vec<Chromosome<G>>,
         range: Range<usize>,
     ) {
-        if self.chromosome_use_stack() {
+        if self.use_chromosome_stack() {
             for i in range {
                 let chromosome = &chromosomes[i];
                 chromosomes.push(self.chromosome_cloner(chromosome));

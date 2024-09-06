@@ -35,6 +35,8 @@ pub struct Bit {
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<FixedBitSet>,
+    pub use_chromosome_stack: bool,
+    pub chromosome_stack: Vec<Chromosome<Self>>,
 }
 
 impl TryFrom<Builder<Self>> for Bit {
@@ -59,6 +61,8 @@ impl TryFrom<Builder<Self>> for Bit {
                 crossover_points,
                 crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
+                use_chromosome_stack: builder.use_chromosome_stack,
+                chromosome_stack: vec![],
             })
         }
     }
@@ -302,22 +306,22 @@ impl ChromosomeManager<Self> for Bit {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    // fn chromosome_use_stack(&self) -> bool {
-    //     true
-    // }
-    // fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
-    //     self.chromosome_stack.push(chromosome);
-    // }
-    // fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
-    //     self.chromosome_stack.pop()
-    // }
-    // fn copy_genes(
-    //     &mut self,
-    //     source_chromosome: &Chromosome<Self>,
-    //     target_chromosome: &mut Chromosome<Self>,
-    // ) {
-    //     target_chromosome.genes = source_chromosome.genes.clone();
-    // }
+    fn use_chromosome_stack(&self) -> bool {
+        self.use_chromosome_stack
+    }
+    fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_stack.push(chromosome);
+    }
+    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
+        self.chromosome_stack.pop()
+    }
+    fn copy_genes(
+        &mut self,
+        source_chromosome: &Chromosome<Self>,
+        target_chromosome: &mut Chromosome<Self>,
+    ) {
+        target_chromosome.genes.clone_from(&source_chromosome.genes);
+    }
 }
 
 impl fmt::Display for Bit {

@@ -87,6 +87,8 @@ pub struct MultiList<T: Allele + PartialEq = DefaultAllele> {
     gene_weighted_index_sampler: WeightedIndex<usize>,
     allele_index_samplers: Vec<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
+    pub use_chromosome_stack: bool,
+    pub chromosome_stack: Vec<Chromosome<Self>>,
 }
 
 impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for MultiList<T> {
@@ -116,6 +118,8 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for MultiList<T> {
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
                     .collect(),
                 seed_genes_list: builder.seed_genes_list,
+                use_chromosome_stack: builder.use_chromosome_stack,
+                chromosome_stack: vec![],
             })
         }
     }
@@ -315,24 +319,24 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
-    // fn chromosome_use_stack(&self) -> bool {
-    //     true
-    // }
-    // fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
-    //     self.chromosome_stack.push(chromosome);
-    // }
-    // fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
-    //     self.chromosome_stack.pop()
-    // }
-    // fn copy_genes(
-    //     &mut self,
-    //     source_chromosome: &Chromosome<Self>,
-    //     target_chromosome: &mut Chromosome<Self>,
-    // ) {
-    //     let target_slice = &mut target_chromosome.genes[..];
-    //     let source_slice = &source_chromosome.genes[..];
-    //     target_slice.copy_from_slice(source_slice);
-    // }
+    fn use_chromosome_stack(&self) -> bool {
+        self.use_chromosome_stack
+    }
+    fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_stack.push(chromosome);
+    }
+    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
+        self.chromosome_stack.pop()
+    }
+    fn copy_genes(
+        &mut self,
+        source_chromosome: &Chromosome<Self>,
+        target_chromosome: &mut Chromosome<Self>,
+    ) {
+        let target_slice = &mut target_chromosome.genes[..];
+        let source_slice = &source_chromosome.genes[..];
+        target_slice.copy_from_slice(source_slice);
+    }
 }
 
 impl<T: Allele + PartialEq> fmt::Display for MultiList<T> {
