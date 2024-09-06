@@ -56,24 +56,25 @@ const POPULATION_SIZE: usize = 200;
 
    RangeGenotype
       finish - iteration: 0
-        Init: 29.726906ms
-        Select: 21.111781ms
-        Crossover: 2.672950189s
-        Mutate: 16.856833ms
-        Fitness: 1.710852ms
-        UpdateBestChromosome: 142.348514ms
-        Other: 283.541265ms
-        Total: 3.16824634s
-      best_generation: 624, best fitness score: Some(0), duration: 3.168291644s
+        Init: 30.693764ms
+        Select: 19.512762ms
+        Crossover: 2.539280249s
+        Mutate: 16.443389ms
+        Fitness: 1.655913ms
+        UpdateBestChromosome: 19.702243ms
+        ChromosomeDataDropAndCopy: 2.02731968s
+        Total: 4.654608s
+      best_generation: 624, best fitness score: Some(0), duration: 2.903516571s
 
+   RangeGenotype with ChromosomeManager-chromosome_stack
       finish - iteration: 0
-        Init: 33.564978ms
-        Select: 17.018494ms
-        Crossover: 2.444938907s
-        Mutate: 17.009524ms
-        Fitness: 1.663004ms
-        UpdateBestChromosome: 19.380817ms
-        ChromosomeDataDropAndCopy: 1.926716603s
-        Total: 4.460292327s
-      best_generation: 624, best fitness score: Some(0), duration: 2.793063754s
+        Init: 30.322953ms
+        Select: 15.883884ms
+        Crossover: 1.178925552s
+        Mutate: 11.568932ms
+        Fitness: 1.2108ms
+        UpdateBestChromosome: 5.442272ms
+        ChromosomeDataDropAndCopy: 416.531875ms
+        Total: 1.659886268s
+      best_generation: 624, best fitness score: Some(0), duration: 1.245338452s
 

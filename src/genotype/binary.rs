@@ -6,6 +6,7 @@ use num::BigUint;
 use rand::distributions::{Standard, Uniform};
 use rand::prelude::*;
 use std::fmt;
+use std::ops::Range;
 
 /// Genes are a vector of booleans. On random initialization, each gene has a 50% probability of
 /// becoming true or false. Each gene has an equal probability of mutating. If a gene mutates, its
@@ -24,6 +25,7 @@ use std::fmt;
 pub struct Binary {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
+    pub chromosome_stack: Vec<Chromosome<Self>>,
     pub seed_genes_list: Vec<Vec<bool>>,
 }
 
@@ -37,6 +39,7 @@ impl TryFrom<Builder<Self>> for Binary {
             Ok(Self {
                 genes_size: builder.genes_size.unwrap(),
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
+                chromosome_stack: vec![],
                 seed_genes_list: builder.seed_genes_list,
             })
         }
@@ -214,6 +217,60 @@ impl Binary {
 impl ChromosomeManager<Self> for Binary {
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
         Chromosome::new(self.random_genes_factory(rng))
+    }
+    fn chromosome_destructor(&mut self, chromosome: Chromosome<Self>) {
+        if !chromosome.genes.is_empty() {
+            self.chromosome_stack.push(chromosome)
+        }
+    }
+    fn chromosome_cloner(&mut self, chromosome: &Chromosome<Self>) -> Chromosome<Self> {
+        if !chromosome.genes.is_empty() {
+            if let Some(mut new_chromosome) = self.chromosome_stack.pop() {
+                let target_slice = &mut new_chromosome.genes[..];
+                let source_slice = &chromosome.genes[..];
+                target_slice.copy_from_slice(source_slice);
+                new_chromosome.age = chromosome.age;
+                new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome
+            } else {
+                chromosome.clone()
+            }
+        } else {
+            self.chromosome_constructor_empty()
+        }
+    }
+    fn chromosome_destructor_truncate(
+        &mut self,
+        chromosomes: &mut Vec<Chromosome<Self>>,
+        target_population_size: usize,
+    ) {
+        chromosomes
+            .drain(target_population_size..)
+            .filter(|c| !c.genes.is_empty())
+            .for_each(|c| self.chromosome_stack.push(c));
+    }
+    fn chromosome_cloner_range(
+        &mut self,
+        chromosomes: &mut Vec<Chromosome<Self>>,
+        range: Range<usize>,
+    ) {
+        for i in range {
+            let chromosome = &chromosomes[i];
+            if !chromosome.genes.is_empty() {
+                if let Some(mut new_chromosome) = self.chromosome_stack.pop() {
+                    let target_slice = &mut new_chromosome.genes[..];
+                    let source_slice = &chromosome.genes[..];
+                    target_slice.copy_from_slice(source_slice);
+                    new_chromosome.age = chromosome.age;
+                    new_chromosome.fitness_score = chromosome.fitness_score;
+                    chromosomes.push(new_chromosome);
+                } else {
+                    chromosomes.push(chromosome.clone());
+                }
+            } else {
+                chromosomes.push(self.chromosome_constructor_empty());
+            }
+        }
     }
     fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
         Chromosome::new(vec![])
