@@ -106,17 +106,17 @@ pub trait ChromosomeManager<G: Genotype> {
     fn chromosome_stack_pop(&mut self) -> Option<Chromosome<G>> {
         None
     }
-    /// optional, required if using stack
-    fn copy_genes(
-        &mut self,
-        _source_chromosome: &Chromosome<G>,
-        _target_chromosome: &mut Chromosome<G>,
-    ) {
-    }
 
     /// all provided below, fall back to cloning if stack is empty
     /// make stack panic when empty if the fallback to cloning is unwanted
 
+    fn copy_genes(
+        &mut self,
+        source_chromosome: &Chromosome<G>,
+        target_chromosome: &mut Chromosome<G>,
+    ) {
+        target_chromosome.genes.clone_from(&source_chromosome.genes);
+    }
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G> {
         if self.use_chromosome_stack() {
             if let Some(mut new_chromosome) = self.chromosome_stack_pop() {

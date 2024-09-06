@@ -315,13 +315,6 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
         self.chromosome_stack.pop()
     }
-    fn copy_genes(
-        &mut self,
-        source_chromosome: &Chromosome<Self>,
-        target_chromosome: &mut Chromosome<Self>,
-    ) {
-        target_chromosome.genes.clone_from(&source_chromosome.genes);
-    }
 }
 
 impl fmt::Display for Bit {

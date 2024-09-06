@@ -336,15 +336,6 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
     fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
         self.chromosome_stack.pop()
     }
-    fn copy_genes(
-        &mut self,
-        source_chromosome: &Chromosome<Self>,
-        target_chromosome: &mut Chromosome<Self>,
-    ) {
-        let target_slice = &mut target_chromosome.genes[..];
-        let source_slice = &source_chromosome.genes[..];
-        target_slice.copy_from_slice(source_slice);
-    }
 }
 
 impl<T: Allele> fmt::Display for MultiUnique<T> {
