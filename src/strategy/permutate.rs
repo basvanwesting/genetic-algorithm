@@ -154,7 +154,8 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         self.state.add_duration(StrategyAction::Init, now.elapsed());
         self.fitness
             .call_for_state_chromosome(&mut self.state, &self.genotype);
-        self.state.store_best_chromosome(true); // best by definition
+        self.state.best_generation = self.state.current_generation;
+        self.state.best_chromosome = self.state.chromosome.clone();
         self.reporter
             .on_new_best_chromosome(&self.state, &self.config);
     }
@@ -246,13 +247,6 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     fn reset_stale_generations(&mut self) {
         self.stale_generations = 0;
     }
-    fn store_best_chromosome(&mut self, improved_fitness: bool) -> (bool, bool) {
-        self.best_chromosome = self.chromosome.clone();
-        if improved_fitness {
-            self.best_generation = self.current_generation;
-        }
-        (true, improved_fitness)
-    }
     fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
         *self.durations.entry(action).or_default() += duration;
     }
@@ -268,13 +262,19 @@ impl<G: PermutableGenotype> PermutateState<G> {
         reporter: &mut SR,
     ) {
         let now = Instant::now();
-        match self.update_best_chromosome(&config.fitness_ordering, config.replace_on_equal_fitness)
-        {
+        match self.is_better_chromosome(
+            &self.chromosome,
+            &config.fitness_ordering,
+            config.replace_on_equal_fitness,
+        ) {
             (true, true) => {
+                self.best_generation = self.current_generation;
+                std::mem::swap(&mut self.chromosome, &mut self.best_chromosome);
                 reporter.on_new_best_chromosome(self, config);
                 self.reset_stale_generations();
             }
             (true, false) => {
+                std::mem::swap(&mut self.chromosome, &mut self.best_chromosome);
                 reporter.on_new_best_chromosome_equal_fitness(self, config);
                 self.increment_stale_generations()
             }

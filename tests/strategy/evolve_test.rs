@@ -223,7 +223,7 @@ fn call_binary_target_fitness_score_maximize() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, true, true, true, true, true, false, true, true, true]
+        vec![true, true, true, false, true, true, true, true, true, true]
     );
 }
 
@@ -284,7 +284,7 @@ fn call_binary_mass_degeneration() {
     assert_eq!(best_chromosome.fitness_score, Some(9));
     assert_eq!(
         inspect::chromosome(&best_chromosome),
-        vec![true, false, true, true, true, true, true, true, true, true]
+        vec![true, true, true, false, true, true, true, true, true, true]
     );
 }
 
@@ -399,10 +399,10 @@ fn call_range_f32() {
     let best_chromosome = evolve.best_chromosome().unwrap();
     println!("{:#?}", best_chromosome);
 
-    assert_eq!(best_chromosome.fitness_score, Some(9906));
+    assert_eq!(best_chromosome.fitness_score, Some(9751));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&best_chromosome),
-        vec![0.997, 0.996, 0.995, 0.996, 0.994, 0.988, 0.979, 0.976, 0.996, 0.986,],
+        vec![0.968, 0.981, 0.979, 0.971, 0.982, 0.942, 0.988, 0.946, 0.992, 0.995],
         0.001
     ));
 }
@@ -537,7 +537,7 @@ fn call_multi_list() {
 #[derive(Clone, Debug)]
 pub struct SumMatrixGenes;
 impl Fitness for SumMatrixGenes {
-    type Genotype = MatrixGenotype<u16, 10, 100>;
+    type Genotype = MatrixGenotype<u16, 10, { 100 + 2 }>;
     fn call_for_population(
         &mut self,
         population: &mut Population<Self::Genotype>,
@@ -556,7 +556,7 @@ impl Fitness for SumMatrixGenes {
 
 #[test]
 fn call_matrix() {
-    let genotype = MatrixGenotype::<u16, 10, 100>::builder()
+    let genotype = MatrixGenotype::<u16, 10, { 100 + 2 }>::builder()
         .with_genes_size(10)
         .with_allele_range(0..=10)
         .build()
@@ -569,12 +569,10 @@ fn call_matrix() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumMatrixGenes)
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_crossover(CrossoverClone::new())
-        // .with_crossover(CrossoverSingleGene::new())
-        // .with_select(SelectTournament::new(4, 0.9))
-        .with_select(SelectElite::new(0.9))
+        .with_crossover(CrossoverSingleGene::new())
+        .with_select(SelectTournament::new(4, 0.9))
         .with_extension(ExtensionNoop::new())
-        .with_reporter(EvolveReporterSimple::new(1))
+        // .with_reporter(EvolveReporterSimple::new(1))
         .with_rng_seed_from_u64(0)
         .call()
         .unwrap();

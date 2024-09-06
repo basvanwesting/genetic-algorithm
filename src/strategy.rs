@@ -18,7 +18,7 @@ pub enum StrategyAction {
     Mutate,
     Fitness,
     UpdateBestChromosome,
-    GenotypeDataCopy,
+    ChromosomeDataDropAndCopy,
     Other,
 }
 pub const STRATEGY_ACTIONS: [StrategyAction; 9] = [
@@ -29,7 +29,7 @@ pub const STRATEGY_ACTIONS: [StrategyAction; 9] = [
     StrategyAction::Mutate,
     StrategyAction::Fitness,
     StrategyAction::UpdateBestChromosome,
-    StrategyAction::GenotypeDataCopy,
+    StrategyAction::ChromosomeDataDropAndCopy,
     StrategyAction::Other,
 ];
 
@@ -74,52 +74,47 @@ pub trait StrategyState<G: Genotype> {
             self.add_duration(StrategyAction::Other, other_duration);
         }
     }
-
     fn increment_stale_generations(&mut self);
     fn reset_stale_generations(&mut self);
 
     // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
     // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
     // distinguished for reporting purposes
-    fn store_best_chromosome(&mut self, improved_fitness: bool) -> (bool, bool);
-
-    // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
-    // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
-    // distinguished for reporting purposes
     // TODO: because the StrategyReporter trait is not used, all StrategyState are implementing a
     // specialized version of this function for additional reporting
-    fn update_best_chromosome(
-        &mut self,
+    fn is_better_chromosome(
+        &self,
+        contending_chromosome: &Chromosome<G>,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {
         match (
             self.best_chromosome_as_ref().fitness_score,
-            self.chromosome_as_ref().fitness_score,
+            contending_chromosome.fitness_score,
         ) {
             (None, None) => (false, false),
             (Some(_), None) => (false, false),
-            (None, Some(_)) => self.store_best_chromosome(true),
+            (None, Some(_)) => (true, true),
             (Some(current_fitness_score), Some(contending_fitness_score)) => match fitness_ordering
             {
                 FitnessOrdering::Maximize => {
                     if contending_fitness_score > current_fitness_score {
-                        self.store_best_chromosome(true)
+                        (true, true)
                     } else if replace_on_equal_fitness
                         && contending_fitness_score == current_fitness_score
                     {
-                        self.store_best_chromosome(false)
+                        (true, false)
                     } else {
                         (false, false)
                     }
                 }
                 FitnessOrdering::Minimize => {
                     if contending_fitness_score < current_fitness_score {
-                        self.store_best_chromosome(true)
+                        (true, true)
                     } else if replace_on_equal_fitness
                         && contending_fitness_score == current_fitness_score
                     {
-                        self.store_best_chromosome(false)
+                        (true, false)
                     } else {
                         (false, false)
                     }

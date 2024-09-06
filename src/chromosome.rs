@@ -102,13 +102,6 @@ pub trait ChromosomeManager<G: Genotype> {
     ) {
         chromosomes.truncate(target_population_size);
     }
-    fn chromosome_destructor_range(
-        &mut self,
-        chromosomes: &mut Vec<Chromosome<G>>,
-        range: Range<usize>,
-    ) {
-        chromosomes.drain(range);
-    }
     fn chromosome_cloner_range(
         &mut self,
         chromosomes: &mut Vec<Chromosome<G>>,

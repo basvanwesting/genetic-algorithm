@@ -82,11 +82,13 @@ impl Select for Tournament {
         }
 
         state.add_duration(StrategyAction::Select, now.elapsed());
+        let now = Instant::now();
         genotype.chromosome_destructor_truncate(&mut state.population.chromosomes, 0);
         state
             .population
             .chromosomes
             .append(&mut selected_chromosomes);
+        state.add_duration(StrategyAction::ChromosomeDataDropAndCopy, now.elapsed());
     }
 }
 

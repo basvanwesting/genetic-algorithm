@@ -6,7 +6,7 @@ const POPULATION_SIZE: usize = 100;
 #[derive(Clone, Debug)]
 pub struct DistanceTo(pub f32, pub f32); // target, precision
 impl Fitness for DistanceTo {
-    type Genotype = MatrixGenotype<f32, GENES_SIZE, POPULATION_SIZE>;
+    type Genotype = MatrixGenotype<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>;
     fn call_for_population(
         &mut self,
         population: &mut Population<Self::Genotype>,
@@ -27,7 +27,7 @@ impl Fitness for DistanceTo {
 fn main() {
     env_logger::init();
 
-    let genotype = MatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
+    let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
         // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations

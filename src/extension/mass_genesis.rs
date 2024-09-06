@@ -34,6 +34,7 @@ impl Extension for MassGenesis {
                 .cloned()
             {
                 state.add_duration(StrategyAction::Extension, now.elapsed());
+                let now = Instant::now();
                 genotype.chromosome_destructor_truncate(&mut state.population.chromosomes, 0);
                 state
                     .population
@@ -43,6 +44,7 @@ impl Extension for MassGenesis {
                     .population
                     .chromosomes
                     .push(genotype.chromosome_cloner(&best_chromosome));
+                state.add_duration(StrategyAction::ChromosomeDataDropAndCopy, now.elapsed());
             }
         } else {
             state.add_duration(StrategyAction::Extension, now.elapsed());

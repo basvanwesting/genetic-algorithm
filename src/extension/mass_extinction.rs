@@ -42,8 +42,10 @@ impl Extension for MassExtinction {
             );
             state.population.shuffle(rng);
             state.add_duration(StrategyAction::Extension, now.elapsed());
+            let now = Instant::now();
             genotype
                 .chromosome_destructor_truncate(&mut state.population.chromosomes, remaining_size);
+            state.add_duration(StrategyAction::ChromosomeDataDropAndCopy, now.elapsed());
         } else {
             state.add_duration(StrategyAction::Extension, now.elapsed());
         }

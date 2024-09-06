@@ -1,5 +1,6 @@
 use criterion::*;
 use genetic_algorithm::chromosome::Chromosome;
+use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::fitness::placeholders::{
     CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes,
 };

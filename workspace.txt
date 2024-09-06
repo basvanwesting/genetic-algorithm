@@ -39,6 +39,17 @@ const POPULATION_SIZE: usize = 100;
         Other: 911.445µs
         Total: 102.995888ms
 
+      finish - iteration: 0
+        Init: 1.717173ms
+        Select: 7.081651ms
+        Crossover: 36.574494ms
+        Mutate: 3.19718ms
+        Fitness: 685.738µs
+        UpdateBestChromosome: 1.015182ms
+        ChromosomeDataDropAndCopy: 12.965953ms
+        Total: 63.237371ms
+      best_generation: 624, best fitness score: Some(0), duration: 51.600367ms
+
 
 const GENES_SIZE: usize = 40000;
 const POPULATION_SIZE: usize = 200;
@@ -54,3 +65,15 @@ const POPULATION_SIZE: usize = 200;
         Other: 283.541265ms
         Total: 3.16824634s
       best_generation: 624, best fitness score: Some(0), duration: 3.168291644s
+
+      finish - iteration: 0
+        Init: 33.564978ms
+        Select: 17.018494ms
+        Crossover: 2.444938907s
+        Mutate: 17.009524ms
+        Fitness: 1.663004ms
+        UpdateBestChromosome: 19.380817ms
+        ChromosomeDataDropAndCopy: 1.926716603s
+        Total: 4.460292327s
+      best_generation: 624, best fitness score: Some(0), duration: 2.793063754s
+

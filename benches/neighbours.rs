@@ -1,4 +1,5 @@
 use criterion::*;
+use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::genotype::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;

@@ -257,139 +257,6 @@ where
         self.genes_size
     }
 
-    // only release ids
-    // fn population_truncate<S: StrategyState<Self>>(&mut self, state: &mut S, new_size: usize) {
-    //     let now = Instant::now();
-    //     state
-    //         .population_as_mut()
-    //         .chromosomes
-    //         .drain(new_size..)
-    //         .for_each(|c| {
-    //             self.release_id(c.reference_id);
-    //         });
-    //
-    //     self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
-    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    // }
-    // // release replaced ids, rest already exists
-    // fn population_replace_from_within<S: StrategyState<Self>>(
-    //     &mut self,
-    //     state: &mut S,
-    //     mut chromosomes: Vec<Chromosome<Self>>,
-    // ) {
-    //     let now = Instant::now();
-    //     state
-    //         .population_as_mut()
-    //         .chromosomes
-    //         .drain(..)
-    //         .for_each(|c| {
-    //             self.release_id(c.reference_id);
-    //         });
-    //     self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
-    //     state
-    //         .population_as_mut()
-    //         .chromosomes
-    //         .append(&mut chromosomes);
-    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    // }
-    // // reset ids, reclaim
-    // fn population_reset<S: StrategyState<Self>>(
-    //     &mut self,
-    //     state: &mut S,
-    //     mut chromosomes: Vec<Chromosome<Self>>,
-    // ) {
-    //     let now = Instant::now();
-    //     self.reset_ids();
-    //     self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
-    //     state.population_as_mut().chromosomes.clear();
-    //     chromosomes.iter_mut().for_each(|c| {
-    //         if c.reference_id == usize::MAX {
-    //             // ignore
-    //         } else if self.claim_id_forced(c.reference_id) {
-    //             // first occurence, claim ID, use existing data
-    //         } else {
-    //             // it is a clone, copy data to new ID
-    //             if let Some(new_id) = self.claim_id() {
-    //                 self.copy_genes(c.reference_id, new_id);
-    //                 c.reference_id = new_id;
-    //             }
-    //         }
-    //     });
-    //     state
-    //         .population_as_mut()
-    //         .chromosomes
-    //         .append(&mut chromosomes);
-    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    // }
-    // fn population_extend_from_within<S: StrategyState<Self>>(
-    //     &mut self,
-    //     state: &mut S,
-    //     range: Range<usize>,
-    // ) {
-    //     let now = Instant::now();
-    //     let original_population_size = state.population_as_ref().size();
-    //     state
-    //         .population_as_mut()
-    //         .chromosomes
-    //         .extend_from_within(range);
-    //     state.population_as_mut().chromosomes[original_population_size..]
-    //         .iter_mut()
-    //         .for_each(|c| {
-    //             if c.reference_id == usize::MAX {
-    //                 // ignore
-    //             } else {
-    //                 // they are all clones by definition
-    //                 if let Some(new_id) = self.claim_id() {
-    //                     self.copy_genes(c.reference_id, new_id);
-    //                     c.reference_id = new_id;
-    //                 }
-    //             }
-    //         });
-    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    // }
-    // fn population_filter_age(&mut self, state: &mut EvolveState<Self>, config: &EvolveConfig) {
-    //     let now = Instant::now();
-    //     if let Some(max_chromosome_age) = config.max_chromosome_age {
-    //         state.population.chromosomes.retain_mut(|c| {
-    //             if c.age < max_chromosome_age {
-    //                 true
-    //             } else {
-    //                 self.release_id(c.reference_id);
-    //                 false
-    //             }
-    //         });
-    //         self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
-    //     }
-    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    // }
-    //
-    // fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-    //     if let Some(id) = self.claim_id() {
-    //         (0..self.genes_size)
-    //             .for_each(|i| self.set_gene(id, i, self.allele_sampler.sample(rng)));
-    //
-    //         Chromosome {
-    //             reference_id: id,
-    //             genes: (),
-    //             fitness_score: None,
-    //             age: 0,
-    //         }
-    //     } else {
-    //         self.chromosome_constructor_empty()
-    //     }
-    // }
-    // fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
-    //     Chromosome {
-    //         reference_id: usize::MAX,
-    //         genes: (),
-    //         fitness_score: None,
-    //         age: 0,
-    //     }
-    // }
-    // fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-    //     chromosome.reference_id == usize::MAX
-    // }
-
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,
         number_of_mutations: usize,
@@ -584,16 +451,24 @@ where
             });
             chromosome
         } else {
-            self.chromosome_constructor_empty()
+            panic!("genetic_algorithm error: chromosome_constructor exceeds chromosome capacity")
         }
     }
     fn chromosome_destructor(&mut self, chromosome: Chromosome<Self>) {
-        self.chromosome_stack.push(chromosome);
+        if chromosome.reference_id != usize::MAX {
+            self.chromosome_stack.push(chromosome)
+        }
     }
     fn chromosome_cloner(&mut self, chromosome: &Chromosome<Self>) -> Chromosome<Self> {
-        if let Some(new_chromosome) = self.chromosome_stack.pop() {
-            self.copy_genes(chromosome.reference_id, new_chromosome.reference_id);
-            new_chromosome
+        if chromosome.reference_id != usize::MAX {
+            if let Some(mut new_chromosome) = self.chromosome_stack.pop() {
+                self.copy_genes(chromosome.reference_id, new_chromosome.reference_id);
+                new_chromosome.age = chromosome.age;
+                new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome
+            } else {
+                panic!("genetic_algorithm error: chromosome_cloner exceeds chromosome capacity")
+            }
         } else {
             self.chromosome_constructor_empty()
         }
@@ -605,15 +480,7 @@ where
     ) {
         chromosomes
             .drain(target_population_size..)
-            .for_each(|c| self.chromosome_stack.push(c));
-    }
-    fn chromosome_destructor_range(
-        &mut self,
-        chromosomes: &mut Vec<Chromosome<Self>>,
-        range: Range<usize>,
-    ) {
-        chromosomes
-            .drain(range)
+            .filter(|c| c.reference_id != usize::MAX)
             .for_each(|c| self.chromosome_stack.push(c));
     }
     fn chromosome_cloner_range(
@@ -622,9 +489,16 @@ where
         range: Range<usize>,
     ) {
         for i in range {
-            if let Some(new_chromosome) = self.chromosome_stack.pop() {
-                self.copy_genes(chromosomes[i].reference_id, new_chromosome.reference_id);
-                chromosomes.push(new_chromosome);
+            let chromosome = &chromosomes[i];
+            if chromosome.reference_id != usize::MAX {
+                if let Some(mut new_chromosome) = self.chromosome_stack.pop() {
+                    self.copy_genes(chromosome.reference_id, new_chromosome.reference_id);
+                    new_chromosome.age = chromosome.age;
+                    new_chromosome.fitness_score = chromosome.fitness_score;
+                    chromosomes.push(new_chromosome);
+                } else {
+                    panic!("genetic_algorithm error: chromosome_cloner_range exceeds chromosome capacity")
+                }
             } else {
                 chromosomes.push(self.chromosome_constructor_empty());
             }

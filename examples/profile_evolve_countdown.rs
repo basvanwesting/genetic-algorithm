@@ -2,10 +2,10 @@ use genetic_algorithm::fitness::placeholders::CountdownNoisy;
 use genetic_algorithm::strategy::evolve::prelude::*;
 use std::ops::RangeInclusive;
 
-const GENES_SIZE: usize = 40000;
+const GENES_SIZE: usize = 3000;
 #[allow(dead_code)]
 const ALLELE_RANGE: RangeInclusive<f32> = -150.0..=120.0;
-const POPULATION_SIZE: usize = 200;
+const POPULATION_SIZE: usize = 100;
 const TARGET_GENERATION: usize = 500;
 const TOURNAMENT_SIZE: usize = 20;
 const MUTATIONS_PER_CHROMOSOME: usize = 50;
@@ -26,7 +26,7 @@ fn main() {
         .with_allele_range(ALLELE_RANGE)
         .build()
         .unwrap();
-    // let genotype = MatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
+    // let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
     //     .with_genes_size(GENES_SIZE)
     //     .with_allele_range(ALLELE_RANGE)
     //     .build()

@@ -225,7 +225,6 @@ fn chromosome_manager() {
         .map(|_| genotype.chromosome_constructor(rng))
         .collect::<Vec<_>>();
     let best_chromosome = genotype.chromosome_cloner(&chromosomes[2]);
-
     dbg!("init", &chromosomes, &best_chromosome);
 
     assert!(relative_population_eq(
@@ -248,7 +247,6 @@ fn chromosome_manager() {
     ));
 
     genotype.chromosome_destructor_truncate(&mut chromosomes, 2);
-
     dbg!("truncate", &chromosomes, &best_chromosome);
 
     assert!(relative_population_eq(

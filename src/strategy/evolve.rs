@@ -235,8 +235,11 @@ impl<
                 &mut self.genotype,
                 fitness_thread_local.as_ref(),
             );
-            self.state
-                .update_best_chromosome_and_report(&self.config, &mut self.reporter);
+            self.state.update_best_chromosome_and_report(
+                &mut self.genotype,
+                &self.config,
+                &mut self.reporter,
+            );
             self.reporter.on_new_generation(&self.state, &self.config);
             self.state.scale(&self.config);
         }
@@ -250,6 +253,7 @@ impl<
         {
             None
         } else {
+            // FIXME: use genotype cloner here? It is the resulting call, we don't expect new activity
             Some(self.state.best_chromosome.clone())
         }
     }
@@ -283,14 +287,11 @@ impl<
         let now = Instant::now();
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
-        // first initialize population
+
         self.genotype.chromosomes_init();
         self.state.population.chromosomes = (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_constructor(&mut self.rng))
             .collect::<Vec<_>>();
-        // then initialize seed chromosome, as population may already have exceeded capacity
-        // we want to skip the call to calculate_for_chromosome in that case
-        self.state.chromosome = self.genotype.chromosome_constructor(&mut self.rng);
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
         self.fitness.call_for_state_population(
@@ -298,21 +299,25 @@ impl<
             &mut self.genotype,
             fitness_thread_local,
         );
-
-        self.fitness
-            .call_for_state_chromosome(&mut self.state, &self.genotype);
-        self.state
-            .update_best_chromosome_and_report(&self.config, &mut self.reporter);
+        self.state.update_best_chromosome_and_report(
+            &mut self.genotype,
+            &self.config,
+            &mut self.reporter,
+        );
 
         if self
             .genotype
             .chromosome_is_empty(&self.state.best_chromosome)
         {
-            self.state.store_best_chromosome(true); // best by definition
+            // best_chromosome is still empty placeholder, just take first of population
+            self.state.best_generation = self.state.current_generation;
+            self.state.best_chromosome = self
+                .genotype
+                .chromosome_cloner(&self.state.population.chromosomes[0]);
             self.reporter
                 .on_new_best_chromosome(&self.state, &self.config);
+            self.state.reset_stale_generations();
         }
-        self.state.reset_stale_generations();
     }
 
     fn is_finished(&self) -> bool {
@@ -406,13 +411,6 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     fn reset_stale_generations(&mut self) {
         self.stale_generations = 0;
     }
-    fn store_best_chromosome(&mut self, improved_fitness: bool) -> (bool, bool) {
-        self.best_chromosome = self.chromosome.clone();
-        if improved_fitness {
-            self.best_generation = self.current_generation;
-        }
-        (true, improved_fitness)
-    }
     fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
         *self.durations.entry(action).or_default() += duration;
     }
@@ -424,27 +422,37 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
 impl<G: Genotype> EvolveState<G> {
     fn update_best_chromosome_and_report<SR: EvolveReporter<Genotype = G>>(
         &mut self,
+        genotype: &mut G,
         config: &EvolveConfig,
         reporter: &mut SR,
     ) {
         let now = Instant::now();
-        if let Some(contending_chromosome) = self
-            .population
-            .best_chromosome(config.fitness_ordering)
-            .cloned()
+        if let Some(contending_chromosome) =
+            self.population.best_chromosome(config.fitness_ordering)
         {
-            // TODO: reference would be better, cloning is safe as it is just a throwaway reference
-            self.chromosome = contending_chromosome.clone();
-            match self
-                .update_best_chromosome(&config.fitness_ordering, config.replace_on_equal_fitness)
-            {
+            match self.is_better_chromosome(
+                contending_chromosome,
+                &config.fitness_ordering,
+                config.replace_on_equal_fitness,
+            ) {
                 (true, true) => {
+                    self.best_generation = self.current_generation;
+                    let new_best_chromosome = genotype.chromosome_cloner(contending_chromosome);
+                    genotype.chromosome_destructor(std::mem::replace(
+                        &mut self.best_chromosome,
+                        new_best_chromosome,
+                    ));
                     reporter.on_new_best_chromosome(self, config);
                     self.reset_stale_generations();
                 }
                 (true, false) => {
+                    let new_best_chromosome = genotype.chromosome_cloner(contending_chromosome);
+                    genotype.chromosome_destructor(std::mem::replace(
+                        &mut self.best_chromosome,
+                        new_best_chromosome,
+                    ));
                     reporter.on_new_best_chromosome_equal_fitness(self, config);
-                    self.increment_stale_generations()
+                    self.increment_stale_generations();
                 }
                 _ => self.increment_stale_generations(),
             }
@@ -476,7 +484,7 @@ impl<G: Genotype> EvolveState<G> {
                 }
             }
         }
-        self.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
+        self.add_duration(StrategyAction::ChromosomeDataDropAndCopy, now.elapsed());
     }
 }
 

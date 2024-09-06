@@ -1,4 +1,5 @@
 use criterion::*;
+use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::crossover::*;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;

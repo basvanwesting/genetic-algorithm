@@ -1,4 +1,5 @@
 use criterion::*;
+use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
