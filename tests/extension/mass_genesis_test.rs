@@ -1,9 +1,11 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::extension::{Extension, ExtensionMassGenesis};
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype, MatrixGenotype};
 use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
+use rand::prelude::*;
 
 #[test]
 fn removes_randomly() {
@@ -36,6 +38,46 @@ fn removes_randomly() {
     assert_eq!(
         inspect::population(&state.population),
         vec![vec![true, true, true], vec![true, true, true],]
+    );
+    assert_eq!(state.population.chromosomes.capacity(), 10);
+}
+
+#[test]
+fn removes_randomly_matrix() {
+    let rng = &mut SmallRng::seed_from_u64(1);
+    let mut genotype = MatrixGenotype::<u8, 3, 8>::builder()
+        .with_genes_size(3)
+        .with_allele_range(0..=10)
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let mut chromosomes = (0..8)
+        .map(|_| genotype.chromosome_constructor(rng))
+        .collect::<Vec<_>>();
+    chromosomes
+        .iter_mut()
+        .for_each(|c| c.fitness_score = Some(rng.gen_range(0..10)));
+    let mut population = Population::new(chromosomes);
+
+    population.chromosomes.reserve_exact(2);
+    assert_eq!(population.fitness_score_cardinality(), 6);
+    assert_eq!(population.chromosomes.capacity(), 10);
+
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
+    let config = EvolveConfig::new();
+    let mut reporter = EvolveReporterNoop::new();
+    ExtensionMassGenesis::new(8).call(&mut genotype, &mut state, &config, &mut reporter, rng);
+
+    assert_eq!(
+        state
+            .population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.get_genes(c.reference_id).to_vec())
+            .collect::<Vec<_>>(),
+        vec![vec![7, 6, 9], vec![7, 6, 9]]
     );
     assert_eq!(state.population.chromosomes.capacity(), 10);
 }

@@ -65,6 +65,11 @@ mod population_tests {
             best_chromosome.map_or(Some(99), |c| c.fitness_score),
             Some(0)
         );
+
+        let best_chromosome_index = population.best_chromosome_index(FitnessOrdering::Maximize);
+        assert_eq!(best_chromosome_index, Some(3));
+        let best_chromosome_index = population.best_chromosome_index(FitnessOrdering::Minimize);
+        assert_eq!(best_chromosome_index, Some(0));
     }
 
     #[test]

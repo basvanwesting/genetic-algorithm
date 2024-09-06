@@ -1,19 +1,13 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype};
 use crate::chromosome::{Chromosome, ChromosomeManager};
-use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveState};
-use crate::strategy::{StrategyAction, StrategyState};
 use itertools::Itertools;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::cmp::Ordering;
-use std::collections::BTreeSet;
 use std::fmt;
 use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
-use std::time::Duration;
-use std::time::Instant;
 
 #[derive(Copy, Clone, Debug)]
 pub enum MutationType {

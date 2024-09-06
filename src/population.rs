@@ -2,7 +2,6 @@
 use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
-use crate::strategy::evolve::EvolveConfig;
 use cardinality_estimator::CardinalityEstimator;
 use rand::prelude::*;
 
@@ -21,10 +20,6 @@ impl<G: Genotype> Population<G> {
             chromosomes: vec![],
         }
     }
-
-    // pub fn merge(&mut self, other: &mut Self) {
-    //     self.chromosomes.append(&mut other.chromosomes);
-    // }
 
     pub fn size(&self) -> usize {
         self.chromosomes.len()
@@ -50,6 +45,24 @@ impl<G: Genotype> Population<G> {
                 .iter()
                 .filter(|c| c.fitness_score.is_some())
                 .min(),
+        }
+    }
+    pub fn best_chromosome_index(&self, fitness_ordering: FitnessOrdering) -> Option<usize> {
+        match fitness_ordering {
+            FitnessOrdering::Maximize => self
+                .chromosomes
+                .iter()
+                .enumerate()
+                .max_by_key(|(_idx, c)| c.fitness_score)
+                .map(|(idx, _)| idx),
+
+            FitnessOrdering::Minimize => self
+                .chromosomes
+                .iter()
+                .filter(|c| c.fitness_score.is_some())
+                .enumerate()
+                .min_by_key(|(_idx, c)| c.fitness_score)
+                .map(|(idx, _)| idx),
         }
     }
 

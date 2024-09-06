@@ -343,6 +343,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         {
             None
         } else {
+            // FIXME: use genotype cloner here? It is the resulting call, we don't expect new activity
             Some(self.state.best_chromosome.clone())
         }
     }

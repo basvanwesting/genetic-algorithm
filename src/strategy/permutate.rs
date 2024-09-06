@@ -184,7 +184,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
                     .par_bridge()
                     .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
                         let now = Instant::now();
-                        fitness.call_for_chromosome(&mut chromosome, &genotype);
+                        fitness.call_for_chromosome(&mut chromosome, genotype);
                         sender.send((chromosome, now.elapsed())).unwrap();
                     });
             });

@@ -25,14 +25,11 @@ pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::{Chromosome, ChromosomeManager};
 use crate::population::Population;
-use crate::strategy::evolve::{EvolveConfig, EvolveState};
-use crate::strategy::StrategyState;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
-use std::ops::Range;
 
 /// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
 #[impl_for_tuples(0, 12)]

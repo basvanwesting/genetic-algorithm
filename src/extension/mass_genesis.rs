@@ -28,22 +28,23 @@ impl Extension for MassGenesis {
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
             reporter.on_extension_event(ExtensionEvent::MassGenesis("".to_string()), state, config);
-            if let Some(best_chromosome) = state
+            if let Some(best_chromosome_index) = state
                 .population
-                .best_chromosome(config.fitness_ordering)
-                .cloned()
+                .best_chromosome_index(config.fitness_ordering)
             {
                 state.add_duration(StrategyAction::Extension, now.elapsed());
                 let now = Instant::now();
+                let best_chromosome = state
+                    .population
+                    .chromosomes
+                    .swap_remove(best_chromosome_index);
+                dbg!(&best_chromosome);
                 genotype.chromosome_destructor_truncate(&mut state.population.chromosomes, 0);
                 state
                     .population
                     .chromosomes
                     .push(genotype.chromosome_cloner(&best_chromosome));
-                state
-                    .population
-                    .chromosomes
-                    .push(genotype.chromosome_cloner(&best_chromosome));
+                state.population.chromosomes.push(best_chromosome);
                 state.add_duration(StrategyAction::ChromosomeDataDropAndCopy, now.elapsed());
             }
         } else {
