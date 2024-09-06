@@ -35,8 +35,8 @@ pub struct Bit {
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<FixedBitSet>,
-    pub use_chromosome_stack: bool,
-    pub chromosome_stack: Vec<Chromosome<Self>>,
+    pub chromosome_recycling: bool,
+    pub chromosome_bin: Vec<Chromosome<Self>>,
 }
 
 impl TryFrom<Builder<Self>> for Bit {
@@ -61,8 +61,8 @@ impl TryFrom<Builder<Self>> for Bit {
                 crossover_points,
                 crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
-                use_chromosome_stack: builder.use_chromosome_stack,
-                chromosome_stack: vec![],
+                chromosome_recycling: builder.chromosome_recycling,
+                chromosome_bin: vec![],
             })
         }
     }
@@ -306,14 +306,14 @@ impl ChromosomeManager<Self> for Bit {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn use_chromosome_stack(&self) -> bool {
-        self.use_chromosome_stack
+    fn chromosome_recycling(&self) -> bool {
+        self.chromosome_recycling
     }
-    fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
-        self.chromosome_stack.push(chromosome);
+    fn chromosome_bin_push(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
-        self.chromosome_stack.pop()
+    fn chromosome_bin_pop(&mut self) -> Option<Chromosome<Self>> {
+        self.chromosome_bin.pop()
     }
 }
 

@@ -94,21 +94,21 @@ pub trait ChromosomeManager<G: Genotype> {
     /// mandatory, a test for functionally invalid placeholder
     fn chromosome_is_empty(&self, chromosome: &Chromosome<G>) -> bool;
 
-    /// provided, disable stack by default override using stack
-    fn use_chromosome_stack(&self) -> bool {
+    /// provided, disable recycling by default, override when using recycling
+    fn chromosome_recycling(&self) -> bool {
         false
     }
-    /// provided, override if stack needs initialization
+    /// provided, override if recycling bin needs initialization
     fn chromosomes_init(&mut self) {}
-    /// optional, required if using stack
-    fn chromosome_stack_push(&mut self, _chromosome: Chromosome<G>) {}
-    /// optional, required if using stack
-    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<G>> {
+    /// optional, required if using recycling
+    fn chromosome_bin_push(&mut self, _chromosome: Chromosome<G>) {}
+    /// optional, required if using recycling
+    fn chromosome_bin_pop(&mut self) -> Option<Chromosome<G>> {
         None
     }
 
-    /// all provided below, fall back to cloning if stack is empty
-    /// make stack panic when empty if the fallback to cloning is unwanted
+    /// all provided below, fall back to cloning if recycling bin is empty
+    /// make bin panic when empty if the fallback to cloning is unwanted
 
     fn copy_genes(
         &mut self,
@@ -118,8 +118,8 @@ pub trait ChromosomeManager<G: Genotype> {
         target_chromosome.genes.clone_from(&source_chromosome.genes);
     }
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G> {
-        if self.use_chromosome_stack() {
-            if let Some(mut new_chromosome) = self.chromosome_stack_pop() {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 new_chromosome.genes = self.random_genes_factory(rng);
                 new_chromosome.age = 0;
                 new_chromosome.fitness_score = None;
@@ -132,8 +132,8 @@ pub trait ChromosomeManager<G: Genotype> {
         }
     }
     fn chromosome_destructor(&mut self, chromosome: Chromosome<G>) {
-        if self.use_chromosome_stack() && !self.chromosome_is_empty(&chromosome) {
-            self.chromosome_stack_push(chromosome)
+        if self.chromosome_recycling() && !self.chromosome_is_empty(&chromosome) {
+            self.chromosome_bin_push(chromosome)
         }
     }
     fn chromosome_destructor_truncate(
@@ -141,7 +141,7 @@ pub trait ChromosomeManager<G: Genotype> {
         chromosomes: &mut Vec<Chromosome<G>>,
         target_population_size: usize,
     ) {
-        if self.use_chromosome_stack() {
+        if self.chromosome_recycling() {
             chromosomes
                 .drain(target_population_size..)
                 .for_each(|c| self.chromosome_destructor(c));
@@ -150,8 +150,8 @@ pub trait ChromosomeManager<G: Genotype> {
         }
     }
     fn chromosome_cloner(&mut self, chromosome: &Chromosome<G>) -> Chromosome<G> {
-        if self.use_chromosome_stack() && !self.chromosome_is_empty(chromosome) {
-            if let Some(mut new_chromosome) = self.chromosome_stack_pop() {
+        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
@@ -168,7 +168,7 @@ pub trait ChromosomeManager<G: Genotype> {
         chromosomes: &mut Vec<Chromosome<G>>,
         range: Range<usize>,
     ) {
-        if self.use_chromosome_stack() {
+        if self.chromosome_recycling() {
             for i in range {
                 let chromosome = &chromosomes[i];
                 chromosomes.push(self.chromosome_cloner(chromosome));

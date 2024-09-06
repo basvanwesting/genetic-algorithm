@@ -88,17 +88,17 @@ fn main() {
     // println!("{}", evolve);
     // println!("genes: {:b}", evolve.best_chromosome().unwrap().genes);
     println!(
-        "BinaryGenotype - no stack, best_generation: {:?} - more crossover points seem to converge in less generations",
+        "BinaryGenotype - no recycling, best_generation: {:?} - more crossover points seem to converge in less generations",
         evolve.best_generation()
     );
     println!(
-        "BinaryGenotype - no stack, best_fitness_score: {:?}",
+        "BinaryGenotype - no recycling, best_fitness_score: {:?}",
         evolve.best_fitness_score()
     );
 
     let genotype = BinaryGenotype::builder()
         .with_genes_size(GENES_SIZE)
-        .with_chromosome_stack(true)
+        .with_chromosome_recycling(true)
         .build()
         .unwrap();
     // println!("{}", genotype);
@@ -118,11 +118,11 @@ fn main() {
     // println!("{}", evolve);
     // println!("genes: {:b}", evolve.best_chromosome().unwrap().genes);
     println!(
-        "BinaryGenotype - with stack, best_generation: {:?} - more crossover points seem to converge in less generations",
+        "BinaryGenotype - with recycling, best_generation: {:?} - more crossover points seem to converge in less generations",
         evolve.best_generation()
     );
     println!(
-        "BinaryGenotype - with stack, best_fitness_score: {:?}",
+        "BinaryGenotype - with recycling, best_fitness_score: {:?}",
         evolve.best_fitness_score()
     );
 }

@@ -66,7 +66,7 @@ const POPULATION_SIZE: usize = 200;
         Total: 4.654608s
       best_generation: 624, best fitness score: Some(0), duration: 2.903516571s
 
-   RangeGenotype with ChromosomeManager-chromosome_stack
+   RangeGenotype with ChromosomeManager-chromosome_bin
       finish - iteration: 0
         Init: 30.322953ms
         Select: 15.883884ms

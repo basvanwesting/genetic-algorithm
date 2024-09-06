@@ -16,9 +16,65 @@ pub enum MutationType {
     Scaled,
 }
 
-/// All matrices of nalgebra are stored in column-major order. This means that any two consecutive elements of a single matrix column will be contiguous in memory as well. Therefore a column will store a chromosome's genes
-/// N = R = genes_size
-/// M = C = population_size
+/// Genes (N) and Population (M) are a `NxM` matrix of numeric values, stored in a column-major
+/// order on the stack (genes are contiguous in memory). The genes are therefore not stored on the
+/// Chromosomes themselves, which just point to the data. This opens the possibility for linear
+/// algebra fitness calculations on the whole population at once, possibly using the GPU in the
+/// future (if the data is stored and mutated at a GPU readable memory location). This is a simple
+/// stack based example implementation, which is threrefore limited in size. Exceeding this size,
+/// will result in a "fatal runtime error: stack overflow" panic, aborting the execution during the
+/// initialization of the Genotype.
+///
+/// The population size needs to be padded for 2 additional sets of genes. This is for storing the
+/// working chromosome genes and best chromosome genes outside of the population itself. Failure
+/// to provide this additional space will result in a "fatal runtime error: stack overflow"
+///
+/// The GenotypeBuilder `with_chrmosome_stack` is implicit and always enabled for this Genotype.
+///
+/// The rest is like [RangeGenotype](super::RangeGenotype):
+///
+/// The values are taken from the allele range. On random initialization, each gene gets a value
+/// from the allele_range with a uniform probability. Each gene has an equal probability of
+/// mutating. If a gene mutates, a new value is taken from allele_range with a uniform probability.
+///
+/// Optionally the mutation range can be bound by relative allele_mutation_range or
+/// allele_mutation_scaled_range. When allele_mutation_range is provided the mutation is restricted
+/// to modify the existing value by a difference taken from allele_mutation_range with a uniform
+/// probability. When allele_mutation_scaled_range is provided the mutation is restricted to modify
+/// the existing value by a difference taken from start and end of the scaled range (depending on
+/// current scale)
+///
+/// # Example (f32):
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, MatrixGenotype};
+///
+/// const GENES_SIZE: usize = 100;
+/// const POPULATION_SIZE: usize = 200;
+///
+/// let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+///     .with_genes_size(100)
+///     .with_allele_range(0.0..=1.0) // also default mutation range
+///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
+///     .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001]) // optional, restricts mutations to relative start/end of each scale
+///     .build()
+///     .unwrap();
+/// ```
+///
+/// # Example (isize):
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, MatrixGenotype};
+///
+/// const GENES_SIZE: usize = 100;
+/// const POPULATION_SIZE: usize = 200;
+///
+/// let genotype = MatrixGenotype::<isize, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+///     .with_genes_size(100)
+///     .with_allele_range(0..=100) // also default mutation range
+///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range
+///     .with_allele_mutation_scaled_range(vec![-10..=10, -3..=3, -1..=1]) // optional, restricts mutations to relative start/end of each scale
+///     .build()
+///     .unwrap();
+/// ```
 pub struct Matrix<
     T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
     const N: usize,
@@ -28,7 +84,7 @@ pub struct Matrix<
     Uniform<T>: Send + Sync,
 {
     pub matrix: [[T; N]; M],
-    pub chromosome_stack: Vec<Chromosome<Self>>,
+    pub chromosome_bin: Vec<Chromosome<Self>>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
@@ -69,7 +125,7 @@ where
 
             Ok(Self {
                 matrix: [[T::default(); N]; M],
-                chromosome_stack: Vec::with_capacity(M),
+                chromosome_bin: Vec::with_capacity(M),
                 genes_size,
                 allele_range: allele_range.clone(),
                 allele_mutation_range: builder.allele_mutation_range.clone(),
@@ -437,11 +493,11 @@ where
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.reference_id == usize::MAX
     }
-    fn use_chromosome_stack(&self) -> bool {
+    fn chromosome_recycling(&self) -> bool {
         true
     }
     fn chromosomes_init(&mut self) {
-        self.chromosome_stack = (0..M)
+        self.chromosome_bin = (0..M)
             .rev()
             .map(|id| Chromosome {
                 reference_id: id,
@@ -451,12 +507,12 @@ where
             })
             .collect();
     }
-    fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
-        self.chromosome_stack.push(chromosome);
+    fn chromosome_bin_push(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
-        self.chromosome_stack.pop().or_else(|| {
-            panic!("genetic_algorithm error: chromosome_stack empty");
+    fn chromosome_bin_pop(&mut self) -> Option<Chromosome<Self>> {
+        self.chromosome_bin.pop().or_else(|| {
+            panic!("genetic_algorithm error: chromosome_bin empty");
         })
     }
     fn copy_genes(
@@ -471,7 +527,7 @@ where
     }
 
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        if let Some(chromosome) = self.chromosome_stack.pop() {
+        if let Some(chromosome) = self.chromosome_bin.pop() {
             (0..self.genes_size).for_each(|i| {
                 self.set_gene_by_id(chromosome.reference_id, i, self.allele_sampler.sample(rng))
             });
@@ -494,7 +550,7 @@ where
     fn clone(&self) -> Self {
         Self {
             matrix: [[T::default(); N]; M],
-            chromosome_stack: Vec::with_capacity(M),
+            chromosome_bin: Vec::with_capacity(M),
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
             allele_mutation_range: self.allele_mutation_range.clone(),

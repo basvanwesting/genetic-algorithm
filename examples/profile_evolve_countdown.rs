@@ -10,7 +10,7 @@ const POPULATION_SIZE: usize = 200;
 const TARGET_GENERATION: usize = (500_f32 * SELECTION_RATE) as usize;
 const TOURNAMENT_SIZE: usize = 20;
 const MUTATIONS_PER_CHROMOSOME: usize = 50;
-const USE_CHROMOSOME_STACK: bool = true;
+const CHROMOSOME_RECYCLING: bool = true;
 
 // Crossover is where the main work is taking place in the base loop
 
@@ -18,7 +18,7 @@ fn main() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(ALLELE_RANGE)
-        .with_chromosome_stack(USE_CHROMOSOME_STACK)
+        .with_chromosome_recycling(CHROMOSOME_RECYCLING)
         .build()
         .unwrap();
     // let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
@@ -28,12 +28,12 @@ fn main() {
     //     .unwrap();
     // let genotype = BinaryGenotype::builder()
     //     .with_genes_size(GENES_SIZE)
-    //     .with_chromosome_stack(USE_CHROMOSOME_STACK)
+    //     .with_chromosome_recycling(CHROMOSOME_RECYCLING)
     //     .build()
     //     .unwrap();
     // let genotype = BitGenotype::builder()
     //     .with_genes_size(GENES_SIZE)
-    //     .with_chromosome_stack(USE_CHROMOSOME_STACK)
+    //     .with_chromosome_recycling(CHROMOSOME_RECYCLING)
     //     .build()
     //     .unwrap();
 

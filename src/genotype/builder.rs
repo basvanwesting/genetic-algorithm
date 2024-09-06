@@ -23,7 +23,7 @@ pub struct Builder<G: Genotype> {
     pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<G::Allele>>>,
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<G::Allele>>>>,
     pub seed_genes_list: Vec<G::Genes>,
-    pub use_chromosome_stack: bool,
+    pub chromosome_recycling: bool,
 }
 
 impl<G: Genotype> Builder<G> {
@@ -92,8 +92,8 @@ impl<G: Genotype> Builder<G> {
         self.seed_genes_list = seed_genes_list;
         self
     }
-    pub fn with_chromosome_stack(mut self, use_chromosome_stack: bool) -> Self {
-        self.use_chromosome_stack = use_chromosome_stack;
+    pub fn with_chromosome_recycling(mut self, chromosome_recycling: bool) -> Self {
+        self.chromosome_recycling = chromosome_recycling;
         self
     }
 
@@ -115,7 +115,7 @@ impl<G: Genotype> Default for Builder<G> {
             allele_mutation_scaled_range: None,
             allele_mutation_scaled_ranges: None,
             seed_genes_list: vec![],
-            use_chromosome_stack: false,
+            chromosome_recycling: false,
         }
     }
 }

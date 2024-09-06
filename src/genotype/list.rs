@@ -53,8 +53,8 @@ pub struct List<T: Allele + PartialEq = DefaultAllele> {
     gene_index_sampler: Uniform<usize>,
     allele_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub use_chromosome_stack: bool,
-    pub chromosome_stack: Vec<Chromosome<Self>>,
+    pub chromosome_recycling: bool,
+    pub chromosome_bin: Vec<Chromosome<Self>>,
 }
 
 impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
@@ -77,8 +77,8 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
                 allele_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
-                use_chromosome_stack: builder.use_chromosome_stack,
-                chromosome_stack: vec![],
+                chromosome_recycling: builder.chromosome_recycling,
+                chromosome_bin: vec![],
             })
         }
     }
@@ -262,14 +262,14 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
-    fn use_chromosome_stack(&self) -> bool {
-        self.use_chromosome_stack
+    fn chromosome_recycling(&self) -> bool {
+        self.chromosome_recycling
     }
-    fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
-        self.chromosome_stack.push(chromosome);
+    fn chromosome_bin_push(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
-        self.chromosome_stack.pop()
+    fn chromosome_bin_pop(&mut self) -> Option<Chromosome<Self>> {
+        self.chromosome_bin.pop()
     }
 }
 
