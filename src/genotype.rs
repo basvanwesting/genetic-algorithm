@@ -25,12 +25,14 @@ pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::Chromosome;
 use crate::population::Population;
+use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyState;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
+use std::ops::Range;
 
 /// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
 #[impl_for_tuples(0, 12)]
@@ -132,9 +134,53 @@ pub trait Genotype:
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>);
     fn seed_genes_list(&self) -> &Vec<Self::Genes>;
     fn max_scale_index(&self) -> Option<usize>;
-    // drop unreferenced IDs and handle cloned IDs (clone and new ID)
-    // in case the genotype stores the gene data
-    fn population_sync<S: StrategyState<Self>>(&mut self, _state: &mut S) {}
+
+    // All population growth or shrinking is done through here in case the genotype stores the gene
+    // data and needs to sync up
+    fn population_truncate<S: StrategyState<Self>>(&mut self, state: &mut S, new_size: usize) {
+        state.population_as_mut().chromosomes.truncate(new_size);
+    }
+    fn population_reset<S: StrategyState<Self>>(
+        &mut self,
+        state: &mut S,
+        mut chromosomes: Vec<Chromosome<Self>>,
+    ) {
+        state.population_as_mut().chromosomes.clear();
+        state
+            .population_as_mut()
+            .chromosomes
+            .append(&mut chromosomes);
+    }
+    fn population_replace_from_within<S: StrategyState<Self>>(
+        &mut self,
+        state: &mut S,
+        mut chromosomes: Vec<Chromosome<Self>>,
+    ) {
+        state.population_as_mut().chromosomes.clear();
+        state
+            .population_as_mut()
+            .chromosomes
+            .append(&mut chromosomes);
+    }
+    fn population_extend_from_within<S: StrategyState<Self>>(
+        &mut self,
+        state: &mut S,
+        range: Range<usize>,
+    ) {
+        state
+            .population_as_mut()
+            .chromosomes
+            .extend_from_within(range);
+    }
+    fn population_filter_age(&mut self, state: &mut EvolveState<Self>, config: &EvolveConfig) {
+        if let Some(max_chromosome_age) = config.max_chromosome_age {
+            state
+                .population
+                .chromosomes
+                .retain_mut(|chromosome| chromosome.age < max_chromosome_age);
+        }
+    }
+
     fn expected_number_of_sampled_index_collisions(&self, number_of_samples: usize) -> usize {
         number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
     }

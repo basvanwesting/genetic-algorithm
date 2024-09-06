@@ -41,9 +41,8 @@ impl Extension for MassExtinction {
                 2,
             );
             state.population.shuffle(rng);
-            state.population.truncate(remaining_size);
             state.add_duration(StrategyAction::Extension, now.elapsed());
-            genotype.population_sync(state);
+            genotype.population_truncate(state, remaining_size);
         } else {
             state.add_duration(StrategyAction::Extension, now.elapsed());
         }

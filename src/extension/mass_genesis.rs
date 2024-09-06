@@ -33,11 +33,8 @@ impl Extension for MassGenesis {
                 .best_chromosome(config.fitness_ordering)
                 .cloned()
             {
-                state.population.chromosomes.clear();
-                state.population.chromosomes.push(best_chromosome.clone());
-                state.population.chromosomes.push(best_chromosome);
                 state.add_duration(StrategyAction::Extension, now.elapsed());
-                genotype.population_sync(state);
+                genotype.population_reset(state, vec![best_chromosome.clone(), best_chromosome]);
             }
         } else {
             state.add_duration(StrategyAction::Extension, now.elapsed());

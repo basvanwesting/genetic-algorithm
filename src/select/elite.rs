@@ -51,9 +51,8 @@ impl Select for Elite {
                     })
             }
         }
-        state.population.truncate(selected_population_size);
         state.add_duration(StrategyAction::Select, now.elapsed());
-        genotype.population_sync(state);
+        genotype.population_truncate(state, selected_population_size);
     }
 }
 

@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{Genotype, MatrixGenotype};
-use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
+use genetic_algorithm::strategy::evolve::EvolveState;
 
 #[test]
 fn chromosome_factory() {
@@ -247,8 +247,7 @@ fn population_sync() {
         0.001
     ));
 
-    state.population.truncate(2);
-    genotype.population_sync(&mut state);
+    genotype.population_truncate(&mut state, 2);
 
     assert!(relative_population_eq(
         state
@@ -264,8 +263,7 @@ fn population_sync() {
         0.001
     ));
 
-    state.population.chromosomes.extend_from_within(..);
-    genotype.population_sync(&mut state);
+    genotype.population_extend_from_within(&mut state, 0..2);
 
     assert!(relative_population_eq(
         state

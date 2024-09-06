@@ -22,42 +22,22 @@ impl<G: Genotype> Population<G> {
         }
     }
 
-    pub fn merge(&mut self, other: &mut Self) {
-        self.chromosomes.append(&mut other.chromosomes);
-    }
+    // pub fn merge(&mut self, other: &mut Self) {
+    //     self.chromosomes.append(&mut other.chromosomes);
+    // }
 
     pub fn size(&self) -> usize {
         self.chromosomes.len()
+    }
+    pub fn shuffle<R: Rng>(&mut self, rng: &mut R) {
+        self.chromosomes.shuffle(rng);
     }
 
     pub fn reset_age(&mut self) {
         self.chromosomes.iter_mut().for_each(|c| c.age = 0);
     }
-    pub fn increment_and_filter_age(&mut self, evolve_config: &EvolveConfig) {
-        if let Some(max_chromosome_age) = evolve_config.max_chromosome_age {
-            self.chromosomes.retain_mut(|chromosome| {
-                if chromosome.age < max_chromosome_age {
-                    chromosome.age += 1;
-                    true
-                } else {
-                    false
-                }
-            });
-        } else {
-            self.chromosomes.iter_mut().for_each(|c| c.age += 1);
-        }
-    }
-
-    pub fn truncate_front(&mut self, target_size: usize) {
-        if target_size < self.size() {
-            self.chromosomes.drain(..self.size() - target_size);
-        }
-    }
-    pub fn truncate(&mut self, target_size: usize) {
-        self.chromosomes.truncate(target_size);
-    }
-    pub fn shuffle<R: Rng>(&mut self, rng: &mut R) {
-        self.chromosomes.shuffle(rng);
+    pub fn increment_age(&mut self) {
+        self.chromosomes.iter_mut().for_each(|c| c.age += 1);
     }
 
     /// fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out

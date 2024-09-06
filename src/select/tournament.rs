@@ -81,13 +81,8 @@ impl Select for Tournament {
             working_population_size -= 1;
         }
 
-        state.population.chromosomes.clear();
-        state
-            .population
-            .chromosomes
-            .append(&mut selected_chromosomes);
         state.add_duration(StrategyAction::Select, now.elapsed());
-        genotype.population_sync(state);
+        genotype.population_replace_from_within(state, selected_chromosomes);
     }
 }
 

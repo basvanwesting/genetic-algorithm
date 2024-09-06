@@ -198,8 +198,9 @@ impl<
         self.reporter.on_start(&self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
-            self.state.population.increment_and_filter_age(&self.config);
-            self.genotype.population_sync(&mut self.state);
+            self.genotype
+                .population_filter_age(&mut self.state, &self.config);
+            self.state.population.increment_age();
 
             self.plugins.extension.call(
                 &mut self.genotype,
