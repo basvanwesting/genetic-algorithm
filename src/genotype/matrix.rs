@@ -198,19 +198,13 @@ where
     }
     pub fn gene_slice_pair_mut(&mut self, ids: (usize, usize)) -> (&mut [T; N], &mut [T; N]) {
         match ids.0.cmp(&ids.1) {
-            Ordering::Greater => {
-                let (_, tmp) = self.matrix.split_at_mut(ids.1);
-                let (x, rest) = tmp.split_at_mut(1);
-                let (_, y) = rest.split_at_mut(ids.0 - ids.1 - 1);
-
-                (&mut y[0], &mut x[0])
-            }
             Ordering::Less => {
-                let (_, tmp) = self.matrix.split_at_mut(ids.0);
-                let (x, rest) = tmp.split_at_mut(1);
-                let (_, y) = rest.split_at_mut(ids.1 - ids.0 - 1);
-
-                (&mut x[0], &mut y[0])
+                let (x, y) = self.matrix.split_at_mut(ids.1);
+                (&mut x[ids.0], &mut y[0])
+            }
+            Ordering::Greater => {
+                let (x, y) = self.matrix.split_at_mut(ids.0);
+                (&mut y[0], &mut x[ids.1])
             }
             Ordering::Equal => panic!("ids cannot be the same: {:?}", ids),
         }

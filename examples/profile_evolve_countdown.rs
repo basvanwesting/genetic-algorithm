@@ -21,16 +21,16 @@ const MUTATIONS_PER_CHROMOSOME: usize = 50;
 //   * select not a factor, it's basically some form of in-place sorting of some kind
 
 fn main() {
-    let genotype = RangeGenotype::builder()
-        .with_genes_size(GENES_SIZE)
-        .with_allele_range(ALLELE_RANGE)
-        .build()
-        .unwrap();
-    // let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+    // let genotype = RangeGenotype::builder()
     //     .with_genes_size(GENES_SIZE)
     //     .with_allele_range(ALLELE_RANGE)
     //     .build()
     //     .unwrap();
+    let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+        .with_genes_size(GENES_SIZE)
+        .with_allele_range(ALLELE_RANGE)
+        .build()
+        .unwrap();
     // let genotype = BinaryGenotype::builder()
     //     .with_genes_size(GENES_SIZE)
     //     .build()

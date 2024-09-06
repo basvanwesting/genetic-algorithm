@@ -60,7 +60,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
                 state.add_duration(StrategyAction::ChromosomeDataDropAndCopy, now.elapsed());
             }
             Ordering::Less => {
-                log::warn!(
+                eprintln!(
                     "Crossover: population-size {} is more than target-population-size {}, this should never happen",
                     population_size,
                     config.target_population_size
