@@ -1,5 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::genotype::{Genotype, IncrementalGenotype, RangeGenotype};
 
 #[test]
@@ -10,8 +11,9 @@ fn float_mutate_chromosome_single_random() {
         .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_factory(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
@@ -35,8 +37,9 @@ fn float_mutate_chromosome_single_relative() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_factory(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
@@ -67,8 +70,9 @@ fn float_mutate_chromosome_single_scaled() {
         .with_allele_mutation_scaled_range(vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01])
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_factory(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
@@ -178,8 +182,9 @@ fn float_neighbouring_population_1() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447],
@@ -203,8 +208,9 @@ fn float_neighbouring_population_2_unscaled() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439],
@@ -233,8 +239,9 @@ fn float_neighbouring_population_2_scaled() {
         .with_allele_mutation_scaled_range(vec![-0.5..=0.5, -0.1..=0.1, -0.01..=0.01])
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439],
@@ -283,8 +290,9 @@ fn float_neighbouring_population_3() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.980],
@@ -315,8 +323,9 @@ fn float_neighbouring_population_3_one_sided() {
         .with_allele_mutation_range(0.0..=0.1)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.980],
@@ -344,8 +353,9 @@ fn integer_mutate_chromosome_single_random() {
         .with_allele_range(0..=9)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_factory(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![4, 4, 9, 4, 8, 9, 5, 4, 3, 8],
@@ -368,8 +378,9 @@ fn integer_mutate_chromosome_single_relative() {
         .with_allele_mutation_range(-1..=1)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_factory(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![4, 4, 9, 4, 8, 9, 5, 4, 3, 8],
@@ -392,8 +403,9 @@ fn integer_neighbouring_population_1() {
         .with_allele_mutation_range(-1..=1)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
@@ -412,8 +424,9 @@ fn integer_neighbouring_population_2_unscaled() {
         .with_allele_mutation_range(-2..=2)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4],);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
@@ -432,8 +445,9 @@ fn integer_neighbouring_population_2_scaled() {
         .with_allele_mutation_scaled_range(vec![-3..=3, -2..=2, -1..=1])
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
@@ -452,8 +466,9 @@ fn integer_neighbouring_population_3() {
         .with_allele_mutation_range(-1..=1)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 9]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
@@ -478,8 +493,9 @@ fn integer_neighbouring_population_3_one_sided() {
         .with_allele_mutation_range(0..=1)
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 9]);
 
     // size makes error as it counts 0.0 twice, this is fine

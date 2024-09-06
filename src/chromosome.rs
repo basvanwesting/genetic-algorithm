@@ -1,10 +1,12 @@
 //! The chromosome is a container for the genes and caches a fitness score
 use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
+use rand::prelude::*;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt;
 use std::hash::{Hash, Hasher};
+use std::ops::Range;
 
 /// The GenesKey can be used for caching fitness scores, without lifetime concerns of the chromosome
 pub type GenesKey = u64;
@@ -35,8 +37,8 @@ where
         s.finish()
     }
 }
-/// Impl Copy of Genes are Copy
-impl<G: Genotype> Copy for Chromosome<G> where G::Genes: Copy {}
+// /// Impl Copy of Genes are Copy
+// impl<G: Genotype> Copy for Chromosome<G> where G::Genes: Copy {}
 
 impl<G: Genotype> Chromosome<G> {
     pub fn new(genes: G::Genes) -> Self {
@@ -82,4 +84,41 @@ impl<G: Genotype> fmt::Display for Chromosome<G> {
             write!(f, "no fitness score")
         }
     }
+}
+
+pub trait ChromosomeManager<G: Genotype> {
+    /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
+    /// random genes unless seed genes are provided
+    fn chromosomes_init(&mut self) {}
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G>;
+    fn chromosome_destructor(&mut self, _chromosome: Chromosome<G>) {}
+    fn chromosome_cloner(&mut self, chromosome: &Chromosome<G>) -> Chromosome<G> {
+        chromosome.clone()
+    }
+    fn chromosome_destructor_truncate(
+        &mut self,
+        chromosomes: &mut Vec<Chromosome<G>>,
+        target_population_size: usize,
+    ) {
+        chromosomes.truncate(target_population_size);
+    }
+    fn chromosome_destructor_range(
+        &mut self,
+        chromosomes: &mut Vec<Chromosome<G>>,
+        range: Range<usize>,
+    ) {
+        chromosomes.drain(range);
+    }
+    fn chromosome_cloner_range(
+        &mut self,
+        chromosomes: &mut Vec<Chromosome<G>>,
+        range: Range<usize>,
+    ) {
+        chromosomes.extend_from_within(range);
+    }
+
+    /// a functionally invalid placeholder
+    fn chromosome_constructor_empty(&self) -> Chromosome<G>;
+    /// test for functionally invalid placeholder
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<G>) -> bool;
 }

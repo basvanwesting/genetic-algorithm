@@ -9,7 +9,7 @@
 pub mod placeholders;
 pub mod prelude;
 
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::{StrategyAction, StrategyState};

@@ -52,7 +52,10 @@ impl Select for Elite {
             }
         }
         state.add_duration(StrategyAction::Select, now.elapsed());
-        genotype.population_truncate(state, selected_population_size);
+        genotype.chromosome_destructor_truncate(
+            &mut state.population.chromosomes,
+            selected_population_size,
+        );
     }
 }
 

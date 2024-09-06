@@ -1,5 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::genotype::{
     BinaryGenotype, Genotype, IncrementalGenotype, PermutableGenotype,
 };
@@ -12,7 +13,7 @@ fn mutate_chromosome_single() {
         .build()
         .unwrap();
 
-    let mut chromosome = genotype.chromosome_factory(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![false, false, true, false, true, true, true, false, false, true]
@@ -195,7 +196,7 @@ fn neighbouring_population() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![false, false, true, false, true, true, true, false, false, true]
@@ -302,7 +303,7 @@ fn chromosome_permutations_genes_size_3() {
 }
 
 #[test]
-fn chromosome_factory_with_seed_genes_list() {
+fn chromosome_constructor_with_seed_genes_list() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(4)
@@ -312,11 +313,12 @@ fn chromosome_factory_with_seed_genes_list() {
         ])
         .build()
         .unwrap();
+    genotype.chromosomes_init();
     let chromosomes = vec![
-        genotype.chromosome_factory(&mut rng),
-        genotype.chromosome_factory(&mut rng),
-        genotype.chromosome_factory(&mut rng),
-        genotype.chromosome_factory(&mut rng),
+        genotype.chromosome_constructor(&mut rng),
+        genotype.chromosome_constructor(&mut rng),
+        genotype.chromosome_constructor(&mut rng),
+        genotype.chromosome_constructor(&mut rng),
     ];
     println!("{:#?}", chromosomes);
     assert_eq!(

@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype};
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
@@ -249,15 +249,6 @@ where
 
     fn genes_size(&self) -> usize {
         self.genes_size
-    }
-    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        Chromosome::new(self.random_genes_factory(rng))
-    }
-    fn chromosome_factory_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(vec![])
-    }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-        chromosome.genes.is_empty()
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -518,6 +509,23 @@ where
     }
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(2 * self.genes_size)
+    }
+}
+
+impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> ChromosomeManager<Self>
+    for MultiRange<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
+        Chromosome::new(self.random_genes_factory(rng))
+    }
+    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
+        Chromosome::new(vec![])
+    }
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+        chromosome.genes.is_empty()
     }
 }
 

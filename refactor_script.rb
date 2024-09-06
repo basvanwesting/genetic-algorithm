@@ -10,13 +10,11 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /compete/ => 'select',
-  /competition/ => 'selection',
+  /chromosome_factory/ => 'chromosome_constructor',
+  /chromosome_factory_empty/ => 'chromosome_constructor_empty',
 }
 
 other_translations = {
-  /Compete/ => 'Select',
-  /Competition/ => 'Selection',
 }
 
 #check:

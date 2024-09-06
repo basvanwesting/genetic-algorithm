@@ -198,8 +198,8 @@ impl<
         self.reporter.on_start(&self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
-            self.genotype
-                .population_filter_age(&mut self.state, &self.config);
+            self.state
+                .population_filter_age(&mut self.genotype, &self.config);
             self.state.population.increment_age();
 
             self.plugins.extension.call(
@@ -284,12 +284,13 @@ impl<
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
         // first initialize population
+        self.genotype.chromosomes_init();
         self.state.population.chromosomes = (0..self.config.target_population_size)
-            .map(|_| self.genotype.chromosome_factory(&mut self.rng))
+            .map(|_| self.genotype.chromosome_constructor(&mut self.rng))
             .collect::<Vec<_>>();
         // then initialize seed chromosome, as population may already have exceeded capacity
         // we want to skip the call to calculate_for_chromosome in that case
-        self.state.chromosome = self.genotype.chromosome_factory(&mut self.rng);
+        self.state.chromosome = self.genotype.chromosome_constructor(&mut self.rng);
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
         self.fitness.call_for_state_population(
@@ -432,7 +433,7 @@ impl<G: Genotype> EvolveState<G> {
             .best_chromosome(config.fitness_ordering)
             .cloned()
         {
-            // TODO: reference would be better
+            // TODO: reference would be better, cloning is safe as it is just a throwaway reference
             self.chromosome = contending_chromosome.clone();
             match self
                 .update_best_chromosome(&config.fitness_ordering, config.replace_on_equal_fitness)
@@ -463,6 +464,19 @@ impl<G: Genotype> EvolveState<G> {
                 }
             }
         }
+    }
+
+    fn population_filter_age(&mut self, genotype: &mut G, config: &EvolveConfig) {
+        let now = Instant::now();
+        if let Some(max_chromosome_age) = config.max_chromosome_age {
+            // TODO: use something like partition_in_place when stable
+            for i in (0..self.population.chromosomes.len()).rev() {
+                if self.population.chromosomes[i].age >= max_chromosome_age {
+                    genotype.chromosome_destructor(self.population.chromosomes.swap_remove(i));
+                }
+            }
+        }
+        self.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
     }
 }
 
@@ -593,8 +607,8 @@ impl<G: Genotype> EvolveState<G> {
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
-            best_chromosome: genotype.chromosome_factory_empty(), //invalid, temporary
-            chromosome: genotype.chromosome_factory_empty(),      //invalid, temporary
+            best_chromosome: genotype.chromosome_constructor_empty(), //invalid, temporary
+            chromosome: genotype.chromosome_constructor_empty(),      //invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         };

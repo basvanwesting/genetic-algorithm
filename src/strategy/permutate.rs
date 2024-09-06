@@ -340,8 +340,8 @@ impl<G: PermutableGenotype> PermutateState<G> {
             current_generation: 0,
             stale_generations: 0,
             best_generation: 0,
-            best_chromosome: genotype.chromosome_factory_empty(), //invalid, temporary
-            chromosome: genotype.chromosome_factory_empty(),      //invalid, temporary
+            best_chromosome: genotype.chromosome_constructor_empty(), //invalid, temporary
+            chromosome: genotype.chromosome_constructor_empty(),      //invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         }

@@ -1,5 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::genotype::{BitGenotype, Genotype, IncrementalGenotype, PermutableGenotype};
 
 #[test]
@@ -20,8 +21,9 @@ fn builders() {
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_factory(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
@@ -131,8 +133,9 @@ fn crossover_chromosome_points_without_duplicates() {
 fn neighbouring_population() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
 
     assert_eq!(
@@ -210,7 +213,7 @@ fn chromosome_permutations_genes_size_3() {
 }
 
 #[test]
-fn chromosome_factory_with_seed_genes_list() {
+fn chromosome_constructor_with_seed_genes_list() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = BitGenotype::builder()
         .with_genes_size(4)
@@ -220,11 +223,13 @@ fn chromosome_factory_with_seed_genes_list() {
         ])
         .build()
         .unwrap();
+    genotype.chromosomes_init();
+
     let chromosomes = vec![
-        genotype.chromosome_factory(&mut rng),
-        genotype.chromosome_factory(&mut rng),
-        genotype.chromosome_factory(&mut rng),
-        genotype.chromosome_factory(&mut rng),
+        genotype.chromosome_constructor(&mut rng),
+        genotype.chromosome_constructor(&mut rng),
+        genotype.chromosome_constructor(&mut rng),
+        genotype.chromosome_constructor(&mut rng),
     ];
     println!("{:#?}", chromosomes);
     assert_eq!(

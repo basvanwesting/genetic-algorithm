@@ -52,7 +52,8 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
             Ordering::Greater => {
                 let parent_survivors =
                     (config.target_population_size - population_size).min(population_size);
-                genotype.population_extend_from_within(state, 0..parent_survivors)
+                genotype
+                    .chromosome_cloner_range(&mut state.population.chromosomes, 0..parent_survivors)
             }
             Ordering::Less => {
                 log::warn!(
@@ -60,7 +61,10 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
                     population_size,
                     config.target_population_size
                 );
-                genotype.population_truncate(state, config.target_population_size);
+                genotype.chromosome_destructor_truncate(
+                    &mut state.population.chromosomes,
+                    config.target_population_size,
+                );
             }
             Ordering::Equal => (),
         }

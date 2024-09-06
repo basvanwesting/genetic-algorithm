@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Standard, Uniform};
@@ -43,31 +43,12 @@ impl TryFrom<Builder<Self>> for Binary {
     }
 }
 
-impl Binary {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
-        if self.seed_genes_list.is_empty() {
-            rng.sample_iter(Standard).take(self.genes_size).collect()
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
-    }
-}
-
 impl Genotype for Binary {
     type Allele = bool;
     type Genes = Vec<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
-    }
-    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        Chromosome::new(self.random_genes_factory(rng))
-    }
-    fn chromosome_factory_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(vec![])
-    }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-        chromosome.genes.is_empty()
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -217,6 +198,28 @@ impl PermutableGenotype for Binary {
     }
     fn chromosome_permutations_size(&self) -> BigUint {
         BigUint::from(2u8).pow(self.genes_size() as u32)
+    }
+}
+
+impl Binary {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+        if self.seed_genes_list.is_empty() {
+            rng.sample_iter(Standard).take(self.genes_size).collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
+}
+
+impl ChromosomeManager<Self> for Binary {
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
+        Chromosome::new(self.random_genes_factory(rng))
+    }
+    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
+        Chromosome::new(vec![])
+    }
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+        chromosome.genes.is_empty()
     }
 }
 

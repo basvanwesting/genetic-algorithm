@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
@@ -142,15 +142,6 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
 
     fn genes_size(&self) -> usize {
         self.genes_size
-    }
-    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        Chromosome::new(self.random_genes_factory(rng))
-    }
-    fn chromosome_factory_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(vec![])
-    }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-        chromosome.genes.is_empty()
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -316,6 +307,18 @@ impl<T: Allele + PartialEq> PermutableGenotype for MultiList<T> {
             .iter()
             .map(|v| BigUint::from(*v))
             .product()
+    }
+}
+
+impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
+        Chromosome::new(self.random_genes_factory(rng))
+    }
+    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
+        Chromosome::new(vec![])
+    }
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+        chromosome.genes.is_empty()
     }
 }
 

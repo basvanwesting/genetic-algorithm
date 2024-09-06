@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use fixedbitset::{Block, FixedBitSet};
 use itertools::Itertools;
 use num::BigUint;
@@ -122,15 +122,6 @@ impl Genotype for Bit {
 
     fn genes_size(&self) -> usize {
         self.genes_size
-    }
-    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        Chromosome::new(self.random_genes_factory(rng))
-    }
-    fn chromosome_factory_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(FixedBitSet::new())
-    }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-        chromosome.genes.is_empty()
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -299,6 +290,18 @@ impl PermutableGenotype for Bit {
     }
     fn chromosome_permutations_size(&self) -> BigUint {
         BigUint::from(2u8).pow(self.genes_size() as u32)
+    }
+}
+
+impl ChromosomeManager<Self> for Bit {
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
+        Chromosome::new(self.random_genes_factory(rng))
+    }
+    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
+        Chromosome::new(FixedBitSet::new())
+    }
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+        chromosome.genes.is_empty()
     }
 }
 

@@ -34,7 +34,15 @@ impl Extension for MassGenesis {
                 .cloned()
             {
                 state.add_duration(StrategyAction::Extension, now.elapsed());
-                genotype.population_reset(state, vec![best_chromosome.clone(), best_chromosome]);
+                genotype.chromosome_destructor_truncate(&mut state.population.chromosomes, 0);
+                state
+                    .population
+                    .chromosomes
+                    .push(genotype.chromosome_cloner(&best_chromosome));
+                state
+                    .population
+                    .chromosomes
+                    .push(genotype.chromosome_cloner(&best_chromosome));
             }
         } else {
             state.add_duration(StrategyAction::Extension, now.elapsed());

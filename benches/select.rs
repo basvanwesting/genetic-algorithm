@@ -20,7 +20,7 @@ pub fn setup(
         .unwrap();
 
     let chromosomes = (0..population_size)
-        .map(|_| genotype.chromosome_factory(rng))
+        .map(|_| genotype.chromosome_constructor(rng))
         .collect();
 
     let mut population = Population::new(chromosomes);

@@ -38,3 +38,19 @@ const POPULATION_SIZE: usize = 100;
         UpdateBestChromosome: 6.734772ms
         Other: 911.445µs
         Total: 102.995888ms
+
+
+const GENES_SIZE: usize = 40000;
+const POPULATION_SIZE: usize = 200;
+
+   RangeGenotype
+      finish - iteration: 0
+        Init: 29.726906ms
+        Select: 21.111781ms
+        Crossover: 2.672950189s
+        Mutate: 16.856833ms
+        Fitness: 1.710852ms
+        UpdateBestChromosome: 142.348514ms
+        Other: 283.541265ms
+        Total: 3.16824634s
+      best_generation: 624, best fitness score: Some(0), duration: 3.168291644s

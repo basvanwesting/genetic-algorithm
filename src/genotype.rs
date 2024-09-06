@@ -23,7 +23,7 @@ pub use self::multi_unique::MultiUnique as MultiUniqueGenotype;
 pub use self::range::Range as RangeGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyState;
@@ -72,21 +72,18 @@ impl Genes for () {}
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
 pub trait Genotype:
-    Clone + Send + Sync + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>>
+    ChromosomeManager<Self>
+    + Clone
+    + Send
+    + Sync
+    + fmt::Debug
+    + fmt::Display
+    + TryFrom<GenotypeBuilder<Self>>
 {
     type Allele: Allele;
     type Genes: Genes;
 
     fn genes_size(&self) -> usize;
-    /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
-    /// random genes unless seed genes are provided
-    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self>;
-    /// a random genes factory (respecting seed genes)
-    fn chromosome_factory_empty(&self) -> Chromosome<Self>;
-    // test for functionally invalid placeholder
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool;
-    /// Mutate the chromosome, the genotype determines whether this is random, relative or scaled.
-    /// Choose between allowing duplicates or not (~2x slower).
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,
         number_of_mutations: usize,
@@ -135,51 +132,13 @@ pub trait Genotype:
     fn seed_genes_list(&self) -> &Vec<Self::Genes>;
     fn max_scale_index(&self) -> Option<usize>;
 
-    // All population growth or shrinking is done through here in case the genotype stores the gene
-    // data and needs to sync up
-    fn population_truncate<S: StrategyState<Self>>(&mut self, state: &mut S, new_size: usize) {
-        state.population_as_mut().chromosomes.truncate(new_size);
-    }
-    fn population_reset<S: StrategyState<Self>>(
-        &mut self,
-        state: &mut S,
-        mut chromosomes: Vec<Chromosome<Self>>,
-    ) {
-        state.population_as_mut().chromosomes.clear();
-        state
-            .population_as_mut()
-            .chromosomes
-            .append(&mut chromosomes);
-    }
-    fn population_replace_from_within<S: StrategyState<Self>>(
-        &mut self,
-        state: &mut S,
-        mut chromosomes: Vec<Chromosome<Self>>,
-    ) {
-        state.population_as_mut().chromosomes.clear();
-        state
-            .population_as_mut()
-            .chromosomes
-            .append(&mut chromosomes);
-    }
-    fn population_extend_from_within<S: StrategyState<Self>>(
-        &mut self,
-        state: &mut S,
-        range: Range<usize>,
-    ) {
-        state
-            .population_as_mut()
-            .chromosomes
-            .extend_from_within(range);
-    }
-    fn population_filter_age(&mut self, state: &mut EvolveState<Self>, config: &EvolveConfig) {
-        if let Some(max_chromosome_age) = config.max_chromosome_age {
-            state
-                .population
-                .chromosomes
-                .retain_mut(|chromosome| chromosome.age < max_chromosome_age);
-        }
-    }
+    // // All population growth or shrinking is done through here in case the genotype stores the gene
+    // // data and needs to sync up
+    // fn population_truncate<S: StrategyState<Self>>(&mut self, state: &mut S, new_size: usize) {
+    // fn population_reset<S: StrategyState<Self>>(
+    // fn population_replace_from_within<S: StrategyState<Self>>(
+    // fn population_extend_from_within<S: StrategyState<Self>>(
+    // fn population_filter_age(&mut self, state: &mut EvolveState<Self>, config: &EvolveConfig) {
 
     fn expected_number_of_sampled_index_collisions(&self, number_of_samples: usize) -> usize {
         number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())

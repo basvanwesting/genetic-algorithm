@@ -78,7 +78,7 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
         .unwrap();
 
     let chromosomes = (0..100)
-        .map(|_| genotype.chromosome_factory(&mut rng))
+        .map(|_| genotype.chromosome_constructor(&mut rng))
         .collect();
     let population = Population::new(chromosomes);
 

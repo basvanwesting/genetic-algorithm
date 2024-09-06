@@ -42,7 +42,8 @@ impl Extension for MassExtinction {
             );
             state.population.shuffle(rng);
             state.add_duration(StrategyAction::Extension, now.elapsed());
-            genotype.population_truncate(state, remaining_size);
+            genotype
+                .chromosome_destructor_truncate(&mut state.population.chromosomes, remaining_size);
         } else {
             state.add_duration(StrategyAction::Extension, now.elapsed());
         }

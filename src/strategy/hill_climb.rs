@@ -337,7 +337,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         let now = Instant::now();
         self.reporter
             .on_init(&self.genotype, &self.state, &self.config);
-        self.state.chromosome = self.genotype.chromosome_factory(&mut self.rng);
+        self.genotype.chromosomes_init();
+        self.state.chromosome = self.genotype.chromosome_constructor(&mut self.rng);
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
         self.fitness
@@ -487,7 +488,7 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
         if let Some(contending_chromosome) =
             self.population.best_chromosome(config.fitness_ordering)
         {
-            // TODO: reference would be better
+            // TODO: reference would be better, cloning is safe as it is just a throwaway reference
             self.chromosome = contending_chromosome.clone();
             match self
                 .update_best_chromosome(&config.fitness_ordering, config.replace_on_equal_fitness)
@@ -591,8 +592,8 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
-            best_chromosome: genotype.chromosome_factory_empty(), //invalid, temporary
-            chromosome: genotype.chromosome_factory_empty(),      //invalid, temporary
+            best_chromosome: genotype.chromosome_constructor_empty(), //invalid, temporary
+            chromosome: genotype.chromosome_constructor_empty(),      //invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         };

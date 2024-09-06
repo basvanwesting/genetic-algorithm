@@ -1,5 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::genotype::{
     Genotype, IncrementalGenotype, MultiUniqueGenotype, PermutableGenotype,
 };
@@ -11,8 +12,9 @@ fn mutate_chromosome_single() {
         .with_allele_lists(vec![vec![0, 1], vec![4, 5, 6, 7], vec![0, 1, 2]])
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_factory(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 5, 4, 7, 1, 2, 0]
@@ -311,8 +313,9 @@ fn neighbouring_population_4() {
         .with_allele_lists(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1]])
         .build()
         .unwrap();
+    genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_factory(&mut rng);
+    let chromosome = genotype.chromosome_constructor(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 0, 1, 2, 0, 1, 0, 1]

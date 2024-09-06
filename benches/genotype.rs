@@ -21,7 +21,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_genes_size(*genes_size)
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
 
         group.bench_function(
             BenchmarkId::new("binary-random-multi-10-with-duplicates", genes_size),
@@ -60,7 +60,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_list((0..10).collect())
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
 
         group.bench_function(
             BenchmarkId::new("list-random-multi-10-with-duplicates", genes_size),
@@ -99,7 +99,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_range(0.0..=1.0)
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
 
         group.bench_function(
             BenchmarkId::new("range-random-multi-10-with-duplicates", genes_size),
@@ -136,7 +136,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_mutation_range(-0.1..=0.1)
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
         group.bench_function(
             BenchmarkId::new("range-relative-multi-10-with-duplicates", genes_size),
             |b| {
@@ -172,7 +172,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
 
         group.bench_function(
             BenchmarkId::new("range-scaled-multi-10-with-duplicates", genes_size),
@@ -210,7 +210,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_list((0..*genes_size).collect())
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
 
         group.bench_function(
             BenchmarkId::new("unique-random-multi-10-with-duplicates", genes_size),
@@ -248,7 +248,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_lists((0..*genes_size).map(|_| (0..10).collect()).collect())
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
 
         group.bench_function(
             BenchmarkId::new("multi_list-random-multi-10-with-duplicates", genes_size),
@@ -286,7 +286,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_ranges((0..*genes_size).map(|_| (0.0..=1.0)).collect())
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
         group.bench_function(
             BenchmarkId::new("multi_range-random-multi-10-with-duplicates", genes_size),
             |b| {
@@ -321,7 +321,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_mutation_ranges((0..*genes_size).map(|_| (-0.1..=0.1)).collect())
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
         group.bench_function(
             BenchmarkId::new("multi_range-relative-multi-10-with-duplicates", genes_size),
             |b| {
@@ -363,7 +363,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             ])
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
         group.bench_function(
             BenchmarkId::new("multi_range-scaled-multi-10-with-duplicates", genes_size),
             |b| {
@@ -411,7 +411,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             ])
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_factory(&mut rng);
+        let mut chromosome = genotype.chromosome_constructor(&mut rng);
         group.bench_function(
             BenchmarkId::new("multi_unique-random-multi-10-with-duplicates", genes_size),
             |b| {

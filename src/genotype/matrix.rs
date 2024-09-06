@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype};
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use crate::population::Population;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyState};
@@ -34,7 +34,7 @@ pub struct Matrix<
     Uniform<T>: Send + Sync,
 {
     pub matrix: [[T; N]; M],
-    pub free_ids: BTreeSet<usize>,
+    pub chromosome_stack: Vec<Chromosome<Self>>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
@@ -75,7 +75,7 @@ where
 
             Ok(Self {
                 matrix: [[T::default(); N]; M],
-                free_ids: BTreeSet::from_iter(0..M),
+                chromosome_stack: Vec::with_capacity(M),
                 genes_size,
                 allele_range: allele_range.clone(),
                 allele_mutation_range: builder.allele_mutation_range.clone(),
@@ -150,20 +150,6 @@ where
         } else {
             self.set_gene(chromosome.reference_id, index, new_value);
         }
-    }
-    pub fn reset_ids(&mut self) {
-        (0..M).for_each(|i| {
-            self.free_ids.insert(i);
-        });
-    }
-    pub fn release_id(&mut self, id: usize) -> bool {
-        self.free_ids.insert(id)
-    }
-    pub fn claim_id_forced(&mut self, id: usize) -> bool {
-        self.free_ids.remove(&id)
-    }
-    pub fn claim_id(&mut self) -> Option<usize> {
-        self.free_ids.pop_first()
     }
 
     pub fn get_gene(&self, id: usize, index: usize) -> T {
@@ -272,137 +258,137 @@ where
     }
 
     // only release ids
-    fn population_truncate<S: StrategyState<Self>>(&mut self, state: &mut S, new_size: usize) {
-        let now = Instant::now();
-        state
-            .population_as_mut()
-            .chromosomes
-            .drain(new_size..)
-            .for_each(|c| {
-                self.release_id(c.reference_id);
-            });
-
-        self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
-        state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    }
-    // release replaced ids, rest already exists
-    fn population_replace_from_within<S: StrategyState<Self>>(
-        &mut self,
-        state: &mut S,
-        mut chromosomes: Vec<Chromosome<Self>>,
-    ) {
-        let now = Instant::now();
-        state
-            .population_as_mut()
-            .chromosomes
-            .drain(..)
-            .for_each(|c| {
-                self.release_id(c.reference_id);
-            });
-        self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
-        state
-            .population_as_mut()
-            .chromosomes
-            .append(&mut chromosomes);
-        state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    }
-    // reset ids, reclaim
-    fn population_reset<S: StrategyState<Self>>(
-        &mut self,
-        state: &mut S,
-        mut chromosomes: Vec<Chromosome<Self>>,
-    ) {
-        let now = Instant::now();
-        self.reset_ids();
-        self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
-        state.population_as_mut().chromosomes.clear();
-        chromosomes.iter_mut().for_each(|c| {
-            if c.reference_id == usize::MAX {
-                // ignore
-            } else if self.claim_id_forced(c.reference_id) {
-                // first occurence, claim ID, use existing data
-            } else {
-                // it is a clone, copy data to new ID
-                if let Some(new_id) = self.claim_id() {
-                    self.copy_genes(c.reference_id, new_id);
-                    c.reference_id = new_id;
-                }
-            }
-        });
-        state
-            .population_as_mut()
-            .chromosomes
-            .append(&mut chromosomes);
-        state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    }
-    fn population_extend_from_within<S: StrategyState<Self>>(
-        &mut self,
-        state: &mut S,
-        range: Range<usize>,
-    ) {
-        let now = Instant::now();
-        let original_population_size = state.population_as_ref().size();
-        state
-            .population_as_mut()
-            .chromosomes
-            .extend_from_within(range);
-        state.population_as_mut().chromosomes[original_population_size..]
-            .iter_mut()
-            .for_each(|c| {
-                if c.reference_id == usize::MAX {
-                    // ignore
-                } else {
-                    // they are all clones by definition
-                    if let Some(new_id) = self.claim_id() {
-                        self.copy_genes(c.reference_id, new_id);
-                        c.reference_id = new_id;
-                    }
-                }
-            });
-        state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    }
-    fn population_filter_age(&mut self, state: &mut EvolveState<Self>, config: &EvolveConfig) {
-        let now = Instant::now();
-        if let Some(max_chromosome_age) = config.max_chromosome_age {
-            state.population.chromosomes.retain_mut(|c| {
-                if c.age < max_chromosome_age {
-                    true
-                } else {
-                    self.release_id(c.reference_id);
-                    false
-                }
-            });
-            self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
-        }
-        state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
-    }
-
-    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        if let Some(id) = self.claim_id() {
-            (0..self.genes_size)
-                .for_each(|i| self.set_gene(id, i, self.allele_sampler.sample(rng)));
-
-            Chromosome {
-                reference_id: id,
-                genes: (),
-                fitness_score: None,
-                age: 0,
-            }
-        } else {
-            self.chromosome_factory_empty()
-        }
-    }
-    fn chromosome_factory_empty(&self) -> Chromosome<Self> {
-        Chromosome {
-            reference_id: usize::MAX,
-            genes: (),
-            fitness_score: None,
-            age: 0,
-        }
-    }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-        chromosome.reference_id == usize::MAX
-    }
+    // fn population_truncate<S: StrategyState<Self>>(&mut self, state: &mut S, new_size: usize) {
+    //     let now = Instant::now();
+    //     state
+    //         .population_as_mut()
+    //         .chromosomes
+    //         .drain(new_size..)
+    //         .for_each(|c| {
+    //             self.release_id(c.reference_id);
+    //         });
+    //
+    //     self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
+    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
+    // }
+    // // release replaced ids, rest already exists
+    // fn population_replace_from_within<S: StrategyState<Self>>(
+    //     &mut self,
+    //     state: &mut S,
+    //     mut chromosomes: Vec<Chromosome<Self>>,
+    // ) {
+    //     let now = Instant::now();
+    //     state
+    //         .population_as_mut()
+    //         .chromosomes
+    //         .drain(..)
+    //         .for_each(|c| {
+    //             self.release_id(c.reference_id);
+    //         });
+    //     self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
+    //     state
+    //         .population_as_mut()
+    //         .chromosomes
+    //         .append(&mut chromosomes);
+    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
+    // }
+    // // reset ids, reclaim
+    // fn population_reset<S: StrategyState<Self>>(
+    //     &mut self,
+    //     state: &mut S,
+    //     mut chromosomes: Vec<Chromosome<Self>>,
+    // ) {
+    //     let now = Instant::now();
+    //     self.reset_ids();
+    //     self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
+    //     state.population_as_mut().chromosomes.clear();
+    //     chromosomes.iter_mut().for_each(|c| {
+    //         if c.reference_id == usize::MAX {
+    //             // ignore
+    //         } else if self.claim_id_forced(c.reference_id) {
+    //             // first occurence, claim ID, use existing data
+    //         } else {
+    //             // it is a clone, copy data to new ID
+    //             if let Some(new_id) = self.claim_id() {
+    //                 self.copy_genes(c.reference_id, new_id);
+    //                 c.reference_id = new_id;
+    //             }
+    //         }
+    //     });
+    //     state
+    //         .population_as_mut()
+    //         .chromosomes
+    //         .append(&mut chromosomes);
+    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
+    // }
+    // fn population_extend_from_within<S: StrategyState<Self>>(
+    //     &mut self,
+    //     state: &mut S,
+    //     range: Range<usize>,
+    // ) {
+    //     let now = Instant::now();
+    //     let original_population_size = state.population_as_ref().size();
+    //     state
+    //         .population_as_mut()
+    //         .chromosomes
+    //         .extend_from_within(range);
+    //     state.population_as_mut().chromosomes[original_population_size..]
+    //         .iter_mut()
+    //         .for_each(|c| {
+    //             if c.reference_id == usize::MAX {
+    //                 // ignore
+    //             } else {
+    //                 // they are all clones by definition
+    //                 if let Some(new_id) = self.claim_id() {
+    //                     self.copy_genes(c.reference_id, new_id);
+    //                     c.reference_id = new_id;
+    //                 }
+    //             }
+    //         });
+    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
+    // }
+    // fn population_filter_age(&mut self, state: &mut EvolveState<Self>, config: &EvolveConfig) {
+    //     let now = Instant::now();
+    //     if let Some(max_chromosome_age) = config.max_chromosome_age {
+    //         state.population.chromosomes.retain_mut(|c| {
+    //             if c.age < max_chromosome_age {
+    //                 true
+    //             } else {
+    //                 self.release_id(c.reference_id);
+    //                 false
+    //             }
+    //         });
+    //         self.claim_id_forced(state.best_chromosome_as_ref().reference_id);
+    //     }
+    //     state.add_duration(StrategyAction::GenotypeDataCopy, now.elapsed());
+    // }
+    //
+    // fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
+    //     if let Some(id) = self.claim_id() {
+    //         (0..self.genes_size)
+    //             .for_each(|i| self.set_gene(id, i, self.allele_sampler.sample(rng)));
+    //
+    //         Chromosome {
+    //             reference_id: id,
+    //             genes: (),
+    //             fitness_score: None,
+    //             age: 0,
+    //         }
+    //     } else {
+    //         self.chromosome_constructor_empty()
+    //     }
+    // }
+    // fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
+    //     Chromosome {
+    //         reference_id: usize::MAX,
+    //         genes: (),
+    //         fitness_score: None,
+    //         age: 0,
+    //     }
+    // }
+    // fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+    //     chromosome.reference_id == usize::MAX
+    // }
 
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,
@@ -550,6 +536,118 @@ impl<
         T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
+    > Matrix<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    // pub fn reset_ids(&mut self) {
+    //     (0..M).for_each(|i| {
+    //         self.free_ids.insert(i);
+    //     });
+    // }
+    // pub fn release_id(&mut self, id: usize) -> bool {
+    //     self.free_ids.insert(id)
+    // }
+    // pub fn claim_id_forced(&mut self, id: usize) -> bool {
+    //     self.free_ids.remove(&id)
+    // }
+    // pub fn claim_id(&mut self) -> Option<usize> {
+    //     self.free_ids.pop_first()
+    // }
+}
+
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
+        const N: usize,
+        const M: usize,
+    > ChromosomeManager<Self> for Matrix<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn chromosomes_init(&mut self) {
+        self.chromosome_stack = (0..M)
+            .rev()
+            .map(|id| Chromosome {
+                reference_id: id,
+                genes: (),
+                fitness_score: None,
+                age: 0,
+            })
+            .collect();
+    }
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
+        if let Some(chromosome) = self.chromosome_stack.pop() {
+            (0..self.genes_size).for_each(|i| {
+                self.set_gene(chromosome.reference_id, i, self.allele_sampler.sample(rng))
+            });
+            chromosome
+        } else {
+            self.chromosome_constructor_empty()
+        }
+    }
+    fn chromosome_destructor(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_stack.push(chromosome);
+    }
+    fn chromosome_cloner(&mut self, chromosome: &Chromosome<Self>) -> Chromosome<Self> {
+        if let Some(new_chromosome) = self.chromosome_stack.pop() {
+            self.copy_genes(chromosome.reference_id, new_chromosome.reference_id);
+            new_chromosome
+        } else {
+            self.chromosome_constructor_empty()
+        }
+    }
+    fn chromosome_destructor_truncate(
+        &mut self,
+        chromosomes: &mut Vec<Chromosome<Self>>,
+        target_population_size: usize,
+    ) {
+        chromosomes
+            .drain(target_population_size..)
+            .for_each(|c| self.chromosome_stack.push(c));
+    }
+    fn chromosome_destructor_range(
+        &mut self,
+        chromosomes: &mut Vec<Chromosome<Self>>,
+        range: Range<usize>,
+    ) {
+        chromosomes
+            .drain(range)
+            .for_each(|c| self.chromosome_stack.push(c));
+    }
+    fn chromosome_cloner_range(
+        &mut self,
+        chromosomes: &mut Vec<Chromosome<Self>>,
+        range: Range<usize>,
+    ) {
+        for i in range {
+            if let Some(new_chromosome) = self.chromosome_stack.pop() {
+                self.copy_genes(chromosomes[i].reference_id, new_chromosome.reference_id);
+                chromosomes.push(new_chromosome);
+            } else {
+                chromosomes.push(self.chromosome_constructor_empty());
+            }
+        }
+    }
+
+    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
+        Chromosome {
+            reference_id: usize::MAX,
+            genes: (),
+            fitness_score: None,
+            age: 0,
+        }
+    }
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+        chromosome.reference_id == usize::MAX
+    }
+}
+
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
+        const N: usize,
+        const M: usize,
     > Clone for Matrix<T, N, M>
 where
     T: SampleUniform,
@@ -558,7 +656,7 @@ where
     fn clone(&self) -> Self {
         Self {
             matrix: [[T::default(); N]; M],
-            free_ids: BTreeSet::from_iter(0..M),
+            chromosome_stack: Vec::with_capacity(M),
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
             allele_mutation_range: self.allele_mutation_range.clone(),

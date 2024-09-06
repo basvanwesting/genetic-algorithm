@@ -26,7 +26,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         group.throughput(Throughput::Elements(*population_size as u64));
 
         let chromosomes = (0..*population_size)
-            .map(|_| genotype.chromosome_factory(&mut rng))
+            .map(|_| genotype.chromosome_constructor(&mut rng))
             .collect();
         let population = &mut Population::new(chromosomes);
         CountTrue.call_for_population(population, &mut genotype, None);

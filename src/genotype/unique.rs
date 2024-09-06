@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use factorial::Factorial;
 use itertools::Itertools;
 use num::BigUint;
@@ -91,15 +91,6 @@ impl<T: Allele> Genotype for Unique<T> {
 
     fn genes_size(&self) -> usize {
         self.genes_size
-    }
-    fn chromosome_factory<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        Chromosome::new(self.random_genes_factory(rng))
-    }
-    fn chromosome_factory_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(vec![])
-    }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-        chromosome.genes.is_empty()
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -197,6 +188,18 @@ impl<T: Allele> PermutableGenotype for Unique<T> {
 
     fn chromosome_permutations_size(&self) -> BigUint {
         BigUint::from(self.genes_size).factorial()
+    }
+}
+
+impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
+        Chromosome::new(self.random_genes_factory(rng))
+    }
+    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
+        Chromosome::new(vec![])
+    }
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+        chromosome.genes.is_empty()
     }
 }
 
