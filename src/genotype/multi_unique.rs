@@ -117,23 +117,6 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
     }
 }
 
-impl<T: Allele> MultiUnique<T> {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
-        if self.seed_genes_list.is_empty() {
-            self.allele_lists
-                .iter()
-                .flat_map(|allele_list| {
-                    let mut genes = allele_list.clone();
-                    genes.shuffle(rng);
-                    genes
-                })
-                .collect()
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
-    }
-}
-
 impl<T: Allele> Genotype for MultiUnique<T> {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
@@ -320,8 +303,19 @@ impl<T: Allele> PermutableGenotype for MultiUnique<T> {
 }
 
 impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        Chromosome::new(self.random_genes_factory(rng))
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+        if self.seed_genes_list.is_empty() {
+            self.allele_lists
+                .iter()
+                .flat_map(|allele_list| {
+                    let mut genes = allele_list.clone();
+                    genes.shuffle(rng);
+                    genes
+                })
+                .collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
     }
     fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
         Chromosome::new(vec![])
@@ -329,6 +323,24 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
+    // fn chromosome_use_stack(&self) -> bool {
+    //     true
+    // }
+    // fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
+    //     self.chromosome_stack.push(chromosome);
+    // }
+    // fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
+    //     self.chromosome_stack.pop()
+    // }
+    // fn copy_genes(
+    //     &mut self,
+    //     source_chromosome: &Chromosome<Self>,
+    //     target_chromosome: &mut Chromosome<Self>,
+    // ) {
+    //     let target_slice = &mut target_chromosome.genes[..];
+    //     let source_slice = &source_chromosome.genes[..];
+    //     target_slice.copy_from_slice(source_slice);
+    // }
 }
 
 impl<T: Allele> fmt::Display for MultiUnique<T> {

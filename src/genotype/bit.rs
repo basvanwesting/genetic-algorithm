@@ -106,14 +106,6 @@ impl Bit {
     pub fn genes_from_blocks<I: IntoIterator<Item = Block>>(bits: usize, blocks: I) -> FixedBitSet {
         FixedBitSet::with_capacity_and_blocks(bits, blocks)
     }
-
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
-        if self.seed_genes_list.is_empty() {
-            FixedBitSet::with_capacity_and_blocks(self.genes_size, rng.sample_iter(Standard))
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
-    }
 }
 
 impl Genotype for Bit {
@@ -303,6 +295,29 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+        if self.seed_genes_list.is_empty() {
+            FixedBitSet::with_capacity_and_blocks(self.genes_size, rng.sample_iter(Standard))
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
+    // fn chromosome_use_stack(&self) -> bool {
+    //     true
+    // }
+    // fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
+    //     self.chromosome_stack.push(chromosome);
+    // }
+    // fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
+    //     self.chromosome_stack.pop()
+    // }
+    // fn copy_genes(
+    //     &mut self,
+    //     source_chromosome: &Chromosome<Self>,
+    //     target_chromosome: &mut Chromosome<Self>,
+    // ) {
+    //     target_chromosome.genes = source_chromosome.genes.clone();
+    // }
 }
 
 impl fmt::Display for Bit {

@@ -156,7 +156,7 @@ where
     pub fn get_genes(&self, id: usize) -> &[T] {
         &self.matrix[id][..self.genes_size]
     }
-    pub fn copy_genes(&mut self, source_id: usize, target_id: usize) {
+    pub fn copy_genes_by_id(&mut self, source_id: usize, target_id: usize) {
         let (source, target) = self.gene_slice_pair_mut((source_id, target_id));
         (target).copy_from_slice(&source[..]);
     }
@@ -421,6 +421,22 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
+    fn random_genes_factory<R: Rng>(&self, _rng: &mut R) -> <Self as Genotype>::Genes {}
+    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
+        Chromosome::new(())
+        // Chromosome {
+        //     reference_id: usize::MAX,
+        //     genes: (),
+        //     fitness_score: None,
+        //     age: 0,
+        // }
+    }
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+        chromosome.reference_id == usize::MAX
+    }
+    fn chromosome_use_stack(&self) -> bool {
+        true
+    }
     fn chromosomes_init(&mut self) {
         self.chromosome_stack = (0..M)
             .rev()
@@ -432,6 +448,25 @@ where
             })
             .collect();
     }
+    fn chromosome_stack_push(&mut self, chromosome: Chromosome<Self>) {
+        self.chromosome_stack.push(chromosome);
+    }
+    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<Self>> {
+        self.chromosome_stack.pop().or_else(|| {
+            panic!("genetic_algorithm error: chromosome_stack empty");
+        })
+    }
+    fn copy_genes(
+        &mut self,
+        source_chromosome: &Chromosome<Self>,
+        target_chromosome: &mut Chromosome<Self>,
+    ) {
+        self.copy_genes_by_id(
+            source_chromosome.reference_id,
+            target_chromosome.reference_id,
+        );
+    }
+
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
         if let Some(chromosome) = self.chromosome_stack.pop() {
             (0..self.genes_size).for_each(|i| {
@@ -441,68 +476,6 @@ where
         } else {
             panic!("genetic_algorithm error: chromosome_constructor exceeds chromosome capacity")
         }
-    }
-    fn chromosome_destructor(&mut self, chromosome: Chromosome<Self>) {
-        if chromosome.reference_id != usize::MAX {
-            self.chromosome_stack.push(chromosome)
-        }
-    }
-    fn chromosome_cloner(&mut self, chromosome: &Chromosome<Self>) -> Chromosome<Self> {
-        if chromosome.reference_id != usize::MAX {
-            if let Some(mut new_chromosome) = self.chromosome_stack.pop() {
-                self.copy_genes(chromosome.reference_id, new_chromosome.reference_id);
-                new_chromosome.age = chromosome.age;
-                new_chromosome.fitness_score = chromosome.fitness_score;
-                new_chromosome
-            } else {
-                panic!("genetic_algorithm error: chromosome_cloner exceeds chromosome capacity")
-            }
-        } else {
-            self.chromosome_constructor_empty()
-        }
-    }
-    fn chromosome_destructor_truncate(
-        &mut self,
-        chromosomes: &mut Vec<Chromosome<Self>>,
-        target_population_size: usize,
-    ) {
-        chromosomes
-            .drain(target_population_size..)
-            .filter(|c| c.reference_id != usize::MAX)
-            .for_each(|c| self.chromosome_stack.push(c));
-    }
-    fn chromosome_cloner_range(
-        &mut self,
-        chromosomes: &mut Vec<Chromosome<Self>>,
-        range: Range<usize>,
-    ) {
-        for i in range {
-            let chromosome = &chromosomes[i];
-            if chromosome.reference_id != usize::MAX {
-                if let Some(mut new_chromosome) = self.chromosome_stack.pop() {
-                    self.copy_genes(chromosome.reference_id, new_chromosome.reference_id);
-                    new_chromosome.age = chromosome.age;
-                    new_chromosome.fitness_score = chromosome.fitness_score;
-                    chromosomes.push(new_chromosome);
-                } else {
-                    panic!("genetic_algorithm error: chromosome_cloner_range exceeds chromosome capacity")
-                }
-            } else {
-                chromosomes.push(self.chromosome_constructor_empty());
-            }
-        }
-    }
-
-    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
-        Chromosome {
-            reference_id: usize::MAX,
-            genes: (),
-            fitness_score: None,
-            age: 0,
-        }
-    }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
-        chromosome.reference_id == usize::MAX
     }
 }
 

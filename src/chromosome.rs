@@ -87,31 +87,94 @@ impl<G: Genotype> fmt::Display for Chromosome<G> {
 }
 
 pub trait ChromosomeManager<G: Genotype> {
-    /// a chromosome factory to seed the initial population for [Evolve](crate::strategy::evolve::Evolve)
-    /// random genes unless seed genes are provided
+    /// mandatory, random genes unless seed genes are provided
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
+    /// mandatory, a functionally invalid placeholder
+    fn chromosome_constructor_empty(&self) -> Chromosome<G>;
+    /// mandatory, a test for functionally invalid placeholder
+    fn chromosome_is_empty(&self, chromosome: &Chromosome<G>) -> bool;
+
+    /// provided, disable stack by default override using stack
+    fn chromosome_use_stack(&self) -> bool {
+        false
+    }
+    /// provided, override if stack needs initialization
     fn chromosomes_init(&mut self) {}
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G>;
-    fn chromosome_destructor(&mut self, _chromosome: Chromosome<G>) {}
-    fn chromosome_cloner(&mut self, chromosome: &Chromosome<G>) -> Chromosome<G> {
-        chromosome.clone()
+    /// optional, required if using stack
+    fn chromosome_stack_push(&mut self, _chromosome: Chromosome<G>) {}
+    /// optional, required if using stack
+    fn chromosome_stack_pop(&mut self) -> Option<Chromosome<G>> {
+        None
+    }
+    /// optional, required if using stack
+    fn copy_genes(
+        &mut self,
+        _source_chromosome: &Chromosome<G>,
+        _target_chromosome: &mut Chromosome<G>,
+    ) {
+    }
+
+    /// all provided below, fall back to cloning if stack is empty
+    /// make stack panic when empty if the fallback to cloning is unwanted
+
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G> {
+        if self.chromosome_use_stack() {
+            if let Some(mut new_chromosome) = self.chromosome_stack_pop() {
+                new_chromosome.genes = self.random_genes_factory(rng);
+                new_chromosome.age = 0;
+                new_chromosome.fitness_score = None;
+                new_chromosome
+            } else {
+                Chromosome::new(self.random_genes_factory(rng))
+            }
+        } else {
+            Chromosome::new(self.random_genes_factory(rng))
+        }
+    }
+    fn chromosome_destructor(&mut self, chromosome: Chromosome<G>) {
+        if self.chromosome_use_stack() && !self.chromosome_is_empty(&chromosome) {
+            self.chromosome_stack_push(chromosome)
+        }
     }
     fn chromosome_destructor_truncate(
         &mut self,
         chromosomes: &mut Vec<Chromosome<G>>,
         target_population_size: usize,
     ) {
-        chromosomes.truncate(target_population_size);
+        if self.chromosome_use_stack() {
+            chromosomes
+                .drain(target_population_size..)
+                .for_each(|c| self.chromosome_destructor(c));
+        } else {
+            chromosomes.truncate(target_population_size);
+        }
+    }
+    fn chromosome_cloner(&mut self, chromosome: &Chromosome<G>) -> Chromosome<G> {
+        if self.chromosome_use_stack() && !self.chromosome_is_empty(chromosome) {
+            if let Some(mut new_chromosome) = self.chromosome_stack_pop() {
+                self.copy_genes(chromosome, &mut new_chromosome);
+                new_chromosome.age = chromosome.age;
+                new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome
+            } else {
+                chromosome.clone()
+            }
+        } else {
+            chromosome.clone()
+        }
     }
     fn chromosome_cloner_range(
         &mut self,
         chromosomes: &mut Vec<Chromosome<G>>,
         range: Range<usize>,
     ) {
-        chromosomes.extend_from_within(range);
+        if self.chromosome_use_stack() {
+            for i in range {
+                let chromosome = &chromosomes[i];
+                chromosomes.push(self.chromosome_cloner(chromosome));
+            }
+        } else {
+            chromosomes.extend_from_within(range);
+        }
     }
-
-    /// a functionally invalid placeholder
-    fn chromosome_constructor_empty(&self) -> Chromosome<G>;
-    /// test for functionally invalid placeholder
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<G>) -> bool;
 }
