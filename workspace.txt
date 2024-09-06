@@ -1,3 +1,8 @@
+extensions benchmark is noisy
+Rename MatrixGenotype to SMatrixGenotype
+Add DMatrixGenotype?
+
+
 const GENES_SIZE: usize = 4100;
 const POPULATION_SIZE: usize = 100;
 !!! Bordering stack overflow !!!
