@@ -230,7 +230,7 @@ fn chromosome_manager() {
     assert!(relative_population_eq(
         chromosomes
             .iter()
-            .map(|c| genotype.get_genes(&c).to_vec())
+            .map(|c| genotype.get_genes(c).to_vec())
             .collect(),
         vec![
             vec![0.447, 0.439, 0.979, 0.462, 0.897],
@@ -252,7 +252,7 @@ fn chromosome_manager() {
     assert!(relative_population_eq(
         chromosomes
             .iter()
-            .map(|c| genotype.get_genes(&c).to_vec())
+            .map(|c| genotype.get_genes(c).to_vec())
             .collect(),
         vec![
             vec![0.447, 0.439, 0.979, 0.462, 0.897],
@@ -267,7 +267,7 @@ fn chromosome_manager() {
     assert!(relative_population_eq(
         chromosomes
             .iter()
-            .map(|c| genotype.get_genes(&c).to_vec())
+            .map(|c| genotype.get_genes(c).to_vec())
             .collect(),
         vec![
             vec![0.447, 0.439, 0.979, 0.462, 0.897],
@@ -287,7 +287,7 @@ fn chromosome_manager() {
     assert!(relative_population_eq(
         chromosomes
             .iter()
-            .map(|c| genotype.get_genes(&c).to_vec())
+            .map(|c| genotype.get_genes(c).to_vec())
             .collect(),
         vec![
             vec![0.447, 0.900, 0.979, 0.390, 0.971],

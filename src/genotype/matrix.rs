@@ -83,7 +83,7 @@ pub struct Matrix<
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    pub matrix: [[T; N]; M],
+    pub data: [[T; N]; M],
     pub chromosome_bin: Vec<Chromosome<Self>>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
@@ -124,7 +124,7 @@ where
             };
 
             Ok(Self {
-                matrix: [[T::default(); N]; M],
+                data: [[T::default(); N]; M],
                 chromosome_bin: Vec::with_capacity(M),
                 genes_size,
                 allele_range: allele_range.clone(),
@@ -208,13 +208,13 @@ where
     }
     /// returns a slice of genes_size <= N
     fn get_genes_by_id(&self, id: usize) -> &[T] {
-        &self.matrix[id][..self.genes_size]
+        &self.data[id][..self.genes_size]
     }
     fn get_gene_by_id(&self, id: usize, index: usize) -> T {
-        self.matrix[id][index]
+        self.data[id][index]
     }
     fn set_gene_by_id(&mut self, id: usize, index: usize, value: T) {
-        self.matrix[id][index] = value;
+        self.data[id][index] = value;
     }
     fn copy_genes_by_id(&mut self, source_id: usize, target_id: usize) {
         let (source, target) = self.gene_slice_pair_mut((source_id, target_id));
@@ -260,11 +260,11 @@ where
     pub fn gene_slice_pair_mut(&mut self, ids: (usize, usize)) -> (&mut [T; N], &mut [T; N]) {
         match ids.0.cmp(&ids.1) {
             Ordering::Less => {
-                let (x, y) = self.matrix.split_at_mut(ids.1);
+                let (x, y) = self.data.split_at_mut(ids.1);
                 (&mut x[ids.0], &mut y[0])
             }
             Ordering::Greater => {
-                let (x, y) = self.matrix.split_at_mut(ids.0);
+                let (x, y) = self.data.split_at_mut(ids.0);
                 (&mut y[0], &mut x[ids.1])
             }
             Ordering::Equal => panic!("ids cannot be the same: {:?}", ids),
@@ -549,7 +549,7 @@ where
 {
     fn clone(&self) -> Self {
         Self {
-            matrix: [[T::default(); N]; M],
+            data: [[T::default(); N]; M],
             chromosome_bin: Vec::with_capacity(M),
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
