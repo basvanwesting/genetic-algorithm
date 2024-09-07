@@ -22,23 +22,26 @@ impl Compete for Elite {
     ) {
         let now = Instant::now();
         match config.fitness_ordering {
-            FitnessOrdering::Maximize => state
-                .population
-                .chromosomes
-                .sort_unstable_by_key(|c| c.fitness_score),
-            FitnessOrdering::Minimize => {
+            FitnessOrdering::Maximize => {
                 state
                     .population
                     .chromosomes
                     .sort_unstable_by_key(|c| match c.fitness_score {
                         Some(fitness_score) => Reverse(fitness_score),
-                        None => Reverse(FitnessValue::MAX),
+                        None => Reverse(FitnessValue::MIN),
+                    })
+            }
+            FitnessOrdering::Minimize => {
+                state
+                    .population
+                    .chromosomes
+                    .sort_unstable_by_key(|c| match c.fitness_score {
+                        Some(fitness_score) => fitness_score,
+                        None => FitnessValue::MAX,
                     })
             }
         }
-        state
-            .population
-            .truncate_front(config.target_population_size);
+        state.population.truncate(config.target_population_size);
         state.add_duration(StrategyAction::Compete, now.elapsed());
     }
 }

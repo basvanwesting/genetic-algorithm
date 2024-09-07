@@ -40,10 +40,10 @@ fn maximize_population_surplus() {
     assert_eq!(
         inspect::population(&state.population),
         vec![
+            vec![true, true, true],
             vec![false, true, true],
             vec![true, false, true],
             vec![true, true, false],
-            vec![true, true, true],
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 8);
@@ -77,9 +77,9 @@ fn maximize_population_shortage() {
     assert_eq!(
         inspect::population(&state.population),
         vec![
-            vec![false, false, false],
             vec![false, false, true],
             vec![false, true, false],
+            vec![false, false, false],
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 3);
@@ -117,10 +117,10 @@ fn minimize_population_surplus() {
     assert_eq!(
         inspect::population(&state.population),
         vec![
+            vec![false, false, false],
             vec![false, false, true],
             vec![false, true, false],
             vec![true, false, false],
-            vec![false, false, false],
         ]
     );
 }
@@ -152,9 +152,9 @@ fn minimize_population_shortage() {
     assert_eq!(
         inspect::population(&state.population),
         vec![
+            vec![false, false, false],
             vec![false, false, true],
             vec![false, true, false],
-            vec![false, false, false],
         ]
     );
 }
@@ -186,11 +186,11 @@ fn fitness_ordering_with_none_fitness() {
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
-            (vec![true, true, false], None),
-            (vec![false, false, false], Some(0)),
-            (vec![false, false, true], Some(1)),
-            (vec![false, true, true], Some(2)),
             (vec![true, true, true], Some(3)),
+            (vec![false, true, true], Some(2)),
+            (vec![false, false, true], Some(1)),
+            (vec![false, false, false], Some(0)),
+            (vec![true, true, false], None),
         ]
     );
 
@@ -203,11 +203,11 @@ fn fitness_ordering_with_none_fitness() {
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
-            (vec![true, true, false], None),
-            (vec![true, true, true], Some(3)),
-            (vec![false, true, true], Some(2)),
-            (vec![false, false, true], Some(1)),
             (vec![false, false, false], Some(0)),
+            (vec![false, false, true], Some(1)),
+            (vec![false, true, true], Some(2)),
+            (vec![true, true, true], Some(3)),
+            (vec![true, true, false], None),
         ]
     );
 }
