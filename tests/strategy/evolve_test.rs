@@ -535,8 +535,8 @@ fn call_multi_list() {
 }
 
 #[derive(Clone, Debug)]
-pub struct SumMatrixGenes;
-impl Fitness for SumMatrixGenes {
+pub struct SumStaticMatrixGenes;
+impl Fitness for SumStaticMatrixGenes {
     type Genotype = StaticMatrixGenotype<u16, 10, { 100 + 2 }>;
     fn call_for_population(
         &mut self,
@@ -545,14 +545,14 @@ impl Fitness for SumMatrixGenes {
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         for chromosome in population.chromosomes.iter_mut() {
-            let score = genotype.get_genes(&chromosome).iter().sum::<u16>();
+            let score = genotype.get_genes(chromosome).iter().sum::<u16>();
             chromosome.fitness_score = Some(score as FitnessValue);
         }
     }
 }
 
 #[test]
-fn call_matrix() {
+fn call_static_matrix() {
     let genotype = StaticMatrixGenotype::<u16, 10, { 100 + 2 }>::builder()
         .with_genes_size(10)
         .with_allele_range(0..=10)
@@ -564,7 +564,57 @@ fn call_matrix() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumMatrixGenes)
+        .with_fitness(SumStaticMatrixGenes)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_crossover(CrossoverSingleGene::new())
+        .with_select(SelectTournament::new(4, 0.9))
+        .with_extension(ExtensionNoop::new())
+        // .with_reporter(EvolveReporterSimple::new(1))
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    let best_chromosome = evolve.best_chromosome().unwrap();
+    println!("{:#?}", best_chromosome);
+
+    assert_eq!(best_chromosome.fitness_score, Some(0));
+    assert_eq!(
+        evolve.genotype.get_genes(&best_chromosome).to_vec(),
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+    );
+}
+
+#[derive(Clone, Debug)]
+pub struct SumDynamicMatrixGenes;
+impl Fitness for SumDynamicMatrixGenes {
+    type Genotype = DynamicMatrixGenotype<u16>;
+    fn call_for_population(
+        &mut self,
+        population: &mut Population<Self::Genotype>,
+        genotype: &mut Self::Genotype,
+        _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
+    ) {
+        for chromosome in population.chromosomes.iter_mut() {
+            let score = genotype.get_genes(chromosome).iter().sum::<u16>();
+            chromosome.fitness_score = Some(score as FitnessValue);
+        }
+    }
+}
+
+#[test]
+fn call_dynamic_matrix() {
+    let genotype = DynamicMatrixGenotype::<u16>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0..=10)
+        .build()
+        .unwrap();
+
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(100)
+        .with_max_stale_generations(20)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_fitness(SumDynamicMatrixGenes)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_crossover(CrossoverSingleGene::new())
         .with_select(SelectTournament::new(4, 0.9))

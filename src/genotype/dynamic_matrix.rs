@@ -9,6 +9,8 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
 
+pub type DefaultAllele = f32;
+
 #[derive(Copy, Clone, Debug)]
 pub enum MutationType {
     Random,
@@ -16,18 +18,13 @@ pub enum MutationType {
     Scaled,
 }
 
-/// Genes (N) and Population (M) are a `NxM` matrix of numeric values, stored in a column-major
-/// order on the stack as a nested array '[[T; N]; M]' (genes are contiguous in memory). The genes
-/// are therefore not stored on the Chromosomes themselves, which just point to the data. This
-/// opens the possibility for linear algebra fitness calculations on the whole population at once,
-/// possibly using the GPU in the future (if the data is stored and mutated at a GPU readable
-/// memory location). This is a simple stack based example implementation, which is threrefore
-/// limited in size. Exceeding this size, will result in a "fatal runtime error: stack overflow"
-/// panic, aborting the execution during the initialization of the Genotype.
-///
-/// The population size needs to be padded for 2 additional sets of genes. This is for storing the
-/// working chromosome genes and best chromosome genes outside of the population itself. Failure
-/// to provide this additional space will result in a "fatal runtime error: stack overflow"
+/// Genes and Population are a stored in a contiguous `Vec<T>` of numeric values, stored in a
+/// column-major order on the heap (genes are contiguous in memory). The genes are therefore not
+/// stored on the Chromosomes themselves, which just point to the data. This opens the possibility
+/// for linear algebra fitness calculations on the whole population at once, possibly using the GPU
+/// in the future (if the data is stored and mutated at a GPU readable memory location). This is a
+/// simple heap based example implementation. The size doesn't need to be known up front, as de
+/// storage can adapt.
 ///
 /// The GenotypeBuilder `with_chromosome_recycling` is implicit and always enabled for this Genotype.
 ///
@@ -44,14 +41,11 @@ pub enum MutationType {
 /// the existing value by a difference taken from start and end of the scaled range (depending on
 /// current scale)
 ///
-/// # Example (f32):
+/// # Example (f32, default):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, StaticMatrixGenotype};
+/// use genetic_algorithm::genotype::{Genotype, DynamicMatrixGenotype};
 ///
-/// const GENES_SIZE: usize = 100;
-/// const POPULATION_SIZE: usize = 200;
-///
-/// let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+/// let genotype = DynamicMatrixGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
 ///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
@@ -62,12 +56,9 @@ pub enum MutationType {
 ///
 /// # Example (isize):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, StaticMatrixGenotype};
+/// use genetic_algorithm::genotype::{Genotype, DynamicMatrixGenotype};
 ///
-/// const GENES_SIZE: usize = 100;
-/// const POPULATION_SIZE: usize = 200;
-///
-/// let genotype = StaticMatrixGenotype::<isize, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+/// let genotype = DynamicMatrixGenotype::<isize>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=100) // also default mutation range
 ///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range
@@ -75,15 +66,13 @@ pub enum MutationType {
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct StaticMatrix<
-    T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-    const N: usize,
-    const M: usize,
+pub struct DynamicMatrix<
+    T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default = DefaultAllele,
 > where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    pub data: [[T; N]; M],
+    pub data: Vec<T>,
     pub chromosome_bin: Vec<Chromosome<Self>>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
@@ -96,11 +85,8 @@ pub struct StaticMatrix<
     pub seed_genes_list: Vec<()>,
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > TryFrom<Builder<Self>> for StaticMatrix<T, N, M>
+impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> TryFrom<Builder<Self>>
+    for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -124,8 +110,8 @@ where
             };
 
             Ok(Self {
-                data: [[T::default(); N]; M],
-                chromosome_bin: Vec::with_capacity(M),
+                data: vec![],
+                chromosome_bin: vec![],
                 genes_size,
                 allele_range: allele_range.clone(),
                 allele_mutation_range: builder.allele_mutation_range.clone(),
@@ -142,11 +128,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > StaticMatrix<T, N, M>
+impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -202,24 +184,24 @@ where
         }
     }
 
-    // fn linear_id(&self, id: usize, index: usize) -> usize {
-    //     id * N + index
-    // }
-    // pub fn linear_range<B: RangeBounds<usize>>(&self, id: usize, range: B) -> Range<usize> {
-    //     let min_index = match range.start_bound() {
-    //         Bound::Unbounded => 0,
-    //         Bound::Included(&i) => i,
-    //         Bound::Excluded(&i) => i + 1,
-    //     }
-    //     .max(0);
-    //     let max_index = match range.end_bound() {
-    //         Bound::Unbounded => self.genes_size,
-    //         Bound::Included(&i) => i + 1,
-    //         Bound::Excluded(&i) => i,
-    //     }
-    //     .min(N);
-    //     (id * N + min_index)..(id * N + max_index)
-    // }
+    fn linear_id(&self, id: usize, index: usize) -> usize {
+        id * self.genes_size + index
+    }
+    pub fn linear_gene_range<B: RangeBounds<usize>>(&self, id: usize, range: B) -> Range<usize> {
+        let min_index = match range.start_bound() {
+            Bound::Unbounded => 0,
+            Bound::Included(&i) => i,
+            Bound::Excluded(&i) => i + 1,
+        }
+        .max(0);
+        let max_index = match range.end_bound() {
+            Bound::Unbounded => self.genes_size,
+            Bound::Included(&i) => i + 1,
+            Bound::Excluded(&i) => i,
+        }
+        .min(self.genes_size);
+        (id * self.genes_size + min_index)..(id * self.genes_size + max_index)
+    }
 
     /// returns a slice of genes_size <= N
     pub fn get_genes(&self, chromosome: &Chromosome<Self>) -> &[T] {
@@ -227,13 +209,16 @@ where
     }
     /// returns a slice of genes_size <= N
     fn get_genes_by_id(&self, id: usize) -> &[T] {
-        &self.data[id][..self.genes_size]
+        let linear_id = self.linear_id(id, 0);
+        &self.data[linear_id..(linear_id + self.genes_size)]
     }
     fn get_gene_by_id(&self, id: usize, index: usize) -> T {
-        self.data[id][index]
+        let linear_id = self.linear_id(id, index);
+        self.data[linear_id]
     }
     fn set_gene_by_id(&mut self, id: usize, index: usize, value: T) {
-        self.data[id][index] = value;
+        let linear_id = self.linear_id(id, index);
+        self.data[linear_id] = value;
     }
     fn copy_genes_by_id(&mut self, source_id: usize, target_id: usize) {
         let (source, target) = self.gene_slice_pair_mut((source_id, target_id));
@@ -276,15 +261,23 @@ where
         let (father, mother) = self.gene_slice_pair_mut((father_id, mother_id));
         (mother[mother_range]).swap_with_slice(&mut father[father_range]);
     }
-    pub fn gene_slice_pair_mut(&mut self, ids: (usize, usize)) -> (&mut [T; N], &mut [T; N]) {
-        match ids.0.cmp(&ids.1) {
+    pub fn gene_slice_pair_mut(&mut self, ids: (usize, usize)) -> (&mut [T], &mut [T]) {
+        let linear_id0 = self.linear_id(ids.0, 0);
+        let linear_id1 = self.linear_id(ids.1, 0);
+        match linear_id0.cmp(&linear_id1) {
             Ordering::Less => {
-                let (x, y) = self.data.split_at_mut(ids.1);
-                (&mut x[ids.0], &mut y[0])
+                let (x, y) = self.data.split_at_mut(linear_id1);
+                (
+                    &mut x[linear_id0..(linear_id0 + self.genes_size)],
+                    &mut y[0..self.genes_size],
+                )
             }
             Ordering::Greater => {
-                let (x, y) = self.data.split_at_mut(ids.0);
-                (&mut y[0], &mut x[ids.1])
+                let (x, y) = self.data.split_at_mut(linear_id0);
+                (
+                    &mut y[0..self.genes_size],
+                    &mut x[linear_id1..(linear_id1 + self.genes_size)],
+                )
             }
             Ordering::Equal => panic!("ids cannot be the same: {:?}", ids),
         }
@@ -304,16 +297,12 @@ where
             Bound::Included(&i) => i + 1,
             Bound::Excluded(&i) => i,
         }
-        .min(N);
+        .min(self.genes_size);
         (min_index..max_index, min_index..max_index)
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > Genotype for StaticMatrix<T, N, M>
+impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> Genotype for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -471,11 +460,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > StaticMatrix<T, N, M>
+impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -496,11 +481,8 @@ where
     // }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > ChromosomeManager<Self> for StaticMatrix<T, N, M>
+impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> ChromosomeManager<Self>
+    for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -515,23 +497,20 @@ where
     fn chromosome_recycling(&self) -> bool {
         true
     }
-    fn chromosomes_init(&mut self) {
-        self.chromosome_bin = (0..M)
-            .rev()
-            .map(|id| Chromosome {
-                reference_id: id,
-                genes: (),
-                fitness_score: None,
-                age: 0,
-            })
-            .collect();
-    }
     fn chromosome_bin_push(&mut self, chromosome: Chromosome<Self>) {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<Chromosome<Self>> {
         self.chromosome_bin.pop().or_else(|| {
-            panic!("genetic_algorithm error: chromosome capacity exceeded");
+            let reference_id = self.data.len() / self.genes_size;
+            self.data
+                .resize_with(self.data.len() + self.genes_size, Default::default);
+            Some(Chromosome {
+                genes: (),
+                fitness_score: None,
+                age: 0,
+                reference_id,
+            })
         })
     }
     fn copy_genes(
@@ -554,19 +533,15 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > Clone for StaticMatrix<T, N, M>
+impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> Clone for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn clone(&self) -> Self {
         Self {
-            data: [[T::default(); N]; M],
-            chromosome_bin: Vec::with_capacity(M),
+            data: vec![],
+            chromosome_bin: vec![],
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
             allele_mutation_range: self.allele_mutation_range.clone(),
@@ -583,11 +558,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > fmt::Debug for StaticMatrix<T, N, M>
+impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> fmt::Debug for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -607,11 +578,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > fmt::Display for StaticMatrix<T, N, M>
+impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> fmt::Display for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

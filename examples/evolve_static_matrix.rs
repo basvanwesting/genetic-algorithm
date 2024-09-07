@@ -13,13 +13,19 @@ impl Fitness for DistanceTo {
         genotype: &mut Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
+        let results: Vec<FitnessValue> = genotype
+            .data
+            .iter()
+            .map(|genes| {
+                genes
+                    .iter()
+                    .map(|v| (v - self.0).abs() / self.1)
+                    .sum::<f32>() as FitnessValue
+            })
+            .collect();
+
         for chromosome in population.chromosomes.iter_mut() {
-            let score = genotype
-                .get_genes(&chromosome)
-                .iter()
-                .map(|v| (v - self.0).abs() / self.1)
-                .sum::<f32>() as FitnessValue;
-            chromosome.fitness_score = Some(score);
+            chromosome.fitness_score = Some(results[chromosome.reference_id]);
         }
     }
 }
@@ -52,7 +58,7 @@ fn main() {
         .with_genotype(genotype)
         .with_target_population_size(POPULATION_SIZE)
         .with_max_stale_generations(100)
-        .with_target_fitness_score(POPULATION_SIZE as isize * 100)
+        .with_target_fitness_score((GENES_SIZE as f32 * 0.001 / 1e-5) as isize)
         .with_fitness(DistanceTo(0.5, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateMultiGene::new(2, 0.2))

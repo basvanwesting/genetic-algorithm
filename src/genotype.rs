@@ -2,6 +2,7 @@
 mod binary;
 mod bit;
 mod builder;
+mod dynamic_matrix;
 mod list;
 mod multi_list;
 mod multi_range;
@@ -15,6 +16,7 @@ pub use self::bit::Bit as BitGenotype;
 pub use self::builder::{
     Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
 };
+pub use self::dynamic_matrix::DynamicMatrix as DynamicMatrixGenotype;
 pub use self::list::List as ListGenotype;
 pub use self::multi_list::MultiList as MultiListGenotype;
 pub use self::multi_range::MultiRange as MultiRangeGenotype;
