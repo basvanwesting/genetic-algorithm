@@ -17,13 +17,13 @@ pub enum MutationType {
 }
 
 /// Genes (N) and Population (M) are a `NxM` matrix of numeric values, stored in a column-major
-/// order on the stack (genes are contiguous in memory). The genes are therefore not stored on the
-/// Chromosomes themselves, which just point to the data. This opens the possibility for linear
-/// algebra fitness calculations on the whole population at once, possibly using the GPU in the
-/// future (if the data is stored and mutated at a GPU readable memory location). This is a simple
-/// stack based example implementation, which is threrefore limited in size. Exceeding this size,
-/// will result in a "fatal runtime error: stack overflow" panic, aborting the execution during the
-/// initialization of the Genotype.
+/// order on the stack as a nested array '[[T; N]; M]' (genes are contiguous in memory). The genes
+/// are therefore not stored on the Chromosomes themselves, which just point to the data. This
+/// opens the possibility for linear algebra fitness calculations on the whole population at once,
+/// possibly using the GPU in the future (if the data is stored and mutated at a GPU readable
+/// memory location). This is a simple stack based example implementation, which is threrefore
+/// limited in size. Exceeding this size, will result in a "fatal runtime error: stack overflow"
+/// panic, aborting the execution during the initialization of the Genotype.
 ///
 /// The population size needs to be padded for 2 additional sets of genes. This is for storing the
 /// working chromosome genes and best chromosome genes outside of the population itself. Failure
@@ -46,12 +46,12 @@ pub enum MutationType {
 ///
 /// # Example (f32):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MatrixGenotype};
+/// use genetic_algorithm::genotype::{Genotype, StaticMatrixGenotype};
 ///
 /// const GENES_SIZE: usize = 100;
 /// const POPULATION_SIZE: usize = 200;
 ///
-/// let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+/// let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
 ///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
@@ -62,12 +62,12 @@ pub enum MutationType {
 ///
 /// # Example (isize):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MatrixGenotype};
+/// use genetic_algorithm::genotype::{Genotype, StaticMatrixGenotype};
 ///
 /// const GENES_SIZE: usize = 100;
 /// const POPULATION_SIZE: usize = 200;
 ///
-/// let genotype = MatrixGenotype::<isize, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+/// let genotype = StaticMatrixGenotype::<isize, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=100) // also default mutation range
 ///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range
@@ -75,7 +75,7 @@ pub enum MutationType {
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct Matrix<
+pub struct StaticMatrix<
     T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
     const N: usize,
     const M: usize,
@@ -100,7 +100,7 @@ impl<
         T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
-    > TryFrom<Builder<Self>> for Matrix<T, N, M>
+    > TryFrom<Builder<Self>> for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -146,7 +146,7 @@ impl<
         T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
-    > Matrix<T, N, M>
+    > StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -201,6 +201,25 @@ where
             self.set_gene_by_id(chromosome.reference_id, index, new_value);
         }
     }
+
+    // fn linear_id(&self, id: usize, index: usize) -> usize {
+    //     id * N + index
+    // }
+    // pub fn linear_range<B: RangeBounds<usize>>(&self, id: usize, range: B) -> Range<usize> {
+    //     let min_index = match range.start_bound() {
+    //         Bound::Unbounded => 0,
+    //         Bound::Included(&i) => i,
+    //         Bound::Excluded(&i) => i + 1,
+    //     }
+    //     .max(0);
+    //     let max_index = match range.end_bound() {
+    //         Bound::Unbounded => self.genes_size,
+    //         Bound::Included(&i) => i + 1,
+    //         Bound::Excluded(&i) => i,
+    //     }
+    //     .min(N);
+    //     (id * N + min_index)..(id * N + max_index)
+    // }
 
     /// returns a slice of genes_size <= N
     pub fn get_genes(&self, chromosome: &Chromosome<Self>) -> &[T] {
@@ -294,7 +313,7 @@ impl<
         T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
-    > Genotype for Matrix<T, N, M>
+    > Genotype for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -456,7 +475,7 @@ impl<
         T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
-    > Matrix<T, N, M>
+    > StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -481,7 +500,7 @@ impl<
         T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
-    > ChromosomeManager<Self> for Matrix<T, N, M>
+    > ChromosomeManager<Self> for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -542,7 +561,7 @@ impl<
         T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
-    > Clone for Matrix<T, N, M>
+    > Clone for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -571,7 +590,7 @@ impl<
         T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
-    > fmt::Debug for Matrix<T, N, M>
+    > fmt::Debug for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -595,7 +614,7 @@ impl<
         T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
         const N: usize,
         const M: usize,
-    > fmt::Display for Matrix<T, N, M>
+    > fmt::Display for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

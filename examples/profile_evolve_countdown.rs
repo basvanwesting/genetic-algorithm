@@ -21,7 +21,7 @@ fn main() {
         .with_chromosome_recycling(CHROMOSOME_RECYCLING)
         .build()
         .unwrap();
-    // let genotype = MatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+    // let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
     //     .with_genes_size(GENES_SIZE)
     //     .with_allele_range(ALLELE_RANGE)
     //     .build()

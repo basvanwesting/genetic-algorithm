@@ -537,7 +537,7 @@ fn call_multi_list() {
 #[derive(Clone, Debug)]
 pub struct SumMatrixGenes;
 impl Fitness for SumMatrixGenes {
-    type Genotype = MatrixGenotype<u16, 10, { 100 + 2 }>;
+    type Genotype = StaticMatrixGenotype<u16, 10, { 100 + 2 }>;
     fn call_for_population(
         &mut self,
         population: &mut Population<Self::Genotype>,
@@ -553,7 +553,7 @@ impl Fitness for SumMatrixGenes {
 
 #[test]
 fn call_matrix() {
-    let genotype = MatrixGenotype::<u16, 10, { 100 + 2 }>::builder()
+    let genotype = StaticMatrixGenotype::<u16, 10, { 100 + 2 }>::builder()
         .with_genes_size(10)
         .with_allele_range(0..=10)
         .build()

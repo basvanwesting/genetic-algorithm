@@ -69,7 +69,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         self.call_for_chromosome(state.chromosome_as_mut(), genotype);
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
-    /// Implement by Client for MatrixGenotype
+    /// Implement by Client for StaticMatrixGenotype
     /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,
@@ -115,6 +115,6 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         _chromosome: &Chromosome<Self::Genotype>,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
-        panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using MatrixGenotype)");
+        panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticMatrixGenotype)");
     }
 }

@@ -2,7 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::extension::{Extension, ExtensionMassGenesis};
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype, MatrixGenotype};
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype, StaticMatrixGenotype};
 use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
 use rand::prelude::*;
@@ -45,7 +45,7 @@ fn removes_randomly() {
 #[test]
 fn removes_randomly_matrix() {
     let rng = &mut SmallRng::seed_from_u64(1);
-    let mut genotype = MatrixGenotype::<u8, 3, 8>::builder()
+    let mut genotype = StaticMatrixGenotype::<u8, 3, 8>::builder()
         .with_genes_size(3)
         .with_allele_range(0..=10)
         .build()
