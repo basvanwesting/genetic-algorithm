@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.12.1] - 2024-09-07
+
+### Fixed
+* Fix CompeteElite sorting (should be best first, was reversed)
 
 ## [0.12.0] - 2024-09-03
 This is a major breaking release (back to pre-v0.9.0 API), see Changed:
