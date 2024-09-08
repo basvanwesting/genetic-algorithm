@@ -13,6 +13,7 @@ impl Fitness for DistanceTo {
         genotype: &mut Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
+        // pure matrix data calculation on [[T; N] M]
         let results: Vec<FitnessValue> = genotype
             .data
             .iter()
@@ -24,6 +25,7 @@ impl Fitness for DistanceTo {
             })
             .collect();
 
+        // result assignment
         for chromosome in population.chromosomes.iter_mut() {
             chromosome.fitness_score = Some(results[chromosome.reference_id]);
         }

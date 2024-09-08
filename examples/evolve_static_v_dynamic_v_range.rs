@@ -13,6 +13,7 @@ impl Fitness for StaticDistanceTo {
         genotype: &mut Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
+        // pure matrix data calculation on [[T; N] M]
         let results: Vec<FitnessValue> = genotype
             .data
             .iter()
@@ -40,6 +41,7 @@ impl Fitness for DynamicDistanceTo {
         genotype: &mut Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
+        // pure matrix data calculation on vec![T; N*M]
         let results: Vec<FitnessValue> = genotype
             .data
             .chunks(GENES_SIZE)

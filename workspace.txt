@@ -1,6 +1,9 @@
-extensions benchmark is noisy
-Rename MatrixGenotype to SMatrixGenotype
-Add DMatrixGenotype?
+Extensions benchmark is noisy
+Remove empty chromomsome concept, just use Options again in the code (much better)
+
+External genes are always Vec<T> (seed and result). Internal genes can be anything 
+Alway use best_genes is result
+Rename genes on chromosome to data?
 
 
 const GENES_SIZE: usize = 4100;

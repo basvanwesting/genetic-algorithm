@@ -16,14 +16,19 @@ pub enum MutationType {
     Scaled,
 }
 
-/// Genes (N) and Population (M) are a `NxM` matrix of numeric values, stored in a column-major
-/// order on the stack as a nested array '[[T; N]; M]' (genes are contiguous in memory). The genes
-/// are therefore not stored on the Chromosomes themselves, which just point to the data. This
-/// opens the possibility for linear algebra fitness calculations on the whole population at once,
-/// possibly using the GPU in the future (if the data is stored and mutated at a GPU readable
-/// memory location). This is a simple stack based example implementation, which is threrefore
-/// limited in size. Exceeding this size, will result in a "fatal runtime error: stack overflow"
-/// panic, aborting the execution during the initialization of the Genotype.
+/// Genes (N) and Population (M) are a `N*M` matrix of numeric values, stored  on the stack as a
+/// nested array '[[T; N]; M]'. The genes are contiguous in memory, with an N jump to the next
+/// chromosome ([[T; N]; M] can be treated like [T; N*M] in memory). The genes are therefore not
+/// stored on the Chromosomes themselves, which just point to the data (chromosome.reference_id ==
+/// row id of the matrix). The genes_size can be smaller than N, which would just leave a part of
+/// the matrix unused at T::default(). This opens the possibility for linear algebra fitness
+/// calculations on the whole population at once, possibly using the GPU in the future (if the data
+/// is stored and mutated at a GPU readable memory location). The fitness would then implement
+/// `call_for_population` instead of `calculate_for_chromosome`.
+///
+/// This is a simple stack based example implementation, which is
+/// threrefore limited in size. Exceeding this size, will result in a "fatal runtime error: stack
+/// overflow" panic, aborting the execution during the initialization of the Genotype.
 ///
 /// The population size needs to be padded for 2 additional sets of genes. This is for storing the
 /// working chromosome genes and best chromosome genes outside of the population itself. Failure

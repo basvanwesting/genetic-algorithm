@@ -18,13 +18,17 @@ pub enum MutationType {
     Scaled,
 }
 
-/// Genes and Population are a stored in a contiguous `Vec<T>` of numeric values, stored in a
-/// column-major order on the heap (genes are contiguous in memory). The genes are therefore not
-/// stored on the Chromosomes themselves, which just point to the data. This opens the possibility
-/// for linear algebra fitness calculations on the whole population at once, possibly using the GPU
-/// in the future (if the data is stored and mutated at a GPU readable memory location). This is a
-/// simple heap based example implementation. The size doesn't need to be known up front, as de
-/// storage can adapt.
+/// Genes (N) and Population (M) are a stored in a single contiguous `Vec<T>` of numeric values
+/// with length N*M, but conceptually treated like a matrix of N*M below. The genes are stored
+/// contiguous in memory, with genes_size jumps to the next chromosome. The genes are therefore not
+/// stored on the Chromosomes themselves, which just point to the data (chromosome.reference_id ==
+/// row id if the matrix). This opens the possibility for linear algebra fitness calculations on
+/// the whole population at once, possibly using the GPU in the future (if the data is stored and
+/// mutated at a GPU readable memory location). The fitness would then implement
+/// `call_for_population` instead of `calculate_for_chromosome`.
+///
+/// This is a simple heap based example implementation. The size doesn't need to be known up front,
+/// as de storage extend if needed.
 ///
 /// The GenotypeBuilder `with_chromosome_recycling` is implicit and always enabled for this Genotype.
 ///

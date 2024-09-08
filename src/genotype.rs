@@ -131,14 +131,6 @@ pub trait Genotype:
     fn seed_genes_list(&self) -> &Vec<Self::Genes>;
     fn max_scale_index(&self) -> Option<usize>;
 
-    // // All population growth or shrinking is done through here in case the genotype stores the gene
-    // // data and needs to sync up
-    // fn population_truncate<S: StrategyState<Self>>(&mut self, state: &mut S, new_size: usize) {
-    // fn population_reset<S: StrategyState<Self>>(
-    // fn population_replace_from_within<S: StrategyState<Self>>(
-    // fn population_extend_from_within<S: StrategyState<Self>>(
-    // fn population_filter_age(&mut self, state: &mut EvolveState<Self>, config: &EvolveConfig) {
-
     fn expected_number_of_sampled_index_collisions(&self, number_of_samples: usize) -> usize {
         number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
     }
