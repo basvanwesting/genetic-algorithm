@@ -141,27 +141,7 @@ pub trait ChromosomeManager<G: Genotype> {
     /// all provided below, fall back to cloning if recycling bin is empty
     /// make bin panic when empty if the fallback to cloning is unwanted
 
-    fn copy_genes(
-        &mut self,
-        source_chromosome: &G::Chromosome,
-        target_chromosome: &mut G::Chromosome,
-    ) {
-        target_chromosome.genes.clone_from(&source_chromosome.genes);
-    }
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {
-        if self.chromosome_recycling() {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes = self.random_genes_factory(rng);
-                new_chromosome.age = 0;
-                new_chromosome.fitness_score = None;
-                new_chromosome
-            } else {
-                LegacyChromosome::new(self.random_genes_factory(rng))
-            }
-        } else {
-            LegacyChromosome::new(self.random_genes_factory(rng))
-        }
-    }
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome;
     fn chromosome_destructor(&mut self, chromosome: G::Chromosome) {
         if self.chromosome_recycling() && !self.chromosome_is_empty(&chromosome) {
             self.chromosome_bin_push(chromosome)
@@ -180,20 +160,7 @@ pub trait ChromosomeManager<G: Genotype> {
             chromosomes.truncate(target_population_size);
         }
     }
-    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
-        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes(chromosome, &mut new_chromosome);
-                new_chromosome.age = chromosome.age;
-                new_chromosome.fitness_score = chromosome.fitness_score;
-                new_chromosome
-            } else {
-                chromosome.clone()
-            }
-        } else {
-            chromosome.clone()
-        }
-    }
+    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome;
     fn chromosome_cloner_range(
         &mut self,
         chromosomes: &mut Vec<G::Chromosome>,

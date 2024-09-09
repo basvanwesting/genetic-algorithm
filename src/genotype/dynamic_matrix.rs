@@ -523,14 +523,6 @@ where
             Some(DynamicMatrixChromosome::new(row_id))
         })
     }
-    fn copy_genes(
-        &mut self,
-        source_chromosome: &DynamicMatrixChromosome,
-        target_chromosome: &mut DynamicMatrixChromosome,
-    ) {
-        self.copy_genes_by_id(source_chromosome.row_id, target_chromosome.row_id);
-    }
-
     // FIXME: directly set genes
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> DynamicMatrixChromosome {
         let chromosome = self.chromosome_bin_pop().unwrap();
@@ -540,6 +532,23 @@ where
         let x = &mut self.data[linear_id..(linear_id + self.genes_size)];
         x.copy_from_slice(&genes);
         chromosome
+    }
+    fn chromosome_cloner(
+        &mut self,
+        chromosome: &DynamicMatrixChromosome,
+    ) -> DynamicMatrixChromosome {
+        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                new_chromosome.age = chromosome.age;
+                new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome
+            } else {
+                chromosome.clone()
+            }
+        } else {
+            chromosome.clone()
+        }
     }
 }
 

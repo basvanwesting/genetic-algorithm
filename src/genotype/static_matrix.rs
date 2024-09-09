@@ -540,14 +540,6 @@ where
             panic!("genetic_algorithm error: chromosome capacity exceeded");
         })
     }
-    fn copy_genes(
-        &mut self,
-        source_chromosome: &StaticMatrixChromosome,
-        target_chromosome: &mut StaticMatrixChromosome,
-    ) {
-        self.copy_genes_by_id(source_chromosome.row_id, target_chromosome.row_id);
-    }
-
     // FIXME: directly set genes
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> StaticMatrixChromosome {
         let chromosome = self.chromosome_bin_pop().unwrap();
@@ -556,6 +548,20 @@ where
         let x = self.data[chromosome.row_id].as_mut_slice();
         x.copy_from_slice(&genes);
         chromosome
+    }
+    fn chromosome_cloner(&mut self, chromosome: &StaticMatrixChromosome) -> StaticMatrixChromosome {
+        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                new_chromosome.age = chromosome.age;
+                new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome
+            } else {
+                chromosome.clone()
+            }
+        } else {
+            chromosome.clone()
+        }
     }
 }
 

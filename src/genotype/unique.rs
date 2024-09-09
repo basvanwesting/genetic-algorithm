@@ -220,6 +220,34 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
     fn chromosome_bin_pop(&mut self) -> Option<UniqueChromosome<T>> {
         self.chromosome_bin.pop()
     }
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> UniqueChromosome<T> {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                new_chromosome.genes = self.random_genes_factory(rng);
+                new_chromosome.age = 0;
+                new_chromosome.fitness_score = None;
+                new_chromosome
+            } else {
+                UniqueChromosome::new(self.random_genes_factory(rng))
+            }
+        } else {
+            UniqueChromosome::new(self.random_genes_factory(rng))
+        }
+    }
+    fn chromosome_cloner(&mut self, chromosome: &UniqueChromosome<T>) -> UniqueChromosome<T> {
+        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                new_chromosome.genes.clone_from(&chromosome.genes);
+                new_chromosome.age = chromosome.age;
+                new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome
+            } else {
+                chromosome.clone()
+            }
+        } else {
+            chromosome.clone()
+        }
+    }
 }
 
 impl<T: Allele> fmt::Display for Unique<T> {
