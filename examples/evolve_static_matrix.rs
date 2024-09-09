@@ -27,7 +27,7 @@ impl Fitness for DistanceTo {
 
         // result assignment
         for chromosome in population.chromosomes.iter_mut() {
-            chromosome.fitness_score = Some(results[chromosome.reference_id]);
+            chromosome.fitness_score = Some(results[chromosome.row_id]);
         }
     }
 }

@@ -26,7 +26,7 @@ impl Fitness for StaticDistanceTo {
             .collect();
 
         for chromosome in population.chromosomes.iter_mut() {
-            chromosome.fitness_score = Some(results[chromosome.reference_id]);
+            chromosome.fitness_score = Some(results[chromosome.row_id]);
         }
     }
 }
@@ -54,7 +54,7 @@ impl Fitness for DynamicDistanceTo {
             .collect();
 
         for chromosome in population.chromosomes.iter_mut() {
-            chromosome.fitness_score = Some(results[chromosome.reference_id]);
+            chromosome.fitness_score = Some(results[chromosome.row_id]);
         }
     }
 }

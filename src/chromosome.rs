@@ -29,7 +29,14 @@ use std::ops::Range;
 
 /// The Chromosome is used as an individual in the [Population](crate::population::Population).
 /// Chromosomes [select](crate::select), [crossover](crate::crossover) and [mutate](crate::mutate)
-/// with each other in the [Evolve](crate::strategy::evolve::Evolve) strategy
+/// with each other in the [Evolve](crate::strategy::evolve::Evolve) strategy.
+///
+/// Some chromosomes store their own genes and some reference external data. Therefore the use of
+/// [Evolve::best_chromosome()](crate::strategy::evolve::Evolve::best_chromosome),
+/// [HillCllimb::best_chromosome()](crate::strategy::hill_climb::HillClimb::best_chromosome) and
+/// [Permutate::best_chromosome()](crate::strategy::permutate::Permutate::best_chromosome) on the
+/// Strategy are discouraged. Use [Strategy::best_genes()](crate::strategy::Strategy::best_genes)
+/// instead.
 pub trait Chromosome: Clone + Send {
     fn age(&self) -> usize;
     fn reset_age(&mut self);
@@ -49,81 +56,6 @@ pub trait RefersGenes: Chromosome {
 
 /// The GenesKey can be used for caching fitness scores, without lifetime concerns of the chromosome
 pub type GenesKey = u64;
-
-// /// The Chromosome is used as an individual in the [Population](crate::population::Population). It
-// /// holds the genes and knows how to sort between itself with regard to it's fitness score.
-// /// Chromosomes [select](crate::select), [crossover](crate::crossover) and [mutate](crate::mutate) with each other in the
-// /// [Evolve](crate::strategy::evolve::Evolve) strategy
-// #[derive(Clone, Debug)]
-// pub struct LegacyChromosome<G: Genotype> {
-//     pub genes: G::Genes,
-//     pub fitness_score: Option<FitnessValue>,
-//     pub age: usize,
-//
-//     /// User controlled alternative to `genes_key()`, set manually in
-//     /// custom [Fitness](crate::fitness::Fitness) implementation. Defaults to 0
-//     pub reference_id: usize,
-// }
-//
-// /// Cannot Hash floats
-// impl<G: Genotype> LegacyChromosome<G>
-// where
-//     G::Genes: Hash,
-// {
-//     pub fn genes_key(&self) -> GenesKey {
-//         let mut s = DefaultHasher::new();
-//         self.genes.hash(&mut s);
-//         s.finish()
-//     }
-// }
-// /// Impl Copy of Genes are Copy
-// impl<G: Genotype> Copy for LegacyChromosome<G> where G::Genes: Copy {}
-//
-// impl<G: Genotype> LegacyChromosome<G> {
-//     pub fn new(genes: G::Genes) -> Self {
-//         Self {
-//             genes,
-//             fitness_score: None,
-//             age: 0,
-//             reference_id: usize::MAX,
-//         }
-//     }
-//     /// Reset fitness_score for recalculation
-//     pub fn taint_fitness_score(&mut self) {
-//         self.age = 0;
-//         self.fitness_score = None;
-//     }
-// }
-//
-// impl<G: Genotype> PartialEq for LegacyChromosome<G> {
-//     fn eq(&self, other: &Self) -> bool {
-//         self.fitness_score == other.fitness_score
-//     }
-// }
-//
-// impl<G: Genotype> Eq for LegacyChromosome<G> {}
-//
-// impl<G: Genotype> PartialOrd for LegacyChromosome<G> {
-//     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
-//         Some(self.fitness_score.cmp(&other.fitness_score))
-//     }
-// }
-//
-// impl<G: Genotype> Ord for LegacyChromosome<G> {
-//     fn cmp(&self, other: &Self) -> Ordering {
-//         self.partial_cmp(other).unwrap_or(Ordering::Equal)
-//     }
-// }
-//
-// impl<G: Genotype> fmt::Display for LegacyChromosome<G> {
-//     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-//         if let Some(score) = self.fitness_score {
-//             write!(f, "fitness score {}", score)
-//         } else {
-//             write!(f, "no fitness score")
-//         }
-//     }
-// }
 
 pub trait ChromosomeManager<G: Genotype> {
     /// mandatory, random genes unless seed genes are provided
