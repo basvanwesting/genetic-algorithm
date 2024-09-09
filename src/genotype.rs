@@ -25,7 +25,7 @@ pub use self::range::Range as RangeGenotype;
 pub use self::static_matrix::StaticMatrix as StaticMatrixGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
-use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::chromosome::{ChromosomeManager, ChromosomeTrait, LegacyChromosome};
 use crate::population::Population;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
@@ -81,15 +81,16 @@ pub trait Genotype:
 {
     type Allele: Allele;
     type Genes: Genes;
+    type Chromosome: ChromosomeTrait;
 
     fn genes_size(&self) -> usize;
-    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>);
+    fn store_best_genes(&mut self, chromosome: &Self::Chromosome);
     fn get_best_genes(&self) -> &Self::Genes;
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut Self::Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,
     );
@@ -101,8 +102,8 @@ pub trait Genotype:
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     );
     /// Crossover points between a pair of chromosomes.
@@ -112,8 +113,8 @@ pub trait Genotype:
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     );
     /// to guard against invalid crossover strategies which break the internal consistency
@@ -147,14 +148,14 @@ pub trait IncrementalGenotype: Genotype {
     /// used in HillClimbVariant::SteepestAscent and SteepestAscentSecondary
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        _chromosome: &Chromosome<Self>,
+        _chromosome: &Self::Chromosome,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Chromosome<Self>>;
+    ) -> Vec<Self::Chromosome>;
 
     fn neighbouring_population<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &Self::Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,
     ) -> Population<Self> {
@@ -169,7 +170,7 @@ pub trait IncrementalGenotype: Genotype {
 /// Not all genotypes are permutable, only countable ones (e.g. range genotypes cannot be permutated).
 pub trait PermutableGenotype: Genotype {
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
-    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send;
+    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Self::Chromosome> + Send;
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_size(&self) -> BigUint;

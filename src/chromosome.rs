@@ -1,4 +1,8 @@
 //! The chromosome is a container for the genes and caches a fitness score
+
+mod binary;
+mod list;
+
 use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
 use rand::prelude::*;
@@ -8,6 +12,17 @@ use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::ops::Range;
 
+pub use self::binary::Binary as BinaryChromosome;
+pub use self::list::List as ListChromosome;
+
+pub trait ChromosomeTrait: Clone {
+    fn age(&self) -> usize;
+    fn reset_age(&mut self);
+    fn increment_age(&mut self);
+    fn fitness_score(&self) -> Option<FitnessValue>;
+    fn taint_fitness_score(&mut self);
+}
+
 /// The GenesKey can be used for caching fitness scores, without lifetime concerns of the chromosome
 pub type GenesKey = u64;
 
@@ -16,7 +31,7 @@ pub type GenesKey = u64;
 /// Chromosomes [select](crate::select), [crossover](crate::crossover) and [mutate](crate::mutate) with each other in the
 /// [Evolve](crate::strategy::evolve::Evolve) strategy
 #[derive(Clone, Debug)]
-pub struct Chromosome<G: Genotype> {
+pub struct LegacyChromosome<G: Genotype> {
     pub genes: G::Genes,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
@@ -27,7 +42,7 @@ pub struct Chromosome<G: Genotype> {
 }
 
 /// Cannot Hash floats
-impl<G: Genotype> Chromosome<G>
+impl<G: Genotype> LegacyChromosome<G>
 where
     G::Genes: Hash,
 {
@@ -38,9 +53,9 @@ where
     }
 }
 /// Impl Copy of Genes are Copy
-impl<G: Genotype> Copy for Chromosome<G> where G::Genes: Copy {}
+impl<G: Genotype> Copy for LegacyChromosome<G> where G::Genes: Copy {}
 
-impl<G: Genotype> Chromosome<G> {
+impl<G: Genotype> LegacyChromosome<G> {
     pub fn new(genes: G::Genes) -> Self {
         Self {
             genes,
@@ -56,27 +71,27 @@ impl<G: Genotype> Chromosome<G> {
     }
 }
 
-impl<G: Genotype> PartialEq for Chromosome<G> {
+impl<G: Genotype> PartialEq for LegacyChromosome<G> {
     fn eq(&self, other: &Self) -> bool {
         self.fitness_score == other.fitness_score
     }
 }
 
-impl<G: Genotype> Eq for Chromosome<G> {}
+impl<G: Genotype> Eq for LegacyChromosome<G> {}
 
-impl<G: Genotype> PartialOrd for Chromosome<G> {
+impl<G: Genotype> PartialOrd for LegacyChromosome<G> {
     fn partial_cmp(&self, other: &Self) -> Option<Ordering> {
         Some(self.fitness_score.cmp(&other.fitness_score))
     }
 }
 
-impl<G: Genotype> Ord for Chromosome<G> {
+impl<G: Genotype> Ord for LegacyChromosome<G> {
     fn cmp(&self, other: &Self) -> Ordering {
         self.partial_cmp(other).unwrap_or(Ordering::Equal)
     }
 }
 
-impl<G: Genotype> fmt::Display for Chromosome<G> {
+impl<G: Genotype> fmt::Display for LegacyChromosome<G> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         if let Some(score) = self.fitness_score {
             write!(f, "fitness score {}", score)
@@ -90,9 +105,9 @@ pub trait ChromosomeManager<G: Genotype> {
     /// mandatory, random genes unless seed genes are provided
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
     /// mandatory, a functionally invalid placeholder
-    fn chromosome_constructor_empty(&self) -> Chromosome<G>;
+    fn chromosome_constructor_empty(&self) -> G::Chromosome;
     /// mandatory, a test for functionally invalid placeholder
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<G>) -> bool;
+    fn chromosome_is_empty(&self, chromosome: &G::Chromosome) -> bool;
 
     /// provided, disable recycling by default, override when using recycling
     fn chromosome_recycling(&self) -> bool {
@@ -101,9 +116,9 @@ pub trait ChromosomeManager<G: Genotype> {
     /// provided, override if recycling bin needs initialization
     fn chromosomes_init(&mut self) {}
     /// optional, required if using recycling
-    fn chromosome_bin_push(&mut self, _chromosome: Chromosome<G>) {}
+    fn chromosome_bin_push(&mut self, _chromosome: G::Chromosome) {}
     /// optional, required if using recycling
-    fn chromosome_bin_pop(&mut self) -> Option<Chromosome<G>> {
+    fn chromosome_bin_pop(&mut self) -> Option<G::Chromosome> {
         None
     }
 
@@ -112,12 +127,12 @@ pub trait ChromosomeManager<G: Genotype> {
 
     fn copy_genes(
         &mut self,
-        source_chromosome: &Chromosome<G>,
-        target_chromosome: &mut Chromosome<G>,
+        source_chromosome: &G::Chromosome,
+        target_chromosome: &mut G::Chromosome,
     ) {
         target_chromosome.genes.clone_from(&source_chromosome.genes);
     }
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G> {
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 new_chromosome.genes = self.random_genes_factory(rng);
@@ -125,20 +140,20 @@ pub trait ChromosomeManager<G: Genotype> {
                 new_chromosome.fitness_score = None;
                 new_chromosome
             } else {
-                Chromosome::new(self.random_genes_factory(rng))
+                LegacyChromosome::new(self.random_genes_factory(rng))
             }
         } else {
-            Chromosome::new(self.random_genes_factory(rng))
+            LegacyChromosome::new(self.random_genes_factory(rng))
         }
     }
-    fn chromosome_destructor(&mut self, chromosome: Chromosome<G>) {
+    fn chromosome_destructor(&mut self, chromosome: G::Chromosome) {
         if self.chromosome_recycling() && !self.chromosome_is_empty(&chromosome) {
             self.chromosome_bin_push(chromosome)
         }
     }
     fn chromosome_destructor_truncate(
         &mut self,
-        chromosomes: &mut Vec<Chromosome<G>>,
+        chromosomes: &mut Vec<G::Chromosome>,
         target_population_size: usize,
     ) {
         if self.chromosome_recycling() {
@@ -149,7 +164,7 @@ pub trait ChromosomeManager<G: Genotype> {
             chromosomes.truncate(target_population_size);
         }
     }
-    fn chromosome_cloner(&mut self, chromosome: &Chromosome<G>) -> Chromosome<G> {
+    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
         if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 self.copy_genes(chromosome, &mut new_chromosome);
@@ -165,7 +180,7 @@ pub trait ChromosomeManager<G: Genotype> {
     }
     fn chromosome_cloner_range(
         &mut self,
-        chromosomes: &mut Vec<Chromosome<G>>,
+        chromosomes: &mut Vec<G::Chromosome>,
         range: Range<usize>,
     ) {
         if self.chromosome_recycling() {

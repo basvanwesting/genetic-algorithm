@@ -9,7 +9,7 @@ impl Fitness for DistanceTo {
     type Genotype = RangeGenotype<f32>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &Chromosome<Self::Genotype>,
+        chromosome: &LegacyChromosome<Self::Genotype>,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         Some(

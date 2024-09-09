@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype};
-use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::chromosome::{ChromosomeManager, LegacyChromosome};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
@@ -99,7 +99,7 @@ pub struct MultiRange<
     pub index_weights: Vec<f64>,
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_recycling: bool,
-    pub chromosome_bin: Vec<Chromosome<Self>>,
+    pub chromosome_bin: Vec<LegacyChromosome<Self>>,
     pub best_genes: Vec<T>,
 }
 
@@ -180,7 +180,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut LegacyChromosome<Self>,
         rng: &mut R,
     ) {
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
@@ -188,7 +188,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut LegacyChromosome<Self>,
         rng: &mut R,
     ) {
         let allele_range = &self.allele_ranges[index];
@@ -205,7 +205,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut LegacyChromosome<Self>,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -240,7 +240,7 @@ where
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+    fn store_best_genes(&mut self, chromosome: &LegacyChromosome<Self>) {
         self.best_genes.clone_from(&chromosome.genes);
     }
     fn get_best_genes(&self) -> &Self::Genes {
@@ -251,7 +251,7 @@ where
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut LegacyChromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -306,8 +306,8 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut LegacyChromosome<Self>,
+        mother: &mut LegacyChromosome<Self>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -334,8 +334,8 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut LegacyChromosome<Self>,
+        mother: &mut LegacyChromosome<Self>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -401,10 +401,10 @@ where
 {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &LegacyChromosome<Self>,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<LegacyChromosome<Self>> {
         if let Some(scale_index) = scale_index {
             self.allele_ranges
                 .iter()
@@ -449,7 +449,7 @@ where
                 .flatten()
                 .dedup()
                 .filter(|genes| *genes != chromosome.genes)
-                .map(Chromosome::new)
+                .map(LegacyChromosome::new)
                 .collect::<Vec<_>>()
         } else {
             self.allele_ranges
@@ -499,7 +499,7 @@ where
                 .flatten()
                 .dedup()
                 .filter(|genes| *genes != chromosome.genes)
-                .map(Chromosome::new)
+                .map(LegacyChromosome::new)
                 .collect::<Vec<_>>()
         }
     }
@@ -523,19 +523,19 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(vec![])
+    fn chromosome_constructor_empty(&self) -> LegacyChromosome<Self> {
+        LegacyChromosome::new(vec![])
     }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+    fn chromosome_is_empty(&self, chromosome: &LegacyChromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: Chromosome<Self>) {
+    fn chromosome_bin_push(&mut self, chromosome: LegacyChromosome<Self>) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<Chromosome<Self>> {
+    fn chromosome_bin_pop(&mut self) -> Option<LegacyChromosome<Self>> {
         self.chromosome_bin.pop()
     }
 }

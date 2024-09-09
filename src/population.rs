@@ -1,5 +1,5 @@
 //! The population is a  container for [Chromosomes](Chromosome)
-use crate::chromosome::Chromosome;
+use crate::chromosome::{ChromosomeTrait, LegacyChromosome};
 use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
 use cardinality_estimator::CardinalityEstimator;
@@ -7,11 +7,11 @@ use rand::prelude::*;
 
 #[derive(Clone, Debug)]
 pub struct Population<G: Genotype> {
-    pub chromosomes: Vec<Chromosome<G>>,
+    pub chromosomes: Vec<G::Chromosome>,
 }
 
 impl<G: Genotype> Population<G> {
-    pub fn new(chromosomes: Vec<Chromosome<G>>) -> Self {
+    pub fn new(chromosomes: Vec<G::Chromosome>) -> Self {
         Self { chromosomes }
     }
 
@@ -29,22 +29,19 @@ impl<G: Genotype> Population<G> {
     }
 
     pub fn reset_age(&mut self) {
-        self.chromosomes.iter_mut().for_each(|c| c.age = 0);
+        self.chromosomes.iter_mut().for_each(|c| c.reset_age())
     }
     pub fn increment_age(&mut self) {
-        self.chromosomes.iter_mut().for_each(|c| c.age += 1);
+        self.chromosomes.iter_mut().for_each(|c| c.increment_age())
     }
 
     /// fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out
     /// when minimizing the fitness score, otherwise None would end up as best.
-    pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&Chromosome<G>> {
-        match fitness_ordering {
-            FitnessOrdering::Maximize => self.chromosomes.iter().max(),
-            FitnessOrdering::Minimize => self
-                .chromosomes
-                .iter()
-                .filter(|c| c.fitness_score.is_some())
-                .min(),
+    pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&G::Chromosome> {
+        if let Some(index) = self.best_chromosome_index(fitness_ordering) {
+            self.chromosomes.get(index)
+        } else {
+            None
         }
     }
     pub fn best_chromosome_index(&self, fitness_ordering: FitnessOrdering) -> Option<usize> {
@@ -53,42 +50,42 @@ impl<G: Genotype> Population<G> {
                 .chromosomes
                 .iter()
                 .enumerate()
-                .max_by_key(|(_idx, c)| c.fitness_score)
+                .max_by_key(|(_idx, c)| c.fitness_score())
                 .map(|(idx, _)| idx),
 
             FitnessOrdering::Minimize => self
                 .chromosomes
                 .iter()
-                .filter(|c| c.fitness_score.is_some())
+                .filter(|c| c.fitness_score().is_some())
                 .enumerate()
-                .min_by_key(|(_idx, c)| c.fitness_score)
+                .min_by_key(|(_idx, c)| c.fitness_score())
                 .map(|(idx, _)| idx),
         }
     }
 
     pub fn age_mean(&self) -> f32 {
-        stats::mean(self.chromosomes.iter().map(|c| c.age)) as f32
+        stats::mean(self.chromosomes.iter().map(|c| c.age())) as f32
     }
     pub fn fitness_score_count(&self) -> usize {
         self.chromosomes
             .iter()
-            .filter(|c| c.fitness_score.is_some())
+            .filter(|c| c.fitness_score().is_some())
             .count()
     }
     pub fn fitness_score_median(&self) -> Option<isize> {
-        stats::median(self.chromosomes.iter().filter_map(|c| c.fitness_score)).map(|v| v as isize)
+        stats::median(self.chromosomes.iter().filter_map(|c| c.fitness_score())).map(|v| v as isize)
     }
     pub fn fitness_score_mean(&self) -> f32 {
-        stats::mean(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
+        stats::mean(self.chromosomes.iter().filter_map(|c| c.fitness_score())) as f32
     }
     pub fn fitness_score_stddev(&self) -> f32 {
-        stats::stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score)) as f32
+        stats::stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score())) as f32
     }
     pub fn fitness_score_cardinality(&self) -> usize {
         let mut estimator = CardinalityEstimator::<isize>::new();
         let mut nones = 0;
         self.chromosomes.iter().for_each(|chromosome| {
-            if let Some(fitness_score) = chromosome.fitness_score {
+            if let Some(fitness_score) = chromosome.fitness_score() {
                 estimator.insert(&fitness_score);
             } else {
                 nones += 1;
@@ -99,12 +96,12 @@ impl<G: Genotype> Population<G> {
     pub fn fitness_score_present(&self, fitness_score: Option<isize>) -> bool {
         self.chromosomes
             .iter()
-            .any(|c| c.fitness_score == fitness_score)
+            .any(|c| c.fitness_score() == fitness_score)
     }
 }
 
-impl<G: Genotype> From<Vec<Chromosome<G>>> for Population<G> {
-    fn from(chromosomes: Vec<Chromosome<G>>) -> Self {
+impl<G: Genotype> From<Vec<G::Chromosome>> for Population<G> {
+    fn from(chromosomes: Vec<G::Chromosome>) -> Self {
         Self::new(chromosomes)
     }
 }

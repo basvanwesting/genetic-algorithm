@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::chromosome::{ChromosomeManager, ChromosomeTrait, LegacyChromosome, ListChromosome};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform};
@@ -54,7 +54,7 @@ pub struct List<T: Allele + PartialEq = DefaultAllele> {
     allele_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_recycling: bool,
-    pub chromosome_bin: Vec<Chromosome<Self>>,
+    pub chromosome_bin: Vec<ListChromosome<T>>,
     pub best_genes: Vec<T>,
 }
 
@@ -89,11 +89,12 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
 impl<T: Allele + PartialEq> Genotype for List<T> {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
+    type Chromosome = ListChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+    fn store_best_genes(&mut self, chromosome: &Self::Chromosome) {
         self.best_genes.clone_from(&chromosome.genes);
     }
     fn get_best_genes(&self) -> &Self::Genes {
@@ -104,7 +105,7 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut Self::Chromosome,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -131,8 +132,8 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -159,8 +160,8 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -219,10 +220,10 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
 impl<T: Allele + PartialEq> IncrementalGenotype for List<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &ListChromosome<T>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<ListChromosome<T>> {
         (0..self.genes_size)
             .flat_map(|index| {
                 self.allele_list.iter().filter_map(move |allele_value| {
@@ -231,7 +232,7 @@ impl<T: Allele + PartialEq> IncrementalGenotype for List<T> {
                     } else {
                         let mut genes = chromosome.genes.clone();
                         genes[index] = *allele_value;
-                        Some(Chromosome::new(genes))
+                        Some(ListChromosome::new(genes))
                     }
                 })
             })
@@ -244,11 +245,11 @@ impl<T: Allele + PartialEq> IncrementalGenotype for List<T> {
 }
 
 impl<T: Allele + PartialEq> PermutableGenotype for List<T> {
-    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send {
+    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = ListChromosome<T>> + Send {
         (0..self.genes_size())
             .map(|_| self.allele_list.clone())
             .multi_cartesian_product()
-            .map(Chromosome::new)
+            .map(ListChromosome::new)
     }
     fn chromosome_permutations_size(&self) -> BigUint {
         BigUint::from(self.allele_list.len()).pow(self.genes_size() as u32)
@@ -256,7 +257,7 @@ impl<T: Allele + PartialEq> PermutableGenotype for List<T> {
 }
 
 impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
                 .map(|_| self.allele_list[self.allele_index_sampler.sample(rng)])
@@ -265,19 +266,19 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(vec![])
+    fn chromosome_constructor_empty(&self) -> ListChromosome<T> {
+        ListChromosome::new(vec![])
     }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+    fn chromosome_is_empty(&self, chromosome: &ListChromosome<T>) -> bool {
         chromosome.genes.is_empty()
     }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: Chromosome<Self>) {
+    fn chromosome_bin_push(&mut self, chromosome: ListChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<Chromosome<Self>> {
+    fn chromosome_bin_pop(&mut self) -> Option<ListChromosome<T>> {
         self.chromosome_bin.pop()
     }
 }

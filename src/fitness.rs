@@ -9,7 +9,7 @@
 pub mod placeholders;
 pub mod prelude;
 
-use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::chromosome::{ChromosomeManager, LegacyChromosome};
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::{StrategyAction, StrategyState};
@@ -102,7 +102,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     }
     fn call_for_chromosome(
         &mut self,
-        chromosome: &mut Chromosome<Self::Genotype>,
+        chromosome: &mut LegacyChromosome<Self::Genotype>,
         genotype: &Self::Genotype,
     ) {
         if !genotype.chromosome_is_empty(chromosome) {
@@ -112,7 +112,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     /// Implement by Client for normal Genotypes
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &Chromosome<Self::Genotype>,
+        _chromosome: &LegacyChromosome<Self::Genotype>,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticMatrixGenotype)");

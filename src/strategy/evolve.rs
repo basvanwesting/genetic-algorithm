@@ -8,7 +8,7 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
-use crate::chromosome::Chromosome;
+use crate::chromosome::LegacyChromosome;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
@@ -168,9 +168,9 @@ pub struct EvolveState<G: Genotype> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: Chromosome<G>,
+    pub best_chromosome: LegacyChromosome<G>,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub chromosome: Chromosome<G>,
+    pub chromosome: LegacyChromosome<G>,
     pub population: Population<G>,
 
     pub current_scale_index: Option<usize>,
@@ -246,7 +246,7 @@ impl<
         self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+    fn best_chromosome(&self) -> Option<LegacyChromosome<G>> {
         if self
             .genotype
             .chromosome_is_empty(&self.state.best_chromosome)
@@ -378,10 +378,10 @@ impl StrategyConfig for EvolveConfig {
 }
 
 impl<G: Genotype> StrategyState<G> for EvolveState<G> {
-    fn chromosome_as_ref(&self) -> &Chromosome<G> {
+    fn chromosome_as_ref(&self) -> &LegacyChromosome<G> {
         &self.chromosome
     }
-    fn chromosome_as_mut(&mut self) -> &mut Chromosome<G> {
+    fn chromosome_as_mut(&mut self) -> &mut LegacyChromosome<G> {
         &mut self.chromosome
     }
     fn population_as_ref(&self) -> &Population<G> {
@@ -390,7 +390,7 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     fn population_as_mut(&mut self) -> &mut Population<G> {
         &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> &Chromosome<G> {
+    fn best_chromosome_as_ref(&self) -> &LegacyChromosome<G> {
         &self.best_chromosome
     }
     fn best_generation(&self) -> usize {

@@ -8,7 +8,7 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
-use crate::chromosome::Chromosome;
+use crate::chromosome::LegacyChromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
 use crate::population::Population;
@@ -92,8 +92,8 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: Chromosome<G>,
-    pub chromosome: Chromosome<G>,
+    pub best_chromosome: LegacyChromosome<G>,
+    pub chromosome: LegacyChromosome<G>,
     pub population: Population<G>,
     pub durations: HashMap<StrategyAction, Duration>,
 
@@ -115,7 +115,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<Chromosome<G>> {
+    fn best_chromosome(&self) -> Option<LegacyChromosome<G>> {
         if self
             .genotype
             .chromosome_is_empty(&self.state.best_chromosome)
@@ -214,10 +214,10 @@ impl StrategyConfig for PermutateConfig {
 }
 
 impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
-    fn chromosome_as_ref(&self) -> &Chromosome<G> {
+    fn chromosome_as_ref(&self) -> &LegacyChromosome<G> {
         &self.chromosome
     }
-    fn chromosome_as_mut(&mut self) -> &mut Chromosome<G> {
+    fn chromosome_as_mut(&mut self) -> &mut LegacyChromosome<G> {
         &mut self.chromosome
     }
     fn population_as_ref(&self) -> &Population<G> {
@@ -226,7 +226,7 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     fn population_as_mut(&mut self) -> &mut Population<G> {
         &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> &Chromosome<G> {
+    fn best_chromosome_as_ref(&self) -> &LegacyChromosome<G> {
         &self.best_chromosome
     }
     fn best_generation(&self) -> usize {

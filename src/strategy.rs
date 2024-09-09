@@ -3,7 +3,7 @@ pub mod evolve;
 pub mod hill_climb;
 pub mod permutate;
 
-use crate::chromosome::Chromosome;
+use crate::chromosome::LegacyChromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -35,7 +35,7 @@ pub const STRATEGY_ACTIONS: [StrategyAction; 9] = [
 
 pub trait Strategy<G: Genotype> {
     fn call(&mut self);
-    fn best_chromosome(&self) -> Option<Chromosome<G>>;
+    fn best_chromosome(&self) -> Option<LegacyChromosome<G>>;
     fn best_generation(&self) -> usize;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
 }
@@ -55,11 +55,11 @@ pub trait StrategyConfig {
 /// * chromosome: `Chromosome<G>`
 /// * populatoin: `Population<G>` // may be empty
 pub trait StrategyState<G: Genotype> {
-    fn chromosome_as_ref(&self) -> &Chromosome<G>;
+    fn chromosome_as_ref(&self) -> &LegacyChromosome<G>;
     fn population_as_ref(&self) -> &Population<G>;
-    fn chromosome_as_mut(&mut self) -> &mut Chromosome<G>;
+    fn chromosome_as_mut(&mut self) -> &mut LegacyChromosome<G>;
     fn population_as_mut(&mut self) -> &mut Population<G>;
-    fn best_chromosome_as_ref(&self) -> &Chromosome<G>;
+    fn best_chromosome_as_ref(&self) -> &LegacyChromosome<G>;
     fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome_as_ref().fitness_score
     }
@@ -84,7 +84,7 @@ pub trait StrategyState<G: Genotype> {
     // specialized version of this function for additional reporting
     fn is_better_chromosome(
         &self,
-        contending_chromosome: &Chromosome<G>,
+        contending_chromosome: &LegacyChromosome<G>,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {

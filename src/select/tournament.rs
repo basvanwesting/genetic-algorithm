@@ -1,5 +1,5 @@
 use super::Select;
-use crate::chromosome::Chromosome;
+use crate::chromosome::LegacyChromosome;
 use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
@@ -36,7 +36,7 @@ impl Select for Tournament {
             .min(working_population_size)
             .max(2);
 
-        let mut selected_chromosomes: Vec<Chromosome<G>> =
+        let mut selected_chromosomes: Vec<LegacyChromosome<G>> =
             Vec::with_capacity(selected_population_size);
         let mut sample_index: usize;
         let mut winning_index: usize;

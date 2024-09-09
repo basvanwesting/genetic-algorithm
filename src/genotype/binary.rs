@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::chromosome::{BinaryChromosome, ChromosomeManager, ChromosomeTrait, LegacyChromosome};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Standard, Uniform};
@@ -26,7 +26,7 @@ pub struct Binary {
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<bool>>,
     pub chromosome_recycling: bool,
-    pub chromosome_bin: Vec<Chromosome<Self>>,
+    pub chromosome_bin: Vec<BinaryChromosome>,
     pub best_genes: Vec<bool>,
 }
 
@@ -53,11 +53,12 @@ impl TryFrom<Builder<Self>> for Binary {
 impl Genotype for Binary {
     type Allele = bool;
     type Genes = Vec<Self::Allele>;
+    type Chromosome = BinaryChromosome;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+    fn store_best_genes(&mut self, chromosome: &Self::Chromosome) {
         self.best_genes.clone_from(&chromosome.genes);
     }
     fn get_best_genes(&self) -> &Self::Genes {
@@ -68,7 +69,7 @@ impl Genotype for Binary {
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut Self::Chromosome,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -96,8 +97,8 @@ impl Genotype for Binary {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -124,8 +125,8 @@ impl Genotype for Binary {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -184,15 +185,15 @@ impl Genotype for Binary {
 impl IncrementalGenotype for Binary {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &Self::Chromosome,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<Self::Chromosome> {
         (0..self.genes_size)
             .map(|index| {
                 let mut genes = chromosome.genes.clone();
                 genes[index] = !genes[index];
-                Chromosome::new(genes)
+                BinaryChromosome::new(genes)
             })
             .collect::<Vec<_>>()
     }
@@ -203,11 +204,11 @@ impl IncrementalGenotype for Binary {
 }
 
 impl PermutableGenotype for Binary {
-    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send {
+    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Self::Chromosome> + Send {
         (0..self.genes_size())
             .map(|_| vec![true, false])
             .multi_cartesian_product()
-            .map(Chromosome::new)
+            .map(BinaryChromosome::new)
     }
     fn chromosome_permutations_size(&self) -> BigUint {
         BigUint::from(2u8).pow(self.genes_size() as u32)
@@ -215,26 +216,26 @@ impl PermutableGenotype for Binary {
 }
 
 impl ChromosomeManager<Self> for Binary {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<bool> {
         if self.seed_genes_list.is_empty() {
             rng.sample_iter(Standard).take(self.genes_size).collect()
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(vec![])
+    fn chromosome_constructor_empty(&self) -> BinaryChromosome {
+        BinaryChromosome::new(vec![])
     }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+    fn chromosome_is_empty(&self, chromosome: &BinaryChromosome) -> bool {
         chromosome.genes.is_empty()
     }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: Chromosome<Self>) {
+    fn chromosome_bin_push(&mut self, chromosome: BinaryChromosome) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<Chromosome<Self>> {
+    fn chromosome_bin_pop(&mut self) -> Option<BinaryChromosome> {
         self.chromosome_bin.pop()
     }
 }

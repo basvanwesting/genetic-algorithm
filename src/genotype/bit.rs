@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::chromosome::{ChromosomeManager, LegacyChromosome};
 use fixedbitset::{Block, FixedBitSet};
 use itertools::Itertools;
 use num::BigUint;
@@ -36,7 +36,7 @@ pub struct Bit {
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<FixedBitSet>,
     pub chromosome_recycling: bool,
-    pub chromosome_bin: Vec<Chromosome<Self>>,
+    pub chromosome_bin: Vec<LegacyChromosome<Self>>,
     pub best_genes: FixedBitSet,
 }
 
@@ -121,7 +121,7 @@ impl Genotype for Bit {
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+    fn store_best_genes(&mut self, chromosome: &LegacyChromosome<Self>) {
         self.best_genes.clone_from(&chromosome.genes);
     }
     fn get_best_genes(&self) -> &Self::Genes {
@@ -132,7 +132,7 @@ impl Genotype for Bit {
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Chromosome<Self>,
+        chromosome: &mut LegacyChromosome<Self>,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -156,8 +156,8 @@ impl Genotype for Bit {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut LegacyChromosome<Self>,
+        mother: &mut LegacyChromosome<Self>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -204,8 +204,8 @@ impl Genotype for Bit {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Chromosome<Self>,
-        mother: &mut Chromosome<Self>,
+        father: &mut LegacyChromosome<Self>,
+        mother: &mut LegacyChromosome<Self>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -266,15 +266,15 @@ impl Genotype for Bit {
 impl IncrementalGenotype for Bit {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &Chromosome<Self>,
+        chromosome: &LegacyChromosome<Self>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Chromosome<Self>> {
+    ) -> Vec<LegacyChromosome<Self>> {
         (0..self.genes_size)
             .map(|index| {
                 let mut genes = chromosome.genes.clone();
                 genes.toggle(index);
-                Chromosome::new(genes)
+                LegacyChromosome::new(genes)
             })
             .collect::<Vec<_>>()
     }
@@ -285,12 +285,14 @@ impl IncrementalGenotype for Bit {
 }
 
 impl PermutableGenotype for Bit {
-    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Chromosome<Self>> + Send {
+    fn chromosome_permutations_into_iter(
+        &self,
+    ) -> impl Iterator<Item = LegacyChromosome<Self>> + Send {
         (0..self.genes_size())
             .map(|_| vec![true, false])
             .multi_cartesian_product()
             .map(Bit::genes_from_bools)
-            .map(Chromosome::new)
+            .map(LegacyChromosome::new)
     }
     fn chromosome_permutations_size(&self) -> BigUint {
         BigUint::from(2u8).pow(self.genes_size() as u32)
@@ -298,13 +300,13 @@ impl PermutableGenotype for Bit {
 }
 
 impl ChromosomeManager<Self> for Bit {
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> Chromosome<Self> {
-        Chromosome::new(self.random_genes_factory(rng))
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> LegacyChromosome<Self> {
+        LegacyChromosome::new(self.random_genes_factory(rng))
     }
-    fn chromosome_constructor_empty(&self) -> Chromosome<Self> {
-        Chromosome::new(FixedBitSet::new())
+    fn chromosome_constructor_empty(&self) -> LegacyChromosome<Self> {
+        LegacyChromosome::new(FixedBitSet::new())
     }
-    fn chromosome_is_empty(&self, chromosome: &Chromosome<Self>) -> bool {
+    fn chromosome_is_empty(&self, chromosome: &LegacyChromosome<Self>) -> bool {
         chromosome.genes.is_empty()
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
@@ -317,10 +319,10 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: Chromosome<Self>) {
+    fn chromosome_bin_push(&mut self, chromosome: LegacyChromosome<Self>) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<Chromosome<Self>> {
+    fn chromosome_bin_pop(&mut self) -> Option<LegacyChromosome<Self>> {
         self.chromosome_bin.pop()
     }
 }

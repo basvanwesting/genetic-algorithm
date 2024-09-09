@@ -1,31 +1,31 @@
 use fixedbitset::Block;
-use genetic_algorithm::chromosome::Chromosome;
+use genetic_algorithm::chromosome::LegacyChromosome;
 use genetic_algorithm::fitness::FitnessValue;
 use genetic_algorithm::genotype::{BitGenotype, Genotype};
 use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
-pub fn chromosome<G: Genotype>(genes: G::Genes) -> Chromosome<G> {
-    Chromosome::new(genes)
+pub fn chromosome<G: Genotype>(genes: G::Genes) -> LegacyChromosome<G> {
+    LegacyChromosome::new(genes)
 }
 #[allow(dead_code)]
-pub fn chromosome_from_str(str: &str) -> Chromosome<BitGenotype> {
-    Chromosome::new(BitGenotype::genes_from_str(str))
+pub fn chromosome_from_str(str: &str) -> LegacyChromosome<BitGenotype> {
+    LegacyChromosome::new(BitGenotype::genes_from_str(str))
 }
 #[allow(dead_code)]
 pub fn chromosome_from_blocks<I: IntoIterator<Item = Block>>(
     bits: usize,
     blocks: I,
-) -> Chromosome<BitGenotype> {
-    Chromosome::new(BitGenotype::genes_from_blocks(bits, blocks))
+) -> LegacyChromosome<BitGenotype> {
+    LegacyChromosome::new(BitGenotype::genes_from_blocks(bits, blocks))
 }
 
 #[allow(dead_code)]
 pub fn chromosome_with_fitness_score<G: Genotype>(
     genes: G::Genes,
     fitness_score: Option<FitnessValue>,
-) -> Chromosome<G> {
-    Chromosome {
+) -> LegacyChromosome<G> {
+    LegacyChromosome {
         genes,
         fitness_score,
         age: 0,

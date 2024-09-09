@@ -1,6 +1,6 @@
 mod support;
 
-use genetic_algorithm::chromosome::Chromosome;
+use genetic_algorithm::chromosome::LegacyChromosome;
 use genetic_algorithm::genotype::{BinaryGenotype, ListGenotype, RangeGenotype};
 use genetic_algorithm::population::Population;
 
@@ -9,7 +9,8 @@ use crate::support::*;
 
 #[test]
 fn chromosome_binary() {
-    let chromosome: Chromosome<BinaryGenotype> = build::chromosome(vec![true, false, true, false]);
+    let chromosome: LegacyChromosome<BinaryGenotype> =
+        build::chromosome(vec![true, false, true, false]);
     println!("{:#?}", chromosome);
     assert_eq!(
         inspect::chromosome(&chromosome),
@@ -19,14 +20,14 @@ fn chromosome_binary() {
 
 #[test]
 fn chromosome_list() {
-    let chromosome: Chromosome<ListGenotype<u8>> = build::chromosome(vec![3, 4, 5, 6]);
+    let chromosome: LegacyChromosome<ListGenotype<u8>> = build::chromosome(vec![3, 4, 5, 6]);
     println!("{:#?}", chromosome);
     assert_eq!(inspect::chromosome(&chromosome), vec![3, 4, 5, 6]);
 }
 
 #[test]
 fn chromosome_range() {
-    let chromosome: Chromosome<RangeGenotype<f32>> = build::chromosome(vec![0.1, 0.2, 0.3]);
+    let chromosome: LegacyChromosome<RangeGenotype<f32>> = build::chromosome(vec![0.1, 0.2, 0.3]);
     println!("{:#?}", chromosome);
     assert_eq!(inspect::chromosome(&chromosome), vec![0.1, 0.2, 0.3]);
 }
