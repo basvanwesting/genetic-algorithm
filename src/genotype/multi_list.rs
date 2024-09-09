@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::{ChromosomeManager, LegacyChromosome};
+use crate::chromosome::{Chromosome, ChromosomeManager, LegacyChromosome, MultiListChromosome};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
@@ -88,7 +88,7 @@ pub struct MultiList<T: Allele + PartialEq = DefaultAllele> {
     allele_index_samplers: Vec<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_recycling: bool,
-    pub chromosome_bin: Vec<LegacyChromosome<Self>>,
+    pub chromosome_bin: Vec<MultiListChromosome<T>>,
     pub best_genes: Vec<T>,
 }
 
@@ -130,11 +130,12 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for MultiList<T> {
 impl<T: Allele + PartialEq> Genotype for MultiList<T> {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
+    type Chromosome = MultiListChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn store_best_genes(&mut self, chromosome: &LegacyChromosome<Self>) {
+    fn store_best_genes(&mut self, chromosome: &Self::Chromosome) {
         self.best_genes.clone_from(&chromosome.genes);
     }
     fn get_best_genes(&self) -> &Self::Genes {
@@ -145,7 +146,7 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut LegacyChromosome<Self>,
+        chromosome: &mut Self::Chromosome,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -176,8 +177,8 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut LegacyChromosome<Self>,
-        mother: &mut LegacyChromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -204,8 +205,8 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut LegacyChromosome<Self>,
-        mother: &mut LegacyChromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -264,10 +265,10 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
 impl<T: Allele + PartialEq> IncrementalGenotype for MultiList<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &LegacyChromosome<Self>,
+        chromosome: &MultiListChromosome<T>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<LegacyChromosome<Self>> {
+    ) -> Vec<MultiListChromosome<T>> {
         (0..self.genes_size)
             .flat_map(|index| {
                 self.allele_lists[index]
@@ -278,7 +279,7 @@ impl<T: Allele + PartialEq> IncrementalGenotype for MultiList<T> {
                         } else {
                             let mut genes = chromosome.genes.clone();
                             genes[index] = *allele_value;
-                            Some(LegacyChromosome::new(genes))
+                            Some(MultiListChromosome::new(genes))
                         }
                     })
             })
@@ -293,12 +294,12 @@ impl<T: Allele + PartialEq> IncrementalGenotype for MultiList<T> {
 impl<T: Allele + PartialEq> PermutableGenotype for MultiList<T> {
     fn chromosome_permutations_into_iter(
         &self,
-    ) -> impl Iterator<Item = LegacyChromosome<Self>> + Send {
+    ) -> impl Iterator<Item = MultiListChromosome<T>> + Send {
         self.allele_lists
             .clone()
             .into_iter()
             .multi_cartesian_product()
-            .map(LegacyChromosome::new)
+            .map(MultiListChromosome::new)
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {
@@ -323,19 +324,19 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_constructor_empty(&self) -> LegacyChromosome<Self> {
-        LegacyChromosome::new(vec![])
+    fn chromosome_constructor_empty(&self) -> MultiListChromosome<T> {
+        MultiListChromosome::new(vec![])
     }
-    fn chromosome_is_empty(&self, chromosome: &LegacyChromosome<Self>) -> bool {
+    fn chromosome_is_empty(&self, chromosome: &MultiListChromosome<T>) -> bool {
         chromosome.genes.is_empty()
     }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: LegacyChromosome<Self>) {
+    fn chromosome_bin_push(&mut self, chromosome: MultiListChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<LegacyChromosome<Self>> {
+    fn chromosome_bin_pop(&mut self) -> Option<MultiListChromosome<T>> {
         self.chromosome_bin.pop()
     }
 }

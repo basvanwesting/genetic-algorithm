@@ -531,6 +531,7 @@ where
         self.copy_genes_by_id(source_chromosome.row_id, target_chromosome.row_id);
     }
 
+    // FIXME: directly set genes
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> DynamicMatrixChromosome {
         let chromosome = self.chromosome_bin_pop().unwrap();
         let genes = self.random_genes_factory(rng);
