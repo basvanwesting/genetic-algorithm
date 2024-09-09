@@ -128,30 +128,25 @@ pub type GenesKey = u64;
 pub trait ChromosomeManager<G: Genotype> {
     /// mandatory, random genes unless seed genes are provided
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
-    /// mandatory, a functionally invalid placeholder
-    fn chromosome_constructor_empty(&self) -> G::Chromosome;
-    /// mandatory, a test for functionally invalid placeholder
-    fn chromosome_is_empty(&self, chromosome: &G::Chromosome) -> bool;
-
+    /// mandatory
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome;
+    /// mandatory
+    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome;
     /// provided, disable recycling by default, override when using recycling
     fn chromosome_recycling(&self) -> bool {
         false
     }
     /// provided, override if recycling bin needs initialization
     fn chromosomes_init(&mut self) {}
-    /// optional, required if using recycling
+    /// optional, override if using recycling
     fn chromosome_bin_push(&mut self, _chromosome: G::Chromosome) {}
-    /// optional, required if using recycling
+    /// optional, override if using recycling
     fn chromosome_bin_pop(&mut self) -> Option<G::Chromosome> {
         None
     }
 
-    /// all provided below, fall back to cloning if recycling bin is empty
-    /// make bin panic when empty if the fallback to cloning is unwanted
-
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome;
     fn chromosome_destructor(&mut self, chromosome: G::Chromosome) {
-        if self.chromosome_recycling() && !self.chromosome_is_empty(&chromosome) {
+        if self.chromosome_recycling() {
             self.chromosome_bin_push(chromosome)
         }
     }
@@ -168,7 +163,6 @@ pub trait ChromosomeManager<G: Genotype> {
             chromosomes.truncate(target_population_size);
         }
     }
-    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome;
     fn chromosome_cloner_range(
         &mut self,
         chromosomes: &mut Vec<G::Chromosome>,

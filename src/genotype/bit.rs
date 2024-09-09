@@ -305,12 +305,6 @@ impl ChromosomeManager<Self> for Bit {
     // fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> BitChromosome {
     //     BitChromosome::new(self.random_genes_factory(rng))
     // }
-    fn chromosome_constructor_empty(&self) -> BitChromosome {
-        BitChromosome::new(FixedBitSet::new())
-    }
-    fn chromosome_is_empty(&self, chromosome: &BitChromosome) -> bool {
-        chromosome.genes.is_empty()
-    }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> FixedBitSet {
         if self.seed_genes_list.is_empty() {
             FixedBitSet::with_capacity_and_blocks(self.genes_size, rng.sample_iter(Standard))
@@ -342,7 +336,7 @@ impl ChromosomeManager<Self> for Bit {
         }
     }
     fn chromosome_cloner(&mut self, chromosome: &BitChromosome) -> BitChromosome {
-        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
+        if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 new_chromosome.genes.clone_from(&chromosome.genes);
                 new_chromosome.age = chromosome.age;

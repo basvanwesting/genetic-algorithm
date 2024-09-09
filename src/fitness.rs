@@ -9,7 +9,7 @@
 pub mod placeholders;
 pub mod prelude;
 
-use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::{StrategyAction, StrategyState};
@@ -115,9 +115,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         chromosome: &mut FitnessChromosome<Self>,
         genotype: &Self::Genotype,
     ) {
-        if !genotype.chromosome_is_empty(chromosome) {
-            chromosome.set_fitness_score(self.calculate_for_chromosome(chromosome, genotype));
-        }
+        chromosome.set_fitness_score(self.calculate_for_chromosome(chromosome, genotype));
     }
     /// Implement by Client for normal Genotypes
     fn calculate_for_chromosome(

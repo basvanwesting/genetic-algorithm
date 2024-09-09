@@ -505,12 +505,6 @@ where
             .map(|_| self.allele_sampler.sample(rng))
             .collect()
     }
-    fn chromosome_constructor_empty(&self) -> DynamicMatrixChromosome {
-        DynamicMatrixChromosome::new(usize::MAX)
-    }
-    fn chromosome_is_empty(&self, chromosome: &DynamicMatrixChromosome) -> bool {
-        chromosome.row_id == usize::MAX
-    }
     fn chromosome_recycling(&self) -> bool {
         true
     }
@@ -539,7 +533,7 @@ where
         &mut self,
         chromosome: &DynamicMatrixChromosome,
     ) -> DynamicMatrixChromosome {
-        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
+        if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
                 new_chromosome.age = chromosome.age;

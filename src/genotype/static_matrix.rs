@@ -515,12 +515,6 @@ where
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> [T; N] {
         std::array::from_fn(|_| self.allele_sampler.sample(rng))
     }
-    fn chromosome_constructor_empty(&self) -> StaticMatrixChromosome {
-        StaticMatrixChromosome::new(usize::MAX)
-    }
-    fn chromosome_is_empty(&self, chromosome: &StaticMatrixChromosome) -> bool {
-        chromosome.row_id == usize::MAX
-    }
     fn chromosome_recycling(&self) -> bool {
         true
     }
@@ -545,7 +539,7 @@ where
         chromosome
     }
     fn chromosome_cloner(&mut self, chromosome: &StaticMatrixChromosome) -> StaticMatrixChromosome {
-        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
+        if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
                 new_chromosome.age = chromosome.age;

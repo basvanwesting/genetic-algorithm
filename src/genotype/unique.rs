@@ -208,12 +208,6 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_constructor_empty(&self) -> UniqueChromosome<T> {
-        UniqueChromosome::new(vec![])
-    }
-    fn chromosome_is_empty(&self, chromosome: &UniqueChromosome<T>) -> bool {
-        chromosome.genes.is_empty()
-    }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
@@ -238,7 +232,7 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
         }
     }
     fn chromosome_cloner(&mut self, chromosome: &UniqueChromosome<T>) -> UniqueChromosome<T> {
-        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
+        if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 new_chromosome.genes.clone_from(&chromosome.genes);
                 new_chromosome.age = chromosome.age;

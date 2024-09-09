@@ -527,12 +527,6 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_constructor_empty(&self) -> MultiRangeChromosome<T> {
-        MultiRangeChromosome::new(vec![])
-    }
-    fn chromosome_is_empty(&self, chromosome: &MultiRangeChromosome<T>) -> bool {
-        chromosome.genes.is_empty()
-    }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
@@ -560,7 +554,7 @@ where
         &mut self,
         chromosome: &MultiRangeChromosome<T>,
     ) -> MultiRangeChromosome<T> {
-        if self.chromosome_recycling() && !self.chromosome_is_empty(chromosome) {
+        if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 new_chromosome.genes.clone_from(&chromosome.genes);
                 new_chromosome.age = chromosome.age;
