@@ -8,17 +8,6 @@ pub struct DynamicMatrix {
     pub reference_id: usize,
 }
 
-impl DynamicMatrix {
-    pub fn new(row_id: usize) -> Self {
-        Self {
-            row_id,
-            fitness_score: None,
-            age: 0,
-            reference_id: usize::MAX,
-        }
-    }
-}
-
 impl super::Chromosome for DynamicMatrix {
     fn age(&self) -> usize {
         self.age
@@ -38,5 +27,15 @@ impl super::Chromosome for DynamicMatrix {
     fn taint_fitness_score(&mut self) {
         self.age = 0;
         self.fitness_score = None;
+    }
+}
+impl super::RefersGenes for DynamicMatrix {
+    fn new(row_id: usize) -> Self {
+        Self {
+            row_id,
+            fitness_score: None,
+            age: 0,
+            reference_id: usize::MAX,
+        }
     }
 }

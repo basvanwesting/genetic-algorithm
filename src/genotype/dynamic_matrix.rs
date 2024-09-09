@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype};
-use crate::chromosome::{Chromosome, ChromosomeManager, DynamicMatrixChromosome};
+use crate::chromosome::{Chromosome, ChromosomeManager, DynamicMatrixChromosome, RefersGenes};
 use itertools::Itertools;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};

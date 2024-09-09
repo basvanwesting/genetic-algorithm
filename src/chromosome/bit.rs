@@ -1,5 +1,5 @@
 use crate::fitness::FitnessValue;
-use fixedbitset::{FixedBitSet};
+use fixedbitset::FixedBitSet;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
@@ -9,17 +9,6 @@ pub struct Bit {
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
     pub reference_id: usize,
-}
-
-impl Bit {
-    pub fn new(genes: FixedBitSet) -> Self {
-        Self {
-            genes,
-            fitness_score: None,
-            age: 0,
-            reference_id: usize::MAX,
-        }
-    }
 }
 
 impl super::Chromosome for Bit {
@@ -45,6 +34,14 @@ impl super::Chromosome for Bit {
 }
 impl super::OwnesGenes for Bit {
     type Genes = FixedBitSet;
+    fn new(genes: Self::Genes) -> Self {
+        Self {
+            genes,
+            fitness_score: None,
+            age: 0,
+            reference_id: usize::MAX,
+        }
+    }
     fn genes(&self) -> &FixedBitSet {
         &self.genes
     }

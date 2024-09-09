@@ -10,16 +10,7 @@ pub struct Binary {
     pub reference_id: usize,
 }
 
-impl Binary {
-    pub fn new(genes: Vec<bool>) -> Self {
-        Self {
-            genes,
-            fitness_score: None,
-            age: 0,
-            reference_id: usize::MAX,
-        }
-    }
-}
+impl Binary {}
 
 impl super::Chromosome for Binary {
     fn age(&self) -> usize {
@@ -44,7 +35,15 @@ impl super::Chromosome for Binary {
 }
 impl super::OwnesGenes for Binary {
     type Genes = Vec<bool>;
-    fn genes(&self) -> &Vec<bool> {
+    fn new(genes: Self::Genes) -> Self {
+        Self {
+            genes,
+            fitness_score: None,
+            age: 0,
+            reference_id: usize::MAX,
+        }
+    }
+    fn genes(&self) -> &Self::Genes {
         &self.genes
     }
 }

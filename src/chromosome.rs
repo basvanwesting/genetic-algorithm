@@ -38,9 +38,13 @@ pub trait Chromosome: Clone + Send {
     fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>);
     fn taint_fitness_score(&mut self);
 }
-pub trait OwnesGenes {
+pub trait OwnesGenes: Chromosome {
     type Genes: Genes;
+    fn new(genes: Self::Genes) -> Self;
     fn genes(&self) -> &Self::Genes;
+}
+pub trait RefersGenes: Chromosome {
+    fn new(row_id: usize) -> Self;
 }
 
 /// The GenesKey can be used for caching fitness scores, without lifetime concerns of the chromosome

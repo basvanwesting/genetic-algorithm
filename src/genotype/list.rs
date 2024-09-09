@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::{Chromosome, ChromosomeManager, ListChromosome};
+use crate::chromosome::{Chromosome, ChromosomeManager, ListChromosome, OwnesGenes};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform};

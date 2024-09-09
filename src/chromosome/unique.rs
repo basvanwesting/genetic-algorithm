@@ -1,5 +1,5 @@
 use crate::fitness::FitnessValue;
-use crate::genotype::{Allele};
+use crate::genotype::Allele;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 
@@ -9,17 +9,6 @@ pub struct Unique<T: Allele> {
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
     pub reference_id: usize,
-}
-
-impl<T: Allele> Unique<T> {
-    pub fn new(genes: Vec<T>) -> Self {
-        Self {
-            genes,
-            fitness_score: None,
-            age: 0,
-            reference_id: usize::MAX,
-        }
-    }
 }
 
 impl<T: Allele> super::Chromosome for Unique<T> {
@@ -45,6 +34,14 @@ impl<T: Allele> super::Chromosome for Unique<T> {
 }
 impl<T: Allele> super::OwnesGenes for Unique<T> {
     type Genes = Vec<T>;
+    fn new(genes: Self::Genes) -> Self {
+        Self {
+            genes,
+            fitness_score: None,
+            age: 0,
+            reference_id: usize::MAX,
+        }
+    }
     fn genes(&self) -> &Vec<T> {
         &self.genes
     }
