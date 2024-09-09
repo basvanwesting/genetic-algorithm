@@ -45,7 +45,7 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        // .with_select(SelectElite)
+        // .with_select(SelectElite::new(0.8))
         .with_select(SelectTournament::new(TOURNAMENT_SIZE, 0.8))
         // .with_crossover(CrossoverClone::new())
         .with_crossover(CrossoverMultiPoint::new(9, false))

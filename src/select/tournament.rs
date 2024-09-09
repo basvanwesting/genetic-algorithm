@@ -43,17 +43,14 @@ impl Select for Tournament {
         let mut sample_fitness_value: FitnessValue;
         let mut winning_fitness_value: FitnessValue;
 
-        for _ in 0..selected_population_size {
-            winning_index = 0;
-            match config.fitness_ordering {
-                FitnessOrdering::Maximize => winning_fitness_value = FitnessValue::MIN,
-                FitnessOrdering::Minimize => winning_fitness_value = FitnessValue::MAX,
-            };
+        match config.fitness_ordering {
+            FitnessOrdering::Maximize => {
+                for _ in 0..selected_population_size {
+                    winning_index = 0;
+                    winning_fitness_value = FitnessValue::MIN;
 
-            for _ in 0..tournament_size {
-                sample_index = rng.gen_range(0..working_population_size);
-                match config.fitness_ordering {
-                    FitnessOrdering::Maximize => {
+                    for _ in 0..tournament_size {
+                        sample_index = rng.gen_range(0..working_population_size);
                         sample_fitness_value = state.population.chromosomes[sample_index]
                             .fitness_score()
                             .unwrap_or(FitnessValue::MIN);
@@ -63,7 +60,18 @@ impl Select for Tournament {
                             winning_fitness_value = sample_fitness_value;
                         }
                     }
-                    FitnessOrdering::Minimize => {
+                    let chromosome = state.population.chromosomes.swap_remove(winning_index);
+                    selected_chromosomes.push(chromosome);
+                    working_population_size -= 1;
+                }
+            }
+            FitnessOrdering::Minimize => {
+                for _ in 0..selected_population_size {
+                    winning_index = 0;
+                    winning_fitness_value = FitnessValue::MAX;
+
+                    for _ in 0..tournament_size {
+                        sample_index = rng.gen_range(0..working_population_size);
                         sample_fitness_value = state.population.chromosomes[sample_index]
                             .fitness_score()
                             .unwrap_or(FitnessValue::MAX);
@@ -73,13 +81,12 @@ impl Select for Tournament {
                             winning_fitness_value = sample_fitness_value;
                         }
                     }
+                    let chromosome = state.population.chromosomes.swap_remove(winning_index);
+                    selected_chromosomes.push(chromosome);
+                    working_population_size -= 1;
                 }
             }
-
-            let chromosome = state.population.chromosomes.swap_remove(winning_index);
-            selected_chromosomes.push(chromosome);
-            working_population_size -= 1;
-        }
+        };
 
         state.add_duration(StrategyAction::Select, now.elapsed());
         let now = Instant::now();
