@@ -206,9 +206,9 @@ where
     }
 
     // /// returns a slice of genes_size <= N
-    // pub fn get_genes(&self, chromosome: &DynamicMatrixChromosome) -> &[T] {
-    //     self.get_genes_by_id(chromosome.row_id)
-    // }
+    pub fn get_genes(&self, chromosome: &DynamicMatrixChromosome) -> &[T] {
+        self.get_genes_by_id(chromosome.row_id)
+    }
     /// returns a slice of genes_size <= N
     #[allow(dead_code)]
     fn get_genes_by_id(&self, id: usize) -> &[T] {

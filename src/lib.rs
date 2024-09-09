@@ -38,7 +38,7 @@
 //! pub struct CountTrue;
 //! impl Fitness for CountTrue {
 //!     type Genotype = BinaryGenotype; // Genes = Vec<bool>
-//!     fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>, _genotype: &Self::Genotype) -> Option<FitnessValue> {
+//!     fn calculate_for_chromosome(&mut self, chromosome: &<Self::Genotype as Genotype>::Chromosome, _genotype: &Self::Genotype) -> Option<FitnessValue> {
 //!         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
 //!     }
 //! }

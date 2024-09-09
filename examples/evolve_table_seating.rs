@@ -12,7 +12,7 @@ impl Fitness for TableSeatingFitness {
     type Genotype = MultiUniqueGenotype<Person>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &LegacyChromosome<Self::Genotype>,
+        chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let hosts_with_table_sizes_per_round = &self.0;

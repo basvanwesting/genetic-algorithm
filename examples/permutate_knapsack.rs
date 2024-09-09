@@ -25,7 +25,7 @@ impl Fitness for KnapsackFitness<'_> {
 
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &LegacyChromosome<Self::Genotype>,
+        chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let item_indices: Vec<usize> = chromosome

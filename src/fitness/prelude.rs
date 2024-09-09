@@ -1,5 +1,8 @@
 #[doc(no_inline)]
-pub use crate::chromosome::{Chromosome, GenesKey};
+pub use crate::chromosome::{
+    BinaryChromosome, BitChromosome, Chromosome, GenesKey, ListChromosome, MultiListChromosome,
+    MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome, UniqueChromosome,
+};
 #[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]

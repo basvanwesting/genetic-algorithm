@@ -12,37 +12,37 @@ fn binary_genotype() {
         .with_genes_size(3)
         .build()
         .unwrap();
-    let chromosome = build::chromosome::<BinaryGenotype>(vec![true, true, true]);
+    let chromosome: BinaryChromosome = build::chromosome(vec![true, true, true]);
     assert_eq!(
         Zero::new().calculate_for_chromosome(&chromosome, &genotype),
         Some(0)
     );
 
-    let chromosome = build::chromosome::<BinaryGenotype>(vec![true, true, true]);
+    let chromosome: BinaryChromosome = build::chromosome(vec![true, true, true]);
     assert_eq!(
         CountTrue.calculate_for_chromosome(&chromosome, &genotype),
         Some(3)
     );
 
-    let chromosome = build::chromosome::<BinaryGenotype>(vec![true, false, true]);
+    let chromosome: BinaryChromosome = build::chromosome(vec![true, false, true]);
     assert_eq!(
         CountTrue.calculate_for_chromosome(&chromosome, &genotype),
         Some(2)
     );
 
-    let chromosome = build::chromosome::<BinaryGenotype>(vec![true, false, false]);
+    let chromosome: BinaryChromosome = build::chromosome(vec![true, false, false]);
     assert_eq!(
         CountTrue.calculate_for_chromosome(&chromosome, &genotype),
         Some(1)
     );
 
-    let chromosome = build::chromosome::<BinaryGenotype>(vec![false, false, false]);
+    let chromosome: BinaryChromosome = build::chromosome(vec![false, false, false]);
     assert_eq!(
         CountTrue.calculate_for_chromosome(&chromosome, &genotype),
         Some(0)
     );
 
-    let chromosome = build::chromosome::<BinaryGenotype>(vec![true, false, true]);
+    let chromosome: BinaryChromosome = build::chromosome(vec![true, false, true]);
     assert_eq!(
         CountTrueWithSleep::new(1000, false).calculate_for_chromosome(&chromosome, &genotype),
         Some(2)
