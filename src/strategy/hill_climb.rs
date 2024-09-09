@@ -8,7 +8,7 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, OwnesGenes};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::population::Population;
@@ -333,6 +333,21 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
     fn best_genes(&self) -> Option<G::Genes> {
         if self.state.best_fitness_score().is_some() {
             Some(self.genotype.best_genes().clone())
+        } else {
+            None
+        }
+    }
+}
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
+    HillClimb<G, F, SR>
+where
+    G::Chromosome: OwnesGenes<Genes = G::Genes>,
+{
+    pub fn best_chromosome(&self) -> Option<G::Chromosome> {
+        if let Some(best_genes) = self.best_genes() {
+            let mut chromosome = G::Chromosome::new(best_genes);
+            chromosome.set_fitness_score(self.best_fitness_score());
+            Some(chromosome)
         } else {
             None
         }

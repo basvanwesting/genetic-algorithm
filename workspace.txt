@@ -1,18 +1,14 @@
 * Genes?
   * [v] Store best_genes on Genotype, copy genes on storing best chromosome (solve M+2 issue)
-  * [ ] Remove empty chromomsome concept, just use Options again in the code (much cleaner)
   * [v] Change Chromosome<Genotype> to Genotype::Chromosome
   * [v] Change Population<Genotype> to Population<Chromosome>
-  * [ ] Check fitness API
-
+  * [v] Check fitness API
   * [x] REJECTED: External genes are always Vec<Allele> (seed and best_genes). Internal genes can be anything
-  * Alway use best_genes as result. Still allow best chromomsome, but note the genes are internal
-  * Rename genes on chromosome to data? Would affect calculate_for_chromosome API, so maybe no. User needs to know the difference anyway
-  * Remove need for working chromomsome, by just copying the chromomsome over the existing best? copy(&src, &mut dest), but would still need to clone if empty
-  * Store best chromosome separately in StaticMatrixGenotype (as [T; N]), so population == M?
-  * Discourage use of best-chromosome in API
-
-  * reduce number of Chromosome types (multi is same as single, static and dynamic are same as well)
+  * [v] Alway use best_genes as result. Remove best_chromosome
+  * [v] Store best chromosome separately in StaticMatrixGenotype (as [T; N]), so population == M?
+  * [v] generate best chromosome again from best_genes and genotype?, possible if OwnsGenes
+  * [ ] reduce number of Chromosome types (multi is same as single, static and dynamic are same as well)
+  * [ ] Remove empty chromomsome concept, just use Options again in the code (much cleaner)
 
 * Store staticMatrixGenotype on heap using Box?
 * Extensions benchmark is noisy

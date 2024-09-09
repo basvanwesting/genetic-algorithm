@@ -8,7 +8,7 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, OwnesGenes};
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
@@ -255,6 +255,28 @@ impl<
     fn best_genes(&self) -> Option<G::Genes> {
         if self.state.best_fitness_score().is_some() {
             Some(self.genotype.best_genes().clone())
+        } else {
+            None
+        }
+    }
+}
+impl<
+        G: Genotype,
+        M: Mutate,
+        F: Fitness<Genotype = G>,
+        S: Crossover,
+        C: Select,
+        E: Extension,
+        SR: EvolveReporter<Genotype = G>,
+    > Evolve<G, M, F, S, C, E, SR>
+where
+    G::Chromosome: OwnesGenes<Genes = G::Genes>,
+{
+    pub fn best_chromosome(&self) -> Option<G::Chromosome> {
+        if let Some(best_genes) = self.best_genes() {
+            let mut chromosome = G::Chromosome::new(best_genes);
+            chromosome.set_fitness_score(self.best_fitness_score());
+            Some(chromosome)
         } else {
             None
         }

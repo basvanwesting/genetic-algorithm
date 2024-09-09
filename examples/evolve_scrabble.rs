@@ -1,4 +1,3 @@
-use genetic_algorithm::chromosome::OwnesGenes;
 use genetic_algorithm::strategy::evolve::prelude::*;
 use std::collections::{HashMap, HashSet};
 
@@ -302,7 +301,7 @@ fn main() {
 
     //println!("{}", evolve);
 
-    if let Some(best_genes) = evolve.best_genes() {
+    if let Some(best_chromosome) = evolve.best_chromosome() {
         let mut fitness = ScrabbleFitness::new(
             words.clone(),
             rows,
@@ -311,8 +310,7 @@ fn main() {
             column_scores.clone(),
             true,
         );
-        let chromosome = MultiListChromosome::new(best_genes);
-        fitness.calculate_for_chromosome(&chromosome, &evolve.genotype);
+        fitness.calculate_for_chromosome(&best_chromosome, &evolve.genotype);
         fitness.letter_board.iter().for_each(|columns| {
             let string = String::from_iter(columns.iter());
             println!("{}", string.replace(" ", "."));

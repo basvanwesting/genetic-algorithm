@@ -1,4 +1,3 @@
-use genetic_algorithm::chromosome::OwnesGenes;
 use genetic_algorithm::strategy::permutate::prelude::*;
 use std::collections::{HashMap, HashSet};
 
@@ -374,8 +373,7 @@ fn main() {
 
     println!("{}", permutate);
 
-    if let Some(best_genes) = permutate.best_genes() {
-        // debug info
+    if let Some(best_chromosome) = permutate.best_chromosome() {
         let mut fitness = ScrabbleFitness::new(
             words.clone(),
             rows,
@@ -384,8 +382,7 @@ fn main() {
             column_scores.clone(),
             true,
         );
-        let chromosome = MultiListChromosome::new(best_genes);
-        fitness.calculate_for_chromosome(&chromosome, &permutate.genotype);
+        fitness.calculate_for_chromosome(&best_chromosome, &permutate.genotype);
         fitness.letter_board.iter().for_each(|columns| {
             let string = String::from_iter(columns.iter());
             println!("{}", string.replace(" ", "."));
