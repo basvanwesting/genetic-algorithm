@@ -73,7 +73,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,
-        population: &mut Population<Self::Genotype>,
+        population: &mut Population<<Self::Genotype as Genotype>::Chromosome>,
         genotype: &mut Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {

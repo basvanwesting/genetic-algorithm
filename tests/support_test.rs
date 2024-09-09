@@ -1,9 +1,8 @@
 mod support;
 
 use genetic_algorithm::chromosome::{
-    BinaryChromosome, Chromosome, ListChromosome, RangeChromosome,
+    BinaryChromosome, ListChromosome, RangeChromosome,
 };
-use genetic_algorithm::genotype::BinaryGenotype;
 use genetic_algorithm::population::Population;
 
 #[cfg(test)]
@@ -35,7 +34,7 @@ fn chromosome_range() {
 
 #[test]
 fn population_binary() {
-    let population: Population<BinaryGenotype> = build::population(vec![
+    let population: Population<BinaryChromosome> = build::population(vec![
         vec![true, true, true],
         vec![true, true, false],
         vec![true, false, false],

@@ -5,7 +5,9 @@ pub mod inspect;
 pub use approx::relative_eq;
 pub use approx::RelativeEq;
 #[allow(unused_imports)]
-pub use genetic_algorithm::chromosome::Chromosome;
+pub use genetic_algorithm::chromosome::{
+    BinaryChromosome, Chromosome, ListChromosome, RangeChromosome,
+};
 #[allow(unused_imports)]
 pub use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, RangeGenotype};
 #[allow(unused_imports)]

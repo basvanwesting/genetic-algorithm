@@ -12,7 +12,7 @@ fn binary_genotype() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryGenotype> = build::population(vec![
+    let population: Population<BinaryChromosome> = build::population(vec![
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],
@@ -45,7 +45,7 @@ fn list_genotype() {
         .build()
         .unwrap();
 
-    let population: Population<ListGenotype<u8>> = build::population(vec![
+    let population: Population<ListChromosome<u8>> = build::population(vec![
         vec![0, 0, 0],
         vec![0, 0, 0],
         vec![0, 0, 0],

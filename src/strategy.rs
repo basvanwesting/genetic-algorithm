@@ -52,14 +52,14 @@ pub trait StrategyConfig {
 /// * current_iteration: `usize`
 /// * current_generation: `usize`
 /// * best_generation: `usize`
-/// * best_chromosome: `Chromosome<G>`
-/// * chromosome: `Chromosome<G>`
-/// * populatoin: `Population<G>` // may be empty
+/// * best_chromosome: `G::Chromosome`
+/// * chromosome: `G::Chromosome`
+/// * populatoin: `Population<G::Chromosome>` // may be empty
 pub trait StrategyState<G: Genotype> {
     fn chromosome_as_ref(&self) -> &G::Chromosome;
-    fn population_as_ref(&self) -> &Population<G>;
+    fn population_as_ref(&self) -> &Population<G::Chromosome>;
     fn chromosome_as_mut(&mut self) -> &mut G::Chromosome;
-    fn population_as_mut(&mut self) -> &mut Population<G>;
+    fn population_as_mut(&mut self) -> &mut Population<G::Chromosome>;
     fn best_chromosome_as_ref(&self) -> &G::Chromosome;
     fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.best_chromosome_as_ref().fitness_score()

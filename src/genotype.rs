@@ -159,7 +159,7 @@ pub trait IncrementalGenotype: Genotype {
         chromosome: &Self::Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) -> Population<Self> {
+    ) -> Population<Self::Chromosome> {
         self.neighbouring_chromosomes(chromosome, scale_index, rng)
             .into()
     }

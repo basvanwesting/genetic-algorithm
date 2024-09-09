@@ -12,7 +12,7 @@ fn population_even_no_shortage() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryGenotype> = build::population(vec![
+    let population: Population<BinaryChromosome> = build::population(vec![
         vec![true, true, true, true, true],
         vec![false, false, false, false, false],
         vec![true, true, true, true, true],

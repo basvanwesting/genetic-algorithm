@@ -171,7 +171,7 @@ pub struct EvolveState<G: Genotype> {
     pub best_chromosome: G::Chromosome,
     pub durations: HashMap<StrategyAction, Duration>,
     pub chromosome: G::Chromosome,
-    pub population: Population<G>,
+    pub population: Population<G::Chromosome>,
 
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
@@ -391,10 +391,10 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     fn chromosome_as_mut(&mut self) -> &mut G::Chromosome {
         &mut self.chromosome
     }
-    fn population_as_ref(&self) -> &Population<G> {
+    fn population_as_ref(&self) -> &Population<G::Chromosome> {
         &self.population
     }
-    fn population_as_mut(&mut self) -> &mut Population<G> {
+    fn population_as_mut(&mut self) -> &mut Population<G::Chromosome> {
         &mut self.population
     }
     fn best_chromosome_as_ref(&self) -> &G::Chromosome {

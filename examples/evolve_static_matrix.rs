@@ -9,7 +9,7 @@ impl Fitness for DistanceTo {
     type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>;
     fn call_for_population(
         &mut self,
-        population: &mut Population<Self::Genotype>,
+        population: &mut Population<StaticMatrixChromosome>,
         genotype: &mut Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {

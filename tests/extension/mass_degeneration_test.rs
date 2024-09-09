@@ -12,7 +12,7 @@ fn removes_randomly() {
         .build()
         .unwrap();
 
-    let mut population: Population<BinaryGenotype> = build::population(vec![
+    let mut population: Population<BinaryChromosome> = build::population(vec![
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],

@@ -540,7 +540,7 @@ impl Fitness for SumStaticMatrixGenes {
     type Genotype = StaticMatrixGenotype<u16, 10, { 100 + 2 }>;
     fn call_for_population(
         &mut self,
-        population: &mut Population<Self::Genotype>,
+        population: &mut Population<StaticMatrixChromosome>,
         genotype: &mut Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
@@ -590,7 +590,7 @@ impl Fitness for SumDynamicMatrixGenes {
     type Genotype = DynamicMatrixGenotype<u16>;
     fn call_for_population(
         &mut self,
-        population: &mut Population<Self::Genotype>,
+        population: &mut Population<DynamicMatrixChromosome>,
         genotype: &mut Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {

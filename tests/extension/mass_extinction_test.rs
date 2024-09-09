@@ -12,7 +12,7 @@ fn removes_randomly() {
         .build()
         .unwrap();
 
-    let mut population: Population<BinaryGenotype> = build::population(vec![
+    let mut population: Population<BinaryChromosome> = build::population(vec![
         vec![false, true, true],
         vec![false, true, false],
         vec![false, false, true],
@@ -60,7 +60,7 @@ fn never_leaves_less_than_tow() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryGenotype> = build::population(vec![
+    let population: Population<BinaryChromosome> = build::population(vec![
         vec![false, true, true],
         vec![false, true, false],
         vec![false, false, true],

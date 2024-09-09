@@ -12,7 +12,7 @@ fn population_no_shortage() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryGenotype> = build::population(vec![
+    let population: Population<BinaryChromosome> = build::population(vec![
         vec![true, true, true],
         vec![false, false, false],
         vec![true, true, true],
@@ -45,7 +45,7 @@ fn population_odd_shortage() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryGenotype> = build::population(vec![
+    let population: Population<BinaryChromosome> = build::population(vec![
         vec![true, true, true],
         vec![false, false, false],
         vec![true, true, true],
@@ -79,7 +79,7 @@ fn population_even_shortage() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryGenotype> = build::population(vec![
+    let population: Population<BinaryChromosome> = build::population(vec![
         vec![true, true, true],
         vec![false, false, false],
         vec![true, true, true],
@@ -115,7 +115,7 @@ fn population_shortage_below_target() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryGenotype> =
+    let population: Population<BinaryChromosome> =
         build::population(vec![vec![true, false, true, false, true]]);
 
     let mut state = EvolveState::new(&genotype);
@@ -144,7 +144,7 @@ fn population_excess() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryGenotype> = build::population(vec![
+    let population: Population<BinaryChromosome> = build::population(vec![
         vec![true, true, true],
         vec![false, false, false],
         vec![true, true, true],

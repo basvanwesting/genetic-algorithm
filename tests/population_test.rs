@@ -47,7 +47,7 @@ mod population_tests {
 
     #[test]
     fn best_chromosome() {
-        let population: Population<BinaryGenotype> = build::population_with_fitness_scores(vec![
+        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
             (vec![false, false, false], Some(0)),
             (vec![false, false, true], Some(1)),
             (vec![false, true, true], Some(2)),
@@ -74,7 +74,7 @@ mod population_tests {
 
     #[test]
     fn fitness_score_cardinality() {
-        let population: Population<BinaryGenotype> = build::population_with_fitness_scores(vec![
+        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
             (vec![false, false, false], Some(0)),
             (vec![false, false, true], Some(2)),
             (vec![false, true, true], Some(2)),

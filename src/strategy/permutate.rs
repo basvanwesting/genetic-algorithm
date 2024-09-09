@@ -93,7 +93,7 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub best_generation: usize,
     pub best_chromosome: G::Chromosome,
     pub chromosome: G::Chromosome,
-    pub population: Population<G>,
+    pub population: Population<G::Chromosome>,
     pub durations: HashMap<StrategyAction, Duration>,
 
     pub total_population_size: BigUint,
@@ -226,10 +226,10 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     fn chromosome_as_mut(&mut self) -> &mut G::Chromosome {
         &mut self.chromosome
     }
-    fn population_as_ref(&self) -> &Population<G> {
+    fn population_as_ref(&self) -> &Population<G::Chromosome> {
         &self.population
     }
-    fn population_as_mut(&mut self) -> &mut Population<G> {
+    fn population_as_mut(&mut self) -> &mut Population<G::Chromosome> {
         &mut self.population
     }
     fn best_chromosome_as_ref(&self) -> &G::Chromosome {

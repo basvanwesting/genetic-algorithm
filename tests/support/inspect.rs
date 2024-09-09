@@ -1,7 +1,6 @@
 use fixedbitset::Block;
-use genetic_algorithm::chromosome::{BitChromosome, Chromosome, OwnesGenes};
+use genetic_algorithm::chromosome::{BitChromosome, OwnesGenes};
 use genetic_algorithm::fitness::FitnessValue;
-use genetic_algorithm::genotype::{BitGenotype, Genotype};
 use genetic_algorithm::population::Population;
 
 #[allow(dead_code)]
@@ -48,14 +47,11 @@ pub fn chromosomes_with_fitness_score<C: OwnesGenes>(
 }
 
 #[allow(dead_code)]
-pub fn population<G: Genotype>(population: &Population<G>) -> Vec<G::Genes>
-where
-    G::Chromosome: OwnesGenes<Genes = G::Genes>,
-{
+pub fn population<C: OwnesGenes>(population: &Population<C>) -> Vec<C::Genes> {
     population.chromosomes.iter().map(chromosome).collect()
 }
 #[allow(dead_code)]
-pub fn population_to_str(population: &Population<BitGenotype>) -> Vec<String> {
+pub fn population_to_str(population: &Population<BitChromosome>) -> Vec<String> {
     population
         .chromosomes
         .iter()
@@ -64,12 +60,9 @@ pub fn population_to_str(population: &Population<BitGenotype>) -> Vec<String> {
 }
 
 #[allow(dead_code)]
-pub fn population_with_fitness_scores<G: Genotype>(
-    population: &Population<G>,
-) -> Vec<(G::Genes, Option<FitnessValue>)>
-where
-    G::Chromosome: OwnesGenes<Genes = G::Genes>,
-{
+pub fn population_with_fitness_scores<C: OwnesGenes>(
+    population: &Population<C>,
+) -> Vec<(C::Genes, Option<FitnessValue>)> {
     population
         .chromosomes
         .iter()

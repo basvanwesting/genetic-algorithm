@@ -7,9 +7,9 @@ pub use crate::chromosome::{
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]
 pub use crate::genotype::{
-    Allele, BinaryGenotype, BitGenotype, DynamicMatrixGenotype, Genotype, GenotypeBuilder,
-    ListGenotype, MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeGenotype,
-    StaticMatrixGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
+    Allele, BinaryGenotype, BitGenotype, Genotype, GenotypeBuilder, ListGenotype,
+    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeGenotype,
+    TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::strategy::permutate::{
