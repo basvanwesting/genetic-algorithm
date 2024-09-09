@@ -6,7 +6,7 @@ const POPULATION_SIZE: usize = 100;
 #[derive(Clone, Debug)]
 pub struct StaticDistanceTo(pub f32, pub f32); // target, precision
 impl Fitness for StaticDistanceTo {
-    type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>;
+    type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, POPULATION_SIZE>;
     fn call_for_population(
         &mut self,
         population: &mut Population<StaticMatrixChromosome>,
@@ -81,7 +81,7 @@ impl Fitness for RangeDistanceTo {
 #[derive(Clone)]
 pub struct CustomStaticMatrixReporter;
 impl EvolveReporter for CustomStaticMatrixReporter {
-    type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>;
+    type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, POPULATION_SIZE>;
 
     fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
         println!("finish - iteration: {}", state.current_iteration());
@@ -128,7 +128,7 @@ impl EvolveReporter for CustomRangeReporter {
 fn main() {
     env_logger::init();
 
-    let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+    let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
         // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations

@@ -30,10 +30,6 @@ pub enum MutationType {
 /// threrefore limited in size. Exceeding this size, will result in a "fatal runtime error: stack
 /// overflow" panic, aborting the execution during the initialization of the Genotype.
 ///
-/// The population size needs to be padded for 2 additional sets of genes. This is for storing the
-/// working chromosome genes and best chromosome genes outside of the population itself. Failure
-/// to provide this additional space will result in a "fatal runtime error: stack overflow"
-///
 /// The GenotypeBuilder `with_chromosome_recycling` is implicit and always enabled for this Genotype.
 ///
 /// The rest is like [RangeGenotype](super::RangeGenotype):
@@ -56,7 +52,7 @@ pub enum MutationType {
 /// const GENES_SIZE: usize = 100;
 /// const POPULATION_SIZE: usize = 200;
 ///
-/// let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+/// let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
 ///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
@@ -72,7 +68,7 @@ pub enum MutationType {
 /// const GENES_SIZE: usize = 100;
 /// const POPULATION_SIZE: usize = 200;
 ///
-/// let genotype = StaticMatrixGenotype::<isize, GENES_SIZE, { POPULATION_SIZE + 2 }>::builder()
+/// let genotype = StaticMatrixGenotype::<isize, GENES_SIZE, POPULATION_SIZE>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=100) // also default mutation range
 ///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range

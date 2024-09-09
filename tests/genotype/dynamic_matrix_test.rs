@@ -224,8 +224,8 @@ fn chromosome_manager() {
     let mut chromosomes = (0..4)
         .map(|_| genotype.chromosome_constructor(rng))
         .collect::<Vec<_>>();
-    let best_chromosome = genotype.chromosome_cloner(&chromosomes[2]);
-    dbg!("init", &chromosomes, &best_chromosome);
+    genotype.save_best_genes(&chromosomes[2]);
+    dbg!("init", &chromosomes, &genotype.best_genes());
 
     assert!(relative_population_eq(
         chromosomes
@@ -241,13 +241,13 @@ fn chromosome_manager() {
         0.001
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&best_chromosome).to_vec(),
+        genotype.best_genes().to_vec(),
         vec![0.240, 0.976, 0.644, 0.054, 0.921],
         0.001
     ));
 
     genotype.chromosome_destructor_truncate(&mut chromosomes, 2);
-    dbg!("truncate", &chromosomes, &best_chromosome);
+    dbg!("truncate", &chromosomes, &genotype.best_genes());
 
     assert!(relative_population_eq(
         chromosomes
@@ -262,7 +262,7 @@ fn chromosome_manager() {
     ));
 
     genotype.chromosome_cloner_range(&mut chromosomes, 0..2);
-    dbg!("clone range", &chromosomes, &best_chromosome);
+    dbg!("clone range", &chromosomes, &genotype.best_genes());
 
     assert!(relative_population_eq(
         chromosomes
@@ -282,7 +282,7 @@ fn chromosome_manager() {
         .iter_mut()
         .take(2)
         .for_each(|c| genotype.mutate_chromosome_genes(3, false, c, None, rng));
-    dbg!("mutate", &chromosomes, &best_chromosome);
+    dbg!("mutate", &chromosomes, &genotype.best_genes());
 
     assert!(relative_population_eq(
         chromosomes
@@ -298,7 +298,7 @@ fn chromosome_manager() {
         0.001
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&best_chromosome).to_vec(),
+        genotype.best_genes().to_vec(),
         vec![0.240, 0.976, 0.644, 0.054, 0.921],
         0.001
     ));
