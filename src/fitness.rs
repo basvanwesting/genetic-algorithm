@@ -73,9 +73,11 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         state: &mut S,
         genotype: &Self::Genotype,
     ) {
-        let now = Instant::now();
-        self.call_for_chromosome(state.chromosome_as_mut(), genotype);
-        state.add_duration(StrategyAction::Fitness, now.elapsed());
+        if let Some(chromosome) = state.chromosome_as_mut() {
+            let now = Instant::now();
+            self.call_for_chromosome(chromosome, genotype);
+            state.add_duration(StrategyAction::Fitness, now.elapsed());
+        }
     }
     /// Implement by Client for StaticMatrixGenotype
     /// pass thread_local for external control of fitness caching in multithreading

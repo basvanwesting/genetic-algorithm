@@ -264,14 +264,15 @@ impl<G: IncrementalGenotype> Reporter for Log<G> {
         if log::log_enabled!(log::Level::Trace) {
             log::trace!(
                 "contending - fitness score: {:?}, genes: {:?}",
-                state.chromosome.fitness_score(),
+                //state.chromosome.fitness_score(),
+                Some("temporary disabled"),
                 // state.chromosome.genes,
                 Some("temporary disabled")
             );
             state.population.chromosomes.iter().for_each(|chromosome| {
                 log::trace!(
                     "neighbour - fitness score: {:?}, genes: {:?}",
-                    chromosome.fitness_score(),
+                    Some("temporary disabled"),
                     // chromosome.genes,
                     Some("temporary disabled")
                 );

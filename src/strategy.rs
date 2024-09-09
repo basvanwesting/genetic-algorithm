@@ -55,9 +55,7 @@ pub trait StrategyConfig {
 /// * chromosome: `G::Chromosome`
 /// * populatoin: `Population<G::Chromosome>` // may be empty
 pub trait StrategyState<G: Genotype> {
-    fn chromosome_as_ref(&self) -> &G::Chromosome;
-    fn population_as_ref(&self) -> &Population<G::Chromosome>;
-    fn chromosome_as_mut(&mut self) -> &mut G::Chromosome;
+    fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome>;
     fn population_as_mut(&mut self) -> &mut Population<G::Chromosome>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
