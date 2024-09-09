@@ -8,7 +8,9 @@
   * [v] Store best chromosome separately in StaticMatrixGenotype (as [T; N]), so population == M?
   * [v] generate best chromosome again from best_genes and genotype?, possible if OwnsGenes
   * [ ] reduce number of Chromosome types (multi is same as single, static and dynamic are same as well)
-  * [ ] Remove empty chromomsome concept, just use Options again in the code (much cleaner)
+  * [v] Remove empty chromomsome concept, just use Options again in the code (much cleaner)
+  * [ ] Add best_genes_and_fitness_value tuple method on Strategy
+  * [ ] Rename OwnesGenes to OwnsGenes
 
 * Store staticMatrixGenotype on heap using Box?
 * Extensions benchmark is noisy
