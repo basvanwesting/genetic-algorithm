@@ -311,7 +311,7 @@ impl<T: Allele + PartialEq> PermutableGenotype for MultiList<T> {
 }
 
 impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             self.allele_lists
                 .iter()

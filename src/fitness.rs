@@ -43,11 +43,19 @@ pub enum FitnessOrdering {
 /// pub struct CountTrue;
 /// impl Fitness for CountTrue {
 ///     type Genotype = BinaryGenotype;
-///     fn calculate_for_chromosome(&mut self, chromosome: &<Self::Genotype as Genotype>::Chromosome, _genotype: &Self::Genotype) -> Option<FitnessValue> {
+///     fn calculate_for_chromosome(&mut self, chromosome: &FitnessChromosome<Self>, _genotype: &FitnessGenotype<Self>) -> Option<FitnessValue> {
 ///         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
 ///     }
 /// }
 /// ```
+
+/// This is just a shortcut for `Self::Genotype`
+pub type FitnessGenotype<F> = <F as Fitness>::Genotype;
+/// This is just a shortcut for `<Self::Genotype as Genotype>::Chromosome`
+pub type FitnessChromosome<F> = <<F as Fitness>::Genotype as Genotype>::Chromosome;
+/// This is just a shortcut for `Population<<Self::Genotype as Genotype::Chromosome>`
+pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype>::Chromosome>;
+
 pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: Genotype;
     fn call_for_state_population<S: StrategyState<Self::Genotype>>(
@@ -73,7 +81,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     /// pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,
-        population: &mut Population<<Self::Genotype as Genotype>::Chromosome>,
+        population: &mut FitnessPopulation<Self>,
         genotype: &mut Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
@@ -102,7 +110,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     }
     fn call_for_chromosome(
         &mut self,
-        chromosome: &mut <Self::Genotype as Genotype>::Chromosome,
+        chromosome: &mut FitnessChromosome<Self>,
         genotype: &Self::Genotype,
     ) {
         if !genotype.chromosome_is_empty(chromosome) {
@@ -112,7 +120,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     /// Implement by Client for normal Genotypes
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &<Self::Genotype as Genotype>::Chromosome,
+        _chromosome: &FitnessChromosome<Self>,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticMatrixGenotype)");

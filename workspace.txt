@@ -2,7 +2,8 @@
   * [v] Store best_genes on Genotype, copy genes on storing best chromosome (solve M+2 issue)
   * [ ] Remove empty chromomsome concept, just use Options again in the code (much cleaner)
   * [v] Change Chromosome<Genotype> to Genotype::Chromosome
-  * [ ] Change Population<Genotype> to Population<Chromosome>
+  * [v] Change Population<Genotype> to Population<Chromosome>
+  * [ ] Check fitness API
 
   * External genes are always Vec<Allele> (seed and best_genes). Internal genes can be anything
   * Alway use best_genes as result. Still allow best chromomsome, but note the genes are internal

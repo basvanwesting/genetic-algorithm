@@ -30,8 +30,8 @@ impl Fitness for ScrabbleFitness {
     type Genotype = MultiListGenotype<WordPosition>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &<Self::Genotype as Genotype>::Chromosome,
-        _genotype: &Self::Genotype,
+        chromosome: &FitnessChromosome<Self>,
+        _genotype: &FitnessGenotype<Self>,
     ) -> Option<FitnessValue> {
         let mut score: isize = 0;
 

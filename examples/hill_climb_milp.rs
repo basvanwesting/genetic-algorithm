@@ -11,8 +11,8 @@ impl Fitness for MILPFitness {
     type Genotype = MultiRangeGenotype<f32>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &<Self::Genotype as Genotype>::Chromosome,
-        _genotype: &Self::Genotype,
+        chromosome: &FitnessChromosome<Self>,
+        _genotype: &FitnessGenotype<Self>,
     ) -> Option<FitnessValue> {
         let x1 = chromosome.genes[0];
         let x2 = chromosome.genes[1].floor();

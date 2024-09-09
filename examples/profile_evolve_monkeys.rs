@@ -19,8 +19,8 @@ impl Fitness for MonkeyFitness {
     type Genotype = ListGenotype<char>;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &<Self::Genotype as Genotype>::Chromosome,
-        _genotype: &Self::Genotype,
+        chromosome: &FitnessChromosome<Self>,
+        _genotype: &FitnessGenotype<Self>,
     ) -> Option<FitnessValue> {
         let string = String::from_iter(chromosome.genes.clone());
         Some(hamming(&string, TARGET_TEXT).unwrap() as FitnessValue)

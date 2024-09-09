@@ -225,7 +225,7 @@ where
     }
     fn copy_genes_by_id(&mut self, source_id: usize, target_id: usize) {
         let (source, target) = self.gene_slice_pair_mut((source_id, target_id));
-        (target).copy_from_slice(&source[..]);
+        (target).copy_from_slice(source);
     }
     fn swap_gene_by_id(&mut self, father_id: usize, mother_id: usize, index: usize) {
         let (father, mother) = self.gene_slice_pair_mut((father_id, mother_id));

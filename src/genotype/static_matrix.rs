@@ -527,10 +527,7 @@ where
         true
     }
     fn chromosomes_init(&mut self) {
-        self.chromosome_bin = (0..M)
-            .rev()
-            .map(|row_id| StaticMatrixChromosome::new(row_id))
-            .collect();
+        self.chromosome_bin = (0..M).rev().map(StaticMatrixChromosome::new).collect();
     }
     fn chromosome_bin_push(&mut self, chromosome: StaticMatrixChromosome) {
         self.chromosome_bin.push(chromosome);

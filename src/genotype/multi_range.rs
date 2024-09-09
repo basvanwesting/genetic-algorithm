@@ -515,7 +515,7 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
                 .map(|index| self.allele_samplers[index].sample(rng))

@@ -4,7 +4,9 @@ pub use crate::chromosome::{
     MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome, UniqueChromosome,
 };
 #[doc(no_inline)]
-pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
+pub use crate::fitness::{
+    Fitness, FitnessChromosome, FitnessGenotype, FitnessOrdering, FitnessPopulation, FitnessValue,
+};
 #[doc(no_inline)]
 pub use crate::genotype::{
     Allele, BinaryGenotype, BitGenotype, Genotype, GenotypeBuilder, ListGenotype,

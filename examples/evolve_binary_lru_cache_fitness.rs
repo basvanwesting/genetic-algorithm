@@ -19,8 +19,8 @@ impl Fitness for ExpensiveCount {
     type Genotype = BinaryGenotype;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &<Self::Genotype as Genotype>::Chromosome,
-        _genotype: &Self::Genotype,
+        chromosome: &FitnessChromosome<Self>,
+        _genotype: &FitnessGenotype<Self>,
     ) -> Option<FitnessValue> {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
@@ -46,8 +46,8 @@ impl Fitness for CachedExpensiveCount {
     type Genotype = BinaryGenotype;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &<Self::Genotype as Genotype>::Chromosome,
-        _genotype: &Self::Genotype,
+        chromosome: &FitnessChromosome<Self>,
+        _genotype: &FitnessGenotype<Self>,
     ) -> Option<FitnessValue> {
         // print!("cache try ({}), ", self.cache.len());
         print!("cache try, ");

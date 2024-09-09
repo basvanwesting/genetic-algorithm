@@ -308,7 +308,7 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_is_empty(&self, chromosome: &BitChromosome) -> bool {
         chromosome.genes.is_empty()
     }
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> FixedBitSet {
         if self.seed_genes_list.is_empty() {
             FixedBitSet::with_capacity_and_blocks(self.genes_size, rng.sample_iter(Standard))
         } else {

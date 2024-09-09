@@ -196,7 +196,7 @@ impl<T: Allele> PermutableGenotype for Unique<T> {
 }
 
 impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> <Self as Genotype>::Genes {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             let mut genes = self.allele_list.clone();
             genes.shuffle(rng);

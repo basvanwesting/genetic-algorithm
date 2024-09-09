@@ -5,7 +5,9 @@ pub use crate::chromosome::{
     StaticMatrixChromosome, UniqueChromosome,
 };
 #[doc(no_inline)]
-pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
+pub use crate::fitness::{
+    Fitness, FitnessChromosome, FitnessGenotype, FitnessOrdering, FitnessPopulation, FitnessValue,
+};
 #[doc(no_inline)]
 pub use crate::genotype::{
     Allele, BinaryGenotype, BitGenotype, DynamicMatrixGenotype, Genotype, GenotypeBuilder,
