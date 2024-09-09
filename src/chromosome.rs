@@ -1,7 +1,15 @@
 //! The chromosome is a container for the genes and caches a fitness score
 
 mod binary;
+mod bit;
+mod dynamic_matrix;
 mod list;
+// mod multi_list;
+// mod multi_range;
+// mod multi_unique;
+mod range;
+mod static_matrix;
+mod unique;
 
 use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
@@ -13,9 +21,17 @@ use std::hash::{Hash, Hasher};
 use std::ops::Range;
 
 pub use self::binary::Binary as BinaryChromosome;
+pub use self::bit::Bit as BitChromosome;
+pub use self::dynamic_matrix::DynamicMatrix as DynamicMatrixChromosome;
 pub use self::list::List as ListChromosome;
+// pub use self::multi_list::MultiList as MultiListChromosome;
+// pub use self::multi_range::MultiRange as MultiRangeChromosome;
+// pub use self::multi_unique::MultiUnique as MultiUniqueChromosome;
+pub use self::range::Range as RangeChromosome;
+pub use self::static_matrix::StaticMatrix as StaticMatrixChromosome;
+pub use self::unique::Unique as UniqueChromosome;
 
-pub trait ChromosomeTrait: Clone {
+pub trait Chromosome: Clone {
     fn age(&self) -> usize;
     fn reset_age(&mut self);
     fn increment_age(&mut self);

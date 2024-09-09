@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype};
-use crate::chromosome::{ChromosomeManager, LegacyChromosome};
+use crate::chromosome::{Chromosome, ChromosomeManager, LegacyChromosome, StaticMatrixChromosome};
 use itertools::Itertools;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
@@ -19,7 +19,7 @@ pub enum MutationType {
 /// Genes (N) and Population (M) are a `N*M` matrix of numeric values, stored  on the stack as a
 /// nested array '[[T; N]; M]'. The genes are contiguous in memory, with an N jump to the next
 /// chromosome ([[T; N]; M] can be treated like [T; N*M] in memory). The genes are therefore not
-/// stored on the Chromosomes themselves, which just point to the data (chromosome.reference_id ==
+/// stored on the Chromosomes themselves, which just point to the data (chromosome.row_id ==
 /// row id of the matrix). The genes_size can be smaller than N, which would just leave a part of
 /// the matrix unused at T::default(). This opens the possibility for linear algebra fitness
 /// calculations on the whole population at once, possibly using the GPU in the future (if the data
@@ -89,7 +89,7 @@ pub struct StaticMatrix<
     Uniform<T>: Send + Sync,
 {
     pub data: [[T; N]; M],
-    pub chromosome_bin: Vec<LegacyChromosome<Self>>,
+    pub chromosome_bin: Vec<StaticMatrixChromosome>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
@@ -98,7 +98,7 @@ pub struct StaticMatrix<
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
-    pub seed_genes_list: Vec<()>,
+    pub seed_genes_list: Vec<[T; N]>,
     pub best_genes: [T; N],
 }
 
@@ -161,35 +161,31 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut LegacyChromosome<Self>,
+        chromosome: &mut StaticMatrixChromosome,
         rng: &mut R,
     ) {
-        self.set_gene_by_id(
-            chromosome.reference_id,
-            index,
-            self.allele_sampler.sample(rng),
-        );
+        self.set_gene_by_id(chromosome.row_id, index, self.allele_sampler.sample(rng));
     }
     fn mutate_chromosome_index_relative<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut LegacyChromosome<Self>,
+        chromosome: &mut StaticMatrixChromosome,
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-        let new_value = self.get_gene_by_id(chromosome.reference_id, index) + value_diff;
+        let new_value = self.get_gene_by_id(chromosome.row_id, index) + value_diff;
         if new_value < *self.allele_range.start() {
-            self.set_gene_by_id(chromosome.reference_id, index, *self.allele_range.start());
+            self.set_gene_by_id(chromosome.row_id, index, *self.allele_range.start());
         } else if new_value > *self.allele_range.end() {
-            self.set_gene_by_id(chromosome.reference_id, index, *self.allele_range.end());
+            self.set_gene_by_id(chromosome.row_id, index, *self.allele_range.end());
         } else {
-            self.set_gene_by_id(chromosome.reference_id, index, new_value);
+            self.set_gene_by_id(chromosome.row_id, index, new_value);
         }
     }
     fn mutate_chromosome_index_scaled<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut LegacyChromosome<Self>,
+        chromosome: &mut StaticMatrixChromosome,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -199,13 +195,13 @@ where
         } else {
             *working_range.end()
         };
-        let new_value = self.get_gene_by_id(chromosome.reference_id, index) + value_diff;
+        let new_value = self.get_gene_by_id(chromosome.row_id, index) + value_diff;
         if new_value < *self.allele_range.start() {
-            self.set_gene_by_id(chromosome.reference_id, index, *self.allele_range.start());
+            self.set_gene_by_id(chromosome.row_id, index, *self.allele_range.start());
         } else if new_value > *self.allele_range.end() {
-            self.set_gene_by_id(chromosome.reference_id, index, *self.allele_range.end());
+            self.set_gene_by_id(chromosome.row_id, index, *self.allele_range.end());
         } else {
-            self.set_gene_by_id(chromosome.reference_id, index, new_value);
+            self.set_gene_by_id(chromosome.row_id, index, new_value);
         }
     }
 
@@ -229,8 +225,8 @@ where
     // }
 
     /// returns a slice of genes_size <= N
-    pub fn get_genes(&self, chromosome: &LegacyChromosome<Self>) -> &[T] {
-        self.get_genes_by_id(chromosome.reference_id)
+    pub fn get_genes(&self, chromosome: &StaticMatrixChromosome) -> &[T] {
+        self.get_genes_by_id(chromosome.row_id)
     }
     /// returns a slice of genes_size <= N
     fn get_genes_by_id(&self, id: usize) -> &[T] {
@@ -326,25 +322,27 @@ where
     Uniform<T>: Send + Sync,
 {
     type Allele = T;
-    type Genes = ();
+    type Genes = [T; N];
+    type Chromosome = StaticMatrixChromosome;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn store_best_genes(&mut self, chromosome: &LegacyChromosome<Self>) {
-        let (x, _) = self.data.split_at_mut(chromosome.reference_id);
-        self.best_genes.copy_from_slice(&x[0][..])
+    fn store_best_genes(&mut self, chromosome: &Self::Chromosome) {
+        // let (x, _) = self.data.split_at_mut(chromosome.row_id);
+        // self.best_genes.copy_from_slice(&x[0][..]);
+        let x = self.data[chromosome.row_id].as_mut_slice();
+        self.best_genes.copy_from_slice(x)
     }
-    // FIXME: define Genes as [T; N] after Genotype::Chromosome
     fn get_best_genes(&self) -> &Self::Genes {
-        &()
+        &self.best_genes
     }
 
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut LegacyChromosome<Self>,
+        chromosome: &mut Self::Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -397,15 +395,15 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut LegacyChromosome<Self>,
-        mother: &mut LegacyChromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
             rng.sample_iter(self.gene_index_sampler)
                 .take(number_of_crossovers)
                 .for_each(|index| {
-                    self.swap_gene_by_id(father.reference_id, mother.reference_id, index);
+                    self.swap_gene_by_id(father.row_id, mother.row_id, index);
                 });
         } else {
             rand::seq::index::sample(
@@ -415,7 +413,7 @@ where
             )
             .iter()
             .for_each(|index| {
-                self.swap_gene_by_id(father.reference_id, mother.reference_id, index);
+                self.swap_gene_by_id(father.row_id, mother.row_id, index);
             });
         }
         mother.taint_fitness_score();
@@ -425,15 +423,15 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut LegacyChromosome<Self>,
-        mother: &mut LegacyChromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
             rng.sample_iter(self.gene_index_sampler)
                 .take(number_of_crossovers)
                 .for_each(|index| {
-                    self.swap_gene_range_by_id(father.reference_id, mother.reference_id, index..);
+                    self.swap_gene_range_by_id(father.row_id, mother.row_id, index..);
                 });
         } else {
             rand::seq::index::sample(
@@ -448,17 +446,13 @@ where
             .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
                 (Some(start_index), Some(end_index)) => {
                     self.swap_gene_range_by_id(
-                        father.reference_id,
-                        mother.reference_id,
+                        father.row_id,
+                        mother.row_id,
                         start_index..end_index,
                     );
                 }
                 (Some(start_index), _) => {
-                    self.swap_gene_range_by_id(
-                        father.reference_id,
-                        mother.reference_id,
-                        start_index..,
-                    );
+                    self.swap_gene_range_by_id(father.row_id, mother.row_id, start_index..);
                 }
                 _ => (),
             });
@@ -520,12 +514,14 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn random_genes_factory<R: Rng>(&self, _rng: &mut R) -> <Self as Genotype>::Genes {}
-    fn chromosome_constructor_empty(&self) -> LegacyChromosome<Self> {
-        LegacyChromosome::new(())
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> [T; N] {
+        std::array::from_fn(|_| self.allele_sampler.sample(rng))
     }
-    fn chromosome_is_empty(&self, chromosome: &LegacyChromosome<Self>) -> bool {
-        chromosome.reference_id == usize::MAX
+    fn chromosome_constructor_empty(&self) -> StaticMatrixChromosome {
+        StaticMatrixChromosome::new(usize::MAX)
+    }
+    fn chromosome_is_empty(&self, chromosome: &StaticMatrixChromosome) -> bool {
+        chromosome.row_id == usize::MAX
     }
     fn chromosome_recycling(&self) -> bool {
         true
@@ -533,38 +529,31 @@ where
     fn chromosomes_init(&mut self) {
         self.chromosome_bin = (0..M)
             .rev()
-            .map(|id| LegacyChromosome {
-                reference_id: id,
-                genes: (),
-                fitness_score: None,
-                age: 0,
-            })
+            .map(|row_id| StaticMatrixChromosome::new(row_id))
             .collect();
     }
-    fn chromosome_bin_push(&mut self, chromosome: LegacyChromosome<Self>) {
+    fn chromosome_bin_push(&mut self, chromosome: StaticMatrixChromosome) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<LegacyChromosome<Self>> {
+    fn chromosome_bin_pop(&mut self) -> Option<StaticMatrixChromosome> {
         self.chromosome_bin.pop().or_else(|| {
             panic!("genetic_algorithm error: chromosome capacity exceeded");
         })
     }
     fn copy_genes(
         &mut self,
-        source_chromosome: &LegacyChromosome<Self>,
-        target_chromosome: &mut LegacyChromosome<Self>,
+        source_chromosome: &StaticMatrixChromosome,
+        target_chromosome: &mut StaticMatrixChromosome,
     ) {
-        self.copy_genes_by_id(
-            source_chromosome.reference_id,
-            target_chromosome.reference_id,
-        );
+        self.copy_genes_by_id(source_chromosome.row_id, target_chromosome.row_id);
     }
 
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> LegacyChromosome<Self> {
+    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> StaticMatrixChromosome {
         let chromosome = self.chromosome_bin_pop().unwrap();
-        (0..self.genes_size).for_each(|i| {
-            self.set_gene_by_id(chromosome.reference_id, i, self.allele_sampler.sample(rng))
-        });
+        let genes = self.random_genes_factory(rng);
+        // let (x, _) = self.data.split_at_mut(chromosome.row_id);
+        let x = self.data[chromosome.row_id].as_mut_slice();
+        x.copy_from_slice(&genes);
         chromosome
     }
 }

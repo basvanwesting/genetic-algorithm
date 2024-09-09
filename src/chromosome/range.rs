@@ -5,17 +5,16 @@ use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::ops::Range;
 
 #[derive(Clone, Debug)]
-pub struct List<T: Allele> {
+pub struct Range<T: Allele> {
     pub genes: Vec<T>,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
     pub reference_id: usize,
 }
 
-impl<T: Allele> List<T> {
+impl<T: Allele> Range<T> {
     pub fn new(genes: Vec<T>) -> Self {
         Self {
             genes,
@@ -26,7 +25,7 @@ impl<T: Allele> List<T> {
     }
 }
 
-impl<T: Allele> super::Chromosome for List<T> {
+impl<T: Allele> super::Chromosome for Range<T> {
     fn age(&self) -> usize {
         self.age
     }
@@ -45,7 +44,7 @@ impl<T: Allele> super::Chromosome for List<T> {
     }
 }
 
-impl<T: Allele> List<T>
+impl<T: Allele> Range<T>
 where
     Vec<T>: Hash,
 {

@@ -26,7 +26,7 @@ impl Binary {
     }
 }
 
-impl super::ChromosomeTrait for Binary {
+impl super::Chromosome for Binary {
     fn age(&self) -> usize {
         self.age
     }

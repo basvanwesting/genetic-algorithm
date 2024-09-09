@@ -8,14 +8,14 @@ use std::hash::{Hash, Hasher};
 use std::ops::Range;
 
 #[derive(Clone, Debug)]
-pub struct List<T: Allele> {
+pub struct Unique<T: Allele> {
     pub genes: Vec<T>,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
     pub reference_id: usize,
 }
 
-impl<T: Allele> List<T> {
+impl<T: Allele> Unique<T> {
     pub fn new(genes: Vec<T>) -> Self {
         Self {
             genes,
@@ -26,7 +26,7 @@ impl<T: Allele> List<T> {
     }
 }
 
-impl<T: Allele> super::Chromosome for List<T> {
+impl<T: Allele> super::Chromosome for Unique<T> {
     fn age(&self) -> usize {
         self.age
     }
@@ -45,7 +45,7 @@ impl<T: Allele> super::Chromosome for List<T> {
     }
 }
 
-impl<T: Allele> List<T>
+impl<T: Allele> Unique<T>
 where
     Vec<T>: Hash,
 {

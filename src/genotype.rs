@@ -25,7 +25,7 @@ pub use self::range::Range as RangeGenotype;
 pub use self::static_matrix::StaticMatrix as StaticMatrixGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
-use crate::chromosome::{ChromosomeManager, ChromosomeTrait, LegacyChromosome};
+use crate::chromosome::{Chromosome, ChromosomeManager, LegacyChromosome};
 use crate::population::Population;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
@@ -67,6 +67,7 @@ pub trait Genes: Clone + Send + Sync + std::fmt::Debug {}
 impl<T: Allele> Genes for Vec<T> {}
 impl Genes for FixedBitSet {}
 impl Genes for () {}
+impl<T: Allele, const N: usize> Genes for [T; N] {}
 
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
@@ -81,7 +82,7 @@ pub trait Genotype:
 {
     type Allele: Allele;
     type Genes: Genes;
-    type Chromosome: ChromosomeTrait;
+    type Chromosome: Chromosome;
 
     fn genes_size(&self) -> usize;
     fn store_best_genes(&mut self, chromosome: &Self::Chromosome);

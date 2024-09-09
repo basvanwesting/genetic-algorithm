@@ -1,5 +1,5 @@
 //! The population is a  container for [Chromosomes](Chromosome)
-use crate::chromosome::{ChromosomeTrait, LegacyChromosome};
+use crate::chromosome::{Chromosome, LegacyChromosome};
 use crate::fitness::FitnessOrdering;
 use crate::genotype::Genotype;
 use cardinality_estimator::CardinalityEstimator;

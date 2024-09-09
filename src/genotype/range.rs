@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype};
-use crate::chromosome::{ChromosomeManager, LegacyChromosome};
+use crate::chromosome::{Chromosome, ChromosomeManager, LegacyChromosome, RangeChromosome};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
@@ -70,7 +70,7 @@ where
     allele_relative_sampler: Option<Uniform<T>>,
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_recycling: bool,
-    pub chromosome_bin: Vec<LegacyChromosome<Self>>,
+    pub chromosome_bin: Vec<RangeChromosome<T>>,
     pub best_genes: Vec<T>,
 }
 
@@ -125,7 +125,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut LegacyChromosome<Self>,
+        chromosome: &mut RangeChromosome<T>,
         rng: &mut R,
     ) {
         chromosome.genes[index] = self.allele_sampler.sample(rng);
@@ -133,7 +133,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut LegacyChromosome<Self>,
+        chromosome: &mut RangeChromosome<T>,
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
@@ -149,7 +149,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut LegacyChromosome<Self>,
+        chromosome: &mut RangeChromosome<T>,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -177,11 +177,12 @@ where
 {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
+    type Chromosome = RangeChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn store_best_genes(&mut self, chromosome: &LegacyChromosome<Self>) {
+    fn store_best_genes(&mut self, chromosome: &Self::Chromosome) {
         self.best_genes.clone_from(&chromosome.genes);
     }
     fn get_best_genes(&self) -> &Self::Genes {
@@ -192,7 +193,7 @@ where
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut LegacyChromosome<Self>,
+        chromosome: &mut Self::Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -245,8 +246,8 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut LegacyChromosome<Self>,
-        mother: &mut LegacyChromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -273,8 +274,8 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut LegacyChromosome<Self>,
-        mother: &mut LegacyChromosome<Self>,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -339,10 +340,10 @@ where
 {
     fn neighbouring_chromosomes<R: Rng>(
         &self,
-        chromosome: &LegacyChromosome<Self>,
+        chromosome: &RangeChromosome<T>,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) -> Vec<LegacyChromosome<Self>> {
+    ) -> Vec<RangeChromosome<T>> {
         let allele_range_start = *self.allele_range.start();
         let allele_range_end = *self.allele_range.end();
 
@@ -385,7 +386,7 @@ where
                 .flatten()
                 .dedup()
                 .filter(|genes| *genes != chromosome.genes)
-                .map(LegacyChromosome::new)
+                .map(RangeChromosome::new)
                 .collect::<Vec<_>>()
         } else {
             let working_range = &self.allele_mutation_range.as_ref().unwrap();
@@ -431,7 +432,7 @@ where
                 .flatten()
                 .dedup()
                 .filter(|genes| *genes != chromosome.genes)
-                .map(LegacyChromosome::new)
+                .map(RangeChromosome::new)
                 .collect::<Vec<_>>()
         }
     }
@@ -455,19 +456,19 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn chromosome_constructor_empty(&self) -> LegacyChromosome<Self> {
-        LegacyChromosome::new(vec![])
+    fn chromosome_constructor_empty(&self) -> RangeChromosome<T> {
+        RangeChromosome::new(vec![])
     }
-    fn chromosome_is_empty(&self, chromosome: &LegacyChromosome<Self>) -> bool {
+    fn chromosome_is_empty(&self, chromosome: &RangeChromosome<T>) -> bool {
         chromosome.genes.is_empty()
     }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: LegacyChromosome<Self>) {
+    fn chromosome_bin_push(&mut self, chromosome: RangeChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<LegacyChromosome<Self>> {
+    fn chromosome_bin_pop(&mut self) -> Option<RangeChromosome<T>> {
         self.chromosome_bin.pop()
     }
 }

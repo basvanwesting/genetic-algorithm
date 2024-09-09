@@ -5,20 +5,19 @@ use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
 use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::ops::Range;
 
 #[derive(Clone, Debug)]
-pub struct List<T: Allele> {
-    pub genes: Vec<T>,
+pub struct DynamicMatrix {
+    pub row_id: usize,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
     pub reference_id: usize,
 }
 
-impl<T: Allele> List<T> {
-    pub fn new(genes: Vec<T>) -> Self {
+impl DynamicMatrix {
+    pub fn new(row_id: usize) -> Self {
         Self {
-            genes,
+            row_id,
             fitness_score: None,
             age: 0,
             reference_id: usize::MAX,
@@ -26,7 +25,7 @@ impl<T: Allele> List<T> {
     }
 }
 
-impl<T: Allele> super::Chromosome for List<T> {
+impl super::Chromosome for DynamicMatrix {
     fn age(&self) -> usize {
         self.age
     }
@@ -42,16 +41,5 @@ impl<T: Allele> super::Chromosome for List<T> {
     fn taint_fitness_score(&mut self) {
         self.age = 0;
         self.fitness_score = None;
-    }
-}
-
-impl<T: Allele> List<T>
-where
-    Vec<T>: Hash,
-{
-    pub fn genes_key(&self) -> super::GenesKey {
-        let mut s = DefaultHasher::new();
-        self.genes.hash(&mut s);
-        s.finish()
     }
 }

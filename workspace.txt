@@ -10,6 +10,8 @@
   * Store best chromosome separately in StaticMatrixGenotype (as [T; N]), so population == M?
   * Discourage use of best-chromosome in API
 
+  * reduce number of Chromosome types (multi is same as single, static and dynamic are same as well)
+
 * Store staticMatrixGenotype on heap using Box?
 * Extensions benchmark is noisy
 * Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)

@@ -1,5 +1,6 @@
 use crate::fitness::FitnessValue;
-use crate::genotype::{Allele, Genotype};
+use crate::genotype::Genotype;
+use fixedbitset::{Block, FixedBitSet};
 use rand::prelude::*;
 use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
@@ -8,15 +9,15 @@ use std::hash::{Hash, Hasher};
 use std::ops::Range;
 
 #[derive(Clone, Debug)]
-pub struct List<T: Allele> {
-    pub genes: Vec<T>,
+pub struct Bit {
+    pub genes: FixedBitSet,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
     pub reference_id: usize,
 }
 
-impl<T: Allele> List<T> {
-    pub fn new(genes: Vec<T>) -> Self {
+impl Bit {
+    pub fn new(genes: FixedBitSet) -> Self {
         Self {
             genes,
             fitness_score: None,
@@ -26,7 +27,7 @@ impl<T: Allele> List<T> {
     }
 }
 
-impl<T: Allele> super::Chromosome for List<T> {
+impl super::Chromosome for Bit {
     fn age(&self) -> usize {
         self.age
     }
@@ -45,10 +46,7 @@ impl<T: Allele> super::Chromosome for List<T> {
     }
 }
 
-impl<T: Allele> List<T>
-where
-    Vec<T>: Hash,
-{
+impl Bit {
     pub fn genes_key(&self) -> super::GenesKey {
         let mut s = DefaultHasher::new();
         self.genes.hash(&mut s);
