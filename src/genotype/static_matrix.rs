@@ -99,6 +99,7 @@ pub struct StaticMatrix<
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
     pub seed_genes_list: Vec<()>,
+    pub best_genes: [T; N],
 }
 
 impl<
@@ -142,6 +143,7 @@ where
                     .allele_mutation_range
                     .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
                 seed_genes_list: builder.seed_genes_list,
+                best_genes: [T::default(); N],
             })
         }
     }
@@ -328,6 +330,14 @@ where
 
     fn genes_size(&self) -> usize {
         self.genes_size
+    }
+    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+        let (x, _) = self.data.split_at_mut(chromosome.reference_id);
+        self.best_genes.copy_from_slice(&x[0][..])
+    }
+    // FIXME: define Genes as [T; N] after Genotype::Chromosome
+    fn get_best_genes(&self) -> &Self::Genes {
+        &()
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -584,6 +594,7 @@ where
                 .clone()
                 .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
             seed_genes_list: self.seed_genes_list.clone(),
+            best_genes: [T::default(); N],
         }
     }
 }

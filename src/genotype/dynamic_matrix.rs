@@ -87,6 +87,7 @@ pub struct DynamicMatrix<
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
     pub seed_genes_list: Vec<()>,
+    pub best_genes: Vec<T>,
 }
 
 impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> TryFrom<Builder<Self>>
@@ -127,6 +128,7 @@ where
                     .allele_mutation_range
                     .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
                 seed_genes_list: builder.seed_genes_list,
+                best_genes: vec![T::default(); genes_size],
             })
         }
     }
@@ -316,6 +318,16 @@ where
 
     fn genes_size(&self) -> usize {
         self.genes_size
+    }
+    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+        let linear_id = self.linear_id(chromosome.reference_id, 0);
+        let (x, _) = self.data.split_at_mut(linear_id);
+        self.best_genes
+            .copy_from_slice(&x[linear_id..(linear_id + self.genes_size)]);
+    }
+    // FIXME: define Genes as Vec<Self::Allele> after Genotype::Chromosome
+    fn get_best_genes(&self) -> &Self::Genes {
+        &()
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -558,6 +570,7 @@ where
                 .clone()
                 .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
             seed_genes_list: self.seed_genes_list.clone(),
+            best_genes: vec![T::default(); self.genes_size],
         }
     }
 }

@@ -68,6 +68,7 @@ pub struct MultiUnique<T: Allele = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<Chromosome<Self>>,
+    pub best_genes: Vec<T>,
 }
 
 impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
@@ -100,9 +101,10 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
             } else {
                 Some(Uniform::from(0..crossover_points.len()))
             };
+            let genes_size = allele_list_sizes.iter().sum();
 
             Ok(Self {
-                genes_size: allele_list_sizes.iter().sum(),
+                genes_size,
                 allele_list_sizes: allele_list_sizes.clone(),
                 allele_list_index_offsets: allele_list_index_offsets.clone(),
                 allele_lists: allele_lists.clone(),
@@ -116,6 +118,7 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
+                best_genes: allele_lists.clone().into_iter().flatten().collect(),
             })
         }
     }
@@ -127,6 +130,12 @@ impl<T: Allele> Genotype for MultiUnique<T> {
 
     fn genes_size(&self) -> usize {
         self.genes_size
+    }
+    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+        self.best_genes.clone_from(&chromosome.genes);
+    }
+    fn get_best_genes(&self) -> &Self::Genes {
+        &self.best_genes
     }
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,

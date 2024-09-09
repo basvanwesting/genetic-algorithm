@@ -83,6 +83,8 @@ pub trait Genotype:
     type Genes: Genes;
 
     fn genes_size(&self) -> usize;
+    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>);
+    fn get_best_genes(&self) -> &Self::Genes;
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,
         number_of_mutations: usize,

@@ -55,6 +55,7 @@ pub struct List<T: Allele + PartialEq = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<Chromosome<Self>>,
+    pub best_genes: Vec<T>,
 }
 
 impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
@@ -70,6 +71,7 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
                 "ListGenotype requires non-empty allele_list",
             ))
         } else {
+            let genes_size = builder.genes_size.unwrap();
             let allele_list = builder.allele_list.unwrap();
             Ok(Self {
                 genes_size: builder.genes_size.unwrap(),
@@ -79,6 +81,7 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
+                best_genes: vec![allele_list[0]; genes_size],
             })
         }
     }
@@ -89,6 +92,12 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
 
     fn genes_size(&self) -> usize {
         self.genes_size
+    }
+    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+        self.best_genes.clone_from(&chromosome.genes);
+    }
+    fn get_best_genes(&self) -> &Self::Genes {
+        &self.best_genes
     }
 
     fn mutate_chromosome_genes<R: Rng>(

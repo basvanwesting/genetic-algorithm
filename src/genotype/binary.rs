@@ -27,6 +27,7 @@ pub struct Binary {
     pub seed_genes_list: Vec<Vec<bool>>,
     pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<Chromosome<Self>>,
+    pub best_genes: Vec<bool>,
 }
 
 impl TryFrom<Builder<Self>> for Binary {
@@ -36,12 +37,14 @@ impl TryFrom<Builder<Self>> for Binary {
         if builder.genes_size.is_none() {
             Err(TryFromBuilderError("BinaryGenotype requires a genes_size"))
         } else {
+            let genes_size = builder.genes_size.unwrap();
             Ok(Self {
-                genes_size: builder.genes_size.unwrap(),
-                gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
+                genes_size,
+                gene_index_sampler: Uniform::from(0..genes_size),
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
+                best_genes: vec![false; genes_size],
             })
         }
     }
@@ -53,6 +56,12 @@ impl Genotype for Binary {
 
     fn genes_size(&self) -> usize {
         self.genes_size
+    }
+    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+        self.best_genes.clone_from(&chromosome.genes);
+    }
+    fn get_best_genes(&self) -> &Self::Genes {
+        &self.best_genes
     }
 
     fn mutate_chromosome_genes<R: Rng>(

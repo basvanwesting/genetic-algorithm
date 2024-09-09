@@ -51,6 +51,7 @@ pub struct Unique<T: Allele = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<Chromosome<Self>>,
+    pub best_genes: Vec<T>,
 }
 
 impl<T: Allele> TryFrom<Builder<Self>> for Unique<T> {
@@ -65,13 +66,15 @@ impl<T: Allele> TryFrom<Builder<Self>> for Unique<T> {
             ))
         } else {
             let allele_list = builder.allele_list.unwrap();
+            let genes_size = allele_list.len();
             Ok(Self {
-                genes_size: allele_list.len(),
+                genes_size,
                 allele_list: allele_list.clone(),
                 gene_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
+                best_genes: allele_list.clone(),
             })
         }
     }
@@ -83,6 +86,12 @@ impl<T: Allele> Genotype for Unique<T> {
 
     fn genes_size(&self) -> usize {
         self.genes_size
+    }
+    fn store_best_genes(&mut self, chromosome: &Chromosome<Self>) {
+        self.best_genes.clone_from(&chromosome.genes);
+    }
+    fn get_best_genes(&self) -> &Self::Genes {
+        &self.best_genes
     }
 
     fn mutate_chromosome_genes<R: Rng>(

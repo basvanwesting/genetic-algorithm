@@ -1,6 +1,6 @@
 * Genes?
-  * Remove empty chromomsome concept, just use Options again in the code (much cleaner)
   * Store best_genes on Genotype, copy genes on storing best chromosome (solve M+2 issue)
+  * Remove empty chromomsome concept, just use Options again in the code (much cleaner)
   * Change Chromosome<Genotype> to Genotype::Chromosome
 
   * External genes are always Vec<Allele> (seed and best_genes). Internal genes can be anything
