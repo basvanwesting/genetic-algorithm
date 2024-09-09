@@ -90,12 +90,12 @@ fn main() {
 
     println!("{}", permutate);
 
-    if let Some(best_chromosome) = permutate.best_chromosome() {
-        let selected_items = best_chromosome
-            .genes
-            .iter()
-            .enumerate()
-            .filter_map(|(i, v)| if *v { Some(&items[i]) } else { None });
+    if let Some(best_genes) = permutate.best_genes() {
+        let selected_items =
+            best_genes
+                .iter()
+                .enumerate()
+                .filter_map(|(i, v)| if *v { Some(&items[i]) } else { None });
         println!("selected items: {:?}", selected_items.collect::<Vec<_>>());
     }
     println!("{:?}", duration);

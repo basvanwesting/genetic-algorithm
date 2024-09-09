@@ -72,10 +72,10 @@ fn main() {
         let hill_climb = hill_climb_builder.clone().call_repeatedly(1000).unwrap();
         let duration = now.elapsed();
 
-        if let Some(best_chromosome) = hill_climb.best_chromosome() {
-            if let Some(fitness_score) = best_chromosome.fitness_score {
-                let x1 = best_chromosome.genes[0];
-                let x2 = best_chromosome.genes[1].floor();
+        if let Some(fitness_score) = hill_climb.best_fitness_score() {
+            if let Some(best_genes) = hill_climb.best_genes() {
+                let x1 = best_genes[0];
+                let x2 = best_genes[1].floor();
                 let result = 8.0 * x1 + x2;
 
                 println!(

@@ -57,7 +57,7 @@ fn main() {
         .call()
         .unwrap();
     // println!("{}", evolve);
-    // println!("genes: {:b}", evolve.best_chromosome().unwrap().genes);
+    // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
         "BitGenotype, best_generation: {:?}",
         evolve.best_generation()
@@ -86,7 +86,7 @@ fn main() {
         .call()
         .unwrap();
     // println!("{}", evolve);
-    // println!("genes: {:b}", evolve.best_chromosome().unwrap().genes);
+    // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
         "BinaryGenotype - no recycling, best_generation: {:?} - more crossover points seem to converge in less generations",
         evolve.best_generation()
@@ -116,7 +116,7 @@ fn main() {
         .call()
         .unwrap();
     // println!("{}", evolve);
-    // println!("genes: {:b}", evolve.best_chromosome().unwrap().genes);
+    // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
         "BinaryGenotype - with recycling, best_generation: {:?} - more crossover points seem to converge in less generations",
         evolve.best_generation()

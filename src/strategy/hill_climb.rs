@@ -8,6 +8,7 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
+use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::population::Population;
@@ -141,8 +142,8 @@ pub enum HillClimbVariant {
 ///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
-/// let best_chromosome = hill_climb.best_chromosome().unwrap();
-/// assert_eq!(best_chromosome.genes.into_iter().map(|v| v <= 1e-3).collect::<Vec<_>>(), vec![true; 16])
+/// let best_genes = hill_climb.best_genes().unwrap();
+/// assert_eq!(best_genes.into_iter().map(|v| v <= 1e-3).collect::<Vec<_>>(), vec![true; 16])
 /// ```
 pub struct HillClimb<
     G: IncrementalGenotype,
@@ -178,7 +179,7 @@ pub struct HillClimbState<G: IncrementalGenotype> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: G::Chromosome,
+    pub best_fitness_score: Option<FitnessValue>,
     pub durations: HashMap<StrategyAction, Duration>,
 
     pub current_scale_index: Option<usize>,
@@ -204,13 +205,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
             match self.config.variant {
                 HillClimbVariant::Stochastic => {
                     let now_data = Instant::now();
-                    let working_chromosome = self
-                        .genotype
-                        .chromosome_cloner(self.state.best_chromosome_as_ref());
-                    self.genotype.chromosome_destructor(std::mem::replace(
-                        &mut self.state.chromosome,
-                        working_chromosome,
-                    ));
+                    self.genotype.load_best_genes(&mut self.state.chromosome);
                     self.state.add_duration(
                         StrategyAction::ChromosomeDataDropAndCopy,
                         now_data.elapsed(),
@@ -233,13 +228,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                 }
                 HillClimbVariant::StochasticSecondary => {
                     let now_data = Instant::now();
-                    let working_chromosome = self
-                        .genotype
-                        .chromosome_cloner(self.state.best_chromosome_as_ref());
-                    self.genotype.chromosome_destructor(std::mem::replace(
-                        &mut self.state.chromosome,
-                        working_chromosome,
-                    ));
+                    self.genotype.load_best_genes(&mut self.state.chromosome);
                     self.state.add_duration(
                         StrategyAction::ChromosomeDataDropAndCopy,
                         now_data.elapsed(),
@@ -278,9 +267,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     );
                 }
                 HillClimbVariant::SteepestAscent => {
-                    let best_chromosome = self.state.best_chromosome_as_ref();
+                    self.genotype.load_best_genes(&mut self.state.chromosome);
                     self.state.population = self.genotype.neighbouring_population(
-                        best_chromosome,
+                        &self.state.chromosome,
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
@@ -297,9 +286,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     );
                 }
                 HillClimbVariant::SteepestAscentSecondary => {
-                    let best_chromosome = self.state.best_chromosome_as_ref();
+                    self.genotype.load_best_genes(&mut self.state.chromosome);
                     let mut neighbouring_chromosomes = self.genotype.neighbouring_chromosomes(
-                        best_chromosome,
+                        &self.state.chromosome,
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
@@ -335,17 +324,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<G::Chromosome> {
-        if self
-            .genotype
-            .chromosome_is_empty(&self.state.best_chromosome)
-        {
-            None
-        } else {
-            // FIXME: use genotype cloner here? It is the resulting call, we don't expect new activity
-            Some(self.state.best_chromosome.clone())
-        }
-    }
     fn best_generation(&self) -> usize {
         self.state.best_generation
     }
@@ -354,7 +332,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
     }
     fn best_genes(&self) -> Option<G::Genes> {
         if self.state.best_fitness_score().is_some() {
-            Some(self.genotype.get_best_genes().clone())
+            Some(self.genotype.best_genes().clone())
         } else {
             None
         }
@@ -383,7 +361,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
 
         // best by definition, remove the chromosome placeholder
         self.state.best_generation = self.state.current_generation;
-        std::mem::swap(&mut self.state.chromosome, &mut self.state.best_chromosome);
+        self.state.best_fitness_score = self.state.chromosome.fitness_score();
+        self.genotype.save_best_genes(&self.state.chromosome);
 
         self.reporter
             .on_new_best_chromosome(&self.state, &self.config);
@@ -458,8 +437,8 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     fn population_as_mut(&mut self) -> &mut Population<G::Chromosome> {
         &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> &G::Chromosome {
-        &self.best_chromosome
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.best_fitness_score
     }
     fn best_generation(&self) -> usize {
         self.best_generation
@@ -490,7 +469,7 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
 impl<G: IncrementalGenotype> HillClimbState<G> {
     fn update_best_chromosome_from_state_chromosome<SR: HillClimbReporter<Genotype = G>>(
         &mut self,
-        _genotype: &mut G,
+        genotype: &mut G,
         config: &HillClimbConfig,
         reporter: &mut SR,
     ) {
@@ -502,13 +481,13 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
         ) {
             (true, true) => {
                 self.best_generation = self.current_generation;
-                std::mem::swap(&mut self.chromosome, &mut self.best_chromosome);
-
+                self.best_fitness_score = self.chromosome.fitness_score();
+                genotype.save_best_genes(&self.chromosome);
                 reporter.on_new_best_chromosome(self, config);
                 self.reset_stale_generations();
             }
             (true, false) => {
-                std::mem::swap(&mut self.chromosome, &mut self.best_chromosome);
+                genotype.save_best_genes(&self.chromosome);
                 reporter.on_new_best_chromosome_equal_fitness(self, config);
                 self.increment_stale_generations()
             }
@@ -538,20 +517,13 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
             ) {
                 (true, true) => {
                     self.best_generation = self.current_generation;
-                    let new_best_chromosome = genotype.chromosome_cloner(contending_chromosome);
-                    genotype.chromosome_destructor(std::mem::replace(
-                        &mut self.best_chromosome,
-                        new_best_chromosome,
-                    ));
+                    self.best_fitness_score = contending_chromosome.fitness_score();
+                    genotype.save_best_genes(contending_chromosome);
                     reporter.on_new_best_chromosome(self, config);
                     self.reset_stale_generations();
                 }
                 (true, false) => {
-                    let new_best_chromosome = genotype.chromosome_cloner(contending_chromosome);
-                    genotype.chromosome_destructor(std::mem::replace(
-                        &mut self.best_chromosome,
-                        new_best_chromosome,
-                    ));
+                    genotype.save_best_genes(contending_chromosome);
                     reporter.on_new_best_chromosome_equal_fitness(self, config);
                     self.increment_stale_generations()
                 }
@@ -646,8 +618,8 @@ impl<G: IncrementalGenotype> HillClimbState<G> {
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
-            best_chromosome: genotype.chromosome_constructor_empty(), //invalid, temporary
-            chromosome: genotype.chromosome_constructor_empty(),      //invalid, temporary
+            best_fitness_score: None,
+            chromosome: genotype.chromosome_constructor_empty(), //invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         };

@@ -1,5 +1,4 @@
 #[cfg(test)]
-use crate::support::*;
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::fitness::FitnessOrdering;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, MultiListGenotype};
@@ -23,12 +22,10 @@ fn call_binary_maximize() {
         .call()
         .unwrap();
 
-    let best_chromosome = permutate.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(5));
+    println!("{:#?}", permutate.best_genes());
+    assert_eq!(permutate.best_fitness_score(), Some(5));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        permutate.best_genes().unwrap(),
         vec![true, true, true, true, true]
     );
 }
@@ -48,12 +45,10 @@ fn call_binary_minimize() {
         .call()
         .unwrap();
 
-    let best_chromosome = permutate.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(0));
+    println!("{:#?}", permutate.best_genes());
+    assert_eq!(permutate.best_fitness_score(), Some(0));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        permutate.best_genes().unwrap(),
         vec![false, false, false, false, false]
     );
 }
@@ -73,11 +68,9 @@ fn call_list() {
         .call()
         .unwrap();
 
-    let best_chromosome = permutate.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(45));
-    assert_eq!(inspect::chromosome(&best_chromosome), vec![9, 9, 9, 9, 9]);
+    println!("{:#?}", permutate.best_genes());
+    assert_eq!(permutate.best_fitness_score(), Some(45));
+    assert_eq!(permutate.best_genes().unwrap(), vec![9, 9, 9, 9, 9]);
 }
 
 #[test]
@@ -99,11 +92,9 @@ fn call_multi_list() {
         .call()
         .unwrap();
 
-    let best_chromosome = permutate.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(8));
-    assert_eq!(inspect::chromosome(&best_chromosome), vec![4, 1, 0, 3]);
+    println!("{:#?}", permutate.best_genes());
+    assert_eq!(permutate.best_fitness_score(), Some(8));
+    assert_eq!(permutate.best_genes().unwrap(), vec![4, 1, 0, 3]);
 }
 
 #[test]
@@ -122,9 +113,7 @@ fn call_par_fitness() {
         .call()
         .unwrap();
 
-    let best_chromosome = permutate.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(45));
-    assert_eq!(inspect::chromosome(&best_chromosome), vec![9, 9, 9, 9, 9]);
+    println!("{:#?}", permutate.best_genes());
+    assert_eq!(permutate.best_fitness_score(), Some(45));
+    assert_eq!(permutate.best_genes().unwrap(), vec![9, 9, 9, 9, 9]);
 }

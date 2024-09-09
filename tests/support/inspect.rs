@@ -1,7 +1,16 @@
-use fixedbitset::Block;
+use fixedbitset::{Block, FixedBitSet};
 use genetic_algorithm::chromosome::{BitChromosome, OwnesGenes};
 use genetic_algorithm::fitness::FitnessValue;
 use genetic_algorithm::population::Population;
+
+#[allow(dead_code)]
+pub fn genes_to_str(genes: &FixedBitSet) -> String {
+    format!("{:b}", genes)
+}
+#[allow(dead_code)]
+pub fn genes_to_blocks(genes: &FixedBitSet) -> &[Block] {
+    genes.as_slice()
+}
 
 #[allow(dead_code)]
 pub fn chromosome<C: OwnesGenes>(chromosome: &C) -> C::Genes {

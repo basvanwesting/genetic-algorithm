@@ -1,3 +1,4 @@
+use genetic_algorithm::chromosome::OwnesGenes;
 use genetic_algorithm::strategy::evolve::prelude::*;
 use std::collections::{HashMap, HashSet};
 
@@ -301,23 +302,22 @@ fn main() {
 
     //println!("{}", evolve);
 
-    if let Some(best_chromosome) = evolve.best_chromosome() {
-        if let Some(_fitness_score) = best_chromosome.fitness_score {
-            let mut fitness = ScrabbleFitness::new(
-                words.clone(),
-                rows,
-                columns,
-                row_scores.clone(),
-                column_scores.clone(),
-                true,
-            );
-            fitness.calculate_for_chromosome(&best_chromosome, &evolve.genotype);
-            fitness.letter_board.iter().for_each(|columns| {
-                let string = String::from_iter(columns.iter());
-                println!("{}", string.replace(" ", "."));
-            });
-        } else {
-            println!("Invalid solution with fitness score: None");
-        }
+    if let Some(best_genes) = evolve.best_genes() {
+        let mut fitness = ScrabbleFitness::new(
+            words.clone(),
+            rows,
+            columns,
+            row_scores.clone(),
+            column_scores.clone(),
+            true,
+        );
+        let chromosome = MultiListChromosome::new(best_genes);
+        fitness.calculate_for_chromosome(&chromosome, &evolve.genotype);
+        fitness.letter_board.iter().for_each(|columns| {
+            let string = String::from_iter(columns.iter());
+            println!("{}", string.replace(" ", "."));
+        });
+    } else {
+        println!("Invalid solution with fitness score: None");
     }
 }

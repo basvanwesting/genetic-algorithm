@@ -58,10 +58,10 @@ fn main() {
 
     println!("{}", hill_climb);
 
-    if let Some(best_chromosome) = hill_climb.best_chromosome() {
-        if let Some(fitness_score) = best_chromosome.fitness_score {
+    if let Some(fitness_score) = hill_climb.best_fitness_score() {
+        if let Some(best_genes) = hill_climb.best_genes() {
             if fitness_score == 0 {
-                for gene in best_chromosome.genes {
+                for gene in best_genes {
                     let mut chars: Vec<char> = (0..BOARD_SIZE).map(|_| '.').collect();
                     chars[gene as usize] = 'X';
                     println!("{}", String::from_iter(chars));

@@ -328,13 +328,15 @@ where
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn store_best_genes(&mut self, chromosome: &Self::Chromosome) {
-        // let (x, _) = self.data.split_at_mut(chromosome.row_id);
-        // self.best_genes.copy_from_slice(&x[0][..]);
-        let x = self.data[chromosome.row_id].as_mut_slice();
+    fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
+        let x = self.data[chromosome.row_id].as_slice();
         self.best_genes.copy_from_slice(x)
     }
-    fn get_best_genes(&self) -> &Self::Genes {
+    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
+        let x = self.data[chromosome.row_id].as_mut_slice();
+        x.copy_from_slice(&self.best_genes)
+    }
+    fn best_genes(&self) -> &Self::Genes {
         &self.best_genes
     }
 

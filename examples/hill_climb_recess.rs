@@ -395,30 +395,26 @@ fn main() {
 
     // REPORT
 
-    if let Some(best_chromosome) = hill_climb.best_chromosome() {
-        if let Some(fitness_score) = best_chromosome.fitness_score {
+    if let Some(fitness_score) = hill_climb.best_fitness_score() {
+        if let Some(best_genes) = hill_climb.best_genes() {
             let mut assigns: HashMap<&Adult, Vec<&NaiveDate>> = HashMap::new();
             let mut all_intervals: Vec<f64> = vec![];
-            best_chromosome
-                .genes
-                .iter()
-                .enumerate()
-                .for_each(|(index, value)| {
-                    let date = &dates[index];
-                    let adult = &adults[*value];
-                    assigns
-                        .entry(adult)
-                        .and_modify(|dates| dates.push(date))
-                        .or_insert(vec![date]);
+            best_genes.iter().enumerate().for_each(|(index, value)| {
+                let date = &dates[index];
+                let adult = &adults[*value];
+                assigns
+                    .entry(adult)
+                    .and_modify(|dates| dates.push(date))
+                    .or_insert(vec![date]);
 
-                    if adult.start_date > *date || adult.end_date < *date {
-                        println!("{}: {} INVALID out of start/end range", date, adult.name);
-                    } else if !adult.allow_weekday(date.weekday()) {
-                        println!("{}: {} INVALID on denied weekday", date, adult.name);
-                    } else {
-                        println!("{}: {}", date, adult.name);
-                    }
-                });
+                if adult.start_date > *date || adult.end_date < *date {
+                    println!("{}: {} INVALID out of start/end range", date, adult.name);
+                } else if !adult.allow_weekday(date.weekday()) {
+                    println!("{}: {} INVALID on denied weekday", date, adult.name);
+                } else {
+                    println!("{}: {}", date, adult.name);
+                }
+            });
 
             adults.iter().for_each(|adult| {
                 if let Some(dates) = assigns.get(adult) {

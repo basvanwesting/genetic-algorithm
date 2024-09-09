@@ -1,3 +1,4 @@
+use genetic_algorithm::chromosome::OwnesGenes;
 use genetic_algorithm::strategy::permutate::prelude::*;
 use std::collections::{HashMap, HashSet};
 
@@ -250,10 +251,9 @@ impl PermutateReporter for CustomReporter {
         _config: &PermutateConfig,
     ) {
         println!(
-            "new best - current_generation: {}, best_fitness_score: {:?}, best_genes: {:?}",
+            "new best - current_generation: {}, best_fitness_score: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
-            state.best_chromosome_as_ref().genes,
         );
     }
 }
@@ -282,11 +282,10 @@ impl PermutateReporter for CustomLogReporter {
             state.best_fitness_score(),
         );
         log::trace!(
-            "logger - current_generation: {}, best_generation: {}, best_fitness_score: {:?}, genes: {:?}",
+            "logger - current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
             state.current_generation(),
             state.best_generation(),
             state.best_fitness_score(),
-            state.best_chromosome_as_ref().genes,
         );
     }
 }
@@ -375,24 +374,23 @@ fn main() {
 
     println!("{}", permutate);
 
-    if let Some(best_chromosome) = permutate.best_chromosome() {
-        if let Some(_fitness_score) = best_chromosome.fitness_score {
-            // debug info
-            let mut fitness = ScrabbleFitness::new(
-                words.clone(),
-                rows,
-                columns,
-                row_scores.clone(),
-                column_scores.clone(),
-                true,
-            );
-            fitness.calculate_for_chromosome(&best_chromosome, &permutate.genotype);
-            fitness.letter_board.iter().for_each(|columns| {
-                let string = String::from_iter(columns.iter());
-                println!("{}", string.replace(" ", "."));
-            });
-        } else {
-            println!("Invalid solution with fitness score: None");
-        }
+    if let Some(best_genes) = permutate.best_genes() {
+        // debug info
+        let mut fitness = ScrabbleFitness::new(
+            words.clone(),
+            rows,
+            columns,
+            row_scores.clone(),
+            column_scores.clone(),
+            true,
+        );
+        let chromosome = MultiListChromosome::new(best_genes);
+        fitness.calculate_for_chromosome(&chromosome, &permutate.genotype);
+        fitness.letter_board.iter().for_each(|columns| {
+            let string = String::from_iter(columns.iter());
+            println!("{}", string.replace(" ", "."));
+        });
+    } else {
+        println!("Invalid solution with fitness score: None");
     }
 }

@@ -49,12 +49,10 @@ fn call_range_max_stale_generations_maximize() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(10000));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(10000));
     assert!(relative_chromosome_eq(
-        inspect::chromosome(&best_chromosome),
+        hill_climb.best_genes().unwrap(),
         vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,],
         0.001
     ));
@@ -78,12 +76,10 @@ fn call_range_max_stale_generations_minimize() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(0));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(0));
     assert!(relative_chromosome_eq(
-        inspect::chromosome(&best_chromosome),
+        hill_climb.best_genes().unwrap(),
         vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,],
         0.001
     ));
@@ -107,10 +103,8 @@ fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(76681));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(76681));
 }
 
 #[test]
@@ -132,10 +126,8 @@ fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(24930));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(24930));
 }
 
 #[test]
@@ -155,12 +147,10 @@ fn call_range_target_fitness_score_maximize() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(8088));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(8088));
     assert!(relative_chromosome_eq(
-        inspect::chromosome(&best_chromosome),
+        hill_climb.best_genes().unwrap(),
         vec![0.673, 0.629, 1.0, 0.722, 1.0, 1.0, 0.737, 0.735, 0.590, 1.0,],
         0.001
     ));
@@ -184,12 +174,10 @@ fn call_range_target_fitness_score_minimize() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(964));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(964));
     assert!(relative_chromosome_eq(
-        inspect::chromosome(&best_chromosome),
+        hill_climb.best_genes().unwrap(),
         vec![0.0, 0.0, 0.173, 0.0, 0.626, 0.006, 0.0, 0.0, 0.0, 0.159,],
         0.001
     ));
@@ -214,12 +202,10 @@ fn call_range_par_fitness() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(964));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(964));
     assert!(relative_chromosome_eq(
-        inspect::chromosome(&best_chromosome),
+        hill_climb.best_genes().unwrap(),
         vec![0.0, 0.0, 0.173, 0.0, 0.626, 0.006, 0.0, 0.0, 0.0, 0.159,],
         0.001
     ));
@@ -242,9 +228,8 @@ fn call_binary_stochastic() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-    assert_eq!(best_chromosome.fitness_score, Some(0));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(0));
 }
 
 #[test]
@@ -264,9 +249,8 @@ fn call_binary_stochastic_secondary() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-    assert_eq!(best_chromosome.fitness_score, Some(0));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(0));
 }
 
 #[test]
@@ -286,9 +270,8 @@ fn call_binary_steepest_ascent() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-    assert_eq!(best_chromosome.fitness_score, Some(0));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(0));
 }
 
 #[test]
@@ -308,7 +291,6 @@ fn call_binary_steepest_ascent_secondary() {
         .call()
         .unwrap();
 
-    let best_chromosome = hill_climb.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-    assert_eq!(best_chromosome.fitness_score, Some(0));
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(0));
 }

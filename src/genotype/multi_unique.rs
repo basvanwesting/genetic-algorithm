@@ -132,10 +132,13 @@ impl<T: Allele> Genotype for MultiUnique<T> {
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn store_best_genes(&mut self, chromosome: &Self::Chromosome) {
+    fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
         self.best_genes.clone_from(&chromosome.genes);
     }
-    fn get_best_genes(&self) -> &Self::Genes {
+    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
+        chromosome.genes.clone_from(&self.best_genes);
+    }
+    fn best_genes(&self) -> &Self::Genes {
         &self.best_genes
     }
     fn mutate_chromosome_genes<R: Rng>(

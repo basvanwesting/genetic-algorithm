@@ -160,7 +160,7 @@ fn main() {
         .call()
         .unwrap();
     // println!("{}", evolve);
-    // println!("genes: {:b}", evolve.best_chromosome().unwrap().genes);
+    // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
         "StaticMatrixGenotype, best_generation: {:?}",
         evolve.best_generation()
@@ -201,7 +201,7 @@ fn main() {
         .call()
         .unwrap();
     // println!("{}", evolve);
-    // println!("genes: {:b}", evolve.best_chromosome().unwrap().genes);
+    // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
         "DynamicMatrixGenotype, best_generation: {:?}",
         evolve.best_generation()
@@ -243,7 +243,7 @@ fn main() {
         .call()
         .unwrap();
     // println!("{}", evolve);
-    // println!("genes: {:b}", evolve.best_chromosome().unwrap().genes);
+    // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
         "RangeGenotype, best_generation: {:?}",
         evolve.best_generation()

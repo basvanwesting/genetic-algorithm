@@ -34,10 +34,9 @@ use std::marker::PhantomData;
 ///
 ///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
 ///         println!(
-///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}, population_size: {}",
+///             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, population_size: {}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
-///             state.best_chromosome_as_ref().genes,
 ///             state.current_scale_index.as_ref(),
 ///             state.population.size(),
 ///         );

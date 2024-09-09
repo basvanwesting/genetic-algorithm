@@ -102,12 +102,10 @@ fn call_binary_max_stale_generations_maximize() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(10));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(10));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![true, true, true, true, true, true, true, true, true, true]
     );
 }
@@ -133,12 +131,10 @@ fn call_binary_max_stale_generations_minimize() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(0));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(0));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![false, false, false, false, false, false, false, false, false, false]
     );
 }
@@ -164,9 +160,8 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-    assert_eq!(best_chromosome.fitness_score, Some(75));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(75));
 }
 
 #[test]
@@ -191,10 +186,8 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(25));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(25));
 }
 
 #[test]
@@ -217,12 +210,10 @@ fn call_binary_target_fitness_score_maximize() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(9));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![true, true, true, false, true, true, true, true, true, true]
     );
 }
@@ -248,12 +239,10 @@ fn call_binary_target_fitness_score_minimize() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(0));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(0));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![false, false, false, false, false, false, false, false, false, false]
     );
 }
@@ -278,12 +267,10 @@ fn call_binary_mass_degeneration() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(9));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![true, true, true, false, true, true, true, true, true, true]
     );
 }
@@ -308,12 +295,10 @@ fn call_binary_mass_extinction() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(9));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![true, true, false, true, true, true, true, true, true, true]
     );
 }
@@ -338,12 +323,10 @@ fn call_binary_mass_genesis() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(9));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(9));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![true, true, true, false, true, true, true, true, true, true]
     );
 }
@@ -365,12 +348,10 @@ fn call_bit() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(20));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(20));
     assert_eq!(
-        inspect::chromosome_to_str(&best_chromosome),
+        inspect::genes_to_str(&evolve.best_genes().unwrap()),
         "11111111111111111111"
     );
 }
@@ -396,12 +377,10 @@ fn call_range_f32() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(9751));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(9751));
     assert!(relative_chromosome_eq(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![0.968, 0.981, 0.979, 0.971, 0.982, 0.942, 0.988, 0.946, 0.992, 0.995],
         0.001
     ));
@@ -428,12 +407,10 @@ fn call_range_usize() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(90));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(90));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
     );
 }
@@ -460,12 +437,10 @@ fn call_range_isize() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(90));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(90));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
     );
 }
@@ -492,12 +467,10 @@ fn call_list() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(30));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(30));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
     );
 }
@@ -527,11 +500,9 @@ fn call_multi_list() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(8));
-    assert_eq!(inspect::chromosome(&best_chromosome), vec![4, 1, 0, 3]);
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(8));
+    assert_eq!(evolve.best_genes().unwrap(), vec![4, 1, 0, 3]);
 }
 
 #[derive(Clone, Debug)]
@@ -574,14 +545,9 @@ fn call_static_matrix() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(0));
-    assert_eq!(
-        evolve.genotype.get_genes(&best_chromosome).to_vec(),
-        vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    );
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(0));
+    assert_eq!(evolve.best_genes().unwrap(), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
 }
 
 #[derive(Clone, Debug)]
@@ -624,12 +590,10 @@ fn call_dynamic_matrix() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(0));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(0));
     assert_eq!(
-        evolve.genotype.get_genes(&best_chromosome).to_vec(),
+        evolve.best_genes().unwrap(),
         vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
 }
@@ -657,12 +621,10 @@ fn call_par_fitness() {
         .call()
         .unwrap();
 
-    let best_chromosome = evolve.best_chromosome().unwrap();
-    println!("{:#?}", best_chromosome);
-
-    assert_eq!(best_chromosome.fitness_score, Some(30));
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(30));
     assert_eq!(
-        inspect::chromosome(&best_chromosome),
+        evolve.best_genes().unwrap(),
         vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
     );
 }

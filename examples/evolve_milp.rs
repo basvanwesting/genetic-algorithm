@@ -63,10 +63,10 @@ fn main() {
         let evolve = evolve_builder.clone().call().unwrap();
         let duration = now.elapsed();
 
-        if let Some(best_chromosome) = evolve.best_chromosome() {
-            if let Some(fitness_score) = best_chromosome.fitness_score {
-                let x1 = best_chromosome.genes[0];
-                let x2 = best_chromosome.genes[1].floor();
+        if let Some(fitness_score) = evolve.best_fitness_score() {
+            if let Some(best_genes) = evolve.best_genes() {
+                let x1 = best_genes[0];
+                let x2 = best_genes[1].floor();
                 let result = 8.0 * x1 + x2;
 
                 println!(

@@ -108,8 +108,8 @@ fn main() {
 
     println!("{}", evolve);
 
-    if let Some(best_chromosome) = evolve.best_chromosome() {
-        if let Some(fitness_score) = best_chromosome.fitness_score {
+    if let Some(fitness_score) = evolve.best_fitness_score() {
+        if let Some(best_genes) = evolve.best_genes() {
             if fitness_score == 0 {
                 println!("Valid solution");
             } else {
@@ -117,7 +117,7 @@ fn main() {
             }
 
             let mut person_counters: HashMap<u8, HashMap<u8, u8>> = HashMap::new();
-            let mut people = best_chromosome.genes.clone();
+            let mut people = best_genes.clone();
 
             for hosts_with_table_sizes in &hosts_with_table_sizes_per_round {
                 println!("round:");

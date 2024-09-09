@@ -120,8 +120,8 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
-/// let best_chromosome = evolve.best_chromosome().unwrap();
-/// assert_eq!(best_chromosome.genes, vec![false; 100])
+/// let best_genes = evolve.best_genes().unwrap();
+/// assert_eq!(best_genes, vec![false; 100])
 /// ```
 pub struct Evolve<
     G: Genotype,
@@ -168,7 +168,7 @@ pub struct EvolveState<G: Genotype> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: G::Chromosome,
+    pub best_fitness_score: Option<FitnessValue>,
     pub durations: HashMap<StrategyAction, Duration>,
     pub chromosome: G::Chromosome,
     pub population: Population<G::Chromosome>,
@@ -246,17 +246,6 @@ impl<
         self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<G::Chromosome> {
-        if self
-            .genotype
-            .chromosome_is_empty(&self.state.best_chromosome)
-        {
-            None
-        } else {
-            // FIXME: use genotype cloner here? It is the resulting call, we don't expect new activity
-            Some(self.state.best_chromosome.clone())
-        }
-    }
     fn best_generation(&self) -> usize {
         self.state.best_generation
     }
@@ -265,7 +254,7 @@ impl<
     }
     fn best_genes(&self) -> Option<G::Genes> {
         if self.state.best_fitness_score().is_some() {
-            Some(self.genotype.get_best_genes().clone())
+            Some(self.genotype.best_genes().clone())
         } else {
             None
         }
@@ -312,15 +301,11 @@ impl<
             &mut self.reporter,
         );
 
-        if self
-            .genotype
-            .chromosome_is_empty(&self.state.best_chromosome)
-        {
-            // best_chromosome is still empty placeholder, just take first of population
+        if self.state.best_fitness_score().is_none() {
+            let chromosome = &self.state.population.chromosomes[0];
             self.state.best_generation = self.state.current_generation;
-            self.state.best_chromosome = self
-                .genotype
-                .chromosome_cloner(&self.state.population.chromosomes[0]);
+            self.state.best_fitness_score = chromosome.fitness_score();
+            self.genotype.save_best_genes(chromosome);
             self.reporter
                 .on_new_best_chromosome(&self.state, &self.config);
             self.state.reset_stale_generations();
@@ -397,11 +382,11 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     fn population_as_mut(&mut self) -> &mut Population<G::Chromosome> {
         &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> &G::Chromosome {
-        &self.best_chromosome
-    }
     fn best_generation(&self) -> usize {
         self.best_generation
+    }
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.best_fitness_score
     }
     fn current_generation(&self) -> usize {
         self.current_generation
@@ -444,20 +429,13 @@ impl<G: Genotype> EvolveState<G> {
             ) {
                 (true, true) => {
                     self.best_generation = self.current_generation;
-                    let new_best_chromosome = genotype.chromosome_cloner(contending_chromosome);
-                    genotype.chromosome_destructor(std::mem::replace(
-                        &mut self.best_chromosome,
-                        new_best_chromosome,
-                    ));
+                    self.best_fitness_score = contending_chromosome.fitness_score();
+                    genotype.save_best_genes(contending_chromosome);
                     reporter.on_new_best_chromosome(self, config);
                     self.reset_stale_generations();
                 }
                 (true, false) => {
-                    let new_best_chromosome = genotype.chromosome_cloner(contending_chromosome);
-                    genotype.chromosome_destructor(std::mem::replace(
-                        &mut self.best_chromosome,
-                        new_best_chromosome,
-                    ));
+                    genotype.save_best_genes(contending_chromosome);
                     reporter.on_new_best_chromosome_equal_fitness(self, config);
                     self.increment_stale_generations();
                 }
@@ -622,8 +600,8 @@ impl<G: Genotype> EvolveState<G> {
             current_scale_index: None,
             max_scale_index: 0,
             best_generation: 0,
-            best_chromosome: genotype.chromosome_constructor_empty(), //invalid, temporary
-            chromosome: genotype.chromosome_constructor_empty(),      //invalid, temporary
+            best_fitness_score: None,
+            chromosome: genotype.chromosome_constructor_empty(), //invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         };

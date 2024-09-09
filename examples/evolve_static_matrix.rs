@@ -73,11 +73,6 @@ fn main() {
     let duration = now.elapsed();
 
     println!("{}", evolve);
-    if let Some(best_chromosome) = evolve.best_chromosome() {
-        println!(
-            "genes from store: {:?}",
-            &evolve.genotype.get_genes(&best_chromosome)
-        );
-    }
+    println!("genes: {:?}", evolve.best_genes());
     println!("duration: {:?}", duration);
 }

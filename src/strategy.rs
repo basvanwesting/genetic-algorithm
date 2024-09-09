@@ -35,7 +35,6 @@ pub const STRATEGY_ACTIONS: [StrategyAction; 9] = [
 
 pub trait Strategy<G: Genotype> {
     fn call(&mut self);
-    fn best_chromosome(&self) -> Option<G::Chromosome>;
     fn best_generation(&self) -> usize;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_genes(&self) -> Option<G::Genes>;
@@ -60,10 +59,7 @@ pub trait StrategyState<G: Genotype> {
     fn population_as_ref(&self) -> &Population<G::Chromosome>;
     fn chromosome_as_mut(&mut self) -> &mut G::Chromosome;
     fn population_as_mut(&mut self) -> &mut Population<G::Chromosome>;
-    fn best_chromosome_as_ref(&self) -> &G::Chromosome;
-    fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.best_chromosome_as_ref().fitness_score()
-    }
+    fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
@@ -90,7 +86,7 @@ pub trait StrategyState<G: Genotype> {
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {
         match (
-            self.best_chromosome_as_ref().fitness_score(),
+            self.best_fitness_score(),
             contending_chromosome.fitness_score(),
         ) {
             (None, None) => (false, false),

@@ -5,7 +5,7 @@
   * [v] Change Population<Genotype> to Population<Chromosome>
   * [ ] Check fitness API
 
-  * External genes are always Vec<Allele> (seed and best_genes). Internal genes can be anything
+  * [x] REJECTED: External genes are always Vec<Allele> (seed and best_genes). Internal genes can be anything
   * Alway use best_genes as result. Still allow best chromomsome, but note the genes are internal
   * Rename genes on chromosome to data? Would affect calculate_for_chromosome API, so maybe no. User needs to know the difference anyway
   * Remove need for working chromomsome, by just copying the chromomsome over the existing best? copy(&src, &mut dest), but would still need to clone if empty

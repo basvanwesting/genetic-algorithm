@@ -8,6 +8,7 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
+use crate::chromosome::Chromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
 use crate::population::Population;
@@ -62,8 +63,8 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///     .unwrap();
 ///
 /// // it's all about the best chromosome after all
-/// let best_chromosome = permutate.best_chromosome().unwrap();
-/// assert_eq!(best_chromosome.genes, vec![false; 16])
+/// let best_genes = permutate.best_genes().unwrap();
+/// assert_eq!(best_genes, vec![false; 16])
 /// ```
 pub struct Permutate<
     G: PermutableGenotype,
@@ -91,7 +92,7 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: G::Chromosome,
+    pub best_fitness_score: Option<FitnessValue>,
     pub chromosome: G::Chromosome,
     pub population: Population<G::Chromosome>,
     pub durations: HashMap<StrategyAction, Duration>,
@@ -114,16 +115,6 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<G::Chromosome> {
-        if self
-            .genotype
-            .chromosome_is_empty(&self.state.best_chromosome)
-        {
-            None
-        } else {
-            Some(self.state.best_chromosome.clone())
-        }
-    }
     fn best_generation(&self) -> usize {
         self.state.best_generation
     }
@@ -132,7 +123,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
     }
     fn best_genes(&self) -> Option<G::Genes> {
         if self.state.best_fitness_score().is_some() {
-            Some(self.genotype.get_best_genes().clone())
+            Some(self.genotype.best_genes().clone())
         } else {
             None
         }
@@ -161,36 +152,41 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         self.fitness
             .call_for_state_chromosome(&mut self.state, &self.genotype);
         self.state.best_generation = self.state.current_generation;
-        self.state.best_chromosome = self.state.chromosome.clone();
+        self.state.best_fitness_score = self.state.chromosome.fitness_score();
+        self.genotype.save_best_genes(&self.state.chromosome);
         self.reporter
             .on_new_best_chromosome(&self.state, &self.config);
     }
     fn call_sequential(&mut self) {
         self.genotype
+            .clone()
             .chromosome_permutations_into_iter()
             .for_each(|chromosome| {
                 self.state.current_generation += 1;
                 self.state.chromosome = chromosome;
                 self.fitness
                     .call_for_state_chromosome(&mut self.state, &self.genotype);
-                self.state
-                    .update_best_chromosome_and_report(&self.config, &mut self.reporter);
+                self.state.update_best_chromosome_and_report(
+                    &mut self.genotype,
+                    &self.config,
+                    &mut self.reporter,
+                );
                 self.reporter.on_new_generation(&self.state, &self.config);
             });
     }
     fn call_parallel(&mut self) {
         rayon::scope(|s| {
-            let genotype = &self.genotype;
+            let thread_genotype = self.genotype.clone();
             let fitness = self.fitness.clone();
             let (sender, receiver) = sync_channel(1000);
 
             s.spawn(move |_| {
-                genotype
+                thread_genotype
                     .chromosome_permutations_into_iter()
                     .par_bridge()
                     .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
                         let now = Instant::now();
-                        fitness.call_for_chromosome(&mut chromosome, genotype);
+                        fitness.call_for_chromosome(&mut chromosome, &thread_genotype);
                         sender.send((chromosome, now.elapsed())).unwrap();
                     });
             });
@@ -198,8 +194,11 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             receiver.iter().for_each(|(chromosome, fitness_duration)| {
                 self.state.current_generation += 1;
                 self.state.chromosome = chromosome;
-                self.state
-                    .update_best_chromosome_and_report(&self.config, &mut self.reporter);
+                self.state.update_best_chromosome_and_report(
+                    &mut self.genotype,
+                    &self.config,
+                    &mut self.reporter,
+                );
                 self.state
                     .add_duration(StrategyAction::Fitness, fitness_duration);
             });
@@ -232,8 +231,8 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     fn population_as_mut(&mut self) -> &mut Population<G::Chromosome> {
         &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> &G::Chromosome {
-        &self.best_chromosome
+    fn best_fitness_score(&self) -> Option<FitnessValue> {
+        self.best_fitness_score
     }
     fn best_generation(&self) -> usize {
         self.best_generation
@@ -264,6 +263,7 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
 impl<G: PermutableGenotype> PermutateState<G> {
     fn update_best_chromosome_and_report<SR: PermutateReporter<Genotype = G>>(
         &mut self,
+        genotype: &mut G,
         config: &PermutateConfig,
         reporter: &mut SR,
     ) {
@@ -275,12 +275,13 @@ impl<G: PermutableGenotype> PermutateState<G> {
         ) {
             (true, true) => {
                 self.best_generation = self.current_generation;
-                std::mem::swap(&mut self.chromosome, &mut self.best_chromosome);
+                self.best_fitness_score = self.chromosome.fitness_score();
+                genotype.save_best_genes(&self.chromosome);
                 reporter.on_new_best_chromosome(self, config);
                 self.reset_stale_generations();
             }
             (true, false) => {
-                std::mem::swap(&mut self.chromosome, &mut self.best_chromosome);
+                genotype.save_best_genes(&self.chromosome);
                 reporter.on_new_best_chromosome_equal_fitness(self, config);
                 self.increment_stale_generations()
             }
@@ -346,8 +347,8 @@ impl<G: PermutableGenotype> PermutateState<G> {
             current_generation: 0,
             stale_generations: 0,
             best_generation: 0,
-            best_chromosome: genotype.chromosome_constructor_empty(), //invalid, temporary
-            chromosome: genotype.chromosome_constructor_empty(),      //invalid, temporary
+            best_fitness_score: None,
+            chromosome: genotype.chromosome_constructor_empty(), //invalid, temporary
             population: Population::new_empty(),
             durations: HashMap::new(),
         }
