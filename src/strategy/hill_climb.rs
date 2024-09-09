@@ -8,7 +8,6 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
-use crate::chromosome::LegacyChromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::population::Population;
@@ -179,12 +178,12 @@ pub struct HillClimbState<G: IncrementalGenotype> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: LegacyChromosome<G>,
+    pub best_chromosome: G::Chromosome,
     pub durations: HashMap<StrategyAction, Duration>,
 
     pub current_scale_index: Option<usize>,
     pub max_scale_index: usize,
-    pub chromosome: LegacyChromosome<G>,
+    pub chromosome: G::Chromosome,
     pub population: Population<G>,
 }
 
@@ -336,7 +335,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<LegacyChromosome<G>> {
+    fn best_chromosome(&self) -> Option<G::Chromosome> {
         if self
             .genotype
             .chromosome_is_empty(&self.state.best_chromosome)
@@ -352,6 +351,13 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.state.best_fitness_score()
+    }
+    fn best_genes(&self) -> Option<G::Genes> {
+        if self.state.best_fitness_score().is_some() {
+            Some(self.genotype.get_best_genes().clone())
+        } else {
+            None
+        }
     }
 }
 
@@ -440,10 +446,10 @@ impl StrategyConfig for HillClimbConfig {
 }
 
 impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
-    fn chromosome_as_ref(&self) -> &LegacyChromosome<G> {
+    fn chromosome_as_ref(&self) -> &G::Chromosome {
         &self.chromosome
     }
-    fn chromosome_as_mut(&mut self) -> &mut LegacyChromosome<G> {
+    fn chromosome_as_mut(&mut self) -> &mut G::Chromosome {
         &mut self.chromosome
     }
     fn population_as_ref(&self) -> &Population<G> {
@@ -452,7 +458,7 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     fn population_as_mut(&mut self) -> &mut Population<G> {
         &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> &LegacyChromosome<G> {
+    fn best_chromosome_as_ref(&self) -> &G::Chromosome {
         &self.best_chromosome
     }
     fn best_generation(&self) -> usize {
@@ -698,7 +704,6 @@ impl<G: IncrementalGenotype> fmt::Display for HillClimbState<G> {
             "  scale index (current/max): {:?}/{}",
             self.current_scale_index, self.max_scale_index
         )?;
-        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
-        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome)
+        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())
     }
 }

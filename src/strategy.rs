@@ -3,7 +3,7 @@ pub mod evolve;
 pub mod hill_climb;
 pub mod permutate;
 
-use crate::chromosome::LegacyChromosome;
+use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::population::Population;
@@ -35,9 +35,10 @@ pub const STRATEGY_ACTIONS: [StrategyAction; 9] = [
 
 pub trait Strategy<G: Genotype> {
     fn call(&mut self);
-    fn best_chromosome(&self) -> Option<LegacyChromosome<G>>;
+    fn best_chromosome(&self) -> Option<G::Chromosome>;
     fn best_generation(&self) -> usize;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
+    fn best_genes(&self) -> Option<G::Genes>;
 }
 
 pub trait StrategyConfig {
@@ -55,13 +56,13 @@ pub trait StrategyConfig {
 /// * chromosome: `Chromosome<G>`
 /// * populatoin: `Population<G>` // may be empty
 pub trait StrategyState<G: Genotype> {
-    fn chromosome_as_ref(&self) -> &LegacyChromosome<G>;
+    fn chromosome_as_ref(&self) -> &G::Chromosome;
     fn population_as_ref(&self) -> &Population<G>;
-    fn chromosome_as_mut(&mut self) -> &mut LegacyChromosome<G>;
+    fn chromosome_as_mut(&mut self) -> &mut G::Chromosome;
     fn population_as_mut(&mut self) -> &mut Population<G>;
-    fn best_chromosome_as_ref(&self) -> &LegacyChromosome<G>;
+    fn best_chromosome_as_ref(&self) -> &G::Chromosome;
     fn best_fitness_score(&self) -> Option<FitnessValue> {
-        self.best_chromosome_as_ref().fitness_score
+        self.best_chromosome_as_ref().fitness_score()
     }
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
@@ -84,13 +85,13 @@ pub trait StrategyState<G: Genotype> {
     // specialized version of this function for additional reporting
     fn is_better_chromosome(
         &self,
-        contending_chromosome: &LegacyChromosome<G>,
+        contending_chromosome: &G::Chromosome,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {
         match (
-            self.best_chromosome_as_ref().fitness_score,
-            contending_chromosome.fitness_score,
+            self.best_chromosome_as_ref().fitness_score(),
+            contending_chromosome.fitness_score(),
         ) {
             (None, None) => (false, false),
             (Some(_), None) => (false, false),

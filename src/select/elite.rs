@@ -1,4 +1,5 @@
 use super::Select;
+use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
@@ -36,7 +37,7 @@ impl Select for Elite {
                 state
                     .population
                     .chromosomes
-                    .sort_unstable_by_key(|c| match c.fitness_score {
+                    .sort_unstable_by_key(|c| match c.fitness_score() {
                         Some(fitness_score) => Reverse(fitness_score),
                         None => Reverse(FitnessValue::MIN),
                     })
@@ -45,7 +46,7 @@ impl Select for Elite {
                 state
                     .population
                     .chromosomes
-                    .sort_unstable_by_key(|c| match c.fitness_score {
+                    .sort_unstable_by_key(|c| match c.fitness_score() {
                         Some(fitness_score) => fitness_score,
                         None => FitnessValue::MAX,
                     })

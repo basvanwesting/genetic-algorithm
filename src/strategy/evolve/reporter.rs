@@ -217,7 +217,8 @@ impl<G: Genotype> Reporter for Simple<G> {
             state.current_generation(),
             state.best_fitness_score(),
             if self.show_genes {
-                Some(&state.best_chromosome_as_ref().genes)
+                // Some(&state.best_chromosome_as_ref().genes)
+                Some("temporary disabled")
             } else {
                 None
             },
@@ -310,7 +311,7 @@ impl<G: Genotype> Reporter for Log<G> {
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
             state.best_fitness_score(),
-            state.best_chromosome_as_ref().genes
+            Some("temporary disabled") // state.best_chromosome_as_ref().genes
         );
     }
 }

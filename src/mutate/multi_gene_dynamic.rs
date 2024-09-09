@@ -1,4 +1,5 @@
 use super::{Mutate, MutateEvent};
+use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
 use crate::strategy::{StrategyAction, StrategyState};
@@ -59,7 +60,7 @@ impl Mutate for MultiGeneDynamic {
             .population
             .chromosomes
             .iter_mut()
-            .filter(|c| c.age == 0)
+            .filter(|c| c.age() == 0)
         {
             if bool_sampler.sample(rng) {
                 genotype.mutate_chromosome_genes(

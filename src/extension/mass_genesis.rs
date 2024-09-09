@@ -38,7 +38,6 @@ impl Extension for MassGenesis {
                     .population
                     .chromosomes
                     .swap_remove(best_chromosome_index);
-                dbg!(&best_chromosome);
                 genotype.chromosome_destructor_truncate(&mut state.population.chromosomes, 0);
                 state
                     .population

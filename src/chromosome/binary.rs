@@ -1,11 +1,6 @@
 use crate::fitness::FitnessValue;
-use crate::genotype::Genotype;
-use rand::prelude::*;
-use std::cmp::Ordering;
 use std::collections::hash_map::DefaultHasher;
-use std::fmt;
 use std::hash::{Hash, Hasher};
-use std::ops::Range;
 
 #[derive(Clone, Debug)]
 pub struct Binary {
@@ -39,9 +34,18 @@ impl super::Chromosome for Binary {
     fn fitness_score(&self) -> Option<FitnessValue> {
         self.fitness_score
     }
+    fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>) {
+        self.fitness_score = fitness_score
+    }
     fn taint_fitness_score(&mut self) {
         self.age = 0;
         self.fitness_score = None;
+    }
+}
+impl super::OwnesGenes for Binary {
+    type Genes = Vec<bool>;
+    fn genes(&self) -> &Vec<bool> {
+        &self.genes
     }
 }
 

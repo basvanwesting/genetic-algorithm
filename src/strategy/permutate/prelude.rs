@@ -1,5 +1,5 @@
 #[doc(no_inline)]
-pub use crate::chromosome::{GenesKey, LegacyChromosome};
+pub use crate::chromosome::{Chromosome, GenesKey};
 #[doc(no_inline)]
 pub use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 #[doc(no_inline)]

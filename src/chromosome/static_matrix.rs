@@ -1,10 +1,4 @@
 use crate::fitness::FitnessValue;
-use crate::genotype::{Allele, Genotype};
-use rand::prelude::*;
-use std::cmp::Ordering;
-use std::collections::hash_map::DefaultHasher;
-use std::fmt;
-use std::hash::{Hash, Hasher};
 
 #[derive(Clone, Debug)]
 pub struct StaticMatrix {
@@ -37,6 +31,9 @@ impl super::Chromosome for StaticMatrix {
     }
     fn fitness_score(&self) -> Option<FitnessValue> {
         self.fitness_score
+    }
+    fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>) {
+        self.fitness_score = fitness_score
     }
     fn taint_fitness_score(&mut self) {
         self.age = 0;

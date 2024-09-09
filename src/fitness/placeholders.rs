@@ -1,5 +1,5 @@
 //! placeholders for testing and bootstrapping, not really used in practice
-use crate::chromosome::LegacyChromosome;
+use crate::chromosome::{OwnesGenes};
 use crate::fitness::{Fitness, FitnessValue};
 use crate::genotype::{BinaryGenotype, BitGenotype, Genotype};
 use rand::distributions::{Distribution, Uniform};
@@ -25,7 +25,7 @@ impl<G: Genotype> Fitness for Zero<G> {
     type Genotype = G;
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &LegacyChromosome<Self::Genotype>,
+        _chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         Some(0)
@@ -39,7 +39,7 @@ impl Fitness for CountTrue {
     type Genotype = BinaryGenotype;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &LegacyChromosome<Self::Genotype>,
+        chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
@@ -52,7 +52,7 @@ impl Fitness for CountOnes {
     type Genotype = BitGenotype;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &LegacyChromosome<Self::Genotype>,
+        chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         Some(chromosome.genes.count_ones(..) as FitnessValue)
@@ -92,15 +92,16 @@ impl<G: Genotype> Fitness for SumGenes<G>
 where
     G::Allele: Into<f64>,
     G::Genes: IntoIterator<Item = G::Allele>,
+    G::Chromosome: OwnesGenes<Genes = G::Genes>,
 {
     type Genotype = G;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &LegacyChromosome<Self::Genotype>,
+        chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let sum: f64 = chromosome
-            .genes
+            .genes()
             .clone()
             .into_iter()
             .fold(0.0_f64, |acc, e| acc + e.into());
@@ -127,7 +128,7 @@ impl Fitness for CountTrueWithSleep {
     type Genotype = BinaryGenotype;
     fn calculate_for_chromosome(
         &mut self,
-        chromosome: &LegacyChromosome<Self::Genotype>,
+        chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         thread::sleep(time::Duration::from_micros(self.micro_seconds));
@@ -158,7 +159,7 @@ impl<G: Genotype> Fitness for Countdown<G> {
     type Genotype = G;
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &LegacyChromosome<Self::Genotype>,
+        _chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         if self.0 == 0 {
@@ -194,7 +195,7 @@ impl<G: Genotype> Fitness for CountdownNoisy<G> {
     type Genotype = G;
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &LegacyChromosome<Self::Genotype>,
+        _chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         if self.start == 0 {

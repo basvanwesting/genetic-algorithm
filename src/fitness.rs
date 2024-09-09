@@ -9,7 +9,7 @@
 pub mod placeholders;
 pub mod prelude;
 
-use crate::chromosome::{ChromosomeManager, LegacyChromosome};
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use crate::genotype::Genotype;
 use crate::population::Population;
 use crate::strategy::{StrategyAction, StrategyState};
@@ -81,7 +81,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             population
                 .chromosomes
                 .par_iter_mut()
-                .filter(|c| c.fitness_score.is_none())
+                .filter(|c| c.fitness_score().is_none())
                 .for_each_init(
                     || {
                         thread_local
@@ -96,23 +96,23 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             population
                 .chromosomes
                 .iter_mut()
-                .filter(|c| c.fitness_score.is_none())
+                .filter(|c| c.fitness_score().is_none())
                 .for_each(|c| self.call_for_chromosome(c, genotype));
         }
     }
     fn call_for_chromosome(
         &mut self,
-        chromosome: &mut LegacyChromosome<Self::Genotype>,
+        chromosome: &mut <Self::Genotype as Genotype>::Chromosome,
         genotype: &Self::Genotype,
     ) {
         if !genotype.chromosome_is_empty(chromosome) {
-            chromosome.fitness_score = self.calculate_for_chromosome(chromosome, genotype);
+            chromosome.set_fitness_score(self.calculate_for_chromosome(chromosome, genotype));
         }
     }
     /// Implement by Client for normal Genotypes
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &LegacyChromosome<Self::Genotype>,
+        _chromosome: &<Self::Genotype as Genotype>::Chromosome,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticMatrixGenotype)");

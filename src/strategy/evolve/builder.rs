@@ -1,10 +1,10 @@
 use super::{Evolve, EvolveReporter, EvolveReporterNoop};
-use crate::select::Select;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
+use crate::select::Select;
 use crate::strategy::Strategy;
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
@@ -384,8 +384,7 @@ impl<
         } else {
             let seed_genes_list = species_runs
                 .iter()
-                .filter_map(|species_run| species_run.best_chromosome())
-                .map(|best_chromosome| best_chromosome.genes.clone())
+                .filter_map(|species_run| species_run.best_genes())
                 .collect();
             let mut final_genotype = self.genotype.clone().unwrap();
             final_genotype.set_seed_genes_list(seed_genes_list);
@@ -444,8 +443,7 @@ impl<
         } else {
             let seed_genes_list = species_runs
                 .iter()
-                .filter_map(|species_run| species_run.best_chromosome())
-                .map(|best_chromosome| best_chromosome.genes.clone())
+                .filter_map(|species_run| species_run.best_genes())
                 .collect();
             let mut final_genotype = self.genotype.clone().unwrap();
             final_genotype.set_seed_genes_list(seed_genes_list);

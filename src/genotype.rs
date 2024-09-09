@@ -25,7 +25,7 @@ pub use self::range::Range as RangeGenotype;
 pub use self::static_matrix::StaticMatrix as StaticMatrixGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
-use crate::chromosome::{Chromosome, ChromosomeManager, LegacyChromosome};
+use crate::chromosome::{Chromosome, ChromosomeManager};
 use crate::population::Population;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;

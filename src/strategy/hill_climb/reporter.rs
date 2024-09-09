@@ -1,4 +1,5 @@
 use super::{HillClimbConfig, HillClimbState};
+use crate::chromosome::Chromosome;
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::{StrategyState, STRATEGY_ACTIONS};
 use std::marker::PhantomData;
@@ -35,7 +36,7 @@ use std::marker::PhantomData;
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
-///             state.best_chromosome_as_ref().genes,
+///             "temporary disabled",
 ///             state.current_scale_index.as_ref(),
 ///         );
 ///     }
@@ -194,7 +195,8 @@ impl<G: IncrementalGenotype> Reporter for Simple<G> {
             state.current_generation(),
             state.best_fitness_score(),
             if self.show_genes {
-                Some(&state.best_chromosome_as_ref().genes)
+                // Some(&state.best_chromosome_as_ref().genes)
+                Some("temporary disabled")
             } else {
                 None
             },
@@ -213,7 +215,8 @@ impl<G: IncrementalGenotype> Reporter for Simple<G> {
                 state.current_generation(),
                 state.best_fitness_score(),
                 if self.show_genes {
-                    Some(&state.best_chromosome_as_ref().genes)
+                    // Some(&state.best_chromosome_as_ref().genes)
+                    Some("temporary disabled")
                 } else {
                     None
                 },
@@ -255,19 +258,22 @@ impl<G: IncrementalGenotype> Reporter for Log<G> {
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
             state.best_fitness_score(),
-            state.best_chromosome_as_ref().genes
+            // state.best_chromosome_as_ref().genes
+            Some("temporary disabled")
         );
         if log::log_enabled!(log::Level::Trace) {
             log::trace!(
                 "contending - fitness score: {:?}, genes: {:?}",
-                state.chromosome.fitness_score,
-                state.chromosome.genes,
+                state.chromosome.fitness_score(),
+                // state.chromosome.genes,
+                Some("temporary disabled")
             );
             state.population.chromosomes.iter().for_each(|chromosome| {
                 log::trace!(
                     "neighbour - fitness score: {:?}, genes: {:?}",
-                    chromosome.fitness_score,
-                    chromosome.genes,
+                    chromosome.fitness_score(),
+                    // chromosome.genes,
+                    Some("temporary disabled")
                 );
             })
         }

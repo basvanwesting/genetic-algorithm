@@ -8,7 +8,7 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
-use crate::chromosome::LegacyChromosome;
+use crate::chromosome::Chromosome;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
@@ -168,9 +168,9 @@ pub struct EvolveState<G: Genotype> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: LegacyChromosome<G>,
+    pub best_chromosome: G::Chromosome,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub chromosome: LegacyChromosome<G>,
+    pub chromosome: G::Chromosome,
     pub population: Population<G>,
 
     pub current_scale_index: Option<usize>,
@@ -246,7 +246,7 @@ impl<
         self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<LegacyChromosome<G>> {
+    fn best_chromosome(&self) -> Option<G::Chromosome> {
         if self
             .genotype
             .chromosome_is_empty(&self.state.best_chromosome)
@@ -262,6 +262,13 @@ impl<
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.state.best_fitness_score()
+    }
+    fn best_genes(&self) -> Option<G::Genes> {
+        if self.state.best_fitness_score().is_some() {
+            Some(self.genotype.get_best_genes().clone())
+        } else {
+            None
+        }
     }
 }
 
@@ -378,10 +385,10 @@ impl StrategyConfig for EvolveConfig {
 }
 
 impl<G: Genotype> StrategyState<G> for EvolveState<G> {
-    fn chromosome_as_ref(&self) -> &LegacyChromosome<G> {
+    fn chromosome_as_ref(&self) -> &G::Chromosome {
         &self.chromosome
     }
-    fn chromosome_as_mut(&mut self) -> &mut LegacyChromosome<G> {
+    fn chromosome_as_mut(&mut self) -> &mut G::Chromosome {
         &mut self.chromosome
     }
     fn population_as_ref(&self) -> &Population<G> {
@@ -390,7 +397,7 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     fn population_as_mut(&mut self) -> &mut Population<G> {
         &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> &LegacyChromosome<G> {
+    fn best_chromosome_as_ref(&self) -> &G::Chromosome {
         &self.best_chromosome
     }
     fn best_generation(&self) -> usize {
@@ -479,7 +486,7 @@ impl<G: Genotype> EvolveState<G> {
         if let Some(max_chromosome_age) = config.max_chromosome_age {
             // TODO: use something like partition_in_place when stable
             for i in (0..self.population.chromosomes.len()).rev() {
-                if self.population.chromosomes[i].age >= max_chromosome_age {
+                if self.population.chromosomes[i].age() >= max_chromosome_age {
                     genotype.chromosome_destructor(self.population.chromosomes.swap_remove(i));
                 }
             }
@@ -695,7 +702,6 @@ impl<G: Genotype> fmt::Display for EvolveState<G> {
             "  scale index (current/max): {:?}/{}",
             self.current_scale_index, self.max_scale_index
         )?;
-        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
-        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome)
+        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())
     }
 }

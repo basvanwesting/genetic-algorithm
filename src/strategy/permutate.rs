@@ -8,7 +8,6 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
-use crate::chromosome::LegacyChromosome;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
 use crate::population::Population;
@@ -92,8 +91,8 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub current_generation: usize,
     pub stale_generations: usize,
     pub best_generation: usize,
-    pub best_chromosome: LegacyChromosome<G>,
-    pub chromosome: LegacyChromosome<G>,
+    pub best_chromosome: G::Chromosome,
+    pub chromosome: G::Chromosome,
     pub population: Population<G>,
     pub durations: HashMap<StrategyAction, Duration>,
 
@@ -115,7 +114,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         self.state.close_duration(now.elapsed());
         self.reporter.on_finish(&self.state, &self.config);
     }
-    fn best_chromosome(&self) -> Option<LegacyChromosome<G>> {
+    fn best_chromosome(&self) -> Option<G::Chromosome> {
         if self
             .genotype
             .chromosome_is_empty(&self.state.best_chromosome)
@@ -130,6 +129,13 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.state.best_fitness_score()
+    }
+    fn best_genes(&self) -> Option<G::Genes> {
+        if self.state.best_fitness_score().is_some() {
+            Some(self.genotype.get_best_genes().clone())
+        } else {
+            None
+        }
     }
 }
 
@@ -214,10 +220,10 @@ impl StrategyConfig for PermutateConfig {
 }
 
 impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
-    fn chromosome_as_ref(&self) -> &LegacyChromosome<G> {
+    fn chromosome_as_ref(&self) -> &G::Chromosome {
         &self.chromosome
     }
-    fn chromosome_as_mut(&mut self) -> &mut LegacyChromosome<G> {
+    fn chromosome_as_mut(&mut self) -> &mut G::Chromosome {
         &mut self.chromosome
     }
     fn population_as_ref(&self) -> &Population<G> {
@@ -226,7 +232,7 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     fn population_as_mut(&mut self) -> &mut Population<G> {
         &mut self.population
     }
-    fn best_chromosome_as_ref(&self) -> &LegacyChromosome<G> {
+    fn best_chromosome_as_ref(&self) -> &G::Chromosome {
         &self.best_chromosome
     }
     fn best_generation(&self) -> usize {
@@ -375,7 +381,6 @@ impl<G: PermutableGenotype> fmt::Display for PermutateState<G> {
         writeln!(f, "  total_population_size: {}", self.total_population_size)?;
         writeln!(f, "  current iteration: -")?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
-        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())?;
-        writeln!(f, "  best_chromosome: {:?}", self.best_chromosome)
+        writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())
     }
 }

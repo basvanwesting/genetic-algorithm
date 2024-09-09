@@ -35,7 +35,7 @@ use std::marker::PhantomData;
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
-///             state.best_chromosome_as_ref().genes,
+///             "temporary disabled"
 ///         );
 ///     }
 ///
@@ -161,7 +161,8 @@ impl<G: PermutableGenotype> Reporter for Simple<G> {
             state.current_generation(),
             state.best_fitness_score(),
             if self.show_genes {
-                Some(&state.best_chromosome_as_ref().genes)
+                // Some(&state.best_chromosome_as_ref().genes)
+                Some("temporary disabled")
             } else {
                 None
             },
@@ -211,7 +212,8 @@ impl<G: PermutableGenotype> Reporter for Log<G> {
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
             state.best_fitness_score(),
-            state.best_chromosome_as_ref().genes,
+            // state.best_chromosome_as_ref().genes,
+            Some("temporary disabled")
         );
     }
 }

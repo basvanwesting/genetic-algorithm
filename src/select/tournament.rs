@@ -1,5 +1,5 @@
 use super::Select;
-use crate::chromosome::LegacyChromosome;
+use crate::chromosome::Chromosome;
 use crate::fitness::FitnessOrdering;
 use crate::fitness::FitnessValue;
 use crate::genotype::Genotype;
@@ -36,7 +36,7 @@ impl Select for Tournament {
             .min(working_population_size)
             .max(2);
 
-        let mut selected_chromosomes: Vec<LegacyChromosome<G>> =
+        let mut selected_chromosomes: Vec<G::Chromosome> =
             Vec::with_capacity(selected_population_size);
         let mut sample_index: usize;
         let mut winning_index: usize;
@@ -55,7 +55,7 @@ impl Select for Tournament {
                 match config.fitness_ordering {
                     FitnessOrdering::Maximize => {
                         sample_fitness_value = state.population.chromosomes[sample_index]
-                            .fitness_score
+                            .fitness_score()
                             .unwrap_or(FitnessValue::MIN);
 
                         if sample_fitness_value >= winning_fitness_value {
@@ -65,7 +65,7 @@ impl Select for Tournament {
                     }
                     FitnessOrdering::Minimize => {
                         sample_fitness_value = state.population.chromosomes[sample_index]
-                            .fitness_score
+                            .fitness_score()
                             .unwrap_or(FitnessValue::MAX);
 
                         if sample_fitness_value <= winning_fitness_value {
