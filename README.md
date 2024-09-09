@@ -180,14 +180,7 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 * Add OrderOne crossover for UniqueGenotype?
 * Add WholeArithmetic crossover for RangeGenotype?
 * Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
-* Explore more non-Vec genes: 
-  * PackedSimd, ArrayVec, TinyVec?
-  * Add MatrixGenotype which stores a `population x genes_size` matrix and keeps
-  the genes internal to the Genotype. Chromosomes just reference the ID using reference-id.
-  Population can be handled very lightly as the Chromosome is just a light
-  pointer. Use nalgebra (2D)? Make sure to allow a dealloc call for chromosomes
-  which are dropped from the population (send the population, and crosscheck
-  reference-ids?)
+* Explore more non-Vec genes: PackedSimd?
 * Maybe use TinyVec for Population? (it us usually less than 1000 anyway),
   maybe useful paired with MatrixGenotype, where the chromosomes are lightweight
   (and Copyable)

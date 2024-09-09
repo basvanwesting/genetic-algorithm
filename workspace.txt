@@ -1,11 +1,21 @@
+* Genes?
+  * Remove empty chromomsome concept, just use Options again in the code (much cleaner)
+  * Store best_genes on Genotype, copy genes on storing best chromosome (solve M+2 issue)
+  * Change Chromosome<Genotype> to Genotype::Chromosome
+
+  * External genes are always Vec<Allele> (seed and best_genes). Internal genes can be anything
+  * Alway use best_genes as result. Still allow best chromomsome, but note the genes are internal
+  * Rename genes on chromosome to data? Would affect calculate_for_chromosome API, so maybe no. User needs to know the difference anyway
+  * Remove need for working chromomsome, by just copying the chromomsome over the existing best? copy(&src, &mut dest), but would still need to clone if empty
+  * Store best chromosome separately in StaticMatrixGenotype (as [T; N]), so population == M?
+  * Discourage use of best-chromosome in API
+
+* Store staticMatrixGenotype on heap using Box?
 * Extensions benchmark is noisy
-* Remove empty chromomsome concept, just use Options again in the code (much cleaner)
-* External genes are always Vec<Allele> (seed and best_genes). Internal genes can be anything
-* Alway use best_genes as result. Still allow best chromomsome, but note the genes are internal
-* Rename genes on chromosome to data? Would affect calculate_for_chromosome API, so maybe no. User needs to know the difference anyway
 * Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)
-* Remove need for working chromomsome, by just copying the chromomsome over the existing best? copy(&src, &mut dest), but would still need to clone if empty
-* Store best chromosome separately in StaticMatrixGenotype (as [T; N]), so population == M?
+* Chunk parallel iters for less switching?
+* Document GenotypeBuilder
+* Stochastic secondary: swap best gene with working gene, so secondary gene is no longer there to mutate on? check
 
 
 
