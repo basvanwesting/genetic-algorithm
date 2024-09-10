@@ -499,7 +499,10 @@ where
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<RangeChromosome<T>> {
-        self.chromosome_bin.pop()
+        self.chromosome_bin.pop().or_else(|| {
+            let genes = Vec::with_capacity(self.genes_size);
+            Some(RangeChromosome::new(genes))
+        })
     }
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> RangeChromosome<T> {
         if self.chromosome_recycling() {

@@ -341,7 +341,10 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<MultiListChromosome<T>> {
-        self.chromosome_bin.pop()
+        self.chromosome_bin.pop().or_else(|| {
+            let genes = Vec::with_capacity(self.genes_size);
+            Some(MultiListChromosome::new(genes))
+        })
     }
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> MultiListChromosome<T> {
         if self.chromosome_recycling() {

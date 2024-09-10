@@ -239,7 +239,10 @@ impl ChromosomeManager<Self> for Binary {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<BinaryChromosome> {
-        self.chromosome_bin.pop()
+        self.chromosome_bin.pop().or_else(|| {
+            let genes = Vec::with_capacity(self.genes_size);
+            Some(BinaryChromosome::new(genes))
+        })
     }
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> BinaryChromosome {
         if self.chromosome_recycling() {

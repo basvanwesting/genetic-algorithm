@@ -325,7 +325,10 @@ impl ChromosomeManager<Self> for Bit {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<BitChromosome> {
-        self.chromosome_bin.pop()
+        self.chromosome_bin.pop().or_else(|| {
+            let genes = FixedBitSet::with_capacity(self.genes_size);
+            Some(BitChromosome::new(genes))
+        })
     }
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> BitChromosome {
         if self.chromosome_recycling() {

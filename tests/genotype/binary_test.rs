@@ -338,3 +338,78 @@ fn chromosome_constructor_with_seed_genes_list() {
         vec![true, true, false, false]
     );
 }
+
+#[test]
+fn chromosome_manager() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let mut genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .with_chromosome_recycling(true)
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let mut chromosomes = (0..4)
+        .map(|_| genotype.chromosome_constructor_random(rng))
+        .collect::<Vec<_>>();
+    genotype.save_best_genes(&chromosomes[2]);
+    dbg!("init", &chromosomes, &genotype.best_genes());
+
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![false, false, true, false, true],
+            vec![true, true, false, false, true],
+            vec![false, true, true, false, true],
+            vec![false, false, false, true, true],
+        ]
+    );
+    assert_eq!(
+        genotype.best_genes().to_vec(),
+        vec![false, true, true, false, true],
+    );
+
+    genotype.chromosome_destructor_truncate(&mut chromosomes, 2);
+    dbg!("truncate", &chromosomes, &genotype.best_genes());
+
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![false, false, true, false, true],
+            vec![true, true, false, false, true],
+        ]
+    );
+
+    genotype.chromosome_cloner_range(&mut chromosomes, 0..2);
+    dbg!("clone range", &chromosomes, &genotype.best_genes());
+
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![false, false, true, false, true],
+            vec![true, true, false, false, true],
+            vec![false, false, true, false, true],
+            vec![true, true, false, false, true],
+        ]
+    );
+
+    chromosomes
+        .iter_mut()
+        .take(2)
+        .for_each(|c| genotype.mutate_chromosome_genes(3, false, c, None, rng));
+    dbg!("mutate", &chromosomes, &genotype.best_genes());
+
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![false, true, true, true, false],
+            vec![false, false, false, false, false],
+            vec![false, false, true, false, true],
+            vec![true, true, false, false, true],
+        ]
+    );
+    assert_eq!(
+        genotype.best_genes().to_vec(),
+        vec![false, true, true, false, true],
+    );
+}
