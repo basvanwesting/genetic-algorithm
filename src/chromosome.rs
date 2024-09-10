@@ -38,8 +38,12 @@ pub trait Chromosome: Clone + Send {
     fn increment_age(&mut self);
     fn fitness_score(&self) -> Option<FitnessValue>;
     fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>);
-    fn taint_fitness_score(&mut self);
-    fn reset(&mut self);
+    fn taint(&mut self);
+    fn clone_and_taint(&self) -> Self {
+        let mut chromosome = self.clone();
+        chromosome.taint();
+        chromosome
+    }
 }
 pub trait OwnsGenes: Chromosome {
     type Genes: Genes;
@@ -58,6 +62,8 @@ pub trait ChromosomeManager<G: Genotype> {
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
     /// mandatory
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome;
+    /// mandatory
+    fn chromosome_constructor_from(&mut self, chromosome: &G::Chromosome) -> G::Chromosome;
     /// mandatory
     fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome;
     /// provided, disable recycling by default, override when using recycling

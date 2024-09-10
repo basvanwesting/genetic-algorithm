@@ -182,7 +182,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
                         })
                 });
         }
-        chromosome.taint_fitness_score();
+        chromosome.taint();
     }
 
     fn crossover_chromosome_genes<R: Rng>(
@@ -239,8 +239,8 @@ impl<T: Allele> Genotype for MultiUnique<T> {
                 _ => (),
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
     fn has_crossover_points(&self) -> bool {
         true
@@ -259,24 +259,26 @@ impl<T: Allele> Genotype for MultiUnique<T> {
 impl<T: Allele> IncrementalGenotype for MultiUnique<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &mut self,
-        chromosome: &MultiUniqueChromosome<T>,
+        chromosome: &Self::Chromosome,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<MultiUniqueChromosome<T>> {
+    ) -> Vec<Self::Chromosome> {
         self.allele_list_sizes
-            .iter()
+            .clone()
+            .into_iter()
             .enumerate()
             .flat_map(|(index, allele_value_size)| {
                 let index_offset: usize = self.allele_list_index_offsets[index];
 
-                (0..*allele_value_size)
+                (0..allele_value_size)
                     .tuple_combinations()
                     .map(|(first, second)| {
-                        let mut new_genes = chromosome.genes.clone();
-                        new_genes.swap(index_offset + first, index_offset + second);
-                        new_genes
+                        let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                        new_chromosome
+                            .genes
+                            .swap(index_offset + first, index_offset + second);
+                        new_chromosome
                     })
-                    .map(MultiUniqueChromosome::new)
                     .collect::<Vec<_>>()
             })
             .collect::<Vec<_>>()
@@ -339,8 +341,7 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, mut chromosome: MultiUniqueChromosome<T>) {
-        chromosome.reset();
+    fn chromosome_bin_push(&mut self, chromosome: MultiUniqueChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<MultiUniqueChromosome<T>> {
@@ -352,6 +353,7 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
                 new_chromosome
                     .genes
                     .clone_from(&self.random_genes_factory(rng));
+                new_chromosome.taint();
                 new_chromosome
             } else {
                 MultiUniqueChromosome::new(self.random_genes_factory(rng))
@@ -369,12 +371,29 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
                 new_chromosome.genes.clone_from(&chromosome.genes);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome.reference_id = chromosome.reference_id;
                 new_chromosome
             } else {
                 chromosome.clone()
             }
         } else {
             chromosome.clone()
+        }
+    }
+    fn chromosome_constructor_from(
+        &mut self,
+        chromosome: &MultiUniqueChromosome<T>,
+    ) -> MultiUniqueChromosome<T> {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                new_chromosome.genes.clone_from(&chromosome.genes);
+                new_chromosome.taint();
+                new_chromosome
+            } else {
+                chromosome.clone_and_taint()
+            }
+        } else {
+            chromosome.clone_and_taint()
         }
     }
 }

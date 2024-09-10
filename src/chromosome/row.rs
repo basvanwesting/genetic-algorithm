@@ -24,11 +24,7 @@ impl super::Chromosome for Row {
     fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>) {
         self.fitness_score = fitness_score
     }
-    fn taint_fitness_score(&mut self) {
-        self.age = 0;
-        self.fitness_score = None;
-    }
-    fn reset(&mut self) {
+    fn taint(&mut self) {
         self.age = 0;
         self.fitness_score = None;
         self.reference_id = usize::MAX;

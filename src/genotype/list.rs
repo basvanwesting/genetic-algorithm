@@ -128,7 +128,7 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
                 chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
             });
         }
-        chromosome.taint_fitness_score();
+        chromosome.taint();
     }
 
     fn crossover_chromosome_genes<R: Rng>(
@@ -156,8 +156,8 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -199,8 +199,8 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
                 _ => (),
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -223,23 +223,26 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
 impl<T: Allele + PartialEq> IncrementalGenotype for List<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &mut self,
-        chromosome: &ListChromosome<T>,
+        chromosome: &Self::Chromosome,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<ListChromosome<T>> {
-        (0..self.genes_size)
-            .flat_map(|index| {
-                self.allele_list.iter().filter_map(move |allele_value| {
-                    if chromosome.genes[index] == *allele_value {
-                        None
-                    } else {
-                        let mut genes = chromosome.genes.clone();
-                        genes[index] = *allele_value;
-                        Some(ListChromosome::new(genes))
-                    }
-                })
-            })
-            .collect::<Vec<_>>()
+    ) -> Vec<Self::Chromosome> {
+        let size: usize = self
+            .neighbouring_population_size()
+            .iter_u32_digits()
+            .next()
+            .unwrap() as usize;
+        let mut new_chromosomes = Vec::with_capacity(size);
+        for index in 0..self.genes_size() {
+            for allele_value in self.allele_list.clone() {
+                if chromosome.genes[index] != allele_value {
+                    let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                    new_chromosome.genes[index] = allele_value;
+                    new_chromosomes.push(new_chromosome);
+                }
+            }
+        }
+        new_chromosomes
     }
 
     fn neighbouring_population_size(&self) -> BigUint {
@@ -272,8 +275,7 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, mut chromosome: ListChromosome<T>) {
-        chromosome.reset();
+    fn chromosome_bin_push(&mut self, chromosome: ListChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<ListChromosome<T>> {
@@ -285,6 +287,7 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
                 new_chromosome
                     .genes
                     .clone_from(&self.random_genes_factory(rng));
+                new_chromosome.taint();
                 new_chromosome
             } else {
                 ListChromosome::new(self.random_genes_factory(rng))
@@ -299,12 +302,26 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
                 new_chromosome.genes.clone_from(&chromosome.genes);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome.reference_id = chromosome.reference_id;
                 new_chromosome
             } else {
                 chromosome.clone()
             }
         } else {
             chromosome.clone()
+        }
+    }
+    fn chromosome_constructor_from(&mut self, chromosome: &ListChromosome<T>) -> ListChromosome<T> {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                new_chromosome.genes.clone_from(&chromosome.genes);
+                new_chromosome.taint();
+                new_chromosome
+            } else {
+                chromosome.clone_and_taint()
+            }
+        } else {
+            chromosome.clone_and_taint()
         }
     }
 }

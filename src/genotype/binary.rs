@@ -93,7 +93,7 @@ impl Genotype for Binary {
                 chromosome.genes[index] = !chromosome.genes[index];
             });
         }
-        chromosome.taint_fitness_score();
+        chromosome.taint();
     }
 
     fn crossover_chromosome_genes<R: Rng>(
@@ -121,8 +121,8 @@ impl Genotype for Binary {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -164,8 +164,8 @@ impl Genotype for Binary {
                 _ => (),
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -194,9 +194,9 @@ impl IncrementalGenotype for Binary {
     ) -> Vec<Self::Chromosome> {
         (0..self.genes_size)
             .map(|index| {
-                let mut genes = chromosome.genes.clone();
-                genes[index] = !genes[index];
-                BinaryChromosome::new(genes)
+                let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                new_chromosome.genes[index] = !new_chromosome.genes[index];
+                new_chromosome
             })
             .collect::<Vec<_>>()
     }
@@ -229,8 +229,7 @@ impl ChromosomeManager<Self> for Binary {
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, mut chromosome: BinaryChromosome) {
-        chromosome.reset();
+    fn chromosome_bin_push(&mut self, chromosome: BinaryChromosome) {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<BinaryChromosome> {
@@ -242,6 +241,7 @@ impl ChromosomeManager<Self> for Binary {
                 new_chromosome
                     .genes
                     .clone_from(&self.random_genes_factory(rng));
+                new_chromosome.taint();
                 new_chromosome
             } else {
                 BinaryChromosome::new(self.random_genes_factory(rng))
@@ -256,12 +256,26 @@ impl ChromosomeManager<Self> for Binary {
                 new_chromosome.genes.clone_from(&chromosome.genes);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome.reference_id = chromosome.reference_id;
                 new_chromosome
             } else {
                 chromosome.clone()
             }
         } else {
             chromosome.clone()
+        }
+    }
+    fn chromosome_constructor_from(&mut self, chromosome: &BinaryChromosome) -> BinaryChromosome {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                new_chromosome.genes.clone_from(&chromosome.genes);
+                new_chromosome.taint();
+                new_chromosome
+            } else {
+                chromosome.clone_and_taint()
+            }
+        } else {
+            chromosome.clone_and_taint()
         }
     }
 }

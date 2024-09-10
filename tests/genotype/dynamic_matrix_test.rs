@@ -298,7 +298,7 @@ fn float_neighbouring_population_2_scaled() {
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
 
-    let population = genotype.neighbouring_population(&chromosome, Some(0), &mut rng);
+    let mut population = genotype.neighbouring_population(&chromosome, Some(0), &mut rng);
     assert!(relative_population_eq(
         population
             .chromosomes
@@ -313,8 +313,9 @@ fn float_neighbouring_population_2_scaled() {
         ],
         0.001,
     ));
+    genotype.chromosome_destructor_truncate(&mut population.chromosomes, 0);
 
-    let population = genotype.neighbouring_population(&chromosome, Some(1), &mut rng);
+    let mut population = genotype.neighbouring_population(&chromosome, Some(1), &mut rng);
     assert!(relative_population_eq(
         population
             .chromosomes
@@ -329,8 +330,9 @@ fn float_neighbouring_population_2_scaled() {
         ],
         0.001,
     ));
+    genotype.chromosome_destructor_truncate(&mut population.chromosomes, 0);
 
-    let population = genotype.neighbouring_population(&chromosome, Some(2), &mut rng);
+    let mut population = genotype.neighbouring_population(&chromosome, Some(2), &mut rng);
     assert!(relative_population_eq(
         population
             .chromosomes
@@ -345,6 +347,7 @@ fn float_neighbouring_population_2_scaled() {
         ],
         0.001,
     ));
+    genotype.chromosome_destructor_truncate(&mut population.chromosomes, 0);
 }
 
 #[test]

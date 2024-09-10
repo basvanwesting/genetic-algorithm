@@ -1,7 +1,8 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype};
+use super::{Allele, Genotype, IncrementalGenotype};
 use crate::chromosome::{Chromosome, ChromosomeManager, RefersGenes, StaticMatrixChromosome};
 use itertools::Itertools;
+use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
@@ -386,7 +387,7 @@ where
                 };
             });
         }
-        chromosome.taint_fitness_score();
+        chromosome.taint();
     }
 
     fn crossover_chromosome_genes<R: Rng>(
@@ -414,8 +415,8 @@ where
                 self.swap_gene_by_id(father.row_id, mother.row_id, index);
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -455,8 +456,8 @@ where
                 _ => (),
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -475,6 +476,113 @@ where
         self.allele_mutation_scaled_range
             .as_ref()
             .map(|r| r.len() - 1)
+    }
+}
+
+impl<
+        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
+        const N: usize,
+        const M: usize,
+    > IncrementalGenotype for StaticMatrix<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn neighbouring_chromosomes<R: Rng>(
+        &mut self,
+        chromosome: &Self::Chromosome,
+        scale_index: Option<usize>,
+        rng: &mut R,
+    ) -> Vec<Self::Chromosome> {
+        let allele_range_start = *self.allele_range.start();
+        let allele_range_end = *self.allele_range.end();
+
+        if let Some(scale_index) = scale_index {
+            let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
+            let working_range_start = *working_range.start();
+            let working_range_end = *working_range.end();
+
+            (0..self.genes_size)
+                .flat_map(|index| {
+                    let base_value = self.get_gene_by_id(chromosome.row_id, index);
+                    let value_start = if base_value + working_range_start < allele_range_start {
+                        allele_range_start
+                    } else {
+                        base_value + working_range_start
+                    };
+                    let value_end = if base_value + working_range_end > allele_range_end {
+                        allele_range_end
+                    } else {
+                        base_value + working_range_end
+                    };
+
+                    [
+                        if value_start < base_value {
+                            let new_chromosome = self.chromosome_constructor_from(chromosome);
+                            self.set_gene_by_id(new_chromosome.row_id, index, value_start);
+                            Some(new_chromosome)
+                        } else {
+                            None
+                        },
+                        if base_value < value_end {
+                            let new_chromosome = self.chromosome_constructor_from(chromosome);
+                            self.set_gene_by_id(new_chromosome.row_id, index, value_end);
+                            Some(new_chromosome)
+                        } else {
+                            None
+                        },
+                    ]
+                })
+                .flatten()
+                .collect::<Vec<_>>()
+        } else {
+            let working_range = &self.allele_mutation_range.as_ref().unwrap();
+            let working_range_start = *working_range.start();
+            let working_range_end = *working_range.end();
+
+            (0..self.genes_size)
+                .flat_map(|index| {
+                    let base_value = self.get_gene_by_id(chromosome.row_id, index);
+                    let range_start = if base_value + working_range_start < allele_range_start {
+                        allele_range_start
+                    } else {
+                        base_value + working_range_start
+                    };
+                    let range_end = if base_value + working_range_end > allele_range_end {
+                        allele_range_end
+                    } else {
+                        base_value + working_range_end
+                    };
+
+                    [
+                        if range_start < base_value {
+                            let new_chromosome = self.chromosome_constructor_from(chromosome);
+                            let new_value = rng.gen_range(range_start..base_value);
+                            self.set_gene_by_id(new_chromosome.row_id, index, new_value);
+                            Some(new_chromosome)
+                        } else {
+                            None
+                        },
+                        if base_value < range_end {
+                            let new_chromosome = self.chromosome_constructor_from(chromosome);
+                            let mut new_value = rng.gen_range(base_value..=range_end);
+                            // FIXME: ugly loop, goal is to have an exclusive below range
+                            while new_value <= base_value {
+                                new_value = rng.gen_range(base_value..=range_end);
+                            }
+                            self.set_gene_by_id(new_chromosome.row_id, index, new_value);
+                            Some(new_chromosome)
+                        } else {
+                            None
+                        },
+                    ]
+                })
+                .flatten()
+                .collect::<Vec<_>>()
+        }
+    }
+    fn neighbouring_population_size(&self) -> BigUint {
+        BigUint::from(2 * self.genes_size)
     }
 }
 
@@ -521,8 +629,7 @@ where
     fn chromosomes_init(&mut self) {
         self.chromosome_bin = (0..M).rev().map(StaticMatrixChromosome::new).collect();
     }
-    fn chromosome_bin_push(&mut self, mut chromosome: StaticMatrixChromosome) {
-        chromosome.reset();
+    fn chromosome_bin_push(&mut self, chromosome: StaticMatrixChromosome) {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<StaticMatrixChromosome> {
@@ -532,11 +639,11 @@ where
     }
     // FIXME: directly set genes
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> StaticMatrixChromosome {
-        let chromosome = self.chromosome_bin_pop().unwrap();
+        let mut chromosome = self.chromosome_bin_pop().unwrap();
         let genes = self.random_genes_factory(rng);
-        // let (x, _) = self.data.split_at_mut(chromosome.row_id);
         let x = self.data[chromosome.row_id].as_mut_slice();
         x.copy_from_slice(&genes);
+        chromosome.taint();
         chromosome
     }
     fn chromosome_cloner(&mut self, chromosome: &StaticMatrixChromosome) -> StaticMatrixChromosome {
@@ -545,12 +652,29 @@ where
                 self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome.reference_id = chromosome.reference_id;
                 new_chromosome
             } else {
                 chromosome.clone()
             }
         } else {
             chromosome.clone()
+        }
+    }
+    fn chromosome_constructor_from(
+        &mut self,
+        chromosome: &StaticMatrixChromosome,
+    ) -> StaticMatrixChromosome {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                new_chromosome.taint();
+                new_chromosome
+            } else {
+                chromosome.clone_and_taint()
+            }
+        } else {
+            chromosome.clone_and_taint()
         }
     }
 }

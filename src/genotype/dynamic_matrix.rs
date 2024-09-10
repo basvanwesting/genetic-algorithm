@@ -382,7 +382,7 @@ where
                 };
             });
         }
-        chromosome.taint_fitness_score();
+        chromosome.taint();
     }
 
     fn crossover_chromosome_genes<R: Rng>(
@@ -410,8 +410,8 @@ where
                 self.swap_gene_by_id(father.row_id, mother.row_id, index);
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -451,8 +451,8 @@ where
                 _ => (),
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -482,10 +482,10 @@ where
 {
     fn neighbouring_chromosomes<R: Rng>(
         &mut self,
-        chromosome: &DynamicMatrixChromosome,
+        chromosome: &Self::Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) -> Vec<DynamicMatrixChromosome> {
+    ) -> Vec<Self::Chromosome> {
         let allele_range_start = *self.allele_range.start();
         let allele_range_end = *self.allele_range.end();
 
@@ -510,16 +510,14 @@ where
 
                     [
                         if value_start < base_value {
-                            let new_chromosome = self.chromosome_bin_pop().unwrap();
-                            self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                            let new_chromosome = self.chromosome_constructor_from(chromosome);
                             self.set_gene_by_id(new_chromosome.row_id, index, value_start);
                             Some(new_chromosome)
                         } else {
                             None
                         },
                         if base_value < value_end {
-                            let new_chromosome = self.chromosome_bin_pop().unwrap();
-                            self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                            let new_chromosome = self.chromosome_constructor_from(chromosome);
                             self.set_gene_by_id(new_chromosome.row_id, index, value_end);
                             Some(new_chromosome)
                         } else {
@@ -550,8 +548,7 @@ where
 
                     [
                         if range_start < base_value {
-                            let new_chromosome = self.chromosome_bin_pop().unwrap();
-                            self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                            let new_chromosome = self.chromosome_constructor_from(chromosome);
                             let new_value = rng.gen_range(range_start..base_value);
                             self.set_gene_by_id(new_chromosome.row_id, index, new_value);
                             Some(new_chromosome)
@@ -559,8 +556,7 @@ where
                             None
                         },
                         if base_value < range_end {
-                            let new_chromosome = self.chromosome_bin_pop().unwrap();
-                            self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                            let new_chromosome = self.chromosome_constructor_from(chromosome);
                             let mut new_value = rng.gen_range(base_value..=range_end);
                             // FIXME: ugly loop, goal is to have an exclusive below range
                             while new_value <= base_value {
@@ -597,8 +593,7 @@ where
     fn chromosome_recycling(&self) -> bool {
         true
     }
-    fn chromosome_bin_push(&mut self, mut chromosome: DynamicMatrixChromosome) {
-        chromosome.reset();
+    fn chromosome_bin_push(&mut self, chromosome: DynamicMatrixChromosome) {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<DynamicMatrixChromosome> {
@@ -611,12 +606,12 @@ where
     }
     // FIXME: directly set genes
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> DynamicMatrixChromosome {
-        let chromosome = self.chromosome_bin_pop().unwrap();
+        let mut chromosome = self.chromosome_bin_pop().unwrap();
         let genes = self.random_genes_factory(rng);
-
         let linear_id = self.linear_id(chromosome.row_id, 0);
         let x = &mut self.data[linear_id..(linear_id + self.genes_size)];
         x.copy_from_slice(&genes);
+        chromosome.taint();
         chromosome
     }
     fn chromosome_cloner(
@@ -628,12 +623,29 @@ where
                 self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome.reference_id = chromosome.reference_id;
                 new_chromosome
             } else {
                 chromosome.clone()
             }
         } else {
             chromosome.clone()
+        }
+    }
+    fn chromosome_constructor_from(
+        &mut self,
+        chromosome: &DynamicMatrixChromosome,
+    ) -> DynamicMatrixChromosome {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                new_chromosome.taint();
+                new_chromosome
+            } else {
+                chromosome.clone_and_taint()
+            }
+        } else {
+            chromosome.clone_and_taint()
         }
     }
 }

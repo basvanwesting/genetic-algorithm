@@ -303,7 +303,7 @@ where
                 };
             });
         }
-        chromosome.taint_fitness_score();
+        chromosome.taint();
     }
 
     fn crossover_chromosome_genes<R: Rng>(
@@ -331,8 +331,8 @@ where
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -374,8 +374,8 @@ where
                 _ => (),
             });
         }
-        mother.taint_fitness_score();
-        father.taint_fitness_score();
+        mother.taint();
+        father.taint();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -405,13 +405,14 @@ where
 {
     fn neighbouring_chromosomes<R: Rng>(
         &mut self,
-        chromosome: &MultiRangeChromosome<T>,
+        chromosome: &Self::Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) -> Vec<MultiRangeChromosome<T>> {
+    ) -> Vec<Self::Chromosome> {
         if let Some(scale_index) = scale_index {
             self.allele_ranges
-                .iter()
+                .clone()
+                .into_iter()
                 .enumerate()
                 .flat_map(|(index, allele_range)| {
                     let allele_range_start = *allele_range.start();
@@ -435,29 +436,29 @@ where
 
                     [
                         if value_start < base_value {
-                            let mut genes = chromosome.genes.clone();
-                            genes[index] = value_start;
-                            Some(genes)
+                            let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                            new_chromosome.genes[index] = value_start;
+                            Some(new_chromosome)
                         } else {
                             None
                         },
                         if base_value < value_end {
-                            let mut genes = chromosome.genes.clone();
-                            genes[index] = value_end;
-                            Some(genes)
+                            let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                            new_chromosome.genes[index] = value_end;
+                            Some(new_chromosome)
                         } else {
                             None
                         },
                     ]
                 })
                 .flatten()
-                .dedup()
-                .filter(|genes| *genes != chromosome.genes)
-                .map(MultiRangeChromosome::new)
+                // .dedup()
+                .filter(|new_chromosome| chromosome.genes != new_chromosome.genes)
                 .collect::<Vec<_>>()
         } else {
             self.allele_ranges
-                .iter()
+                .clone()
+                .into_iter()
                 .enumerate()
                 .flat_map(|(index, allele_range)| {
                     let allele_range_start = *allele_range.start();
@@ -480,30 +481,29 @@ where
 
                     [
                         if range_start < base_value {
-                            let mut genes = chromosome.genes.clone();
-                            genes[index] = rng.gen_range(range_start..base_value);
-                            Some(genes)
+                            let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                            new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
+                            Some(new_chromosome)
                         } else {
                             None
                         },
                         if base_value < range_end {
-                            let mut genes = chromosome.genes.clone();
+                            let mut new_chromosome = self.chromosome_constructor_from(chromosome);
                             let mut new_value = rng.gen_range(base_value..=range_end);
                             // FIXME: ugly loop, goal is to have an exclusive below range
                             while new_value <= base_value {
                                 new_value = rng.gen_range(base_value..=range_end);
                             }
-                            genes[index] = new_value;
-                            Some(genes)
+                            new_chromosome.genes[index] = new_value;
+                            Some(new_chromosome)
                         } else {
                             None
                         },
                     ]
                 })
                 .flatten()
-                .dedup()
-                .filter(|genes| *genes != chromosome.genes)
-                .map(MultiRangeChromosome::new)
+                // .dedup()
+                .filter(|new_chromosome| chromosome.genes != new_chromosome.genes)
                 .collect::<Vec<_>>()
         }
     }
@@ -530,8 +530,7 @@ where
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, mut chromosome: MultiRangeChromosome<T>) {
-        chromosome.reset();
+    fn chromosome_bin_push(&mut self, chromosome: MultiRangeChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<MultiRangeChromosome<T>> {
@@ -543,6 +542,7 @@ where
                 new_chromosome
                     .genes
                     .clone_from(&self.random_genes_factory(rng));
+                new_chromosome.taint();
                 new_chromosome
             } else {
                 MultiRangeChromosome::new(self.random_genes_factory(rng))
@@ -560,12 +560,29 @@ where
                 new_chromosome.genes.clone_from(&chromosome.genes);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome.reference_id = chromosome.reference_id;
                 new_chromosome
             } else {
                 chromosome.clone()
             }
         } else {
             chromosome.clone()
+        }
+    }
+    fn chromosome_constructor_from(
+        &mut self,
+        chromosome: &MultiRangeChromosome<T>,
+    ) -> MultiRangeChromosome<T> {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                new_chromosome.genes.clone_from(&chromosome.genes);
+                new_chromosome.taint();
+                new_chromosome
+            } else {
+                chromosome.clone_and_taint()
+            }
+        } else {
+            chromosome.clone_and_taint()
         }
     }
 }

@@ -122,7 +122,7 @@ impl<T: Allele> Genotype for Unique<T> {
             .tuples()
             .for_each(|(index1, index2)| chromosome.genes.swap(index1, index2));
         }
-        chromosome.taint_fitness_score();
+        chromosome.taint();
     }
     fn crossover_chromosome_genes<R: Rng>(
         &mut self,
@@ -159,18 +159,17 @@ impl<T: Allele> Genotype for Unique<T> {
 impl<T: Allele> IncrementalGenotype for Unique<T> {
     fn neighbouring_chromosomes<R: Rng>(
         &mut self,
-        chromosome: &UniqueChromosome<T>,
+        chromosome: &Self::Chromosome,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<UniqueChromosome<T>> {
+    ) -> Vec<Self::Chromosome> {
         (0..self.genes_size())
             .tuple_combinations()
             .map(|(first, second)| {
-                let mut new_genes = chromosome.genes.clone();
-                new_genes.swap(first, second);
-                new_genes
+                let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                new_chromosome.genes.swap(first, second);
+                new_chromosome
             })
-            .map(UniqueChromosome::new)
             .collect::<Vec<_>>()
     }
 
@@ -211,8 +210,7 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, mut chromosome: UniqueChromosome<T>) {
-        chromosome.reset();
+    fn chromosome_bin_push(&mut self, chromosome: UniqueChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<UniqueChromosome<T>> {
@@ -224,6 +222,7 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
                 new_chromosome
                     .genes
                     .clone_from(&self.random_genes_factory(rng));
+                new_chromosome.taint();
                 new_chromosome
             } else {
                 UniqueChromosome::new(self.random_genes_factory(rng))
@@ -238,12 +237,29 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
                 new_chromosome.genes.clone_from(&chromosome.genes);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
+                new_chromosome.reference_id = chromosome.reference_id;
                 new_chromosome
             } else {
                 chromosome.clone()
             }
         } else {
             chromosome.clone()
+        }
+    }
+    fn chromosome_constructor_from(
+        &mut self,
+        chromosome: &UniqueChromosome<T>,
+    ) -> UniqueChromosome<T> {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                new_chromosome.genes.clone_from(&chromosome.genes);
+                new_chromosome.taint();
+                new_chromosome
+            } else {
+                chromosome.clone_and_taint()
+            }
+        } else {
+            chromosome.clone_and_taint()
         }
     }
 }
