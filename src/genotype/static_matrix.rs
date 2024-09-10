@@ -494,93 +494,17 @@ where
         scale_index: Option<usize>,
         rng: &mut R,
     ) -> Vec<Self::Chromosome> {
-        let allele_range_start = *self.allele_range.start();
-        let allele_range_end = *self.allele_range.end();
-
-        if let Some(scale_index) = scale_index {
-            let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
-            let working_range_start = *working_range.start();
-            let working_range_end = *working_range.end();
-
-            (0..self.genes_size)
-                .flat_map(|index| {
-                    let base_value = self.get_gene_by_id(chromosome.row_id, index);
-                    let value_start = if base_value + working_range_start < allele_range_start {
-                        allele_range_start
-                    } else {
-                        base_value + working_range_start
-                    };
-                    let value_end = if base_value + working_range_end > allele_range_end {
-                        allele_range_end
-                    } else {
-                        base_value + working_range_end
-                    };
-
-                    [
-                        if value_start < base_value {
-                            let new_chromosome = self.chromosome_constructor_from(chromosome);
-                            self.set_gene_by_id(new_chromosome.row_id, index, value_start);
-                            Some(new_chromosome)
-                        } else {
-                            None
-                        },
-                        if base_value < value_end {
-                            let new_chromosome = self.chromosome_constructor_from(chromosome);
-                            self.set_gene_by_id(new_chromosome.row_id, index, value_end);
-                            Some(new_chromosome)
-                        } else {
-                            None
-                        },
-                    ]
-                })
-                .flatten()
-                .collect::<Vec<_>>()
-        } else {
-            let working_range = &self.allele_mutation_range.as_ref().unwrap();
-            let working_range_start = *working_range.start();
-            let working_range_end = *working_range.end();
-
-            (0..self.genes_size)
-                .flat_map(|index| {
-                    let base_value = self.get_gene_by_id(chromosome.row_id, index);
-                    let range_start = if base_value + working_range_start < allele_range_start {
-                        allele_range_start
-                    } else {
-                        base_value + working_range_start
-                    };
-                    let range_end = if base_value + working_range_end > allele_range_end {
-                        allele_range_end
-                    } else {
-                        base_value + working_range_end
-                    };
-
-                    [
-                        if range_start < base_value {
-                            let new_chromosome = self.chromosome_constructor_from(chromosome);
-                            let new_value = rng.gen_range(range_start..base_value);
-                            self.set_gene_by_id(new_chromosome.row_id, index, new_value);
-                            Some(new_chromosome)
-                        } else {
-                            None
-                        },
-                        if base_value < range_end {
-                            let new_chromosome = self.chromosome_constructor_from(chromosome);
-                            let mut new_value = rng.gen_range(base_value..=range_end);
-                            // FIXME: ugly loop, goal is to have an exclusive below range
-                            while new_value <= base_value {
-                                new_value = rng.gen_range(base_value..=range_end);
-                            }
-                            self.set_gene_by_id(new_chromosome.row_id, index, new_value);
-                            Some(new_chromosome)
-                        } else {
-                            None
-                        },
-                    ]
-                })
-                .flatten()
-                .collect::<Vec<_>>()
+        match self.mutation_type {
+            MutationType::Scaled => {
+                self.neighbouring_chromosomes_scaled(chromosome, scale_index.unwrap())
+            }
+            MutationType::Relative => self.neighbouring_chromosomes_relative(chromosome, rng),
+            MutationType::Random => {
+                panic!("Random mutation type is not supported for incremental genotype: HillClimb, SteepestAscent");
+            }
         }
     }
+
     fn neighbouring_population_size(&self) -> BigUint {
         BigUint::from(2 * self.genes_size)
     }
@@ -595,20 +519,109 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    // pub fn reset_ids(&mut self) {
-    //     (0..M).for_each(|i| {
-    //         self.free_ids.insert(i);
-    //     });
-    // }
-    // pub fn release_id(&mut self, id: usize) -> bool {
-    //     self.free_ids.insert(id)
-    // }
-    // pub fn claim_id_forced(&mut self, id: usize) -> bool {
-    //     self.free_ids.remove(&id)
-    // }
-    // pub fn claim_id(&mut self) -> Option<usize> {
-    //     self.free_ids.pop_first()
-    // }
+    fn neighbouring_chromosomes_scaled(
+        &mut self,
+        chromosome: &StaticMatrixChromosome,
+        scale_index: usize,
+    ) -> Vec<StaticMatrixChromosome> {
+        let allele_range_start = *self.allele_range.start();
+        let allele_range_end = *self.allele_range.end();
+
+        let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
+        let working_range_start = *working_range.start();
+        let working_range_end = *working_range.end();
+
+        (0..self.genes_size)
+            .flat_map(|index| {
+                let base_value = self.get_gene_by_id(chromosome.row_id, index);
+                let value_start = if base_value + working_range_start < allele_range_start {
+                    allele_range_start
+                } else {
+                    base_value + working_range_start
+                };
+                let value_end = if base_value + working_range_end > allele_range_end {
+                    allele_range_end
+                } else {
+                    base_value + working_range_end
+                };
+
+                [
+                    if value_start < base_value {
+                        let new_chromosome = self.chromosome_constructor_from(chromosome);
+                        self.set_gene_by_id(new_chromosome.row_id, index, value_start);
+                        Some(new_chromosome)
+                    } else {
+                        None
+                    },
+                    if base_value < value_end {
+                        let new_chromosome = self.chromosome_constructor_from(chromosome);
+                        self.set_gene_by_id(new_chromosome.row_id, index, value_end);
+                        Some(new_chromosome)
+                    } else {
+                        None
+                    },
+                ]
+            })
+            .flatten()
+            // .dedup()
+            // .filter(|new_chromosome| chromosome.genes != new_chromosome.genes)
+            .collect::<Vec<_>>()
+    }
+
+    fn neighbouring_chromosomes_relative<R: Rng>(
+        &mut self,
+        chromosome: &StaticMatrixChromosome,
+        rng: &mut R,
+    ) -> Vec<StaticMatrixChromosome> {
+        let allele_range_start = *self.allele_range.start();
+        let allele_range_end = *self.allele_range.end();
+
+        let working_range = &self.allele_mutation_range.as_ref().unwrap();
+        let working_range_start = *working_range.start();
+        let working_range_end = *working_range.end();
+
+        (0..self.genes_size)
+            .flat_map(|index| {
+                let base_value = self.get_gene_by_id(chromosome.row_id, index);
+                let range_start = if base_value + working_range_start < allele_range_start {
+                    allele_range_start
+                } else {
+                    base_value + working_range_start
+                };
+                let range_end = if base_value + working_range_end > allele_range_end {
+                    allele_range_end
+                } else {
+                    base_value + working_range_end
+                };
+
+                [
+                    if range_start < base_value {
+                        let new_chromosome = self.chromosome_constructor_from(chromosome);
+                        let new_value = rng.gen_range(range_start..base_value);
+                        self.set_gene_by_id(new_chromosome.row_id, index, new_value);
+                        Some(new_chromosome)
+                    } else {
+                        None
+                    },
+                    if base_value < range_end {
+                        let new_chromosome = self.chromosome_constructor_from(chromosome);
+                        let mut new_value = rng.gen_range(base_value..=range_end);
+                        // FIXME: ugly loop, goal is to have an exclusive below range
+                        while new_value <= base_value {
+                            new_value = rng.gen_range(base_value..=range_end);
+                        }
+                        self.set_gene_by_id(new_chromosome.row_id, index, new_value);
+                        Some(new_chromosome)
+                    } else {
+                        None
+                    },
+                ]
+            })
+            .flatten()
+            // .dedup()
+            // .filter(|new_chromosome| chromosome.genes != new_chromosome.genes)
+            .collect::<Vec<_>>()
+    }
 }
 
 impl<

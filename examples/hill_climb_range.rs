@@ -39,6 +39,7 @@ fn main() {
             -0.00025..=0.00025,
             -0.0001..=0.0001,
         ])
+        .with_chromosome_recycling(true)
         .build()
         .unwrap();
 
