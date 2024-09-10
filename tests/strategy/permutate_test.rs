@@ -1,9 +1,6 @@
 #[cfg(test)]
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
-use genetic_algorithm::fitness::FitnessOrdering;
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, MultiListGenotype};
-use genetic_algorithm::strategy::permutate::{Permutate, PermutateReporterNoop};
-use genetic_algorithm::strategy::Strategy;
+use genetic_algorithm::strategy::permutate::prelude::*;
 
 //#[test]
 //build_invalid cannot be tested because invalid doesn't even have a type

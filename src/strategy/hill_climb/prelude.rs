@@ -22,3 +22,7 @@ pub use crate::strategy::hill_climb::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::{Strategy, StrategyState, STRATEGY_ACTIONS};
+#[doc(no_inline)]
+pub use std::cell::RefCell;
+#[doc(no_inline)]
+pub use thread_local::ThreadLocal;

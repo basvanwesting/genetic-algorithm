@@ -240,7 +240,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     self.genotype.mutate_chromosome_genes(
                         1,
                         true,
-                        &mut self.state.chromosome.as_mut().unwrap(),
+                        self.state.chromosome.as_mut().unwrap(),
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
@@ -257,7 +257,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     self.genotype.mutate_chromosome_genes(
                         1,
                         true,
-                        &mut self.state.chromosome.as_mut().unwrap(),
+                        self.state.chromosome.as_mut().unwrap(),
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
@@ -271,7 +271,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                 }
                 HillClimbVariant::SteepestAscent => {
                     self.genotype
-                        .load_best_genes(&mut self.state.chromosome.as_mut().unwrap());
+                        .load_best_genes(self.state.chromosome.as_mut().unwrap());
+                    self.genotype
+                        .chromosome_destructor_truncate(&mut self.state.population.chromosomes, 0);
                     self.state.population = self.genotype.neighbouring_population(
                         self.state.chromosome.as_ref().unwrap(),
                         self.state.current_scale_index,
@@ -291,9 +293,11 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                 }
                 HillClimbVariant::SteepestAscentSecondary => {
                     self.genotype
-                        .load_best_genes(&mut self.state.chromosome.as_mut().unwrap());
+                        .load_best_genes(self.state.chromosome.as_mut().unwrap());
+                    self.genotype
+                        .chromosome_destructor_truncate(&mut self.state.population.chromosomes, 0);
                     let mut neighbouring_chromosomes = self.genotype.neighbouring_chromosomes(
-                        &self.state.chromosome.as_ref().unwrap(),
+                        self.state.chromosome.as_ref().unwrap(),
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
@@ -309,7 +313,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                             })
                             .collect(),
                     );
-                    self.state.population = Population::new(neighbouring_chromosomes);
+                    self.state.population.chromosomes = neighbouring_chromosomes;
                     self.fitness.call_for_state_population(
                         &mut self.state,
                         &mut self.genotype,

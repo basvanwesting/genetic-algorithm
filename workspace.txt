@@ -12,9 +12,11 @@
   * [v] Add best_genes_and_fitness_score tuple method on Strategy
   * [v] Rename OwnesGenes to OwnsGenes
   * [v] Add IncrementalGenotype to MatrixGenotypes
-  * [ ] Add chromosomes manager logic to HillClimb
+  * [v] Add chromosomes manager logic to HillClimb
   * [ ] Fix Reporting
-  * [ ] rename chromosome_constructor to chromosome_constructor_random
+  * [v] rename chromosome_constructor to chromosome_constructor_random
+  * [ ] Move some shared logic back to ChromosomeManager
+  * [ ] Use mutation_type for IncrementalGenotype logic in Range/ MultiRange / Dynamic/ Static
 
 * Store staticMatrixGenotype on heap using Box?
 * Extensions benchmark is noisy
