@@ -32,6 +32,11 @@ impl<T: Allele> super::Chromosome for Vector<T> {
         self.fitness_score = None;
         self.reference_id = usize::MAX;
     }
+    fn copy_fields_from(&mut self, other: &Self) {
+        self.age = other.age;
+        self.fitness_score = other.fitness_score;
+        self.reference_id = other.reference_id;
+    }
 }
 impl<T: Allele> super::OwnsGenes for Vector<T> {
     type Genes = Vec<T>;

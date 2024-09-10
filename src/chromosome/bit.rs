@@ -32,6 +32,11 @@ impl super::Chromosome for Bit {
         self.fitness_score = None;
         self.reference_id = usize::MAX;
     }
+    fn copy_fields_from(&mut self, other: &Self) {
+        self.age = other.age;
+        self.fitness_score = other.fitness_score;
+        self.reference_id = other.reference_id;
+    }
 }
 impl super::OwnsGenes for Bit {
     type Genes = FixedBitSet;

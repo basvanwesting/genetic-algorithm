@@ -585,40 +585,6 @@ where
             MultiRangeChromosome::new(self.random_genes_factory(rng))
         }
     }
-    fn chromosome_cloner(
-        &mut self,
-        chromosome: &MultiRangeChromosome<T>,
-    ) -> MultiRangeChromosome<T> {
-        if self.chromosome_recycling() {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes(chromosome, &mut new_chromosome);
-                new_chromosome.age = chromosome.age;
-                new_chromosome.fitness_score = chromosome.fitness_score;
-                new_chromosome.reference_id = chromosome.reference_id;
-                new_chromosome
-            } else {
-                chromosome.clone()
-            }
-        } else {
-            chromosome.clone()
-        }
-    }
-    fn chromosome_constructor_from(
-        &mut self,
-        chromosome: &MultiRangeChromosome<T>,
-    ) -> MultiRangeChromosome<T> {
-        if self.chromosome_recycling() {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes(chromosome, &mut new_chromosome);
-                new_chromosome.taint();
-                new_chromosome
-            } else {
-                chromosome.clone_and_taint()
-            }
-        } else {
-            chromosome.clone_and_taint()
-        }
-    }
 }
 
 impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> Clone for MultiRange<T>

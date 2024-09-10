@@ -29,6 +29,11 @@ impl super::Chromosome for Row {
         self.fitness_score = None;
         self.reference_id = usize::MAX;
     }
+    fn copy_fields_from(&mut self, other: &Self) {
+        self.age = other.age;
+        self.fitness_score = other.fitness_score;
+        self.reference_id = other.reference_id;
+    }
 }
 impl super::RefersGenes for Row {
     fn new(row_id: usize) -> Self {

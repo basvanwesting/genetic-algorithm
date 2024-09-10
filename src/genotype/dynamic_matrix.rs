@@ -654,40 +654,6 @@ where
         chromosome.taint();
         chromosome
     }
-    fn chromosome_cloner(
-        &mut self,
-        chromosome: &DynamicMatrixChromosome,
-    ) -> DynamicMatrixChromosome {
-        if self.chromosome_recycling() {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes(chromosome, &mut new_chromosome);
-                new_chromosome.age = chromosome.age;
-                new_chromosome.fitness_score = chromosome.fitness_score;
-                new_chromosome.reference_id = chromosome.reference_id;
-                new_chromosome
-            } else {
-                chromosome.clone()
-            }
-        } else {
-            chromosome.clone()
-        }
-    }
-    fn chromosome_constructor_from(
-        &mut self,
-        chromosome: &DynamicMatrixChromosome,
-    ) -> DynamicMatrixChromosome {
-        if self.chromosome_recycling() {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes(chromosome, &mut new_chromosome);
-                new_chromosome.taint();
-                new_chromosome
-            } else {
-                chromosome.clone_and_taint()
-            }
-        } else {
-            chromosome.clone_and_taint()
-        }
-    }
 }
 
 impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> Clone for DynamicMatrix<T>

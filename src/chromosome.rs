@@ -44,6 +44,7 @@ pub trait Chromosome: Clone + Send {
         chromosome.taint();
         chromosome
     }
+    fn copy_fields_from(&mut self, other: &Self);
 }
 pub trait OwnsGenes: Chromosome {
     type Genes: Genes;
@@ -64,10 +65,6 @@ pub trait ChromosomeManager<G: Genotype> {
     fn copy_genes(&mut self, source: &G::Chromosome, target: &mut G::Chromosome);
     /// mandatory
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome;
-    /// mandatory
-    fn chromosome_constructor_from(&mut self, chromosome: &G::Chromosome) -> G::Chromosome;
-    /// mandatory
-    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome;
     /// provided, disable recycling by default, override when using recycling
     fn chromosome_recycling(&self) -> bool {
         false
@@ -79,6 +76,33 @@ pub trait ChromosomeManager<G: Genotype> {
     /// optional, override if using recycling
     fn chromosome_bin_pop(&mut self) -> Option<G::Chromosome> {
         None
+    }
+
+    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                self.copy_genes(chromosome, &mut new_chromosome);
+                new_chromosome.copy_fields_from(chromosome);
+                new_chromosome
+            } else {
+                chromosome.clone()
+            }
+        } else {
+            chromosome.clone()
+        }
+    }
+    fn chromosome_constructor_from(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
+        if self.chromosome_recycling() {
+            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                self.copy_genes(chromosome, &mut new_chromosome);
+                new_chromosome.taint();
+                new_chromosome
+            } else {
+                chromosome.clone_and_taint()
+            }
+        } else {
+            chromosome.clone_and_taint()
+        }
     }
 
     fn chromosome_destructor(&mut self, chromosome: G::Chromosome) {
