@@ -245,11 +245,53 @@ fn main() {
     // println!("{}", evolve);
     // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
-        "RangeGenotype, best_generation: {:?}",
+        "RangeGenotype - without recycling, best_generation: {:?}",
         evolve.best_generation()
     );
     println!(
-        "RangeGenotype, best_fitness_score: {:?}",
+        "RangeGenotype - without recycling, best_fitness_score: {:?}",
+        evolve.best_fitness_score()
+    );
+
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(GENES_SIZE)
+        .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
+        // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
+        // .with_allele_mutation_range(-0.001..=0.001) // slow converge
+        .with_allele_mutation_scaled_range(vec![
+            -0.1..=0.1,
+            -0.05..=0.05,
+            -0.025..=0.025,
+            -0.01..=0.01,
+            -0.005..=0.005,
+            -0.0025..=0.0025,
+            -0.001..=0.001,
+        ])
+        .with_chromosome_recycling(true)
+        .build()
+        .unwrap();
+    // println!("{}", genotype);
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(POPULATION_SIZE)
+        .with_max_stale_generations(100)
+        .with_target_fitness_score((GENES_SIZE as f32 * 0.001 / 1e-5) as isize)
+        .with_fitness(RangeDistanceTo(0.5, 1e-5))
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_mutate(MutateSingleGene::new(0.2))
+        .with_crossover(CrossoverUniform::new())
+        .with_select(SelectTournament::new(4, 0.9))
+        .with_reporter(CustomRangeReporter)
+        .call()
+        .unwrap();
+    // println!("{}", evolve);
+    // println!("genes: {:b}", evolve.best_genes().unwrap());
+    println!(
+        "RangeGenotype - with recycling, best_generation: {:?}",
+        evolve.best_generation()
+    );
+    println!(
+        "RangeGenotype - with recycling, best_fitness_score: {:?}",
         evolve.best_fitness_score()
     );
 }

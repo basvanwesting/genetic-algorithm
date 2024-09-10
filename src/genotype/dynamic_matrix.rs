@@ -643,16 +643,16 @@ where
     fn chromosome_bin_push(&mut self, chromosome: DynamicMatrixChromosome) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<DynamicMatrixChromosome> {
-        self.chromosome_bin.pop().or_else(|| {
+    fn chromosome_bin_find_or_create(&mut self) -> DynamicMatrixChromosome {
+        self.chromosome_bin.pop().unwrap_or_else(|| {
             let row_id = self.data.len() / self.genes_size;
             self.data
                 .resize_with(self.data.len() + self.genes_size, Default::default);
-            Some(DynamicMatrixChromosome::new(row_id))
+            DynamicMatrixChromosome::new(row_id)
         })
     }
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> DynamicMatrixChromosome {
-        let mut chromosome = self.chromosome_bin_pop().unwrap();
+        let mut chromosome = self.chromosome_bin_find_or_create();
         self.set_random_genes(&mut chromosome, rng);
         chromosome.taint();
         chromosome

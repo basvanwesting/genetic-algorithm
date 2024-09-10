@@ -324,21 +324,18 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_bin_push(&mut self, chromosome: BitChromosome) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<BitChromosome> {
-        self.chromosome_bin.pop().or_else(|| {
+    fn chromosome_bin_find_or_create(&mut self) -> BitChromosome {
+        self.chromosome_bin.pop().unwrap_or_else(|| {
             let genes = FixedBitSet::with_capacity(self.genes_size);
-            Some(BitChromosome::new(genes))
+            BitChromosome::new(genes)
         })
     }
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> BitChromosome {
         if self.chromosome_recycling() {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.set_random_genes(&mut new_chromosome, rng);
-                new_chromosome.taint();
-                new_chromosome
-            } else {
-                BitChromosome::new(self.random_genes_factory(rng))
-            }
+            let mut chromosome = self.chromosome_bin_find_or_create();
+            self.set_random_genes(&mut chromosome, rng);
+            chromosome.taint();
+            chromosome
         } else {
             BitChromosome::new(self.random_genes_factory(rng))
         }

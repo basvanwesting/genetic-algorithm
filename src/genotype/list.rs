@@ -284,21 +284,18 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
     fn chromosome_bin_push(&mut self, chromosome: ListChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_pop(&mut self) -> Option<ListChromosome<T>> {
-        self.chromosome_bin.pop().or_else(|| {
+    fn chromosome_bin_find_or_create(&mut self) -> ListChromosome<T> {
+        self.chromosome_bin.pop().unwrap_or_else(|| {
             let genes = Vec::with_capacity(self.genes_size);
-            Some(ListChromosome::new(genes))
+            ListChromosome::new(genes)
         })
     }
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> ListChromosome<T> {
         if self.chromosome_recycling() {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.set_random_genes(&mut new_chromosome, rng);
-                new_chromosome.taint();
-                new_chromosome
-            } else {
-                ListChromosome::new(self.random_genes_factory(rng))
-            }
+            let mut chromosome = self.chromosome_bin_find_or_create();
+            self.set_random_genes(&mut chromosome, rng);
+            chromosome.taint();
+            chromosome
         } else {
             ListChromosome::new(self.random_genes_factory(rng))
         }

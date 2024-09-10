@@ -76,32 +76,26 @@ pub trait ChromosomeManager<G: Genotype> {
     /// optional, override if using recycling
     fn chromosome_bin_push(&mut self, mut _chromosome: G::Chromosome) {}
     /// optional, override if using recycling
-    fn chromosome_bin_pop(&mut self) -> Option<G::Chromosome> {
-        None
-    }
+    /// take from the recycling bin, or created new chromosome with capacities set
+    /// raise on empty bin if fixed capacity is exceeded
+    fn chromosome_bin_find_or_create(&mut self) -> G::Chromosome;
 
     fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
         if self.chromosome_recycling() {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes(chromosome, &mut new_chromosome);
-                new_chromosome.copy_fields_from(chromosome);
-                new_chromosome
-            } else {
-                chromosome.clone()
-            }
+            let mut new_chromosome = self.chromosome_bin_find_or_create();
+            self.copy_genes(chromosome, &mut new_chromosome);
+            new_chromosome.copy_fields_from(chromosome);
+            new_chromosome
         } else {
             chromosome.clone()
         }
     }
     fn chromosome_constructor_from(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
         if self.chromosome_recycling() {
-            if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes(chromosome, &mut new_chromosome);
-                new_chromosome.taint();
-                new_chromosome
-            } else {
-                chromosome.clone_and_taint()
-            }
+            let mut new_chromosome = self.chromosome_bin_find_or_create();
+            self.copy_genes(chromosome, &mut new_chromosome);
+            new_chromosome.taint();
+            new_chromosome
         } else {
             chromosome.clone_and_taint()
         }
