@@ -26,9 +26,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 (
                     genotype.chromosome_constructor_random(&mut rng1),
                     genotype.clone(),
+                    vec![],
                 )
             },
-            |(c, g)| g.neighbouring_population(&c, None, &mut rng2),
+            |(c, mut g, mut p)| g.fill_neighbouring_population(&c, &mut p, None, &mut rng2),
             BatchSize::SmallInput,
         );
     });
@@ -46,9 +47,10 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 (
                     genotype.chromosome_constructor_random(&mut rng1),
                     genotype.clone(),
+                    vec![],
                 )
             },
-            |(c, g)| g.neighbouring_population(&c, Some(1), &mut rng2),
+            |(c, mut g, mut p)| g.fill_neighbouring_population(&c, &mut p, Some(1), &mut rng2),
             BatchSize::SmallInput,
         );
     });

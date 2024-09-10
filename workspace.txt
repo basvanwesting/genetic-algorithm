@@ -19,6 +19,7 @@
   * [ ] Enable chromosome_recycling always, and remove checks
   * [ ] Move logic of random gene factory inside set_random_genes
   * [ ] Fix Reporting
+  * [ ] Populate neighbours in exisitng population.chromosome vec?
 
 * Store staticMatrixGenotype on heap using Box?
 * Extensions benchmark is noisy

@@ -177,8 +177,10 @@ fn float_neighbouring_population_1() {
     ));
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
+    let mut chromosomes = vec![];
+    genotype.fill_neighbouring_population(&chromosome, &mut chromosomes, None, &mut rng);
     assert!(relative_population_eq(
-        inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
+        inspect::chromosomes(&chromosomes),
         vec![vec![0.391], vec![0.545]],
         0.001
     ));
@@ -202,8 +204,10 @@ fn float_neighbouring_population_3_unscaled() {
     ));
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
+    let mut chromosomes = vec![];
+    genotype.fill_neighbouring_population(&chromosome, &mut chromosomes, None, &mut rng);
     assert!(relative_population_eq(
-        inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
+        inspect::chromosomes(&chromosomes),
         vec![
             vec![0.394, 2.196, 19.799],
             vec![0.537, 2.196, 19.799],
@@ -238,8 +242,10 @@ fn float_neighbouring_population_3_scaled() {
     ));
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
+    let mut chromosomes = vec![];
+    genotype.fill_neighbouring_population(&chromosome, &mut chromosomes, Some(0), &mut rng);
     assert!(relative_population_eq(
-        inspect::population(&genotype.neighbouring_population(&chromosome, Some(0), &mut rng)),
+        inspect::chromosomes(&chromosomes),
         vec![
             vec![0.0, 2.196, 19.799],
             vec![0.947, 2.196, 19.799],
@@ -250,8 +256,10 @@ fn float_neighbouring_population_3_scaled() {
         ],
         0.001
     ));
+    genotype.chromosome_destructor_truncate(&mut chromosomes, 0);
+    genotype.fill_neighbouring_population(&chromosome, &mut chromosomes, Some(1), &mut rng);
     assert!(relative_population_eq(
-        inspect::population(&genotype.neighbouring_population(&chromosome, Some(1), &mut rng)),
+        inspect::chromosomes(&chromosomes),
         vec![
             vec![0.347, 2.196, 19.799],
             vec![0.547, 2.196, 19.799],
@@ -262,8 +270,10 @@ fn float_neighbouring_population_3_scaled() {
         ],
         0.001
     ));
+    genotype.chromosome_destructor_truncate(&mut chromosomes, 0);
+    genotype.fill_neighbouring_population(&chromosome, &mut chromosomes, Some(2), &mut rng);
     assert!(relative_population_eq(
-        inspect::population(&genotype.neighbouring_population(&chromosome, Some(2), &mut rng)),
+        inspect::chromosomes(&chromosomes),
         vec![
             vec![0.437, 2.196, 19.799],
             vec![0.457, 2.196, 19.799],
@@ -323,10 +333,9 @@ fn integer_neighbouring_population_1() {
     assert_eq!(inspect::chromosome(&chromosome), vec![4]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
-    assert_eq!(
-        inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
-        vec![vec![3], vec![5]],
-    );
+    let mut chromosomes = vec![];
+    genotype.fill_neighbouring_population(&chromosome, &mut chromosomes, None, &mut rng);
+    assert_eq!(inspect::chromosomes(&chromosomes), vec![vec![3], vec![5]],);
 }
 
 #[test]
@@ -343,8 +352,10 @@ fn integer_neighbouring_population_3() {
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 2, 20]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
+    let mut chromosomes = vec![];
+    genotype.fill_neighbouring_population(&chromosome, &mut chromosomes, None, &mut rng);
     assert_eq!(
-        inspect::population(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
+        inspect::chromosomes(&chromosomes),
         vec![
             vec![3, 2, 20],
             vec![5, 2, 20],

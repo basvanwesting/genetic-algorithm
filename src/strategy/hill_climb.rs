@@ -279,8 +279,9 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         StrategyAction::ChromosomeDataDropAndCopy,
                         now_data.elapsed(),
                     );
-                    self.state.population = self.genotype.neighbouring_population(
+                    self.genotype.fill_neighbouring_population(
                         self.state.chromosome.as_ref().unwrap(),
+                        &mut self.state.population.chromosomes,
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
@@ -306,24 +307,33 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         StrategyAction::ChromosomeDataDropAndCopy,
                         now_data.elapsed(),
                     );
-                    let mut neighbouring_chromosomes = self.genotype.neighbouring_chromosomes(
+
+                    self.genotype.fill_neighbouring_population(
                         self.state.chromosome.as_ref().unwrap(),
+                        &mut self.state.population.chromosomes,
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
-                    neighbouring_chromosomes.append(
-                        &mut neighbouring_chromosomes
-                            .iter()
-                            .flat_map(|chromosome| {
-                                self.genotype.neighbouring_chromosomes(
-                                    chromosome,
-                                    self.state.current_scale_index,
-                                    &mut self.rng,
-                                )
-                            })
-                            .collect(),
+                    let mut secondary_neighbouring_chromosomes = Vec::with_capacity(
+                        self.state.population.size() * self.state.population.size(),
                     );
-                    self.state.population.chromosomes = neighbouring_chromosomes;
+                    self.state
+                        .population
+                        .chromosomes
+                        .iter()
+                        .for_each(|chromosome| {
+                            self.genotype.fill_neighbouring_population(
+                                chromosome,
+                                &mut secondary_neighbouring_chromosomes,
+                                self.state.current_scale_index,
+                                &mut self.rng,
+                            );
+                        });
+                    self.state
+                        .population
+                        .chromosomes
+                        .append(&mut secondary_neighbouring_chromosomes);
+
                     self.fitness.call_for_state_population(
                         &mut self.state,
                         &mut self.genotype,

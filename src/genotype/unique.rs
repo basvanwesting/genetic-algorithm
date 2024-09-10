@@ -157,20 +157,20 @@ impl<T: Allele> Genotype for Unique<T> {
 }
 
 impl<T: Allele> IncrementalGenotype for Unique<T> {
-    fn neighbouring_chromosomes<R: Rng>(
+    fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
+        output_chromosomes: &mut Vec<Self::Chromosome>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Self::Chromosome> {
+    ) {
         (0..self.genes_size())
             .tuple_combinations()
-            .map(|(first, second)| {
+            .for_each(|(first, second)| {
                 let mut new_chromosome = self.chromosome_constructor_from(chromosome);
                 new_chromosome.genes.swap(first, second);
-                new_chromosome
-            })
-            .collect::<Vec<_>>()
+                output_chromosomes.push(new_chromosome);
+            });
     }
 
     fn neighbouring_population_size(&self) -> BigUint {

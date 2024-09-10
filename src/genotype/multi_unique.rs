@@ -257,31 +257,30 @@ impl<T: Allele> Genotype for MultiUnique<T> {
 }
 
 impl<T: Allele> IncrementalGenotype for MultiUnique<T> {
-    fn neighbouring_chromosomes<R: Rng>(
+    fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
+        output_chromosomes: &mut Vec<Self::Chromosome>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Self::Chromosome> {
+    ) {
         self.allele_list_sizes
             .clone()
             .into_iter()
             .enumerate()
-            .flat_map(|(index, allele_value_size)| {
+            .for_each(|(index, allele_value_size)| {
                 let index_offset: usize = self.allele_list_index_offsets[index];
 
                 (0..allele_value_size)
                     .tuple_combinations()
-                    .map(|(first, second)| {
+                    .for_each(|(first, second)| {
                         let mut new_chromosome = self.chromosome_constructor_from(chromosome);
                         new_chromosome
                             .genes
                             .swap(index_offset + first, index_offset + second);
-                        new_chromosome
-                    })
-                    .collect::<Vec<_>>()
-            })
-            .collect::<Vec<_>>()
+                        output_chromosomes.push(new_chromosome);
+                    });
+            });
     }
 
     fn neighbouring_population_size(&self) -> BigUint {

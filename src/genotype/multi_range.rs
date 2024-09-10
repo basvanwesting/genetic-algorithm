@@ -403,17 +403,22 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn neighbouring_chromosomes<R: Rng>(
+    fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
+        output_chromosomes: &mut Vec<Self::Chromosome>,
         scale_index: Option<usize>,
         rng: &mut R,
-    ) -> Vec<Self::Chromosome> {
+    ) {
         match self.mutation_type {
-            MutationType::Scaled => {
-                self.neighbouring_chromosomes_scaled(chromosome, scale_index.unwrap())
+            MutationType::Scaled => self.fill_neighbouring_population_scaled(
+                chromosome,
+                output_chromosomes,
+                scale_index.unwrap(),
+            ),
+            MutationType::Relative => {
+                self.fill_neighbouring_population_relative(chromosome, output_chromosomes, rng)
             }
-            MutationType::Relative => self.neighbouring_chromosomes_relative(chromosome, rng),
             MutationType::Random => {
                 panic!("Random mutation type is not supported for incremental genotype: HillClimb, SteepestAscent");
             }
@@ -430,16 +435,17 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn neighbouring_chromosomes_scaled(
+    fn fill_neighbouring_population_scaled(
         &mut self,
         chromosome: &MultiRangeChromosome<T>,
+        output_chromosomes: &mut Vec<MultiRangeChromosome<T>>,
         scale_index: usize,
-    ) -> Vec<MultiRangeChromosome<T>> {
+    ) {
         self.allele_ranges
             .clone()
             .into_iter()
             .enumerate()
-            .flat_map(|(index, allele_range)| {
+            .for_each(|(index, allele_range)| {
                 let allele_range_start = *allele_range.start();
                 let allele_range_end = *allele_range.end();
                 let working_range =
@@ -459,39 +465,30 @@ where
                     base_value + working_range_end
                 };
 
-                [
-                    if value_start < base_value {
-                        let mut new_chromosome = self.chromosome_constructor_from(chromosome);
-                        new_chromosome.genes[index] = value_start;
-                        Some(new_chromosome)
-                    } else {
-                        None
-                    },
-                    if base_value < value_end {
-                        let mut new_chromosome = self.chromosome_constructor_from(chromosome);
-                        new_chromosome.genes[index] = value_end;
-                        Some(new_chromosome)
-                    } else {
-                        None
-                    },
-                ]
-            })
-            .flatten()
-            // .dedup()
-            .filter(|new_chromosome| chromosome.genes != new_chromosome.genes)
-            .collect::<Vec<_>>()
+                if value_start < base_value {
+                    let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                    new_chromosome.genes[index] = value_start;
+                    output_chromosomes.push(new_chromosome);
+                };
+                if base_value < value_end {
+                    let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                    new_chromosome.genes[index] = value_end;
+                    output_chromosomes.push(new_chromosome);
+                };
+            });
     }
 
-    fn neighbouring_chromosomes_relative<R: Rng>(
+    fn fill_neighbouring_population_relative<R: Rng>(
         &mut self,
         chromosome: &MultiRangeChromosome<T>,
+        output_chromosomes: &mut Vec<MultiRangeChromosome<T>>,
         rng: &mut R,
-    ) -> Vec<MultiRangeChromosome<T>> {
+    ) {
         self.allele_ranges
             .clone()
             .into_iter()
             .enumerate()
-            .flat_map(|(index, allele_range)| {
+            .for_each(|(index, allele_range)| {
                 let allele_range_start = *allele_range.start();
                 let allele_range_end = *allele_range.end();
                 let working_range = &self.allele_mutation_ranges.as_ref().unwrap()[index];
@@ -510,32 +507,22 @@ where
                     base_value + working_range_end
                 };
 
-                [
-                    if range_start < base_value {
-                        let mut new_chromosome = self.chromosome_constructor_from(chromosome);
-                        new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
-                        Some(new_chromosome)
-                    } else {
-                        None
-                    },
-                    if base_value < range_end {
-                        let mut new_chromosome = self.chromosome_constructor_from(chromosome);
-                        let mut new_value = rng.gen_range(base_value..=range_end);
-                        // FIXME: ugly loop, goal is to have an exclusive below range
-                        while new_value <= base_value {
-                            new_value = rng.gen_range(base_value..=range_end);
-                        }
-                        new_chromosome.genes[index] = new_value;
-                        Some(new_chromosome)
-                    } else {
-                        None
-                    },
-                ]
-            })
-            .flatten()
-            // .dedup()
-            .filter(|new_chromosome| chromosome.genes != new_chromosome.genes)
-            .collect::<Vec<_>>()
+                if range_start < base_value {
+                    let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                    new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
+                    output_chromosomes.push(new_chromosome);
+                };
+                if base_value < range_end {
+                    let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                    let mut new_value = rng.gen_range(base_value..=range_end);
+                    // FIXME: ugly loop, goal is to have an exclusive below range
+                    while new_value <= base_value {
+                        new_value = rng.gen_range(base_value..=range_end);
+                    }
+                    new_chromosome.genes[index] = new_value;
+                    output_chromosomes.push(new_chromosome);
+                };
+            });
     }
 }
 

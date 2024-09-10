@@ -186,19 +186,18 @@ impl Genotype for Binary {
 }
 
 impl IncrementalGenotype for Binary {
-    fn neighbouring_chromosomes<R: Rng>(
+    fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
+        output_chromosomes: &mut Vec<Self::Chromosome>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Self::Chromosome> {
-        (0..self.genes_size)
-            .map(|index| {
-                let mut new_chromosome = self.chromosome_constructor_from(chromosome);
-                new_chromosome.genes[index] = !new_chromosome.genes[index];
-                new_chromosome
-            })
-            .collect::<Vec<_>>()
+    ) {
+        (0..self.genes_size).for_each(|index| {
+            let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+            new_chromosome.genes[index] = !new_chromosome.genes[index];
+            output_chromosomes.push(new_chromosome);
+        });
     }
 
     fn neighbouring_population_size(&self) -> BigUint {

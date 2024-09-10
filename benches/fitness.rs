@@ -1,6 +1,8 @@
 use criterion::*;
 use genetic_algorithm::chromosome::ChromosomeManager;
-use genetic_algorithm::chromosome::LegacyChromosome;
+use genetic_algorithm::chromosome::{
+    BinaryChromosome, Chromosome, ListChromosome, OwnsGenes, RangeChromosome,
+};
 use genetic_algorithm::fitness::placeholders::{
     CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes,
 };
@@ -19,7 +21,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_genes_size(1000)
             .build()
             .unwrap();
-        let chromosome = LegacyChromosome::new(vec![true; 1000]);
+        let chromosome = BinaryChromosome::new(vec![true; 1000]);
         let mut fitness = CountTrue;
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
@@ -30,8 +32,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_allele_range(0.0..=1.0)
             .build()
             .unwrap();
-        let chromosome: LegacyChromosome<RangeGenotype<f32>> =
-            LegacyChromosome::new(vec![1.0; 1000]);
+        let chromosome = RangeChromosome::new(vec![1.0; 1000]);
         let mut fitness = SumGenes::new_with_precision(1e-5);
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
@@ -42,7 +43,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_allele_list((0_u32..100_u32).collect())
             .build()
             .unwrap();
-        let chromosome: LegacyChromosome<ListGenotype<u32>> = LegacyChromosome::new(vec![1; 1000]);
+        let chromosome = ListChromosome::<u32>::new(vec![1; 1000]);
         let mut fitness = SumGenes::new();
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
@@ -53,7 +54,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_allele_list((0_u32..100_u32).collect())
             .build()
             .unwrap();
-        let chromosome: LegacyChromosome<ListGenotype<u32>> = LegacyChromosome::new(vec![1; 1000]);
+        let chromosome = ListChromosome::<u32>::new(vec![1; 1000]);
         let mut fitness = Countdown::new(usize::MAX);
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
@@ -64,7 +65,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_allele_list((0_u32..100_u32).collect())
             .build()
             .unwrap();
-        let chromosome: LegacyChromosome<ListGenotype<u32>> = LegacyChromosome::new(vec![1; 1000]);
+        let chromosome = ListChromosome::<u32>::new(vec![1; 1000]);
         let mut fitness = CountdownNoisy::new(usize::MAX - 10_000, 1000, 1..10_000);
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });

@@ -142,8 +142,11 @@ fn neighbouring_population() {
         genotype.neighbouring_population_size(),
         BigUint::from(10u32)
     );
+
+    let mut chromosomes = vec![];
+    genotype.fill_neighbouring_population(&chromosome, &mut chromosomes, None, &mut rng);
     assert_eq!(
-        inspect::population_to_str(&genotype.neighbouring_population(&chromosome, None, &mut rng)),
+        inspect::chromosomes_to_str(&chromosomes),
         vec![
             "1011000100",
             "0111000100",

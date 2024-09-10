@@ -221,28 +221,22 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
 }
 
 impl<T: Allele + PartialEq> IncrementalGenotype for List<T> {
-    fn neighbouring_chromosomes<R: Rng>(
+    fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
+        output_chromosomes: &mut Vec<Self::Chromosome>,
         _scale_index: Option<usize>,
         _rng: &mut R,
-    ) -> Vec<Self::Chromosome> {
-        let size: usize = self
-            .neighbouring_population_size()
-            .iter_u32_digits()
-            .next()
-            .unwrap() as usize;
-        let mut new_chromosomes = Vec::with_capacity(size);
+    ) {
         for index in 0..self.genes_size() {
             for allele_value in self.allele_list.clone() {
                 if chromosome.genes[index] != allele_value {
                     let mut new_chromosome = self.chromosome_constructor_from(chromosome);
                     new_chromosome.genes[index] = allele_value;
-                    new_chromosomes.push(new_chromosome);
+                    output_chromosomes.push(new_chromosome);
                 }
             }
         }
-        new_chromosomes
     }
 
     fn neighbouring_population_size(&self) -> BigUint {
