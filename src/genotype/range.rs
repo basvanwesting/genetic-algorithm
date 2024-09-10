@@ -504,16 +504,6 @@ where
             RangeChromosome::new(genes)
         })
     }
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> RangeChromosome<T> {
-        if self.chromosome_recycling() {
-            let mut chromosome = self.chromosome_bin_find_or_create();
-            self.set_random_genes(&mut chromosome, rng);
-            chromosome.taint();
-            chromosome
-        } else {
-            RangeChromosome::new(self.random_genes_factory(rng))
-        }
-    }
 }
 
 impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> Clone for Range<T>

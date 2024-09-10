@@ -346,16 +346,6 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
             MultiListChromosome::new(genes)
         })
     }
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> MultiListChromosome<T> {
-        if self.chromosome_recycling() {
-            let mut chromosome = self.chromosome_bin_find_or_create();
-            self.set_random_genes(&mut chromosome, rng);
-            chromosome.taint();
-            chromosome
-        } else {
-            MultiListChromosome::new(self.random_genes_factory(rng))
-        }
-    }
 }
 
 impl<T: Allele + PartialEq> fmt::Display for MultiList<T> {

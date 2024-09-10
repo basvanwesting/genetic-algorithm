@@ -65,8 +65,6 @@ pub trait ChromosomeManager<G: Genotype> {
     fn copy_genes(&mut self, source: &G::Chromosome, target: &mut G::Chromosome);
     /// mandatory
     fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R);
-    /// mandatory
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome;
     /// provided, disable recycling by default, override when using recycling
     fn chromosome_recycling(&self) -> bool {
         false
@@ -80,6 +78,12 @@ pub trait ChromosomeManager<G: Genotype> {
     /// raise on empty bin if fixed capacity is exceeded
     fn chromosome_bin_find_or_create(&mut self) -> G::Chromosome;
 
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {
+        let mut chromosome = self.chromosome_bin_find_or_create();
+        self.set_random_genes(&mut chromosome, rng);
+        chromosome.taint();
+        chromosome
+    }
     fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
         if self.chromosome_recycling() {
             let mut new_chromosome = self.chromosome_bin_find_or_create();

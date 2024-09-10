@@ -659,13 +659,6 @@ where
             panic!("genetic_algorithm error: chromosome capacity exceeded");
         })
     }
-    // FIXME: directly set genes
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> StaticMatrixChromosome {
-        let mut chromosome = self.chromosome_bin_find_or_create();
-        self.set_random_genes(&mut chromosome, rng);
-        chromosome.taint();
-        chromosome
-    }
 }
 
 impl<

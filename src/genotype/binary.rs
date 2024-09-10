@@ -244,16 +244,6 @@ impl ChromosomeManager<Self> for Binary {
             BinaryChromosome::new(genes)
         })
     }
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> BinaryChromosome {
-        if self.chromosome_recycling() {
-            let mut chromosome = self.chromosome_bin_find_or_create();
-            self.set_random_genes(&mut chromosome, rng);
-            chromosome.taint();
-            chromosome
-        } else {
-            BinaryChromosome::new(self.random_genes_factory(rng))
-        }
-    }
 }
 
 impl fmt::Display for Binary {

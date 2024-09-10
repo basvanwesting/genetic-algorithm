@@ -360,16 +360,6 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
             MultiUniqueChromosome::new(genes)
         })
     }
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> MultiUniqueChromosome<T> {
-        if self.chromosome_recycling() {
-            let mut chromosome = self.chromosome_bin_find_or_create();
-            self.set_random_genes(&mut chromosome, rng);
-            chromosome.taint();
-            chromosome
-        } else {
-            MultiUniqueChromosome::new(self.random_genes_factory(rng))
-        }
-    }
 }
 
 impl<T: Allele> fmt::Display for MultiUnique<T> {
