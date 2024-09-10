@@ -258,7 +258,7 @@ impl<T: Allele> Genotype for MultiUnique<T> {
 
 impl<T: Allele> IncrementalGenotype for MultiUnique<T> {
     fn neighbouring_chromosomes<R: Rng>(
-        &self,
+        &mut self,
         chromosome: &MultiUniqueChromosome<T>,
         _scale_index: Option<usize>,
         _rng: &mut R,

@@ -222,7 +222,7 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
 
 impl<T: Allele + PartialEq> IncrementalGenotype for List<T> {
     fn neighbouring_chromosomes<R: Rng>(
-        &self,
+        &mut self,
         chromosome: &ListChromosome<T>,
         _scale_index: Option<usize>,
         _rng: &mut R,

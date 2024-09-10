@@ -150,14 +150,14 @@ pub trait IncrementalGenotype: Genotype {
     /// all neighbouring mutations of the chromosome
     /// used in HillClimbVariant::SteepestAscent and SteepestAscentSecondary
     fn neighbouring_chromosomes<R: Rng>(
-        &self,
+        &mut self,
         _chromosome: &Self::Chromosome,
         _scale_index: Option<usize>,
         _rng: &mut R,
     ) -> Vec<Self::Chromosome>;
 
     fn neighbouring_population<R: Rng>(
-        &self,
+        &mut self,
         chromosome: &Self::Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,

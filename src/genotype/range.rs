@@ -342,7 +342,7 @@ where
     Uniform<T>: Send + Sync,
 {
     fn neighbouring_chromosomes<R: Rng>(
-        &self,
+        &mut self,
         chromosome: &RangeChromosome<T>,
         scale_index: Option<usize>,
         rng: &mut R,

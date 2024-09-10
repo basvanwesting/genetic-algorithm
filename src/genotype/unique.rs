@@ -158,7 +158,7 @@ impl<T: Allele> Genotype for Unique<T> {
 
 impl<T: Allele> IncrementalGenotype for Unique<T> {
     fn neighbouring_chromosomes<R: Rng>(
-        &self,
+        &mut self,
         chromosome: &UniqueChromosome<T>,
         _scale_index: Option<usize>,
         _rng: &mut R,

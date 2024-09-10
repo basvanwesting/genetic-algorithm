@@ -267,7 +267,7 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
 
 impl<T: Allele + PartialEq> IncrementalGenotype for MultiList<T> {
     fn neighbouring_chromosomes<R: Rng>(
-        &self,
+        &mut self,
         chromosome: &MultiListChromosome<T>,
         _scale_index: Option<usize>,
         _rng: &mut R,

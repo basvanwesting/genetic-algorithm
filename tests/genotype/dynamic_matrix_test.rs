@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::chromosome::ChromosomeManager;
-use genetic_algorithm::genotype::{DynamicMatrixGenotype, Genotype};
+use genetic_algorithm::genotype::{DynamicMatrixGenotype, Genotype, IncrementalGenotype};
 
 #[test]
 fn chromosome_constructor() {
@@ -208,6 +208,179 @@ fn crossover_chromosome_pair_single_point() {
         genotype.get_genes(&mother).to_vec(),
         vec![0.240, 0.976, 0.979, 0.462, 0.897, 0.225, 0.232, 0.296, 0.787, 0.724],
         0.001
+    ));
+}
+
+#[test]
+fn float_neighbouring_population_1() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = DynamicMatrixGenotype::builder()
+        .with_genes_size(1)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_mutation_range(-0.1..=0.1)
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let chromosome = genotype.chromosome_constructor(&mut rng);
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(&chromosome).to_vec(),
+        vec![0.447],
+        0.001
+    ));
+
+    let population = genotype.neighbouring_population(&chromosome, None, &mut rng);
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.get_genes(c).to_vec())
+            .collect(),
+        vec![vec![0.391], vec![0.545]],
+        0.001,
+    ));
+}
+
+#[test]
+fn float_neighbouring_population_2_unscaled() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = DynamicMatrixGenotype::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_mutation_range(-0.1..=0.1)
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let chromosome = genotype.chromosome_constructor(&mut rng);
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(&chromosome).to_vec(),
+        vec![0.447, 0.439],
+        0.001
+    ));
+
+    let population = genotype.neighbouring_population(&chromosome, None, &mut rng);
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.get_genes(c).to_vec())
+            .collect(),
+        vec![
+            vec![0.445, 0.439],
+            vec![0.494, 0.439],
+            vec![0.447, 0.429],
+            vec![0.447, 0.533],
+        ],
+        0.001,
+    ));
+}
+
+#[test]
+fn float_neighbouring_population_2_scaled() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = DynamicMatrixGenotype::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_mutation_scaled_range(vec![-0.5..=0.5, -0.1..=0.1, -0.01..=0.01])
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let chromosome = genotype.chromosome_constructor(&mut rng);
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(&chromosome).to_vec(),
+        vec![0.447, 0.439],
+        0.001
+    ));
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
+
+    let population = genotype.neighbouring_population(&chromosome, Some(0), &mut rng);
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.get_genes(c).to_vec())
+            .collect(),
+        vec![
+            vec![0.0, 0.439],
+            vec![0.947, 0.439],
+            vec![0.447, 0.0],
+            vec![0.447, 0.939],
+        ],
+        0.001,
+    ));
+
+    let population = genotype.neighbouring_population(&chromosome, Some(1), &mut rng);
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.get_genes(c).to_vec())
+            .collect(),
+        vec![
+            vec![0.347, 0.439],
+            vec![0.547, 0.439],
+            vec![0.447, 0.339],
+            vec![0.447, 0.539],
+        ],
+        0.001,
+    ));
+
+    let population = genotype.neighbouring_population(&chromosome, Some(2), &mut rng);
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.get_genes(c).to_vec())
+            .collect(),
+        vec![
+            vec![0.437, 0.439],
+            vec![0.457, 0.439],
+            vec![0.447, 0.429],
+            vec![0.447, 0.449],
+        ],
+        0.001,
+    ));
+}
+
+#[test]
+fn float_neighbouring_population_3_one_sided() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = DynamicMatrixGenotype::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_mutation_range(0.0..=0.1)
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let chromosome = genotype.chromosome_constructor(&mut rng);
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(&chromosome).to_vec(),
+        vec![0.447, 0.439, 0.980],
+        0.001
+    ));
+
+    // size makes error as it counts 0.0 twice, this is fine
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
+
+    let population = genotype.neighbouring_population(&chromosome, None, &mut rng);
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.get_genes(c).to_vec())
+            .collect(),
+        vec![
+            vec![0.494, 0.439, 0.980],
+            vec![0.447, 0.529, 0.980],
+            vec![0.447, 0.439, 0.999],
+        ],
+        0.001,
     ));
 }
 

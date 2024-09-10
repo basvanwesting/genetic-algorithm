@@ -187,7 +187,7 @@ impl Genotype for Binary {
 
 impl IncrementalGenotype for Binary {
     fn neighbouring_chromosomes<R: Rng>(
-        &self,
+        &mut self,
         chromosome: &Self::Chromosome,
         _scale_index: Option<usize>,
         _rng: &mut R,

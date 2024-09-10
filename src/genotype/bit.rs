@@ -269,7 +269,7 @@ impl Genotype for Bit {
 
 impl IncrementalGenotype for Bit {
     fn neighbouring_chromosomes<R: Rng>(
-        &self,
+        &mut self,
         chromosome: &BitChromosome,
         _scale_index: Option<usize>,
         _rng: &mut R,
