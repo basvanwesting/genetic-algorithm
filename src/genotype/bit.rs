@@ -321,7 +321,7 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_bin_pop(&mut self) -> Option<BitChromosome> {
         self.chromosome_bin.pop()
     }
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> BitChromosome {
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> BitChromosome {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 new_chromosome.taint();

@@ -638,7 +638,7 @@ where
         })
     }
     // FIXME: directly set genes
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> StaticMatrixChromosome {
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> StaticMatrixChromosome {
         let mut chromosome = self.chromosome_bin_pop().unwrap();
         let genes = self.random_genes_factory(rng);
         let x = self.data[chromosome.row_id].as_mut_slice();

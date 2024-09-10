@@ -14,7 +14,7 @@ fn mutate_chromosome_single() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_constructor(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 2, 3]);
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
@@ -159,7 +159,7 @@ fn neighbouring_population_2() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_constructor(&mut rng);
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![0, 1]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(1u32));
@@ -177,7 +177,7 @@ fn neighbouring_population_4() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_constructor(&mut rng);
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![3, 0, 1, 2]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));

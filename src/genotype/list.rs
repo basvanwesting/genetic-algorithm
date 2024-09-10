@@ -281,7 +281,7 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
     fn chromosome_bin_pop(&mut self) -> Option<ListChromosome<T>> {
         self.chromosome_bin.pop()
     }
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> ListChromosome<T> {
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> ListChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 new_chromosome

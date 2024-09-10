@@ -14,7 +14,7 @@ fn mutate_chromosome_single() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_constructor(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 5, 4, 7, 1, 2, 0]
@@ -315,7 +315,7 @@ fn neighbouring_population_4() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_constructor(&mut rng);
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 0, 1, 2, 0, 1, 0, 1]

@@ -337,7 +337,7 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
     fn chromosome_bin_pop(&mut self) -> Option<MultiListChromosome<T>> {
         self.chromosome_bin.pop()
     }
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> MultiListChromosome<T> {
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> MultiListChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 new_chromosome

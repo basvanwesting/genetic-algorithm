@@ -23,7 +23,7 @@ fn mutate_chromosome_single() {
     let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
     genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_constructor(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
@@ -135,7 +135,7 @@ fn neighbouring_population() {
     let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
     genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_constructor(&mut rng);
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
 
     assert_eq!(
@@ -226,10 +226,10 @@ fn chromosome_constructor_with_seed_genes_list() {
     genotype.chromosomes_init();
 
     let chromosomes = vec![
-        genotype.chromosome_constructor(&mut rng),
-        genotype.chromosome_constructor(&mut rng),
-        genotype.chromosome_constructor(&mut rng),
-        genotype.chromosome_constructor(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
     ];
     println!("{:#?}", chromosomes);
     assert_eq!(

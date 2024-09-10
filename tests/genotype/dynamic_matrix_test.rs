@@ -13,7 +13,7 @@ fn chromosome_constructor() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_constructor(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
@@ -39,7 +39,7 @@ fn float_mutate_chromosome_single_relative() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_constructor(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
@@ -72,7 +72,7 @@ fn float_mutate_chromosome_single_scaled() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_constructor(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
@@ -104,7 +104,7 @@ fn mutate_chromosome_genes_random_with_duplicates() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_constructor(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
@@ -127,7 +127,7 @@ fn mutate_chromosome_genes_random_without_duplicates() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let mut chromosome = genotype.chromosome_constructor(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
@@ -151,8 +151,8 @@ fn crossover_chromosome_pair_single_gene() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let mut father = genotype.chromosome_constructor(rng);
-    let mut mother = genotype.chromosome_constructor(rng);
+    let mut father = genotype.chromosome_constructor_random(rng);
+    let mut mother = genotype.chromosome_constructor_random(rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&father).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
@@ -186,8 +186,8 @@ fn crossover_chromosome_pair_single_point() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let mut father = genotype.chromosome_constructor(rng);
-    let mut mother = genotype.chromosome_constructor(rng);
+    let mut father = genotype.chromosome_constructor_random(rng);
+    let mut mother = genotype.chromosome_constructor_random(rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&father).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
@@ -222,7 +222,7 @@ fn float_neighbouring_population_1() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_constructor(&mut rng);
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&chromosome).to_vec(),
         vec![0.447],
@@ -253,7 +253,7 @@ fn float_neighbouring_population_2_unscaled() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_constructor(&mut rng);
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&chromosome).to_vec(),
         vec![0.447, 0.439],
@@ -289,7 +289,7 @@ fn float_neighbouring_population_2_scaled() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_constructor(&mut rng);
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&chromosome).to_vec(),
         vec![0.447, 0.439],
@@ -361,7 +361,7 @@ fn float_neighbouring_population_3_one_sided() {
         .unwrap();
     genotype.chromosomes_init();
 
-    let chromosome = genotype.chromosome_constructor(&mut rng);
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
         genotype.get_genes(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.980],
@@ -398,7 +398,7 @@ fn chromosome_manager() {
     genotype.chromosomes_init();
 
     let mut chromosomes = (0..4)
-        .map(|_| genotype.chromosome_constructor(rng))
+        .map(|_| genotype.chromosome_constructor_random(rng))
         .collect::<Vec<_>>();
     genotype.save_best_genes(&chromosomes[2]);
     dbg!("init", &chromosomes, &genotype.best_genes());

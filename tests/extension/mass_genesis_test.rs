@@ -53,7 +53,7 @@ fn removes_randomly_matrix() {
     genotype.chromosomes_init();
 
     let mut chromosomes = (0..8)
-        .map(|_| genotype.chromosome_constructor(rng))
+        .map(|_| genotype.chromosome_constructor_random(rng))
         .collect::<Vec<_>>();
     chromosomes
         .iter_mut()

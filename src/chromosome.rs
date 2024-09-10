@@ -61,7 +61,7 @@ pub trait ChromosomeManager<G: Genotype> {
     /// mandatory, random genes unless seed genes are provided
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
     /// mandatory
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome;
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome;
     /// mandatory
     fn chromosome_constructor_from(&mut self, chromosome: &G::Chromosome) -> G::Chromosome;
     /// mandatory

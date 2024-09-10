@@ -13,7 +13,7 @@ fn mutate_chromosome_single() {
         .build()
         .unwrap();
 
-    let mut chromosome = genotype.chromosome_constructor(&mut rng);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![false, false, true, false, true, true, true, false, false, true]
@@ -196,7 +196,7 @@ fn neighbouring_population() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor(&mut rng);
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![false, false, true, false, true, true, true, false, false, true]
@@ -315,10 +315,10 @@ fn chromosome_constructor_with_seed_genes_list() {
         .unwrap();
     genotype.chromosomes_init();
     let chromosomes = vec![
-        genotype.chromosome_constructor(&mut rng),
-        genotype.chromosome_constructor(&mut rng),
-        genotype.chromosome_constructor(&mut rng),
-        genotype.chromosome_constructor(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
     ];
     println!("{:#?}", chromosomes);
     assert_eq!(

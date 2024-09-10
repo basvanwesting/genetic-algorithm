@@ -605,7 +605,7 @@ where
         })
     }
     // FIXME: directly set genes
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> DynamicMatrixChromosome {
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> DynamicMatrixChromosome {
         let mut chromosome = self.chromosome_bin_pop().unwrap();
         let genes = self.random_genes_factory(rng);
         let linear_id = self.linear_id(chromosome.row_id, 0);

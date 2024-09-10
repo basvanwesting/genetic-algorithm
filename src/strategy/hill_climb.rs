@@ -373,7 +373,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
             .on_init(&self.genotype, &self.state, &self.config);
 
         self.genotype.chromosomes_init();
-        self.state.chromosome = Some(self.genotype.chromosome_constructor(&mut self.rng));
+        self.state.chromosome = Some(self.genotype.chromosome_constructor_random(&mut self.rng));
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
         self.fitness

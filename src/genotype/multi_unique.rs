@@ -347,7 +347,7 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
     fn chromosome_bin_pop(&mut self) -> Option<MultiUniqueChromosome<T>> {
         self.chromosome_bin.pop()
     }
-    fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> MultiUniqueChromosome<T> {
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> MultiUniqueChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
                 new_chromosome

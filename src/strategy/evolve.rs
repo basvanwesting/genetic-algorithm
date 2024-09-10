@@ -309,7 +309,7 @@ impl<
 
         self.genotype.chromosomes_init();
         self.state.population.chromosomes = (0..self.config.target_population_size)
-            .map(|_| self.genotype.chromosome_constructor(&mut self.rng))
+            .map(|_| self.genotype.chromosome_constructor_random(&mut self.rng))
             .collect::<Vec<_>>();
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
