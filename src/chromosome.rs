@@ -35,7 +35,9 @@ use std::ops::Range;
 /// [Evolve::best_chromosome()](crate::strategy::evolve::Evolve::best_chromosome),
 /// [HillCllimb::best_chromosome()](crate::strategy::hill_climb::HillClimb::best_chromosome) and
 /// [Permutate::best_chromosome()](crate::strategy::permutate::Permutate::best_chromosome) on the
-/// Strategy are discouraged. Use [Strategy::best_genes()](crate::strategy::Strategy::best_genes)
+/// Strategy are discouraged.
+/// Use [Strategy::best_genes()](crate::strategy::Strategy::best_genes) or
+/// [Strategy::best_genes_and_fitness_score()](crate::strategy::Strategy::best_genes_and_fitness_score)
 /// instead.
 pub trait Chromosome: Clone + Send {
     fn age(&self) -> usize;

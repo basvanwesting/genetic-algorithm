@@ -62,9 +62,10 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///     .call()
 ///     .unwrap();
 ///
-/// // it's all about the best chromosome after all
-/// let best_genes = permutate.best_genes().unwrap();
-/// assert_eq!(best_genes, vec![false; 16])
+/// // it's all about the best genes after all
+/// let (best_genes, best_fitness_score) = permutate.best_genes_and_fitness_score().unwrap();
+/// assert_eq!(best_genes, vec![false; 16]);
+/// assert_eq!(best_fitness_score, 0);
 /// ```
 pub struct Permutate<
     G: PermutableGenotype,

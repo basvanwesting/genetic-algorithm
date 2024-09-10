@@ -395,28 +395,27 @@ fn main() {
 
     // REPORT
 
-    if let Some(fitness_score) = hill_climb.best_fitness_score() {
-        if let Some(best_genes) = hill_climb.best_genes() {
-            let mut assigns: HashMap<&Adult, Vec<&NaiveDate>> = HashMap::new();
-            let mut all_intervals: Vec<f64> = vec![];
-            best_genes.iter().enumerate().for_each(|(index, value)| {
-                let date = &dates[index];
-                let adult = &adults[*value];
-                assigns
-                    .entry(adult)
-                    .and_modify(|dates| dates.push(date))
-                    .or_insert(vec![date]);
+    if let Some((best_genes, fitness_score)) = hill_climb.best_genes_and_fitness_score() {
+        let mut assigns: HashMap<&Adult, Vec<&NaiveDate>> = HashMap::new();
+        let mut all_intervals: Vec<f64> = vec![];
+        best_genes.iter().enumerate().for_each(|(index, value)| {
+            let date = &dates[index];
+            let adult = &adults[*value];
+            assigns
+                .entry(adult)
+                .and_modify(|dates| dates.push(date))
+                .or_insert(vec![date]);
 
-                if adult.start_date > *date || adult.end_date < *date {
-                    println!("{}: {} INVALID out of start/end range", date, adult.name);
-                } else if !adult.allow_weekday(date.weekday()) {
-                    println!("{}: {} INVALID on denied weekday", date, adult.name);
-                } else {
-                    println!("{}: {}", date, adult.name);
-                }
-            });
+            if adult.start_date > *date || adult.end_date < *date {
+                println!("{}: {} INVALID out of start/end range", date, adult.name);
+            } else if !adult.allow_weekday(date.weekday()) {
+                println!("{}: {} INVALID on denied weekday", date, adult.name);
+            } else {
+                println!("{}: {}", date, adult.name);
+            }
+        });
 
-            adults.iter().for_each(|adult| {
+        adults.iter().for_each(|adult| {
                 if let Some(dates) = assigns.get(adult) {
                     let mut intervals: Vec<f64> = vec![];
                     dates.windows(2).for_each(|pair| {
@@ -443,23 +442,22 @@ fn main() {
                 }
             });
 
-            let count = dates.len();
-            let max = Statistics::max(&all_intervals);
-            let min = Statistics::min(&all_intervals);
-            let mean = Statistics::mean(&all_intervals);
-            let std_dev = Statistics::population_std_dev(&all_intervals);
+        let count = dates.len();
+        let max = Statistics::max(&all_intervals);
+        let min = Statistics::min(&all_intervals);
+        let mean = Statistics::mean(&all_intervals);
+        let std_dev = Statistics::population_std_dev(&all_intervals);
 
-            println!("=== OVERALL ===");
-            println!(
-                "number_of_assigns: {}, interval in days, min: {}, max: {}, mean: {}, std_dev: {}",
-                count, min, max, mean, std_dev
-            );
+        println!("=== OVERALL ===");
+        println!(
+            "number_of_assigns: {}, interval in days, min: {}, max: {}, mean: {}, std_dev: {}",
+            count, min, max, mean, std_dev
+        );
 
-            if fitness_score >= INVALID_ASSIGN_PENALTY as isize {
-                println!("Invalid solution with fitness score: {}", fitness_score);
-            } else {
-                println!("Valid solution with fitness score: {}", fitness_score);
-            }
+        if fitness_score >= INVALID_ASSIGN_PENALTY as isize {
+            println!("Invalid solution with fitness score: {}", fitness_score);
+        } else {
+            println!("Valid solution with fitness score: {}", fitness_score);
         }
     } else {
         println!("Invalid solution with fitness score: None");

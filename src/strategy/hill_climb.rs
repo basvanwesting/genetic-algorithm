@@ -132,7 +132,7 @@ pub enum HillClimbVariant {
 ///     .with_fitness(SumGenes::new_with_precision(1e-5)) // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
-///     .with_target_fitness_score(10)                    // ending condition if sum of genes is <= 0.00010 in the best chromosome
+///     .with_target_fitness_score(0)                     // ending condition if sum of genes is <= 0.00001 in the best chromosome
 ///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_replace_on_equal_fitness(true)              // optional, defaults to true, crucial for some type of problems with discrete fitness steps like nqueens
@@ -141,9 +141,10 @@ pub enum HillClimbVariant {
 ///     .call()
 ///     .unwrap();
 ///
-/// // it's all about the best chromosome after all
-/// let best_genes = hill_climb.best_genes().unwrap();
-/// assert_eq!(best_genes.into_iter().map(|v| v <= 1e-3).collect::<Vec<_>>(), vec![true; 16])
+/// // it's all about the best genes after all
+/// let (best_genes, best_fitness_score) = hill_climb.best_genes_and_fitness_score().unwrap();
+/// assert_eq!(best_genes.into_iter().map(|v| v <= 1e-3).collect::<Vec<_>>(), vec![true; 16]);
+/// assert_eq!(best_fitness_score, 0);
 /// ```
 pub struct HillClimb<
     G: IncrementalGenotype,

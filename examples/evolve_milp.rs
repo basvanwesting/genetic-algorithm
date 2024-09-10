@@ -63,22 +63,20 @@ fn main() {
         let evolve = evolve_builder.clone().call().unwrap();
         let duration = now.elapsed();
 
-        if let Some(fitness_score) = evolve.best_fitness_score() {
-            if let Some(best_genes) = evolve.best_genes() {
-                let x1 = best_genes[0];
-                let x2 = best_genes[1].floor();
-                let result = 8.0 * x1 + x2;
+        if let Some((best_genes, fitness_score)) = evolve.best_genes_and_fitness_score() {
+            let x1 = best_genes[0];
+            let x2 = best_genes[1].floor();
+            let result = 8.0 * x1 + x2;
 
-                println!(
-                    "x1: {:.5}, x2: {} = {:.5} (fitness score: {: >5}, duration {:?})",
-                    x1, x2 as u8, result, fitness_score, duration
-                );
-            } else {
-                println!(
-                    "invalid solution with fitness score: none, duration {:?}",
-                    duration
-                );
-            }
+            println!(
+                "x1: {:.5}, x2: {} = {:.5} (fitness score: {: >5}, duration {:?})",
+                x1, x2 as u8, result, fitness_score, duration
+            );
+        } else {
+            println!(
+                "invalid solution with fitness score: none, duration {:?}",
+                duration
+            );
         }
     }
 }

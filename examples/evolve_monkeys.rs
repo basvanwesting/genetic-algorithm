@@ -55,17 +55,15 @@ fn main() {
 
     println!("{}", evolve);
 
-    if let Some(fitness_score) = evolve.best_fitness_score() {
-        if let Some(best_genes) = evolve.best_genes() {
-            if fitness_score == 0 {
-                let string = String::from_iter(best_genes);
-                println!("{}", string);
-            } else {
-                println!("Wrong solution with fitness score: {}", fitness_score);
-            }
+    if let Some((best_genes, fitness_score)) = evolve.best_genes_and_fitness_score() {
+        if fitness_score == 0 {
+            let string = String::from_iter(best_genes);
+            println!("{}", string);
         } else {
-            println!("Invalid solution with fitness score: None");
+            println!("Wrong solution with fitness score: {}", fitness_score);
         }
+    } else {
+        println!("Invalid solution with fitness score: None");
     }
     println!("{:?}", duration);
 }

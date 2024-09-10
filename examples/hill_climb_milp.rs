@@ -72,22 +72,20 @@ fn main() {
         let hill_climb = hill_climb_builder.clone().call_repeatedly(1000).unwrap();
         let duration = now.elapsed();
 
-        if let Some(fitness_score) = hill_climb.best_fitness_score() {
-            if let Some(best_genes) = hill_climb.best_genes() {
-                let x1 = best_genes[0];
-                let x2 = best_genes[1].floor();
-                let result = 8.0 * x1 + x2;
+        if let Some((best_genes, fitness_score)) = hill_climb.best_genes_and_fitness_score() {
+            let x1 = best_genes[0];
+            let x2 = best_genes[1].floor();
+            let result = 8.0 * x1 + x2;
 
-                println!(
-                    "x1: {:.5}, x2: {} => {:.5} (fitness score: {:>3}, best_iteration: {:>3}, best_generation: {:>5}, duration: {:?}, scale_index: {:?})",
-                    x1, x2 as u8, result, fitness_score, hill_climb.state.current_iteration, hill_climb.best_generation(), duration, hill_climb.state.current_scale_index
-                );
-            } else {
-                println!(
-                    "invalid solution with fitness score: none, duration {:?}",
-                    duration
-                );
-            }
+            println!(
+                "x1: {:.5}, x2: {} => {:.5} (fitness score: {:>3}, best_iteration: {:>3}, best_generation: {:>5}, duration: {:?}, scale_index: {:?})",
+                x1, x2 as u8, result, fitness_score, hill_climb.state.current_iteration, hill_climb.best_generation(), duration, hill_climb.state.current_scale_index
+            );
+        } else {
+            println!(
+                "invalid solution with fitness score: none, duration {:?}",
+                duration
+            );
         }
     }
 }

@@ -119,9 +119,10 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .call()
 ///     .unwrap();
 ///
-/// // it's all about the best chromosome after all
-/// let best_genes = evolve.best_genes().unwrap();
-/// assert_eq!(best_genes, vec![false; 100])
+/// // it's all about the best genes after all
+/// let (best_genes, best_fitness_score) = evolve.best_genes_and_fitness_score().unwrap();
+/// assert_eq!(best_genes, vec![false; 100]);
+/// assert_eq!(best_fitness_score, 0);
 /// ```
 pub struct Evolve<
     G: Genotype,

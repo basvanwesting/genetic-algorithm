@@ -38,6 +38,13 @@ pub trait Strategy<G: Genotype> {
     fn best_generation(&self) -> usize;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_genes(&self) -> Option<G::Genes>;
+    fn best_genes_and_fitness_score(&self) -> Option<(G::Genes, FitnessValue)> {
+        if let Some(fitness_value) = self.best_fitness_score() {
+            self.best_genes().map(|genes| (genes, fitness_value))
+        } else {
+            None
+        }
+    }
 }
 
 pub trait StrategyConfig {

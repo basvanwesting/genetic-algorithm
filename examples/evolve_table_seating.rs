@@ -108,47 +108,44 @@ fn main() {
 
     println!("{}", evolve);
 
-    if let Some(fitness_score) = evolve.best_fitness_score() {
-        if let Some(best_genes) = evolve.best_genes() {
-            if fitness_score == 0 {
-                println!("Valid solution");
-            } else {
-                println!("Wrong solution with fitness score: {}", fitness_score);
-            }
+    if let Some((best_genes, fitness_score)) = evolve.best_genes_and_fitness_score() {
+        if fitness_score == 0 {
+            println!("Valid solution");
+        } else {
+            println!("Wrong solution with fitness score: {}", fitness_score);
+        }
 
-            let mut person_counters: HashMap<u8, HashMap<u8, u8>> = HashMap::new();
-            let mut people = best_genes.clone();
+        let mut person_counters: HashMap<u8, HashMap<u8, u8>> = HashMap::new();
+        let mut people = best_genes.clone();
 
-            for hosts_with_table_sizes in &hosts_with_table_sizes_per_round {
-                println!("round:");
-                for (host, table_size) in hosts_with_table_sizes {
-                    let mut people_on_table: Vec<Person> = vec![*host];
-                    people_on_table
-                        .append(&mut people.drain(..(*table_size as usize - 1)).collect());
-                    println!("  table: {:?}", people_on_table);
+        for hosts_with_table_sizes in &hosts_with_table_sizes_per_round {
+            println!("round:");
+            for (host, table_size) in hosts_with_table_sizes {
+                let mut people_on_table: Vec<Person> = vec![*host];
+                people_on_table.append(&mut people.drain(..(*table_size as usize - 1)).collect());
+                println!("  table: {:?}", people_on_table);
 
-                    for person in &people_on_table {
-                        for other_person in &people_on_table {
-                            if person != other_person {
-                                let person_counter =
-                                    person_counters.entry(*person).or_insert(HashMap::new());
+                for person in &people_on_table {
+                    for other_person in &people_on_table {
+                        if person != other_person {
+                            let person_counter =
+                                person_counters.entry(*person).or_insert(HashMap::new());
 
-                                let count = person_counter.entry(*other_person).or_insert(0);
-                                *count += 1
-                            }
+                            let count = person_counter.entry(*other_person).or_insert(0);
+                            *count += 1
                         }
                     }
                 }
             }
+        }
 
-            for (person, person_counter) in person_counters {
-                for (other_person, count) in person_counter {
-                    if count > 1 {
-                        println!(
-                            "person {} and person {} meet {} number of times",
-                            person, other_person, count
-                        );
-                    }
+        for (person, person_counter) in person_counters {
+            for (other_person, count) in person_counter {
+                if count > 1 {
+                    println!(
+                        "person {} and person {} meet {} number of times",
+                        person, other_person, count
+                    );
                 }
             }
         }
