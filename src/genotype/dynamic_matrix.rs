@@ -623,6 +623,13 @@ where
             .map(|_| self.allele_sampler.sample(rng))
             .collect()
     }
+    fn copy_genes(
+        &mut self,
+        source: &DynamicMatrixChromosome,
+        target: &mut DynamicMatrixChromosome,
+    ) {
+        self.copy_genes_by_id(source.row_id, target.row_id);
+    }
     fn chromosome_recycling(&self) -> bool {
         true
     }
@@ -653,7 +660,7 @@ where
     ) -> DynamicMatrixChromosome {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
                 new_chromosome.reference_id = chromosome.reference_id;
@@ -671,7 +678,7 @@ where
     ) -> DynamicMatrixChromosome {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.taint();
                 new_chromosome
             } else {

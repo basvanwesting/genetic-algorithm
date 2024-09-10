@@ -328,6 +328,9 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
+    fn copy_genes(&mut self, source: &MultiListChromosome<T>, target: &mut MultiListChromosome<T>) {
+        target.genes.clone_from(&source.genes);
+    }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
@@ -355,7 +358,7 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
     fn chromosome_cloner(&mut self, chromosome: &MultiListChromosome<T>) -> MultiListChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes.clone_from(&chromosome.genes);
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
                 new_chromosome.reference_id = chromosome.reference_id;
@@ -373,7 +376,7 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
     ) -> MultiListChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes.clone_from(&chromosome.genes);
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.taint();
                 new_chromosome
             } else {

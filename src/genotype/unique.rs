@@ -207,6 +207,9 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
+    fn copy_genes(&mut self, source: &UniqueChromosome<T>, target: &mut UniqueChromosome<T>) {
+        target.genes.clone_from(&source.genes);
+    }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
@@ -234,7 +237,7 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
     fn chromosome_cloner(&mut self, chromosome: &UniqueChromosome<T>) -> UniqueChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes.clone_from(&chromosome.genes);
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
                 new_chromosome.reference_id = chromosome.reference_id;
@@ -252,7 +255,7 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
     ) -> UniqueChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes.clone_from(&chromosome.genes);
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.taint();
                 new_chromosome
             } else {

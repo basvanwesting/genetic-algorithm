@@ -636,6 +636,9 @@ where
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> [T; N] {
         std::array::from_fn(|_| self.allele_sampler.sample(rng))
     }
+    fn copy_genes(&mut self, source: &StaticMatrixChromosome, target: &mut StaticMatrixChromosome) {
+        self.copy_genes_by_id(source.row_id, target.row_id);
+    }
     fn chromosome_recycling(&self) -> bool {
         true
     }
@@ -662,7 +665,7 @@ where
     fn chromosome_cloner(&mut self, chromosome: &StaticMatrixChromosome) -> StaticMatrixChromosome {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
                 new_chromosome.reference_id = chromosome.reference_id;
@@ -680,7 +683,7 @@ where
     ) -> StaticMatrixChromosome {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.taint();
                 new_chromosome
             } else {

@@ -312,6 +312,9 @@ impl ChromosomeManager<Self> for Bit {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
+    fn copy_genes(&mut self, source: &BitChromosome, target: &mut BitChromosome) {
+        target.genes.clone_from(&source.genes);
+    }
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
@@ -339,7 +342,7 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_cloner(&mut self, chromosome: &BitChromosome) -> BitChromosome {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes.clone_from(&chromosome.genes);
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.age = chromosome.age;
                 new_chromosome.fitness_score = chromosome.fitness_score;
                 new_chromosome.reference_id = chromosome.reference_id;
@@ -354,8 +357,8 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_constructor_from(&mut self, chromosome: &BitChromosome) -> BitChromosome {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
+                self.copy_genes(chromosome, &mut new_chromosome);
                 new_chromosome.taint();
-                new_chromosome.genes.clone_from(&chromosome.genes);
                 new_chromosome
             } else {
                 chromosome.clone_and_taint()
