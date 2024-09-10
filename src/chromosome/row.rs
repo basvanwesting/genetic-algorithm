@@ -1,14 +1,14 @@
 use crate::fitness::FitnessValue;
 
 #[derive(Clone, Debug)]
-pub struct DynamicMatrix {
+pub struct Row {
     pub row_id: usize,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
     pub reference_id: usize,
 }
 
-impl super::Chromosome for DynamicMatrix {
+impl super::Chromosome for Row {
     fn age(&self) -> usize {
         self.age
     }
@@ -29,7 +29,7 @@ impl super::Chromosome for DynamicMatrix {
         self.fitness_score = None;
     }
 }
-impl super::RefersGenes for DynamicMatrix {
+impl super::RefersGenes for Row {
     fn new(row_id: usize) -> Self {
         Self {
             row_id,

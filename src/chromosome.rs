@@ -1,26 +1,19 @@
 //! The chromosome is a container for the genes and caches a fitness score
 
-mod binary;
 mod bit;
-mod dynamic_matrix;
-mod list;
-mod multi_list;
-mod multi_range;
-mod multi_unique;
-mod range;
-mod static_matrix;
-mod unique;
+mod row;
+mod vector;
 
-pub use self::binary::Binary as BinaryChromosome;
 pub use self::bit::Bit as BitChromosome;
-pub use self::dynamic_matrix::DynamicMatrix as DynamicMatrixChromosome;
-pub use self::list::List as ListChromosome;
-pub use self::multi_list::MultiList as MultiListChromosome;
-pub use self::multi_range::MultiRange as MultiRangeChromosome;
-pub use self::multi_unique::MultiUnique as MultiUniqueChromosome;
-pub use self::range::Range as RangeChromosome;
-pub use self::static_matrix::StaticMatrix as StaticMatrixChromosome;
-pub use self::unique::Unique as UniqueChromosome;
+pub use self::row::Row as DynamicMatrixChromosome;
+pub use self::row::Row as StaticMatrixChromosome;
+pub use self::vector::Vector as ListChromosome;
+pub use self::vector::Vector as MultiListChromosome;
+pub use self::vector::Vector as MultiRangeChromosome;
+pub use self::vector::Vector as MultiUniqueChromosome;
+pub use self::vector::Vector as RangeChromosome;
+pub use self::vector::Vector as UniqueChromosome;
+pub type BinaryChromosome = self::vector::Vector<bool>;
 
 use crate::fitness::FitnessValue;
 use crate::genotype::{Genes, Genotype};

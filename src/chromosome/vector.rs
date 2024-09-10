@@ -1,14 +1,17 @@
 use crate::fitness::FitnessValue;
+use crate::genotype::Allele;
+use std::collections::hash_map::DefaultHasher;
+use std::hash::{Hash, Hasher};
 
 #[derive(Clone, Debug)]
-pub struct StaticMatrix {
-    pub row_id: usize,
+pub struct Vector<T: Allele> {
+    pub genes: Vec<T>,
     pub fitness_score: Option<FitnessValue>,
     pub age: usize,
     pub reference_id: usize,
 }
 
-impl super::Chromosome for StaticMatrix {
+impl<T: Allele> super::Chromosome for Vector<T> {
     fn age(&self) -> usize {
         self.age
     }
@@ -29,13 +32,28 @@ impl super::Chromosome for StaticMatrix {
         self.fitness_score = None;
     }
 }
-impl super::RefersGenes for StaticMatrix {
-    fn new(row_id: usize) -> Self {
+impl<T: Allele> super::OwnsGenes for Vector<T> {
+    type Genes = Vec<T>;
+    fn new(genes: Self::Genes) -> Self {
         Self {
-            row_id,
+            genes,
             fitness_score: None,
             age: 0,
             reference_id: usize::MAX,
         }
+    }
+    fn genes(&self) -> &Vec<T> {
+        &self.genes
+    }
+}
+
+impl<T: Allele> Vector<T>
+where
+    Vec<T>: Hash,
+{
+    pub fn genes_key(&self) -> super::GenesKey {
+        let mut s = DefaultHasher::new();
+        self.genes.hash(&mut s);
+        s.finish()
     }
 }
