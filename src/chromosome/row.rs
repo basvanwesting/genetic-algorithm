@@ -28,6 +28,11 @@ impl super::Chromosome for Row {
         self.age = 0;
         self.fitness_score = None;
     }
+    fn reset(&mut self) {
+        self.age = 0;
+        self.fitness_score = None;
+        self.reference_id = usize::MAX;
+    }
 }
 impl super::RefersGenes for Row {
     fn new(row_id: usize) -> Self {

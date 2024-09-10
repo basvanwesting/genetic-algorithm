@@ -339,7 +339,8 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: MultiUniqueChromosome<T>) {
+    fn chromosome_bin_push(&mut self, mut chromosome: MultiUniqueChromosome<T>) {
+        chromosome.reset();
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<MultiUniqueChromosome<T>> {
@@ -348,9 +349,9 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> MultiUniqueChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes = self.random_genes_factory(rng);
-                new_chromosome.age = 0;
-                new_chromosome.fitness_score = None;
+                new_chromosome
+                    .genes
+                    .clone_from(&self.random_genes_factory(rng));
                 new_chromosome
             } else {
                 MultiUniqueChromosome::new(self.random_genes_factory(rng))

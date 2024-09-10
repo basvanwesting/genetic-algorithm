@@ -39,6 +39,7 @@ pub trait Chromosome: Clone + Send {
     fn fitness_score(&self) -> Option<FitnessValue>;
     fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>);
     fn taint_fitness_score(&mut self);
+    fn reset(&mut self);
 }
 pub trait OwnsGenes: Chromosome {
     type Genes: Genes;
@@ -66,7 +67,7 @@ pub trait ChromosomeManager<G: Genotype> {
     /// provided, override if recycling bin needs initialization
     fn chromosomes_init(&mut self) {}
     /// optional, override if using recycling
-    fn chromosome_bin_push(&mut self, _chromosome: G::Chromosome) {}
+    fn chromosome_bin_push(&mut self, mut _chromosome: G::Chromosome) {}
     /// optional, override if using recycling
     fn chromosome_bin_pop(&mut self) -> Option<G::Chromosome> {
         None

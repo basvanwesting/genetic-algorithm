@@ -521,7 +521,8 @@ where
     fn chromosomes_init(&mut self) {
         self.chromosome_bin = (0..M).rev().map(StaticMatrixChromosome::new).collect();
     }
-    fn chromosome_bin_push(&mut self, chromosome: StaticMatrixChromosome) {
+    fn chromosome_bin_push(&mut self, mut chromosome: StaticMatrixChromosome) {
+        chromosome.reset();
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<StaticMatrixChromosome> {

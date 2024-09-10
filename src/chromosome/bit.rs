@@ -31,6 +31,11 @@ impl super::Chromosome for Bit {
         self.age = 0;
         self.fitness_score = None;
     }
+    fn reset(&mut self) {
+        self.age = 0;
+        self.fitness_score = None;
+        self.reference_id = usize::MAX;
+    }
 }
 impl super::OwnsGenes for Bit {
     type Genes = FixedBitSet;

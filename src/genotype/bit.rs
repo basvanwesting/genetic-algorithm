@@ -315,7 +315,8 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: BitChromosome) {
+    fn chromosome_bin_push(&mut self, mut chromosome: BitChromosome) {
+        chromosome.reset();
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<BitChromosome> {
@@ -324,9 +325,9 @@ impl ChromosomeManager<Self> for Bit {
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> BitChromosome {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes = self.random_genes_factory(rng);
-                new_chromosome.age = 0;
-                new_chromosome.fitness_score = None;
+                new_chromosome
+                    .genes
+                    .clone_from(&self.random_genes_factory(rng));
                 new_chromosome
             } else {
                 BitChromosome::new(self.random_genes_factory(rng))

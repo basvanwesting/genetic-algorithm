@@ -530,7 +530,8 @@ where
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: MultiRangeChromosome<T>) {
+    fn chromosome_bin_push(&mut self, mut chromosome: MultiRangeChromosome<T>) {
+        chromosome.reset();
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<MultiRangeChromosome<T>> {
@@ -539,9 +540,9 @@ where
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> MultiRangeChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes = self.random_genes_factory(rng);
-                new_chromosome.age = 0;
-                new_chromosome.fitness_score = None;
+                new_chromosome
+                    .genes
+                    .clone_from(&self.random_genes_factory(rng));
                 new_chromosome
             } else {
                 MultiRangeChromosome::new(self.random_genes_factory(rng))

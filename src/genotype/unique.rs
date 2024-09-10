@@ -211,7 +211,8 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
     fn chromosome_recycling(&self) -> bool {
         self.chromosome_recycling
     }
-    fn chromosome_bin_push(&mut self, chromosome: UniqueChromosome<T>) {
+    fn chromosome_bin_push(&mut self, mut chromosome: UniqueChromosome<T>) {
+        chromosome.reset();
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<UniqueChromosome<T>> {
@@ -220,9 +221,9 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> UniqueChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome.genes = self.random_genes_factory(rng);
-                new_chromosome.age = 0;
-                new_chromosome.fitness_score = None;
+                new_chromosome
+                    .genes
+                    .clone_from(&self.random_genes_factory(rng));
                 new_chromosome
             } else {
                 UniqueChromosome::new(self.random_genes_factory(rng))

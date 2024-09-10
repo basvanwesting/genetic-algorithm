@@ -510,9 +510,7 @@ where
 
                     [
                         if value_start < base_value {
-                            let mut new_chromosome = self.chromosome_bin_pop().unwrap();
-                            new_chromosome.age = 0;
-                            new_chromosome.fitness_score = None;
+                            let new_chromosome = self.chromosome_bin_pop().unwrap();
                             self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
                             self.set_gene_by_id(new_chromosome.row_id, index, value_start);
                             Some(new_chromosome)
@@ -520,9 +518,7 @@ where
                             None
                         },
                         if base_value < value_end {
-                            let mut new_chromosome = self.chromosome_bin_pop().unwrap();
-                            new_chromosome.age = 0;
-                            new_chromosome.fitness_score = None;
+                            let new_chromosome = self.chromosome_bin_pop().unwrap();
                             self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
                             self.set_gene_by_id(new_chromosome.row_id, index, value_end);
                             Some(new_chromosome)
@@ -554,9 +550,7 @@ where
 
                     [
                         if range_start < base_value {
-                            let mut new_chromosome = self.chromosome_bin_pop().unwrap();
-                            new_chromosome.age = 0;
-                            new_chromosome.fitness_score = None;
+                            let new_chromosome = self.chromosome_bin_pop().unwrap();
                             self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
                             let new_value = rng.gen_range(range_start..base_value);
                             self.set_gene_by_id(new_chromosome.row_id, index, new_value);
@@ -565,9 +559,7 @@ where
                             None
                         },
                         if base_value < range_end {
-                            let mut new_chromosome = self.chromosome_bin_pop().unwrap();
-                            new_chromosome.age = 0;
-                            new_chromosome.fitness_score = None;
+                            let new_chromosome = self.chromosome_bin_pop().unwrap();
                             self.copy_genes_by_id(chromosome.row_id, new_chromosome.row_id);
                             let mut new_value = rng.gen_range(base_value..=range_end);
                             // FIXME: ugly loop, goal is to have an exclusive below range
@@ -605,7 +597,8 @@ where
     fn chromosome_recycling(&self) -> bool {
         true
     }
-    fn chromosome_bin_push(&mut self, chromosome: DynamicMatrixChromosome) {
+    fn chromosome_bin_push(&mut self, mut chromosome: DynamicMatrixChromosome) {
+        chromosome.reset();
         self.chromosome_bin.push(chromosome);
     }
     fn chromosome_bin_pop(&mut self) -> Option<DynamicMatrixChromosome> {
@@ -618,9 +611,7 @@ where
     }
     // FIXME: directly set genes
     fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> DynamicMatrixChromosome {
-        let mut chromosome = self.chromosome_bin_pop().unwrap();
-        chromosome.age = 0;
-        chromosome.fitness_score = None;
+        let chromosome = self.chromosome_bin_pop().unwrap();
         let genes = self.random_genes_factory(rng);
 
         let linear_id = self.linear_id(chromosome.row_id, 0);

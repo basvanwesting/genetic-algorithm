@@ -31,6 +31,11 @@ impl<T: Allele> super::Chromosome for Vector<T> {
         self.age = 0;
         self.fitness_score = None;
     }
+    fn reset(&mut self) {
+        self.age = 0;
+        self.fitness_score = None;
+        self.reference_id = usize::MAX;
+    }
 }
 impl<T: Allele> super::OwnsGenes for Vector<T> {
     type Genes = Vec<T>;
