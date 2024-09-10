@@ -15,7 +15,9 @@
   * [v] Add chromosomes manager logic to HillClimb
   * [v] rename chromosome_constructor to chromosome_constructor_random
   * [v] Use mutation_type for IncrementalGenotype logic in Range/ MultiRange / Dynamic/ Static
-  * [ ] Move some shared logic back to ChromosomeManager
+  * [v] Move some shared logic back to ChromosomeManager
+  * [ ] Enable chromosome_recycling always, and remove checks
+  * [ ] Move logic of random gene factory inside set_random_genes
   * [ ] Fix Reporting
 
 * Store staticMatrixGenotype on heap using Box?
