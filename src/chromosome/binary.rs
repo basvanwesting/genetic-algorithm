@@ -33,7 +33,7 @@ impl super::Chromosome for Binary {
         self.fitness_score = None;
     }
 }
-impl super::OwnesGenes for Binary {
+impl super::OwnsGenes for Binary {
     type Genes = Vec<bool>;
     fn new(genes: Self::Genes) -> Self {
         Self {

@@ -8,7 +8,7 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
-use crate::chromosome::{Chromosome, OwnesGenes};
+use crate::chromosome::{Chromosome, OwnsGenes};
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
@@ -270,7 +270,7 @@ impl<
         SR: EvolveReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
 where
-    G::Chromosome: OwnesGenes<Genes = G::Genes>,
+    G::Chromosome: OwnsGenes<Genes = G::Genes>,
 {
     pub fn best_chromosome(&self) -> Option<G::Chromosome> {
         if let Some(best_genes) = self.best_genes() {

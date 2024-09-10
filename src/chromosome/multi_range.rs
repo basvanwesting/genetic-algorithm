@@ -32,7 +32,7 @@ impl<T: Allele> super::Chromosome for MultiRange<T> {
         self.fitness_score = None;
     }
 }
-impl<T: Allele> super::OwnesGenes for MultiRange<T> {
+impl<T: Allele> super::OwnsGenes for MultiRange<T> {
     type Genes = Vec<T>;
     fn new(genes: Self::Genes) -> Self {
         Self {

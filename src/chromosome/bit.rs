@@ -32,7 +32,7 @@ impl super::Chromosome for Bit {
         self.fitness_score = None;
     }
 }
-impl super::OwnesGenes for Bit {
+impl super::OwnsGenes for Bit {
     type Genes = FixedBitSet;
     fn new(genes: Self::Genes) -> Self {
         Self {

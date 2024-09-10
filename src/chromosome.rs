@@ -45,7 +45,7 @@ pub trait Chromosome: Clone + Send {
     fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>);
     fn taint_fitness_score(&mut self);
 }
-pub trait OwnesGenes: Chromosome {
+pub trait OwnsGenes: Chromosome {
     type Genes: Genes;
     fn new(genes: Self::Genes) -> Self;
     fn genes(&self) -> &Self::Genes;

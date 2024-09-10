@@ -32,7 +32,7 @@ impl<T: Allele> super::Chromosome for MultiList<T> {
         self.fitness_score = None;
     }
 }
-impl<T: Allele> super::OwnesGenes for MultiList<T> {
+impl<T: Allele> super::OwnsGenes for MultiList<T> {
     type Genes = Vec<T>;
     fn new(genes: Self::Genes) -> Self {
         Self {

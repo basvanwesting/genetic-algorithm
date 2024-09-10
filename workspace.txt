@@ -11,6 +11,7 @@
   * [v] Remove empty chromomsome concept, just use Options again in the code (much cleaner)
   * [ ] Add best_genes_and_fitness_value tuple method on Strategy
   * [ ] Rename OwnesGenes to OwnsGenes
+  * [ ] Fix Reporting
 
 * Store staticMatrixGenotype on heap using Box?
 * Extensions benchmark is noisy

@@ -32,7 +32,7 @@ impl<T: Allele> super::Chromosome for Range<T> {
         self.fitness_score = None;
     }
 }
-impl<T: Allele> super::OwnesGenes for Range<T> {
+impl<T: Allele> super::OwnsGenes for Range<T> {
     type Genes = Vec<T>;
     fn new(genes: Self::Genes) -> Self {
         Self {
