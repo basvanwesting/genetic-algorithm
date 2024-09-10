@@ -554,6 +554,9 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
+    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut MultiRangeChromosome<T>, rng: &mut R) {
+        chromosome.genes.clone_from(&self.random_genes_factory(rng));
+    }
     fn copy_genes(
         &mut self,
         source: &MultiRangeChromosome<T>,
@@ -573,9 +576,7 @@ where
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> MultiRangeChromosome<T> {
         if self.chromosome_recycling() {
             if let Some(mut new_chromosome) = self.chromosome_bin_pop() {
-                new_chromosome
-                    .genes
-                    .clone_from(&self.random_genes_factory(rng));
+                self.set_random_genes(&mut new_chromosome, rng);
                 new_chromosome.taint();
                 new_chromosome
             } else {

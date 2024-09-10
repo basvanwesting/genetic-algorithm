@@ -64,6 +64,8 @@ pub trait ChromosomeManager<G: Genotype> {
     /// mandatory
     fn copy_genes(&mut self, source: &G::Chromosome, target: &mut G::Chromosome);
     /// mandatory
+    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R);
+    /// mandatory
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome;
     /// provided, disable recycling by default, override when using recycling
     fn chromosome_recycling(&self) -> bool {

@@ -636,6 +636,12 @@ where
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> [T; N] {
         std::array::from_fn(|_| self.allele_sampler.sample(rng))
     }
+    // FIXME: directly set genes
+    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut StaticMatrixChromosome, rng: &mut R) {
+        let genes = self.random_genes_factory(rng);
+        let x = self.data[chromosome.row_id].as_mut_slice();
+        x.copy_from_slice(&genes);
+    }
     fn copy_genes(&mut self, source: &StaticMatrixChromosome, target: &mut StaticMatrixChromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
     }
@@ -656,9 +662,7 @@ where
     // FIXME: directly set genes
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> StaticMatrixChromosome {
         let mut chromosome = self.chromosome_bin_pop().unwrap();
-        let genes = self.random_genes_factory(rng);
-        let x = self.data[chromosome.row_id].as_mut_slice();
-        x.copy_from_slice(&genes);
+        self.set_random_genes(&mut chromosome, rng);
         chromosome.taint();
         chromosome
     }

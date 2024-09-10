@@ -623,6 +623,13 @@ where
             .map(|_| self.allele_sampler.sample(rng))
             .collect()
     }
+    // FIXME: directly set genes
+    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut DynamicMatrixChromosome, rng: &mut R) {
+        let genes = self.random_genes_factory(rng);
+        let linear_id = self.linear_id(chromosome.row_id, 0);
+        let x = &mut self.data[linear_id..(linear_id + self.genes_size)];
+        x.copy_from_slice(&genes);
+    }
     fn copy_genes(
         &mut self,
         source: &DynamicMatrixChromosome,
@@ -644,13 +651,9 @@ where
             Some(DynamicMatrixChromosome::new(row_id))
         })
     }
-    // FIXME: directly set genes
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> DynamicMatrixChromosome {
         let mut chromosome = self.chromosome_bin_pop().unwrap();
-        let genes = self.random_genes_factory(rng);
-        let linear_id = self.linear_id(chromosome.row_id, 0);
-        let x = &mut self.data[linear_id..(linear_id + self.genes_size)];
-        x.copy_from_slice(&genes);
+        self.set_random_genes(&mut chromosome, rng);
         chromosome.taint();
         chromosome
     }
