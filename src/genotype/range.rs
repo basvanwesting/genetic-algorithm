@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype, IncrementalGenotype};
+use super::{Allele, Genotype, IncrementalGenotype, MutationType};
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, RangeChromosome};
 use crate::population::Population;
 use itertools::Itertools;
@@ -12,13 +12,6 @@ use std::ops::{Add, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
-#[derive(Copy, Clone, Debug)]
-pub enum MutationType {
-    Random,
-    Relative,
-    Scaled,
-}
-
 /// Genes are a vector of numeric values, each taken from the allele_range. On random initialization,
 /// each gene gets a value from the allele_range with a uniform probability. Each gene has an equal
 /// probability of mutating. If a gene mutates, a new value is taken from allele_range with a
@@ -30,6 +23,12 @@ pub enum MutationType {
 /// probability. When allele_mutation_scaled_range is provided the mutation is restricted to modify
 /// the existing value by a difference taken from start and end of the scaled range (depending on
 /// current scale)
+///
+/// # Panics
+///
+/// The [MutationType::Random] is not supported for [IncrementalGenotype] (i.e. HillClimb,
+/// [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)). Will panic
+/// when used in that context.
 ///
 /// # Example (f32, default):
 /// ```

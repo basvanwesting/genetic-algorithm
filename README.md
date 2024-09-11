@@ -143,9 +143,21 @@ For the Evolve strategy:
 * Large genes sizes
   * It seems that CrossoverMultiPoint with `number_of_crossovers = genes_size / 9` 
   and `allow_duplicates = false` is the best tradeoff between performance and effect.
-  * Restoring the population has major performance effects and should be
-  avoided. Use a high selection_rate or even 100%, so there is little parent
+  * Restoring the population has considerable performance effects.
+  Use a high selection_rate or even 100%, so there is little parent
   cloning. Explore non-Vec based genotypes like BitGenotype.
+
+**GPU acceleration**
+
+There are two genotypes where Genes (N) and Population (M) are a stored in single contiguous
+memory range of Alleles (T) with length N*M on the heap. A pointer to this data can be taken to
+calculate the whole population at once. These are:
+* [DynamicMatrixGenotype](genotype::DynamicMatrixGenotype)
+* [StaticMatrixGenotype](genotype::StaticMatrixGenotype)
+
+Possibly a GPU compatible memory layout still needs to be added. The current implementation
+just provides all the basic building blocks to implement this. Please open a github issue for
+further support.
 
 ## Tests
 Run tests with `cargo test`

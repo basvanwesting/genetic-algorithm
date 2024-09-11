@@ -21,6 +21,12 @@ pub type DefaultAllele = usize;
 /// mutates, the values for a pair of genes in the set are switched, ensuring the set remains
 /// unique. Duplicate allele values are allowed. Defaults to usize as item.
 ///
+/// # Panics
+///
+/// Does not support gene crossover, only point crossover is supported. Will panic is gene
+/// crossoveris tried, but [EvolveBuilder](crate::strategy::evolve::EvolveBuilder) shouldn't allow
+/// this.
+///
 /// # Example (usize, default):
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, MultiUniqueGenotype};

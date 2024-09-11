@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype, IncrementalGenotype};
+use super::{Allele, Genotype, IncrementalGenotype, MutationType};
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesPointer, StaticMatrixChromosome};
 use crate::population::Population;
 use itertools::Itertools;
@@ -11,13 +11,6 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
 
-#[derive(Copy, Clone, Debug)]
-pub enum MutationType {
-    Random,
-    Relative,
-    Scaled,
-}
-
 /// Genes (N) and Population (M) are a fixed `N*M` matrix of numeric values, stored on the heap as a
 /// nested array 'Box<[[T; N]; M]>'. The genes are contiguous in memory, with an N jump to the next
 /// chromosome ([[T; N]; M] can be treated like [T; N*M] in memory). The genes are therefore not
@@ -26,7 +19,8 @@ pub enum MutationType {
 /// the matrix unused at T::default(). This opens the possibility for linear algebra fitness
 /// calculations on the whole population at once, possibly using the GPU in the future (if the data
 /// is stored and mutated at a GPU readable memory location). The fitness would then implement
-/// `call_for_population` instead of `calculate_for_chromosome`.
+/// [call_for_population](crate::fitness::Fitness::call_for_population) instead of
+/// [calculate_for_chromosome](crate::fitness::Fitness::calculate_for_chromosome).
 ///
 /// The rest is like [RangeGenotype](super::RangeGenotype):
 ///
@@ -44,6 +38,10 @@ pub enum MutationType {
 /// # Panics
 ///
 /// Will panic if more chromosomes are instantiated than the population (M) allows.
+///
+/// The [MutationType::Random] is not supported for [IncrementalGenotype] (i.e. HillClimb,
+/// [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)). Will panic
+/// when used in that context.
 ///
 /// # Example (f32):
 /// ```

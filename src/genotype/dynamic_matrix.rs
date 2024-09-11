@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype, IncrementalGenotype};
+use super::{Allele, Genotype, IncrementalGenotype, MutationType};
 use crate::chromosome::{Chromosome, ChromosomeManager, DynamicMatrixChromosome, GenesPointer};
 use crate::population::Population;
 use itertools::Itertools;
@@ -13,21 +13,15 @@ use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
-#[derive(Copy, Clone, Debug)]
-pub enum MutationType {
-    Random,
-    Relative,
-    Scaled,
-}
-
 /// Genes (N) and Population (M) are a stored in a single contiguous `Vec<T>` of numeric values
 /// with length N*M, but conceptually treated like a matrix of N*M below. The genes are stored
 /// contiguous in memory, with genes_size jumps to the next chromosome. The genes are therefore not
-/// stored on the Chromosomes themselves, which just point to the data (chromosome.row_id ==
-/// row id if the matrix). This opens the possibility for linear algebra fitness calculations on
-/// the whole population at once, possibly using the GPU in the future (if the data is stored and
-/// mutated at a GPU readable memory location). The fitness would then implement
-/// `call_for_population` instead of `calculate_for_chromosome`.
+/// stored on the Chromosomes themselves, which just point to the data (chromosome.row_id == row id
+/// if the matrix). This opens the possibility for linear algebra fitness calculations on the whole
+/// population at once, possibly using the GPU in the future (if the data is stored and mutated at
+/// a GPU readable memory location). The fitness would then implement
+/// [call_for_population](crate::fitness::Fitness::call_for_population) instead of
+/// [calculate_for_chromosome](crate::fitness::Fitness::calculate_for_chromosome).
 ///
 /// This is a simple heap based example implementation. The size doesn't need to be known up front,
 /// as de storage extend if needed.
@@ -44,6 +38,12 @@ pub enum MutationType {
 /// probability. When allele_mutation_scaled_range is provided the mutation is restricted to modify
 /// the existing value by a difference taken from start and end of the scaled range (depending on
 /// current scale)
+///
+/// # Panics
+///
+/// The [MutationType::Random] is not supported for [IncrementalGenotype] (i.e. HillClimb,
+/// [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)). Will panic
+/// when used in that context.
 ///
 /// # Example (f32, default):
 /// ```
@@ -205,7 +205,7 @@ where
         (id * self.genes_size + min_index)..(id * self.genes_size + max_index)
     }
 
-    // /// returns a slice of genes_size <= N
+    /// returns a slice of genes_size <= N
     pub fn get_genes(&self, chromosome: &DynamicMatrixChromosome) -> &[T] {
         self.get_genes_by_id(chromosome.row_id)
     }

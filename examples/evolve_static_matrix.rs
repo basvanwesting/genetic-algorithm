@@ -25,10 +25,12 @@ impl Fitness for DistanceTo {
             })
             .collect();
 
-        // result assignment
+        // result assignment back to chromosome
         for chromosome in population.chromosomes.iter_mut() {
             chromosome.fitness_score = Some(results[chromosome.row_id]);
         }
+
+        // halt the call stack, so calculate_for_chromosome isn't called anymore
     }
 }
 

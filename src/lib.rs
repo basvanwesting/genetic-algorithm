@@ -112,6 +112,7 @@
 //!   has it's own overhead and is not always faster.
 //!
 //! **Performance Tips**
+//!
 //! * Small genes sizes
 //!   * It seems that [CrossoverMultiGene](crossover::CrossoverMultiGene) with
 //!     `number_of_crossovers = genes_size / 2` and `allow_duplicates = true`
@@ -124,10 +125,21 @@
 //!   * It seems that [CrossoverMultiPoint](crossover::CrossoverMultiPoint) with
 //!     `number_of_crossovers = genes_size / 9` and `allow_duplicates = false` is
 //!     the best tradeoff between performance and effect.
-//!   * Restoring the population has major performance effects and should be avoided. Use a high
+//!   * Restoring the population has considerable performance effects. Use a high
 //!     selection_rate or even 100%, so there is little parent cloning. Explore non-Vec based
 //!     genotypes like [BitGenotype](genotype::BitGenotype).
-
+//!
+//! **GPU acceleration**
+//!
+//! There are two genotypes where Genes (N) and Population (M) are a stored in single contiguous
+//! memory range of Alleles (T) with length N*M on the heap. A pointer to this data can be taken to
+//! calculate the whole population at once. These are:
+//! * [DynamicMatrixGenotype](genotype::DynamicMatrixGenotype)
+//! * [StaticMatrixGenotype](genotype::StaticMatrixGenotype)
+//!
+//! Possibly a GPU compatible memory layout still needs to be added. The current implementation
+//! just provides all the basic building blocks to implement this. Please open a
+//! [github](https://github.com/basvanwesting/genetic-algorithm) issue for further support.
 pub mod chromosome;
 pub mod crossover;
 pub mod extension;

@@ -70,6 +70,14 @@ impl Genes for () {}
 impl<T: Allele, const N: usize> Genes for [T; N] {}
 impl<T: Allele, const N: usize> Genes for Box<[T; N]> {}
 
+#[derive(Copy, Clone, Debug, Default)]
+pub enum MutationType {
+    #[default]
+    Random,
+    Relative,
+    Scaled,
+}
+
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
 pub trait Genotype:

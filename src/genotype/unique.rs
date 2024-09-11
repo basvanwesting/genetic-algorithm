@@ -17,6 +17,11 @@ pub type DefaultAllele = usize;
 /// probability of mutating. If a pair of genes mutates, the values are switched, ensuring the list
 /// of alleles remains unique. Defaults to usize as item.
 ///
+/// # Panics
+///
+/// Does not support gene or point crossover. Will panic when tried, but
+/// [EvolveBuilder](crate::strategy::evolve::EvolveBuilder) shouldn't allow this.
+///
 /// # Example (usize, default):
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, UniqueGenotype};
