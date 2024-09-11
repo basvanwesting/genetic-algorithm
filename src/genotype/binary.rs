@@ -66,6 +66,9 @@ impl Genotype for Binary {
     fn best_genes(&self) -> &Self::Genes {
         &self.best_genes
     }
+    fn get_genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+        chromosome.genes.as_slice()
+    }
 
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,

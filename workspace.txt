@@ -27,7 +27,7 @@
   * [v] Document Fitness for Matrix
   * [v] Note on GPU in performance section
   * [v] Avoid calculate_for_chromosome in SteepesAscent context
-  * [ ] Fix Reporting
+  * [v] Fix Reporting
   * [ ] Extensions benchmark is noisy
   * [ ] Document GenotypeBuilder, Split for Range types?
 

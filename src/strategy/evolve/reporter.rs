@@ -245,7 +245,7 @@ impl<G: Genotype> Reporter for Simple<G> {
 
     fn on_new_best_chromosome(
         &mut self,
-        _genotype: &Self::Genotype,
+        genotype: &Self::Genotype,
         state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {
@@ -254,8 +254,7 @@ impl<G: Genotype> Reporter for Simple<G> {
             state.current_generation(),
             state.best_fitness_score(),
             if self.show_genes {
-                // Some(&state.best_chromosome_as_ref().genes)
-                Some("temporary disabled")
+                Some(genotype.best_genes())
             } else {
                 None
             },
@@ -335,7 +334,7 @@ impl<G: Genotype> Reporter for Log<G> {
 
     fn on_new_generation(
         &mut self,
-        _genotype: &Self::Genotype,
+        genotype: &Self::Genotype,
         state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {
@@ -355,7 +354,7 @@ impl<G: Genotype> Reporter for Log<G> {
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
             state.best_fitness_score(),
-            Some("temporary disabled") // state.best_chromosome_as_ref().genes
+            genotype.best_genes(),
         );
     }
 }

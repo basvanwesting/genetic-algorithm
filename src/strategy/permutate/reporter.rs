@@ -30,12 +30,12 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, _genotype: &Self::Genotype, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
+///     fn on_new_best_chromosome(&mut self, genotype: &Self::Genotype, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
-///             "temporary disabled"
+///             genotype.best_genes(),
 ///         );
 ///     }
 ///
@@ -169,7 +169,7 @@ impl<G: PermutableGenotype> Reporter for Simple<G> {
 
     fn on_new_best_chromosome(
         &mut self,
-        _genotype: &Self::Genotype,
+        genotype: &Self::Genotype,
         state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
@@ -178,8 +178,7 @@ impl<G: PermutableGenotype> Reporter for Simple<G> {
             state.current_generation(),
             state.best_fitness_score(),
             if self.show_genes {
-                // Some(&state.best_chromosome_as_ref().genes)
-                Some("temporary disabled")
+                Some(genotype.best_genes())
             } else {
                 None
             },
@@ -220,7 +219,7 @@ impl<G: PermutableGenotype> Reporter for Log<G> {
 
     fn on_new_generation(
         &mut self,
-        _genotype: &Self::Genotype,
+        genotype: &Self::Genotype,
         state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
@@ -235,8 +234,7 @@ impl<G: PermutableGenotype> Reporter for Log<G> {
         log::trace!(
             "best - fitness score: {:?}, genes: {:?}",
             state.best_fitness_score(),
-            // state.best_chromosome_as_ref().genes,
-            Some("temporary disabled")
+            genotype.best_genes()
         );
     }
 }

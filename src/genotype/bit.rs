@@ -114,7 +114,7 @@ impl Bit {
 }
 
 impl Genotype for Bit {
-    type Allele = ();
+    type Allele = Block;
     type Genes = FixedBitSet;
     type Chromosome = BitChromosome;
 
@@ -129,6 +129,9 @@ impl Genotype for Bit {
     }
     fn best_genes(&self) -> &Self::Genes {
         &self.best_genes
+    }
+    fn get_genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+        chromosome.genes.as_slice()
     }
 
     fn mutate_chromosome_genes<R: Rng>(
