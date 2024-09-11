@@ -1,7 +1,7 @@
 use criterion::*;
 use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::chromosome::{
-    BinaryChromosome, Chromosome, ListChromosome, OwnsGenes, RangeChromosome,
+    BinaryChromosome, GenesOwner, ListChromosome, RangeChromosome,
 };
 use genetic_algorithm::fitness::placeholders::{
     CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes,

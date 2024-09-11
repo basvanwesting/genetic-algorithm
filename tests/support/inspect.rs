@@ -1,5 +1,5 @@
 use fixedbitset::{Block, FixedBitSet};
-use genetic_algorithm::chromosome::{BitChromosome, OwnsGenes};
+use genetic_algorithm::chromosome::{BitChromosome, GenesOwner};
 use genetic_algorithm::fitness::FitnessValue;
 use genetic_algorithm::population::Population;
 
@@ -13,7 +13,7 @@ pub fn genes_to_blocks(genes: &FixedBitSet) -> &[Block] {
 }
 
 #[allow(dead_code)]
-pub fn chromosome<C: OwnsGenes>(chromosome: &C) -> C::Genes {
+pub fn chromosome<C: GenesOwner>(chromosome: &C) -> C::Genes {
     chromosome.genes().clone()
 }
 #[allow(dead_code)]
@@ -26,14 +26,14 @@ pub fn chromosome_to_blocks(chromosome: &BitChromosome) -> &[Block] {
 }
 
 #[allow(dead_code)]
-pub fn chromosome_with_fitness_score<C: OwnsGenes>(
+pub fn chromosome_with_fitness_score<C: GenesOwner>(
     chromosome: &C,
 ) -> (C::Genes, Option<FitnessValue>) {
     (chromosome.genes().clone(), chromosome.fitness_score())
 }
 
 #[allow(dead_code)]
-pub fn chromosomes<C: OwnsGenes>(chromosomes: &Vec<C>) -> Vec<C::Genes> {
+pub fn chromosomes<C: GenesOwner>(chromosomes: &Vec<C>) -> Vec<C::Genes> {
     chromosomes.iter().map(chromosome).collect()
 }
 #[allow(dead_code)]
@@ -46,7 +46,7 @@ pub fn chromosomes_to_blocks(chromosomes: &Vec<BitChromosome>) -> Vec<&[Block]> 
 }
 
 #[allow(dead_code)]
-pub fn chromosomes_with_fitness_score<C: OwnsGenes>(
+pub fn chromosomes_with_fitness_score<C: GenesOwner>(
     chromosomes: &Vec<C>,
 ) -> Vec<(C::Genes, Option<FitnessValue>)> {
     chromosomes
@@ -56,7 +56,7 @@ pub fn chromosomes_with_fitness_score<C: OwnsGenes>(
 }
 
 #[allow(dead_code)]
-pub fn population<C: OwnsGenes>(population: &Population<C>) -> Vec<C::Genes> {
+pub fn population<C: GenesOwner>(population: &Population<C>) -> Vec<C::Genes> {
     population.chromosomes.iter().map(chromosome).collect()
 }
 #[allow(dead_code)]
@@ -69,7 +69,7 @@ pub fn population_to_str(population: &Population<BitChromosome>) -> Vec<String> 
 }
 
 #[allow(dead_code)]
-pub fn population_with_fitness_scores<C: OwnsGenes>(
+pub fn population_with_fitness_scores<C: GenesOwner>(
     population: &Population<C>,
 ) -> Vec<(C::Genes, Option<FitnessValue>)> {
     population

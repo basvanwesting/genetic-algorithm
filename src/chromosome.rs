@@ -23,15 +23,22 @@ use std::ops::Range;
 /// The Chromosome is used as an individual in the [Population](crate::population::Population).
 /// Chromosomes [select](crate::select), [crossover](crate::crossover) and [mutate](crate::mutate)
 /// with each other in the [Evolve](crate::strategy::evolve::Evolve) strategy.
+/// Each [Genotype] has its own associated [Chromosome] type.
 ///
-/// Some chromosomes store their own genes and some reference external data. Therefore the use of
+/// Chromosomes who implement [GenesOwner] own their genes. Chromosomes who implement
+/// [GenesPointer] don't and just point to genes owned by the Genotype. Therefore the chromosome
+/// itself doesn't have a global interface regarding it's genes and use of
 /// [Evolve::best_chromosome()](crate::strategy::evolve::Evolve::best_chromosome),
 /// [HillCllimb::best_chromosome()](crate::strategy::hill_climb::HillClimb::best_chromosome) and
 /// [Permutate::best_chromosome()](crate::strategy::permutate::Permutate::best_chromosome) on the
-/// Strategy are discouraged.
-/// Use [Strategy::best_genes()](crate::strategy::Strategy::best_genes) or
+/// Strategy are discouraged (although they are available when using a Genotype with a [GenesOwner]
+/// chromosome). Use [Strategy::best_genes()](crate::strategy::Strategy::best_genes) or
 /// [Strategy::best_genes_and_fitness_score()](crate::strategy::Strategy::best_genes_and_fitness_score)
 /// instead.
+///
+/// In the [Fitness](crate::fitness::Fitness) context an associated [Genotype] type is set. And in
+/// that contest the ownership model of the genes is known, so we can use the [Chromosome] struct
+/// without ambiguity.
 pub trait Chromosome: Clone + Send {
     fn age(&self) -> usize;
     fn reset_age(&mut self);
@@ -46,12 +53,12 @@ pub trait Chromosome: Clone + Send {
     }
     fn copy_fields_from(&mut self, other: &Self);
 }
-pub trait OwnsGenes: Chromosome {
+pub trait GenesOwner: Chromosome {
     type Genes: Genes;
     fn new(genes: Self::Genes) -> Self;
     fn genes(&self) -> &Self::Genes;
 }
-pub trait RefersGenes: Chromosome {
+pub trait GenesPointer: Chromosome {
     fn new(row_id: usize) -> Self;
 }
 

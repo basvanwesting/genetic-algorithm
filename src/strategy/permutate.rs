@@ -8,7 +8,7 @@ pub use self::builder::{
 };
 
 use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
-use crate::chromosome::{Chromosome, OwnsGenes};
+use crate::chromosome::{Chromosome, GenesOwner};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
 use crate::population::Population;
@@ -133,7 +133,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
     Permutate<G, F, SR>
 where
-    G::Chromosome: OwnsGenes<Genes = G::Genes>,
+    G::Chromosome: GenesOwner<Genes = G::Genes>,
 {
     pub fn best_chromosome(&self) -> Option<G::Chromosome> {
         if let Some(best_genes) = self.best_genes() {

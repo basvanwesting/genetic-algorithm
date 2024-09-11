@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
-use crate::chromosome::{BinaryChromosome, Chromosome, ChromosomeManager, OwnsGenes};
+use crate::chromosome::{BinaryChromosome, Chromosome, ChromosomeManager, GenesOwner};
 use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;

@@ -38,7 +38,7 @@ impl<T: Allele> super::Chromosome for Vector<T> {
         self.reference_id = other.reference_id;
     }
 }
-impl<T: Allele> super::OwnsGenes for Vector<T> {
+impl<T: Allele> super::GenesOwner for Vector<T> {
     type Genes = Vec<T>;
     fn new(genes: Self::Genes) -> Self {
         Self {

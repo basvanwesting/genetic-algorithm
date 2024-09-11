@@ -38,7 +38,7 @@ impl super::Chromosome for Bit {
         self.reference_id = other.reference_id;
     }
 }
-impl super::OwnsGenes for Bit {
+impl super::GenesOwner for Bit {
     type Genes = FixedBitSet;
     fn new(genes: Self::Genes) -> Self {
         Self {

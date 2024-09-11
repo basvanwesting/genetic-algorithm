@@ -1,5 +1,5 @@
 //! placeholders for testing and bootstrapping, not really used in practice
-use crate::chromosome::OwnsGenes;
+use crate::chromosome::GenesOwner;
 use crate::fitness::{Fitness, FitnessChromosome, FitnessValue};
 use crate::genotype::{BinaryGenotype, BitGenotype, Genotype};
 use rand::distributions::{Distribution, Uniform};
@@ -92,7 +92,7 @@ impl<G: Genotype> Fitness for SumGenes<G>
 where
     G::Allele: Into<f64>,
     G::Genes: IntoIterator<Item = G::Allele>,
-    G::Chromosome: OwnsGenes<Genes = G::Genes>,
+    G::Chromosome: GenesOwner<Genes = G::Genes>,
 {
     type Genotype = G;
     fn calculate_for_chromosome(

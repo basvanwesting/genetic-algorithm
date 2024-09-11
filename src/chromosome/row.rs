@@ -35,7 +35,7 @@ impl super::Chromosome for Row {
         self.reference_id = other.reference_id;
     }
 }
-impl super::RefersGenes for Row {
+impl super::GenesPointer for Row {
     fn new(row_id: usize) -> Self {
         Self {
             row_id,
