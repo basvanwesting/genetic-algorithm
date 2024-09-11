@@ -5,6 +5,31 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.13.0] - 2024-09-11
+
+### Changed
+* Rename `Compete` to `Select`
+* Redo `Select`/`Crossover` selection & survival rates:
+  * Remove `Crossover` `parent_survival_rate` and add `Select` `selection_rate`
+  * `Select` now reduces the population and `Crossover` restores the population with the best parents after creating new offspring
+  * Simulate the old behaviour of keeping all the parents by setting the `selection_rate = 0.5` and doubling the target_population_size
+* Implement `Allele` for `()` and set `BitGenotype::Allele = ()` as it is not used
+
+### Removed
+* Drop `BinaryAllele` type alias for `bool`. It is the only of it's kind and never used
+
+### Fixed
+* Fix `SelectElite` sorting (should be best first, was best last). Effect was
+  that the best part of population was dropped instead of kept, resulting in slow to
+  no solution in `Evolve`
+
+## [0.12.1] - 2024-09-07
+
+### Fixed
+* Fix `CompeteElite` sorting (should be best first, was best last). Effect was
+  that the best part of population was dropped instead of kept, resulting in slow to
+  no solution in `Evolve`
+
 ## [0.12.0] - 2024-09-03
 This is a major breaking release (back to pre-v0.9.0 API), see Changed:
 
@@ -24,6 +49,13 @@ This is a major breaking release (back to pre-v0.9.0 API), see Changed:
   `BinaryGenotype,` but better for large genes sizes as storage is much more
   efficient than `Vec<bool>`.
 * Add `Fitness` placeholder `CountOnes` for `BitGenotype`
+
+## [0.11.1] - 2024-09-07
+
+### Fixed
+* Fix `CompeteElite` sorting (should be best first, was best last). Effect was
+  that the best part of population was dropped instead of kept, resulting in slow to
+  no solution in `Evolve`
 
 ## [0.11.0] - 2024-09-02
 
