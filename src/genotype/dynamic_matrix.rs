@@ -330,6 +330,9 @@ where
     fn best_genes(&self) -> &Self::Genes {
         &self.best_genes
     }
+    fn best_genes_slice(&self) -> &[Self::Allele] {
+        self.best_genes.as_slice()
+    }
     fn get_genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         self.get_genes(chromosome)
     }
