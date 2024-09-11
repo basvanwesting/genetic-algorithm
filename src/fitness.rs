@@ -76,7 +76,7 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// Additionally, you can implement [calculate_for_chromosome](Fitness::calculate_for_chromosome)
 /// for [GenesPointer](crate::chromosome::GenesPointer) chromosomes. The [Genotype] is passed as a
 /// reference for genes lookup (using
-/// [genotype.get_genes_slice(&chromosome)](crate::genotype::Genotype::get_genes_slice)). This is
+/// [genotype.genes_slice(&chromosome)](crate::genotype::Genotype::genes_slice)). This is
 /// sometimes useful when testing out different strategies with different call levels. Problably no
 /// longer needed once settled on a strategy.
 ///
@@ -152,7 +152,7 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///         chromosome: &FitnessChromosome<Self>,
 ///         genotype: &Self::Genotype,
 ///     ) -> Option<FitnessValue> {
-///         let score = genotype.get_genes_slice(chromosome).iter().sum::<u16>();
+///         let score = genotype.genes_slice(chromosome).iter().sum::<u16>();
 ///         Some(score as FitnessValue)
 ///     }
 /// }

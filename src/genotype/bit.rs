@@ -133,7 +133,7 @@ impl Genotype for Bit {
     fn best_genes_slice(&self) -> &[Self::Allele] {
         self.best_genes.as_slice()
     }
-    fn get_genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
 

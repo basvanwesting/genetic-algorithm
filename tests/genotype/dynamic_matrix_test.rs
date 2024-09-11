@@ -15,14 +15,14 @@ fn chromosome_constructor() {
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.976, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
@@ -41,21 +41,21 @@ fn float_mutate_chromosome_single_relative() {
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.499, 0.456, 0.395, 0.818],
         0.001,
     ));
@@ -74,21 +74,21 @@ fn float_mutate_chromosome_single_scaled() {
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.969, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.969, 0.462, 0.897, 0.942, 0.598, 0.456, 0.395, 0.818],
         0.001,
     ));
@@ -106,13 +106,13 @@ fn mutate_chromosome_genes_random_with_duplicates() {
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
     genotype.mutate_chromosome_genes(5, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.296, 0.462, 0.897, 0.942, 0.054, 0.724, 0.395, 0.225],
         0.001,
     ));
@@ -129,13 +129,13 @@ fn mutate_chromosome_genes_random_without_duplicates() {
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
     genotype.mutate_chromosome_genes(5, false, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.787, 0.225, 0.979, 0.462, 0.897, 0.296, 0.232, 0.456, 0.395, 0.724],
         0.001,
     ));
@@ -154,23 +154,23 @@ fn crossover_chromosome_pair_single_gene() {
     let mut father = genotype.chromosome_constructor_random(rng);
     let mut mother = genotype.chromosome_constructor_random(rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&father).to_vec(),
+        genotype.genes_slice(&father).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&mother).to_vec(),
+        genotype.genes_slice(&mother).to_vec(),
         vec![0.240, 0.976, 0.644, 0.054, 0.921, 0.225, 0.232, 0.296, 0.787, 0.724],
         0.001
     ));
     genotype.crossover_chromosome_genes(3, false, &mut father, &mut mother, rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&father).to_vec(),
+        genotype.genes_slice(&father).to_vec(),
         vec![0.447, 0.976, 0.644, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.724],
         0.001
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&mother).to_vec(),
+        genotype.genes_slice(&mother).to_vec(),
         vec![0.240, 0.439, 0.979, 0.054, 0.921, 0.225, 0.232, 0.296, 0.787, 0.818],
         0.001
     ));
@@ -189,23 +189,23 @@ fn crossover_chromosome_pair_single_point() {
     let mut father = genotype.chromosome_constructor_random(rng);
     let mut mother = genotype.chromosome_constructor_random(rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&father).to_vec(),
+        genotype.genes_slice(&father).to_vec(),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&mother).to_vec(),
+        genotype.genes_slice(&mother).to_vec(),
         vec![0.240, 0.976, 0.644, 0.054, 0.921, 0.225, 0.232, 0.296, 0.787, 0.724],
         0.001
     ));
     genotype.crossover_chromosome_points(2, false, &mut father, &mut mother, rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&father).to_vec(),
+        genotype.genes_slice(&father).to_vec(),
         vec![0.447, 0.439, 0.644, 0.054, 0.921, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&mother).to_vec(),
+        genotype.genes_slice(&mother).to_vec(),
         vec![0.240, 0.976, 0.979, 0.462, 0.897, 0.225, 0.232, 0.296, 0.787, 0.724],
         0.001
     ));
@@ -224,7 +224,7 @@ fn float_neighbouring_population_1() {
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447],
         0.001
     ));
@@ -236,7 +236,7 @@ fn float_neighbouring_population_1() {
         population
             .chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![vec![0.391], vec![0.545]],
         0.001,
@@ -256,7 +256,7 @@ fn float_neighbouring_population_2_unscaled() {
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439],
         0.001
     ));
@@ -267,7 +267,7 @@ fn float_neighbouring_population_2_unscaled() {
         population
             .chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![
             vec![0.445, 0.439],
@@ -292,7 +292,7 @@ fn float_neighbouring_population_2_scaled() {
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439],
         0.001
     ));
@@ -305,7 +305,7 @@ fn float_neighbouring_population_2_scaled() {
         population
             .chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![
             vec![0.0, 0.439],
@@ -322,7 +322,7 @@ fn float_neighbouring_population_2_scaled() {
         population
             .chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![
             vec![0.347, 0.439],
@@ -339,7 +339,7 @@ fn float_neighbouring_population_2_scaled() {
         population
             .chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![
             vec![0.437, 0.439],
@@ -365,7 +365,7 @@ fn float_neighbouring_population_3_one_sided() {
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosome).to_vec(),
+        genotype.genes_slice(&chromosome).to_vec(),
         vec![0.447, 0.439, 0.980],
         0.001
     ));
@@ -379,7 +379,7 @@ fn float_neighbouring_population_3_one_sided() {
         population
             .chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![
             vec![0.494, 0.439, 0.980],
@@ -410,22 +410,22 @@ fn chromosome_constructor_with_seed_genes_list() {
     println!("{:#?}", chromosomes);
 
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosomes[0]).to_vec(),
+        genotype.genes_slice(&chromosomes[0]).to_vec(),
         vec![0.4, 0.5, 0.6, 0.7],
         0.001,
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosomes[1]).to_vec(),
+        genotype.genes_slice(&chromosomes[1]).to_vec(),
         vec![0.0, 0.1, 0.2, 0.3],
         0.001,
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosomes[2]).to_vec(),
+        genotype.genes_slice(&chromosomes[2]).to_vec(),
         vec![0.4, 0.5, 0.6, 0.7],
         0.001,
     ));
     assert!(relative_chromosome_eq(
-        genotype.get_genes(&chromosomes[3]).to_vec(),
+        genotype.genes_slice(&chromosomes[3]).to_vec(),
         vec![0.0, 0.1, 0.2, 0.3],
         0.001,
     ));
@@ -450,7 +450,7 @@ fn chromosome_manager() {
     assert!(relative_population_eq(
         chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![
             vec![0.447, 0.439, 0.979, 0.462, 0.897],
@@ -472,7 +472,7 @@ fn chromosome_manager() {
     assert!(relative_population_eq(
         chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![
             vec![0.447, 0.439, 0.979, 0.462, 0.897],
@@ -487,7 +487,7 @@ fn chromosome_manager() {
     assert!(relative_population_eq(
         chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![
             vec![0.447, 0.439, 0.979, 0.462, 0.897],
@@ -507,7 +507,7 @@ fn chromosome_manager() {
     assert!(relative_population_eq(
         chromosomes
             .iter()
-            .map(|c| genotype.get_genes(c).to_vec())
+            .map(|c| genotype.genes_slice(c).to_vec())
             .collect(),
         vec![
             vec![0.447, 0.900, 0.979, 0.390, 0.971],

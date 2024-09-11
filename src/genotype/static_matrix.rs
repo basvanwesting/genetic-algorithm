@@ -200,10 +200,6 @@ where
     }
 
     /// returns a slice of genes_size <= N
-    pub fn get_genes(&self, chromosome: &StaticMatrixChromosome) -> &[T] {
-        self.get_genes_by_id(chromosome.row_id)
-    }
-    /// returns a slice of genes_size <= N
     fn get_genes_by_id(&self, id: usize) -> &[T] {
         &self.data[id][..self.genes_size]
     }
@@ -254,7 +250,7 @@ where
         let (father, mother) = self.gene_slice_pair_mut((father_id, mother_id));
         (mother[mother_range]).swap_with_slice(&mut father[father_range]);
     }
-    pub fn gene_slice_pair_mut(&mut self, ids: (usize, usize)) -> (&mut [T; N], &mut [T; N]) {
+    fn gene_slice_pair_mut(&mut self, ids: (usize, usize)) -> (&mut [T; N], &mut [T; N]) {
         match ids.0.cmp(&ids.1) {
             Ordering::Less => {
                 let (x, y) = self.data.split_at_mut(ids.1);
@@ -267,7 +263,7 @@ where
             Ordering::Equal => panic!("ids cannot be the same: {:?}", ids),
         }
     }
-    pub fn gene_slice_pair_range<B: RangeBounds<usize>>(
+    fn gene_slice_pair_range<B: RangeBounds<usize>>(
         &self,
         range: B,
     ) -> (Range<usize>, Range<usize>) {
@@ -317,8 +313,8 @@ where
     fn best_genes_slice(&self) -> &[Self::Allele] {
         self.best_genes.as_slice()
     }
-    fn get_genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
-        self.get_genes(chromosome)
+    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+        self.get_genes_by_id(chromosome.row_id)
     }
 
     fn mutate_chromosome_genes<R: Rng>(

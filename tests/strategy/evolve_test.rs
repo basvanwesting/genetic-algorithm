@@ -516,7 +516,7 @@ impl Fitness for SumStaticMatrixGenes {
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         for chromosome in population.chromosomes.iter_mut() {
-            let score = genotype.get_genes(chromosome).iter().sum::<u16>();
+            let score = genotype.genes_slice(chromosome).iter().sum::<u16>();
             chromosome.fitness_score = Some(score as FitnessValue);
         }
     }
@@ -564,7 +564,7 @@ impl Fitness for SumDynamicMatrixGenes {
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         for chromosome in population.chromosomes.iter_mut() {
-            let score = genotype.get_genes(chromosome).iter().sum::<u16>();
+            let score = genotype.genes_slice(chromosome).iter().sum::<u16>();
             chromosome.fitness_score = Some(score as FitnessValue);
         }
     }

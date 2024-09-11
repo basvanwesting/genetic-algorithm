@@ -335,16 +335,13 @@ impl<G: IncrementalGenotype> Reporter for Log<G> {
             log::trace!(
                 "contending - fitness score: {:?}, genes: {:?}",
                 state.chromosome.as_ref().and_then(|c| c.fitness_score()),
-                state
-                    .chromosome
-                    .as_ref()
-                    .map(|c| genotype.get_genes_slice(c)),
+                state.chromosome.as_ref().map(|c| genotype.genes_slice(c)),
             );
             state.population.chromosomes.iter().for_each(|chromosome| {
                 log::trace!(
                     "neighbour - fitness score: {:?}, genes: {:?}",
                     chromosome.fitness_score(),
-                    genotype.get_genes_slice(chromosome),
+                    genotype.genes_slice(chromosome),
                 );
             })
         }

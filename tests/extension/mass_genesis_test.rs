@@ -75,7 +75,7 @@ fn removes_randomly_matrix() {
             .population
             .chromosomes
             .iter()
-            .map(|c| genotype.get_genes(&c).to_vec())
+            .map(|c| genotype.genes_slice(&c).to_vec())
             .collect::<Vec<_>>(),
         vec![vec![7, 6, 9], vec![7, 6, 9]]
     );

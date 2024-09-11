@@ -98,7 +98,7 @@ pub trait Genotype:
     fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome);
     fn best_genes(&self) -> &Self::Genes;
     fn best_genes_slice(&self) -> &[Self::Allele];
-    fn get_genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
+    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
 
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,

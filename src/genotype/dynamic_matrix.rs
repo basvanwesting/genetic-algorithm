@@ -189,31 +189,13 @@ where
     fn linear_id(&self, id: usize, index: usize) -> usize {
         id * self.genes_size + index
     }
-    pub fn linear_gene_range<B: RangeBounds<usize>>(&self, id: usize, range: B) -> Range<usize> {
-        let min_index = match range.start_bound() {
-            Bound::Unbounded => 0,
-            Bound::Included(&i) => i,
-            Bound::Excluded(&i) => i + 1,
-        }
-        .max(0);
-        let max_index = match range.end_bound() {
-            Bound::Unbounded => self.genes_size,
-            Bound::Included(&i) => i + 1,
-            Bound::Excluded(&i) => i,
-        }
-        .min(self.genes_size);
-        (id * self.genes_size + min_index)..(id * self.genes_size + max_index)
+    fn linear_genes_range(&self, id: usize) -> Range<usize> {
+        (id * self.genes_size)..(id * self.genes_size + self.genes_size)
     }
 
     /// returns a slice of genes_size <= N
-    pub fn get_genes(&self, chromosome: &DynamicMatrixChromosome) -> &[T] {
-        self.get_genes_by_id(chromosome.row_id)
-    }
-    /// returns a slice of genes_size <= N
-    #[allow(dead_code)]
     fn get_genes_by_id(&self, id: usize) -> &[T] {
-        let linear_id = self.linear_id(id, 0);
-        &self.data[linear_id..(linear_id + self.genes_size)]
+        &self.data[self.linear_genes_range(id)]
     }
     fn get_gene_by_id(&self, id: usize, index: usize) -> T {
         let linear_id = self.linear_id(id, index);
@@ -264,7 +246,7 @@ where
         let (father, mother) = self.gene_slice_pair_mut((father_id, mother_id));
         (mother[mother_range]).swap_with_slice(&mut father[father_range]);
     }
-    pub fn gene_slice_pair_mut(&mut self, ids: (usize, usize)) -> (&mut [T], &mut [T]) {
+    fn gene_slice_pair_mut(&mut self, ids: (usize, usize)) -> (&mut [T], &mut [T]) {
         let linear_id0 = self.linear_id(ids.0, 0);
         let linear_id1 = self.linear_id(ids.1, 0);
         match linear_id0.cmp(&linear_id1) {
@@ -285,7 +267,7 @@ where
             Ordering::Equal => panic!("ids cannot be the same: {:?}", ids),
         }
     }
-    pub fn gene_slice_pair_range<B: RangeBounds<usize>>(
+    fn gene_slice_pair_range<B: RangeBounds<usize>>(
         &self,
         range: B,
     ) -> (Range<usize>, Range<usize>) {
@@ -318,13 +300,12 @@ where
         self.genes_size
     }
     fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
-        let linear_id = self.linear_id(chromosome.row_id, 0);
-        let x = &self.data[linear_id..(linear_id + self.genes_size)];
+        let x = &self.data[self.linear_genes_range(chromosome.row_id)];
         self.best_genes.copy_from_slice(x)
     }
     fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
-        let linear_id = self.linear_id(chromosome.row_id, 0);
-        let x = &mut self.data[linear_id..(linear_id + self.genes_size)];
+        let linear_genes_range = self.linear_genes_range(chromosome.row_id);
+        let x = &mut self.data[linear_genes_range];
         x.copy_from_slice(&self.best_genes)
     }
     fn best_genes(&self) -> &Self::Genes {
@@ -333,8 +314,8 @@ where
     fn best_genes_slice(&self) -> &[Self::Allele] {
         self.best_genes.as_slice()
     }
-    fn get_genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
-        self.get_genes(chromosome)
+    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+        self.get_genes_by_id(chromosome.row_id)
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -620,8 +601,8 @@ where
     // FIXME: directly set genes
     fn set_random_genes<R: Rng>(&mut self, chromosome: &mut DynamicMatrixChromosome, rng: &mut R) {
         let genes = self.random_genes_factory(rng);
-        let linear_id = self.linear_id(chromosome.row_id, 0);
-        let x = &mut self.data[linear_id..(linear_id + self.genes_size)];
+        let linear_genes_range = self.linear_genes_range(chromosome.row_id);
+        let x = &mut self.data[linear_genes_range];
         x.copy_from_slice(&genes);
     }
     fn copy_genes(
