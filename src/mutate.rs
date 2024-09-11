@@ -26,7 +26,6 @@ pub trait Mutate: Clone + Send + Sync + std::fmt::Debug {
         reporter: &mut SR,
         rng: &mut R,
     );
-    fn report(&self) -> String;
 }
 
 #[derive(Clone, Debug)]

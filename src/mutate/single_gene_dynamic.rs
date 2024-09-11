@@ -65,12 +65,6 @@ impl Mutate for SingleGeneDynamic {
         }
         state.add_duration(StrategyAction::Mutate, now.elapsed());
     }
-    fn report(&self) -> String {
-        format!(
-            "single-gene-random-dynamic: {:2.2}",
-            self.mutation_probability
-        )
-    }
 }
 
 impl SingleGeneDynamic {

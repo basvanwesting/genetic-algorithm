@@ -45,9 +45,6 @@ impl Mutate for SingleGene {
         }
         state.add_duration(StrategyAction::Mutate, now.elapsed());
     }
-    fn report(&self) -> String {
-        format!("single-gene-random: {:2.2}", self.mutation_probability)
-    }
 }
 
 impl SingleGene {

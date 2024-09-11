@@ -55,12 +55,6 @@ impl Mutate for MultiGene {
         }
         state.add_duration(StrategyAction::Mutate, now.elapsed());
     }
-    fn report(&self) -> String {
-        format!(
-            "multi-gene-random: {}, {:2.2}",
-            self.number_of_mutations, self.mutation_probability,
-        )
-    }
 }
 
 impl MultiGene {

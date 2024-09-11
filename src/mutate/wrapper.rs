@@ -36,14 +36,6 @@ impl Mutate for Wrapper {
             }
         }
     }
-    fn report(&self) -> String {
-        match self {
-            Wrapper::MultiGene(mutate) => mutate.report(),
-            Wrapper::MultiGeneDynamic(mutate) => mutate.report(),
-            Wrapper::SingleGene(mutate) => mutate.report(),
-            Wrapper::SingleGeneDynamic(mutate) => mutate.report(),
-        }
-    }
 }
 
 impl From<MutateSingleGene> for Wrapper {
