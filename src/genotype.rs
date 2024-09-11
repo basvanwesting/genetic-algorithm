@@ -26,6 +26,7 @@ pub use self::static_matrix::StaticMatrix as StaticMatrixGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::fitness::FitnessValue;
 use crate::population::Population;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
@@ -99,6 +100,13 @@ pub trait Genotype:
     fn best_genes(&self) -> &Self::Genes;
     fn best_genes_slice(&self) -> &[Self::Allele];
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
+    fn update_population_fitness_scores(
+        &self,
+        _population: &mut Population<Self::Chromosome>,
+        _fitness_scores: Vec<Option<FitnessValue>>,
+    ) {
+        panic!("The genotype does not suppport overwriting the Fitness::calculate_for_population implementation");
+    }
 
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,

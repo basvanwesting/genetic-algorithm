@@ -257,16 +257,17 @@ fn call_binary_steepest_ascent() {
 pub struct SumStaticMatrixGenes;
 impl Fitness for SumStaticMatrixGenes {
     type Genotype = StaticMatrixGenotype<i16, 20, { 40 + 1 }>;
-    fn call_for_population(
+    fn calculate_for_population(
         &mut self,
-        population: &mut Population<StaticMatrixChromosome>,
+        _population: &Population<StaticMatrixChromosome>,
         genotype: &Self::Genotype,
-        _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
-    ) {
-        for chromosome in population.chromosomes.iter_mut() {
-            let score = genotype.genes_slice(chromosome).iter().sum::<i16>();
-            chromosome.fitness_score = Some(score as FitnessValue);
-        }
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .iter()
+            .map(|genes| genes.iter().sum::<i16>() as FitnessValue)
+            .map(Some)
+            .collect()
     }
 }
 

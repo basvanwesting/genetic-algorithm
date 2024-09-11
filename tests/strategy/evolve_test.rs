@@ -509,16 +509,17 @@ fn call_multi_list() {
 pub struct SumStaticMatrixGenes;
 impl Fitness for SumStaticMatrixGenes {
     type Genotype = StaticMatrixGenotype<u16, 10, 100>;
-    fn call_for_population(
+    fn calculate_for_population(
         &mut self,
-        population: &mut Population<StaticMatrixChromosome>,
+        _population: &Population<StaticMatrixChromosome>,
         genotype: &Self::Genotype,
-        _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
-    ) {
-        for chromosome in population.chromosomes.iter_mut() {
-            let score = genotype.genes_slice(chromosome).iter().sum::<u16>();
-            chromosome.fitness_score = Some(score as FitnessValue);
-        }
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .iter()
+            .map(|genes| genes.iter().sum::<u16>() as FitnessValue)
+            .map(Some)
+            .collect()
     }
 }
 
@@ -557,16 +558,17 @@ fn call_static_matrix() {
 pub struct SumDynamicMatrixGenes;
 impl Fitness for SumDynamicMatrixGenes {
     type Genotype = DynamicMatrixGenotype<u16>;
-    fn call_for_population(
+    fn calculate_for_population(
         &mut self,
-        population: &mut Population<DynamicMatrixChromosome>,
+        _population: &Population<DynamicMatrixChromosome>,
         genotype: &Self::Genotype,
-        _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
-    ) {
-        for chromosome in population.chromosomes.iter_mut() {
-            let score = genotype.genes_slice(chromosome).iter().sum::<u16>();
-            chromosome.fitness_score = Some(score as FitnessValue);
-        }
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .chunks(genotype.genes_size())
+            .map(|genes| genes.iter().sum::<u16>() as FitnessValue)
+            .map(Some)
+            .collect()
     }
 }
 

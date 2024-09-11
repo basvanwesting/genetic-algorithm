@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype, MutationType};
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesPointer, StaticMatrixChromosome};
+use crate::fitness::FitnessValue;
 use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -19,7 +20,7 @@ use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
 /// the matrix unused at T::default(). This opens the possibility for linear algebra fitness
 /// calculations on the whole population at once, possibly using the GPU in the future (if the data
 /// is stored and mutated at a GPU readable memory location). The fitness would then implement
-/// [call_for_population](crate::fitness::Fitness::call_for_population) instead of
+/// [calculate_for_population](crate::fitness::Fitness::calculate_for_population) instead of
 /// [calculate_for_chromosome](crate::fitness::Fitness::calculate_for_chromosome).
 ///
 /// The rest is like [RangeGenotype](super::RangeGenotype):
@@ -315,6 +316,21 @@ where
     }
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         self.get_genes_by_id(chromosome.row_id)
+    }
+    fn update_population_fitness_scores(
+        &self,
+        population: &mut Population<Self::Chromosome>,
+        fitness_scores: Vec<Option<FitnessValue>>,
+    ) {
+        population
+            .chromosomes
+            .iter_mut()
+            .filter(|c| c.fitness_score.is_none())
+            .for_each(|chromosome| {
+                if let Some(&fitness_score) = fitness_scores.get(chromosome.row_id) {
+                    chromosome.set_fitness_score(fitness_score);
+                }
+            });
     }
 
     fn mutate_chromosome_genes<R: Rng>(

@@ -7,14 +7,14 @@ const POPULATION_SIZE: usize = 100;
 pub struct DistanceTo(pub f32, pub f32); // target, precision
 impl Fitness for DistanceTo {
     type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, POPULATION_SIZE>;
-    fn call_for_population(
+    fn calculate_for_population(
         &mut self,
-        population: &mut Population<StaticMatrixChromosome>,
+        _population: &Population<StaticMatrixChromosome>,
         genotype: &FitnessGenotype<Self>,
-        _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
-    ) {
+    ) -> Vec<Option<FitnessValue>> {
         // pure matrix data calculation on [[T; N] M]
-        let results: Vec<FitnessValue> = genotype
+        // the order of the rows needs to be preserved as it matches the row_id on the chromosome
+        genotype
             .data
             .iter()
             .map(|genes| {
@@ -23,14 +23,8 @@ impl Fitness for DistanceTo {
                     .map(|v| (v - self.0).abs() / self.1)
                     .sum::<f32>() as FitnessValue
             })
-            .collect();
-
-        // result assignment back to chromosome
-        for chromosome in population.chromosomes.iter_mut() {
-            chromosome.fitness_score = Some(results[chromosome.row_id]);
-        }
-
-        // halt the call stack, so calculate_for_chromosome isn't called anymore
+            .map(Some)
+            .collect()
     }
 }
 
