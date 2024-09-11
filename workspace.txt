@@ -23,7 +23,7 @@
   * [v] Reconsider OwnsGenes and RefersGenes naming
   * [v] Remove StrategyAction::ChromosomeDataDropAndCopy
   * [v] Enable chromosome_recycling always, and remove checks
-  * [ ] Store staticMatrixGenotype on heap using Box?
+  * [v] Store staticMatrixGenotype on heap using Box
   * [ ] Fix Reporting
   * [ ] document Fitness impl levels very extensively
   * [ ] Note on GPU in performance section

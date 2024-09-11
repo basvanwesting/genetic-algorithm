@@ -19,16 +19,16 @@ fn main() {
     //     .with_allele_range(ALLELE_RANGE)
     //     .build()
     //     .unwrap();
-    let genotype = DynamicMatrixGenotype::builder()
-        .with_genes_size(GENES_SIZE)
-        .with_allele_range(ALLELE_RANGE)
-        .build()
-        .unwrap();
-    // let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
+    // let genotype = DynamicMatrixGenotype::builder()
     //     .with_genes_size(GENES_SIZE)
     //     .with_allele_range(ALLELE_RANGE)
     //     .build()
     //     .unwrap();
+    let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
+        .with_genes_size(GENES_SIZE)
+        .with_allele_range(ALLELE_RANGE)
+        .build()
+        .unwrap();
     // let genotype = BinaryGenotype::builder()
     //     .with_genes_size(GENES_SIZE)
     //     .build()

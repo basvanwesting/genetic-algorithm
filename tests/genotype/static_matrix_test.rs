@@ -397,7 +397,10 @@ fn chromosome_constructor_with_seed_genes_list() {
     let mut genotype = StaticMatrixGenotype::<f32, 4, 4>::builder()
         .with_genes_size(4)
         .with_allele_range(0.0..=1.0)
-        .with_seed_genes_list(vec![[0.0, 0.1, 0.2, 0.3], [0.4, 0.5, 0.6, 0.7]])
+        .with_seed_genes_list(vec![
+            Box::new([0.0, 0.1, 0.2, 0.3]),
+            Box::new([0.4, 0.5, 0.6, 0.7]),
+        ])
         .build()
         .unwrap();
     genotype.chromosomes_init();

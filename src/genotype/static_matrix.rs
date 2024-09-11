@@ -18,8 +18,8 @@ pub enum MutationType {
     Scaled,
 }
 
-/// Genes (N) and Population (M) are a `N*M` matrix of numeric values, stored  on the stack as a
-/// nested array '[[T; N]; M]'. The genes are contiguous in memory, with an N jump to the next
+/// Genes (N) and Population (M) are a fixed `N*M` matrix of numeric values, stored on the heap as a
+/// nested array 'Box<[[T; N]; M]>'. The genes are contiguous in memory, with an N jump to the next
 /// chromosome ([[T; N]; M] can be treated like [T; N*M] in memory). The genes are therefore not
 /// stored on the Chromosomes themselves, which just point to the data (chromosome.row_id ==
 /// row id of the matrix). The genes_size can be smaller than N, which would just leave a part of
@@ -27,10 +27,6 @@ pub enum MutationType {
 /// calculations on the whole population at once, possibly using the GPU in the future (if the data
 /// is stored and mutated at a GPU readable memory location). The fitness would then implement
 /// `call_for_population` instead of `calculate_for_chromosome`.
-///
-/// This is a simple stack based example implementation, which is
-/// threrefore limited in size. Exceeding this size, will result in a "fatal runtime error: stack
-/// overflow" panic, aborting the execution during the initialization of the Genotype.
 ///
 /// The rest is like [RangeGenotype](super::RangeGenotype):
 ///
@@ -44,6 +40,10 @@ pub enum MutationType {
 /// probability. When allele_mutation_scaled_range is provided the mutation is restricted to modify
 /// the existing value by a difference taken from start and end of the scaled range (depending on
 /// current scale)
+///
+/// # Panics
+///
+/// Will panic if more chromosomes are instantiated than the population (M) allows.
 ///
 /// # Example (f32):
 /// ```
@@ -84,7 +84,7 @@ pub struct StaticMatrix<
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    pub data: [[T; N]; M],
+    pub data: Box<[[T; N]; M]>,
     pub chromosome_bin: Vec<StaticMatrixChromosome>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
@@ -94,8 +94,8 @@ pub struct StaticMatrix<
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
-    pub seed_genes_list: Vec<[T; N]>,
-    pub best_genes: [T; N],
+    pub seed_genes_list: Vec<Box<[T; N]>>,
+    pub best_genes: Box<[T; N]>,
 }
 
 impl<
@@ -126,7 +126,7 @@ where
             };
 
             Ok(Self {
-                data: [[T::default(); N]; M],
+                data: Box::new([[T::default(); N]; M]),
                 chromosome_bin: Vec::with_capacity(M),
                 genes_size,
                 allele_range: allele_range.clone(),
@@ -139,7 +139,7 @@ where
                     .allele_mutation_range
                     .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
                 seed_genes_list: builder.seed_genes_list,
-                best_genes: [T::default(); N],
+                best_genes: Box::new([T::default(); N]),
             })
         }
     }
@@ -299,7 +299,7 @@ where
     Uniform<T>: Send + Sync,
 {
     type Allele = T;
-    type Genes = [T; N];
+    type Genes = Box<[T; N]>;
     type Chromosome = StaticMatrixChromosome;
 
     fn genes_size(&self) -> usize {
@@ -311,7 +311,7 @@ where
     }
     fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
         let x = self.data[chromosome.row_id].as_mut_slice();
-        x.copy_from_slice(&self.best_genes)
+        x.copy_from_slice(self.best_genes.as_slice())
     }
     fn best_genes(&self) -> &Self::Genes {
         &self.best_genes
@@ -598,18 +598,18 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> [T; N] {
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Box<[T; N]> {
         if self.seed_genes_list.is_empty() {
-            std::array::from_fn(|_| self.allele_sampler.sample(rng))
+            Box::new(std::array::from_fn(|_| self.allele_sampler.sample(rng)))
         } else {
-            *self.seed_genes_list.choose(rng).unwrap()
+            self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
     // FIXME: directly set genes
     fn set_random_genes<R: Rng>(&mut self, chromosome: &mut StaticMatrixChromosome, rng: &mut R) {
         let genes = self.random_genes_factory(rng);
         let x = self.data[chromosome.row_id].as_mut_slice();
-        x.copy_from_slice(&genes);
+        x.copy_from_slice(genes.as_slice());
     }
     fn copy_genes(&mut self, source: &StaticMatrixChromosome, target: &mut StaticMatrixChromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
@@ -638,7 +638,7 @@ where
 {
     fn clone(&self) -> Self {
         Self {
-            data: [[T::default(); N]; M],
+            data: Box::new([[T::default(); N]; M]),
             chromosome_bin: Vec::with_capacity(M),
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
@@ -652,7 +652,7 @@ where
                 .clone()
                 .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
             seed_genes_list: self.seed_genes_list.clone(),
-            best_genes: [T::default(); N],
+            best_genes: Box::new([T::default(); N]),
         }
     }
 }

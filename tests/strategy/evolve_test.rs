@@ -547,7 +547,10 @@ fn call_static_matrix() {
 
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(0));
-    assert_eq!(evolve.best_genes().unwrap(), [0, 0, 0, 0, 0, 0, 0, 0, 0, 0]);
+    assert_eq!(
+        evolve.best_genes().unwrap(),
+        Box::new([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+    );
 }
 
 #[derive(Clone, Debug)]

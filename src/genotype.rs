@@ -68,6 +68,7 @@ impl<T: Allele> Genes for Vec<T> {}
 impl Genes for FixedBitSet {}
 impl Genes for () {}
 impl<T: Allele, const N: usize> Genes for [T; N] {}
+impl<T: Allele, const N: usize> Genes for Box<[T; N]> {}
 
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
