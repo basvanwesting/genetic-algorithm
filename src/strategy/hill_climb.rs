@@ -191,14 +191,8 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
             self.state.current_generation += 1;
             match self.config.variant {
                 HillClimbVariant::Stochastic => {
-                    let now_data = Instant::now();
                     self.genotype
                         .load_best_genes(self.state.chromosome.as_mut().unwrap());
-                    self.state.add_duration(
-                        StrategyAction::ChromosomeDataDropAndCopy,
-                        now_data.elapsed(),
-                    );
-
                     self.genotype.mutate_chromosome_genes(
                         1,
                         true,
@@ -215,15 +209,10 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     );
                 }
                 HillClimbVariant::SteepestAscent => {
-                    let now_data = Instant::now();
                     self.genotype
                         .load_best_genes(self.state.chromosome.as_mut().unwrap());
                     self.genotype
                         .chromosome_destructor_truncate(&mut self.state.population.chromosomes, 0);
-                    self.state.add_duration(
-                        StrategyAction::ChromosomeDataDropAndCopy,
-                        now_data.elapsed(),
-                    );
                     self.genotype.fill_neighbouring_population(
                         self.state.chromosome.as_ref().unwrap(),
                         &mut self.state.population,

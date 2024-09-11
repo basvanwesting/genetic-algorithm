@@ -21,16 +21,16 @@
   * [v] Drop mutability from genotype in Fitness
   * [v] drop StochasticSecondary and SteepestAscentSecondary
   * [v] Reconsider OwnsGenes and RefersGenes naming
+  * [v] Remove StrategyAction::ChromosomeDataDropAndCopy
+  * [ ] Store staticMatrixGenotype on heap using Box?
   * [ ] Enable chromosome_recycling always, and remove checks
   * [ ] Move logic of random gene factory inside set_random_genes
   * [ ] Fix Reporting
   * [ ] document Fitness impl levels very extensively
-  * [ ] neigbouring better garantees? Can max stale gen be 1? Check, also check use of ugly loop. Precision really matters here, may be set it?
   * [ ] Note on GPU in performance section
-  * [ ] Remove action CopyAndDrop
+  * [ ] Extensions benchmark is noisy
+  * [ ] Document GenotypeBuilder, Split for Range types?
 
-* Store staticMatrixGenotype on heap using Box?
-* Extensions benchmark is noisy
-* Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)
-* Chunk parallel iters for less switching?
-* Document GenotypeBuilder, Split for Range types?
+* [ ] Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)
+* [ ] Chunk parallel iters for less switching?
+* [ ] neigbouring better garantees? Can max stale gen be 1? Check, also check use of ugly loop. Precision really matters here, may be set it?

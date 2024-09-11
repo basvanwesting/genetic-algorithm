@@ -32,8 +32,6 @@ impl Extension for MassGenesis {
                 .population
                 .best_chromosome_index(config.fitness_ordering)
             {
-                state.add_duration(StrategyAction::Extension, now.elapsed());
-                let now = Instant::now();
                 let best_chromosome = state
                     .population
                     .chromosomes
@@ -44,11 +42,9 @@ impl Extension for MassGenesis {
                     .chromosomes
                     .push(genotype.chromosome_cloner(&best_chromosome));
                 state.population.chromosomes.push(best_chromosome);
-                state.add_duration(StrategyAction::ChromosomeDataDropAndCopy, now.elapsed());
             }
-        } else {
-            state.add_duration(StrategyAction::Extension, now.elapsed());
         }
+        state.add_duration(StrategyAction::Extension, now.elapsed());
     }
 }
 

@@ -477,7 +477,6 @@ impl<G: Genotype> EvolveState<G> {
     }
 
     fn population_filter_age(&mut self, genotype: &mut G, config: &EvolveConfig) {
-        let now = Instant::now();
         if let Some(max_chromosome_age) = config.max_chromosome_age {
             // TODO: use something like partition_in_place when stable
             for i in (0..self.population.chromosomes.len()).rev() {
@@ -486,7 +485,6 @@ impl<G: Genotype> EvolveState<G> {
                 }
             }
         }
-        self.add_duration(StrategyAction::ChromosomeDataDropAndCopy, now.elapsed());
     }
 }
 

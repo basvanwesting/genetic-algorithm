@@ -25,7 +25,6 @@ impl Select for Elite {
         _rng: &mut R,
     ) {
         let now = Instant::now();
-
         let population_size = state.population.size();
         let selected_population_size = ((population_size as f32 * self.selection_rate).ceil()
             as usize)
@@ -52,13 +51,11 @@ impl Select for Elite {
                     })
             }
         }
-        state.add_duration(StrategyAction::Select, now.elapsed());
-        let now = Instant::now();
         genotype.chromosome_destructor_truncate(
             &mut state.population.chromosomes,
             selected_population_size,
         );
-        state.add_duration(StrategyAction::ChromosomeDataDropAndCopy, now.elapsed());
+        state.add_duration(StrategyAction::Select, now.elapsed());
     }
 }
 
