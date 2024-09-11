@@ -29,9 +29,7 @@ pub use self::reporter::Simple as HillClimbReporterSimple;
 pub enum HillClimbVariant {
     #[default]
     Stochastic,
-    StochasticSecondary,
     SteepestAscent,
-    SteepestAscentSecondary,
 }
 
 /// The HillClimb strategy is an iterative algorithm that starts with an arbitrary solution to a
@@ -44,14 +42,6 @@ pub enum HillClimbVariant {
 ///   neighbour) whether to move to that neighbor or to examine another
 /// * [HillClimbVariant::SteepestAscent]: all neighbours are compared and the one with the best
 ///   improvement is chosen.
-/// * [HillClimbVariant::StochasticSecondary]: like Stochastic, but also randomly tries a random
-///   neighbour of the neighbour. Useful when a single mutation would generally not lead to
-///   improvement, because the problem space behaves more like a
-///   [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be swapped (but the
-///   UniqueGenotype doesn't map to the problem space well)
-/// * [HillClimbVariant::SteepestAscentSecondary]: like SteepestAscent, but also neighbours of
-///   neighbours are in scope. This is O(n^2) with regards to the SteepestAscent variant, so use
-///   with caution.
 ///
 /// The ending conditions are one or more of the following:
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
@@ -79,9 +69,6 @@ pub enum HillClimbVariant {
 ///         * Not valid for [HillClimbVariant::SteepestAscent]
 ///     * Standard max_stale_generations ending condition
 ///
-/// Using scaling for [HillClimbVariant::StochasticSecondary] and
-/// [HillClimbVariant::SteepestAscentSecondary] doesn't make sense, though it will work.
-///
 /// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
 /// [HillClimbReporter] (e.g. [HillClimbReporterNoop], [HillClimbReporterSimple]). But you are encouraged to
 /// roll your own, see [HillClimbReporter].
@@ -97,9 +84,8 @@ pub enum HillClimbVariant {
 ///   `with_par_fitness()` flag on the builder, which determines multithreading of the fitness
 ///   calculation inside the [HillClimb] strategy. Both can be combined.
 ///
-/// Multithreading inside the [HillClimbVariant::Stochastic] and
-/// [HillClimbVariant::StochasticSecondary] using the `with_par_fitness()` builder step does
-/// nothing, due to the sequential nature of the search. But
+/// Multithreading inside the [HillClimbVariant::Stochastic] using the `with_par_fitness()` builder
+/// step does nothing, due to the sequential nature of the search. But
 /// [call_par_repeatedly](HillClimbBuilder::call_par_repeatedly) still effectively multithreads for
 /// these variants as the sequential nature is only internal to the [HillClimb] strategy.
 ///
@@ -228,47 +214,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         &mut self.reporter,
                     );
                 }
-                HillClimbVariant::StochasticSecondary => {
-                    let now_data = Instant::now();
-                    self.genotype
-                        .load_best_genes(self.state.chromosome.as_mut().unwrap());
-                    self.state.add_duration(
-                        StrategyAction::ChromosomeDataDropAndCopy,
-                        now_data.elapsed(),
-                    );
-
-                    self.genotype.mutate_chromosome_genes(
-                        1,
-                        true,
-                        self.state.chromosome.as_mut().unwrap(),
-                        self.state.current_scale_index,
-                        &mut self.rng,
-                    );
-                    self.fitness
-                        .call_for_state_chromosome(&mut self.state, &self.genotype);
-
-                    self.state.update_best_chromosome_from_state_chromosome(
-                        &mut self.genotype,
-                        &self.config,
-                        &mut self.reporter,
-                    );
-
-                    // second round
-                    self.genotype.mutate_chromosome_genes(
-                        1,
-                        true,
-                        self.state.chromosome.as_mut().unwrap(),
-                        self.state.current_scale_index,
-                        &mut self.rng,
-                    );
-                    self.fitness
-                        .call_for_state_chromosome(&mut self.state, &self.genotype);
-                    self.state.update_best_chromosome_from_state_chromosome(
-                        &mut self.genotype,
-                        &self.config,
-                        &mut self.reporter,
-                    );
-                }
                 HillClimbVariant::SteepestAscent => {
                     let now_data = Instant::now();
                     self.genotype
@@ -285,56 +230,6 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
-                    self.fitness.call_for_state_population(
-                        &mut self.state,
-                        &self.genotype,
-                        fitness_thread_local.as_ref(),
-                    );
-                    self.state.update_best_chromosome_from_state_population(
-                        &mut self.genotype,
-                        &self.config,
-                        &mut self.reporter,
-                        &mut self.rng,
-                    );
-                }
-                HillClimbVariant::SteepestAscentSecondary => {
-                    let now_data = Instant::now();
-                    self.genotype
-                        .load_best_genes(self.state.chromosome.as_mut().unwrap());
-                    self.genotype
-                        .chromosome_destructor_truncate(&mut self.state.population.chromosomes, 0);
-                    self.state.add_duration(
-                        StrategyAction::ChromosomeDataDropAndCopy,
-                        now_data.elapsed(),
-                    );
-
-                    self.genotype.fill_neighbouring_population(
-                        self.state.chromosome.as_ref().unwrap(),
-                        &mut self.state.population,
-                        self.state.current_scale_index,
-                        &mut self.rng,
-                    );
-                    let mut secondary_neighbouring_population: Population<_> = Vec::with_capacity(
-                        self.state.population.size() * self.state.population.size(),
-                    )
-                    .into();
-                    self.state
-                        .population
-                        .chromosomes
-                        .iter()
-                        .for_each(|chromosome| {
-                            self.genotype.fill_neighbouring_population(
-                                chromosome,
-                                &mut secondary_neighbouring_population,
-                                self.state.current_scale_index,
-                                &mut self.rng,
-                            );
-                        });
-                    self.state
-                        .population
-                        .chromosomes
-                        .append(&mut secondary_neighbouring_population.chromosomes);
-
                     self.fitness.call_for_state_population(
                         &mut self.state,
                         &self.genotype,

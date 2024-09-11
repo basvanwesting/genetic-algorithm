@@ -229,27 +229,6 @@ fn call_binary_stochastic() {
 }
 
 #[test]
-fn call_binary_stochastic_secondary() {
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(100)
-        .build()
-        .unwrap();
-    let hill_climb = HillClimb::builder()
-        .with_genotype(genotype)
-        .with_variant(HillClimbVariant::StochasticSecondary)
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_target_fitness_score(0)
-        .with_fitness(CountTrue)
-        .with_reporter(HillClimbReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(0));
-}
-
-#[test]
 fn call_binary_steepest_ascent() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
@@ -262,31 +241,6 @@ fn call_binary_steepest_ascent() {
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscent)
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_target_fitness_score(0)
-        .with_fitness(CountTrue)
-        .with_reporter(HillClimbReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(0));
-}
-
-#[test]
-fn call_binary_steepest_ascent_secondary() {
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(50)
-        .build()
-        .unwrap();
-    assert_eq!(
-        genotype.neighbouring_population_size(),
-        BigUint::from(50_u32)
-    );
-    let hill_climb = HillClimb::builder()
-        .with_genotype(genotype)
-        .with_variant(HillClimbVariant::SteepestAscentSecondary)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_fitness(CountTrue)

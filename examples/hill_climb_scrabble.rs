@@ -268,7 +268,7 @@ fn main() {
 
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
-        .with_variant(HillClimbVariant::SteepestAscentSecondary)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(2)
         .with_par_fitness(true)
         .with_fitness(ScrabbleFitness::new(
@@ -282,13 +282,17 @@ fn main() {
         .with_reporter(HillClimbReporterSimple::new(100));
 
     let now = std::time::Instant::now();
-    let hill_climb = hill_climb_builder.call_repeatedly(4).unwrap();
+    let hill_climb = hill_climb_builder.call_repeatedly(100).unwrap();
     let duration = now.elapsed();
     println!("{:?}", duration);
 
     //println!("{}", hill_climb);
 
     if let Some(best_chromosome) = hill_climb.best_chromosome() {
+        println!(
+            "Valid solution with fitness score: {:?}",
+            best_chromosome.fitness_score()
+        );
         let mut fitness = ScrabbleFitness::new(
             words.clone(),
             rows,
