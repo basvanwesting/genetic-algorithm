@@ -28,10 +28,10 @@
   * [v] Note on GPU in performance section
   * [v] Avoid calculate_for_chromosome in SteepesAscent context
   * [v] Fix Reporting
-  * [ ] Extensions benchmark is noisy
-  * [ ] Document GenotypeBuilder, Split for Range types?
+  * [v] Extensions benchmark is noisy, fix it
 
 * [ ] Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)
 * [ ] Chunk parallel iters for less switching?
 * [ ] neigbouring better garantees? Can max stale gen be 1? Check, also check use of ugly loop. Precision really matters here, may be set it?
 * [ ] Move logic of random gene factory inside set_random_genes
+* [ ] Document GenotypeBuilder, Split for Range types?
