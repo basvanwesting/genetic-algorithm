@@ -605,9 +605,13 @@ where
     Uniform<T>: Send + Sync,
 {
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
-        (0..self.genes_size)
-            .map(|_| self.allele_sampler.sample(rng))
-            .collect()
+        if self.seed_genes_list.is_empty() {
+            (0..self.genes_size)
+                .map(|_| self.allele_sampler.sample(rng))
+                .collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
     }
     // FIXME: directly set genes
     fn set_random_genes<R: Rng>(&mut self, chromosome: &mut DynamicMatrixChromosome, rng: &mut R) {

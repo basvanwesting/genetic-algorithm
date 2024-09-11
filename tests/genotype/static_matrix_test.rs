@@ -392,6 +392,47 @@ fn float_neighbouring_population_3_one_sided() {
 }
 
 #[test]
+fn chromosome_constructor_with_seed_genes_list() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = StaticMatrixGenotype::<f32, 4, 4>::builder()
+        .with_genes_size(4)
+        .with_allele_range(0.0..=1.0)
+        .with_seed_genes_list(vec![[0.0, 0.1, 0.2, 0.3], [0.4, 0.5, 0.6, 0.7]])
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let chromosomes = vec![
+        genotype.chromosome_constructor_random(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
+        genotype.chromosome_constructor_random(&mut rng),
+    ];
+    println!("{:#?}", chromosomes);
+
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(&chromosomes[0]).to_vec(),
+        vec![0.4, 0.5, 0.6, 0.7],
+        0.001,
+    ));
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(&chromosomes[1]).to_vec(),
+        vec![0.0, 0.1, 0.2, 0.3],
+        0.001,
+    ));
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(&chromosomes[2]).to_vec(),
+        vec![0.4, 0.5, 0.6, 0.7],
+        0.001,
+    ));
+    assert!(relative_chromosome_eq(
+        genotype.get_genes(&chromosomes[3]).to_vec(),
+        vec![0.0, 0.1, 0.2, 0.3],
+        0.001,
+    ));
+}
+
+#[test]
 fn chromosome_manager() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let mut genotype = StaticMatrixGenotype::<f32, 5, 4>::builder()

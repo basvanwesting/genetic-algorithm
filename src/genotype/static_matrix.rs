@@ -620,7 +620,11 @@ where
     Uniform<T>: Send + Sync,
 {
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> [T; N] {
-        std::array::from_fn(|_| self.allele_sampler.sample(rng))
+        if self.seed_genes_list.is_empty() {
+            std::array::from_fn(|_| self.allele_sampler.sample(rng))
+        } else {
+            *self.seed_genes_list.choose(rng).unwrap()
+        }
     }
     // FIXME: directly set genes
     fn set_random_genes<R: Rng>(&mut self, chromosome: &mut StaticMatrixChromosome, rng: &mut R) {
