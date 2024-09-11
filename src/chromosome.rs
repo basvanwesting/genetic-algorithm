@@ -66,23 +66,23 @@ pub trait GenesPointer: Chromosome {
 pub type GenesKey = u64;
 
 pub trait ChromosomeManager<G: Genotype> {
-    /// mandatory, random genes unless seed genes are provided
+    /// Mandatory, random genes unless seed genes are provided
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
-    /// mandatory
+    /// Mandatory
     fn copy_genes(&mut self, source: &G::Chromosome, target: &mut G::Chromosome);
-    /// mandatory
+    /// Mandatory
     fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R);
-    /// provided, disable recycling by default, override when using recycling
+    /// Provided, disable recycling by default, override when using recycling
     fn chromosome_recycling(&self) -> bool {
         false
     }
-    /// provided, override if recycling bin needs initialization
+    /// Provided, override if recycling bin needs initialization
     fn chromosomes_init(&mut self) {}
-    /// optional, override if using recycling
+    /// Optional, override if using recycling
     fn chromosome_bin_push(&mut self, mut _chromosome: G::Chromosome) {}
-    /// optional, override if using recycling
-    /// take from the recycling bin, or created new chromosome with capacities set
-    /// raise on empty bin if fixed capacity is exceeded
+    /// Optional, override if using recycling.
+    /// Take from the recycling bin or create new chromosome with capacities set.
+    /// Raise on empty bin here if fixed number of chromosomes is used
     fn chromosome_bin_find_or_create(&mut self) -> G::Chromosome;
 
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {

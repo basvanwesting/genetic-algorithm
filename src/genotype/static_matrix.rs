@@ -203,25 +203,6 @@ where
         }
     }
 
-    // fn linear_id(&self, id: usize, index: usize) -> usize {
-    //     id * N + index
-    // }
-    // pub fn linear_range<B: RangeBounds<usize>>(&self, id: usize, range: B) -> Range<usize> {
-    //     let min_index = match range.start_bound() {
-    //         Bound::Unbounded => 0,
-    //         Bound::Included(&i) => i,
-    //         Bound::Excluded(&i) => i + 1,
-    //     }
-    //     .max(0);
-    //     let max_index = match range.end_bound() {
-    //         Bound::Unbounded => self.genes_size,
-    //         Bound::Included(&i) => i + 1,
-    //         Bound::Excluded(&i) => i,
-    //     }
-    //     .min(N);
-    //     (id * N + min_index)..(id * N + max_index)
-    // }
-
     /// returns a slice of genes_size <= N
     pub fn get_genes(&self, chromosome: &StaticMatrixChromosome) -> &[T] {
         self.get_genes_by_id(chromosome.row_id)

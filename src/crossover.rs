@@ -23,10 +23,8 @@ pub use self::wrapper::Wrapper as CrossoverWrapper;
 
 use crate::genotype::Genotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use crate::strategy::{StrategyAction, StrategyState};
 use rand::Rng;
 use std::cmp::Ordering;
-use std::time::Instant;
 
 pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(

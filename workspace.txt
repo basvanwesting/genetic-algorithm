@@ -24,7 +24,6 @@
   * [v] Remove StrategyAction::ChromosomeDataDropAndCopy
   * [ ] Store staticMatrixGenotype on heap using Box?
   * [ ] Enable chromosome_recycling always, and remove checks
-  * [ ] Move logic of random gene factory inside set_random_genes
   * [ ] Fix Reporting
   * [ ] document Fitness impl levels very extensively
   * [ ] Note on GPU in performance section
@@ -34,3 +33,4 @@
 * [ ] Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)
 * [ ] Chunk parallel iters for less switching?
 * [ ] neigbouring better garantees? Can max stale gen be 1? Check, also check use of ugly loop. Precision really matters here, may be set it?
+* [ ] Move logic of random gene factory inside set_random_genes

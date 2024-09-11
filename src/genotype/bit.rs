@@ -302,9 +302,6 @@ impl PermutableGenotype for Bit {
 }
 
 impl ChromosomeManager<Self> for Bit {
-    // fn chromosome_constructor<R: Rng>(&mut self, rng: &mut R) -> BitChromosome {
-    //     BitChromosome::new(self.random_genes_factory(rng))
-    // }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> FixedBitSet {
         if self.seed_genes_list.is_empty() {
             FixedBitSet::with_capacity_and_blocks(self.genes_size, rng.sample_iter(Standard))
