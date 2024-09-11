@@ -44,33 +44,48 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// # User implementation
 ///
 /// There are two possible levels to implement. At least one level needs to be implemented:
-/// * [calculate_for_chromosome](Fitness::calculate_for_chromosome): The standard situation. For
-/// [Genotype] with [GenesPointer](crate::chromosome::GenesPointer) chromosomes. These chromosomes
-/// have a `genes` field, which can read for the calculations. This applies to all genotypes,
-/// except for the ones in the next bullet.
-/// * [call_for_population](Fitness::call_for_population): The possibly GPU accelerated situation.
-/// For [Genotype] with [GenesPointer](crate::chromosome::GenesPointer) chromosomes. These
-/// chromosomes don't have a `genes` field to read, but the provided [Genotype] has a NxM `data`
-/// field with all the data, which can be calculated in one go. Both
-/// [Evolve](crate::strategy::evolve::Evolve) and
-/// [HillClimb](crate::strategy::hill_climb::HillClimb)-[SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)
-/// call this method. This applies to
-/// [DynamicMatrixGenotype](crate::genotype::DynamicMatrixGenotype) and
-/// [StaticMatrixGenotype](crate::genotype::StaticMatrixGenotype).
+/// * [calculate_for_chromosome](Fitness::calculate_for_chromosome): The standard situation
+/// * [call_for_population](Fitness::call_for_population): Normally calls
+///   [calculate_for_chromosome](Fitness::calculate_for_chromosome) for each chromosome in the
+///   population (in parallel if using with_par_fitness). So it doesn't have to be implemented by
+///   default, but it is a possible point to intercept with a custom implementation where the whole
+///   population data is available.
 ///
-/// You can implement [calculate_for_chromosome](Fitness::calculate_for_chromosome) for
-/// [GenesPointer](crate::chromosome::GenesPointer) chromosomes. The [Genotype] is passed as a
-/// reference for genes lookup (e.g. using
-/// [genotype.get_genes(&chromosome)](crate::genotype::DynamicMatrixGenotype::get_genes)). This is sometimes useful
-/// when testing out different approaches next to [Evolve](crate::strategy::evolve::Evolve) (e.g.
-/// [HillClimb](crate::strategy::hill_climb::HillClimb)-[Stochastic](crate::strategy::hill_climb::HillClimbVariant::Stochastic))
+/// The strategies use different levels of calls in [Fitness]. So you cannot always just intercept at
+/// [call_for_population](Fitness::call_for_population) and be sure
+/// [calculate_for_chromosome](Fitness::calculate_for_chromosome) will not be called:
+/// * [Evolve](crate::stategy::evolve::Evolve) => [call_for_population](Fitness::call_for_population)
+/// * [Permutate](crate::stategy::permutate::Permutate) => [calculate_for_chromosome](Fitness::calculate_for_chromosome)
+/// * [HillClimb](crate::stategy::hill_climb::HillClimb):
+///   * [Stochastic](crate::strategy::hill_climb::HillClimbVariant::Stochastic) => [calculate_for_chromosome](Fitness::calculate_for_chromosome)
+///   * [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent) => [call_for_population](Fitness::call_for_population)
+///
+/// Implement:
+/// * [calculate_for_chromosome](Fitness::calculate_for_chromosome) when:
+///   * Normal situation, suits all strategies. Standard [Genotype]s have
+///     [GenesOwner](crate::chromosome::GenesOwner) chromosomes. These chromosomes have a `genes`
+///     field, which can read for the calculations.
+/// * [call_for_population](Fitness::call_for_population) when:
+///   * A possibly GPU accelerated situation for [Genotype] with
+///     [GenesPointer](crate::chromosome::GenesPointer) chromosomes. These chromosomes don't have a
+///     `genes` field to read, but the provided [Genotype] has a contiguous memory `data` field with
+///     all the data, which can be calculated in one go:
+///     * [DynamicMatrixGenotype](crate::genotype::DynamicMatrixGenotype)
+///     * [StaticMatrixGenotype](crate::genotype::StaticMatrixGenotype)
+///
+/// Additionally, you can implement [calculate_for_chromosome](Fitness::calculate_for_chromosome)
+/// for [GenesPointer](crate::chromosome::GenesPointer) chromosomes. The [Genotype] is passed as a
+/// reference for genes lookup (using
+/// [genotype.get_genes(&chromosome)](crate::genotype::DynamicMatrixGenotype::get_genes)). This is
+/// sometimes useful when testing out different strategies with different call levels. Problably no
+/// longer needed once settled on a strategy.
 ///
 /// # Panics
 ///
 /// [calculate_for_chromosome](Fitness::calculate_for_chromosome) has a default implementation which panics, because it doesn't need to
 /// be implemented for genotypes which implement [call_for_population](Fitness::call_for_population). Will panic if reached and not implemented.
 ///
-/// # Example (calculate_for_chromosome):
+/// # Example (calculate_for_chromosome, standard GenesOwner chromosome):
 /// ```rust
 /// use genetic_algorithm::fitness::prelude::*;
 ///
@@ -88,7 +103,7 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// }
 /// ```
 ///
-/// # Example (call_for_population):
+/// # Example (call_for_population, matrix calculation, GenesPointer chromosome):
 /// ```rust
 /// use genetic_algorithm::fitness::prelude::*;
 /// use genetic_algorithm::strategy::evolve::prelude::*;
@@ -121,6 +136,27 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///     }
 /// }
 /// ```
+///
+/// # Example (calculate_for_chromosome, matrix fall back, GenesPointer chromosome):
+/// *Note: For exploration purposes when switching stratgies a lot, not really used in final implementation*
+/// ```rust
+/// use genetic_algorithm::fitness::prelude::*;
+/// use genetic_algorithm::strategy::hill_climb::prelude::*;
+///
+/// #[derive(Clone, Debug)]
+/// pub struct SumStaticMatrixGenes;
+/// impl Fitness for SumStaticMatrixGenes {
+///     type Genotype = StaticMatrixGenotype<u16, 10, 100>;
+///     fn calculate_for_chromosome(
+///         &mut self,
+///         chromosome: &FitnessChromosome<Self>,
+///         genotype: &Self::Genotype,
+///     ) -> Option<FitnessValue> {
+///         let score = genotype.get_genes(chromosome).iter().sum::<u16>();
+///         Some(score as FitnessValue)
+///     }
+/// }
+///
 pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: Genotype;
     fn call_for_state_population<S: StrategyState<Self::Genotype>>(
@@ -144,10 +180,6 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             state.add_duration(StrategyAction::Fitness, now.elapsed());
         }
     }
-    /// Implement for Genotypes with [GenesPointer](crate::chromosome::GenesPointer) chromosomes:
-    /// [DynamicMatrixGenotype](crate::genotype::DynamicMatrixGenotype) and
-    /// [StaticMatrixGenotype](crate::genotype::StaticMatrixGenotype)
-    ///
     /// Pass thread_local for external control of fitness caching in multithreading
     fn call_for_population(
         &mut self,
@@ -185,9 +217,6 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     ) {
         chromosome.set_fitness_score(self.calculate_for_chromosome(chromosome, genotype));
     }
-    /// Implement for [Genotype] with [GenesOwner](crate::chromosome::GenesOwner) chromosomes: all
-    /// genotypes except [DynamicMatrixGenotype](crate::genotype::DynamicMatrixGenotype) and
-    /// [StaticMatrixGenotype](crate::genotype::StaticMatrixGenotype).
     fn calculate_for_chromosome(
         &mut self,
         _chromosome: &FitnessChromosome<Self>,

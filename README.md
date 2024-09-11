@@ -152,8 +152,12 @@ For the Evolve strategy:
 There are two genotypes where Genes (N) and Population (M) are a stored in single contiguous
 memory range of Alleles (T) with length N*M on the heap. A pointer to this data can be taken to
 calculate the whole population at once. These are:
-* [DynamicMatrixGenotype](genotype::DynamicMatrixGenotype)
-* [StaticMatrixGenotype](genotype::StaticMatrixGenotype)
+* DynamicMatrixGenotype
+* StaticMatrixGenotype
+
+Useful in the following strategies where a whole population is calculated:
+* Evolve
+* HillClimb-SteepestAscent
 
 Possibly a GPU compatible memory layout still needs to be added. The current implementation
 just provides all the basic building blocks to implement this. Please open a github issue for

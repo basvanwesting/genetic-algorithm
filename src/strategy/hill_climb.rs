@@ -285,8 +285,14 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         self.state.chromosome = Some(self.genotype.chromosome_constructor_random(&mut self.rng));
         self.state.add_duration(StrategyAction::Init, now.elapsed());
 
-        self.fitness
-            .call_for_state_chromosome(&mut self.state, &self.genotype);
+        match self.config.variant {
+            HillClimbVariant::Stochastic => self
+                .fitness
+                .call_for_state_chromosome(&mut self.state, &self.genotype),
+            HillClimbVariant::SteepestAscent => {
+                // skip so calculate_for_chromosome does not have to be implemented on Fitness
+            }
+        }
 
         // best by definition
         self.state.best_generation = self.state.current_generation;

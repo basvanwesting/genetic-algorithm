@@ -256,7 +256,7 @@ fn call_binary_steepest_ascent() {
 #[derive(Clone, Debug)]
 pub struct SumStaticMatrixGenes;
 impl Fitness for SumStaticMatrixGenes {
-    type Genotype = StaticMatrixGenotype<i16, 20, 41>;
+    type Genotype = StaticMatrixGenotype<i16, 20, { 40 + 1 }>;
     fn call_for_population(
         &mut self,
         population: &mut Population<StaticMatrixChromosome>,
@@ -268,19 +268,11 @@ impl Fitness for SumStaticMatrixGenes {
             chromosome.fitness_score = Some(score as FitnessValue);
         }
     }
-    fn calculate_for_chromosome(
-        &mut self,
-        chromosome: &FitnessChromosome<Self>,
-        genotype: &Self::Genotype,
-    ) -> Option<FitnessValue> {
-        let score = genotype.get_genes(chromosome).iter().sum::<i16>();
-        Some(score as FitnessValue)
-    }
 }
 
 #[test]
 fn call_static_matrix_steepest_ascent() {
-    let genotype = StaticMatrixGenotype::<i16, 20, 41>::builder()
+    let genotype = StaticMatrixGenotype::<i16, 20, { 40 + 1 }>::builder()
         .with_genes_size(20)
         .with_allele_range(0..=10)
         .with_allele_mutation_range(-1..=1)

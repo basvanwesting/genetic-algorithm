@@ -137,6 +137,10 @@
 //! * [DynamicMatrixGenotype](genotype::DynamicMatrixGenotype)
 //! * [StaticMatrixGenotype](genotype::StaticMatrixGenotype)
 //!
+//! Useful in the following strategies where a whole population is calculated:
+//! * [Evolve](crate::stategy::evolve::Evolve)
+//! * [HillClimb](crate::strategy::hill_climb::HillClimb)-[SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)
+//!
 //! Possibly a GPU compatible memory layout still needs to be added. The current implementation
 //! just provides all the basic building blocks to implement this. Please open a
 //! [github](https://github.com/basvanwesting/genetic-algorithm) issue for further support.
