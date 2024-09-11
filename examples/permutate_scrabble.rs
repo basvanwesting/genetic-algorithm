@@ -259,39 +259,6 @@ impl PermutateReporter for CustomReporter {
     }
 }
 
-#[derive(Clone)]
-pub struct CustomLogReporter(usize);
-impl PermutateReporter for CustomLogReporter {
-    type Genotype = MultiListGenotype<WordPosition>;
-
-    fn on_new_generation(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-        if state.current_generation() % self.0 == 0 {
-            log::info!(
-                "logger - current_generation: {}, best_fitness_score: {:?}",
-                state.current_generation(),
-                state.best_fitness_score(),
-            );
-        }
-        log::debug!(
-            "logger - current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
-            state.current_generation(),
-            state.best_generation(),
-            state.best_fitness_score(),
-        );
-        log::trace!(
-            "logger - current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
-            state.current_generation(),
-            state.best_generation(),
-            state.best_fitness_score(),
-        );
-    }
-}
-
 fn main() {
     env_logger::init();
 
@@ -348,7 +315,6 @@ fn main() {
         // .with_reporter(PermutateReporterSimple::new(100_000))
         // .with_reporter(PermutateReporterLog::new())
         .with_reporter(CustomReporter(100_000))
-        // .with_reporter(CustomLogReporter(100_000))
         .build()
         .unwrap();
 

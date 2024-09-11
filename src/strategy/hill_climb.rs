@@ -20,6 +20,7 @@ use std::fmt;
 use std::time::{Duration, Instant};
 use thread_local::ThreadLocal;
 
+pub use self::reporter::Duration as HillClimbReporterDuration;
 pub use self::reporter::Log as HillClimbReporterLog;
 pub use self::reporter::Noop as HillClimbReporterNoop;
 pub use self::reporter::Reporter as HillClimbReporter;
@@ -70,7 +71,7 @@ pub enum HillClimbVariant {
 ///     * Standard max_stale_generations ending condition
 ///
 /// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
-/// [HillClimbReporter] (e.g. [HillClimbReporterNoop], [HillClimbReporterSimple]). But you are encouraged to
+/// [HillClimbReporter] (e.g. [HillClimbReporterDuration], [HillClimbReporterSimple]). But you are encouraged to
 /// roll your own, see [HillClimbReporter].
 ///
 /// From the [HillClimbBuilder] level, there are several calling mechanisms:

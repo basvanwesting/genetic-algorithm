@@ -54,9 +54,9 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// The strategies use different levels of calls in [Fitness]. So you cannot always just intercept at
 /// [call_for_population](Fitness::call_for_population) and be sure
 /// [calculate_for_chromosome](Fitness::calculate_for_chromosome) will not be called:
-/// * [Evolve](crate::stategy::evolve::Evolve) => [call_for_population](Fitness::call_for_population)
-/// * [Permutate](crate::stategy::permutate::Permutate) => [calculate_for_chromosome](Fitness::calculate_for_chromosome)
-/// * [HillClimb](crate::stategy::hill_climb::HillClimb):
+/// * [Evolve](crate::strategy::evolve::Evolve) => [call_for_population](Fitness::call_for_population)
+/// * [Permutate](crate::strategy::permutate::Permutate) => [calculate_for_chromosome](Fitness::calculate_for_chromosome)
+/// * [HillClimb](crate::strategy::hill_climb::HillClimb):
 ///   * [Stochastic](crate::strategy::hill_climb::HillClimbVariant::Stochastic) => [calculate_for_chromosome](Fitness::calculate_for_chromosome)
 ///   * [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent) => [call_for_population](Fitness::call_for_population)
 ///

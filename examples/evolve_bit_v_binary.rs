@@ -4,47 +4,6 @@ use genetic_algorithm::strategy::evolve::prelude::*;
 const GENES_SIZE: usize = 10_000;
 const POPULATION_SIZE: usize = 100;
 
-#[derive(Clone)]
-pub struct CustomBitReporter;
-impl EvolveReporter for CustomBitReporter {
-    type Genotype = BitGenotype;
-
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-        println!("finish - iteration: {}", state.current_iteration());
-        STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations.get(action) {
-                println!("  {:?}: {:?}", action, duration,);
-            }
-        });
-        println!("  Total: {:?}", &state.total_duration());
-    }
-}
-#[derive(Clone)]
-pub struct CustomBinaryReporter;
-impl EvolveReporter for CustomBinaryReporter {
-    type Genotype = BinaryGenotype;
-
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-        println!("finish - iteration: {}", state.current_iteration());
-        STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations.get(action) {
-                println!("  {:?}: {:?}", action, duration,);
-            }
-        });
-        println!("  Total: {:?}", &state.total_duration());
-    }
-}
-
 fn main() {
     env_logger::init();
 
@@ -63,7 +22,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverMultiPoint::new(10, true))
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(CustomBitReporter)
+        .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();
     // println!("{}", evolve);
@@ -92,7 +51,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverMultiPoint::new(10, true))
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(CustomBinaryReporter)
+        .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();
     // println!("{}", evolve);

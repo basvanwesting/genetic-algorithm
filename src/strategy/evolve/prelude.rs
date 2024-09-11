@@ -35,8 +35,8 @@ pub use crate::population::Population;
 pub use crate::select::{SelectElite, SelectTournament, SelectWrapper};
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{
-    Evolve, EvolveBuilder, EvolveConfig, EvolveReporter, EvolveReporterLog, EvolveReporterNoop,
-    EvolveReporterSimple, EvolveState, TryFromEvolveBuilderError,
+    Evolve, EvolveBuilder, EvolveConfig, EvolveReporter, EvolveReporterDuration, EvolveReporterLog,
+    EvolveReporterNoop, EvolveReporterSimple, EvolveState, TryFromEvolveBuilderError,
 };
 #[doc(no_inline)]
 pub use crate::strategy::{Strategy, StrategyState, STRATEGY_ACTIONS};

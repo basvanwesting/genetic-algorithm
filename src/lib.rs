@@ -138,7 +138,7 @@
 //! * [StaticMatrixGenotype](genotype::StaticMatrixGenotype)
 //!
 //! Useful in the following strategies where a whole population is calculated:
-//! * [Evolve](crate::stategy::evolve::Evolve)
+//! * [Evolve](crate::strategy::evolve::Evolve)
 //! * [HillClimb](crate::strategy::hill_climb::HillClimb)-[SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)
 //!
 //! Possibly a GPU compatible memory layout still needs to be added. The current implementation

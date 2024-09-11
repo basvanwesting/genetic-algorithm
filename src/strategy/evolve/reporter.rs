@@ -134,6 +134,50 @@ impl<G: Genotype> Reporter for Noop<G> {
     type Genotype = G;
 }
 
+/// A Duration reporter generic over Genotype.
+#[derive(Clone)]
+pub struct Duration<G: Genotype> {
+    _phantom: PhantomData<G>,
+}
+impl<G: Genotype> Default for Duration<G> {
+    fn default() -> Self {
+        Self {
+            _phantom: PhantomData,
+        }
+    }
+}
+impl<G: Genotype> Duration<G> {
+    pub fn new() -> Self {
+        Self::default()
+    }
+}
+impl<G: Genotype> Reporter for Duration<G> {
+    type Genotype = G;
+
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+        println!("start - iteration: {}", state.current_iteration());
+    }
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+        println!("finish - iteration: {}", state.current_iteration());
+        STRATEGY_ACTIONS.iter().for_each(|action| {
+            if let Some(duration) = state.durations.get(action) {
+                println!("  {:?}: {:?}", action, duration,);
+            }
+        });
+        println!("  Total: {:?}", &state.total_duration());
+    }
+}
+
 /// A Simple reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]

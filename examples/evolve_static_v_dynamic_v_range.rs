@@ -84,68 +84,6 @@ impl Fitness for RangeDistanceTo {
     }
 }
 
-#[derive(Clone)]
-pub struct CustomStaticMatrixReporter;
-impl EvolveReporter for CustomStaticMatrixReporter {
-    type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, POPULATION_SIZE>;
-
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-        println!("finish - iteration: {}", state.current_iteration());
-        STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations.get(action) {
-                println!("  {:?}: {:?}", action, duration,);
-            }
-        });
-        println!("  Total: {:?}", &state.total_duration());
-    }
-}
-#[derive(Clone)]
-pub struct CustomDynamicMatrixReporter;
-impl EvolveReporter for CustomDynamicMatrixReporter {
-    type Genotype = DynamicMatrixGenotype;
-
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-        println!("finish - iteration: {}", state.current_iteration());
-        STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations.get(action) {
-                println!("  {:?}: {:?}", action, duration,);
-            }
-        });
-        println!("  Total: {:?}", &state.total_duration());
-    }
-}
-
-#[derive(Clone)]
-pub struct CustomRangeReporter;
-impl EvolveReporter for CustomRangeReporter {
-    type Genotype = RangeGenotype;
-
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-        println!("finish - iteration: {}", state.current_iteration());
-        STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations.get(action) {
-                println!("  {:?}: {:?}", action, duration,);
-            }
-        });
-        println!("  Total: {:?}", &state.total_duration());
-    }
-}
-
 fn main() {
     env_logger::init();
 
@@ -177,7 +115,7 @@ fn main() {
         // .with_crossover(CrossoverMultiPoint::new(10, true))
         .with_crossover(CrossoverUniform::new())
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(CustomStaticMatrixReporter)
+        .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();
     // println!("{}", evolve);
@@ -218,7 +156,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverUniform::new())
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(CustomDynamicMatrixReporter)
+        .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();
     // println!("{}", evolve);
@@ -259,7 +197,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverUniform::new())
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(CustomRangeReporter)
+        .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();
     // println!("{}", evolve);

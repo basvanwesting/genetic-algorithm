@@ -19,6 +19,7 @@ use std::fmt;
 use std::sync::mpsc::sync_channel;
 use std::time::{Duration, Instant};
 
+pub use self::reporter::Duration as PermutateReporterDuration;
 pub use self::reporter::Log as PermutateReporterLog;
 pub use self::reporter::Noop as PermutateReporterNoop;
 pub use self::reporter::Reporter as PermutateReporter;
@@ -34,7 +35,7 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 /// will take forever...
 ///
 /// There are reporting hooks in the loop receiving the [PermutateState], which can by handled by an
-/// [PermutateReporter] (e.g. [PermutateReporterNoop], [PermutateReporterSimple]). But you are encouraged to
+/// [PermutateReporter] (e.g. [PermutateReporterDuration], [PermutateReporterSimple]). But you are encouraged to
 /// roll your own, see [PermutateReporter].
 ///
 /// See [PermutateBuilder] for initialization options.

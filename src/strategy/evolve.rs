@@ -23,6 +23,7 @@ use std::fmt;
 use std::time::{Duration, Instant};
 use thread_local::ThreadLocal;
 
+pub use self::reporter::Duration as EvolveReporterDuration;
 pub use self::reporter::Log as EvolveReporterLog;
 pub use self::reporter::Noop as EvolveReporterNoop;
 pub use self::reporter::Reporter as EvolveReporter;
@@ -61,7 +62,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     * Standard max_stale_generations ending condition
 ///
 /// There are reporting hooks in the loop receiving the [EvolveState], which can by handled by an
-/// [EvolveReporter] (e.g. [EvolveReporterNoop], [EvolveReporterSimple]). But you are encouraged to
+/// [EvolveReporter] (e.g. [EvolveReporterDuration], [EvolveReporterSimple]). But you are encouraged to
 /// roll your own, see [EvolveReporter].
 ///
 /// From the [EvolveBuilder] level, there are several calling mechanisms:
