@@ -107,14 +107,16 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
     fn call(&mut self) {
         let now = Instant::now();
         self.init();
-        self.reporter.on_start(&self.state, &self.config);
+        self.reporter
+            .on_start(&self.genotype, &self.state, &self.config);
         if self.config.par_fitness {
             self.call_parallel()
         } else {
             self.call_sequential()
         }
         self.state.close_duration(now.elapsed());
-        self.reporter.on_finish(&self.state, &self.config);
+        self.reporter
+            .on_finish(&self.genotype, &self.state, &self.config);
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -172,7 +174,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
             .save_best_genes(self.state.chromosome.as_ref().unwrap());
 
         self.reporter
-            .on_new_best_chromosome(&self.state, &self.config);
+            .on_new_best_chromosome(&self.genotype, &self.state, &self.config);
     }
     fn call_sequential(&mut self) {
         self.genotype
@@ -188,7 +190,8 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
                     &self.config,
                     &mut self.reporter,
                 );
-                self.reporter.on_new_generation(&self.state, &self.config);
+                self.reporter
+                    .on_new_generation(&self.genotype, &self.state, &self.config);
             });
     }
     fn call_parallel(&mut self) {
@@ -289,12 +292,12 @@ impl<G: PermutableGenotype> PermutateState<G> {
                     self.best_generation = self.current_generation;
                     self.best_fitness_score = chromosome.fitness_score();
                     genotype.save_best_genes(chromosome);
-                    reporter.on_new_best_chromosome(self, config);
+                    reporter.on_new_best_chromosome(genotype, self, config);
                     self.reset_stale_generations();
                 }
                 (true, false) => {
                     genotype.save_best_genes(chromosome);
-                    reporter.on_new_best_chromosome_equal_fitness(self, config);
+                    reporter.on_new_best_chromosome_equal_fitness(genotype, self, config);
                     self.increment_stale_generations()
                 }
                 _ => self.increment_stale_generations(),

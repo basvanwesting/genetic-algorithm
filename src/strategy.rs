@@ -138,13 +138,44 @@ pub trait StrategyReporter: Clone + Send + Sync {
     type State: StrategyState<Self::Genotype>;
     type Config: StrategyConfig;
 
-    fn on_init(&mut self, _state: &Self::State, _config: &Self::Config) {}
-    fn on_start(&mut self, _state: &Self::State, _config: &Self::Config) {}
-    fn on_finish(&mut self, _state: &Self::State, _config: &Self::Config) {}
-    fn on_new_generation(&mut self, _state: &Self::State, _config: &Self::Config) {}
-    fn on_new_best_chromosome(&mut self, _state: &Self::State, _config: &Self::Config) {}
+    fn on_init(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &Self::State,
+        _config: &Self::Config,
+    ) {
+    }
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &Self::State,
+        _config: &Self::Config,
+    ) {
+    }
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &Self::State,
+        _config: &Self::Config,
+    ) {
+    }
+    fn on_new_generation(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &Self::State,
+        _config: &Self::Config,
+    ) {
+    }
+    fn on_new_best_chromosome(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &Self::State,
+        _config: &Self::Config,
+    ) {
+    }
     fn on_new_best_chromosome_equal_fitness(
         &mut self,
+        _genotype: &Self::Genotype,
         _state: &Self::State,
         _config: &Self::Config,
     ) {

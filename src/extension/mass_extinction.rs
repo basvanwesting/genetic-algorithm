@@ -32,6 +32,7 @@ impl Extension for MassExtinction {
         {
             reporter.on_extension_event(
                 ExtensionEvent::MassExtinction("".to_string()),
+                genotype,
                 state,
                 config,
             );

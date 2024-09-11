@@ -19,7 +19,7 @@ use std::marker::PhantomData;
 /// impl HillClimbReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
+///     fn on_new_generation(&mut self, _genotype: &Self::Genotype, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}",
@@ -31,7 +31,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
+///     fn on_new_best_chromosome(&mut self, _genotype: &Self::Genotype, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}",
 ///             state.current_generation(),
@@ -41,7 +41,7 @@ use std::marker::PhantomData;
 ///         );
 ///     }
 ///
-///     fn on_finish(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
+///     fn on_finish(&mut self, _genotype: &Self::Genotype, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
 ///         println!("finish - iteration: {}", state.current_iteration());
 ///         STRATEGY_ACTIONS.iter().for_each(|action| {
 ///             if let Some(duration) = state.durations.get(action) {
@@ -64,10 +64,23 @@ pub trait Reporter: Clone + Send + Sync {
         _config: &HillClimbConfig,
     ) {
     }
-    fn on_start(&mut self, _state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {}
-    fn on_finish(&mut self, _state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {}
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
+    }
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
+    }
     fn on_new_generation(
         &mut self,
+        _genotype: &Self::Genotype,
         _state: &HillClimbState<Self::Genotype>,
         _config: &HillClimbConfig,
     ) {
@@ -75,6 +88,7 @@ pub trait Reporter: Clone + Send + Sync {
     /// used to report on true improvement (new best chromosome with improved fitness)
     fn on_new_best_chromosome(
         &mut self,
+        _genotype: &Self::Genotype,
         _state: &HillClimbState<Self::Genotype>,
         _config: &HillClimbConfig,
     ) {
@@ -82,6 +96,7 @@ pub trait Reporter: Clone + Send + Sync {
     /// used to report on sideways move (new best chromosome with equal fitness)
     fn on_new_best_chromosome_equal_fitness(
         &mut self,
+        _genotype: &Self::Genotype,
         _state: &HillClimbState<Self::Genotype>,
         _config: &HillClimbConfig,
     ) {
@@ -155,11 +170,21 @@ impl<G: IncrementalGenotype> Reporter for Simple<G> {
             .iter()
             .for_each(|genes| println!("init - seed_genes: {:?}", genes));
     }
-    fn on_start(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
         println!("start - iteration: {}", state.current_iteration());
     }
 
-    fn on_finish(&mut self, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &HillClimbState<Self::Genotype>,
+        _config: &HillClimbConfig,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations.get(action) {
@@ -171,6 +196,7 @@ impl<G: IncrementalGenotype> Reporter for Simple<G> {
 
     fn on_new_generation(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &HillClimbState<Self::Genotype>,
         _config: &HillClimbConfig,
     ) {
@@ -187,6 +213,7 @@ impl<G: IncrementalGenotype> Reporter for Simple<G> {
 
     fn on_new_best_chromosome(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &HillClimbState<Self::Genotype>,
         _config: &HillClimbConfig,
     ) {
@@ -206,6 +233,7 @@ impl<G: IncrementalGenotype> Reporter for Simple<G> {
 
     fn on_new_best_chromosome_equal_fitness(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &HillClimbState<Self::Genotype>,
         _config: &HillClimbConfig,
     ) {
@@ -244,6 +272,7 @@ impl<G: IncrementalGenotype> Reporter for Log<G> {
 
     fn on_new_generation(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &HillClimbState<Self::Genotype>,
         _config: &HillClimbConfig,
     ) {

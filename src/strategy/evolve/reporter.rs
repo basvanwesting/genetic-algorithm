@@ -18,7 +18,7 @@ use std::marker::PhantomData;
 /// impl EvolveReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+///     fn on_new_generation(&mut self, _genotype: &Self::Genotype, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {}, current_population_size: {}",
@@ -32,7 +32,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+///     fn on_new_best_chromosome(&mut self, _genotype: &Self::Genotype, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, population_size: {}",
 ///             state.current_generation(),
@@ -42,7 +42,7 @@ use std::marker::PhantomData;
 ///         );
 ///     }
 ///
-///     fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+///     fn on_finish(&mut self, _genotype: &Self::Genotype, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
 ///         println!("finish - iteration: {}", state.current_iteration());
 ///         STRATEGY_ACTIONS.iter().for_each(|action| {
 ///             if let Some(duration) = state.durations.get(action) {
@@ -64,17 +64,37 @@ pub trait Reporter: Clone + Send + Sync {
         _config: &EvolveConfig,
     ) {
     }
-    fn on_start(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
-    fn on_finish(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
-    fn on_new_generation(&mut self, _state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {}
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+    }
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+    }
+    fn on_new_generation(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+    }
     fn on_new_best_chromosome(
         &mut self,
+        _genotype: &Self::Genotype,
         _state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {
     }
     fn on_new_best_chromosome_equal_fitness(
         &mut self,
+        _genotype: &Self::Genotype,
         _state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {
@@ -82,6 +102,7 @@ pub trait Reporter: Clone + Send + Sync {
     fn on_extension_event(
         &mut self,
         _event: ExtensionEvent,
+        _genotype: &Self::Genotype,
         _state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {
@@ -89,6 +110,7 @@ pub trait Reporter: Clone + Send + Sync {
     fn on_mutate_event(
         &mut self,
         _event: MutateEvent,
+        _genotype: &Self::Genotype,
         _state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {
@@ -174,11 +196,21 @@ impl<G: Genotype> Reporter for Simple<G> {
             .iter()
             .for_each(|genes| println!("init - seed_genes: {:?}", genes));
     }
-    fn on_start(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         println!("start - iteration: {}", state.current_iteration());
     }
 
-    fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations.get(action) {
@@ -188,7 +220,12 @@ impl<G: Genotype> Reporter for Simple<G> {
         println!("  Total: {:?}", &state.total_duration());
     }
 
-    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, config: &EvolveConfig) {
+    fn on_new_generation(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        config: &EvolveConfig,
+    ) {
         if state.current_generation() % self.period == 0 {
             let width = config.target_population_size.to_string().len();
             println!(
@@ -208,6 +245,7 @@ impl<G: Genotype> Reporter for Simple<G> {
 
     fn on_new_best_chromosome(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {
@@ -229,6 +267,7 @@ impl<G: Genotype> Reporter for Simple<G> {
     fn on_extension_event(
         &mut self,
         event: ExtensionEvent,
+        _genotype: &Self::Genotype,
         state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {
@@ -263,6 +302,7 @@ impl<G: Genotype> Reporter for Simple<G> {
     fn on_mutate_event(
         &mut self,
         event: MutateEvent,
+        _genotype: &Self::Genotype,
         _state: &EvolveState<Self::Genotype>,
         _config: &EvolveConfig,
     ) {
@@ -293,7 +333,12 @@ impl<G: Genotype> Log<G> {
 impl<G: Genotype> Reporter for Log<G> {
     type Genotype = G;
 
-    fn on_new_generation(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_new_generation(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         log::debug!(
             "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/cardinality): {:?} / {} / {:?} / {:.0} / {:.0} / {}",
             state.current_generation(),

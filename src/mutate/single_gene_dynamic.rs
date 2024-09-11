@@ -41,6 +41,7 @@ impl Mutate for SingleGeneDynamic {
                 "set to {:0.3}",
                 self.mutation_probability
             )),
+            genotype,
             state,
             config,
         );

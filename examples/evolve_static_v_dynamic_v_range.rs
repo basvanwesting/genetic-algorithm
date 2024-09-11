@@ -89,7 +89,12 @@ pub struct CustomStaticMatrixReporter;
 impl EvolveReporter for CustomStaticMatrixReporter {
     type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, POPULATION_SIZE>;
 
-    fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations.get(action) {
@@ -104,7 +109,12 @@ pub struct CustomDynamicMatrixReporter;
 impl EvolveReporter for CustomDynamicMatrixReporter {
     type Genotype = DynamicMatrixGenotype;
 
-    fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations.get(action) {
@@ -120,7 +130,12 @@ pub struct CustomRangeReporter;
 impl EvolveReporter for CustomRangeReporter {
     type Genotype = RangeGenotype;
 
-    fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations.get(action) {

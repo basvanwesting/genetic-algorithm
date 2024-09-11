@@ -51,6 +51,7 @@ impl Mutate for MultiGeneDynamic {
                 "set to {:0.3}",
                 self.mutation_probability
             )),
+            genotype,
             state,
             config,
         );

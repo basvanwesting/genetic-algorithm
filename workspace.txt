@@ -26,7 +26,7 @@
   * [v] Store staticMatrixGenotype on heap using Box
   * [v] Document Fitness for Matrix
   * [v] Note on GPU in performance section
-  * [ ] Avoid calculate_for_chromosome in SteepesAscent context
+  * [v] Avoid calculate_for_chromosome in SteepesAscent context
   * [ ] Fix Reporting
   * [ ] Extensions benchmark is noisy
   * [ ] Document GenotypeBuilder, Split for Range types?

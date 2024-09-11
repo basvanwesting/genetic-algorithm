@@ -9,7 +9,12 @@ pub struct CustomBitReporter;
 impl EvolveReporter for CustomBitReporter {
     type Genotype = BitGenotype;
 
-    fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations.get(action) {
@@ -24,7 +29,12 @@ pub struct CustomBinaryReporter;
 impl EvolveReporter for CustomBinaryReporter {
     type Genotype = BinaryGenotype;
 
-    fn on_finish(&mut self, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations.get(action) {

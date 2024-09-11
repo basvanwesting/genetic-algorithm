@@ -230,6 +230,7 @@ impl PermutateReporter for CustomReporter {
 
     fn on_new_generation(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
@@ -246,6 +247,7 @@ impl PermutateReporter for CustomReporter {
 
     fn on_new_best_chromosome(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
@@ -264,6 +266,7 @@ impl PermutateReporter for CustomLogReporter {
 
     fn on_new_generation(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {

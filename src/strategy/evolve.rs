@@ -196,7 +196,8 @@ impl<
         }
         self.init(fitness_thread_local.as_ref());
 
-        self.reporter.on_start(&self.state, &self.config);
+        self.reporter
+            .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
             self.state.current_generation += 1;
             self.state
@@ -241,11 +242,13 @@ impl<
                 &self.config,
                 &mut self.reporter,
             );
-            self.reporter.on_new_generation(&self.state, &self.config);
+            self.reporter
+                .on_new_generation(&self.genotype, &self.state, &self.config);
             self.state.scale(&self.config);
         }
         self.state.close_duration(now.elapsed());
-        self.reporter.on_finish(&self.state, &self.config);
+        self.reporter
+            .on_finish(&self.genotype, &self.state, &self.config);
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -330,7 +333,7 @@ impl<
             self.state.best_fitness_score = chromosome.fitness_score();
             self.genotype.save_best_genes(chromosome);
             self.reporter
-                .on_new_best_chromosome(&self.state, &self.config);
+                .on_new_best_chromosome(&self.genotype, &self.state, &self.config);
             self.state.reset_stale_generations();
         }
     }
@@ -448,12 +451,12 @@ impl<G: Genotype> EvolveState<G> {
                     self.best_generation = self.current_generation;
                     self.best_fitness_score = contending_chromosome.fitness_score();
                     genotype.save_best_genes(contending_chromosome);
-                    reporter.on_new_best_chromosome(self, config);
+                    reporter.on_new_best_chromosome(genotype, self, config);
                     self.reset_stale_generations();
                 }
                 (true, false) => {
                     genotype.save_best_genes(contending_chromosome);
-                    reporter.on_new_best_chromosome_equal_fitness(self, config);
+                    reporter.on_new_best_chromosome_equal_fitness(genotype, self, config);
                     self.increment_stale_generations();
                 }
                 _ => self.increment_stale_generations(),

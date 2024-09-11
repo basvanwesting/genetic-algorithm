@@ -31,6 +31,7 @@ impl Extension for MassDegeneration {
         {
             reporter.on_extension_event(
                 ExtensionEvent::MassDegeneration("".to_string()),
+                genotype,
                 state,
                 config,
             );

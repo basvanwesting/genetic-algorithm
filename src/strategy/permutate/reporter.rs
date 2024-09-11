@@ -19,7 +19,7 @@ use std::marker::PhantomData;
 /// impl PermutateReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation(&mut self, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
+///     fn on_new_generation(&mut self, _genotype: &Self::Genotype, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
 ///                 "progress: {:2.2}%, current_generation: {}, best_generation: {}",
@@ -30,7 +30,7 @@ use std::marker::PhantomData;
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome(&mut self, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
+///     fn on_new_best_chromosome(&mut self, _genotype: &Self::Genotype, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
 ///         println!(
 ///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
 ///             state.current_generation(),
@@ -39,7 +39,7 @@ use std::marker::PhantomData;
 ///         );
 ///     }
 ///
-///     fn on_finish(&mut self, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
+///     fn on_finish(&mut self, _genotype: &Self::Genotype, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
 ///         println!("finish - generation: {}", state.current_generation());
 ///         STRATEGY_ACTIONS.iter().for_each(|action| {
 ///             if let Some(duration) = state.durations.get(action) {
@@ -61,22 +61,37 @@ pub trait Reporter: Clone + Send + Sync {
         _config: &PermutateConfig,
     ) {
     }
-    fn on_start(&mut self, _state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {}
-    fn on_finish(&mut self, _state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {}
+    fn on_start(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &PermutateState<Self::Genotype>,
+        _config: &PermutateConfig,
+    ) {
+    }
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &PermutateState<Self::Genotype>,
+        _config: &PermutateConfig,
+    ) {
+    }
     fn on_new_generation(
         &mut self,
+        _genotype: &Self::Genotype,
         _state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
     }
     fn on_new_best_chromosome(
         &mut self,
+        _genotype: &Self::Genotype,
         _state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
     }
     fn on_new_best_chromosome_equal_fitness(
         &mut self,
+        _genotype: &Self::Genotype,
         _state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
@@ -137,6 +152,7 @@ impl<G: PermutableGenotype> Reporter for Simple<G> {
 
     fn on_new_generation(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
@@ -153,6 +169,7 @@ impl<G: PermutableGenotype> Reporter for Simple<G> {
 
     fn on_new_best_chromosome(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
@@ -169,7 +186,12 @@ impl<G: PermutableGenotype> Reporter for Simple<G> {
         );
     }
 
-    fn on_finish(&mut self, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
+    fn on_finish(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &PermutateState<Self::Genotype>,
+        _config: &PermutateConfig,
+    ) {
         println!("finish - generation: {}", state.current_generation());
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations.get(action) {
@@ -198,6 +220,7 @@ impl<G: PermutableGenotype> Reporter for Log<G> {
 
     fn on_new_generation(
         &mut self,
+        _genotype: &Self::Genotype,
         state: &PermutateState<Self::Genotype>,
         _config: &PermutateConfig,
     ) {
