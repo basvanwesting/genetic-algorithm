@@ -88,7 +88,6 @@ pub struct MultiList<T: Allele + PartialEq = DefaultAllele> {
     gene_weighted_index_sampler: WeightedIndex<usize>,
     allele_index_samplers: Vec<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<MultiListChromosome<T>>,
     pub best_genes: Vec<T>,
 }
@@ -120,7 +119,6 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for MultiList<T> {
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
                     .collect(),
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
                 best_genes: allele_lists.iter().map(|a| a[0]).collect(),
             })
@@ -328,9 +326,6 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
     }
     fn copy_genes(&mut self, source: &MultiListChromosome<T>, target: &mut MultiListChromosome<T>) {
         target.genes.clone_from(&source.genes);
-    }
-    fn chromosome_recycling(&self) -> bool {
-        self.chromosome_recycling
     }
     fn chromosome_bin_push(&mut self, chromosome: MultiListChromosome<T>) {
         self.chromosome_bin.push(chromosome);

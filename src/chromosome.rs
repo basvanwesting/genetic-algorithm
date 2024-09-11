@@ -72,18 +72,15 @@ pub trait ChromosomeManager<G: Genotype> {
     fn copy_genes(&mut self, source: &G::Chromosome, target: &mut G::Chromosome);
     /// Mandatory
     fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R);
-    /// Provided, disable recycling by default, override when using recycling
-    fn chromosome_recycling(&self) -> bool {
-        false
-    }
-    /// Provided, override if recycling bin needs initialization
-    fn chromosomes_init(&mut self) {}
-    /// Optional, override if using recycling
-    fn chromosome_bin_push(&mut self, mut _chromosome: G::Chromosome) {}
-    /// Optional, override if using recycling.
+    /// Mandatory
+    fn chromosome_bin_push(&mut self, _chromosome: G::Chromosome);
+    /// Mandatory
     /// Take from the recycling bin or create new chromosome with capacities set.
     /// Raise on empty bin here if fixed number of chromosomes is used
     fn chromosome_bin_find_or_create(&mut self) -> G::Chromosome;
+
+    /// Provided, override if recycling bin needs initialization
+    fn chromosomes_init(&mut self) {}
 
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {
         let mut chromosome = self.chromosome_bin_find_or_create();
@@ -92,56 +89,38 @@ pub trait ChromosomeManager<G: Genotype> {
         chromosome
     }
     fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
-        if self.chromosome_recycling() {
-            let mut new_chromosome = self.chromosome_bin_find_or_create();
-            self.copy_genes(chromosome, &mut new_chromosome);
-            new_chromosome.copy_fields_from(chromosome);
-            new_chromosome
-        } else {
-            chromosome.clone()
-        }
+        let mut new_chromosome = self.chromosome_bin_find_or_create();
+        self.copy_genes(chromosome, &mut new_chromosome);
+        new_chromosome.copy_fields_from(chromosome);
+        new_chromosome
     }
     fn chromosome_constructor_from(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
-        if self.chromosome_recycling() {
-            let mut new_chromosome = self.chromosome_bin_find_or_create();
-            self.copy_genes(chromosome, &mut new_chromosome);
-            new_chromosome.taint();
-            new_chromosome
-        } else {
-            chromosome.clone_and_taint()
-        }
+        let mut new_chromosome = self.chromosome_bin_find_or_create();
+        self.copy_genes(chromosome, &mut new_chromosome);
+        new_chromosome.taint();
+        new_chromosome
     }
 
     fn chromosome_destructor(&mut self, chromosome: G::Chromosome) {
-        if self.chromosome_recycling() {
-            self.chromosome_bin_push(chromosome)
-        }
+        self.chromosome_bin_push(chromosome)
     }
     fn chromosome_destructor_truncate(
         &mut self,
         chromosomes: &mut Vec<G::Chromosome>,
         target_population_size: usize,
     ) {
-        if self.chromosome_recycling() {
-            chromosomes
-                .drain(target_population_size..)
-                .for_each(|c| self.chromosome_destructor(c));
-        } else {
-            chromosomes.truncate(target_population_size);
-        }
+        chromosomes
+            .drain(target_population_size..)
+            .for_each(|c| self.chromosome_destructor(c));
     }
     fn chromosome_cloner_range(
         &mut self,
         chromosomes: &mut Vec<G::Chromosome>,
         range: Range<usize>,
     ) {
-        if self.chromosome_recycling() {
-            for i in range {
-                let chromosome = &chromosomes[i];
-                chromosomes.push(self.chromosome_cloner(chromosome));
-            }
-        } else {
-            chromosomes.extend_from_within(range);
+        for i in range {
+            let chromosome = &chromosomes[i];
+            chromosomes.push(self.chromosome_cloner(chromosome));
         }
     }
 }

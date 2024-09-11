@@ -36,7 +36,6 @@ pub struct Bit {
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<FixedBitSet>,
-    pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<BitChromosome>,
     pub best_genes: FixedBitSet,
 }
@@ -63,7 +62,6 @@ impl TryFrom<Builder<Self>> for Bit {
                 crossover_points,
                 crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
                 best_genes: FixedBitSet::default(),
             })
@@ -314,9 +312,6 @@ impl ChromosomeManager<Self> for Bit {
     }
     fn copy_genes(&mut self, source: &BitChromosome, target: &mut BitChromosome) {
         target.genes.clone_from(&source.genes);
-    }
-    fn chromosome_recycling(&self) -> bool {
-        self.chromosome_recycling
     }
     fn chromosome_bin_push(&mut self, chromosome: BitChromosome) {
         self.chromosome_bin.push(chromosome);

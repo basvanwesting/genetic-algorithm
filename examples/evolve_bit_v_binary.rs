@@ -88,41 +88,11 @@ fn main() {
     // println!("{}", evolve);
     // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
-        "BinaryGenotype - no recycling, best_generation: {:?} - more crossover points seem to converge in less generations",
+        "BinaryGenotype, best_generation: {:?} - more crossover points seem to converge in less generations",
         evolve.best_generation()
     );
     println!(
-        "BinaryGenotype - no recycling, best_fitness_score: {:?}",
-        evolve.best_fitness_score()
-    );
-
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(GENES_SIZE)
-        .with_chromosome_recycling(true)
-        .build()
-        .unwrap();
-    // println!("{}", genotype);
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(POPULATION_SIZE)
-        .with_max_stale_generations(100)
-        .with_target_fitness_score((POPULATION_SIZE * 2) as isize)
-        .with_fitness(CountTrue)
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverMultiPoint::new(10, true))
-        .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(CustomBinaryReporter)
-        .call()
-        .unwrap();
-    // println!("{}", evolve);
-    // println!("genes: {:b}", evolve.best_genes().unwrap());
-    println!(
-        "BinaryGenotype - with recycling, best_generation: {:?} - more crossover points seem to converge in less generations",
-        evolve.best_generation()
-    );
-    println!(
-        "BinaryGenotype - with recycling, best_fitness_score: {:?}",
+        "BinaryGenotype, best_fitness_score: {:?}",
         evolve.best_fitness_score()
     );
 }

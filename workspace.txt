@@ -22,8 +22,8 @@
   * [v] drop StochasticSecondary and SteepestAscentSecondary
   * [v] Reconsider OwnsGenes and RefersGenes naming
   * [v] Remove StrategyAction::ChromosomeDataDropAndCopy
+  * [v] Enable chromosome_recycling always, and remove checks
   * [ ] Store staticMatrixGenotype on heap using Box?
-  * [ ] Enable chromosome_recycling always, and remove checks
   * [ ] Fix Reporting
   * [ ] document Fitness impl levels very extensively
   * [ ] Note on GPU in performance section

@@ -67,7 +67,6 @@ pub struct MultiUnique<T: Allele = DefaultAllele> {
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<MultiUniqueChromosome<T>>,
     pub best_genes: Vec<T>,
 }
@@ -117,7 +116,6 @@ impl<T: Allele> TryFrom<Builder<Self>> for MultiUnique<T> {
                 crossover_points,
                 crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
                 best_genes: allele_lists.clone().into_iter().flatten().collect(),
             })
@@ -347,9 +345,6 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
         target: &mut MultiUniqueChromosome<T>,
     ) {
         target.genes.clone_from(&source.genes);
-    }
-    fn chromosome_recycling(&self) -> bool {
-        self.chromosome_recycling
     }
     fn chromosome_bin_push(&mut self, chromosome: MultiUniqueChromosome<T>) {
         self.chromosome_bin.push(chromosome);

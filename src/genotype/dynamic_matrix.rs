@@ -32,8 +32,6 @@ pub enum MutationType {
 /// This is a simple heap based example implementation. The size doesn't need to be known up front,
 /// as de storage extend if needed.
 ///
-/// The GenotypeBuilder `with_chromosome_recycling` is implicit and always enabled for this Genotype.
-///
 /// The rest is like [RangeGenotype](super::RangeGenotype):
 ///
 /// The values are taken from the allele range. On random initialization, each gene gets a value
@@ -626,9 +624,6 @@ where
         target: &mut DynamicMatrixChromosome,
     ) {
         self.copy_genes_by_id(source.row_id, target.row_id);
-    }
-    fn chromosome_recycling(&self) -> bool {
-        true
     }
     fn chromosome_bin_push(&mut self, chromosome: DynamicMatrixChromosome) {
         self.chromosome_bin.push(chromosome);

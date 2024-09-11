@@ -32,8 +32,6 @@ pub enum MutationType {
 /// threrefore limited in size. Exceeding this size, will result in a "fatal runtime error: stack
 /// overflow" panic, aborting the execution during the initialization of the Genotype.
 ///
-/// The GenotypeBuilder `with_chromosome_recycling` is implicit and always enabled for this Genotype.
-///
 /// The rest is like [RangeGenotype](super::RangeGenotype):
 ///
 /// The values are taken from the allele range. On random initialization, each gene gets a value
@@ -615,9 +613,6 @@ where
     }
     fn copy_genes(&mut self, source: &StaticMatrixChromosome, target: &mut StaticMatrixChromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
-    }
-    fn chromosome_recycling(&self) -> bool {
-        true
     }
     fn chromosomes_init(&mut self) {
         self.chromosome_bin = (0..M).rev().map(StaticMatrixChromosome::new).collect();

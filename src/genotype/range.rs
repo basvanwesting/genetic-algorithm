@@ -70,7 +70,6 @@ where
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<RangeChromosome<T>>,
     pub best_genes: Vec<T>,
 }
@@ -110,7 +109,6 @@ where
                     .allele_mutation_range
                     .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
                 best_genes: vec![*allele_range.start(); genes_size],
             })
@@ -478,9 +476,6 @@ where
     fn copy_genes(&mut self, source: &RangeChromosome<T>, target: &mut RangeChromosome<T>) {
         target.genes.clone_from(&source.genes);
     }
-    fn chromosome_recycling(&self) -> bool {
-        self.chromosome_recycling
-    }
     fn chromosome_bin_push(&mut self, chromosome: RangeChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
@@ -511,7 +506,6 @@ where
                 .clone()
                 .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
             seed_genes_list: self.seed_genes_list.clone(),
-            chromosome_recycling: self.chromosome_recycling,
             chromosome_bin: vec![],
             best_genes: vec![*self.allele_range.start(); self.genes_size],
         }

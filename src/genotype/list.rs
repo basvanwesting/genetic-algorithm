@@ -54,7 +54,6 @@ pub struct List<T: Allele + PartialEq = DefaultAllele> {
     gene_index_sampler: Uniform<usize>,
     allele_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<ListChromosome<T>>,
     pub best_genes: Vec<T>,
 }
@@ -80,7 +79,6 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
                 allele_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
                 best_genes: vec![allele_list[0]; genes_size],
             })
@@ -272,9 +270,6 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
     }
     fn copy_genes(&mut self, source: &ListChromosome<T>, target: &mut ListChromosome<T>) {
         target.genes.clone_from(&source.genes);
-    }
-    fn chromosome_recycling(&self) -> bool {
-        self.chromosome_recycling
     }
     fn chromosome_bin_push(&mut self, chromosome: ListChromosome<T>) {
         self.chromosome_bin.push(chromosome);

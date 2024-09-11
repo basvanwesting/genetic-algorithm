@@ -99,7 +99,6 @@ pub struct MultiRange<
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
     pub index_weights: Vec<f64>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<MultiRangeChromosome<T>>,
     pub best_genes: Vec<T>,
 }
@@ -165,7 +164,6 @@ where
                 ),
                 index_weights,
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
                 best_genes: allele_ranges.iter().map(|a| *a.start()).collect(),
             })
@@ -552,9 +550,6 @@ where
     ) {
         target.genes.clone_from(&source.genes);
     }
-    fn chromosome_recycling(&self) -> bool {
-        self.chromosome_recycling
-    }
     fn chromosome_bin_push(&mut self, chromosome: MultiRangeChromosome<T>) {
         self.chromosome_bin.push(chromosome);
     }
@@ -595,7 +590,6 @@ where
             ),
             index_weights: self.index_weights.clone(),
             seed_genes_list: self.seed_genes_list.clone(),
-            chromosome_recycling: self.chromosome_recycling,
             chromosome_bin: vec![],
             best_genes: self.allele_ranges.iter().map(|a| *a.start()).collect(),
         }

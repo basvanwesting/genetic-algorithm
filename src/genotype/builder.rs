@@ -23,7 +23,6 @@ pub struct Builder<G: Genotype> {
     pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<G::Allele>>>,
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<G::Allele>>>>,
     pub seed_genes_list: Vec<G::Genes>,
-    pub chromosome_recycling: bool,
 }
 
 impl<G: Genotype> Builder<G> {
@@ -92,10 +91,6 @@ impl<G: Genotype> Builder<G> {
         self.seed_genes_list = seed_genes_list;
         self
     }
-    pub fn with_chromosome_recycling(mut self, chromosome_recycling: bool) -> Self {
-        self.chromosome_recycling = chromosome_recycling;
-        self
-    }
 
     pub fn build(self) -> Result<G, <G as TryFrom<Builder<G>>>::Error> {
         self.try_into()
@@ -115,7 +110,6 @@ impl<G: Genotype> Default for Builder<G> {
             allele_mutation_scaled_range: None,
             allele_mutation_scaled_ranges: None,
             seed_genes_list: vec![],
-            chromosome_recycling: false,
         }
     }
 }

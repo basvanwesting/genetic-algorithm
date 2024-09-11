@@ -1,6 +1,6 @@
 use crate::fitness::FitnessValue;
 
-#[derive(Clone, Debug)]
+#[derive(Copy, Clone, Debug)]
 pub struct Row {
     pub row_id: usize,
     pub fitness_score: Option<FitnessValue>,

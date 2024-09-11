@@ -346,7 +346,6 @@ fn chromosome_manager() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(5)
-        .with_chromosome_recycling(true)
         .build()
         .unwrap();
     genotype.chromosomes_init();

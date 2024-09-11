@@ -26,7 +26,6 @@ pub struct Binary {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<bool>>,
-    pub chromosome_recycling: bool,
     pub chromosome_bin: Vec<BinaryChromosome>,
     pub best_genes: Vec<bool>,
 }
@@ -43,7 +42,6 @@ impl TryFrom<Builder<Self>> for Binary {
                 genes_size,
                 gene_index_sampler: Uniform::from(0..genes_size),
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_recycling: builder.chromosome_recycling,
                 chromosome_bin: vec![],
                 best_genes: vec![false; genes_size],
             })
@@ -231,9 +229,6 @@ impl ChromosomeManager<Self> for Binary {
     }
     fn copy_genes(&mut self, source: &BinaryChromosome, target: &mut BinaryChromosome) {
         target.genes.clone_from(&source.genes);
-    }
-    fn chromosome_recycling(&self) -> bool {
-        self.chromosome_recycling
     }
     fn chromosome_bin_push(&mut self, chromosome: BinaryChromosome) {
         self.chromosome_bin.push(chromosome);
