@@ -91,7 +91,7 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
         b.iter_batched(
             || population.clone(),
             |mut data| {
-                fitness.call_for_population(&mut data, &mut genotype, None);
+                fitness.call_for_population(&mut data, &genotype, None);
             },
             BatchSize::SmallInput,
         );
@@ -106,11 +106,7 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
             || population.clone(),
             |mut data| {
                 // println!("run benchmark batch");
-                fitness.call_for_population(
-                    &mut data,
-                    &mut genotype,
-                    fitness_thread_local.as_ref(),
-                );
+                fitness.call_for_population(&mut data, &genotype, fitness_thread_local.as_ref());
             },
             BatchSize::SmallInput,
         );

@@ -61,7 +61,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     fn call_for_state_population<S: StrategyState<Self::Genotype>>(
         &mut self,
         state: &mut S,
-        genotype: &mut Self::Genotype,
+        genotype: &Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         let now = Instant::now();
@@ -84,7 +84,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     fn call_for_population(
         &mut self,
         population: &mut FitnessPopulation<Self>,
-        genotype: &mut Self::Genotype,
+        genotype: &Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         if let Some(thread_local) = thread_local {

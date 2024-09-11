@@ -9,7 +9,7 @@ mod population_tests {
 
     #[test]
     fn fitness_score_stddev() {
-        let mut genotype = BinaryGenotype::builder()
+        let genotype = BinaryGenotype::builder()
             .with_genes_size(3)
             .build()
             .unwrap();
@@ -26,7 +26,7 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        CountTrue.call_for_population(population, &mut genotype, None);
+        CountTrue.call_for_population(population, &genotype, None);
         assert_relative_eq!(population.fitness_score_stddev(), 0.866, epsilon = 0.001);
 
         let population = &mut build::population(vec![
@@ -41,7 +41,7 @@ mod population_tests {
         ]);
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        CountTrue.call_for_population(population, &mut genotype, None);
+        CountTrue.call_for_population(population, &genotype, None);
         assert_relative_eq!(population.fitness_score_stddev(), 0.331, epsilon = 0.001);
     }
 

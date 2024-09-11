@@ -10,7 +10,7 @@ impl Fitness for StaticDistanceTo {
     fn call_for_population(
         &mut self,
         population: &mut Population<StaticMatrixChromosome>,
-        genotype: &mut FitnessGenotype<Self>,
+        genotype: &FitnessGenotype<Self>,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         // pure matrix data calculation on [[T; N] M]
@@ -38,7 +38,7 @@ impl Fitness for DynamicDistanceTo {
     fn call_for_population(
         &mut self,
         population: &mut Population<DynamicMatrixChromosome>,
-        genotype: &mut FitnessGenotype<Self>,
+        genotype: &FitnessGenotype<Self>,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         // pure matrix data calculation on vec![T; N*M]

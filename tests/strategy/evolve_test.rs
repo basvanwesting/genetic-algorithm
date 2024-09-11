@@ -512,7 +512,7 @@ impl Fitness for SumStaticMatrixGenes {
     fn call_for_population(
         &mut self,
         population: &mut Population<StaticMatrixChromosome>,
-        genotype: &mut Self::Genotype,
+        genotype: &Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         for chromosome in population.chromosomes.iter_mut() {
@@ -557,7 +557,7 @@ impl Fitness for SumDynamicMatrixGenes {
     fn call_for_population(
         &mut self,
         population: &mut Population<DynamicMatrixChromosome>,
-        genotype: &mut Self::Genotype,
+        genotype: &Self::Genotype,
         _thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         for chromosome in population.chromosomes.iter_mut() {

@@ -287,7 +287,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     );
                     self.fitness.call_for_state_population(
                         &mut self.state,
-                        &mut self.genotype,
+                        &self.genotype,
                         fitness_thread_local.as_ref(),
                     );
                     self.state.update_best_chromosome_from_state_population(
@@ -337,7 +337,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
 
                     self.fitness.call_for_state_population(
                         &mut self.state,
-                        &mut self.genotype,
+                        &self.genotype,
                         fitness_thread_local.as_ref(),
                     );
                     self.state.update_best_chromosome_from_state_population(

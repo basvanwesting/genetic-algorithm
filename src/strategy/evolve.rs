@@ -233,7 +233,7 @@ impl<
             );
             self.fitness.call_for_state_population(
                 &mut self.state,
-                &mut self.genotype,
+                &self.genotype,
                 fitness_thread_local.as_ref(),
             );
             self.state.update_best_chromosome_and_report(
@@ -315,7 +315,7 @@ impl<
 
         self.fitness.call_for_state_population(
             &mut self.state,
-            &mut self.genotype,
+            &self.genotype,
             fitness_thread_local,
         );
         self.state.update_best_chromosome_and_report(

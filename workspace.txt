@@ -21,8 +21,8 @@
   * [ ] Move logic of random gene factory inside set_random_genes
   * [ ] Fix Reporting
   * [v] Rename fill_neighbouring_population to fill_neighbouring_chromosomes or add true population to fill
+  * [v] Drop mutability from genotype in Fitness
   * [ ] document Fitness impl levels very extensively
-  * [ ] mut genotype on fitness needed?
   * [ ] drop SteepestAscentSecondary?
   * [ ] neigbouring better garantees? Can max stale gen be 1? Check, also check use of ugly loop. Precision really matters here, may be set it?
   * [ ] OwnsGenes, naming, OwnGenes or OwnedGenes?
