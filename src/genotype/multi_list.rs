@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::{Chromosome, ChromosomeManager, MultiListChromosome, OwnsGenes};
+use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
@@ -269,7 +270,7 @@ impl<T: Allele + PartialEq> IncrementalGenotype for MultiList<T> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
-        output_chromosomes: &mut Vec<Self::Chromosome>,
+        population: &mut Population<Self::Chromosome>,
         _scale_index: Option<usize>,
         _rng: &mut R,
     ) {
@@ -278,7 +279,7 @@ impl<T: Allele + PartialEq> IncrementalGenotype for MultiList<T> {
                 if chromosome.genes[index] != allele_value {
                     let mut new_chromosome = self.chromosome_constructor_from(chromosome);
                     new_chromosome.genes[index] = allele_value;
-                    output_chromosomes.push(new_chromosome);
+                    population.chromosomes.push(new_chromosome);
                 }
             }
         }

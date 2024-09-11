@@ -120,10 +120,10 @@ fn neighbouring_population_size() {
     assert_eq!(inspect::chromosome(&chromosome), vec![0, 0, 2, 1]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
-    let mut chromosomes = vec![];
-    genotype.fill_neighbouring_population(&chromosome, &mut chromosomes, None, &mut rng);
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
     assert_eq!(
-        inspect::chromosomes(&chromosomes),
+        inspect::population(&population),
         vec![
             vec![0, 1, 2, 1],
             vec![0, 0, 0, 1],

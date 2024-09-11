@@ -281,7 +281,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     );
                     self.genotype.fill_neighbouring_population(
                         self.state.chromosome.as_ref().unwrap(),
-                        &mut self.state.population.chromosomes,
+                        &mut self.state.population,
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
@@ -310,13 +310,14 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
 
                     self.genotype.fill_neighbouring_population(
                         self.state.chromosome.as_ref().unwrap(),
-                        &mut self.state.population.chromosomes,
+                        &mut self.state.population,
                         self.state.current_scale_index,
                         &mut self.rng,
                     );
-                    let mut secondary_neighbouring_chromosomes = Vec::with_capacity(
+                    let mut secondary_neighbouring_population: Population<_> = Vec::with_capacity(
                         self.state.population.size() * self.state.population.size(),
-                    );
+                    )
+                    .into();
                     self.state
                         .population
                         .chromosomes
@@ -324,7 +325,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                         .for_each(|chromosome| {
                             self.genotype.fill_neighbouring_population(
                                 chromosome,
-                                &mut secondary_neighbouring_chromosomes,
+                                &mut secondary_neighbouring_population,
                                 self.state.current_scale_index,
                                 &mut self.rng,
                             );
@@ -332,7 +333,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
                     self.state
                         .population
                         .chromosomes
-                        .append(&mut secondary_neighbouring_chromosomes);
+                        .append(&mut secondary_neighbouring_population.chromosomes);
 
                     self.fitness.call_for_state_population(
                         &mut self.state,

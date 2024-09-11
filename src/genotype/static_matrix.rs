@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype};
 use crate::chromosome::{Chromosome, ChromosomeManager, RefersGenes, StaticMatrixChromosome};
+use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
@@ -491,18 +492,18 @@ where
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
-        output_chromosomes: &mut Vec<Self::Chromosome>,
+        population: &mut Population<Self::Chromosome>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
         match self.mutation_type {
             MutationType::Scaled => self.fill_neighbouring_population_scaled(
                 chromosome,
-                output_chromosomes,
+                population,
                 scale_index.unwrap(),
             ),
             MutationType::Relative => {
-                self.fill_neighbouring_population_relative(chromosome, output_chromosomes, rng)
+                self.fill_neighbouring_population_relative(chromosome, population, rng)
             }
             MutationType::Random => {
                 panic!("Random mutation type is not supported for incremental genotype: HillClimb, SteepestAscent");
@@ -527,7 +528,7 @@ where
     fn fill_neighbouring_population_scaled(
         &mut self,
         chromosome: &StaticMatrixChromosome,
-        output_chromosomes: &mut Vec<StaticMatrixChromosome>,
+        population: &mut Population<StaticMatrixChromosome>,
         scale_index: usize,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -553,12 +554,12 @@ where
             if value_start < base_value {
                 let new_chromosome = self.chromosome_constructor_from(chromosome);
                 self.set_gene_by_id(new_chromosome.row_id, index, value_start);
-                output_chromosomes.push(new_chromosome)
+                population.chromosomes.push(new_chromosome)
             };
             if base_value < value_end {
                 let new_chromosome = self.chromosome_constructor_from(chromosome);
                 self.set_gene_by_id(new_chromosome.row_id, index, value_end);
-                output_chromosomes.push(new_chromosome)
+                population.chromosomes.push(new_chromosome)
             };
         });
     }
@@ -566,7 +567,7 @@ where
     fn fill_neighbouring_population_relative<R: Rng>(
         &mut self,
         chromosome: &StaticMatrixChromosome,
-        output_chromosomes: &mut Vec<StaticMatrixChromosome>,
+        population: &mut Population<StaticMatrixChromosome>,
         rng: &mut R,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -593,7 +594,7 @@ where
                 let new_chromosome = self.chromosome_constructor_from(chromosome);
                 let new_value = rng.gen_range(range_start..base_value);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
-                output_chromosomes.push(new_chromosome)
+                population.chromosomes.push(new_chromosome)
             };
             if base_value < range_end {
                 let new_chromosome = self.chromosome_constructor_from(chromosome);
@@ -603,7 +604,7 @@ where
                     new_value = rng.gen_range(base_value..=range_end);
                 }
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
-                output_chromosomes.push(new_chromosome)
+                population.chromosomes.push(new_chromosome)
             };
         });
     }

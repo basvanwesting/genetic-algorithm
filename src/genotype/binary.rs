@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::{BinaryChromosome, Chromosome, ChromosomeManager, OwnsGenes};
+use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Standard, Uniform};
@@ -189,14 +190,14 @@ impl IncrementalGenotype for Binary {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
-        output_chromosomes: &mut Vec<Self::Chromosome>,
+        population: &mut Population<Self::Chromosome>,
         _scale_index: Option<usize>,
         _rng: &mut R,
     ) {
         (0..self.genes_size).for_each(|index| {
             let mut new_chromosome = self.chromosome_constructor_from(chromosome);
             new_chromosome.genes[index] = !new_chromosome.genes[index];
-            output_chromosomes.push(new_chromosome);
+            population.chromosomes.push(new_chromosome);
         });
     }
 

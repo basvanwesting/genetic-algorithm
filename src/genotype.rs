@@ -26,6 +26,7 @@ pub use self::static_matrix::StaticMatrix as StaticMatrixGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::population::Population;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
 use num::BigUint;
@@ -151,7 +152,7 @@ pub trait IncrementalGenotype: Genotype {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
         _chromosome: &Self::Chromosome,
-        _output_chromosomes: &mut Vec<Self::Chromosome>,
+        _population: &mut Population<Self::Chromosome>,
         _scale_index: Option<usize>,
         _rng: &mut R,
     );

@@ -1,6 +1,7 @@
 use criterion::*;
 use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::genotype::*;
+use genetic_algorithm::population::Population;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
@@ -26,7 +27,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 (
                     genotype.chromosome_constructor_random(&mut rng1),
                     genotype.clone(),
-                    vec![],
+                    Population::new(vec![]),
                 )
             },
             |(c, mut g, mut p)| g.fill_neighbouring_population(&c, &mut p, None, &mut rng2),
@@ -47,7 +48,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 (
                     genotype.chromosome_constructor_random(&mut rng1),
                     genotype.clone(),
-                    vec![],
+                    Population::new(vec![]),
                 )
             },
             |(c, mut g, mut p)| g.fill_neighbouring_population(&c, &mut p, Some(1), &mut rng2),

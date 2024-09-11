@@ -1,6 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::{Chromosome, ChromosomeManager, OwnsGenes, UniqueChromosome};
+use crate::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
 use num::BigUint;
@@ -160,7 +161,7 @@ impl<T: Allele> IncrementalGenotype for Unique<T> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
-        output_chromosomes: &mut Vec<Self::Chromosome>,
+        population: &mut Population<Self::Chromosome>,
         _scale_index: Option<usize>,
         _rng: &mut R,
     ) {
@@ -169,7 +170,7 @@ impl<T: Allele> IncrementalGenotype for Unique<T> {
             .for_each(|(first, second)| {
                 let mut new_chromosome = self.chromosome_constructor_from(chromosome);
                 new_chromosome.genes.swap(first, second);
-                output_chromosomes.push(new_chromosome);
+                population.chromosomes.push(new_chromosome);
             });
     }
 

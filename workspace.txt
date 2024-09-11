@@ -16,10 +16,18 @@
   * [v] rename chromosome_constructor to chromosome_constructor_random
   * [v] Use mutation_type for IncrementalGenotype logic in Range/ MultiRange / Dynamic/ Static
   * [v] Move some shared logic back to ChromosomeManager
+  * [v] Populate neighbours in existing population.chromosomes vec
   * [ ] Enable chromosome_recycling always, and remove checks
   * [ ] Move logic of random gene factory inside set_random_genes
   * [ ] Fix Reporting
-  * [ ] Populate neighbours in exisitng population.chromosome vec?
+  * [v] Rename fill_neighbouring_population to fill_neighbouring_chromosomes or add true population to fill
+  * [ ] document Fitness impl levels very extensively
+  * [ ] mut genotype on fitness needed?
+  * [ ] drop SteepestAscentSecondary?
+  * [ ] neigbouring better garantees? Can max stale gen be 1? Check, also check use of ugly loop. Precision really matters here, may be set it?
+  * [ ] OwnsGenes, naming, OwnGenes or OwnedGenes?
+  * [ ] Note on GPU in performance section
+  * [ ] Remove action CopyAndDrop
 
 * Store staticMatrixGenotype on heap using Box?
 * Extensions benchmark is noisy
