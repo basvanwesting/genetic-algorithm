@@ -576,11 +576,12 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "hill_climb:")?;
-        writeln!(f, "  genotype: {:?}", self.genotype)?;
         writeln!(f, "  fitness: {:?}", self.fitness)?;
+        writeln!(f)?;
 
         writeln!(f, "{}", self.config)?;
-        writeln!(f, "{}", self.state)
+        writeln!(f, "{}", self.state)?;
+        writeln!(f, "{}", self.genotype)
     }
 }
 

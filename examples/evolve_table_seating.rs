@@ -35,7 +35,7 @@ impl Fitness for TableSeatingFitness {
             for person in &table {
                 for other_person in &table {
                     if person != other_person {
-                        let person_set = person_sets.entry(*person).or_insert(HashSet::new());
+                        let person_set = person_sets.entry(*person).or_default();
                         if person_set.insert(*other_person) {
                             // new insert
                         } else {
@@ -72,7 +72,7 @@ fn main() {
             people
                 .iter()
                 .filter(|person| !hosts_per_round[i].contains(person))
-                .map(|p| *p)
+                .copied()
                 .collect::<Vec<_>>()
         })
         .collect();
@@ -98,14 +98,8 @@ fn main() {
         .with_select(SelectTournament::new(4, 0.9))
         .with_reporter(EvolveReporterSimple::new(1000));
 
-    //let now = std::time::Instant::now();
     //let evolve = evolve_builder.call().unwrap();
-    //let duration = now.elapsed();
-
-    let now = std::time::Instant::now();
     let evolve = evolve_builder.call_repeatedly(10).unwrap();
-    let duration = now.elapsed();
-
     println!("{}", evolve);
 
     if let Some((best_genes, fitness_score)) = evolve.best_genes_and_fitness_score() {
@@ -128,8 +122,7 @@ fn main() {
                 for person in &people_on_table {
                     for other_person in &people_on_table {
                         if person != other_person {
-                            let person_counter =
-                                person_counters.entry(*person).or_insert(HashMap::new());
+                            let person_counter = person_counters.entry(*person).or_default();
 
                             let count = person_counter.entry(*other_person).or_insert(0);
                             *count += 1
@@ -152,5 +145,4 @@ fn main() {
     } else {
         println!("Invalid solution with fitness score: None");
     }
-    println!("{:?}", duration);
 }

@@ -44,15 +44,11 @@ fn main() {
     let mut permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(TupleFitness)
-        // .with_par_fitness(true)
+        // .with_par_fitness(true) // worse performance
         .with_reporter(PermutateReporterSimple::new(usize::MAX))
         .build()
         .unwrap();
 
-    let now = std::time::Instant::now();
     permutate.call();
-    let duration = now.elapsed();
-
     println!("{}", permutate);
-    println!("{:?}", duration);
 }

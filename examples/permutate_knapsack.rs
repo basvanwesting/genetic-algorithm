@@ -80,15 +80,12 @@ fn main() {
     let mut permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(fitness)
-        // .with_reporter(PermutateReporterSimple::new_with_flags(100, true))
+        .with_reporter(PermutateReporterSimple::new(100))
         .build()
         .unwrap();
 
-    let now = std::time::Instant::now();
     permutate.call();
-    let duration = now.elapsed();
-
-    println!("{}", permutate);
+    // println!("{}", permutate);
 
     if let Some(best_genes) = permutate.best_genes() {
         let selected_items =
@@ -98,5 +95,4 @@ fn main() {
                 .filter_map(|(i, v)| if *v { Some(&items[i]) } else { None });
         println!("selected items: {:?}", selected_items.collect::<Vec<_>>());
     }
-    println!("{:?}", duration);
 }

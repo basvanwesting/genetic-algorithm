@@ -545,17 +545,6 @@ where
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  allele_range: {:?}", self.allele_range)?;
-        writeln!(
-            f,
-            "  allele_mutation_range: {:?}",
-            self.allele_mutation_range
-        )?;
-        writeln!(
-            f,
-            "  allele_mutation_scaled_range: {:?}",
-            self.allele_mutation_scaled_range
-        )?;
         writeln!(f, "  mutation_type: {:?}", self.mutation_type)?;
         writeln!(f, "  chromosome_permutations_size: uncountable")?;
         writeln!(
@@ -563,6 +552,6 @@ where
             "  neighbouring_population_size: {}",
             self.neighbouring_population_size()
         )?;
-        writeln!(f, "  seed_genes_list: {:?}", self.seed_genes_list)
+        writeln!(f, "  seed_genes: {:?}", self.seed_genes_list.len())
     }
 }

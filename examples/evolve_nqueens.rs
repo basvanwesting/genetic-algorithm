@@ -55,11 +55,8 @@ fn main() {
         .build()
         .unwrap();
 
-    let now = std::time::Instant::now();
     evolve.call();
-    let duration = now.elapsed();
-
-    println!("{}", evolve);
+    // println!("{}", evolve);
 
     if let Some((best_genes, fitness_score)) = evolve.best_genes_and_fitness_score() {
         if fitness_score == 0 {
@@ -68,11 +65,11 @@ fn main() {
                 chars[gene as usize] = 'X';
                 println!("{}", String::from_iter(chars));
             }
+            println!("Valid solution with fitness score: {}", fitness_score);
         } else {
             println!("Wrong solution with fitness score: {}", fitness_score);
         }
     } else {
         println!("Invalid solution with fitness score: None");
     }
-    println!("{:?}", duration);
 }

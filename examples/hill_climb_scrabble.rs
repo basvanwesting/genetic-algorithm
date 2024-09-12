@@ -280,11 +280,7 @@ fn main() {
         ))
         .with_reporter(HillClimbReporterSimple::new(100));
 
-    let now = std::time::Instant::now();
     let hill_climb = hill_climb_builder.call_repeatedly(100).unwrap();
-    let duration = now.elapsed();
-    println!("{:?}", duration);
-
     //println!("{}", hill_climb);
 
     if let Some(best_chromosome) = hill_climb.best_chromosome() {
@@ -303,7 +299,7 @@ fn main() {
         fitness.calculate_for_chromosome(&best_chromosome, &hill_climb.genotype);
         fitness.letter_board.iter().for_each(|columns| {
             let string = String::from_iter(columns.iter());
-            println!("{}", string.replace(" ", "."));
+            println!("{}", string.replace(' ', "."));
         });
     } else {
         println!("Invalid solution with fitness score: None");

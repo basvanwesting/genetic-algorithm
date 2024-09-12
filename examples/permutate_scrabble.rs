@@ -313,12 +313,9 @@ fn main() {
         ))
         .with_par_fitness(true)
         // .with_reporter(PermutateReporterSimple::new(100_000))
-        // .with_reporter(PermutateReporterLog::new())
         .with_reporter(CustomReporter(100_000))
         .build()
         .unwrap();
-
-    let now = std::time::Instant::now();
 
     if false {
         let guard = pprof::ProfilerGuardBuilder::default()
@@ -337,9 +334,6 @@ fn main() {
         permutate.call();
     }
 
-    let duration = now.elapsed();
-    println!("{:?}", duration);
-
     println!("{}", permutate);
 
     if let Some(best_chromosome) = permutate.best_chromosome() {
@@ -354,8 +348,12 @@ fn main() {
         fitness.calculate_for_chromosome(&best_chromosome, &permutate.genotype);
         fitness.letter_board.iter().for_each(|columns| {
             let string = String::from_iter(columns.iter());
-            println!("{}", string.replace(" ", "."));
+            println!("{}", string.replace(' ', "."));
         });
+        println!(
+            "Valid solution with fitness score: {:?}",
+            best_chromosome.fitness_score()
+        );
     } else {
         println!("Invalid solution with fitness score: None");
     }

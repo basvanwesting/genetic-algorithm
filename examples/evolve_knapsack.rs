@@ -85,14 +85,12 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverSinglePoint::new())
         .with_select(SelectTournament::new(4, 0.9))
+        .with_reporter(EvolveReporterDuration::new())
         .build()
         .unwrap();
 
-    let now = std::time::Instant::now();
     evolve.call();
-    let duration = now.elapsed();
-
-    println!("{}", evolve);
+    // println!("{}", evolve);
 
     if let Some(best_genes) = evolve.best_genes() {
         let selected_items =
@@ -102,5 +100,4 @@ fn main() {
                 .filter_map(|(i, v)| if *v { Some(&items[i]) } else { None });
         println!("selected items: {:?}", selected_items.collect::<Vec<_>>());
     }
-    println!("{:?}", duration);
 }

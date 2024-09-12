@@ -286,7 +286,7 @@ fn main() {
         ),
     ];
 
-    let periods = vec![
+    let periods = [
         (
             NaiveDate::from_ymd_opt(2022, 1, 1).unwrap(),
             NaiveDate::from_ymd_opt(2022, 3, 1).unwrap(),
@@ -305,7 +305,7 @@ fn main() {
         ),
     ];
 
-    let exceptions = vec![
+    let exceptions = [
         NaiveDate::from_ymd_opt(2022, 1, 4).unwrap(),
         NaiveDate::from_ymd_opt(2022, 2, 4).unwrap(),
     ];
@@ -384,13 +384,12 @@ fn main() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(1)
         .with_par_fitness(true)
+        .with_reporter(HillClimbReporterSimple::new(1))
         .with_fitness(RecessFitness(&adults, &dates))
         .with_fitness_ordering(FitnessOrdering::Maximize);
 
-    let now = std::time::Instant::now();
-    let hill_climb = hill_climb_builder.call_repeatedly(1).unwrap();
-    let duration = now.elapsed();
-
+    let hill_climb = hill_climb_builder.call().unwrap();
+    // let hill_climb = hill_climb_builder.call_repeatedly(10).unwrap();
     println!("{}", hill_climb);
 
     // REPORT
@@ -454,7 +453,7 @@ fn main() {
             count, min, max, mean, std_dev
         );
 
-        if fitness_score >= INVALID_ASSIGN_PENALTY as isize {
+        if fitness_score < 0_isize {
             println!("Invalid solution with fitness score: {}", fitness_score);
         } else {
             println!("Valid solution with fitness score: {}", fitness_score);
@@ -462,5 +461,4 @@ fn main() {
     } else {
         println!("Invalid solution with fitness score: None");
     }
-    println!("{:?}", duration);
 }

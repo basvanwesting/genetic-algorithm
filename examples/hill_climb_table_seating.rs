@@ -35,7 +35,7 @@ impl Fitness for TableSeatingFitness {
             for person in &table {
                 for other_person in &table {
                     if person != other_person {
-                        let person_set = person_sets.entry(*person).or_insert(HashSet::new());
+                        let person_set = person_sets.entry(*person).or_default();
                         if person_set.insert(*other_person) {
                             // new insert
                         } else {
@@ -72,7 +72,7 @@ fn main() {
             people
                 .iter()
                 .filter(|person| !hosts_per_round[i].contains(person))
-                .map(|p| *p)
+                .copied()
                 .collect::<Vec<_>>()
         })
         .collect();
@@ -96,10 +96,7 @@ fn main() {
         .build()
         .unwrap();
 
-    let now = std::time::Instant::now();
     hill_climb.call();
-    let duration = now.elapsed();
-
     println!("{}", hill_climb);
 
     if let Some(fitness_score) = hill_climb.best_fitness_score() {
@@ -124,8 +121,7 @@ fn main() {
                     for person in &people_on_table {
                         for other_person in &people_on_table {
                             if person != other_person {
-                                let person_counter =
-                                    person_counters.entry(*person).or_insert(HashMap::new());
+                                let person_counter = person_counters.entry(*person).or_default();
 
                                 let count = person_counter.entry(*other_person).or_insert(0);
                                 *count += 1
@@ -149,5 +145,4 @@ fn main() {
     } else {
         println!("Invalid solution with fitness score: None");
     }
-    println!("{:?}", duration);
 }

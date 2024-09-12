@@ -293,12 +293,8 @@ fn main() {
             false,
         ));
 
-    let now = std::time::Instant::now();
     let evolve = evolve_builder.call_speciated(10).unwrap();
     // let evolve = evolve_builder.call().unwrap();
-    let duration = now.elapsed();
-    println!("{:?}", duration);
-
     //println!("{}", evolve);
 
     if let Some(best_chromosome) = evolve.best_chromosome() {
@@ -313,7 +309,7 @@ fn main() {
         fitness.calculate_for_chromosome(&best_chromosome, &evolve.genotype);
         fitness.letter_board.iter().for_each(|columns| {
             let string = String::from_iter(columns.iter());
-            println!("{}", string.replace(" ", "."));
+            println!("{}", string.replace(' ', "."));
         });
     } else {
         println!("Invalid solution with fitness score: None");

@@ -1,8 +1,8 @@
 use genetic_algorithm::strategy::hill_climb::prelude::*;
 
-//const TARGET_SCORE: isize = (59.0 / PRECISION) as isize;
-//const PENALTY: f32 = 1000.0;
+const TARGET_SCORE: isize = (59.0 / PRECISION) as isize;
 const PRECISION: f32 = 1e-5;
+// const PENALTY: f32 = 1000.0;
 
 // see https://www.mathworks.com/help/optim/ug/intlinprog.html#bts3gkc-2
 #[derive(Clone, Debug)]
@@ -50,6 +50,8 @@ fn main() {
             vec![-0.01..=0.01, -0.01..=0.01],
             vec![-0.001..=0.001, -0.001..=0.001],
             vec![-0.0001..=0.0001, -0.0001..=0.0001],
+            vec![-0.00001..=0.00001, -0.00001..=0.00001],
+            vec![-0.000001..=0.000001, -0.000001..=0.000001],
         ])
         .build()
         .unwrap();
@@ -59,11 +61,10 @@ fn main() {
     let hill_climb_builder = HillClimb::builder()
         .with_genotype(genotype)
         // .with_variant(HillClimbVariant::Stochastic)
-        // .with_max_stale_generations(1000)
+        // .with_max_stale_generations(100)
         .with_variant(HillClimbVariant::SteepestAscent)
-        .with_max_stale_generations(1)
-        // .with_reporter(HillClimbReporterSimple::new(100))
-        //.with_target_fitness_score(TARGET_SCORE)
+        .with_max_stale_generations(2)
+        .with_target_fitness_score(TARGET_SCORE)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(MILPFitness);
 

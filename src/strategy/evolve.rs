@@ -648,12 +648,13 @@ impl<
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve:")?;
-        writeln!(f, "  genotype: {:?}", self.genotype)?;
         writeln!(f, "  fitness: {:?}", self.fitness)?;
+        writeln!(f)?;
 
         writeln!(f, "{}", self.plugins)?;
         writeln!(f, "{}", self.config)?;
-        writeln!(f, "{}", self.state)
+        writeln!(f, "{}", self.state)?;
+        writeln!(f, "{}", self.genotype)
     }
 }
 

@@ -344,6 +344,6 @@ impl fmt::Display for Bit {
             "  neighbouring_population_size: {}",
             self.neighbouring_population_size()
         )?;
-        writeln!(f, "  seed_genes_list: {:?}", self.seed_genes_list)
+        writeln!(f, "  seed_genes: {:?}", self.seed_genes_list.len())
     }
 }

@@ -32,19 +32,15 @@ fn main() {
         // .with_allele_mutation_range(-0.001..=0.001) // slow converge
         .with_allele_mutation_scaled_range(vec![
             -0.1..=0.1,
-            -0.05..=0.05,
-            -0.025..=0.025,
             -0.01..=0.01,
-            -0.005..=0.005,
-            -0.0025..=0.0025,
             -0.001..=0.001,
+            -0.0001..=0.0001,
+            -0.00001..=0.0001,
         ])
         .build()
         .unwrap();
 
     println!("{}", genotype);
-
-    let now = std::time::Instant::now();
 
     let evolve = Evolve::builder()
         .with_genotype(genotype)
@@ -60,8 +56,5 @@ fn main() {
         .call()
         .unwrap();
 
-    let duration = now.elapsed();
-
     println!("{}", evolve);
-    println!("duration: {:?}", duration);
 }

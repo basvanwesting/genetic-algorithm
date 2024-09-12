@@ -44,6 +44,8 @@ fn main() {
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::Stochastic)
         .with_max_stale_generations(10000)
+        // .with_variant(HillClimbVariant::SteepestAscent)
+        // .with_max_stale_generations(5) // needs to a little bit above 1
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
@@ -52,11 +54,8 @@ fn main() {
         .build()
         .unwrap();
 
-    let now = std::time::Instant::now();
     hill_climb.call();
-    let duration = now.elapsed();
-
-    println!("{}", hill_climb);
+    // println!("{}", hill_climb);
 
     if let Some((best_genes, fitness_score)) = hill_climb.best_genes_and_fitness_score() {
         if fitness_score == 0 {
@@ -65,11 +64,11 @@ fn main() {
                 chars[gene as usize] = 'X';
                 println!("{}", String::from_iter(chars));
             }
+            println!("Valid solution with fitness score: {}", fitness_score);
         } else {
             println!("Wrong solution with fitness score: {}", fitness_score);
         }
     } else {
         println!("Invalid solution with fitness score: None");
     }
-    println!("{:?}", duration);
 }

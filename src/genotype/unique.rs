@@ -237,7 +237,7 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
 impl<T: Allele> fmt::Display for Unique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
-        writeln!(f, "  allele_list: {:?}", self.allele_list)?;
+        writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
@@ -248,6 +248,6 @@ impl<T: Allele> fmt::Display for Unique<T> {
             "  neighbouring_population_size: {}",
             self.neighbouring_population_size()
         )?;
-        writeln!(f, "  seed_genes_list: {:?}", self.seed_genes_list)
+        writeln!(f, "  seed_genes: {:?}", self.seed_genes_list.len())
     }
 }
