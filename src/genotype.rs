@@ -34,6 +34,7 @@ use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
+use std::ops::Add;
 
 /// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
 #[impl_for_tuples(0, 12)]
@@ -63,6 +64,81 @@ impl Allele for u32 {}
 impl Allele for u64 {}
 impl Allele for u8 {}
 impl Allele for usize {}
+
+pub trait RangeAllele: Allele + Add<Output = Self> + std::cmp::PartialOrd + Default {
+    fn smallest_increment() -> Self;
+}
+
+impl RangeAllele for f32 {
+    fn smallest_increment() -> Self {
+        f32::EPSILON
+    }
+}
+impl RangeAllele for f64 {
+    fn smallest_increment() -> Self {
+        f32::EPSILON as f64
+    }
+}
+impl RangeAllele for i128 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for i16 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for i32 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for i64 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for i8 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for isize {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for u128 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for u16 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for u32 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for u64 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for u8 {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
+impl RangeAllele for usize {
+    fn smallest_increment() -> Self {
+        1
+    }
+}
 
 /// Standard Genes, suitable for [Genotype]. Implemented for `Vec<Allele>` and [FixedBitSet]
 pub trait Genes: Clone + Send + Sync + std::fmt::Debug {}

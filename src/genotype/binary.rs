@@ -34,9 +34,10 @@ impl TryFrom<Builder<Self>> for Binary {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if !builder
-            .genes_size.is_some_and(|x| x > 0) {
-            Err(TryFromBuilderError("BinaryGenotype requires a genes_size > 0"))
+        if !builder.genes_size.is_some_and(|x| x > 0) {
+            Err(TryFromBuilderError(
+                "BinaryGenotype requires a genes_size > 0",
+            ))
         } else {
             let genes_size = builder.genes_size.unwrap();
             Ok(Self {

@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype, IncrementalGenotype, MutationType};
+use super::{Genotype, IncrementalGenotype, MutationType, RangeAllele};
 use crate::chromosome::{Chromosome, ChromosomeManager, DynamicMatrixChromosome, GenesPointer};
 use crate::fitness::FitnessValue;
 use crate::population::Population;
@@ -10,7 +10,7 @@ use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::cmp::Ordering;
 use std::fmt;
-use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
+use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
@@ -71,9 +71,8 @@ pub type DefaultAllele = f32;
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct DynamicMatrix<
-    T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default = DefaultAllele,
-> where
+pub struct DynamicMatrix<T: RangeAllele = DefaultAllele>
+where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
@@ -91,8 +90,7 @@ pub struct DynamicMatrix<
     pub best_genes: Vec<T>,
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> TryFrom<Builder<Self>>
-    for DynamicMatrix<T>
+impl<T: RangeAllele> TryFrom<Builder<Self>> for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -137,7 +135,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> DynamicMatrix<T>
+impl<T: RangeAllele> DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -290,7 +288,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> Genotype for DynamicMatrix<T>
+impl<T: RangeAllele> Genotype for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -478,8 +476,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> IncrementalGenotype
-    for DynamicMatrix<T>
+impl<T: RangeAllele> IncrementalGenotype for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -511,7 +508,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> DynamicMatrix<T>
+impl<T: RangeAllele> DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -589,11 +586,7 @@ where
             };
             if base_value < range_end {
                 let new_chromosome = self.chromosome_constructor_from(chromosome);
-                let mut new_value = rng.gen_range(base_value..=range_end);
-                // FIXME: ugly loop, goal is to have an exclusive below range
-                while new_value <= base_value {
-                    new_value = rng.gen_range(base_value..=range_end);
-                }
+                let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
                 population.chromosomes.push(new_chromosome)
             };
@@ -601,8 +594,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> ChromosomeManager<Self>
-    for DynamicMatrix<T>
+impl<T: RangeAllele> ChromosomeManager<Self> for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -643,7 +635,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> Clone for DynamicMatrix<T>
+impl<T: RangeAllele> Clone for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -669,7 +661,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> fmt::Debug for DynamicMatrix<T>
+impl<T: RangeAllele> fmt::Debug for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -689,7 +681,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default> fmt::Display for DynamicMatrix<T>
+impl<T: RangeAllele> fmt::Display for DynamicMatrix<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

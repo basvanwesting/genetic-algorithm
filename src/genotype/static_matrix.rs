@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype, IncrementalGenotype, MutationType};
+use super::{Genotype, IncrementalGenotype, MutationType, RangeAllele};
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesPointer, StaticMatrixChromosome};
 use crate::fitness::FitnessValue;
 use crate::population::Population;
@@ -10,7 +10,7 @@ use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::cmp::Ordering;
 use std::fmt;
-use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
+use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 
 /// Genes (N) and Population (M) are a fixed `N*M` matrix of numeric values, stored on the heap as a
 /// nested array 'Box<[[T; N]; M]>'. The genes are contiguous in memory, with an N jump to the next
@@ -75,11 +75,8 @@ use std::ops::{Add, Bound, Range, RangeBounds, RangeInclusive};
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct StaticMatrix<
-    T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-    const N: usize,
-    const M: usize,
-> where
+pub struct StaticMatrix<T: RangeAllele, const N: usize, const M: usize>
+where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
@@ -97,11 +94,8 @@ pub struct StaticMatrix<
     pub best_genes: Box<[T; N]>,
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > TryFrom<Builder<Self>> for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> TryFrom<Builder<Self>>
+    for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -146,11 +140,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -286,11 +276,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > Genotype for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> Genotype for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -477,11 +463,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > IncrementalGenotype for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> IncrementalGenotype for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -513,11 +495,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -595,11 +573,7 @@ where
             };
             if base_value < range_end {
                 let new_chromosome = self.chromosome_constructor_from(chromosome);
-                let mut new_value = rng.gen_range(base_value..=range_end);
-                // FIXME: ugly loop, goal is to have an exclusive below range
-                while new_value <= base_value {
-                    new_value = rng.gen_range(base_value..=range_end);
-                }
+                let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
                 population.chromosomes.push(new_chromosome)
             };
@@ -607,11 +581,8 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > ChromosomeManager<Self> for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> ChromosomeManager<Self>
+    for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -645,11 +616,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > Clone for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> Clone for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -675,11 +642,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > fmt::Debug for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> fmt::Debug for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -699,11 +662,7 @@ where
     }
 }
 
-impl<
-        T: Allele + Add<Output = T> + std::cmp::PartialOrd + Default,
-        const N: usize,
-        const M: usize,
-    > fmt::Display for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> fmt::Display for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

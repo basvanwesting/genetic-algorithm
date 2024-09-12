@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype, IncrementalGenotype, MutationType};
+use super::{Genotype, IncrementalGenotype, MutationType, RangeAllele};
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, RangeChromosome};
 use crate::population::Population;
 use itertools::Itertools;
@@ -8,7 +8,7 @@ use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
-use std::ops::{Add, RangeInclusive};
+use std::ops::RangeInclusive;
 
 pub type DefaultAllele = f32;
 
@@ -55,7 +55,7 @@ pub type DefaultAllele = f32;
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct Range<T: Allele + Add<Output = T> + std::cmp::PartialOrd = DefaultAllele>
+pub struct Range<T: RangeAllele = DefaultAllele>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -73,7 +73,7 @@ where
     pub best_genes: Vec<T>,
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> TryFrom<Builder<Self>> for Range<T>
+impl<T: RangeAllele> TryFrom<Builder<Self>> for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -117,7 +117,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> Range<T>
+impl<T: RangeAllele> Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -170,7 +170,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> Genotype for Range<T>
+impl<T: RangeAllele> Genotype for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -342,7 +342,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> IncrementalGenotype for Range<T>
+impl<T: RangeAllele> IncrementalGenotype for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -374,7 +374,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> Range<T>
+impl<T: RangeAllele> Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -451,11 +451,7 @@ where
             };
             if base_value < range_end {
                 let mut new_chromosome = self.chromosome_constructor_from(chromosome);
-                let mut new_value = rng.gen_range(base_value..=range_end);
-                // FIXME: ugly loop, goal is to have an exclusive below range
-                while new_value <= base_value {
-                    new_value = rng.gen_range(base_value..=range_end);
-                }
+                let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
                 new_chromosome.genes[index] = new_value;
                 population.chromosomes.push(new_chromosome);
             };
@@ -463,7 +459,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> ChromosomeManager<Self> for Range<T>
+impl<T: RangeAllele> ChromosomeManager<Self> for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -494,7 +490,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> Clone for Range<T>
+impl<T: RangeAllele> Clone for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -519,7 +515,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> fmt::Debug for Range<T>
+impl<T: RangeAllele> fmt::Debug for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -539,7 +535,7 @@ where
     }
 }
 
-impl<T: Allele + Add<Output = T> + std::cmp::PartialOrd> fmt::Display for Range<T>
+impl<T: RangeAllele> fmt::Display for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

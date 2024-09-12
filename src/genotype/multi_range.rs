@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype, IncrementalGenotype, MutationType};
+use super::{Genotype, IncrementalGenotype, MutationType, RangeAllele};
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, MultiRangeChromosome};
 use crate::population::Population;
 use itertools::Itertools;
@@ -8,7 +8,7 @@ use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
-use std::ops::{Add, RangeInclusive};
+use std::ops::RangeInclusive;
 
 pub type DefaultAllele = f32;
 
@@ -81,9 +81,8 @@ pub type DefaultAllele = f32;
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct MultiRange<
-    T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd = DefaultAllele,
-> where
+pub struct MultiRange<T: RangeAllele + Into<f64> = DefaultAllele>
+where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
@@ -102,8 +101,7 @@ pub struct MultiRange<
     pub best_genes: Vec<T>,
 }
 
-impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> TryFrom<Builder<Self>>
-    for MultiRange<T>
+impl<T: RangeAllele + Into<f64>> TryFrom<Builder<Self>> for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -170,7 +168,7 @@ where
     }
 }
 
-impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> MultiRange<T>
+impl<T: RangeAllele + Into<f64>> MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -227,7 +225,7 @@ where
     }
 }
 
-impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> Genotype for MultiRange<T>
+impl<T: RangeAllele + Into<f64>> Genotype for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -401,8 +399,7 @@ where
     }
 }
 
-impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> IncrementalGenotype
-    for MultiRange<T>
+impl<T: RangeAllele + Into<f64>> IncrementalGenotype for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -434,7 +431,7 @@ where
     }
 }
 
-impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> MultiRange<T>
+impl<T: RangeAllele + Into<f64>> MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -518,11 +515,8 @@ where
                 };
                 if base_value < range_end {
                     let mut new_chromosome = self.chromosome_constructor_from(chromosome);
-                    let mut new_value = rng.gen_range(base_value..=range_end);
-                    // FIXME: ugly loop, goal is to have an exclusive below range
-                    while new_value <= base_value {
-                        new_value = rng.gen_range(base_value..=range_end);
-                    }
+                    let new_value =
+                        rng.gen_range((base_value + T::smallest_increment())..=range_end);
                     new_chromosome.genes[index] = new_value;
                     population.chromosomes.push(new_chromosome);
                 };
@@ -530,8 +524,7 @@ where
     }
 }
 
-impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> ChromosomeManager<Self>
-    for MultiRange<T>
+impl<T: RangeAllele + Into<f64>> ChromosomeManager<Self> for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -566,7 +559,7 @@ where
     }
 }
 
-impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> Clone for MultiRange<T>
+impl<T: RangeAllele + Into<f64>> Clone for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -601,7 +594,7 @@ where
     }
 }
 
-impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> fmt::Debug for MultiRange<T>
+impl<T: RangeAllele + Into<f64>> fmt::Debug for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -622,7 +615,7 @@ where
     }
 }
 
-impl<T: Allele + Into<f64> + Add<Output = T> + std::cmp::PartialOrd> fmt::Display for MultiRange<T>
+impl<T: RangeAllele + Into<f64>> fmt::Display for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

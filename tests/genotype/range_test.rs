@@ -447,7 +447,7 @@ fn integer_neighbouring_population_2_unscaled() {
     genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
     assert_eq!(
         inspect::population(&population),
-        vec![vec![3, 4], vec![5, 4], vec![4, 2], vec![4, 6]]
+        vec![vec![3, 4], vec![5, 4], vec![4, 3], vec![4, 5]]
     );
 }
 

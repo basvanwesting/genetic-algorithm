@@ -361,7 +361,7 @@ fn integer_neighbouring_population_3() {
             vec![5, 2, 20],
             vec![4, 0, 20],
             vec![4, 4, 20],
-            vec![4, 2, 19],
+            vec![4, 2, 17],
         ]
     );
 }
