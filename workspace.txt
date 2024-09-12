@@ -30,6 +30,7 @@
   * [v] Fix Reporting
   * [v] Extensions benchmark is noisy, fix it
   * [ ] Make Genotype display more informative with calculated effects instead of resembling Debug, maybe print out in on_init as well
+  * [ ] Remove the need for neighbouring_population_size + 1 in SteepesAscent
 
 * [ ] Make CrossoverGene trait for Genotype and CrossoverPoint trait, instead of predicate checking functions. Simply won't compile of doesn't implement
 
