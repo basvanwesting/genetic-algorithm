@@ -30,6 +30,7 @@ use crate::fitness::FitnessValue;
 use crate::population::Population;
 use fixedbitset::FixedBitSet;
 use impl_trait_for_tuples::impl_for_tuples;
+use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
@@ -156,8 +157,34 @@ pub trait Genotype:
     fn seed_genes_list(&self) -> &Vec<Self::Genes>;
     fn max_scale_index(&self) -> Option<usize>;
 
-    fn expected_number_of_sampled_index_collisions(&self, number_of_samples: usize) -> usize {
-        number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
+    fn expected_number_of_sampled_index_duplicates(&self, number_of_samples: usize) -> usize {
+        if number_of_samples > 1 {
+            number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
+        } else {
+            0
+        }
+    }
+    fn expected_number_of_sampled_index_duplicates_report(&self) -> String {
+        [
+            self.genes_size() / 256,
+            self.genes_size() / 128,
+            self.genes_size() / 64,
+            self.genes_size() / 32,
+            self.genes_size() / 16,
+            self.genes_size() / 8,
+            self.genes_size() / 4,
+            self.genes_size() / 2,
+        ]
+        .iter()
+        .map(|number_of_samples| {
+            (
+                number_of_samples,
+                self.expected_number_of_sampled_index_duplicates(*number_of_samples),
+            )
+        })
+        .filter(|(_, c)| *c > 0)
+        .map(|(n, e)| format!("{} => {}", n, e))
+        .join(", ")
     }
 }
 

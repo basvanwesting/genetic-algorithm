@@ -38,6 +38,8 @@ fn main() {
     //     .build()
     //     .unwrap();
 
+    println!("{}", genotype);
+
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
         // .with_select(SelectElite::new(0.8))

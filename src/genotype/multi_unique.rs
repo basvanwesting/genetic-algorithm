@@ -383,6 +383,11 @@ impl<T: Allele> fmt::Display for MultiUnique<T> {
             "  neighbouring_population_size: {}",
             self.neighbouring_population_size()
         )?;
+        writeln!(
+            f,
+            "  expected_number_of_sampled_index_duplicates: {}",
+            self.expected_number_of_sampled_index_duplicates_report()
+        )?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes_list.len())
     }
 }
