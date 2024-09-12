@@ -44,8 +44,8 @@ impl TryFrom<Builder<Self>> for Bit {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.genes_size.is_none() {
-            Err(TryFromBuilderError("BitGenotype requires a genes_size"))
+        if !builder.genes_size.is_some_and(|x| x > 0) {
+            Err(TryFromBuilderError("BitGenotype requires a genes_size > 0"))
         } else {
             let genes_size = builder.genes_size.unwrap();
             let mut crossover_points: Vec<usize> =

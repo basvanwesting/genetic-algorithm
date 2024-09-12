@@ -109,8 +109,10 @@ where
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.genes_size.is_none() {
-            Err(TryFromBuilderError("RangeGenotype requires a genes_size"))
+        if !builder.genes_size.is_some_and(|x| x > 0) {
+            Err(TryFromBuilderError(
+                "RangeGenotype requires a genes_size > 0",
+            ))
         } else if builder.allele_range.is_none() {
             Err(TryFromBuilderError("RangeGenotype requires a allele_range"))
         } else {

@@ -29,14 +29,8 @@
   * [v] Avoid calculate_for_chromosome in SteepesAscent context
   * [v] Fix Reporting
   * [v] Extensions benchmark is noisy, fix it
-  * [ ] Make Genotype display more informative with calculated effects instead of resembling Debug, maybe print out in on_init as well
-  * [ ] Remove the need for neighbouring_population_size + 1 in SteepesAscent
+  * [v] Make Genotype display more informative with calculated effects instead of resembling Debug
 
-* [ ] Make CrossoverGene trait for Genotype and CrossoverPoint trait, instead of predicate checking functions. Simply won't compile of doesn't implement
-
-
-* [ ] Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)
-* [ ] Chunk parallel iters for less switching?
 * [ ] neigbouring better garantees? Can max stale gen be 1? Check, also check use of ugly loop. Precision really matters here, may be set it?
 * [ ] Move logic of random gene factory inside set_random_genes
 * [ ] Document GenotypeBuilder, Split for Range types?

@@ -62,8 +62,9 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
-        if builder.genes_size.is_none() {
-            Err(TryFromBuilderError("ListGenotype requires a genes_size"))
+        if !builder
+            .genes_size.is_some_and(|x| x > 0) {
+            Err(TryFromBuilderError("ListGenotype requires a genes_size > 0"))
         } else if builder.allele_list.is_none() {
             Err(TryFromBuilderError("ListGenotype requires allele_list"))
         } else if builder.allele_list.as_ref().map(|o| o.is_empty()).unwrap() {
