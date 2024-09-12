@@ -144,6 +144,7 @@
 //! Possibly a GPU compatible memory layout still needs to be added. The current implementation
 //! just provides all the basic building blocks to implement this. Please open a
 //! [github](https://github.com/basvanwesting/genetic-algorithm) issue for further support.
+pub mod allele;
 pub mod chromosome;
 pub mod crossover;
 pub mod extension;

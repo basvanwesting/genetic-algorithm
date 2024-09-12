@@ -25,120 +25,15 @@ pub use self::range::Range as RangeGenotype;
 pub use self::static_matrix::StaticMatrix as StaticMatrixGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
+pub use crate::allele::{Allele, RangeAllele};
 use crate::chromosome::{Chromosome, ChromosomeManager};
 use crate::fitness::FitnessValue;
 use crate::population::Population;
 use fixedbitset::FixedBitSet;
-use impl_trait_for_tuples::impl_for_tuples;
 use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
-use std::ops::Add;
-
-/// Standard Allele, suitable for [Genotype]. Implemented for a set of primitives by default
-#[impl_for_tuples(0, 12)]
-pub trait Allele: Clone + Copy + Send + Sync + std::fmt::Debug
-// use rand::distributions::uniform::SampleUniform;
-// + SampleUniform
-// Copy
-// + Default
-{
-}
-// pub trait ListAllele: Allele + PartialEq {}
-// pub trait RangeAllele: Allele + PartialEq + PartialOrd + Add<Output = Self> {}
-
-impl Allele for bool {}
-impl Allele for char {}
-impl Allele for f32 {}
-impl Allele for f64 {}
-impl Allele for i128 {}
-impl Allele for i16 {}
-impl Allele for i32 {}
-impl Allele for i64 {}
-impl Allele for i8 {}
-impl Allele for isize {}
-impl Allele for u128 {}
-impl Allele for u16 {}
-impl Allele for u32 {}
-impl Allele for u64 {}
-impl Allele for u8 {}
-impl Allele for usize {}
-
-pub trait RangeAllele: Allele + Add<Output = Self> + std::cmp::PartialOrd + Default {
-    fn smallest_increment() -> Self;
-}
-
-impl RangeAllele for f32 {
-    fn smallest_increment() -> Self {
-        f32::EPSILON
-    }
-}
-impl RangeAllele for f64 {
-    fn smallest_increment() -> Self {
-        f32::EPSILON as f64
-    }
-}
-impl RangeAllele for i128 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for i16 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for i32 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for i64 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for i8 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for isize {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for u128 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for u16 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for u32 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for u64 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for u8 {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
-impl RangeAllele for usize {
-    fn smallest_increment() -> Self {
-        1
-    }
-}
 
 /// Standard Genes, suitable for [Genotype]. Implemented for `Vec<Allele>` and [FixedBitSet]
 pub trait Genes: Clone + Send + Sync + std::fmt::Debug {}

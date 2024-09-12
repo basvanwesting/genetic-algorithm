@@ -10,7 +10,7 @@ pub use crate::fitness::{
 #[doc(no_inline)]
 pub use crate::genotype::{
     Allele, BinaryGenotype, BitGenotype, Genotype, GenotypeBuilder, ListGenotype,
-    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeGenotype,
+    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeAllele, RangeGenotype,
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]

@@ -1,5 +1,5 @@
+use crate::allele::Allele;
 use crate::fitness::FitnessValue;
-use crate::genotype::Allele;
 use std::collections::hash_map::DefaultHasher;
 use std::hash::{Hash, Hasher};
 

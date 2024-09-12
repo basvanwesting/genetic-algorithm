@@ -1,5 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Allele, Genotype, IncrementalGenotype, PermutableGenotype};
+use super::{Genotype, IncrementalGenotype, PermutableGenotype};
+use crate::allele::Allele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, MultiListChromosome};
 use crate::population::Population;
 use itertools::Itertools;
