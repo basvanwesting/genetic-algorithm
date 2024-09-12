@@ -69,6 +69,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add utility methods `genes_slice(chromosome)` and `best_genes_slice()` to
   `Genotype`, returning the genes as a slice for all chromosome types
   (`GenesOwned` or `GenesPointer`)
+* Add `Fitness` placeholder `SumDynamicMatrix` for `DynamicMatrixGenotype` (with optional precision)
+* Add `Fitness` placeholder `SumStaticMatrix` for `StaticMatrixGenotype` (with optional precision)
 * Add `EvolveReporterDuration`, `HillClimbReporterDuration` and
   `PermutateReporterDuration` to report only on the duration of the different
   phases of the strategies

@@ -1,12 +1,17 @@
 //! placeholders for testing and bootstrapping, not really used in practice
+use crate::allele::RangeAllele;
 use crate::chromosome::GenesOwner;
-use crate::fitness::{Fitness, FitnessChromosome, FitnessValue};
-use crate::genotype::{BinaryGenotype, BitGenotype, Genotype};
+use crate::fitness::{Fitness, FitnessChromosome, FitnessPopulation, FitnessValue};
+use crate::genotype::{
+    BinaryGenotype, BitGenotype, DynamicMatrixGenotype, Genotype, StaticMatrixGenotype,
+};
+use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use std::marker::PhantomData;
 use std::ops::Range;
+use std::{thread, time};
 
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
@@ -46,6 +51,7 @@ impl Fitness for CountTrue {
     }
 }
 
+/// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
 pub struct CountOnes;
 impl Fitness for CountOnes {
@@ -60,7 +66,7 @@ impl Fitness for CountOnes {
 }
 
 /// placeholder for testing and bootstrapping, not really used in practice
-/// Sums the genes and converts to isize [FitnessValue]
+/// Sums the genes and converts to [FitnessValue]
 /// There are 2 constructors:
 /// * new(), precision is defaulted to 1.0
 /// * new_with_precision(precision)
@@ -109,8 +115,138 @@ where
     }
 }
 
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Sums the dynamic matrix rows and converts to vector of [FitnessValue]
+/// There are 2 constructors:
+/// * new(), precision is defaulted to 1.0
+/// * new_with_precision(precision)
+#[derive(Clone, Debug)]
+pub struct SumDynamicMatrix<T: RangeAllele + Into<f64>>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    precision: f64,
+    _phantom: PhantomData<T>,
+}
+impl<T: RangeAllele + Into<f64>> SumDynamicMatrix<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn new_with_precision(precision: f64) -> Self {
+        Self {
+            precision,
+            ..Default::default()
+        }
+    }
+}
+impl<T: RangeAllele + Into<f64>> Default for SumDynamicMatrix<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn default() -> Self {
+        Self {
+            precision: 1.0_f64,
+            _phantom: PhantomData,
+        }
+    }
+}
+impl<T: RangeAllele + Into<f64>> Fitness for SumDynamicMatrix<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    type Genotype = DynamicMatrixGenotype<T>;
+    fn calculate_for_population(
+        &mut self,
+        _population: &FitnessPopulation<Self>,
+        genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .chunks(genotype.genes_size())
+            .map(|genes| {
+                (genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision)
+                    as FitnessValue
+            })
+            .map(Some)
+            .collect()
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Sums the static matrix rows and converts to vector of [FitnessValue]
+/// There are 2 constructors:
+/// * new(), precision is defaulted to 1.0
+/// * new_with_precision(precision)
+#[derive(Clone, Debug)]
+pub struct SumStaticMatrix<T: RangeAllele + Into<f64>, const N: usize, const M: usize>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    precision: f64,
+    _phantom: PhantomData<T>,
+}
+impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> SumStaticMatrix<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn new_with_precision(precision: f64) -> Self {
+        Self {
+            precision,
+            ..Default::default()
+        }
+    }
+}
+impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Default
+    for SumStaticMatrix<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn default() -> Self {
+        Self {
+            precision: 1.0_f64,
+            _phantom: PhantomData,
+        }
+    }
+}
+
+impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Fitness
+    for SumStaticMatrix<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    type Genotype = StaticMatrixGenotype<T, N, M>;
+    fn calculate_for_population(
+        &mut self,
+        _population: &FitnessPopulation<Self>,
+        genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .iter()
+            .map(|genes| {
+                (genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision)
+                    as FitnessValue
+            })
+            .map(Some)
+            .collect()
+    }
+}
+
 /// placeholder for testing and benchmarking, not used in practice
-use std::{thread, time};
 #[derive(Debug)]
 pub struct CountTrueWithSleep {
     pub micro_seconds: u64,
@@ -166,11 +302,11 @@ impl<G: Genotype> Fitness for Countdown<G> {
             Some(0)
         } else {
             self.0 -= 1;
-            Some(self.0 as isize)
+            Some(self.0 as FitnessValue)
         }
     }
 }
-///
+
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
 pub struct CountdownNoisy<G: Genotype> {
@@ -204,7 +340,7 @@ impl<G: Genotype> Fitness for CountdownNoisy<G> {
             self.start -= 1;
             let base = (self.start / self.step + 1) * self.step;
             let result = base + self.noise_sampler.sample(&mut self.rng);
-            Some(result as isize)
+            Some(result as FitnessValue)
         }
     }
 }

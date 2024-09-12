@@ -1,6 +1,8 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::{CountOnes, CountTrue, SumGenes};
+use genetic_algorithm::fitness::placeholders::{
+    CountOnes, CountTrue, SumDynamicMatrix, SumGenes, SumStaticMatrix,
+};
 use genetic_algorithm::strategy::evolve::prelude::*;
 
 #[test]
@@ -505,24 +507,6 @@ fn call_multi_list() {
     assert_eq!(evolve.best_genes().unwrap(), vec![4, 1, 0, 3]);
 }
 
-#[derive(Clone, Debug)]
-pub struct SumStaticMatrixGenes;
-impl Fitness for SumStaticMatrixGenes {
-    type Genotype = StaticMatrixGenotype<u16, 10, 100>;
-    fn calculate_for_population(
-        &mut self,
-        _population: &Population<StaticMatrixChromosome>,
-        genotype: &Self::Genotype,
-    ) -> Vec<Option<FitnessValue>> {
-        genotype
-            .data
-            .iter()
-            .map(|genes| genes.iter().sum::<u16>() as FitnessValue)
-            .map(Some)
-            .collect()
-    }
-}
-
 #[test]
 fn call_static_matrix() {
     let genotype = StaticMatrixGenotype::<u16, 10, 100>::builder()
@@ -536,7 +520,7 @@ fn call_static_matrix() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumStaticMatrixGenes)
+        .with_fitness(SumStaticMatrix::new())
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_crossover(CrossoverSingleGene::new())
         .with_select(SelectTournament::new(4, 0.9))
@@ -554,24 +538,6 @@ fn call_static_matrix() {
     );
 }
 
-#[derive(Clone, Debug)]
-pub struct SumDynamicMatrixGenes;
-impl Fitness for SumDynamicMatrixGenes {
-    type Genotype = DynamicMatrixGenotype<u16>;
-    fn calculate_for_population(
-        &mut self,
-        _population: &Population<DynamicMatrixChromosome>,
-        genotype: &Self::Genotype,
-    ) -> Vec<Option<FitnessValue>> {
-        genotype
-            .data
-            .chunks(genotype.genes_size())
-            .map(|genes| genes.iter().sum::<u16>() as FitnessValue)
-            .map(Some)
-            .collect()
-    }
-}
-
 #[test]
 fn call_dynamic_matrix() {
     let genotype = DynamicMatrixGenotype::<u16>::builder()
@@ -585,7 +551,7 @@ fn call_dynamic_matrix() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumDynamicMatrixGenes)
+        .with_fitness(SumDynamicMatrix::new())
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_crossover(CrossoverSingleGene::new())
         .with_select(SelectTournament::new(4, 0.9))
@@ -601,6 +567,7 @@ fn call_dynamic_matrix() {
         evolve.best_genes().unwrap(),
         vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
+    assert_eq!(evolve.genotype.data.len(), 10 * 100);
 }
 
 #[test]

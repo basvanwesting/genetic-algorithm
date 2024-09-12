@@ -15,9 +15,9 @@ use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 
 pub type DefaultAllele = f32;
 
-/// Genes (N) and Population (M) are a stored in a single contiguous `Vec<T>` of numeric values
-/// with length N*M, but conceptually treated like a matrix of N*M below. The genes are stored
-/// contiguous in memory, with genes_size jumps to the next chromosome. The genes are therefore not
+/// Genes (`N`) and Population (`M`) are a stored in a single contiguous `Vec<T>` of numeric values
+/// with length `N*M`, but conceptually treated like a matrix of `N*M` below. The genes are stored
+/// contiguous in memory, with an `N` jump to the next chromosome. The genes are therefore not
 /// stored on the Chromosomes themselves, which just point to the data (chromosome.row_id == row id
 /// if the matrix). This opens the possibility for linear algebra fitness calculations on the whole
 /// population at once, possibly using the GPU in the future (if the data is stored and mutated at

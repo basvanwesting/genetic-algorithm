@@ -23,8 +23,11 @@ impl Allele for u64 {}
 impl Allele for u8 {}
 impl Allele for usize {}
 
-// pub trait ListAllele: Allele + PartialEq {}
+/// Special Allele subtrait, used for [crate::genotype::RangeGenotype],
+/// [crate::genotype::MultiRangeGenotype], [crate::genotype::DynamicMatrixGenotype] and
+/// [crate::genotype::StaticMatrixGenotype]
 pub trait RangeAllele: Allele + Add<Output = Self> + std::cmp::PartialOrd + Default {
+    /// used to build a start exclusive range, by adding the increment to the start
     fn smallest_increment() -> Self;
 }
 
@@ -35,7 +38,7 @@ impl RangeAllele for f32 {
 }
 impl RangeAllele for f64 {
     fn smallest_increment() -> Self {
-        f32::EPSILON as f64
+        f64::EPSILON
     }
 }
 impl RangeAllele for i128 {

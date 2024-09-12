@@ -44,11 +44,16 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// # User implementation
 ///
 /// There are two possible levels to implement. At least one level needs to be implemented:
-/// * [calculate_for_chromosome](Fitness::calculate_for_chromosome)
+/// * [`calculate_for_chromosome(...) -> Option<FitnessValue>`](Fitness::calculate_for_chromosome)
 ///   * The standard situation, suits all strategies. Implementable with all Genotypes.
 ///   * Standard [Genotype]s have [GenesOwner](crate::chromosome::GenesOwner) chromosomes. These
-///     chromosomes have a `genes` field, which can read for the calculations.
-/// * [calculate_for_population](Fitness::calculate_for_population)
+///     chromosomes have a `genes` field, which can be read for the calculations.
+///   * non-standard [Genotype]s with [GenesPointer](crate::chromosome::GenesPointer) chromosomes.
+///     These chromosomes have don't have a `genes` field, so you need to retrieve the genes using
+///     [genotype.genes_slice(&chromosome)](crate::genotype::Genotype::genes_slice), which can then
+///     be read for the calculations. But for these types you usually don't want to reach this call
+///     level, see other level below
+/// * [`calculate_for_population(...) -> Vec<Option<FitnessValue>>`](Fitness::calculate_for_population)
 ///   * *Only overwrite for matrix Genotypes (designed for possible GPU acceleration)*
 ///   * If not overwritten, results in calling
 ///     [calculate_for_chromosome](Fitness::calculate_for_chromosome) for each chromosome in the
@@ -72,18 +77,23 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// The strategies use different levels of calls in [Fitness]. So you cannot always just intercept at
 /// [calculate_for_population](Fitness::calculate_for_population) and be sure
 /// [calculate_for_chromosome](Fitness::calculate_for_chromosome) will not be called:
-/// * [Evolve](crate::strategy::evolve::Evolve) => calculate_for_population
-/// * [Permutate](crate::strategy::permutate::Permutate) => calculate_for_chromosome directly
-/// * [HillClimb](crate::strategy::hill_climb::HillClimb):
-///   * [Stochastic](crate::strategy::hill_climb::HillClimbVariant::Stochastic) => calculate_for_chromosome directly
-///   * [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent) => calculate_for_population
 ///
-/// Therefore, additionally, you can implement [calculate_for_chromosome](Fitness::calculate_for_chromosome)
-/// for [GenesPointer](crate::chromosome::GenesPointer) chromosomes. The [Genotype] is passed as a
-/// reference for genes lookup (using
-/// [genotype.genes_slice(&chromosome)](crate::genotype::Genotype::genes_slice)). This is
-/// sometimes useful when testing out different strategies with different call levels. Problably no
-/// longer needed once settled on a strategy.
+/// * Population level calculations (calling
+///   [calculate_for_chromosome](Fitness::calculate_for_chromosome) indirectly through
+///   [calculate_for_population](Fitness::calculate_for_population), if not overwritten)
+///   * [Evolve](crate::strategy::evolve::Evolve)
+///   * [HillClimb](crate::strategy::hill_climb::HillClimb) with [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)
+/// * Chromosome level calculations (calling
+///   [calculate_for_chromosome](Fitness::calculate_for_chromosome) directly, bypassing
+///   [calculate_for_population](Fitness::calculate_for_population) entirely)
+///   * [Permutate](crate::strategy::permutate::Permutate)
+///   * [HillClimb](crate::strategy::hill_climb::HillClimb) with [Stochastic](crate::strategy::hill_climb::HillClimbVariant::Stochastic)
+///
+/// Therefore, additionally, you might need to implement
+/// [calculate_for_chromosome](Fitness::calculate_for_chromosome) for
+/// [GenesPointer](crate::chromosome::GenesPointer) chromosomes. This is sometimes needed when
+/// testing out different strategies with different call levels. Problably no longer needed once
+/// settled on a strategy.
 ///
 /// # Panics
 ///

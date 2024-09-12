@@ -13,9 +13,9 @@ use std::cmp::Ordering;
 use std::fmt;
 use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 
-/// Genes (N) and Population (M) are a fixed `N*M` matrix of numeric values, stored on the heap as a
-/// nested array 'Box<[[T; N]; M]>'. The genes are contiguous in memory, with an N jump to the next
-/// chromosome ([[T; N]; M] can be treated like [T; N*M] in memory). The genes are therefore not
+/// Genes (`N`) and Population (`M`) are a fixed `N*M` matrix of numeric values, stored on the heap as a
+/// nested array `Box<[[T; N]; M]>`. The genes are contiguous in memory, with an `N` jump to the next
+/// chromosome (`[[T; N]; M]` can be treated like `[T; N * M]` in memory). The genes are therefore not
 /// stored on the Chromosomes themselves, which just point to the data (chromosome.row_id ==
 /// row id of the matrix). The genes_size can be smaller than N, which would just leave a part of
 /// the matrix unused at T::default(). This opens the possibility for linear algebra fitness

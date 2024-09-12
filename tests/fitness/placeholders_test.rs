@@ -1,10 +1,14 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::chromosome::{BinaryChromosome, ListChromosome, RangeChromosome};
+use genetic_algorithm::chromosome::{
+    BinaryChromosome, ChromosomeManager, ListChromosome, RangeChromosome,
+};
 use genetic_algorithm::fitness::placeholders::{
-    CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes, Zero,
+    CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumDynamicMatrix, SumGenes,
+    SumStaticMatrix, Zero,
 };
 use genetic_algorithm::fitness::Fitness;
+use genetic_algorithm::genotype::{DynamicMatrixGenotype, StaticMatrixGenotype};
 
 #[test]
 fn binary_genotype() {
@@ -221,5 +225,59 @@ fn range_genotype_f64() {
     assert_eq!(
         SumGenes::new_with_precision(1e-3).calculate_for_chromosome(&chromosome, &genotype),
         Some(7199)
+    );
+}
+
+#[test]
+fn dynamic_matrix_genotype_f32() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = DynamicMatrixGenotype::builder()
+        .with_genes_size(4)
+        .with_allele_range(0.0_f32..=1.0_f32)
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let population = Population::new(
+        [
+            genotype.chromosome_constructor_random(&mut rng),
+            genotype.chromosome_constructor_random(&mut rng),
+            genotype.chromosome_constructor_random(&mut rng),
+            genotype.chromosome_constructor_random(&mut rng),
+            genotype.chromosome_constructor_random(&mut rng),
+        ]
+        .to_vec(),
+    );
+
+    assert_eq!(
+        SumDynamicMatrix::new_with_precision(1e-3).calculate_for_population(&population, &genotype),
+        vec![Some(2328), Some(2884), Some(2431), Some(1845), Some(2041)]
+    );
+}
+
+#[test]
+fn static_matrix_genotype_f32() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = StaticMatrixGenotype::<f32, 4, 5>::builder()
+        .with_genes_size(4)
+        .with_allele_range(0.0_f32..=1.0_f32)
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let population = Population::new(
+        [
+            genotype.chromosome_constructor_random(&mut rng),
+            genotype.chromosome_constructor_random(&mut rng),
+            genotype.chromosome_constructor_random(&mut rng),
+            genotype.chromosome_constructor_random(&mut rng),
+            genotype.chromosome_constructor_random(&mut rng),
+        ]
+        .to_vec(),
+    );
+
+    assert_eq!(
+        SumStaticMatrix::new_with_precision(1e-3).calculate_for_population(&population, &genotype),
+        vec![Some(2328), Some(2884), Some(2431), Some(1845), Some(2041)]
     );
 }

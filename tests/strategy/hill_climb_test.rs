@@ -1,6 +1,8 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
+use genetic_algorithm::fitness::placeholders::{
+    CountTrue, SumDynamicMatrix, SumGenes, SumStaticMatrix,
+};
 use genetic_algorithm::genotype::IncrementalGenotype;
 use genetic_algorithm::strategy::hill_climb::prelude::*;
 
@@ -253,24 +255,6 @@ fn call_binary_steepest_ascent() {
     assert_eq!(hill_climb.best_fitness_score(), Some(0));
 }
 
-#[derive(Clone, Debug)]
-pub struct SumStaticMatrixGenes;
-impl Fitness for SumStaticMatrixGenes {
-    type Genotype = StaticMatrixGenotype<i16, 20, { 40 + 1 }>;
-    fn calculate_for_population(
-        &mut self,
-        _population: &Population<StaticMatrixChromosome>,
-        genotype: &Self::Genotype,
-    ) -> Vec<Option<FitnessValue>> {
-        genotype
-            .data
-            .iter()
-            .map(|genes| genes.iter().sum::<i16>() as FitnessValue)
-            .map(Some)
-            .collect()
-    }
-}
-
 #[test]
 fn call_static_matrix_steepest_ascent() {
     let genotype = StaticMatrixGenotype::<i16, 20, { 40 + 1 }>::builder()
@@ -288,7 +272,7 @@ fn call_static_matrix_steepest_ascent() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_fitness(SumStaticMatrixGenes)
+        .with_fitness(SumStaticMatrix::new())
         .with_reporter(HillClimbReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -296,4 +280,34 @@ fn call_static_matrix_steepest_ascent() {
 
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(0));
+}
+
+#[test]
+fn call_dynamic_matrix_steepest_ascent() {
+    let genotype = DynamicMatrixGenotype::<i16>::builder()
+        .with_genes_size(20)
+        .with_allele_range(0..=10)
+        .with_allele_mutation_range(-1..=1)
+        .build()
+        .unwrap();
+    assert_eq!(
+        genotype.neighbouring_population_size(),
+        BigUint::from(40_u32)
+    );
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_target_fitness_score(0)
+        .with_fitness(SumDynamicMatrix::new())
+        .with_reporter(HillClimbReporterNoop::new())
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(0));
+
+    // the neighbouring_population_size is restricted by allele range boundaries early on, so 37 instead of 40
+    assert_eq!(hill_climb.genotype.data.len(), 20 * 37);
 }
