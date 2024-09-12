@@ -4,6 +4,56 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.14.0] - 2024-09-12
+
+### Design choices (API changes listed separately below)
+* In order to support future GPU acceleration, the possibilty for the Genotype
+to store the genes of the whole population in a single contiguous memory
+location has been added. This has the following effects:
+  * The Genotype has to be mutable and passed along for most operations. Affects a log of interal function paramters
+  * Chromosomes no longer always own their own genes, but can also just point
+  to a section of the genotype's data storage. New triats GenesOwner (has genes) and GenesPointer (has row_id) for chromosomes
+  * Each Genotype now has its own type of Chromosome, which implements the
+  Genotype's genes storage model. Genotype get an associated Chromosome type. This leads to
+  three core chromosome implementations VectorChromosome, RowChromosome,
+  BitChromosome. The orignal chromosomes are all now VectorChromosomes, as they
+  store a `Vec<Allele>`
+  * Chromosomes can't just be created, cloned and dropped, as the genotype needs to keep track of
+  which sections of the data storage are in use. Therefore Genotype now is the
+  constructor and destructor of chromosomes. Added ChromosomeManager trait to
+  implement on the Genotoype. The strategies and plugins now need to
+  properly call population reduction and regrow methods through this
+  ChromosomeManager trait
+  * The Fitness now has two implementation points, the normal
+  calculate_for_chromosome and a population level calculate_for_population. The
+  latter is optional and can be used to calculate the genotype data strucure as
+  a whole.
+  * Because the chromosomes no longer always hold the genes, returning a
+  best_chromosome as end result from the strategies is not really suitable
+  anymore. The method still is available when using standard chromosomes, but
+  the new best_genes_and_fitness_score() is the preferred method as it works
+  for all chromosome types.
+* Because the Genotype now constructs and destructs chromosomes, this feature
+can be leveraged to recycle chromosome allocations for all Genotypes. This leads
+to an overal performance improvement, especially noticable for large genes
+sizes and low survival rates.
+
+### Changes (API)
+* The `calculate_for_chromosome(...)` client implementation now gets a reference to `Genotype`, which can subsequently be ignored for standard use.
+* The `EvolveReporter`, `HillClimbReporter` and `PermutateReporter` traits now also get a reference to `Genotype` on all functions, for the same reason
+* Add `FitnessGenotype<Self>`, `FitnessChromosome<Self>` & `FitnessPopulation<Self>` type aliases for better fitness API
+
+### Added (API)
+* Add `DynamicMatrixGenotype`, storing the population's genes in a single contiguous memory `Vec<Allele>` on the heap. All other features are like `RangeGenotype`.
+* Add `StaticMatrixGenotype`, storing the population's genes with a single contiguous  memory `Box<[[T; N]; M]>` on the heap. All other features are like `RangeGenotype`.
+* Add `best_genes_and_fitness_score()` function on Evolve, HillClimb and Permutate. Prefer this use over `best_chromosome()`.
+* Add utility methods `genes_slice(chromosome)` and `best_genes_slice()` to `Genotype`, returning the genes as a slice for all chromosome types (`GenesOwned` or `GenesPointer`)
+* Add `EvolveReporterDuration`, `HillClimbReporterDuration` and `PermutateReporterDuration` to report only on the duration of the different phases of the strategies
+
+### Removed (API)
+* Drop `HillClimbVariant::StochasticSecondary` and `HillClimbVariant::SteepestAscentSecondary` as `call_repeatedly(...)` on the basic variant is much more efficient
+* Drop `CrossoverParMultiPoint` as it conflicts with storage owning `Genotypes`. You would have to provide a mutable Genotype in a Mutex, which is not worth the effort
+
 
 ## [0.13.0] - 2024-09-11
 

@@ -29,6 +29,10 @@
   * [v] Avoid calculate_for_chromosome in SteepesAscent context
   * [v] Fix Reporting
   * [v] Extensions benchmark is noisy, fix it
+  * [ ] Make Genotype display more informative with calculated effects instead of resembling Debug, maybe print out in on_init as well
+
+* [ ] Make CrossoverGene trait for Genotype and CrossoverPoint trait, instead of predicate checking functions. Simply won't compile of doesn't implement
+
 
 * [ ] Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)
 * [ ] Chunk parallel iters for less switching?
