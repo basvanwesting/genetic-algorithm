@@ -46,17 +46,23 @@
 //! // the search strategy
 //! let evolve = Evolve::builder()
 //!     .with_genotype(genotype)
-//!     .with_select(SelectElite::new(0.9))            // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
-//!     .with_crossover(CrossoverUniform::new())       // crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
-//!     .with_mutate(MutateSingleGene::new(0.2))       // mutate offspring for a single gene with a 20% probability per chromosome
-//!     .with_fitness(CountTrue)                       // count the number of true values in the chromosomes
-//!     .with_target_population_size(100)              // evolve with 100 chromosomes
-//!     .with_target_fitness_score(100)                // goal is 100 times true in the best chromosome
-//!     .with_reporter(EvolveReporterSimple::new(100)) // optional builder step, report every 100 generations
+//!     .with_select(SelectElite::new(0.9))               // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
+//!     .with_crossover(CrossoverUniform::new())          // crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
+//!     .with_mutate(MutateSingleGene::new(0.2))          // mutate offspring for a single gene with a 20% probability per chromosome
+//!     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
+//!     .with_fitness_ordering(FitnessOrdering::Maximize) // optional, default is Maximize, aim towards the most true values
+//!     .with_target_population_size(100)                 // evolve with 100 chromosomes
+//!     .with_target_fitness_score(100)                   // goal is 100 times true in the best chromosome
+//!     .with_reporter(EvolveReporterSimple::new(100)   ) // optional builder step, report every 100 generations
 //!     .call()
 //!     .unwrap();
 //!
 //! println!("{}", evolve);
+//!
+//! // it's all about the best genes after all
+//! let (best_genes, best_fitness_score) = evolve.best_genes_and_fitness_score().unwrap();
+//! assert_eq!(best_genes, vec![true; 100]);
+//! assert_eq!(best_fitness_score, 100);
 //! ```
 //!
 //! ## Tests
