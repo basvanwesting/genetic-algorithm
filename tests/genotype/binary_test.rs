@@ -234,7 +234,12 @@ fn chromosome_permutations_genes_size_1() {
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(2u32));
     assert_eq!(
-        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
+        inspect::chromosomes(
+            genotype
+                .chromosome_permutations_into_iter()
+                .collect::<Vec<_>>()
+                .as_slice()
+        ),
         vec![vec![true], vec![false],]
     )
 }
@@ -248,7 +253,12 @@ fn chromosome_permutations_genes_size_2() {
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(4u32));
     assert_eq!(
-        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
+        inspect::chromosomes(
+            genotype
+                .chromosome_permutations_into_iter()
+                .collect::<Vec<_>>()
+                .as_slice()
+        ),
         vec![
             vec![true, true],
             vec![true, false],
@@ -272,10 +282,11 @@ fn chromosome_permutations_genes_size_huge() {
     // ensure lazy
     assert_eq!(
         inspect::chromosomes(
-            &genotype
+            genotype
                 .chromosome_permutations_into_iter()
                 .take(1)
-                .collect()
+                .collect::<Vec<_>>()
+                .as_slice()
         ),
         vec![vec![true; 100]]
     )
@@ -290,7 +301,12 @@ fn chromosome_permutations_genes_size_3() {
 
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(8u32));
     assert_eq!(
-        inspect::chromosomes(&genotype.chromosome_permutations_into_iter().collect()),
+        inspect::chromosomes(
+            genotype
+                .chromosome_permutations_into_iter()
+                .collect::<Vec<_>>()
+                .as_slice()
+        ),
         vec![
             vec![true, true, true],
             vec![true, true, false],

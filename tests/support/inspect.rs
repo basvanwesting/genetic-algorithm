@@ -33,21 +33,21 @@ pub fn chromosome_with_fitness_score<C: GenesOwner>(
 }
 
 #[allow(dead_code)]
-pub fn chromosomes<C: GenesOwner>(chromosomes: &Vec<C>) -> Vec<C::Genes> {
+pub fn chromosomes<C: GenesOwner>(chromosomes: &[C]) -> Vec<C::Genes> {
     chromosomes.iter().map(chromosome).collect()
 }
 #[allow(dead_code)]
-pub fn chromosomes_to_str(chromosomes: &Vec<BitChromosome>) -> Vec<String> {
+pub fn chromosomes_to_str(chromosomes: &[BitChromosome]) -> Vec<String> {
     chromosomes.iter().map(chromosome_to_str).collect()
 }
 #[allow(dead_code)]
-pub fn chromosomes_to_blocks(chromosomes: &Vec<BitChromosome>) -> Vec<&[Block]> {
+pub fn chromosomes_to_blocks(chromosomes: &[BitChromosome]) -> Vec<&[Block]> {
     chromosomes.iter().map(chromosome_to_blocks).collect()
 }
 
 #[allow(dead_code)]
 pub fn chromosomes_with_fitness_score<C: GenesOwner>(
-    chromosomes: &Vec<C>,
+    chromosomes: &[C],
 ) -> Vec<(C::Genes, Option<FitnessValue>)> {
     chromosomes
         .iter()
