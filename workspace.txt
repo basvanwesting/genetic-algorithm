@@ -1,36 +1,14 @@
-* Genes?
-  * [v] Store best_genes on Genotype, copy genes on storing best chromosome (solve M+2 issue)
-  * [v] Change Chromosome<Genotype> to Genotype::Chromosome
-  * [v] Change Population<Genotype> to Population<Chromosome>
-  * [v] Check fitness API
-  * [x] REJECTED: External genes are always Vec<Allele> (seed and best_genes). Internal genes can be anything
-  * [v] Alway use best_genes as result. Remove best_chromosome
-  * [v] Store best chromosome separately in StaticMatrixGenotype (as [T; N]), so population == M?
-  * [v] generate best chromosome again from best_genes and genotype?, possible if OwnsGenes
-  * [v] reduce number of Chromosome types (multi is same as single, static and dynamic are same as well)
-  * [v] Remove empty chromomsome concept, just use Options again in the code (much cleaner)
-  * [v] Add best_genes_and_fitness_score tuple method on Strategy
-  * [v] Rename OwnesGenes to OwnsGenes
-  * [v] Add IncrementalGenotype to MatrixGenotypes
-  * [v] Add chromosomes manager logic to HillClimb
-  * [v] rename chromosome_constructor to chromosome_constructor_random
-  * [v] Use mutation_type for IncrementalGenotype logic in Range/ MultiRange / Dynamic/ Static
-  * [v] Move some shared logic back to ChromosomeManager
-  * [v] Populate neighbours in existing population.chromosomes vec
-  * [v] Rename fill_neighbouring_population to fill_neighbouring_chromosomes or add true population to fill
-  * [v] Drop mutability from genotype in Fitness
-  * [v] drop StochasticSecondary and SteepestAscentSecondary
-  * [v] Reconsider OwnsGenes and RefersGenes naming
-  * [v] Remove StrategyAction::ChromosomeDataDropAndCopy
-  * [v] Enable chromosome_recycling always, and remove checks
-  * [v] Store staticMatrixGenotype on heap using Box
-  * [v] Document Fitness for Matrix
-  * [v] Note on GPU in performance section
-  * [v] Avoid calculate_for_chromosome in SteepesAscent context
-  * [v] Fix Reporting
-  * [v] Extensions benchmark is noisy, fix it
-  * [v] Make Genotype display more informative with calculated effects instead of resembling Debug
+* [ ] reexport StrategReporterNoop as ReporterNoop in evolve prelude et al
+* [ ] look at disabled reporters for generalizable implemented features
+* [ ] remove disabled reporters
+* [ ] StrategyBuilder
+      * with_permutate_threshold
+      * with_par_fitness_threshold
+      * with_par_fitness_min_length
+      * with_hill_climb_variant
+* [ ] Add valid and target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
 
-* [ ] neigbouring better garantees? Can max stale gen be 1? Check, also check use of ugly loop. Precision really matters here, may be set it?
-* [ ] Move logic of random gene factory inside set_random_genes
+* [ ] neigbouring better garantees? Can max stale gen be 1 (maybe is equal_fitness is false)? Check
+* [ ] Move logic out of random gene factory inside set_random_genes
 * [ ] Document GenotypeBuilder, Split for Range types?
+* [ ] implement MutationType::Random for neighbouring chromosomes?
