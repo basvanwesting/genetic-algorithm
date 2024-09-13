@@ -1,8 +1,8 @@
-use super::{Permutate, PermutateConfig, PermutateState};
+use super::Permutate;
 use crate::fitness::{Fitness, FitnessOrdering};
 use crate::genotype::PermutableGenotype;
-use crate::strategy::reporter::Noop as ReporterNoop;
-use crate::strategy::{Strategy, StrategyConfig, StrategyReporter, StrategyState};
+use crate::strategy::Strategy;
+use crate::strategy::{StrategyReporter, StrategyReporterNoop};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -22,7 +22,9 @@ pub struct Builder<
     pub reporter: SR,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F, ReporterNoop<G>> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default
+    for Builder<G, F, StrategyReporterNoop<G>>
+{
     fn default() -> Self {
         Self {
             genotype: None,
@@ -30,11 +32,11 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F, 
             par_fitness: false,
             replace_on_equal_fitness: false,
             fitness: None,
-            reporter: ReporterNoop::new(),
+            reporter: StrategyReporterNoop::new(),
         }
     }
 }
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F, ReporterNoop<G>> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F, StrategyReporterNoop<G>> {
     pub fn new() -> Self {
         Self::default()
     }

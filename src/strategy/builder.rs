@@ -7,12 +7,7 @@ use crate::select::Select;
 use crate::strategy::evolve::{EvolveBuilder, EvolveReporterNoop};
 use crate::strategy::hill_climb::{HillClimbBuilder, HillClimbReporterNoop, HillClimbVariant};
 use crate::strategy::permutate::PermutateBuilder;
-use crate::strategy::reporter::Noop as ReporterNoop;
-use crate::strategy::{Strategy, StrategyConfig, StrategyReporter, StrategyState};
-use rand::rngs::SmallRng;
-use rand::SeedableRng;
-use rayon::prelude::*;
-use std::sync::mpsc::channel;
+use crate::strategy::{StrategyReporter, StrategyReporterNoop};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -48,7 +43,7 @@ pub struct Builder<
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
-    for Builder<G, M, F, S, C, ExtensionNoop, ReporterNoop<G>>
+    for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -67,13 +62,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> 
             crossover: None,
             select: None,
             extension: ExtensionNoop::new(),
-            reporter: ReporterNoop::new(),
+            reporter: StrategyReporterNoop::new(),
             rng_seed: None,
         }
     }
 }
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
-    Builder<G, M, F, S, C, ExtensionNoop, ReporterNoop<G>>
+    Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     pub fn new() -> Self {
         Self::default()

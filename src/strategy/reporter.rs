@@ -1,8 +1,8 @@
-use crate::extension::ExtensionEvent;
 use crate::genotype::Genotype;
-use crate::mutate::MutateEvent;
 use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use std::marker::PhantomData;
+// use crate::extension::ExtensionEvent;
+// use crate::mutate::MutateEvent;
 
 /// The noop reporter, silences reporting
 #[derive(Clone)]

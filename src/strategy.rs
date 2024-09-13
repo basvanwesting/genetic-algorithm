@@ -13,6 +13,13 @@ use std::collections::HashMap;
 use std::fmt::Display;
 use std::time::Duration;
 
+pub use self::builder::{
+    Builder as StrategyBuilder, TryFromBuilderError as TryFromStrategyBuilderError,
+};
+
+pub use self::reporter::Duration as StrategyReporterDuration;
+pub use self::reporter::Noop as StrategyReporterNoop;
+
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum StrategyAction {
     Init,

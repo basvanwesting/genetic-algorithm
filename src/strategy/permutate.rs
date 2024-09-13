@@ -6,8 +6,9 @@ pub use self::builder::{
     Builder as PermutateBuilder, TryFromBuilderError as TryFromPermutateBuilderError,
 };
 
-use super::reporter::Noop as ReporterNoop;
-use super::{Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyState};
+use super::{
+    Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop, StrategyState,
+};
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
@@ -143,8 +144,8 @@ where
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F, ReporterNoop<G>> {
-    pub fn builder() -> PermutateBuilder<G, F, ReporterNoop<G>> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F, StrategyReporterNoop<G>> {
+    pub fn builder() -> PermutateBuilder<G, F, StrategyReporterNoop<G>> {
         PermutateBuilder::new()
     }
 }
