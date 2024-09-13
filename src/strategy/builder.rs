@@ -26,7 +26,7 @@ pub struct Builder<
     S: Crossover,
     C: Select,
     E: Extension,
-    SR: StrategyReporter,
+    SR: StrategyReporter<Genotype = G>,
 > {
     pub crossover: Option<S>,
     pub extension: E,
@@ -48,7 +48,7 @@ pub struct Builder<
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
-    for Builder<G, M, F, S, C, ExtensionNoop, ReporterNoop>
+    for Builder<G, M, F, S, C, ExtensionNoop, ReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -73,7 +73,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> 
     }
 }
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
-    Builder<G, M, F, S, C, ExtensionNoop, ReporterNoop>
+    Builder<G, M, F, S, C, ExtensionNoop, ReporterNoop<G>>
 {
     pub fn new() -> Self {
         Self::default()
@@ -88,7 +88,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: StrategyReporter,
+        SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn with_genotype(mut self, genotype: G) -> Self {
@@ -196,7 +196,7 @@ impl<
             rng_seed: self.rng_seed,
         }
     }
-    pub fn with_reporter<SR2: StrategyReporter>(
+    pub fn with_reporter<SR2: StrategyReporter<Genotype = G>>(
         self,
         reporter: SR2,
     ) -> Builder<G, M, F, S, C, E, SR2> {
@@ -238,7 +238,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: StrategyReporter,
+        SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn to_permutate_builder(self) -> PermutateBuilder<G, F, SR> {
@@ -261,7 +261,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: StrategyReporter,
+        SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn to_evolve_builder(self) -> EvolveBuilder<G, M, F, S, C, E, EvolveReporterNoop<G>> {
@@ -294,7 +294,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: StrategyReporter,
+        SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn to_hill_climb_builder(self) -> HillClimbBuilder<G, F, HillClimbReporterNoop<G>> {

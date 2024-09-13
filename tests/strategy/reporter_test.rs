@@ -14,9 +14,11 @@ impl GenericReporter {
     }
 }
 impl StrategyReporter for GenericReporter {
-    fn on_init<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(
+    type Genotype = BinaryGenotype;
+
+    fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        genotype: &G,
+        genotype: &Self::Genotype,
         state: &S,
         config: &C,
     ) {

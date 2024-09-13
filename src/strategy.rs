@@ -137,10 +137,47 @@ pub trait StrategyState<G: Genotype>: Display {
 // pub type StrategyReporterConfig<S> = StrategyConfig;
 
 pub trait StrategyReporter: Clone + Send + Sync {
-    fn on_init<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_start<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_finish<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_new_generation<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_new_best_chromosome<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_new_best_chromosome_equal_fitness<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    type Genotype: Genotype;
+    fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_start<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
 }
