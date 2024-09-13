@@ -13,7 +13,7 @@ use crate::chromosome::{Chromosome, GenesOwner};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
 use crate::population::Population;
-use num::BigUint;
+use num::{BigUint, ToPrimitive};
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
@@ -232,11 +232,8 @@ impl StrategyConfig for PermutateConfig {
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
     }
-    fn estimated_progress_perc(&self, current_generation: usize) -> Option<u32> {
-        (BigUint::from(current_generation * 100) / &self.total_population_size)
-            .to_u32_digits()
-            .first()
-            .copied()
+    fn estimated_progress_perc(&self, current_generation: usize) -> Option<u8> {
+        (BigUint::from(current_generation * 100) / &self.total_population_size).to_u8()
     }
 }
 

@@ -236,8 +236,10 @@ impl StrategyReporter for CustomReporter {
     ) {
         if state.current_generation() % self.0 == 0 {
             println!(
-                "progress: {:?}%, current_generation: {}, best_generation: {}",
-                config.estimated_progress_perc(state.current_generation()),
+                "progress: {}, current_generation: {}, best_generation: {}",
+                config
+                    .estimated_progress_perc(state.current_generation())
+                    .map_or("-".to_string(), |v| format!("{:3.3}%", v)),
                 state.current_generation(),
                 state.best_generation(),
             );

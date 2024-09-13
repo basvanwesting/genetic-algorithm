@@ -63,7 +63,7 @@ pub trait StrategyConfig: Display {
     fn fitness_ordering(&self) -> FitnessOrdering;
     fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
-    fn estimated_progress_perc(&self, _current_generation: usize) -> Option<u32> {
+    fn estimated_progress_perc(&self, _current_generation: usize) -> Option<u8> {
         None
     }
 }
