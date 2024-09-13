@@ -1,5 +1,8 @@
 #[cfg(test)]
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
+use genetic_algorithm::strategy::builder::Builder as StrategyBuilder;
+use genetic_algorithm::strategy::evolve::prelude::*;
+use genetic_algorithm::strategy::hill_climb::prelude::*;
 use genetic_algorithm::strategy::permutate::prelude::*;
 use genetic_algorithm::strategy::{StrategyConfig, StrategyReporter, StrategyState};
 
@@ -10,50 +13,12 @@ impl GenericReporter {
         Self(period)
     }
 }
-impl<G: Genotype, S: StrategyState<G>, C: StrategyConfig> StrategyReporter<G, S, C>
-    for GenericReporter
-{
-    fn on_init(&mut self, genotype: &G, state: &S, config: &C) {
-        println!("{}", self.0);
-        println!("{}", genotype);
-        println!("{}", state);
-        println!("{}", config);
-    }
-}
-
-#[derive(Clone)]
-pub struct GenotypeReporter(usize);
-impl GenotypeReporter {
-    pub fn new(period: usize) -> Self {
-        Self(period)
-    }
-}
-impl<S: StrategyState<BinaryGenotype>, C: StrategyConfig> StrategyReporter<BinaryGenotype, S, C>
-    for GenotypeReporter
-{
-    fn on_init(&mut self, genotype: &BinaryGenotype, state: &S, config: &C) {
-        println!("{}", self.0);
-        println!("{}", genotype);
-        println!("{}", state);
-        println!("{}", config);
-    }
-}
-
-#[derive(Clone)]
-pub struct SpecificReporter(usize);
-impl SpecificReporter {
-    pub fn new(period: usize) -> Self {
-        Self(period)
-    }
-}
-impl StrategyReporter<BinaryGenotype, PermutateState<BinaryGenotype>, PermutateConfig>
-    for SpecificReporter
-{
-    fn on_init(
+impl StrategyReporter for GenericReporter {
+    fn on_init<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(
         &mut self,
-        genotype: &BinaryGenotype,
-        state: &PermutateState<BinaryGenotype>,
-        config: &PermutateConfig,
+        genotype: &G,
+        state: &S,
+        config: &C,
     ) {
         println!("{}", self.0);
         println!("{}", genotype);
@@ -69,23 +34,40 @@ fn test_reporters() {
         .build()
         .unwrap();
 
-    let permutate = Permutate::builder()
+    let pick = "evolve";
+
+    let builder = StrategyBuilder::new()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::Stochastic)
+        .with_reporter(GenericReporter::new(0))
+        .with_target_population_size(100)
+        .with_target_fitness_score(5)
         .with_fitness(CountTrue)
-        // .with_reporter(PermutateReporterNoop::new())
-        .call()
-        .unwrap();
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_crossover(CrossoverSingleGene::new())
+        .with_select(SelectTournament::new(4, 0.9));
 
-    println!("{:#?}", permutate.best_genes());
-    assert_eq!(permutate.best_fitness_score(), Some(5));
-    assert_eq!(
-        permutate.best_genes().unwrap(),
-        vec![true, true, true, true, true]
-    );
+    let result = match pick {
+        "permutate" => {
+            let permutate = builder.to_permutate_builder().call().unwrap();
+            permutate.best_genes_and_fitness_score()
+        }
+        "evolve" => {
+            let evolve = builder.to_evolve_builder().call().unwrap();
+            evolve.best_genes_and_fitness_score()
+        }
+        "hill_climb" => {
+            let hill_climb = builder.to_hill_climb_builder().call().unwrap();
+            hill_climb.best_genes_and_fitness_score()
+        }
+        &_ => todo!(),
+    };
 
-    GenericReporter::new(0).on_init(&permutate.genotype, &permutate.state, &permutate.config);
-    GenotypeReporter::new(1).on_init(&permutate.genotype, &permutate.state, &permutate.config);
-    SpecificReporter::new(2).on_init(&permutate.genotype, &permutate.state, &permutate.config);
+    if let Some((_best_genes, fitness_score)) = result {
+        assert_eq!(fitness_score, 5);
+    } else {
+        panic!("no result")
+    }
 
     // panic!()
 }

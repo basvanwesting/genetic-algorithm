@@ -12,7 +12,7 @@ impl Noop {
         Self
     }
 }
-impl<G: Genotype, S: StrategyState<G>, C: StrategyConfig> StrategyReporter<G, S, C> for Noop {}
+impl StrategyReporter for Noop {}
 
 /// A Duration reporter generic over Genotype.
 #[derive(Default, Clone)]
@@ -22,11 +22,21 @@ impl Duration {
         Self
     }
 }
-impl<G: Genotype, S: StrategyState<G>, C: StrategyConfig> StrategyReporter<G, S, C> for Duration {
-    fn on_start(&mut self, _genotype: &G, state: &S, _config: &C) {
+impl StrategyReporter for Duration {
+    fn on_start<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &G,
+        state: &S,
+        _config: &C,
+    ) {
         println!("start - iteration: {}", state.current_iteration());
     }
-    fn on_finish(&mut self, _genotype: &G, state: &S, _config: &C) {
+    fn on_finish<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &G,
+        state: &S,
+        _config: &C,
+    ) {
         println!("finish - iteration: {}", state.current_iteration());
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations().get(action) {

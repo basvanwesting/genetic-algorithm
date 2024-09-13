@@ -9,11 +9,7 @@ pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an Permutate struct.
 #[derive(Clone, Debug)]
-pub struct Builder<
-    G: PermutableGenotype,
-    F: Fitness<Genotype = G>,
-    SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>,
-> {
+pub struct Builder<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> {
     pub genotype: Option<G>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
@@ -40,12 +36,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F, ReporterNoop
     }
 }
 
-impl<
-        G: PermutableGenotype,
-        F: Fitness<Genotype = G>,
-        SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>,
-    > Builder<G, F, SR>
-{
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Builder<G, F, SR> {
     pub fn build(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         self.try_into()
     }
@@ -69,10 +60,7 @@ impl<
         self.fitness = Some(fitness);
         self
     }
-    pub fn with_reporter<SR2: StrategyReporter<G, PermutateState<G>, PermutateConfig>>(
-        self,
-        reporter: SR2,
-    ) -> Builder<G, F, SR2> {
+    pub fn with_reporter<SR2: StrategyReporter>(self, reporter: SR2) -> Builder<G, F, SR2> {
         Builder {
             genotype: self.genotype,
             fitness_ordering: self.fitness_ordering,
@@ -83,12 +71,7 @@ impl<
         }
     }
 }
-impl<
-        G: PermutableGenotype,
-        F: Fitness<Genotype = G>,
-        SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>,
-    > Builder<G, F, SR>
-{
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Builder<G, F, SR> {
     pub fn call(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         let mut permutate: Permutate<G, F, SR> = self.try_into()?;
         permutate.call();

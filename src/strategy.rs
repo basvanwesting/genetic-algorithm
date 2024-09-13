@@ -1,4 +1,5 @@
 //! solution strategies for finding the best chromosomes.
+pub mod builder;
 pub mod evolve;
 pub mod hill_climb;
 pub mod permutate;
@@ -135,14 +136,11 @@ pub trait StrategyState<G: Genotype>: Display {
 // /// This is just a shortcut for `StrategyConfig`
 // pub type StrategyReporterConfig<S> = StrategyConfig;
 
-pub trait StrategyReporter<G: Genotype, S: StrategyState<G>, C: StrategyConfig>:
-    Clone + Send + Sync
-{
-
-    fn on_init(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_start(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_finish(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_new_generation(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_new_best_chromosome(&mut self, _genotype: &G, _state: &S, _config: &C) {}
-    fn on_new_best_chromosome_equal_fitness(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+pub trait StrategyReporter: Clone + Send + Sync {
+    fn on_init<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_start<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_finish<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_new_generation<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_new_best_chromosome<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_new_best_chromosome_equal_fitness<G: Genotype, S: StrategyState<G>, C: StrategyConfig>(&mut self, _genotype: &G, _state: &S, _config: &C) {}
 }

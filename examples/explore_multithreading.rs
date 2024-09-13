@@ -98,7 +98,7 @@ fn call_permutate() {
         .with_genotype(genotype.clone())
         .with_fitness(CountTrueWithSleep::new(1000, true))
         .with_par_fitness(INTERNAL_MULTITHREAD)
-        .with_reporter(PermutateReporterSimple::new(1000))
+        // .with_reporter(PermutateReporterSimple::new(1000))
         .build()
         .unwrap();
 

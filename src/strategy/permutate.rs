@@ -6,8 +6,8 @@ pub use self::builder::{
     Builder as PermutateBuilder, TryFromBuilderError as TryFromPermutateBuilderError,
 };
 
-use super::{Strategy, StrategyAction, StrategyConfig, StrategyState, StrategyReporter};
 use super::reporter::Noop as ReporterNoop;
+use super::{Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyState};
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutableGenotype;
@@ -53,7 +53,7 @@ use std::time::{Duration, Instant};
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
-///     .with_reporter(PermutateReporterSimple::new(100)) // optional builder step, report every 100 generations
+///     // .with_reporter(PermutateReporterSimple::new(100)) // optional builder step, report every 100 generations
 ///     .call()
 ///     .unwrap();
 ///
@@ -62,11 +62,7 @@ use std::time::{Duration, Instant};
 /// assert_eq!(best_genes, vec![false; 16]);
 /// assert_eq!(best_fitness_score, 0);
 /// ```
-pub struct Permutate<
-    G: PermutableGenotype,
-    F: Fitness<Genotype = G>,
-    SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>,
-> {
+pub struct Permutate<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> {
     pub genotype: G,
     pub fitness: F,
     pub config: PermutateConfig,
@@ -96,8 +92,8 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub total_population_size: BigUint,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>>
-    Strategy<G> for Permutate<G, F, SR>
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Strategy<G>
+    for Permutate<G, F, SR>
 {
     fn call(&mut self) {
         let now = Instant::now();
@@ -127,8 +123,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<G, Pe
         }
     }
 }
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>>
-    Permutate<G, F, SR>
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Permutate<G, F, SR>
 where
     G::Chromosome: GenesOwner<Genes = G::Genes>,
 {
@@ -149,9 +144,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F, ReporterNo
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>>
-    Permutate<G, F, SR>
-{
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> Permutate<G, F, SR> {
     pub fn init(&mut self) {
         let now = Instant::now();
         self.reporter
@@ -275,7 +268,7 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
 }
 
 impl<G: PermutableGenotype> PermutateState<G> {
-    fn update_best_chromosome_and_report<SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>>(
+    fn update_best_chromosome_and_report<SR: StrategyReporter>(
         &mut self,
         genotype: &mut G,
         config: &PermutateConfig,
@@ -307,7 +300,7 @@ impl<G: PermutableGenotype> PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>>
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter>
     TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
 {
     type Error = TryFromPermutateBuilderError;
@@ -371,8 +364,8 @@ impl<G: PermutableGenotype> PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>>
-    fmt::Display for Permutate<G, F, SR>
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter> fmt::Display
+    for Permutate<G, F, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate:")?;
