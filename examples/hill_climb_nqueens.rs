@@ -50,7 +50,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_replace_on_equal_fitness(true) // crucial for this problem
-        .with_reporter(HillClimbReporterSimple::new(100))
+        .with_reporter(StrategyReporterSimple::new(100))
         .build()
         .unwrap();
 

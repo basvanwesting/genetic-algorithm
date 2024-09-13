@@ -15,7 +15,7 @@ fn call_binary_maximize() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(CountTrue)
-        // .with_reporter(PermutateReporterNoop::new())
+        // .with_reporter(StrategyReporterNoop::new())
         .call()
         .unwrap();
 
@@ -38,7 +38,7 @@ fn call_binary_minimize() {
         .with_genotype(genotype)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_fitness(CountTrue)
-        // .with_reporter(PermutateReporterNoop::new())
+        // .with_reporter(StrategyReporterNoop::new())
         .call()
         .unwrap();
 
@@ -61,7 +61,7 @@ fn call_list() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
-        // .with_reporter(PermutateReporterNoop::new())
+        // .with_reporter(StrategyReporterNoop::new())
         .call()
         .unwrap();
 
@@ -85,7 +85,7 @@ fn call_multi_list() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
-        // .with_reporter(PermutateReporterNoop::new())
+        // .with_reporter(StrategyReporterNoop::new())
         .call()
         .unwrap();
 
@@ -106,7 +106,7 @@ fn call_par_fitness() {
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
         .with_par_fitness(true)
-        // .with_reporter(PermutateReporterNoop::new())
+        // .with_reporter(StrategyReporterNoop::new())
         .call()
         .unwrap();
 

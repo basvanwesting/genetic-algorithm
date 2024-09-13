@@ -5,7 +5,8 @@ use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
-use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};
+use genetic_algorithm::strategy::StrategyReporterNoop;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
@@ -33,7 +34,7 @@ pub fn setup(
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
+    let mut reporter = StrategyReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::from_entropy();
     let population_size: usize = 1000;
     let genes_sizes = vec![100, 10000];

@@ -2,8 +2,8 @@ use super::Select;
 use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
-use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use crate::strategy::{StrategyAction, StrategyState};
+use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::prelude::*;
 use std::cmp::Reverse;
 use std::time::Instant;
@@ -16,7 +16,7 @@ pub struct Elite {
 }
 
 impl Select for Elite {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
+    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

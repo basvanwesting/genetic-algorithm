@@ -1,8 +1,8 @@
 use super::Crossover;
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
-use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
-use crate::strategy::{StrategyAction, StrategyState};
+use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
 use std::time::Instant;
 
@@ -14,7 +14,7 @@ use std::time::Instant;
 #[derive(Clone, Debug, Default)]
 pub struct Clone;
 impl Crossover for Clone {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
+    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

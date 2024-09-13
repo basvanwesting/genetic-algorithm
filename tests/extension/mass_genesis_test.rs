@@ -4,7 +4,8 @@ use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::extension::{Extension, ExtensionMassGenesis};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype, StaticMatrixGenotype};
 use genetic_algorithm::population::Population;
-use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};
+use genetic_algorithm::strategy::StrategyReporterNoop;
 use rand::prelude::*;
 
 #[test]
@@ -31,7 +32,7 @@ fn removes_randomly() {
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassGenesis::new(5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
@@ -67,7 +68,7 @@ fn removes_randomly_matrix() {
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = StrategyReporterNoop::new();
     ExtensionMassGenesis::new(8).call(&mut genotype, &mut state, &config, &mut reporter, rng);
 
     assert_eq!(

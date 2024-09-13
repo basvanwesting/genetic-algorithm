@@ -8,7 +8,7 @@ use std::marker::PhantomData;
 /// A new generation is simply handling a single new chromosome from the total population
 ///
 /// # Example:
-/// You are encouraged to take a look at the [PermutateReporterSimple](Simple) implementation, and
+/// You are encouraged to take a look at the [StrategyReporterSimple](Simple) implementation, and
 /// then roll your own like below:
 /// ```rust
 /// use genetic_algorithm::strategy::permutate::prelude::*;
@@ -16,7 +16,7 @@ use std::marker::PhantomData;
 ///
 /// #[derive(Clone)]
 /// pub struct CustomReporter { pub period: usize };
-/// impl PermutateReporter for CustomReporter {
+/// impl StrategyReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
 ///     fn on_new_generation(&mut self, _genotype: &Self::Genotype, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {

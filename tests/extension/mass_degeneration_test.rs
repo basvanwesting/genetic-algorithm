@@ -3,7 +3,8 @@ use crate::support::*;
 use genetic_algorithm::extension::{Extension, ExtensionMassDegeneration};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
-use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};
+use genetic_algorithm::strategy::StrategyReporterNoop;
 
 #[test]
 fn removes_randomly() {
@@ -29,7 +30,7 @@ fn removes_randomly() {
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDegeneration::new(8, 2).call(
         &mut genotype,

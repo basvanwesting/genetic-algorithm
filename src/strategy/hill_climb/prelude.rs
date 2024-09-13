@@ -16,12 +16,15 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::hill_climb::{
-    HillClimb, HillClimbBuilder, HillClimbConfig, HillClimbReporter, HillClimbReporterDuration,
-    HillClimbReporterLog, HillClimbReporterNoop, HillClimbReporterSimple, HillClimbState,
-    HillClimbVariant, TryFromHillClimbBuilderError,
+    HillClimb, HillClimbBuilder, HillClimbConfig, HillClimbState, HillClimbVariant,
+    TryFromHillClimbBuilderError,
 };
 #[doc(no_inline)]
-pub use crate::strategy::{Strategy, StrategyState, STRATEGY_ACTIONS};
+pub use crate::strategy::{
+    Strategy, StrategyBuilder, StrategyConfig, StrategyReporter, StrategyReporterDuration,
+    StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
+    STRATEGY_ACTIONS,
+};
 #[doc(no_inline)]
 pub use std::cell::RefCell;
 #[doc(no_inline)]

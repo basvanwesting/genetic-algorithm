@@ -4,8 +4,8 @@ use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::mutate::Mutate;
 use crate::select::Select;
-use crate::strategy::evolve::{EvolveBuilder, EvolveReporterNoop};
-use crate::strategy::hill_climb::{HillClimbBuilder, HillClimbReporterNoop, HillClimbVariant};
+use crate::strategy::evolve::EvolveBuilder;
+use crate::strategy::hill_climb::{HillClimbBuilder, HillClimbVariant};
 use crate::strategy::permutate::PermutateBuilder;
 use crate::strategy::{StrategyReporter, StrategyReporterNoop};
 
@@ -259,7 +259,7 @@ impl<
         SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
-    pub fn to_evolve_builder(self) -> EvolveBuilder<G, M, F, S, C, E, EvolveReporterNoop<G>> {
+    pub fn to_evolve_builder(self) -> EvolveBuilder<G, M, F, S, C, E, StrategyReporterNoop<G>> {
         EvolveBuilder {
             genotype: self.genotype,
             target_population_size: self.target_population_size,
@@ -275,7 +275,7 @@ impl<
             crossover: self.crossover,
             select: self.select,
             extension: self.extension,
-            reporter: EvolveReporterNoop::new(),
+            reporter: StrategyReporterNoop::new(),
             rng_seed: self.rng_seed,
         }
     }
@@ -292,7 +292,7 @@ impl<
         SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
-    pub fn to_hill_climb_builder(self) -> HillClimbBuilder<G, F, HillClimbReporterNoop<G>> {
+    pub fn to_hill_climb_builder(self) -> HillClimbBuilder<G, F, StrategyReporterNoop<G>> {
         HillClimbBuilder {
             genotype: self.genotype,
             variant: self.variant,
@@ -303,7 +303,7 @@ impl<
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,
-            reporter: HillClimbReporterNoop::new(),
+            reporter: StrategyReporterNoop::new(),
             rng_seed: self.rng_seed,
         }
     }

@@ -1,7 +1,8 @@
 use super::{Mutate, MutateEvent};
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
-use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use crate::strategy::StrategyReporter;
 use crate::strategy::{StrategyAction, StrategyState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
@@ -20,7 +21,7 @@ pub struct SingleGeneDynamic {
 }
 
 impl Mutate for SingleGeneDynamic {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
+    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

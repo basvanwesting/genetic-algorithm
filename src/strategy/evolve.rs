@@ -1,13 +1,14 @@
 //! A solution strategy for finding the best chromosome using evolution
 mod builder;
 pub mod prelude;
-mod reporter;
 
 pub use self::builder::{
     Builder as EvolveBuilder, TryFromBuilderError as TryFromEvolveBuilderError,
 };
 
-use super::{Strategy, StrategyAction, StrategyConfig, StrategyState};
+use super::{
+    Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop, StrategyState,
+};
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
@@ -22,12 +23,6 @@ use std::collections::HashMap;
 use std::fmt;
 use std::time::{Duration, Instant};
 use thread_local::ThreadLocal;
-
-pub use self::reporter::Duration as EvolveReporterDuration;
-pub use self::reporter::Log as EvolveReporterLog;
-pub use self::reporter::Noop as EvolveReporterNoop;
-pub use self::reporter::Reporter as EvolveReporter;
-pub use self::reporter::Simple as EvolveReporterSimple;
 
 /// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
 /// seeds specific genes to start with), calculates [fitness](crate::fitness) for all chromosomes
@@ -62,8 +57,8 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     * Standard max_stale_generations ending condition
 ///
 /// There are reporting hooks in the loop receiving the [EvolveState], which can by handled by an
-/// [EvolveReporter] (e.g. [EvolveReporterDuration], [EvolveReporterSimple]). But you are encouraged to
-/// roll your own, see [EvolveReporter].
+/// [StrategyReporter] (e.g. [StrategyReporterDuration], [StrategyReporterSimple]). But you are encouraged to
+/// roll your own, see [StrategyReporter].
 ///
 /// From the [EvolveBuilder] level, there are several calling mechanisms:
 /// * [call](EvolveBuilder::call): this runs a single evolve strategy
@@ -114,7 +109,7 @@ pub use self::reporter::Simple as EvolveReporterSimple;
 ///     .with_valid_fitness_score(10)                          // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)                      // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_max_chromosome_age(10)                           // kill chromosomes after 10 generations
-///     .with_reporter(EvolveReporterSimple::new(100))         // optional builder step, report every 100 generations
+///     .with_reporter(StrategyReporterSimple::new(100))       // optional builder step, report every 100 generations
 ///     .with_replace_on_equal_fitness(true)                   // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
 ///     .with_rng_seed_from_u64(0)                             // for testing with deterministic results
 ///     .call()
@@ -132,7 +127,7 @@ pub struct Evolve<
     S: Crossover,
     C: Select,
     E: Extension,
-    SR: EvolveReporter<Genotype = G>,
+    SR: StrategyReporter<Genotype = G>,
 > {
     pub genotype: G,
     pub fitness: F,
@@ -186,7 +181,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: StrategyReporter<Genotype = G>,
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
     fn call(&mut self) {
@@ -272,7 +267,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: StrategyReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
 where
     G::Chromosome: GenesOwner<Genes = G::Genes>,
@@ -289,9 +284,9 @@ where
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
-    Evolve<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
+    Evolve<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
-    pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>> {
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>> {
         EvolveBuilder::new()
     }
 }
@@ -303,7 +298,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: StrategyReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
 {
     pub fn init(&mut self, fitness_thread_local: Option<&ThreadLocal<RefCell<F>>>) {
@@ -397,6 +392,12 @@ impl StrategyConfig for EvolveConfig {
 }
 
 impl<G: Genotype> StrategyState<G> for EvolveState<G> {
+    fn chromosome_as_ref(&self) -> &Option<G::Chromosome> {
+        &self.chromosome
+    }
+    fn population_as_ref(&self) -> &Population<G::Chromosome> {
+        &self.population
+    }
     fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome> {
         &mut self.chromosome
     }
@@ -424,6 +425,9 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     fn reset_stale_generations(&mut self) {
         self.stale_generations = 0;
     }
+    fn current_scale_index(&self) -> Option<usize> {
+        self.current_scale_index
+    }
     fn durations(&self) -> &HashMap<StrategyAction, Duration> {
         &self.durations
     }
@@ -436,7 +440,7 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
 }
 
 impl<G: Genotype> EvolveState<G> {
-    fn update_best_chromosome_and_report<SR: EvolveReporter<Genotype = G>>(
+    fn update_best_chromosome_and_report<SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         config: &EvolveConfig,
@@ -502,7 +506,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: StrategyReporter<Genotype = G>,
     > TryFrom<EvolveBuilder<G, M, F, S, C, E, SR>> for Evolve<G, M, F, S, C, E, SR>
 {
     type Error = TryFromEvolveBuilderError;
@@ -646,7 +650,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: StrategyReporter<Genotype = G>,
     > fmt::Display for Evolve<G, M, F, S, C, E, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

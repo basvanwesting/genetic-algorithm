@@ -1,11 +1,11 @@
-use super::{Evolve, EvolveReporter, EvolveReporterNoop};
+use super::Evolve;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::Mutate;
 use crate::select::Select;
-use crate::strategy::Strategy;
+use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::*;
@@ -23,7 +23,7 @@ pub struct Builder<
     S: Crossover,
     C: Select,
     E: Extension,
-    SR: EvolveReporter<Genotype = G>,
+    SR: StrategyReporter<Genotype = G>,
 > {
     pub genotype: Option<G>,
     pub target_population_size: usize,
@@ -44,7 +44,7 @@ pub struct Builder<
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
-    for Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
+    for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -62,13 +62,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> 
             crossover: None,
             select: None,
             extension: ExtensionNoop::new(),
-            reporter: EvolveReporterNoop::new(),
+            reporter: StrategyReporterNoop::new(),
             rng_seed: None,
         }
     }
 }
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
-    Builder<G, M, F, S, C, ExtensionNoop, EvolveReporterNoop<G>>
+    Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     pub fn new() -> Self {
         Self::default()
@@ -83,7 +83,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn build(self) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
@@ -190,7 +190,7 @@ impl<
             rng_seed: self.rng_seed,
         }
     }
-    pub fn with_reporter<SR2: EvolveReporter<Genotype = G>>(
+    pub fn with_reporter<SR2: StrategyReporter<Genotype = G>>(
         self,
         reporter: SR2,
     ) -> Builder<G, M, F, S, C, E, SR2> {
@@ -231,7 +231,7 @@ impl<
         S: Crossover,
         C: Select,
         E: Extension,
-        SR: EvolveReporter<Genotype = G>,
+        SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn rng(&self) -> SmallRng {

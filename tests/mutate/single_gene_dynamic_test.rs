@@ -5,7 +5,8 @@ use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGeneDynamic};
 use genetic_algorithm::population::Population;
-use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};
+use genetic_algorithm::strategy::StrategyReporterNoop;
 
 #[test]
 fn binary_genotype() {
@@ -30,7 +31,7 @@ fn binary_genotype() {
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     let config = EvolveConfig::new();
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     let mut mutate = MutateSingleGeneDynamic::new(0.1, 2);
     let mut fitness = CountTrue;

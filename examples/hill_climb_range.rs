@@ -48,7 +48,7 @@ fn main() {
         .with_target_fitness_score(100 * 100)
         .with_fitness(DistanceTo(0.5, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_reporter(HillClimbReporterSimple::new(1000))
+        .with_reporter(StrategyReporterSimple::new(1000))
         .call()
         .unwrap();
 

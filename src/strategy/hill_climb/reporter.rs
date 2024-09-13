@@ -9,14 +9,14 @@ use std::marker::PhantomData;
 /// an extra event hook for this situation.
 ///
 /// # Example:
-/// You are encouraged to take a look at the [HillClimbReporterSimple](Simple) implementation, and
+/// You are encouraged to take a look at the [StrategyReporterSimple](Simple) implementation, and
 /// then roll your own like below:
 /// ```rust
 /// use genetic_algorithm::strategy::hill_climb::prelude::*;
 ///
 /// #[derive(Clone)]
 /// pub struct CustomReporter { pub period: usize }
-/// impl HillClimbReporter for CustomReporter {
+/// impl StrategyReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
 ///     fn on_new_generation(&mut self, _genotype: &Self::Genotype, state: &HillClimbState<Self::Genotype>, _config: &HillClimbConfig) {

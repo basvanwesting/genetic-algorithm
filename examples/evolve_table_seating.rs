@@ -96,7 +96,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.3))
         .with_crossover(CrossoverSinglePoint::new())
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(EvolveReporterSimple::new(1000));
+        .with_reporter(StrategyReporterSimple::new(1000));
 
     //let evolve = evolve_builder.call().unwrap();
     let evolve = evolve_builder.call_repeatedly(10).unwrap();

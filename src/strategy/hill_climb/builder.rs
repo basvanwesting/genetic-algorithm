@@ -1,7 +1,8 @@
-use super::{HillClimb, HillClimbReporter, HillClimbReporterNoop, HillClimbVariant};
+use super::{HillClimb, HillClimbVariant};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::IncrementalGenotype;
 use crate::strategy::Strategy;
+pub use crate::strategy::{StrategyReporter, StrategyReporterNoop, StrategyState};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::*;
@@ -15,7 +16,7 @@ pub struct TryFromBuilderError(pub &'static str);
 pub struct Builder<
     G: IncrementalGenotype,
     F: Fitness<Genotype = G>,
-    SR: HillClimbReporter<Genotype = G>,
+    SR: StrategyReporter<Genotype = G>,
 > {
     pub genotype: Option<G>,
     pub variant: Option<HillClimbVariant>,
@@ -31,7 +32,7 @@ pub struct Builder<
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default
-    for Builder<G, F, HillClimbReporterNoop<G>>
+    for Builder<G, F, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -44,18 +45,18 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default
             target_fitness_score: None,
             valid_fitness_score: None,
             replace_on_equal_fitness: true,
-            reporter: HillClimbReporterNoop::new(),
+            reporter: StrategyReporterNoop::new(),
             rng_seed: None,
         }
     }
 }
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F, HillClimbReporterNoop<G>> {
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F, StrategyReporterNoop<G>> {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Builder<G, F, SR>
 {
     pub fn build(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
@@ -118,7 +119,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
         self.replace_on_equal_fitness = replace_on_equal_fitness;
         self
     }
-    pub fn with_reporter<SR2: HillClimbReporter<Genotype = G>>(
+    pub fn with_reporter<SR2: StrategyReporter<Genotype = G>>(
         self,
         reporter: SR2,
     ) -> Builder<G, F, SR2> {
@@ -146,7 +147,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Gen
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: HillClimbReporter<Genotype = G>>
+impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Builder<G, F, SR>
 {
     pub fn rng(&self) -> SmallRng {

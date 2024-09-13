@@ -5,7 +5,8 @@ use genetic_algorithm::fitness::{Fitness, FitnessOrdering};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
 use genetic_algorithm::select::{Select, SelectElite};
-use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};
+use genetic_algorithm::strategy::StrategyReporterNoop;
 
 #[test]
 fn maximize() {
@@ -27,7 +28,7 @@ fn maximize() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
+    let mut reporter = StrategyReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, &genotype, None);
     let config = EvolveConfig {
@@ -69,7 +70,7 @@ fn minimize() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
+    let mut reporter = StrategyReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CountTrue.call_for_population(&mut state.population, &genotype, None);
     let config = EvolveConfig {
@@ -107,7 +108,7 @@ fn fitness_ordering_with_none_fitness() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    let mut reporter = EvolveReporterNoop::<BinaryGenotype>::new();
+    let mut reporter = StrategyReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::seed_from_u64(0);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Maximize,

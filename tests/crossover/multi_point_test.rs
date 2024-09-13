@@ -3,7 +3,8 @@ use crate::support::*;
 use genetic_algorithm::crossover::{Crossover, CrossoverMultiPoint};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::population::Population;
-use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};
+use genetic_algorithm::strategy::StrategyReporterNoop;
 
 #[test]
 fn population_even_no_shortage() {
@@ -25,7 +26,7 @@ fn population_even_no_shortage() {
         target_population_size: 4,
         ..Default::default()
     };
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
     CrossoverMultiPoint::new(3, true).call(
         &mut genotype,

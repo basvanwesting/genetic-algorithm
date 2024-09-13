@@ -223,42 +223,41 @@ impl ScrabbleFitness {
     }
 }
 
-// #[derive(Clone)]
-// pub struct CustomReporter(usize);
-// impl PermutateReporter for CustomReporter {
-//     type Genotype = MultiListGenotype<WordPosition>;
-//
-//     fn on_new_generation(
-//         &mut self,
-//         _genotype: &Self::Genotype,
-//         state: &PermutateState<Self::Genotype>,
-//         _config: &PermutateConfig,
-//     ) {
-//         if state.current_generation() % self.0 == 0 {
-//             let width = state.total_population_size.to_string().len();
-//             println!(
-//                 "progress: {:3.3}%, current_generation: {:>width$}, best_generation: {:>width$}",
-//                 BigUint::from(state.current_generation() * 100) / &state.total_population_size,
-//                 state.current_generation(),
-//                 state.best_generation(),
-//             );
-//         }
-//     }
-//
-//     fn on_new_best_chromosome(
-//         &mut self,
-//         _genotype: &Self::Genotype,
-//         state: &PermutateState<Self::Genotype>,
-//         _config: &PermutateConfig,
-//     ) {
-//         println!(
-//             "new best - current_generation: {}, best_fitness_score: {:?}",
-//             state.current_generation(),
-//             state.best_fitness_score(),
-//         );
-//     }
-// }
-//
+#[derive(Clone)]
+pub struct CustomReporter(usize);
+impl StrategyReporter for CustomReporter {
+    type Genotype = MultiListGenotype<WordPosition>;
+
+    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &S,
+        config: &C,
+    ) {
+        if state.current_generation() % self.0 == 0 {
+            println!(
+                "progress: {:?}%, current_generation: {}, best_generation: {}",
+                config.estimated_progress_perc(state.current_generation()),
+                state.current_generation(),
+                state.best_generation(),
+            );
+        }
+    }
+
+    fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &S,
+        _config: &C,
+    ) {
+        println!(
+            "new best - current_generation: {}, best_fitness_score: {:?}",
+            state.current_generation(),
+            state.best_fitness_score(),
+        );
+    }
+}
+
 fn main() {
     env_logger::init();
 
@@ -312,8 +311,8 @@ fn main() {
             false,
         ))
         .with_par_fitness(true)
-        // .with_reporter(PermutateReporterSimple::new(100_000))
-        // .with_reporter(CustomReporter(100_000))
+        // .with_reporter(StrategyReporterSimple::new(100_000))
+        .with_reporter(CustomReporter(100_000))
         .build()
         .unwrap();
 

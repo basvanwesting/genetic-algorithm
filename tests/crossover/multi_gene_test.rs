@@ -2,7 +2,8 @@
 use crate::support::*;
 use genetic_algorithm::crossover::{Crossover, CrossoverMultiGene};
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
-use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveReporterNoop, EvolveState};
+use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};
+use genetic_algorithm::strategy::StrategyReporterNoop;
 
 #[test]
 fn population_even_shortage() {
@@ -24,7 +25,7 @@ fn population_even_shortage() {
         target_population_size: 5,
         ..Default::default()
     };
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverMultiGene::new(4, true).call(
         &mut genotype,
@@ -62,7 +63,7 @@ fn population_shortage_below_target() {
         target_population_size: 5,
         ..Default::default()
     };
-    let mut reporter = EvolveReporterNoop::new();
+    let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverMultiGene::new(3, true).call(
         &mut genotype,

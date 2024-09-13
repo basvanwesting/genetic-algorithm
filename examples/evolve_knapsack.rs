@@ -85,7 +85,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverSinglePoint::new())
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(EvolveReporterDuration::new())
+        .with_reporter(StrategyReporterDuration::new())
         .build()
         .unwrap();
 

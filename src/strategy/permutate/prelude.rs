@@ -18,5 +18,9 @@ pub use crate::strategy::permutate::{
     Permutate, PermutateBuilder, PermutateConfig, PermutateState, TryFromPermutateBuilderError,
 };
 #[doc(no_inline)]
-pub use crate::strategy::{Strategy, StrategyState, STRATEGY_ACTIONS};
+pub use crate::strategy::{
+    Strategy, StrategyBuilder, StrategyConfig, StrategyReporter, StrategyReporterDuration,
+    StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
+    STRATEGY_ACTIONS,
+};
 pub use num::BigUint;

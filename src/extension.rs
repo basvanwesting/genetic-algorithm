@@ -14,11 +14,12 @@ pub use self::noop::Noop as ExtensionNoop;
 pub use self::wrapper::Wrapper as ExtensionWrapper;
 
 use crate::genotype::Genotype;
-use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use crate::strategy::StrategyReporter;
 use rand::Rng;
 
 pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
+    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

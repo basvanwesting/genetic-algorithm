@@ -278,11 +278,11 @@ fn main() {
         // .with_select(SelectTournament::new(4, 0.9))
         .with_select(SelectElite::new(0.5))
         .with_extension(ExtensionMassDegeneration::new(180, 10))
-        // .with_reporter(EvolveReporterSimple::default())
-        // .with_reporter(EvolveReporterSimple::new_with_flags(
+        // .with_reporter(StrategyReporterSimple::default())
+        // .with_reporter(StrategyReporterSimple::new_with_flags(
         //     100, false, false, true,
         // ))
-        .with_reporter(EvolveReporterSimple::new(usize::MAX))
+        .with_reporter(StrategyReporterSimple::new(usize::MAX))
         .with_par_fitness(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),

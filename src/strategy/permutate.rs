@@ -30,8 +30,8 @@ use std::time::{Duration, Instant};
 /// will take forever...
 ///
 /// There are reporting hooks in the loop receiving the [PermutateState], which can by handled by an
-/// [PermutateReporter] (e.g. [PermutateReporterDuration], [PermutateReporterSimple]). But you are encouraged to
-/// roll your own, see [PermutateReporter].
+/// [StrategyReporter] (e.g. [StrategyReporterDuration], [StrategyReporterSimple]). But you are encouraged to
+/// roll your own, see [StrategyReporter].
 ///
 /// See [PermutateBuilder] for initialization options.
 ///
@@ -54,7 +54,7 @@ use std::time::{Duration, Instant};
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
-///     // .with_reporter(PermutateReporterSimple::new(100)) // optional builder step, report every 100 generations
+///     .with_reporter(StrategyReporterSimple::new(100))  // optional builder step, report every 100 generations
 ///     .call()
 ///     .unwrap();
 ///
@@ -75,15 +75,15 @@ pub struct Permutate<
     pub reporter: SR,
 }
 
+/// * total_population_size: only the size as the full population is never instantiated simultaneously
 pub struct PermutateConfig {
     pub fitness_ordering: FitnessOrdering,
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
+    pub total_population_size: BigUint,
 }
 
 /// Stores the state of the Permutate strategy. Next to the expected general fields, the following
-/// strategy specific fields are added:
-/// * total_population_size: only the size as the full population is never instantiated simultaneously
 pub struct PermutateState<G: PermutableGenotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
@@ -93,8 +93,6 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub chromosome: Option<G::Chromosome>,
     pub population: Population<G::Chromosome>,
     pub durations: HashMap<StrategyAction, Duration>,
-
-    pub total_population_size: BigUint,
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
@@ -234,9 +232,21 @@ impl StrategyConfig for PermutateConfig {
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
     }
+    fn estimated_progress_perc(&self, current_generation: usize) -> Option<u32> {
+        (BigUint::from(current_generation * 100) / &self.total_population_size)
+            .to_u32_digits()
+            .first()
+            .copied()
+    }
 }
 
 impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
+    fn chromosome_as_ref(&self) -> &Option<G::Chromosome> {
+        &self.chromosome
+    }
+    fn population_as_ref(&self) -> &Population<G::Chromosome> {
+        &self.population
+    }
     fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome> {
         &mut self.chromosome
     }
@@ -263,6 +273,9 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     }
     fn reset_stale_generations(&mut self) {
         self.stale_generations = 0;
+    }
+    fn current_scale_index(&self) -> Option<usize> {
+        None
     }
     fn durations(&self) -> &HashMap<StrategyAction, Duration> {
         &self.durations
@@ -322,6 +335,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genot
             Err(TryFromPermutateBuilderError("Permutate requires a Fitness"))
         } else {
             let genotype = builder.genotype.unwrap();
+            let total_population_size = genotype.chromosome_permutations_size();
             let state = PermutateState::new(&genotype);
 
             Ok(Self {
@@ -332,6 +346,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genot
                     fitness_ordering: builder.fitness_ordering,
                     par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
+                    total_population_size,
                 },
                 state,
                 reporter: builder.reporter,
@@ -346,6 +361,7 @@ impl Default for PermutateConfig {
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
             replace_on_equal_fitness: false,
+            total_population_size: Default::default(),
         }
     }
 }
@@ -356,10 +372,8 @@ impl PermutateConfig {
 }
 
 impl<G: PermutableGenotype> PermutateState<G> {
-    pub fn new(genotype: &G) -> Self {
-        let total_population_size = genotype.chromosome_permutations_size();
+    pub fn new(_genotype: &G) -> Self {
         Self {
-            total_population_size,
             current_iteration: 0,
             current_generation: 0,
             stale_generations: 0,
@@ -390,14 +404,14 @@ impl fmt::Display for PermutateConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_config:")?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  par_fitness: {:?}", self.par_fitness)
+        writeln!(f, "  par_fitness: {:?}", self.par_fitness)?;
+        writeln!(f, "  total_population_size: {}", self.total_population_size)
     }
 }
 
 impl<G: PermutableGenotype> fmt::Display for PermutateState<G> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_state:")?;
-        writeln!(f, "  total_population_size: {}", self.total_population_size)?;
         writeln!(f, "  current iteration: -")?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())

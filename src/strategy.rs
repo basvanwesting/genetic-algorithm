@@ -6,8 +6,10 @@ pub mod permutate;
 pub mod reporter;
 
 use crate::chromosome::Chromosome;
+use crate::extension::ExtensionEvent;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
+use crate::mutate::MutateEvent;
 use crate::population::Population;
 use std::collections::HashMap;
 use std::fmt::Display;
@@ -19,6 +21,7 @@ pub use self::builder::{
 
 pub use self::reporter::Duration as StrategyReporterDuration;
 pub use self::reporter::Noop as StrategyReporterNoop;
+pub use self::reporter::Simple as StrategyReporterSimple;
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum StrategyAction {
@@ -60,6 +63,9 @@ pub trait StrategyConfig: Display {
     fn fitness_ordering(&self) -> FitnessOrdering;
     fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
+    fn estimated_progress_perc(&self, _current_generation: usize) -> Option<u32> {
+        None
+    }
 }
 
 /// Stores the state of the strategy.
@@ -71,13 +77,16 @@ pub trait StrategyConfig: Display {
 /// * chromosome: `G::Chromosome`
 /// * populatoin: `Population<G::Chromosome>` // may be empty
 pub trait StrategyState<G: Genotype>: Display {
+    fn chromosome_as_ref(&self) -> &Option<G::Chromosome>;
     fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome>;
+    fn population_as_ref(&self) -> &Population<G::Chromosome>;
     fn population_as_mut(&mut self) -> &mut Population<G::Chromosome>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
+    fn current_scale_index(&self) -> Option<usize>;
     fn durations(&self) -> &HashMap<StrategyAction, Duration>;
     fn add_duration(&mut self, action: StrategyAction, duration: Duration);
     fn total_duration(&self) -> Duration;
@@ -88,7 +97,6 @@ pub trait StrategyState<G: Genotype>: Display {
     }
     fn increment_stale_generations(&mut self);
     fn reset_stale_generations(&mut self);
-
     // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
     // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
     // distinguished for reporting purposes
@@ -136,13 +144,73 @@ pub trait StrategyState<G: Genotype>: Display {
     }
 }
 
-// /// This is just a shortcut for `Self::Genotype`
-// pub type StrategyReporterGenotype<S> = <S as StrategyReporter>::Genotype;
-// /// This is just a shortcut for `<Self::Genotype as Genotype>::Chromosome`
-// pub type StrategyReporterState<S> = StrategyState<<S as StrategyReporter>::Genotype as Genotype>;
-// /// This is just a shortcut for `StrategyConfig`
-// pub type StrategyReporterConfig<S> = StrategyConfig;
-
+/// Reporter with event hooks for all Strategies.
+///
+/// It has an associated type Genotype, just like Fitness, so you can implement reporting with
+/// access to your domain's specific Genotype, Chromosome etc..
+///
+/// # Example:
+/// You are encouraged to take a look at the [StrategyReporterSimple](self::reporter::Simple) implementation, and
+/// then roll your own like below:
+/// ```rust
+/// use genetic_algorithm::strategy::evolve::prelude::*;
+///
+/// #[derive(Clone)]
+/// pub struct CustomReporter { pub period: usize }
+/// impl StrategyReporter for CustomReporter {
+///     type Genotype = BinaryGenotype;
+///
+///     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+///         &mut self,
+///         _genotype: &Self::Genotype,
+///         state: &S,
+///         _config: &C,
+///     ) {
+///         if state.current_generation() % self.period == 0 {
+///             println!(
+///                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {}, current_population_size: {}",
+///                 state.current_generation(),
+///                 state.stale_generations(),
+///                 state.best_generation(),
+///                 state.current_scale_index(),
+///                 state.population_as_ref().fitness_score_cardinality(),
+///                 state.population_as_ref().size(),
+///             );
+///         }
+///     }
+///
+///     fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+///         &mut self,
+///         _genotype: &Self::Genotype,
+///         state: &S,
+///         _config: &C,
+///     ) {
+///         println!(
+///             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, population_size: {}",
+///             state.current_generation(),
+///             state.best_fitness_score(),
+///             state.current_scale_index(),
+///             state.population_as_ref().size(),
+///         );
+///     }
+///
+///     fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+///         &mut self,
+///         _genotype: &Self::Genotype,
+///         state: &S,
+///         _config: &C,
+///     ) {
+///         println!("finish - iteration: {}", state.current_iteration());
+///         STRATEGY_ACTIONS.iter().for_each(|action| {
+///             if let Some(duration) = state.durations().get(action) {
+///                 println!("  {:?}: {:?}", action, duration,);
+///             }
+///         });
+///         println!("  Total: {:?}", &state.total_duration());
+///     }
+///
+/// }
+/// ```
 pub trait StrategyReporter: Clone + Send + Sync {
     type Genotype: Genotype;
     fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -182,6 +250,22 @@ pub trait StrategyReporter: Clone + Send + Sync {
     }
     fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_extension_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _event: ExtensionEvent,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_mutate_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _event: MutateEvent,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,

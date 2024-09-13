@@ -16,11 +16,12 @@ pub use self::tournament::Tournament as SelectTournament;
 pub use self::wrapper::Wrapper as SelectWrapper;
 
 use crate::genotype::Genotype;
-use crate::strategy::evolve::{EvolveConfig, EvolveReporter, EvolveState};
+use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use crate::strategy::StrategyReporter;
 use rand::prelude::*;
 
 pub trait Select: Clone + Send + Sync + std::fmt::Debug {
-    fn call<G: Genotype, R: Rng, SR: EvolveReporter<Genotype = G>>(
+    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,
