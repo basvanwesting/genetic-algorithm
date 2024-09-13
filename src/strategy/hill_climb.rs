@@ -392,6 +392,9 @@ impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
     fn reset_stale_generations(&mut self) {
         self.stale_generations = 0;
     }
+    fn durations(&self) -> &HashMap<StrategyAction, Duration> {
+        &self.durations
+    }
     fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
         *self.durations.entry(action).or_default() += duration;
     }

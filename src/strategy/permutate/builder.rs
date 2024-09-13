@@ -1,7 +1,8 @@
-use super::{Permutate, PermutateReporter, PermutateReporterNoop};
+use super::{Permutate, PermutateConfig, PermutateState};
 use crate::fitness::{Fitness, FitnessOrdering};
 use crate::genotype::PermutableGenotype;
-use crate::strategy::Strategy;
+use crate::strategy::reporter::Noop as ReporterNoop;
+use crate::strategy::{Strategy, StrategyConfig, StrategyReporter, StrategyState};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -11,7 +12,7 @@ pub struct TryFromBuilderError(pub &'static str);
 pub struct Builder<
     G: PermutableGenotype,
     F: Fitness<Genotype = G>,
-    SR: PermutateReporter<Genotype = G>,
+    SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>,
 > {
     pub genotype: Option<G>,
     pub fitness: Option<F>,
@@ -21,9 +22,7 @@ pub struct Builder<
     pub reporter: SR,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default
-    for Builder<G, F, PermutateReporterNoop<G>>
-{
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default for Builder<G, F, ReporterNoop> {
     fn default() -> Self {
         Self {
             genotype: None,
@@ -31,18 +30,21 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default
             par_fitness: false,
             replace_on_equal_fitness: false,
             fitness: None,
-            reporter: PermutateReporterNoop::new(),
+            reporter: ReporterNoop::new(),
         }
     }
 }
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F, PermutateReporterNoop<G>> {
+impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F, ReporterNoop> {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
-    Builder<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Genotype = G>,
+        SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>,
+    > Builder<G, F, SR>
 {
     pub fn build(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         self.try_into()
@@ -67,7 +69,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         self.fitness = Some(fitness);
         self
     }
-    pub fn with_reporter<SR2: PermutateReporter<Genotype = G>>(
+    pub fn with_reporter<SR2: StrategyReporter<G, PermutateState<G>, PermutateConfig>>(
         self,
         reporter: SR2,
     ) -> Builder<G, F, SR2> {
@@ -81,8 +83,11 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Geno
         }
     }
 }
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: PermutateReporter<Genotype = G>>
-    Builder<G, F, SR>
+impl<
+        G: PermutableGenotype,
+        F: Fitness<Genotype = G>,
+        SR: StrategyReporter<G, PermutateState<G>, PermutateConfig>,
+    > Builder<G, F, SR>
 {
     pub fn call(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
         let mut permutate: Permutate<G, F, SR> = self.try_into()?;

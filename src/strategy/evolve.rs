@@ -424,6 +424,9 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     fn reset_stale_generations(&mut self) {
         self.stale_generations = 0;
     }
+    fn durations(&self) -> &HashMap<StrategyAction, Duration> {
+        &self.durations
+    }
     fn add_duration(&mut self, action: StrategyAction, duration: Duration) {
         *self.durations.entry(action).or_default() += duration;
     }

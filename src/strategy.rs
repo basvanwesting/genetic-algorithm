@@ -2,11 +2,14 @@
 pub mod evolve;
 pub mod hill_climb;
 pub mod permutate;
+pub mod reporter;
 
 use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::population::Population;
+use std::collections::HashMap;
+use std::fmt::Display;
 use std::time::Duration;
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
@@ -45,7 +48,7 @@ pub trait Strategy<G: Genotype> {
     }
 }
 
-pub trait StrategyConfig {
+pub trait StrategyConfig: Display {
     fn fitness_ordering(&self) -> FitnessOrdering;
     fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
@@ -59,7 +62,7 @@ pub trait StrategyConfig {
 /// * best_chromosome: `G::Chromosome`
 /// * chromosome: `G::Chromosome`
 /// * populatoin: `Population<G::Chromosome>` // may be empty
-pub trait StrategyState<G: Genotype> {
+pub trait StrategyState<G: Genotype>: Display {
     fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome>;
     fn population_as_mut(&mut self) -> &mut Population<G::Chromosome>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
@@ -67,6 +70,7 @@ pub trait StrategyState<G: Genotype> {
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
+    fn durations(&self) -> &HashMap<StrategyAction, Duration>;
     fn add_duration(&mut self, action: StrategyAction, duration: Duration);
     fn total_duration(&self) -> Duration;
     fn close_duration(&mut self, total_duration: Duration) {
@@ -124,60 +128,21 @@ pub trait StrategyState<G: Genotype> {
     }
 }
 
-/// Reporter with event hooks in the Strategy process
-///
-/// As this is a primary API for clients, which are encouraged to implement their own reporters, we
-/// want the API to resemble the Fitness API (which is also custom implemented by clients).
-/// Therefore we only want to set a associated trait Allele in the API. The error [E0658:
-/// associated type defaults are unstable](https://github.com/rust-lang/rust/issues/29661) blocks
-/// this API design. Thus Supertrait StrategyReporter is not used. It is only shadowed, as if it
-/// existed as a supertrait for now.
-///
-pub trait StrategyReporter: Clone + Send + Sync {
-    type Genotype: Genotype;
-    type State: StrategyState<Self::Genotype>;
-    type Config: StrategyConfig;
+// /// This is just a shortcut for `Self::Genotype`
+// pub type StrategyReporterGenotype<S> = <S as StrategyReporter>::Genotype;
+// /// This is just a shortcut for `<Self::Genotype as Genotype>::Chromosome`
+// pub type StrategyReporterState<S> = StrategyState<<S as StrategyReporter>::Genotype as Genotype>;
+// /// This is just a shortcut for `StrategyConfig`
+// pub type StrategyReporterConfig<S> = StrategyConfig;
 
-    fn on_init(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &Self::State,
-        _config: &Self::Config,
-    ) {
-    }
-    fn on_start(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &Self::State,
-        _config: &Self::Config,
-    ) {
-    }
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &Self::State,
-        _config: &Self::Config,
-    ) {
-    }
-    fn on_new_generation(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &Self::State,
-        _config: &Self::Config,
-    ) {
-    }
-    fn on_new_best_chromosome(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &Self::State,
-        _config: &Self::Config,
-    ) {
-    }
-    fn on_new_best_chromosome_equal_fitness(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &Self::State,
-        _config: &Self::Config,
-    ) {
-    }
+pub trait StrategyReporter<G: Genotype, S: StrategyState<G>, C: StrategyConfig>:
+    Clone + Send + Sync
+{
+
+    fn on_init(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_start(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_finish(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_new_generation(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_new_best_chromosome(&mut self, _genotype: &G, _state: &S, _config: &C) {}
+    fn on_new_best_chromosome_equal_fitness(&mut self, _genotype: &G, _state: &S, _config: &C) {}
 }
