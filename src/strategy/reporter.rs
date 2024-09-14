@@ -155,15 +155,12 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
-        config: &C,
+        _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
             let width = state.population_as_ref().size().to_string().len();
             println!(
-                "periodic - progress: {}, current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {:>width$}, current_population_size: {:>width$}, #extension_events: {}",
-                config
-                    .estimated_progress_perc(state.current_generation())
-                    .map_or("-".to_string(), |v| format!("{:3.3}%", v)),
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {:>width$}, current_population_size: {:>width$}, #extension_events: {}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),

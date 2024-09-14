@@ -63,9 +63,6 @@ pub trait StrategyConfig: Display {
     fn fitness_ordering(&self) -> FitnessOrdering;
     fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
-    fn estimated_progress_perc(&self, _current_generation: usize) -> Option<u8> {
-        None
-    }
 }
 
 /// Stores the state of the strategy.
@@ -147,7 +144,7 @@ pub trait StrategyState<G: Genotype>: Display {
 /// Reporter with event hooks for all Strategies.
 ///
 /// It has an associated type Genotype, just like Fitness, so you can implement reporting with
-/// access to your domain's specific Genotype, Chromosome etc..
+/// access to your domain's specific Genotype and Chromosome etc..
 ///
 /// # Example:
 /// You are encouraged to take a look at the [StrategyReporterSimple](self::reporter::Simple) implementation, and

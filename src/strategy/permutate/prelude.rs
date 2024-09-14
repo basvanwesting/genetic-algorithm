@@ -10,12 +10,13 @@ pub use crate::fitness::{
 #[doc(no_inline)]
 pub use crate::genotype::{
     Allele, BinaryGenotype, BitGenotype, Genotype, GenotypeBuilder, ListGenotype,
-    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeAllele, RangeGenotype,
-    TryFromGenotypeBuilderError, UniqueGenotype,
+    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, PermutableGenotype, RangeAllele,
+    RangeGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::strategy::permutate::{
-    Permutate, PermutateBuilder, PermutateConfig, PermutateState, TryFromPermutateBuilderError,
+    Permutate, PermutateBuilder, PermutateConfig, PermutateReporterSimple, PermutateState,
+    TryFromPermutateBuilderError,
 };
 #[doc(no_inline)]
 pub use crate::strategy::{

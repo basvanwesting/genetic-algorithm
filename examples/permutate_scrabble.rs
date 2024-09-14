@@ -1,4 +1,5 @@
 use genetic_algorithm::strategy::permutate::prelude::*;
+use num::{BigUint, ToPrimitive};
 use std::collections::{HashMap, HashSet};
 
 type Row = usize;
@@ -230,16 +231,17 @@ impl StrategyReporter for CustomReporter {
 
     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        _genotype: &Self::Genotype,
+        genotype: &Self::Genotype,
         state: &S,
-        config: &C,
+        _config: &C,
     ) {
         if state.current_generation() % self.0 == 0 {
+            let progress = (BigUint::from(state.current_generation() * 100)
+                / &genotype.chromosome_permutations_size())
+                .to_u8();
             println!(
                 "progress: {}, current_generation: {}, best_generation: {}",
-                config
-                    .estimated_progress_perc(state.current_generation())
-                    .map_or("-".to_string(), |v| format!("{:3.3}%", v)),
+                progress.map_or("-".to_string(), |v| format!("{:3.3}%", v)),
                 state.current_generation(),
                 state.best_generation(),
             );

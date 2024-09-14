@@ -45,7 +45,7 @@ fn main() {
         .with_genotype(genotype)
         .with_fitness(TupleFitness)
         // .with_par_fitness(true) // worse performance
-        .with_reporter(StrategyReporterSimple::new(usize::MAX))
+        .with_reporter(PermutateReporterSimple::new(100_000))
         .build()
         .unwrap();
 

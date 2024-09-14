@@ -1,165 +1,10 @@
-use super::{PermutateConfig, PermutateState};
+//! Reporters directed at Permutate process specific data
 use crate::genotype::PermutableGenotype;
-use crate::strategy::{StrategyState, STRATEGY_ACTIONS};
-use num::BigUint;
+use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
+use num::{BigUint, ToPrimitive};
 use std::marker::PhantomData;
 
-/// Reporter with event hooks in the Permutate process.
-/// A new generation is simply handling a single new chromosome from the total population
-///
-/// # Example:
-/// You are encouraged to take a look at the [StrategyReporterSimple](Simple) implementation, and
-/// then roll your own like below:
-/// ```rust
-/// use genetic_algorithm::strategy::permutate::prelude::*;
-/// use num::BigUint;
-///
-/// #[derive(Clone)]
-/// pub struct CustomReporter { pub period: usize };
-/// impl StrategyReporter for CustomReporter {
-///     type Genotype = BinaryGenotype;
-///
-///     fn on_new_generation(&mut self, _genotype: &Self::Genotype, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
-///         if state.current_generation() % self.period == 0 {
-///             println!(
-///                 "progress: {:2.2}%, current_generation: {}, best_generation: {}",
-///                 BigUint::from(state.current_generation() * 100) / &state.total_population_size,
-///                 state.current_generation(),
-///                 state.best_generation(),
-///             );
-///         }
-///     }
-///
-///     fn on_new_best_chromosome(&mut self, genotype: &Self::Genotype, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
-///         println!(
-///             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
-///             state.current_generation(),
-///             state.best_fitness_score(),
-///             genotype.best_genes(),
-///         );
-///     }
-///
-///     fn on_finish(&mut self, _genotype: &Self::Genotype, state: &PermutateState<Self::Genotype>, _config: &PermutateConfig) {
-///         println!("finish - generation: {}", state.current_generation());
-///         STRATEGY_ACTIONS.iter().for_each(|action| {
-///             if let Some(duration) = state.durations.get(action) {
-///                 println!("  {:?}: {:?}", action, duration,);
-///             }
-///         });
-///         println!("  Total: {:?}", &state.total_duration());
-///     }
-///
-/// }
-/// ```
-pub trait Reporter: Clone + Send + Sync {
-    type Genotype: PermutableGenotype;
-
-    fn on_init(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-    }
-    fn on_start(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-    }
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-    }
-    fn on_new_generation(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-    }
-    fn on_new_best_chromosome(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-    }
-    fn on_new_best_chromosome_equal_fitness(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-    }
-}
-
-/// The noop reporter, silences reporting
-#[derive(Clone)]
-pub struct Noop<G: PermutableGenotype>(pub PhantomData<G>);
-impl<G: PermutableGenotype> Default for Noop<G> {
-    fn default() -> Self {
-        Self(PhantomData)
-    }
-}
-impl<G: PermutableGenotype> Noop<G> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-impl<G: PermutableGenotype> Reporter for Noop<G> {
-    type Genotype = G;
-}
-
-/// A Duration reporter generic over Genotype.
-#[derive(Clone)]
-pub struct Duration<G: PermutableGenotype> {
-    _phantom: PhantomData<G>,
-}
-impl<G: PermutableGenotype> Default for Duration<G> {
-    fn default() -> Self {
-        Self {
-            _phantom: PhantomData,
-        }
-    }
-}
-impl<G: PermutableGenotype> Duration<G> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-impl<G: PermutableGenotype> Reporter for Duration<G> {
-    type Genotype = G;
-
-    fn on_start(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-        println!("start - iteration: {}", state.current_iteration());
-    }
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-        println!("finish - iteration: {}", state.current_iteration());
-        STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations.get(action) {
-                println!("  {:?}: {:?}", action, duration,);
-            }
-        });
-        println!("  Total: {:?}", &state.total_duration());
-    }
-}
-
-/// A Simple reporter generic over Genotype.
+/// A Simple Permutate reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
 pub struct Simple<G: PermutableGenotype> {
@@ -191,31 +36,33 @@ impl<G: PermutableGenotype> Simple<G> {
         }
     }
 }
-impl<G: PermutableGenotype> Reporter for Simple<G> {
+impl<G: PermutableGenotype> StrategyReporter for Simple<G> {
     type Genotype = G;
 
-    fn on_new_generation(
+    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        _genotype: &Self::Genotype,
-        state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
+        genotype: &Self::Genotype,
+        state: &S,
+        _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
-            let width = state.total_population_size.to_string().len();
+            let progress = (BigUint::from(state.current_generation() * 100)
+                / &genotype.chromosome_permutations_size())
+                .to_u8();
             println!(
-                "progress: {:3.3}%, current_generation: {:>width$}, best_generation: {:>width$}",
-                BigUint::from(state.current_generation() * 100) / &state.total_population_size,
+                "progress: {}, current_generation: {}, best_generation: {}",
+                progress.map_or("-".to_string(), |v| format!("{:3.3}%", v)),
                 state.current_generation(),
                 state.best_generation(),
             );
         }
     }
 
-    fn on_new_best_chromosome(
+    fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
-        state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
+        state: &S,
+        _config: &C,
     ) {
         println!(
             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
@@ -229,56 +76,18 @@ impl<G: PermutableGenotype> Reporter for Simple<G> {
         );
     }
 
-    fn on_finish(
+    fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
-        state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
+        state: &S,
+        _config: &C,
     ) {
         println!("finish - generation: {}", state.current_generation());
         STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations.get(action) {
+            if let Some(duration) = state.durations().get(action) {
                 println!("  {:?}: {:?}", action, duration,);
             }
         });
         println!("  Total: {:?}", &state.total_duration());
-    }
-}
-
-/// A log-level based reporter for debug and trace, runs on each generation
-#[derive(Clone)]
-pub struct Log<G: PermutableGenotype>(pub PhantomData<G>);
-impl<G: PermutableGenotype> Default for Log<G> {
-    fn default() -> Self {
-        Self(PhantomData)
-    }
-}
-impl<G: PermutableGenotype> Log<G> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-impl<G: PermutableGenotype> Reporter for Log<G> {
-    type Genotype = G;
-
-    fn on_new_generation(
-        &mut self,
-        genotype: &Self::Genotype,
-        state: &PermutateState<Self::Genotype>,
-        _config: &PermutateConfig,
-    ) {
-        log::debug!(
-            "progress: {:2.2}%, current_generation: {}, best_generation: {}, best_fitness_score: {:?}",
-            BigUint::from(state.current_generation() * 100) / &state.total_population_size,
-            state.current_generation(),
-            state.best_generation(),
-            state.best_fitness_score(),
-        );
-
-        log::trace!(
-            "best - fitness score: {:?}, genes: {:?}",
-            state.best_fitness_score(),
-            genotype.best_genes()
-        );
     }
 }
