@@ -37,7 +37,7 @@ fn call_evolve() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new())
         .with_select(SelectTournament::new(4, 0.9))
-        // .with_reporter(StrategyReporterSimple::new(1000))
+        // .with_reporter(EvolveReporterSimple::new(1000))
         .build()
         .unwrap();
 
@@ -69,7 +69,7 @@ fn call_hill_climb() {
         .with_target_fitness_score(100)
         .with_fitness(CountTrueWithSleep::new(1000, true))
         .with_par_fitness(INTERNAL_MULTITHREAD)
-        // .with_reporter(StrategyReporterSimple::new(1000))
+        // .with_reporter(HillClimbReporterSimple::new(1000))
         .build()
         .unwrap();
 
@@ -98,7 +98,7 @@ fn call_permutate() {
         .with_genotype(genotype.clone())
         .with_fitness(CountTrueWithSleep::new(1000, true))
         .with_par_fitness(INTERNAL_MULTITHREAD)
-        // .with_reporter(StrategyReporterSimple::new(1000))
+        // .with_reporter(PermutateReporterSimple::new(1000))
         .build()
         .unwrap();
 

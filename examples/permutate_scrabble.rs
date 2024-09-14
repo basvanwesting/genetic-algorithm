@@ -315,7 +315,7 @@ fn main() {
             false,
         ))
         .with_par_fitness(true)
-        // .with_reporter(StrategyReporterSimple::new(100_000))
+        // .with_reporter(PermutateReporterSimple::new(100_000))
         .with_reporter(CustomReporter(100_000))
         .build()
         .unwrap();

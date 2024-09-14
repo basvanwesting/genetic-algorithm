@@ -60,7 +60,7 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        // .with_reporter(StrategyReporterSimple::new(100))
+        // .with_reporter(EvolveReporterSimple::new(100))
         .with_target_population_size(1000)
         .with_max_stale_generations(100)
         .with_target_fitness_score(TARGET_SCORE)

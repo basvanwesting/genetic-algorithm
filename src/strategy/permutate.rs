@@ -8,7 +8,8 @@ pub use self::builder::{
 };
 
 use super::{
-    Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop, StrategyState,
+    Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop,
+    StrategyState, StrategyVariant,
 };
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
@@ -21,6 +22,14 @@ use std::sync::mpsc::sync_channel;
 use std::time::{Duration, Instant};
 
 pub use self::reporter::Simple as PermutateReporterSimple;
+pub use crate::strategy::reporter::Duration as PermutateReporterDuration;
+pub use crate::strategy::reporter::Noop as PermutateReporterNoop;
+
+#[derive(Copy, Clone, Debug, Default)]
+pub enum PermutateVariant {
+    #[default]
+    Standard,
+}
 
 /// All possible combinations of genes are iterated over as chromosomes.
 /// The fitness is calculated for each chromosome and the best is taken.
@@ -32,7 +41,7 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 /// will take forever...
 ///
 /// There are reporting hooks in the loop receiving the [PermutateState], which can by handled by an
-/// [StrategyReporter] (e.g. [StrategyReporterDuration], [StrategyReporterSimple]). But you are encouraged to
+/// [StrategyReporter] (e.g. [PermutateReporterDuration], [PermutateReporterSimple]). But you are encouraged to
 /// roll your own, see [StrategyReporter].
 ///
 /// See [PermutateBuilder] for initialization options.
@@ -56,7 +65,7 @@ pub use self::reporter::Simple as PermutateReporterSimple;
 ///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
-///     .with_reporter(StrategyReporterSimple::new(100))  // optional builder step, report every 100 generations
+///     .with_reporter(PermutateReporterSimple::new(100)) // optional builder step, report every 100 generations
 ///     .call()
 ///     .unwrap();
 ///
@@ -78,6 +87,7 @@ pub struct Permutate<
 }
 
 pub struct PermutateConfig {
+    pub variant: PermutateVariant,
     pub fitness_ordering: FitnessOrdering,
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
@@ -232,6 +242,9 @@ impl StrategyConfig for PermutateConfig {
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
     }
+    fn variant(&self) -> StrategyVariant {
+        StrategyVariant::Permutate(self.variant)
+    }
 }
 
 impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
@@ -339,6 +352,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genot
                     fitness_ordering: builder.fitness_ordering,
                     par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
+                    ..Default::default()
                 },
                 state,
                 reporter: builder.reporter,
@@ -350,6 +364,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genot
 impl Default for PermutateConfig {
     fn default() -> Self {
         Self {
+            variant: Default::default(),
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
             replace_on_equal_fitness: false,

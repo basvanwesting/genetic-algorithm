@@ -384,7 +384,7 @@ fn main() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(1)
         .with_par_fitness(true)
-        .with_reporter(StrategyReporterSimple::new(1))
+        .with_reporter(HillClimbReporterSimple::new(1))
         .with_fitness(RecessFitness(&adults, &dates))
         .with_fitness_ordering(FitnessOrdering::Maximize);
 

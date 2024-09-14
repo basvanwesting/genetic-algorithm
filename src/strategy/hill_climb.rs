@@ -1,13 +1,15 @@
 //! A solution strategy for finding the best chromosome, when search space is convex with little local optima or crossover is impossible or inefficient
 mod builder;
 pub mod prelude;
+mod reporter;
 
 pub use self::builder::{
     Builder as HillClimbBuilder, TryFromBuilderError as TryFromHillClimbBuilderError,
 };
 
 use super::{
-    Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop, StrategyState,
+    Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop,
+    StrategyState, StrategyVariant,
 };
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
@@ -21,7 +23,11 @@ use std::fmt;
 use std::time::{Duration, Instant};
 use thread_local::ThreadLocal;
 
-#[derive(Clone, Debug, Default)]
+pub use self::reporter::Simple as HillClimbReporterSimple;
+pub use crate::strategy::reporter::Duration as HillClimbReporterDuration;
+pub use crate::strategy::reporter::Noop as HillClimbReporterNoop;
+
+#[derive(Copy, Clone, Debug, Default)]
 pub enum HillClimbVariant {
     #[default]
     Stochastic,
@@ -66,7 +72,7 @@ pub enum HillClimbVariant {
 ///     * Standard max_stale_generations ending condition
 ///
 /// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
-/// [StrategyReporter] (e.g. [StrategyReporterDuration], [StrategyReporterSimple]). But you are encouraged to
+/// [StrategyReporter] (e.g. [HillClimbReporterDuration], [HillClimbReporterSimple]). But you are encouraged to
 /// roll your own, see [StrategyReporter].
 ///
 /// From the [HillClimbBuilder] level, there are several calling mechanisms:
@@ -118,7 +124,7 @@ pub enum HillClimbVariant {
 ///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_replace_on_equal_fitness(true)              // optional, defaults to true, crucial for some type of problems with discrete fitness steps like nqueens
-///     .with_reporter(StrategyReporterSimple::new(100)) // optional, report every 100 generations
+///     .with_reporter(HillClimbReporterSimple::new(100)) // optional, report every 100 generations
 ///     .with_rng_seed_from_u64(0)                        // for testing with deterministic results
 ///     .call()
 ///     .unwrap();
@@ -357,6 +363,9 @@ impl StrategyConfig for HillClimbConfig {
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
     }
+    fn variant(&self) -> StrategyVariant {
+        StrategyVariant::HillClimb(self.variant)
+    }
 }
 
 impl<G: IncrementalGenotype> StrategyState<G> for HillClimbState<G> {
@@ -517,7 +526,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Geno
                 genotype,
                 fitness: builder.fitness.unwrap(),
                 config: HillClimbConfig {
-                    variant: builder.variant.unwrap_or(HillClimbVariant::Stochastic),
+                    variant: builder.variant.unwrap_or_default(),
                     fitness_ordering: builder.fitness_ordering,
                     par_fitness: builder.par_fitness,
                     max_stale_generations: builder.max_stale_generations,
@@ -536,7 +545,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Geno
 impl Default for HillClimbConfig {
     fn default() -> Self {
         Self {
-            variant: HillClimbVariant::default(),
+            variant: Default::default(),
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
             max_stale_generations: None,

@@ -47,7 +47,7 @@ fn main() {
         // .with_crossover(CrossoverClone::new())
         .with_crossover(CrossoverMultiPoint::new(9, false))
         .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 0.2))
-        .with_reporter(StrategyReporterSimple::new(100))
+        .with_reporter(EvolveReporterSimple::new(100))
         .with_fitness(CountdownNoisy::new(
             POPULATION_SIZE * TARGET_GENERATION,
             POPULATION_SIZE * 10,
@@ -83,7 +83,7 @@ fn main() {
 //         .with_genotype(genotype)
 //         .with_select(SelectTournament::new(TOURNAMENT_SIZE))
 //         .with_crossover(CrossoverMultiPoint::new(9, false))
-//         // .with_reporter(StrategyReporterSimple::new(100))
+//         // .with_reporter(EvolveReporterSimple::new(100))
 //         .with_fitness(CountdownNoisy::new(
 //             POPULATION_SIZE * TARGET_GENERATION,
 //             POPULATION_SIZE * 10,

@@ -51,7 +51,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new())
         .with_select(SelectElite::new(0.9))
-        .with_reporter(StrategyReporterSimple::new(100))
+        .with_reporter(EvolveReporterSimple::new(100))
         .build()
         .unwrap();
 

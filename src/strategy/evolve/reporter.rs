@@ -1,189 +1,16 @@
-use super::{EvolveConfig, EvolveState};
 use crate::extension::ExtensionEvent;
 use crate::genotype::Genotype;
 use crate::mutate::MutateEvent;
-use crate::strategy::{StrategyState, STRATEGY_ACTIONS};
+use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use std::marker::PhantomData;
 
-/// Reporter with event hooks in the Evolve process.
-///
-/// # Example:
-/// You are encouraged to take a look at the [StrategyReporterSimple](Simple) implementation, and
-/// then roll your own like below:
-/// ```rust
-/// use genetic_algorithm::strategy::evolve::prelude::*;
-///
-/// #[derive(Clone)]
-/// pub struct CustomReporter { pub period: usize }
-/// impl StrategyReporter for CustomReporter {
-///     type Genotype = BinaryGenotype;
-///
-///     fn on_new_generation(&mut self, _genotype: &Self::Genotype, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
-///         if state.current_generation() % self.period == 0 {
-///             println!(
-///                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {}, current_population_size: {}",
-///                 state.current_generation(),
-///                 state.stale_generations(),
-///                 state.best_generation(),
-///                 state.current_scale_index.as_ref(),
-///                 state.population.fitness_score_cardinality(),
-///                 state.population.size(),
-///             );
-///         }
-///     }
-///
-///     fn on_new_best_chromosome(&mut self, _genotype: &Self::Genotype, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
-///         println!(
-///             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, population_size: {}",
-///             state.current_generation(),
-///             state.best_fitness_score(),
-///             state.current_scale_index.as_ref(),
-///             state.population.size(),
-///         );
-///     }
-///
-///     fn on_finish(&mut self, _genotype: &Self::Genotype, state: &EvolveState<Self::Genotype>, _config: &EvolveConfig) {
-///         println!("finish - iteration: {}", state.current_iteration());
-///         STRATEGY_ACTIONS.iter().for_each(|action| {
-///             if let Some(duration) = state.durations.get(action) {
-///                 println!("  {:?}: {:?}", action, duration,);
-///             }
-///         });
-///         println!("  Total: {:?}", &state.total_duration());
-///     }
-///
-/// }
-/// ```
-pub trait Reporter: Clone + Send + Sync {
-    type Genotype: Genotype;
-
-    fn on_init(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-    }
-    fn on_start(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-    }
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-    }
-    fn on_new_generation(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-    }
-    fn on_new_best_chromosome(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-    }
-    fn on_new_best_chromosome_equal_fitness(
-        &mut self,
-        _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-    }
-    fn on_extension_event(
-        &mut self,
-        _event: ExtensionEvent,
-        _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-    }
-    fn on_mutate_event(
-        &mut self,
-        _event: MutateEvent,
-        _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-    }
-}
-
-/// The noop reporter, silences reporting
-#[derive(Clone)]
-pub struct Noop<G: Genotype>(pub PhantomData<G>);
-impl<G: Genotype> Default for Noop<G> {
-    fn default() -> Self {
-        Self(PhantomData)
-    }
-}
-impl<G: Genotype> Noop<G> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-impl<G: Genotype> Reporter for Noop<G> {
-    type Genotype = G;
-}
-
-/// A Duration reporter generic over Genotype.
-#[derive(Clone)]
-pub struct Duration<G: Genotype> {
-    _phantom: PhantomData<G>,
-}
-impl<G: Genotype> Default for Duration<G> {
-    fn default() -> Self {
-        Self {
-            _phantom: PhantomData,
-        }
-    }
-}
-impl<G: Genotype> Duration<G> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-impl<G: Genotype> Reporter for Duration<G> {
-    type Genotype = G;
-
-    fn on_start(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-        println!("start - iteration: {}", state.current_iteration());
-    }
-    fn on_finish(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-        println!("finish - iteration: {}", state.current_iteration());
-        STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations.get(action) {
-                println!("  {:?}: {:?}", action, duration,);
-            }
-        });
-        println!("  Total: {:?}", &state.total_duration());
-    }
-}
-
-/// A Simple reporter generic over Genotype.
+/// A Simple Evolve reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
 pub struct Simple<G: Genotype> {
     pub period: usize,
     pub show_genes: bool,
+    pub show_equal_fitness: bool,
     pub show_mutate_event: bool,
     pub show_extension_event: bool,
     number_of_mutate_events: usize,
@@ -195,6 +22,7 @@ impl<G: Genotype> Default for Simple<G> {
         Self {
             period: 1,
             show_genes: false,
+            show_equal_fitness: false,
             show_mutate_event: false,
             show_extension_event: false,
             number_of_mutate_events: 0,
@@ -213,26 +41,28 @@ impl<G: Genotype> Simple<G> {
     pub fn new_with_flags(
         period: usize,
         show_genes: bool,
+        show_equal_fitness: bool,
         show_mutate_event: bool,
         show_extension_event: bool,
     ) -> Self {
         Self {
             period,
             show_genes,
+            show_equal_fitness,
             show_mutate_event,
             show_extension_event,
             ..Default::default()
         }
     }
 }
-impl<G: Genotype> Reporter for Simple<G> {
+impl<G: Genotype> StrategyReporter for Simple<G> {
     type Genotype = G;
 
-    fn on_init(
+    fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        genotype: &G,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
+        genotype: &Self::Genotype,
+        state: &S,
+        _config: &C,
     ) {
         println!("init - iteration: {}", state.current_iteration());
         genotype
@@ -240,46 +70,45 @@ impl<G: Genotype> Reporter for Simple<G> {
             .iter()
             .for_each(|genes| println!("init - seed_genes: {:?}", genes));
     }
-    fn on_start(
+    fn on_start<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
+        state: &S,
+        _config: &C,
     ) {
         println!("start - iteration: {}", state.current_iteration());
     }
 
-    fn on_finish(
+    fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
+        state: &S,
+        _config: &C,
     ) {
         println!("finish - iteration: {}", state.current_iteration());
         STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations.get(action) {
+            if let Some(duration) = state.durations().get(action) {
                 println!("  {:?}: {:?}", action, duration,);
             }
         });
         println!("  Total: {:?}", &state.total_duration());
     }
 
-    fn on_new_generation(
+    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        config: &EvolveConfig,
+        state: &S,
+        _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
-            let width = config.target_population_size.to_string().len();
             println!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {:>width$}, current_population_size: {:>width$}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, fitness_score_cardinality: {}, population_size: {}, #extension_events: {}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
-                state.current_scale_index.as_ref(),
-                state.population.fitness_score_cardinality(),
-                state.population.size(),
+                state.current_scale_index(),
+                state.population_as_ref().fitness_score_cardinality(),
+                state.population_as_ref().size(),
                 self.number_of_extension_events,
             );
             self.number_of_mutate_events = 0;
@@ -287,53 +116,77 @@ impl<G: Genotype> Reporter for Simple<G> {
         }
     }
 
-    fn on_new_best_chromosome(
+    fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
+        state: &S,
+        _config: &C,
     ) {
         println!(
-            "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}, population_size: {}",
+                "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, fitness_score_cardinality: {}, population_size: {}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
+            state.current_scale_index(),
+            state.population_as_ref().fitness_score_cardinality(),
+            state.population_as_ref().size(),
             if self.show_genes {
                 Some(genotype.best_genes())
             } else {
                 None
             },
-            state.current_scale_index.as_ref(),
-            state.population.size(),
         );
     }
 
-    fn on_extension_event(
+    fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        genotype: &Self::Genotype,
+        state: &S,
+        _config: &C,
+    ) {
+        if self.show_equal_fitness {
+            println!(
+                "equal best - generation: {}, fitness_score: {:?}, scale_index: {:?}, fitness_score_cardinality: {}, population_size: {}, genes: {:?}",
+            state.current_generation(),
+            state.best_fitness_score(),
+            state.current_scale_index(),
+            state.population_as_ref().fitness_score_cardinality(),
+            state.population_as_ref().size(),
+            if self.show_genes {
+                Some(genotype.best_genes())
+            } else {
+                None
+            },
+        );
+        }
+    }
+
+    fn on_extension_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         event: ExtensionEvent,
         _genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
+        state: &S,
+        _config: &C,
     ) {
         self.number_of_extension_events += 1;
         if self.show_extension_event {
             match event {
                 ExtensionEvent::MassDegeneration(message) => {
                     println!(
-                        "extension event - mass degeneration - current generation {} - {}",
+                        "extension event - mass degeneration - generation {} - {}",
                         state.current_generation(),
                         message
                     )
                 }
                 ExtensionEvent::MassExtinction(message) => {
                     println!(
-                        "extension event - mass extinction - current generation {} - {}",
+                        "extension event - mass extinction - generation {} - {}",
                         state.current_generation(),
                         message
                     )
                 }
                 ExtensionEvent::MassGenesis(message) => {
                     println!(
-                        "extension event - mass genesis - current generation {} - {}",
+                        "extension event - mass genesis - generation {} - {}",
                         state.current_generation(),
                         message
                     )
@@ -342,63 +195,24 @@ impl<G: Genotype> Reporter for Simple<G> {
         }
     }
 
-    fn on_mutate_event(
+    fn on_mutate_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         event: MutateEvent,
         _genotype: &Self::Genotype,
-        _state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
+        state: &S,
+        _config: &C,
     ) {
         self.number_of_mutate_events += 1;
         if self.show_mutate_event {
             match event {
                 MutateEvent::ChangeMutationProbability(message) => {
-                    println!("mutate event - change mutation probability - {}", message)
+                    println!(
+                        "mutate event - change mutation probability - generation {} - {}",
+                        state.current_generation(),
+                        message
+                    )
                 }
             }
         }
-    }
-}
-
-/// A log-level based reporter for debug and trace, runs on each generation
-#[derive(Clone)]
-pub struct Log<G: Genotype>(pub PhantomData<G>);
-impl<G: Genotype> Default for Log<G> {
-    fn default() -> Self {
-        Self(PhantomData)
-    }
-}
-impl<G: Genotype> Log<G> {
-    pub fn new() -> Self {
-        Self::default()
-    }
-}
-impl<G: Genotype> Reporter for Log<G> {
-    type Genotype = G;
-
-    fn on_new_generation(
-        &mut self,
-        genotype: &Self::Genotype,
-        state: &EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-    ) {
-        log::debug!(
-            "generation (current/best/mean-age): {}/{}/{:2.2}, fitness score (best/count/median/mean/stddev/cardinality): {:?} / {} / {:?} / {:.0} / {:.0} / {}",
-            state.current_generation(),
-            state.best_generation(),
-            state.population.age_mean(),
-            state.best_fitness_score(),
-            state.population.fitness_score_count(),
-            state.population.fitness_score_median(),
-            state.population.fitness_score_mean(),
-            state.population.fitness_score_stddev(),
-            state.population.fitness_score_cardinality(),
-        );
-
-        log::trace!(
-            "best - fitness score: {:?}, genes: {:?}",
-            state.best_fitness_score(),
-            genotype.best_genes(),
-        );
     }
 }

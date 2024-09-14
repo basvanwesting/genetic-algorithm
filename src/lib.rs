@@ -53,7 +53,7 @@
 //!     .with_fitness_ordering(FitnessOrdering::Maximize) // optional, default is Maximize, aim towards the most true values
 //!     .with_target_population_size(100)                 // evolve with 100 chromosomes
 //!     .with_target_fitness_score(100)                   // goal is 100 times true in the best chromosome
-//!     .with_reporter(StrategyReporterSimple::new(100)   ) // optional builder step, report every 100 generations
+//!     .with_reporter(EvolveReporterSimple::new(100))    // optional builder step, report every 100 generations
 //!     .call()
 //!     .unwrap();
 //!

@@ -1,6 +1,4 @@
-use crate::extension::ExtensionEvent;
 use crate::genotype::Genotype;
-use crate::mutate::MutateEvent;
 use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use std::marker::PhantomData;
 
@@ -65,16 +63,13 @@ impl<G: Genotype> StrategyReporter for Duration<G> {
     }
 }
 
-/// A Simple reporter generic over Genotype.
+/// A Simple Strategy reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
 pub struct Simple<G: Genotype> {
     pub period: usize,
     pub show_genes: bool,
-    pub show_mutate_event: bool,
-    pub show_extension_event: bool,
-    number_of_mutate_events: usize,
-    number_of_extension_events: usize,
+    pub show_equal_fitness: bool,
     _phantom: PhantomData<G>,
 }
 impl<G: Genotype> Default for Simple<G> {
@@ -82,10 +77,7 @@ impl<G: Genotype> Default for Simple<G> {
         Self {
             period: 1,
             show_genes: false,
-            show_mutate_event: false,
-            show_extension_event: false,
-            number_of_mutate_events: 0,
-            number_of_extension_events: 0,
+            show_equal_fitness: false,
             _phantom: PhantomData,
         }
     }
@@ -97,17 +89,11 @@ impl<G: Genotype> Simple<G> {
             ..Default::default()
         }
     }
-    pub fn new_with_flags(
-        period: usize,
-        show_genes: bool,
-        show_mutate_event: bool,
-        show_extension_event: bool,
-    ) -> Self {
+    pub fn new_with_flags(period: usize, show_genes: bool, show_equal_fitness: bool) -> Self {
         Self {
             period,
             show_genes,
-            show_mutate_event,
-            show_extension_event,
+            show_equal_fitness,
             ..Default::default()
         }
     }
@@ -158,19 +144,13 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
-            let width = state.population_as_ref().size().to_string().len();
             println!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {:>width$}, current_population_size: {:>width$}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
                 state.current_scale_index(),
-                state.population_as_ref().fitness_score_cardinality(),
-                state.population_as_ref().size(),
-                self.number_of_extension_events,
             );
-            self.number_of_mutate_events = 0;
-            self.number_of_extension_events = 0;
         }
     }
 
@@ -181,68 +161,36 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         println!(
-            "new best - generation: {}, fitness_score: {:?}, genes: {:?}, scale_index: {:?}, population_size: {}",
+            "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
+            state.current_scale_index(),
             if self.show_genes {
                 Some(genotype.best_genes())
             } else {
                 None
             },
-            state.current_scale_index(),
-            state.population_as_ref().size(),
         );
     }
 
-    fn on_extension_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        event: ExtensionEvent,
-        _genotype: &Self::Genotype,
+        genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
-        self.number_of_extension_events += 1;
-        if self.show_extension_event {
-            match event {
-                ExtensionEvent::MassDegeneration(message) => {
-                    println!(
-                        "extension event - mass degeneration - current generation {} - {}",
-                        state.current_generation(),
-                        message
-                    )
-                }
-                ExtensionEvent::MassExtinction(message) => {
-                    println!(
-                        "extension event - mass extinction - current generation {} - {}",
-                        state.current_generation(),
-                        message
-                    )
-                }
-                ExtensionEvent::MassGenesis(message) => {
-                    println!(
-                        "extension event - mass genesis - current generation {} - {}",
-                        state.current_generation(),
-                        message
-                    )
-                }
-            }
-        }
-    }
-
-    fn on_mutate_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
-        &mut self,
-        event: MutateEvent,
-        _genotype: &Self::Genotype,
-        _state: &S,
-        _config: &C,
-    ) {
-        self.number_of_mutate_events += 1;
-        if self.show_mutate_event {
-            match event {
-                MutateEvent::ChangeMutationProbability(message) => {
-                    println!("mutate event - change mutation probability - {}", message)
-                }
-            }
+        if self.show_equal_fitness {
+            println!(
+                "equal best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
+                state.current_generation(),
+                state.best_fitness_score(),
+                state.current_scale_index(),
+                if self.show_genes {
+                    Some(genotype.best_genes())
+                } else {
+                    None
+                },
+            );
         }
     }
 }

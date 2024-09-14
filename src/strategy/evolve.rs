@@ -1,13 +1,15 @@
 //! A solution strategy for finding the best chromosome using evolution
 mod builder;
 pub mod prelude;
+mod reporter;
 
 pub use self::builder::{
     Builder as EvolveBuilder, TryFromBuilderError as TryFromEvolveBuilderError,
 };
 
 use super::{
-    Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop, StrategyState,
+    Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop,
+    StrategyState, StrategyVariant,
 };
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::crossover::Crossover;
@@ -23,6 +25,16 @@ use std::collections::HashMap;
 use std::fmt;
 use std::time::{Duration, Instant};
 use thread_local::ThreadLocal;
+
+pub use self::reporter::Simple as EvolveReporterSimple;
+pub use crate::strategy::reporter::Duration as EvolveReporterDuration;
+pub use crate::strategy::reporter::Noop as EvolveReporterNoop;
+
+#[derive(Copy, Clone, Debug, Default)]
+pub enum EvolveVariant {
+    #[default]
+    Standard,
+}
 
 /// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
 /// seeds specific genes to start with), calculates [fitness](crate::fitness) for all chromosomes
@@ -57,7 +69,7 @@ use thread_local::ThreadLocal;
 ///     * Standard max_stale_generations ending condition
 ///
 /// There are reporting hooks in the loop receiving the [EvolveState], which can by handled by an
-/// [StrategyReporter] (e.g. [StrategyReporterDuration], [StrategyReporterSimple]). But you are encouraged to
+/// [StrategyReporter] (e.g. [EvolveReporterDuration], [EvolveReporterSimple]). But you are encouraged to
 /// roll your own, see [StrategyReporter].
 ///
 /// From the [EvolveBuilder] level, there are several calling mechanisms:
@@ -98,7 +110,7 @@ use thread_local::ThreadLocal;
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
 ///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
-///     .with_select(SelectElite::new(0.9))                  // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
+///     .with_select(SelectElite::new(0.9))                    // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
 ///     .with_crossover(CrossoverUniform::new())               // crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
 ///     .with_mutate(MutateSingleGene::new(0.2))               // mutate offspring for a single gene with a 20% probability per chromosome
 ///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
@@ -109,7 +121,7 @@ use thread_local::ThreadLocal;
 ///     .with_valid_fitness_score(10)                          // block ending conditions until at most a 10 times true in the best chromosome
 ///     .with_max_stale_generations(1000)                      // stop searching if there is no improvement in fitness score for 1000 generations
 ///     .with_max_chromosome_age(10)                           // kill chromosomes after 10 generations
-///     .with_reporter(StrategyReporterSimple::new(100))       // optional builder step, report every 100 generations
+///     .with_reporter(EvolveReporterSimple::new(100))         // optional builder step, report every 100 generations
 ///     .with_replace_on_equal_fitness(true)                   // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
 ///     .with_rng_seed_from_u64(0)                             // for testing with deterministic results
 ///     .call()
@@ -146,6 +158,7 @@ pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Select, E: Extension> {
 }
 
 pub struct EvolveConfig {
+    pub variant: EvolveVariant,
     pub target_population_size: usize,
     pub max_stale_generations: Option<usize>,
     pub max_chromosome_age: Option<usize>,
@@ -389,6 +402,9 @@ impl StrategyConfig for EvolveConfig {
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
     }
+    fn variant(&self) -> StrategyVariant {
+        StrategyVariant::Evolve(self.variant)
+    }
 }
 
 impl<G: Genotype> StrategyState<G> for EvolveState<G> {
@@ -588,6 +604,7 @@ impl<
                     fitness_ordering: builder.fitness_ordering,
                     par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
+                    ..Default::default()
                 },
                 state,
                 reporter: builder.reporter,
@@ -600,6 +617,7 @@ impl<
 impl Default for EvolveConfig {
     fn default() -> Self {
         Self {
+            variant: Default::default(),
             target_population_size: 0,
             max_stale_generations: None,
             max_chromosome_age: None,

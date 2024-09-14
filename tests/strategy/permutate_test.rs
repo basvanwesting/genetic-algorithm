@@ -15,7 +15,7 @@ fn call_binary_maximize() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(CountTrue)
-        // .with_reporter(StrategyReporterNoop::new())
+        .with_reporter(StrategyReporterNoop::new())
         .call()
         .unwrap();
 
@@ -61,7 +61,7 @@ fn call_list() {
     let permutate = Permutate::builder()
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
-        // .with_reporter(StrategyReporterNoop::new())
+        .with_reporter(StrategyReporterNoop::new())
         .call()
         .unwrap();
 
@@ -106,7 +106,7 @@ fn call_par_fitness() {
         .with_genotype(genotype)
         .with_fitness(SumGenes::new())
         .with_par_fitness(true)
-        // .with_reporter(StrategyReporterNoop::new())
+        .with_reporter(StrategyReporterNoop::new())
         .call()
         .unwrap();
 

@@ -52,7 +52,7 @@ fn main() {
         .with_mutate(MutateMultiGene::new(2, 0.2))
         .with_crossover(CrossoverMultiPoint::new(9, false))
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(StrategyReporterSimple::new(100))
+        .with_reporter(EvolveReporterSimple::new(100))
         .call()
         .unwrap();
 

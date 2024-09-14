@@ -10,6 +10,7 @@ use std::marker::PhantomData;
 pub struct Simple<G: PermutableGenotype> {
     pub period: usize,
     pub show_genes: bool,
+    pub show_equal_fitness: bool,
     _phantom: PhantomData<G>,
 }
 impl<G: PermutableGenotype> Default for Simple<G> {
@@ -17,6 +18,7 @@ impl<G: PermutableGenotype> Default for Simple<G> {
         Self {
             period: 1,
             show_genes: false,
+            show_equal_fitness: false,
             _phantom: PhantomData,
         }
     }
@@ -28,10 +30,11 @@ impl<G: PermutableGenotype> Simple<G> {
             ..Default::default()
         }
     }
-    pub fn new_with_flags(period: usize, show_genes: bool) -> Self {
+    pub fn new_with_flags(period: usize, show_genes: bool, show_equal_fitness: bool) -> Self {
         Self {
             period,
             show_genes,
+            show_equal_fitness,
             ..Default::default()
         }
     }
@@ -74,6 +77,26 @@ impl<G: PermutableGenotype> StrategyReporter for Simple<G> {
                 None
             },
         );
+    }
+
+    fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        genotype: &Self::Genotype,
+        state: &S,
+        _config: &C,
+    ) {
+        if self.show_equal_fitness {
+            println!(
+                "equal best - generation: {}, fitness_score: {:?}, genes: {:?}",
+                state.current_generation(),
+                state.best_fitness_score(),
+                if self.show_genes {
+                    Some(genotype.best_genes())
+                } else {
+                    None
+                },
+            );
+        }
     }
 
     fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(

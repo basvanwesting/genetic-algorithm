@@ -15,8 +15,8 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::permutate::{
-    Permutate, PermutateBuilder, PermutateConfig, PermutateReporterSimple, PermutateState,
-    TryFromPermutateBuilderError,
+    Permutate, PermutateBuilder, PermutateConfig, PermutateReporterDuration, PermutateReporterNoop,
+    PermutateReporterSimple, PermutateState, PermutateVariant, TryFromPermutateBuilderError,
 };
 #[doc(no_inline)]
 pub use crate::strategy::{

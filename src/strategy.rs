@@ -5,6 +5,9 @@ pub mod hill_climb;
 pub mod permutate;
 pub mod reporter;
 
+use self::evolve::EvolveVariant;
+use self::hill_climb::HillClimbVariant;
+use self::permutate::PermutateVariant;
 use crate::chromosome::Chromosome;
 use crate::extension::ExtensionEvent;
 use crate::fitness::{FitnessOrdering, FitnessValue};
@@ -45,6 +48,13 @@ pub const STRATEGY_ACTIONS: [StrategyAction; 8] = [
     StrategyAction::Other,
 ];
 
+#[derive(Copy, Clone, Debug)]
+pub enum StrategyVariant {
+    Evolve(EvolveVariant),
+    HillClimb(HillClimbVariant),
+    Permutate(PermutateVariant),
+}
+
 pub trait Strategy<G: Genotype> {
     fn call(&mut self);
     fn best_generation(&self) -> usize;
@@ -63,6 +73,7 @@ pub trait StrategyConfig: Display {
     fn fitness_ordering(&self) -> FitnessOrdering;
     fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
+    fn variant(&self) -> StrategyVariant;
 }
 
 /// Stores the state of the strategy.
@@ -142,13 +153,18 @@ pub trait StrategyState<G: Genotype>: Display {
 }
 
 /// Reporter with event hooks for all Strategies.
+/// You are encouraged to roll your own implementation, depending on your needs.
 ///
 /// It has an associated type Genotype, just like Fitness, so you can implement reporting with
 /// access to your domain's specific Genotype and Chromosome etc..
 ///
+/// For reference, take a look at the provided strategy independent
+/// [StrategyReporterSimple](self::reporter::Simple) implementation, or strategy specific
+/// [EvolveReporterSimple](self::evolve::EvolveReporterSimple),
+/// [HillClimbReporterSimple](self::hill_climb::HillClimbReporterSimple) and
+/// [PermutateReporterSimple](self::permutate::PermutateReporterSimple) implementations.
+///
 /// # Example:
-/// You are encouraged to take a look at the [StrategyReporterSimple](self::reporter::Simple) implementation, and
-/// then roll your own like below:
 /// ```rust
 /// use genetic_algorithm::strategy::evolve::prelude::*;
 ///
@@ -165,13 +181,11 @@ pub trait StrategyState<G: Genotype>: Display {
 ///     ) {
 ///         if state.current_generation() % self.period == 0 {
 ///             println!(
-///                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, current_scale_index: {:?}, fitness_score_cardinality: {}, current_population_size: {}",
+///                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}",
 ///                 state.current_generation(),
 ///                 state.stale_generations(),
 ///                 state.best_generation(),
 ///                 state.current_scale_index(),
-///                 state.population_as_ref().fitness_score_cardinality(),
-///                 state.population_as_ref().size(),
 ///             );
 ///         }
 ///     }
@@ -183,11 +197,10 @@ pub trait StrategyState<G: Genotype>: Display {
 ///         _config: &C,
 ///     ) {
 ///         println!(
-///             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, population_size: {}",
+///             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
 ///             state.current_scale_index(),
-///             state.population_as_ref().size(),
 ///         );
 ///     }
 ///
@@ -205,7 +218,6 @@ pub trait StrategyState<G: Genotype>: Display {
 ///         });
 ///         println!("  Total: {:?}", &state.total_duration());
 ///     }
-///
 /// }
 /// ```
 pub trait StrategyReporter: Clone + Send + Sync {
