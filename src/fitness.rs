@@ -282,6 +282,6 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         _chromosome: &FitnessChromosome<Self>,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
-        unreachable!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticMatrixGenotype)");
+        panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticMatrixGenotype)");
     }
 }

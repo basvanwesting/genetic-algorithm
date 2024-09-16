@@ -72,12 +72,22 @@ pub trait Genotype:
     fn best_genes(&self) -> &Self::Genes;
     fn best_genes_slice(&self) -> &[Self::Allele];
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
+
     fn update_population_fitness_scores(
         &self,
         _population: &mut Population<Self::Chromosome>,
         _fitness_scores: Vec<Option<FitnessValue>>,
     ) {
-        // TODO: we could just assume the fitness scores order and length matches the population.
+        // TODO: we could default to the assumption that population and fitness_scores just align in
+        // length and order. But we don't want to encourage this usage. This should be used for
+        // GenesPointer chromosomes only
+        // population
+        //     .chromosomes
+        //     .iter_mut()
+        //     .zip(fitness_scores)
+        //     .for_each(|(chromosome, fitness_score)| {
+        //         chromosome.set_fitness_score(fitness_score);
+        //     });
         panic!("The genotype does not suppport overwriting the Fitness::calculate_for_population implementation");
     }
 

@@ -12,7 +12,7 @@ use crate::strategy::{StrategyReporter, StrategyReporterNoop};
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
 
-/// The builder for an Strategy struct.
+/// The builder for a Strategy struct.
 #[derive(Clone, Debug)]
 pub struct Builder<
     G: Genotype,
@@ -251,7 +251,7 @@ impl<
         SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
-    pub fn to_evolve_builder(self) -> EvolveBuilder<G, M, F, S, C, E, StrategyReporterNoop<G>> {
+    pub fn to_evolve_builder(self) -> EvolveBuilder<G, M, F, S, C, E, SR> {
         EvolveBuilder {
             genotype: self.genotype,
             target_population_size: self.target_population_size,
@@ -267,7 +267,7 @@ impl<
             crossover: self.crossover,
             select: self.select,
             extension: self.extension,
-            reporter: StrategyReporterNoop::new(),
+            reporter: self.reporter,
             rng_seed: self.rng_seed,
         }
     }
@@ -284,7 +284,7 @@ impl<
         SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
-    pub fn to_hill_climb_builder(self) -> HillClimbBuilder<G, F, StrategyReporterNoop<G>> {
+    pub fn to_hill_climb_builder(self) -> HillClimbBuilder<G, F, SR> {
         HillClimbBuilder {
             genotype: self.genotype,
             variant: None,
@@ -295,7 +295,7 @@ impl<
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,
-            reporter: StrategyReporterNoop::new(),
+            reporter: self.reporter,
             rng_seed: self.rng_seed,
         }
     }
