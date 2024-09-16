@@ -115,9 +115,11 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * See [examples/evolve_bit_v_binary](../main/examples/evolve_bit_v_binary.rs)
 * Explore internal and external multithreading options
     * See [examples/explore_multithreading](../main/examples/explore_multithreading.rs)
+* Use superset StrategyBuilder for easier switching in implementation
+    * See [examples/explore_strategies](../main/examples/explore_strategies.rs)
 * Custom Fitness function with LRU cache
     * See [examples/evolve_binary_lru_cache_fitness](../main/examples/evolve_binary_lru_cache_fitness.rs)
-    * _Note: doesn't help performance much in this case..._
+    * _Note: doesn't help performance much in this case... or any case, better fix your population cardinality_
 * Custom Reporting implementation
     * See [examples/permutate_scrabble](../main/examples/permutate_scrabble.rs)
 

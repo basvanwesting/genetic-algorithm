@@ -4,7 +4,7 @@
 //! There are three main elements to this approach:
 //! * The [Genotype](crate::genotype) (the search space)
 //! * The [Fitness](crate::fitness) function (the search goal)
-//! * The [Strategy](crate::strategy::Strategy) (the search strategy)
+//! * The [Strategy](crate::strategy) (the search strategy)
 //!     * [Evolve](crate::strategy::evolve::Evolve) (evolution strategy)
 //!     * [Permutate](crate::strategy::permutate::Permutate) (for small search spaces, with a 100% guarantee)
 //!     * [HillClimb](crate::strategy::hill_climb::HillClimb) (when search space is convex with little local optima or when crossover is impossible/inefficient)
@@ -95,9 +95,11 @@
 //!     * See [examples/evolve_bit_v_binary](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_bit_v_binary.rs)
 //! * Explore internal and external multithreading options
 //!     * See [examples/explore_multithreading](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_multithreading.rs)
+//! * Use superset StrategyBuilder for easier switching in implementation
+//!     * See [examples/explore_strategies](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_strategies.rs)
 //! * Custom Fitness function with LRU cache
 //!     * See [examples/evolve_binary_lru_cache_fitness](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_binary_lru_cache_fitness.rs)
-//!     * _Note: doesn't help performance much in this case..._
+//!     * _Note: doesn't help performance much in this case... or any case, better fix your population cardinality_
 //! * Custom Reporting implementation
 //!     * See [examples/permutate_scrabble](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_scrabble.rs)
 //!

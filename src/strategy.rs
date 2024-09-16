@@ -1,8 +1,67 @@
 //! solution strategies for finding the best chromosomes.
+//!
+//! There are 4 strategies:
+//! * [Evolve](self::evolve::Evolve), [Standard](self::evolve::EvolveVariant)
+//! * [Permutate](self::permutate::Permutate), [Standard](self::permutate::PermutateVariant)
+//! * [HillClimb](self::hill_climb::HillClimb), [Stochastic](self::hill_climb::HillClimbVariant::Stochastic)
+//! * [HillClimb](self::hill_climb::HillClimb), [SteepAscent](self::hill_climb::HillClimbVariant::SteepestAscent)
+//!
+//! See strategies for details. Normally, you build a specific strategy and call directly from the
+//! specific builder. But there is an option for building the superset [StrategyBuilder] and calling
+//! from there. You call from the builder, as repeatedly options clone the builder first. The
+//! execution is switched based on the provided `with_variant()`. The call options are:
+//! * `call()` simply run once
+//! * `call_repeatedly(usize)`, call repeatedly and take the best (or short-circuit on target fitness score)
+//!   * fallback to `call()` once for Permutate
+//! * `call_par_repeatedly(usize)`, as above, but high level parallel execution
+//!   * fallback to `call()` once for Permutate, but force `with_par_fitness(true)`
+//! * `call_speciated(usize)`, call repeatedly and then run one final round with the best chromosomes from the previous rounds as seeds
+//!   * fallback to `call()` once for Permutate
+//!   * fallback to `call_repeatedly(usize)` for HillClimb
+//! * `call_par_speciated(usize)`, as above, but high level parallel execution
+//!   * fallback to `call()` once for Permutate, but force `with_par_fitness(true)`
+//!   * fallback to `call_par_repeatedly(usize)` for HillClimb
+//!
+//! Example:
+//! ```
+//! use genetic_algorithm::strategy::prelude::*;
+//! use genetic_algorithm::fitness::placeholders::CountTrue;
+//!
+//! // the search space
+//! let genotype = BinaryGenotype::builder()
+//!     .with_genes_size(10)
+//!     .build()
+//!     .unwrap();
+//!
+//! // the search strategy
+//! let strategy = StrategyBuilder::new()
+//!     .with_genotype(genotype)
+//!     .with_variant(StrategyVariant::Permutate(PermutateVariant::Standard))
+//!     // .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
+//!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::Stochastic))
+//!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::SteepAscent))
+//!     .with_reporter(StrategyReporterSimple::new(usize::MAX))
+//!     .with_target_population_size(100)
+//!     .with_target_fitness_score(10)
+//!     .with_max_stale_generations(100)
+//!     .with_fitness(CountTrue)
+//!     .with_mutate(MutateSingleGene::new(0.1))
+//!     .with_crossover(CrossoverSingleGene::new())
+//!     .with_select(SelectTournament::new(4, 0.9))
+//!     .with_rng_seed_from_u64(0)
+//!     .call_speciated(3)
+//!     .unwrap();
+//!
+//! // it's all about the best genes after all
+//! let (best_genes, best_fitness_score) = strategy.best_genes_and_fitness_score().unwrap();
+//! assert_eq!(best_genes, vec![true; 10]);
+//! assert_eq!(best_fitness_score, 10);
+//! ````
 pub mod builder;
 pub mod evolve;
 pub mod hill_climb;
 pub mod permutate;
+pub mod prelude;
 pub mod reporter;
 
 use self::evolve::EvolveVariant;

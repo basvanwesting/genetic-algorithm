@@ -132,7 +132,7 @@ fn call_evolve_repeatedly() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new())
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(EvolveIterationReporter)
+        .with_reporter(IterationReporter)
         .with_par_fitness(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
@@ -169,7 +169,7 @@ fn call_evolve_speciated() {
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new())
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(EvolveIterationReporter)
+        .with_reporter(IterationReporter)
         .with_par_fitness(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
@@ -205,7 +205,7 @@ fn call_hill_climb_repeatedly() {
         .with_max_stale_generations(1000)
         // .with_target_fitness_score(100) // short-circuit
         .with_fitness(CountTrueWithSleep::new(1000, false))
-        .with_reporter(HillClimbIterationReporter)
+        .with_reporter(IterationReporter)
         .with_par_fitness(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
@@ -226,52 +226,26 @@ fn call_hill_climb_repeatedly() {
 }
 
 #[derive(Clone)]
-pub struct HillClimbIterationReporter;
-impl StrategyReporter for HillClimbIterationReporter {
+pub struct IterationReporter;
+impl StrategyReporter for IterationReporter {
     type Genotype = BinaryGenotype;
 
     fn on_start<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &S,
-        _config: &C,
-    ) {
-        println!("start - iteration: {}", state.current_iteration());
-    }
-    fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &S,
-        _config: &C,
-    ) {
-        println!("finish - iteration: {}", state.current_iteration());
-    }
-}
-
-#[derive(Clone)]
-pub struct EvolveIterationReporter;
-impl StrategyReporter for EvolveIterationReporter {
-    type Genotype = BinaryGenotype;
-
-    fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
-        println!("init - iteration: {}", state.current_iteration());
         let number_of_seed_genes = genotype.seed_genes_list().len();
         if number_of_seed_genes > 0 {
-            println!("init - number of seed genes: {:?}", number_of_seed_genes);
+            println!(
+                "  start - iteration: {}, number of seed genes: {:?}",
+                state.current_iteration(),
+                number_of_seed_genes
+            );
+        } else {
+            println!("  start - iteration: {}", state.current_iteration());
         }
-    }
-    fn on_start<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &S,
-        _config: &C,
-    ) {
-        println!("start - iteration: {}", state.current_iteration());
     }
     fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
@@ -279,6 +253,6 @@ impl StrategyReporter for EvolveIterationReporter {
         state: &S,
         _config: &C,
     ) {
-        println!("finish - iteration: {}", state.current_iteration());
+        println!("  finish - iteration: {}", state.current_iteration());
     }
 }

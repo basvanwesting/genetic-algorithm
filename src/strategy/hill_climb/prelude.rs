@@ -25,7 +25,3 @@ pub use crate::strategy::{
     StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
     STRATEGY_ACTIONS,
 };
-#[doc(no_inline)]
-pub use std::cell::RefCell;
-#[doc(no_inline)]
-pub use thread_local::ThreadLocal;

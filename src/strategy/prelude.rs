@@ -39,8 +39,19 @@ pub use crate::strategy::evolve::{
     EvolveReporterSimple, EvolveState, EvolveVariant, TryFromEvolveBuilderError,
 };
 #[doc(no_inline)]
+pub use crate::strategy::hill_climb::{
+    HillClimb, HillClimbBuilder, HillClimbConfig, HillClimbReporterDuration, HillClimbReporterNoop,
+    HillClimbReporterSimple, HillClimbState, HillClimbVariant, TryFromHillClimbBuilderError,
+};
+#[doc(no_inline)]
+pub use crate::strategy::permutate::{
+    Permutate, PermutateBuilder, PermutateConfig, PermutateReporterDuration, PermutateReporterNoop,
+    PermutateReporterSimple, PermutateState, PermutateVariant, TryFromPermutateBuilderError,
+};
+#[doc(no_inline)]
 pub use crate::strategy::{
     Strategy, StrategyBuilder, StrategyConfig, StrategyReporter, StrategyReporterDuration,
-    StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
-    STRATEGY_ACTIONS,
+    StrategyReporterNoop, StrategyReporterSimple, StrategyState, StrategyVariant,
+    TryFromStrategyBuilderError, STRATEGY_ACTIONS,
 };
+pub use num::BigUint;

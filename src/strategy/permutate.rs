@@ -55,7 +55,7 @@ pub enum PermutateVariant {
 ///
 /// // the search space
 /// let genotype = BinaryGenotype::builder() // boolean alleles
-///     .with_genes_size(16)                 // 16 genes per chromosome
+///     .with_genes_size(12)                 // 12 genes per chromosome
 ///     .build()
 ///     .unwrap();
 ///
@@ -71,7 +71,7 @@ pub enum PermutateVariant {
 ///
 /// // it's all about the best genes after all
 /// let (best_genes, best_fitness_score) = permutate.best_genes_and_fitness_score().unwrap();
-/// assert_eq!(best_genes, vec![false; 16]);
+/// assert_eq!(best_genes, vec![false; 12]);
 /// assert_eq!(best_fitness_score, 0);
 /// ```
 pub struct Permutate<
