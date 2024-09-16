@@ -77,6 +77,7 @@ pub trait Genotype:
         _population: &mut Population<Self::Chromosome>,
         _fitness_scores: Vec<Option<FitnessValue>>,
     ) {
+        // TODO: we could just assume the fitness scores order and length matches the population.
         panic!("The genotype does not suppport overwriting the Fitness::calculate_for_population implementation");
     }
 

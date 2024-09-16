@@ -254,7 +254,7 @@ where
                 let (x, y) = self.data.split_at_mut(ids.0);
                 (&mut y[0], &mut x[ids.1])
             }
-            Ordering::Equal => panic!("ids cannot be the same: {:?}", ids),
+            Ordering::Equal => unreachable!("ids cannot be the same: {:?}", ids),
         }
     }
     fn gene_slice_pair_range<B: RangeBounds<usize>>(

@@ -5,9 +5,9 @@ use crate::genotype::{Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::mutate::Mutate;
 use crate::select::Select;
 use crate::strategy::evolve::EvolveBuilder;
-use crate::strategy::hill_climb::{HillClimbBuilder, HillClimbVariant};
+use crate::strategy::hill_climb::HillClimbBuilder;
 use crate::strategy::permutate::PermutateBuilder;
-use crate::strategy::{StrategyReporter, StrategyReporterNoop, StrategyVariant};
+use crate::strategy::{StrategyReporter, StrategyReporterNoop};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -39,7 +39,6 @@ pub struct Builder<
     pub target_fitness_score: Option<FitnessValue>,
     pub target_population_size: usize,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub variant: Option<StrategyVariant>,
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
@@ -48,7 +47,6 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> 
     fn default() -> Self {
         Self {
             genotype: None,
-            variant: None,
             target_population_size: 0,
             max_stale_generations: None,
             max_chromosome_age: None,
@@ -88,10 +86,6 @@ impl<
 {
     pub fn with_genotype(mut self, genotype: G) -> Self {
         self.genotype = Some(genotype);
-        self
-    }
-    pub fn with_variant(mut self, variant: StrategyVariant) -> Self {
-        self.variant = Some(variant);
         self
     }
     pub fn with_target_population_size(mut self, target_population_size: usize) -> Self {
@@ -173,7 +167,6 @@ impl<
     pub fn with_extension<E2: Extension>(self, extension: E2) -> Builder<G, M, F, S, C, E2, SR> {
         Builder {
             genotype: self.genotype,
-            variant: self.variant,
             target_population_size: self.target_population_size,
             max_stale_generations: self.max_stale_generations,
             max_chromosome_age: self.max_chromosome_age,
@@ -197,7 +190,6 @@ impl<
     ) -> Builder<G, M, F, S, C, E, SR2> {
         Builder {
             genotype: self.genotype,
-            variant: self.variant,
             target_population_size: self.target_population_size,
             max_stale_generations: self.max_stale_generations,
             max_chromosome_age: self.max_chromosome_age,
@@ -224,29 +216,6 @@ impl<
         self
     }
 }
-
-// #[allow(clippy::type_complexity)]
-// impl<
-//         G: Genotype,
-//         M: Mutate,
-//         F: Fitness<Genotype = G>,
-//         S: Crossover,
-//         C: Select,
-//         E: Extension,
-//         SR: StrategyReporter<Genotype = G>,
-//     > Builder<G, M, F, S, C, E, SR>
-// {
-//     pub fn build(self) -> Box<dyn Strategy<G>> {
-//         match self.variant {
-//             Some(StrategyVariant::Permutate(_)) => Box::new(self.to_permutate_builder().build()),
-//             Some(StrategyVariant::Evolve(_)) => Box::new(self.to_evolve_builder().build()),
-//             Some(StrategyVariant::HillClimb(_)) => {
-//                 Box::new(self.to_hill_climb_builder().call().build())
-//             }
-//             _ => panic!("Strategy variant not set"),
-//         }
-//     }
-// }
 
 #[allow(clippy::type_complexity)]
 impl<
@@ -316,13 +285,9 @@ impl<
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn to_hill_climb_builder(self) -> HillClimbBuilder<G, F, StrategyReporterNoop<G>> {
-        let hill_climb_variant = match self.variant {
-            Some(StrategyVariant::HillClimb(v)) => v,
-            _ => HillClimbVariant::Stochastic,
-        };
         HillClimbBuilder {
             genotype: self.genotype,
-            variant: Some(hill_climb_variant),
+            variant: None,
             max_stale_generations: self.max_stale_generations,
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,

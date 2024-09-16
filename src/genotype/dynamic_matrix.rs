@@ -266,7 +266,7 @@ where
                     &mut x[linear_id1..(linear_id1 + self.genes_size)],
                 )
             }
-            Ordering::Equal => panic!("ids cannot be the same: {:?}", ids),
+            Ordering::Equal => unreachable!("ids cannot be the same: {:?}", ids),
         }
     }
     fn gene_slice_pair_range<B: RangeBounds<usize>>(

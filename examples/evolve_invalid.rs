@@ -18,7 +18,7 @@ fn main() {
         .build();
 
     match evolve {
-        Ok(_) => panic!(
+        Ok(_) => unreachable!(
             "This example should not have reached this arm, we expect an invalud Evolve build."
         ),
         Err(error) => println!("Invalid Evolve build: {:?}", error),
