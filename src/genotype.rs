@@ -175,7 +175,7 @@ pub trait EvolveGenotype: Genotype {
 }
 
 /// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb).
-pub trait IncrementalGenotype: Genotype {
+pub trait HillClimbGenotype: Genotype {
     /// all neighbouring mutations of the chromosome
     /// used in HillClimbVariant::SteepestAscent
     fn fill_neighbouring_population<R: Rng>(

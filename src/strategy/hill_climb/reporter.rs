@@ -1,5 +1,5 @@
 use super::HillClimbVariant;
-use crate::genotype::IncrementalGenotype;
+use crate::genotype::HillClimbGenotype;
 use crate::strategy::{
     StrategyConfig, StrategyReporter, StrategyState, StrategyVariant, STRATEGY_ACTIONS,
 };
@@ -8,13 +8,13 @@ use std::marker::PhantomData;
 /// A Simple HillClimb reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
-pub struct Simple<G: IncrementalGenotype> {
+pub struct Simple<G: HillClimbGenotype> {
     pub period: usize,
     pub show_genes: bool,
     pub show_equal_fitness: bool,
     _phantom: PhantomData<G>,
 }
-impl<G: IncrementalGenotype> Default for Simple<G> {
+impl<G: HillClimbGenotype> Default for Simple<G> {
     fn default() -> Self {
         Self {
             period: 1,
@@ -24,7 +24,7 @@ impl<G: IncrementalGenotype> Default for Simple<G> {
         }
     }
 }
-impl<G: IncrementalGenotype> Simple<G> {
+impl<G: HillClimbGenotype> Simple<G> {
     pub fn new(period: usize) -> Self {
         Self {
             period,
@@ -40,7 +40,7 @@ impl<G: IncrementalGenotype> Simple<G> {
         }
     }
 }
-impl<G: IncrementalGenotype> StrategyReporter for Simple<G> {
+impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
     type Genotype = G;
 
     fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(

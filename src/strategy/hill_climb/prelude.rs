@@ -11,7 +11,7 @@ pub use crate::fitness::{
 #[doc(no_inline)]
 pub use crate::genotype::{
     Allele, BinaryGenotype, BitGenotype, DynamicMatrixGenotype, Genotype, GenotypeBuilder,
-    IncrementalGenotype, ListGenotype, MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype,
+    HillClimbGenotype, ListGenotype, MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype,
     RangeAllele, RangeGenotype, StaticMatrixGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]

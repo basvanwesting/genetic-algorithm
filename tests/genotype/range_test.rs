@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::chromosome::ChromosomeManager;
-use genetic_algorithm::genotype::{EvolveGenotype, Genotype, IncrementalGenotype, RangeGenotype};
+use genetic_algorithm::genotype::{EvolveGenotype, Genotype, HillClimbGenotype, RangeGenotype};
 
 #[test]
 fn float_mutate_chromosome_single_random() {

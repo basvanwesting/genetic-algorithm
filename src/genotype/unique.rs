@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, IncrementalGenotype, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutableGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, UniqueChromosome};
 use crate::population::Population;
@@ -168,7 +168,7 @@ impl<T: Allele> EvolveGenotype for Unique<T> {
         panic!("UniqueGenotype does not support point crossover")
     }
 }
-impl<T: Allele> IncrementalGenotype for Unique<T> {
+impl<T: Allele> HillClimbGenotype for Unique<T> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,

@@ -2,7 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::chromosome::ChromosomeManager;
 use genetic_algorithm::genotype::{
-    EvolveGenotype, Genotype, IncrementalGenotype, MultiRangeGenotype,
+    EvolveGenotype, Genotype, HillClimbGenotype, MultiRangeGenotype,
 };
 
 #[test]

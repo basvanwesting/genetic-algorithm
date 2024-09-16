@@ -3,7 +3,7 @@ use crate::support::*;
 use genetic_algorithm::fitness::placeholders::{
     CountTrue, SumDynamicMatrix, SumGenes, SumStaticMatrix,
 };
-use genetic_algorithm::genotype::IncrementalGenotype;
+use genetic_algorithm::genotype::HillClimbGenotype;
 use genetic_algorithm::strategy::hill_climb::prelude::*;
 
 #[test]

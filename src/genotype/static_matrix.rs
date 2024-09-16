@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, IncrementalGenotype, MutationType};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
 use crate::allele::RangeAllele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesPointer, StaticMatrixChromosome};
 use crate::fitness::FitnessValue;
@@ -470,7 +470,7 @@ where
         true
     }
 }
-impl<T: RangeAllele, const N: usize, const M: usize> IncrementalGenotype for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> HillClimbGenotype for StaticMatrix<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

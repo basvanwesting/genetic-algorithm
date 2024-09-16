@@ -1,6 +1,6 @@
 use super::{HillClimb, HillClimbVariant};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::IncrementalGenotype;
+use crate::genotype::HillClimbGenotype;
 use crate::strategy::Strategy;
 pub use crate::strategy::{StrategyReporter, StrategyReporterNoop, StrategyState};
 use rand::rngs::SmallRng;
@@ -14,7 +14,7 @@ pub struct TryFromBuilderError(pub &'static str);
 /// The builder for an HillClimb struct.
 #[derive(Clone, Debug)]
 pub struct Builder<
-    G: IncrementalGenotype,
+    G: HillClimbGenotype,
     F: Fitness<Genotype = G>,
     SR: StrategyReporter<Genotype = G>,
 > {
@@ -31,7 +31,7 @@ pub struct Builder<
     pub rng_seed: Option<u64>,
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default
+impl<G: HillClimbGenotype, F: Fitness<Genotype = G>> Default
     for Builder<G, F, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
@@ -50,13 +50,13 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Default
         }
     }
 }
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>> Builder<G, F, StrategyReporterNoop<G>> {
+impl<G: HillClimbGenotype, F: Fitness<Genotype = G>> Builder<G, F, StrategyReporterNoop<G>> {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Builder<G, F, SR>
 {
     pub fn build(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
@@ -147,7 +147,7 @@ impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Geno
     }
 }
 
-impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Builder<G, F, SR>
 {
     pub fn rng(&self) -> SmallRng {

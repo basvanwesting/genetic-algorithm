@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, IncrementalGenotype, MutationType};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
 use crate::allele::RangeAllele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, RangeChromosome};
 use crate::population::Population;
@@ -349,7 +349,7 @@ where
         true
     }
 }
-impl<T: RangeAllele> IncrementalGenotype for Range<T>
+impl<T: RangeAllele> HillClimbGenotype for Range<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
