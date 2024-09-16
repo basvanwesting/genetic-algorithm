@@ -252,6 +252,24 @@ where
         chromosome.taint();
     }
 
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
+        self.seed_genes_list = seed_genes_list;
+    }
+    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
+        &self.seed_genes_list
+    }
+    fn max_scale_index(&self) -> Option<usize> {
+        self.allele_mutation_scaled_range
+            .as_ref()
+            .map(|r| r.len() - 1)
+    }
+}
+
+impl<T: RangeAllele> EvolveGenotype for Range<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
     fn crossover_chromosome_genes<R: Rng>(
         &mut self,
         number_of_crossovers: usize,
@@ -330,24 +348,6 @@ where
     fn has_crossover_points(&self) -> bool {
         true
     }
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
-        self.seed_genes_list = seed_genes_list;
-    }
-    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
-        &self.seed_genes_list
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        self.allele_mutation_scaled_range
-            .as_ref()
-            .map(|r| r.len() - 1)
-    }
-}
-
-impl<T: RangeAllele> EvolveGenotype for Range<T>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
 }
 impl<T: RangeAllele> IncrementalGenotype for Range<T>
 where

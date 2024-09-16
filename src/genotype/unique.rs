@@ -135,6 +135,18 @@ impl<T: Allele> Genotype for Unique<T> {
         }
         chromosome.taint();
     }
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
+        self.seed_genes_list = seed_genes_list;
+    }
+    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
+        &self.seed_genes_list
+    }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
+}
+
+impl<T: Allele> EvolveGenotype for Unique<T> {
     fn crossover_chromosome_genes<R: Rng>(
         &mut self,
         _number_of_crossovers: usize,
@@ -155,19 +167,7 @@ impl<T: Allele> Genotype for Unique<T> {
     ) {
         panic!("UniqueGenotype does not support point crossover")
     }
-
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
-        self.seed_genes_list = seed_genes_list;
-    }
-    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
-        &self.seed_genes_list
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        None
-    }
 }
-
-impl<T: Allele> EvolveGenotype for Unique<T> {}
 impl<T: Allele> IncrementalGenotype for Unique<T> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,

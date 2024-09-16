@@ -100,38 +100,6 @@ pub trait Genotype:
         rng: &mut R,
     );
 
-    /// Crossover genes between a pair of chromosomes.
-    /// Choose between allowing duplicates or not (~2x slower).
-    /// panics if there are no valid crossover indexes
-    fn crossover_chromosome_genes<R: Rng>(
-        &mut self,
-        number_of_crossovers: usize,
-        allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
-        rng: &mut R,
-    );
-    /// Crossover points between a pair of chromosomes.
-    /// Choose between allowing duplicates or not (not much slower)
-    /// panics if there are no valid crossover points
-    fn crossover_chromosome_points<R: Rng>(
-        &mut self,
-        number_of_crossovers: usize,
-        allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
-        rng: &mut R,
-    );
-    /// to guard against invalid crossover strategies which break the internal consistency
-    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn has_crossover_indexes(&self) -> bool {
-        false
-    }
-    /// to guard against invalid crossover strategies which break the internal consistency
-    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn has_crossover_points(&self) -> bool {
-        false
-    }
     fn builder() -> GenotypeBuilder<Self> {
         GenotypeBuilder::<Self>::default()
     }
@@ -171,7 +139,40 @@ pub trait Genotype:
 }
 
 /// Genotype suitable for [Evolve](crate::strategy::evolve::Evolve).
-pub trait EvolveGenotype: Genotype {}
+pub trait EvolveGenotype: Genotype {
+    /// Crossover genes between a pair of chromosomes.
+    /// Choose between allowing duplicates or not (~2x slower).
+    /// panics if there are no valid crossover indexes
+    fn crossover_chromosome_genes<R: Rng>(
+        &mut self,
+        number_of_crossovers: usize,
+        allow_duplicates: bool,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
+        rng: &mut R,
+    );
+    /// Crossover points between a pair of chromosomes.
+    /// Choose between allowing duplicates or not (not much slower)
+    /// panics if there are no valid crossover points
+    fn crossover_chromosome_points<R: Rng>(
+        &mut self,
+        number_of_crossovers: usize,
+        allow_duplicates: bool,
+        father: &mut Self::Chromosome,
+        mother: &mut Self::Chromosome,
+        rng: &mut R,
+    );
+    /// to guard against invalid crossover strategies which break the internal consistency
+    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
+    fn has_crossover_indexes(&self) -> bool {
+        false
+    }
+    /// to guard against invalid crossover strategies which break the internal consistency
+    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
+    fn has_crossover_points(&self) -> bool {
+        false
+    }
+}
 
 /// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb).
 pub trait IncrementalGenotype: Genotype {

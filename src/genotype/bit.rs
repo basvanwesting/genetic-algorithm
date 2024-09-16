@@ -161,6 +161,18 @@ impl Genotype for Bit {
         chromosome.taint();
     }
 
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
+        self.seed_genes_list = seed_genes_list;
+    }
+    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
+        &self.seed_genes_list
+    }
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
+}
+
+impl EvolveGenotype for Bit {
     fn crossover_chromosome_genes<R: Rng>(
         &mut self,
         number_of_crossovers: usize,
@@ -261,18 +273,7 @@ impl Genotype for Bit {
     fn has_crossover_points(&self) -> bool {
         true
     }
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
-        self.seed_genes_list = seed_genes_list;
-    }
-    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
-        &self.seed_genes_list
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        None
-    }
 }
-
-impl EvolveGenotype for Bit {}
 impl IncrementalGenotype for Bit {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,

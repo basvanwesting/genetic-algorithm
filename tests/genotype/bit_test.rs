@@ -1,7 +1,9 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::chromosome::ChromosomeManager;
-use genetic_algorithm::genotype::{BitGenotype, Genotype, IncrementalGenotype, PermutableGenotype};
+use genetic_algorithm::genotype::{
+    BitGenotype, EvolveGenotype, Genotype, IncrementalGenotype, PermutableGenotype,
+};
 
 #[test]
 fn builders() {

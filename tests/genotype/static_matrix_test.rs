@@ -1,7 +1,9 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::chromosome::ChromosomeManager;
-use genetic_algorithm::genotype::{Genotype, IncrementalGenotype, StaticMatrixGenotype};
+use genetic_algorithm::genotype::{
+    EvolveGenotype, Genotype, IncrementalGenotype, StaticMatrixGenotype,
+};
 
 #[test]
 fn chromosome_constructor() {
