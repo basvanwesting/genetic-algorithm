@@ -7,7 +7,7 @@ use crate::select::Select;
 use crate::strategy::evolve::EvolveBuilder;
 use crate::strategy::hill_climb::{HillClimbBuilder, HillClimbVariant};
 use crate::strategy::permutate::PermutateBuilder;
-use crate::strategy::{StrategyReporter, StrategyReporterNoop};
+use crate::strategy::{StrategyReporter, StrategyReporterNoop, StrategyVariant};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -39,7 +39,7 @@ pub struct Builder<
     pub target_fitness_score: Option<FitnessValue>,
     pub target_population_size: usize,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub variant: Option<HillClimbVariant>,
+    pub variant: Option<StrategyVariant>,
 }
 
 impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
@@ -90,7 +90,7 @@ impl<
         self.genotype = Some(genotype);
         self
     }
-    pub fn with_variant(mut self, variant: HillClimbVariant) -> Self {
+    pub fn with_variant(mut self, variant: StrategyVariant) -> Self {
         self.variant = Some(variant);
         self
     }
@@ -225,6 +225,29 @@ impl<
     }
 }
 
+// #[allow(clippy::type_complexity)]
+// impl<
+//         G: Genotype,
+//         M: Mutate,
+//         F: Fitness<Genotype = G>,
+//         S: Crossover,
+//         C: Select,
+//         E: Extension,
+//         SR: StrategyReporter<Genotype = G>,
+//     > Builder<G, M, F, S, C, E, SR>
+// {
+//     pub fn build(self) -> Box<dyn Strategy<G>> {
+//         match self.variant {
+//             Some(StrategyVariant::Permutate(_)) => Box::new(self.to_permutate_builder().build()),
+//             Some(StrategyVariant::Evolve(_)) => Box::new(self.to_evolve_builder().build()),
+//             Some(StrategyVariant::HillClimb(_)) => {
+//                 Box::new(self.to_hill_climb_builder().call().build())
+//             }
+//             _ => panic!("Strategy variant not set"),
+//         }
+//     }
+// }
+
 #[allow(clippy::type_complexity)]
 impl<
         G: PermutableGenotype,
@@ -250,7 +273,7 @@ impl<
 
 #[allow(clippy::type_complexity)]
 impl<
-        G: PermutableGenotype,
+        G: Genotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -293,9 +316,13 @@ impl<
     > Builder<G, M, F, S, C, E, SR>
 {
     pub fn to_hill_climb_builder(self) -> HillClimbBuilder<G, F, StrategyReporterNoop<G>> {
+        let hill_climb_variant = match self.variant {
+            Some(StrategyVariant::HillClimb(v)) => v,
+            _ => HillClimbVariant::Stochastic,
+        };
         HillClimbBuilder {
             genotype: self.genotype,
-            variant: self.variant,
+            variant: Some(hill_climb_variant),
             max_stale_generations: self.max_stale_generations,
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,

@@ -1,13 +1,13 @@
-* [ ] reexport StrategReporterNoop as ReporterNoop in evolve prelude et al
-* [ ] look at disabled reporters for generalizable implemented features
-* [ ] remove disabled reporters
+* [v] reexport StrategReporterNoop as ReporterNoop in evolve prelude et al
+* [v] look at disabled reporters for generalizable implemented features
+* [x] remove disabled reporters
 * [ ] StrategyBuilder
       * with_permutate_threshold
       * with_par_fitness_threshold
       * with_par_fitness_min_length
       * with_hill_climb_variant
-* [ ] Add valid and target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
 
+* [ ] Add valid and target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
 * [ ] neigbouring better garantees? Can max stale gen be 1 (maybe is equal_fitness is false)? Check
 * [ ] Move logic out of random gene factory inside set_random_genes
 * [ ] Document GenotypeBuilder, Split for Range types?
