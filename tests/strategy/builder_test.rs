@@ -1,6 +1,7 @@
 #[cfg(test)]
 use genetic_algorithm::fitness::placeholders::{CountOnes, CountTrue, SumGenes};
 use genetic_algorithm::strategy::evolve::prelude::*;
+// #[allow(unused_imports)]
 use genetic_algorithm::strategy::hill_climb::prelude::*;
 use genetic_algorithm::strategy::permutate::prelude::*;
 use genetic_algorithm::strategy::StrategyBuilder;
@@ -37,7 +38,7 @@ impl<G: Genotype> StrategyReporter for GenericReporter<G> {
 }
 
 #[test]
-fn generic_strategy_binary() {
+fn generic_strategy_evolve() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(5)
         .build()
@@ -55,28 +56,10 @@ fn generic_strategy_binary() {
         .with_rng_seed_from_u64(0);
 
     let variant = StrategyVariant::Evolve(EvolveVariant::Standard);
-    // let variant = StrategyVariant::HillClimb(HillClimbVariant::Stochastic);
-    // let variant = StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent);
-    // let variant = StrategyVariant::Permutate(PermutateVariant::Standard);
 
-    let result = match variant {
-        StrategyVariant::Permutate(_) => {
-            let permutate = builder.to_permutate_builder().call().unwrap();
-            permutate.best_genes_and_fitness_score()
-        }
-        StrategyVariant::Evolve(_) => {
-            let evolve = builder.to_evolve_builder().call().unwrap();
-            evolve.best_genes_and_fitness_score()
-        }
-        StrategyVariant::HillClimb(hill_climb_variant) => {
-            let hill_climb = builder
-                .to_hill_climb_builder()
-                .with_variant(hill_climb_variant)
-                .call()
-                .unwrap();
-            hill_climb.best_genes_and_fitness_score()
-        }
-    };
+    let mut strategy = builder.build(variant).unwrap();
+    strategy.call();
+    let result = strategy.best_genes_and_fitness_score();
 
     assert!(result.is_some());
     let (_best_genes, fitness_score) = result.unwrap();
@@ -84,11 +67,9 @@ fn generic_strategy_binary() {
 }
 
 #[test]
-fn generic_strategy_range() {
-    let genotype = RangeGenotype::builder()
+fn generic_strategy_permutate() {
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(5)
-        .with_allele_range(0.0..=1.0)
-        .with_allele_mutation_range(0.1..=0.1)
         .build()
         .unwrap();
 
@@ -96,82 +77,47 @@ fn generic_strategy_range() {
         .with_genotype(genotype)
         .with_reporter(GenericReporter::new())
         .with_target_population_size(100)
-        .with_target_fitness_score(4500)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_target_fitness_score(5)
+        .with_fitness(CountTrue)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_crossover(CrossoverSingleGene::new())
         .with_select(SelectTournament::new(4, 0.9))
         .with_rng_seed_from_u64(0);
 
-    // let variant = StrategyVariant::Evolve(EvolveVariant::Standard);
-    // let variant = StrategyVariant::HillClimb(HillClimbVariant::Stochastic);
-    let variant = StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent);
-    // let variant = StrategyVariant::Permutate(PermutateVariant::Standard);
+    let variant = StrategyVariant::Permutate(PermutateVariant::Standard);
 
-    let result = match variant {
-        StrategyVariant::Permutate(_) => {
-            todo!();
-            // TODO: genotype is not permutable, so arm is invalid, is this ok?
-            // let permutate = builder.to_permutate_builder().call().unwrap();
-            // permutate.best_genes_and_fitness_score()
-        }
-        StrategyVariant::Evolve(_) => {
-            let evolve = builder.to_evolve_builder().call().unwrap();
-            evolve.best_genes_and_fitness_score()
-        }
-        StrategyVariant::HillClimb(hill_climb_variant) => {
-            let hill_climb = builder
-                .to_hill_climb_builder()
-                .with_variant(hill_climb_variant)
-                .call()
-                .unwrap();
-            hill_climb.best_genes_and_fitness_score()
-        }
-    };
+    let mut strategy = builder.build(variant).unwrap();
+    strategy.call();
+    let result = strategy.best_genes_and_fitness_score();
 
     assert!(result.is_some());
     let (_best_genes, fitness_score) = result.unwrap();
-    assert_eq!(fitness_score, 4567);
+    assert_eq!(fitness_score, 5);
 }
 
 #[test]
-fn generic_strategy_bit() {
-    let genotype = BitGenotype::builder().with_genes_size(5).build().unwrap();
+fn generic_strategy_hill_climb_steepest_ascent() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
 
     let builder = StrategyBuilder::new()
         .with_genotype(genotype)
         .with_reporter(GenericReporter::new())
         .with_target_population_size(100)
         .with_target_fitness_score(5)
-        .with_fitness(CountOnes)
+        .with_fitness(CountTrue)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_crossover(CrossoverSingleGene::new())
         .with_select(SelectTournament::new(4, 0.9))
         .with_rng_seed_from_u64(0);
 
-    // let variant = StrategyVariant::Evolve(EvolveVariant::Standard);
-    // let variant = StrategyVariant::HillClimb(HillClimbVariant::Stochastic);
-    // let variant = StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent);
-    let variant = StrategyVariant::Permutate(PermutateVariant::Standard);
+    let variant = StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent);
 
-    let result = match variant {
-        StrategyVariant::Permutate(_) => {
-            let permutate = builder.to_permutate_builder().call().unwrap();
-            permutate.best_genes_and_fitness_score()
-        }
-        StrategyVariant::Evolve(_) => {
-            let evolve = builder.to_evolve_builder().call().unwrap();
-            evolve.best_genes_and_fitness_score()
-        }
-        StrategyVariant::HillClimb(hill_climb_variant) => {
-            let hill_climb = builder
-                .to_hill_climb_builder()
-                .with_variant(hill_climb_variant)
-                .call()
-                .unwrap();
-            hill_climb.best_genes_and_fitness_score()
-        }
-    };
+    let mut strategy = builder.build(variant).unwrap();
+    strategy.call();
+    let result = strategy.best_genes_and_fitness_score();
 
     assert!(result.is_some());
     let (_best_genes, fitness_score) = result.unwrap();

@@ -7,7 +7,7 @@ use crate::select::Select;
 use crate::strategy::evolve::EvolveBuilder;
 use crate::strategy::hill_climb::HillClimbBuilder;
 use crate::strategy::permutate::PermutateBuilder;
-use crate::strategy::{StrategyReporter, StrategyReporterNoop};
+use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop, StrategyVariant};
 
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
@@ -15,7 +15,7 @@ pub struct TryFromBuilderError(pub &'static str);
 /// The builder for a Strategy struct.
 #[derive(Clone, Debug)]
 pub struct Builder<
-    G: Genotype,
+    G: Genotype + IncrementalGenotype + PermutableGenotype,
     M: Mutate,
     F: Fitness<Genotype = G>,
     S: Crossover,
@@ -41,8 +41,13 @@ pub struct Builder<
     pub valid_fitness_score: Option<FitnessValue>,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
-    for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
+impl<
+        G: Genotype + IncrementalGenotype + PermutableGenotype,
+        M: Mutate,
+        F: Fitness<Genotype = G>,
+        S: Crossover,
+        C: Select,
+    > Default for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -65,8 +70,13 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> 
         }
     }
 }
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
-    Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
+impl<
+        G: Genotype + IncrementalGenotype + PermutableGenotype,
+        M: Mutate,
+        F: Fitness<Genotype = G>,
+        S: Crossover,
+        C: Select,
+    > Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     pub fn new() -> Self {
         Self::default()
@@ -75,7 +85,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
 
 #[allow(clippy::type_complexity)]
 impl<
-        G: Genotype,
+        G: Genotype + IncrementalGenotype + PermutableGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -219,15 +229,41 @@ impl<
 
 #[allow(clippy::type_complexity)]
 impl<
-        G: PermutableGenotype,
-        M: Mutate,
-        F: Fitness<Genotype = G>,
-        S: Crossover,
-        C: Select,
-        E: Extension,
-        SR: StrategyReporter<Genotype = G>,
+        'a,
+        G: Genotype + IncrementalGenotype + PermutableGenotype + 'a,
+        M: Mutate + 'a,
+        F: Fitness<Genotype = G> + 'a,
+        S: Crossover + 'a,
+        C: Select + 'a,
+        E: Extension + 'a,
+        SR: StrategyReporter<Genotype = G> + 'a,
     > Builder<G, M, F, S, C, E, SR>
 {
+    pub fn build(
+        self,
+        variant: StrategyVariant,
+    ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
+        match variant {
+            StrategyVariant::Permutate(_) => match self.to_permutate_builder().build() {
+                Ok(permutate) => Ok(Box::new(permutate)),
+                Err(error) => Err(TryFromBuilderError(error.0)),
+            },
+            StrategyVariant::Evolve(_) => match self.to_evolve_builder().build() {
+                Ok(evolve) => Ok(Box::new(evolve)),
+                Err(error) => Err(TryFromBuilderError(error.0)),
+            },
+            StrategyVariant::HillClimb(hill_climb_variant) => {
+                match self
+                    .to_hill_climb_builder()
+                    .with_variant(hill_climb_variant)
+                    .build()
+                {
+                    Ok(hill_climb) => Ok(Box::new(hill_climb)),
+                    Err(error) => Err(TryFromBuilderError(error.0)),
+                }
+            }
+        }
+    }
     pub fn to_permutate_builder(self) -> PermutateBuilder<G, F, SR> {
         PermutateBuilder {
             genotype: self.genotype,
@@ -238,19 +274,6 @@ impl<
             reporter: self.reporter,
         }
     }
-}
-
-#[allow(clippy::type_complexity)]
-impl<
-        G: Genotype,
-        M: Mutate,
-        F: Fitness<Genotype = G>,
-        S: Crossover,
-        C: Select,
-        E: Extension,
-        SR: StrategyReporter<Genotype = G>,
-    > Builder<G, M, F, S, C, E, SR>
-{
     pub fn to_evolve_builder(self) -> EvolveBuilder<G, M, F, S, C, E, SR> {
         EvolveBuilder {
             genotype: self.genotype,
@@ -271,19 +294,6 @@ impl<
             rng_seed: self.rng_seed,
         }
     }
-}
-
-#[allow(clippy::type_complexity)]
-impl<
-        G: IncrementalGenotype,
-        M: Mutate,
-        F: Fitness<Genotype = G>,
-        S: Crossover,
-        C: Select,
-        E: Extension,
-        SR: StrategyReporter<Genotype = G>,
-    > Builder<G, M, F, S, C, E, SR>
-{
     pub fn to_hill_climb_builder(self) -> HillClimbBuilder<G, F, SR> {
         HillClimbBuilder {
             genotype: self.genotype,
