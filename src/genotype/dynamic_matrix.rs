@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype, MutationType};
+use super::{EvolveGenotype, Genotype, IncrementalGenotype, MutationType};
 use crate::allele::RangeAllele;
 use crate::chromosome::{Chromosome, ChromosomeManager, DynamicMatrixChromosome, GenesPointer};
 use crate::fitness::FitnessValue;
@@ -477,6 +477,12 @@ where
     }
 }
 
+impl<T: RangeAllele> EvolveGenotype for DynamicMatrix<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+}
 impl<T: RangeAllele> IncrementalGenotype for DynamicMatrix<T>
 where
     T: SampleUniform,

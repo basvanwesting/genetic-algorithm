@@ -15,7 +15,7 @@ use crate::chromosome::{Chromosome, GenesOwner};
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
 use crate::select::Select;
@@ -133,7 +133,7 @@ pub enum EvolveVariant {
 /// assert_eq!(best_fitness_score, 0);
 /// ```
 pub struct Evolve<
-    G: Genotype,
+    G: EvolveGenotype,
     M: Mutate,
     F: Fitness<Genotype = G>,
     S: Crossover,
@@ -175,7 +175,7 @@ pub struct EvolveConfig {
 /// strategy specific fields are added:
 /// * population: the population of the current generation
 #[derive(Clone)]
-pub struct EvolveState<G: Genotype> {
+pub struct EvolveState<G: EvolveGenotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub stale_generations: usize,
@@ -190,7 +190,7 @@ pub struct EvolveState<G: Genotype> {
 }
 
 impl<
-        G: Genotype,
+        G: EvolveGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -276,7 +276,7 @@ impl<
     }
 }
 impl<
-        G: Genotype,
+        G: EvolveGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -298,7 +298,7 @@ where
     }
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
+impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
     Evolve<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>> {
@@ -307,7 +307,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
 }
 
 impl<
-        G: Genotype,
+        G: EvolveGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -409,7 +409,7 @@ impl StrategyConfig for EvolveConfig {
     }
 }
 
-impl<G: Genotype> StrategyState<G> for EvolveState<G> {
+impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
     fn chromosome_as_ref(&self) -> &Option<G::Chromosome> {
         &self.chromosome
     }
@@ -457,7 +457,7 @@ impl<G: Genotype> StrategyState<G> for EvolveState<G> {
     }
 }
 
-impl<G: Genotype> EvolveState<G> {
+impl<G: EvolveGenotype> EvolveState<G> {
     fn update_best_chromosome_and_report<SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
@@ -518,7 +518,7 @@ impl<G: Genotype> EvolveState<G> {
 }
 
 impl<
-        G: Genotype,
+        G: EvolveGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -531,7 +531,9 @@ impl<
 
     fn try_from(builder: EvolveBuilder<G, M, F, S, C, E, SR>) -> Result<Self, Self::Error> {
         if builder.genotype.is_none() {
-            Err(TryFromEvolveBuilderError("Evolve requires a Genotype"))
+            Err(TryFromEvolveBuilderError(
+                "Evolve requires a EvolveGenotype",
+            ))
         } else if builder.fitness.is_none() {
             Err(TryFromEvolveBuilderError("Evolve requires a Fitness"))
         } else if builder.mutate.is_none() {
@@ -558,7 +560,7 @@ impl<
                 .unwrap()
         {
             Err(TryFromEvolveBuilderError(
-                "The provided Crossover strategy requires crossover_indexes, which the provided Genotype does not provide",
+                "The provided Crossover strategy requires crossover_indexes, which the provided EvolveGenotype does not provide",
             ))
         } else if builder
             .crossover
@@ -572,7 +574,7 @@ impl<
                 .unwrap()
         {
             Err(TryFromEvolveBuilderError(
-                "The provided Crossover strategy requires crossover_points, which the provided Genotype does not provide",
+                "The provided Crossover strategy requires crossover_points, which the provided EvolveGenotype does not provide",
             ))
         } else if builder.target_population_size == 0 {
             Err(TryFromEvolveBuilderError(
@@ -637,7 +639,7 @@ impl EvolveConfig {
     }
 }
 
-impl<G: Genotype> EvolveState<G> {
+impl<G: EvolveGenotype> EvolveState<G> {
     pub fn new(genotype: &G) -> Self {
         let base = Self {
             current_iteration: 0,
@@ -664,7 +666,7 @@ impl<G: Genotype> EvolveState<G> {
 }
 
 impl<
-        G: Genotype,
+        G: EvolveGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -716,7 +718,7 @@ impl fmt::Display for EvolveConfig {
     }
 }
 
-impl<G: Genotype> fmt::Display for EvolveState<G> {
+impl<G: EvolveGenotype> fmt::Display for EvolveState<G> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;

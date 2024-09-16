@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::{BinaryChromosome, Chromosome, ChromosomeManager, GenesOwner};
 use crate::population::Population;
 use itertools::Itertools;
@@ -192,6 +192,7 @@ impl Genotype for Binary {
     }
 }
 
+impl EvolveGenotype for Binary {}
 impl IncrementalGenotype for Binary {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,

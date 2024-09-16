@@ -1,5 +1,5 @@
 use super::{Extension, ExtensionEvent};
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
@@ -18,7 +18,7 @@ pub struct MassExtinction {
 }
 
 impl Extension for MassExtinction {
-    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

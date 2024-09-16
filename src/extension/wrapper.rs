@@ -4,7 +4,7 @@ pub use super::mass_genesis::MassGenesis as ExtensionMassGenesis;
 pub use super::noop::Noop as ExtensionNoop;
 pub use super::Extension;
 
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::Rng;
@@ -18,7 +18,7 @@ pub enum Wrapper {
 }
 
 impl Extension for Wrapper {
-    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

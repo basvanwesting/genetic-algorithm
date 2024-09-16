@@ -4,7 +4,7 @@ pub use super::single_gene::SingleGene as MutateSingleGene;
 pub use super::single_gene_dynamic::SingleGeneDynamic as MutateSingleGeneDynamic;
 pub use super::Mutate;
 
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::Rng;
@@ -18,7 +18,7 @@ pub enum Wrapper {
 }
 
 impl Mutate for Wrapper {
-    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

@@ -20,9 +20,9 @@ pub use crate::fitness::{
 };
 #[doc(no_inline)]
 pub use crate::genotype::{
-    Allele, BinaryGenotype, BitGenotype, DynamicMatrixGenotype, Genotype, GenotypeBuilder,
-    ListGenotype, MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeAllele,
-    RangeGenotype, StaticMatrixGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
+    Allele, BinaryGenotype, BitGenotype, DynamicMatrixGenotype, EvolveGenotype, Genotype,
+    GenotypeBuilder, ListGenotype, MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype,
+    RangeAllele, RangeGenotype, StaticMatrixGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::mutate::{

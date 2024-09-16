@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, UniqueChromosome};
 use crate::population::Population;
@@ -167,6 +167,7 @@ impl<T: Allele> Genotype for Unique<T> {
     }
 }
 
+impl<T: Allele> EvolveGenotype for Unique<T> {}
 impl<T: Allele> IncrementalGenotype for Unique<T> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,

@@ -21,14 +21,14 @@ pub use self::single_point::SinglePoint as CrossoverSinglePoint;
 pub use self::uniform::Uniform as CrossoverUniform;
 pub use self::wrapper::Wrapper as CrossoverWrapper;
 
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::Rng;
 use std::cmp::Ordering;
 
 pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
-    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,
@@ -40,7 +40,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     /// The population is restored towards the target_population_size by keeping the best parents
     /// alive. Excess parents are dropped. The number of crossovers to execute from the front of
     /// the population is returned
-    fn prepare_population<G: Genotype>(
+    fn prepare_population<G: EvolveGenotype>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

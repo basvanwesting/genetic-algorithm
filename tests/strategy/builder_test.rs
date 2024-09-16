@@ -1,7 +1,6 @@
 #[cfg(test)]
-use genetic_algorithm::fitness::placeholders::{CountOnes, CountTrue, SumGenes};
+use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::strategy::evolve::prelude::*;
-// #[allow(unused_imports)]
 use genetic_algorithm::strategy::hill_climb::prelude::*;
 use genetic_algorithm::strategy::permutate::prelude::*;
 use genetic_algorithm::strategy::StrategyBuilder;

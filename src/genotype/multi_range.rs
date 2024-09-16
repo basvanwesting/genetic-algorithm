@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype, MutationType};
+use super::{EvolveGenotype, Genotype, IncrementalGenotype, MutationType};
 use crate::allele::RangeAllele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, MultiRangeChromosome};
 use crate::population::Population;
@@ -400,6 +400,12 @@ where
     }
 }
 
+impl<T: RangeAllele + Into<f64>> EvolveGenotype for MultiRange<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+}
 impl<T: RangeAllele + Into<f64>> IncrementalGenotype for MultiRange<T>
 where
     T: SampleUniform,

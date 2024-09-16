@@ -1,7 +1,7 @@
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::{Genotype, IncrementalGenotype, PermutableGenotype};
+use crate::genotype::{EvolveGenotype, IncrementalGenotype, PermutableGenotype};
 use crate::mutate::Mutate;
 use crate::select::Select;
 use crate::strategy::evolve::EvolveBuilder;
@@ -15,7 +15,7 @@ pub struct TryFromBuilderError(pub &'static str);
 /// The builder for a Strategy struct.
 #[derive(Clone, Debug)]
 pub struct Builder<
-    G: Genotype + IncrementalGenotype + PermutableGenotype,
+    G: EvolveGenotype + IncrementalGenotype + PermutableGenotype,
     M: Mutate,
     F: Fitness<Genotype = G>,
     S: Crossover,
@@ -42,7 +42,7 @@ pub struct Builder<
 }
 
 impl<
-        G: Genotype + IncrementalGenotype + PermutableGenotype,
+        G: EvolveGenotype + IncrementalGenotype + PermutableGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -71,7 +71,7 @@ impl<
     }
 }
 impl<
-        G: Genotype + IncrementalGenotype + PermutableGenotype,
+        G: EvolveGenotype + IncrementalGenotype + PermutableGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -85,7 +85,7 @@ impl<
 
 #[allow(clippy::type_complexity)]
 impl<
-        G: Genotype + IncrementalGenotype + PermutableGenotype,
+        G: EvolveGenotype + IncrementalGenotype + PermutableGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -230,7 +230,7 @@ impl<
 #[allow(clippy::type_complexity)]
 impl<
         'a,
-        G: Genotype + IncrementalGenotype + PermutableGenotype + 'a,
+        G: EvolveGenotype + IncrementalGenotype + PermutableGenotype + 'a,
         M: Mutate + 'a,
         F: Fitness<Genotype = G> + 'a,
         S: Crossover + 'a,

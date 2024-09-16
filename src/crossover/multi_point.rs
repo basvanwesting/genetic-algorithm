@@ -1,5 +1,5 @@
 use super::Crossover;
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use itertools::Itertools;
@@ -21,7 +21,7 @@ pub struct MultiPoint {
     pub allow_duplicates: bool,
 }
 impl Crossover for MultiPoint {
-    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

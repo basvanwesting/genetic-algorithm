@@ -170,8 +170,8 @@ pub trait Genotype:
     }
 }
 
-//Evolvable is implicit, until proven otherwise
-//pub trait EvolvableGenotype: Genotype {}
+/// Genotype suitable for [Evolve](crate::strategy::evolve::Evolve).
+pub trait EvolveGenotype: Genotype {}
 
 /// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb).
 pub trait IncrementalGenotype: Genotype {

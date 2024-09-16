@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, MultiListChromosome};
 use crate::population::Population;
@@ -271,6 +271,7 @@ impl<T: Allele + PartialEq> Genotype for MultiList<T> {
     }
 }
 
+impl<T: Allele + PartialEq> EvolveGenotype for MultiList<T> {}
 impl<T: Allele + PartialEq> IncrementalGenotype for MultiList<T> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,

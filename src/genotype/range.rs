@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype, MutationType, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, IncrementalGenotype, MutationType};
 use crate::allele::RangeAllele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, RangeChromosome};
 use crate::population::Population;
@@ -343,6 +343,12 @@ where
     }
 }
 
+impl<T: RangeAllele> EvolveGenotype for Range<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+}
 impl<T: RangeAllele> IncrementalGenotype for Range<T>
 where
     T: SampleUniform,

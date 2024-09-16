@@ -1,5 +1,5 @@
 use super::Extension;
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::Rng;
@@ -9,7 +9,7 @@ use rand::Rng;
 pub struct Noop;
 
 impl Extension for Noop {
-    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         _genotype: &mut G,
         _state: &mut EvolveState<G>,

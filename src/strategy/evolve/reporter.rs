@@ -1,5 +1,5 @@
 use crate::extension::ExtensionEvent;
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::mutate::MutateEvent;
 use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use std::marker::PhantomData;
@@ -7,7 +7,7 @@ use std::marker::PhantomData;
 /// A Simple Evolve reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
-pub struct Simple<G: Genotype> {
+pub struct Simple<G: EvolveGenotype> {
     pub period: usize,
     pub show_genes: bool,
     pub show_equal_fitness: bool,
@@ -17,7 +17,7 @@ pub struct Simple<G: Genotype> {
     number_of_extension_events: usize,
     _phantom: PhantomData<G>,
 }
-impl<G: Genotype> Default for Simple<G> {
+impl<G: EvolveGenotype> Default for Simple<G> {
     fn default() -> Self {
         Self {
             period: 1,
@@ -31,7 +31,7 @@ impl<G: Genotype> Default for Simple<G> {
         }
     }
 }
-impl<G: Genotype> Simple<G> {
+impl<G: EvolveGenotype> Simple<G> {
     pub fn new(period: usize) -> Self {
         Self {
             period,
@@ -55,7 +55,7 @@ impl<G: Genotype> Simple<G> {
         }
     }
 }
-impl<G: Genotype> StrategyReporter for Simple<G> {
+impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
     type Genotype = G;
 
     fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(

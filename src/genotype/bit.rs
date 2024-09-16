@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{Genotype, IncrementalGenotype, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, IncrementalGenotype, PermutableGenotype};
 use crate::chromosome::{BitChromosome, Chromosome, ChromosomeManager, GenesOwner};
 use crate::population::Population;
 use fixedbitset::{Block, FixedBitSet};
@@ -272,6 +272,7 @@ impl Genotype for Bit {
     }
 }
 
+impl EvolveGenotype for Bit {}
 impl IncrementalGenotype for Bit {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,

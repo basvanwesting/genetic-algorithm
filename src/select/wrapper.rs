@@ -2,7 +2,7 @@ pub use super::elite::Elite as SelectElite;
 pub use super::tournament::Tournament as SelectTournament;
 pub use super::Select;
 
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::prelude::*;
@@ -14,7 +14,7 @@ pub enum Wrapper {
 }
 
 impl Select for Wrapper {
-    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,

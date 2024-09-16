@@ -53,7 +53,7 @@ fn build_invalid_require_crossover_indexes() {
     assert_eq!(
         evolve.err(),
         Some(TryFromEvolveBuilderError(
-            "The provided Crossover strategy requires crossover_indexes, which the provided Genotype does not provide"
+            "The provided Crossover strategy requires crossover_indexes, which the provided EvolveGenotype does not provide"
         ))
     );
 }
@@ -79,7 +79,7 @@ fn build_invalid_require_crossover_points() {
     assert_eq!(
         evolve.err(),
         Some(TryFromEvolveBuilderError(
-            "The provided Crossover strategy requires crossover_points, which the provided Genotype does not provide"
+            "The provided Crossover strategy requires crossover_points, which the provided EvolveGenotype does not provide"
         ))
     );
 }

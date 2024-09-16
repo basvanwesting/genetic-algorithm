@@ -2,7 +2,7 @@ use super::Evolve;
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::mutate::Mutate;
 use crate::select::Select;
 use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop};
@@ -17,7 +17,7 @@ pub struct TryFromBuilderError(pub &'static str);
 /// The builder for an Evolve struct.
 #[derive(Clone, Debug)]
 pub struct Builder<
-    G: Genotype,
+    G: EvolveGenotype,
     M: Mutate,
     F: Fitness<Genotype = G>,
     S: Crossover,
@@ -43,7 +43,7 @@ pub struct Builder<
     pub rng_seed: Option<u64>,
 }
 
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
+impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
     for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
@@ -67,7 +67,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> 
         }
     }
 }
-impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
+impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
     Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     pub fn new() -> Self {
@@ -77,7 +77,7 @@ impl<G: Genotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
 
 #[allow(clippy::type_complexity)]
 impl<
-        G: Genotype,
+        G: EvolveGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,
@@ -225,7 +225,7 @@ impl<
 
 #[allow(clippy::type_complexity)]
 impl<
-        G: Genotype,
+        G: EvolveGenotype,
         M: Mutate,
         F: Fitness<Genotype = G>,
         S: Crossover,

@@ -1,6 +1,6 @@
 use super::{Mutate, MutateEvent};
 use crate::chromosome::Chromosome;
-use crate::genotype::Genotype;
+use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::distributions::{Bernoulli, Distribution};
@@ -30,7 +30,7 @@ pub struct MultiGeneDynamic {
 }
 
 impl Mutate for MultiGeneDynamic {
-    fn call<G: Genotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,
