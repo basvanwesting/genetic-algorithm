@@ -37,7 +37,7 @@ impl<G: Genotype> StrategyReporter for GenericReporter<G> {
 }
 
 #[test]
-fn generic_strategy_evolve() {
+fn build_invalid_missing_variant() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(5)
         .build()
@@ -45,6 +45,7 @@ fn generic_strategy_evolve() {
 
     let builder = StrategyBuilder::new()
         .with_genotype(genotype)
+        // .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
         .with_reporter(GenericReporter::new())
         .with_target_population_size(100)
         .with_target_fitness_score(5)
@@ -54,9 +55,34 @@ fn generic_strategy_evolve() {
         .with_select(SelectTournament::new(4, 0.9))
         .with_rng_seed_from_u64(0);
 
-    let variant = StrategyVariant::Evolve(EvolveVariant::Standard);
+    let strategy = builder.build();
+    assert!(strategy.is_err());
+    assert_eq!(
+        strategy.err(),
+        Some(TryFromStrategyBuilderError("StrategyVariant is required"))
+    );
+}
 
-    let mut strategy = builder.build(variant).unwrap();
+#[test]
+fn generic_strategy_evolve() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
+
+    let builder = StrategyBuilder::new()
+        .with_genotype(genotype)
+        .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
+        .with_reporter(GenericReporter::new())
+        .with_target_population_size(100)
+        .with_target_fitness_score(5)
+        .with_fitness(CountTrue)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_crossover(CrossoverSingleGene::new())
+        .with_select(SelectTournament::new(4, 0.9))
+        .with_rng_seed_from_u64(0);
+
+    let mut strategy = builder.build().unwrap();
     strategy.call();
     let result = strategy.best_genes_and_fitness_score();
 
@@ -74,6 +100,7 @@ fn generic_strategy_permutate() {
 
     let builder = StrategyBuilder::new()
         .with_genotype(genotype)
+        .with_variant(StrategyVariant::Permutate(PermutateVariant::Standard))
         .with_reporter(GenericReporter::new())
         .with_target_population_size(100)
         .with_target_fitness_score(5)
@@ -83,9 +110,7 @@ fn generic_strategy_permutate() {
         .with_select(SelectTournament::new(4, 0.9))
         .with_rng_seed_from_u64(0);
 
-    let variant = StrategyVariant::Permutate(PermutateVariant::Standard);
-
-    let mut strategy = builder.build(variant).unwrap();
+    let mut strategy = builder.build().unwrap();
     strategy.call();
     let result = strategy.best_genes_and_fitness_score();
 
@@ -103,6 +128,7 @@ fn generic_strategy_hill_climb_steepest_ascent() {
 
     let builder = StrategyBuilder::new()
         .with_genotype(genotype)
+        .with_variant(StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent))
         .with_reporter(GenericReporter::new())
         .with_target_population_size(100)
         .with_target_fitness_score(5)
@@ -112,9 +138,7 @@ fn generic_strategy_hill_climb_steepest_ascent() {
         .with_select(SelectTournament::new(4, 0.9))
         .with_rng_seed_from_u64(0);
 
-    let variant = StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent);
-
-    let mut strategy = builder.build(variant).unwrap();
+    let mut strategy = builder.build().unwrap();
     strategy.call();
     let result = strategy.best_genes_and_fitness_score();
 

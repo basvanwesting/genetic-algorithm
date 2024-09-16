@@ -23,11 +23,12 @@ pub struct Builder<
     E: Extension,
     SR: StrategyReporter<Genotype = G>,
 > {
+    pub genotype: Option<G>,
+    pub variant: Option<StrategyVariant>,
     pub crossover: Option<S>,
     pub extension: E,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
-    pub genotype: Option<G>,
     pub max_chromosome_age: Option<usize>,
     pub max_stale_generations: Option<usize>,
     pub mutate: Option<M>,
@@ -52,6 +53,7 @@ impl<
     fn default() -> Self {
         Self {
             genotype: None,
+            variant: None,
             target_population_size: 0,
             max_stale_generations: None,
             max_chromosome_age: None,
@@ -96,6 +98,10 @@ impl<
 {
     pub fn with_genotype(mut self, genotype: G) -> Self {
         self.genotype = Some(genotype);
+        self
+    }
+    pub fn with_variant(mut self, variant: StrategyVariant) -> Self {
+        self.variant = Some(variant);
         self
     }
     pub fn with_target_population_size(mut self, target_population_size: usize) -> Self {
@@ -177,6 +183,7 @@ impl<
     pub fn with_extension<E2: Extension>(self, extension: E2) -> Builder<G, M, F, S, C, E2, SR> {
         Builder {
             genotype: self.genotype,
+            variant: self.variant,
             target_population_size: self.target_population_size,
             max_stale_generations: self.max_stale_generations,
             max_chromosome_age: self.max_chromosome_age,
@@ -200,6 +207,7 @@ impl<
     ) -> Builder<G, M, F, S, C, E, SR2> {
         Builder {
             genotype: self.genotype,
+            variant: self.variant,
             target_population_size: self.target_population_size,
             max_stale_generations: self.max_stale_generations,
             max_chromosome_age: self.max_chromosome_age,
@@ -239,20 +247,17 @@ impl<
         SR: StrategyReporter<Genotype = G> + 'a,
     > Builder<G, M, F, S, C, E, SR>
 {
-    pub fn build(
-        self,
-        variant: StrategyVariant,
-    ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
-        match variant {
-            StrategyVariant::Permutate(_) => match self.to_permutate_builder().build() {
+    pub fn build(self) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
+        match self.variant {
+            Some(StrategyVariant::Permutate(_)) => match self.to_permutate_builder().build() {
                 Ok(permutate) => Ok(Box::new(permutate)),
                 Err(error) => Err(TryFromBuilderError(error.0)),
             },
-            StrategyVariant::Evolve(_) => match self.to_evolve_builder().build() {
+            Some(StrategyVariant::Evolve(_)) => match self.to_evolve_builder().build() {
                 Ok(evolve) => Ok(Box::new(evolve)),
                 Err(error) => Err(TryFromBuilderError(error.0)),
             },
-            StrategyVariant::HillClimb(hill_climb_variant) => {
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
                 match self
                     .to_hill_climb_builder()
                     .with_variant(hill_climb_variant)
@@ -262,6 +267,7 @@ impl<
                     Err(error) => Err(TryFromBuilderError(error.0)),
                 }
             }
+            None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }
     pub fn to_permutate_builder(self) -> PermutateBuilder<G, F, SR> {
