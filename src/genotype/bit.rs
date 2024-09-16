@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::chromosome::{BitChromosome, Chromosome, ChromosomeManager, GenesOwner};
 use crate::population::Population;
 use fixedbitset::{Block, FixedBitSet};
@@ -294,7 +294,7 @@ impl HillClimbGenotype for Bit {
     }
 }
 
-impl PermutableGenotype for Bit {
+impl PermutateGenotype for Bit {
     fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = BitChromosome> + Send {
         (0..self.genes_size())
             .map(|_| vec![true, false])

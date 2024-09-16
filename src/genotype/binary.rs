@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::chromosome::{BinaryChromosome, Chromosome, ChromosomeManager, GenesOwner};
 use crate::population::Population;
 use itertools::Itertools;
@@ -214,7 +214,7 @@ impl HillClimbGenotype for Binary {
     }
 }
 
-impl PermutableGenotype for Binary {
+impl PermutateGenotype for Binary {
     fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Self::Chromosome> + Send {
         (0..self.genes_size())
             .map(|_| vec![true, false])

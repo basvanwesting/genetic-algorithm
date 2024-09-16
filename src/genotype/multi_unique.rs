@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, MultiUniqueChromosome};
 use crate::population::Population;
@@ -311,7 +311,7 @@ impl<T: Allele> HillClimbGenotype for MultiUnique<T> {
     }
 }
 
-impl<T: Allele> PermutableGenotype for MultiUnique<T> {
+impl<T: Allele> PermutateGenotype for MultiUnique<T> {
     fn chromosome_permutations_into_iter(
         &self,
     ) -> impl Iterator<Item = MultiUniqueChromosome<T>> + Send {

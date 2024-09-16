@@ -1,5 +1,5 @@
 //! Reporters directed at Permutate process specific data
-use crate::genotype::PermutableGenotype;
+use crate::genotype::PermutateGenotype;
 use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use num::{BigUint, ToPrimitive};
 use std::marker::PhantomData;
@@ -7,13 +7,13 @@ use std::marker::PhantomData;
 /// A Simple Permutate reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
-pub struct Simple<G: PermutableGenotype> {
+pub struct Simple<G: PermutateGenotype> {
     pub period: usize,
     pub show_genes: bool,
     pub show_equal_fitness: bool,
     _phantom: PhantomData<G>,
 }
-impl<G: PermutableGenotype> Default for Simple<G> {
+impl<G: PermutateGenotype> Default for Simple<G> {
     fn default() -> Self {
         Self {
             period: 1,
@@ -23,7 +23,7 @@ impl<G: PermutableGenotype> Default for Simple<G> {
         }
     }
 }
-impl<G: PermutableGenotype> Simple<G> {
+impl<G: PermutateGenotype> Simple<G> {
     pub fn new(period: usize) -> Self {
         Self {
             period,
@@ -39,7 +39,7 @@ impl<G: PermutableGenotype> Simple<G> {
         }
     }
 }
-impl<G: PermutableGenotype> StrategyReporter for Simple<G> {
+impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
     type Genotype = G;
 
     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(

@@ -1,6 +1,6 @@
 use super::Permutate;
 use crate::fitness::{Fitness, FitnessOrdering};
-use crate::genotype::PermutableGenotype;
+use crate::genotype::PermutateGenotype;
 use crate::strategy::Strategy;
 use crate::strategy::{StrategyReporter, StrategyReporterNoop};
 
@@ -10,7 +10,7 @@ pub struct TryFromBuilderError(pub &'static str);
 /// The builder for an Permutate struct.
 #[derive(Clone, Debug)]
 pub struct Builder<
-    G: PermutableGenotype,
+    G: PermutateGenotype,
     F: Fitness<Genotype = G>,
     SR: StrategyReporter<Genotype = G>,
 > {
@@ -22,7 +22,7 @@ pub struct Builder<
     pub reporter: SR,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>> Default
     for Builder<G, F, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
@@ -36,13 +36,13 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Default
         }
     }
 }
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Builder<G, F, StrategyReporterNoop<G>> {
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>> Builder<G, F, StrategyReporterNoop<G>> {
     pub fn new() -> Self {
         Self::default()
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Builder<G, F, SR>
 {
     pub fn build(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {
@@ -82,7 +82,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genot
         }
     }
 }
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Builder<G, F, SR>
 {
     pub fn call(self) -> Result<Permutate<G, F, SR>, TryFromBuilderError> {

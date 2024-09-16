@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutableGenotype};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, MultiListChromosome};
 use crate::population::Population;
@@ -297,7 +297,7 @@ impl<T: Allele + PartialEq> HillClimbGenotype for MultiList<T> {
     }
 }
 
-impl<T: Allele + PartialEq> PermutableGenotype for MultiList<T> {
+impl<T: Allele + PartialEq> PermutateGenotype for MultiList<T> {
     fn chromosome_permutations_into_iter(
         &self,
     ) -> impl Iterator<Item = MultiListChromosome<T>> + Send {

@@ -13,7 +13,7 @@ use super::{
 };
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::PermutableGenotype;
+use crate::genotype::PermutateGenotype;
 use crate::population::Population;
 use rayon::prelude::*;
 use std::collections::HashMap;
@@ -75,7 +75,7 @@ pub enum PermutateVariant {
 /// assert_eq!(best_fitness_score, 0);
 /// ```
 pub struct Permutate<
-    G: PermutableGenotype,
+    G: PermutateGenotype,
     F: Fitness<Genotype = G>,
     SR: StrategyReporter<Genotype = G>,
 > {
@@ -94,7 +94,7 @@ pub struct PermutateConfig {
 }
 
 /// Stores the state of the Permutate strategy. Next to the expected general fields, the following
-pub struct PermutateState<G: PermutableGenotype> {
+pub struct PermutateState<G: PermutateGenotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub stale_generations: usize,
@@ -105,8 +105,8 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub population: Population<G::Chromosome>,
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
-    Strategy<G> for Permutate<G, F, SR>
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>> Strategy<G>
+    for Permutate<G, F, SR>
 {
     fn call(&mut self) {
         let now = Instant::now();
@@ -136,7 +136,7 @@ impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genot
         }
     }
 }
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Permutate<G, F, SR>
 where
     G::Chromosome: GenesOwner<Genes = G::Genes>,
@@ -152,13 +152,13 @@ where
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>> Permutate<G, F, StrategyReporterNoop<G>> {
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>> Permutate<G, F, StrategyReporterNoop<G>> {
     pub fn builder() -> PermutateBuilder<G, F, StrategyReporterNoop<G>> {
         PermutateBuilder::new()
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Permutate<G, F, SR>
 {
     pub fn init(&mut self) {
@@ -247,7 +247,7 @@ impl StrategyConfig for PermutateConfig {
     }
 }
 
-impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
+impl<G: PermutateGenotype> StrategyState<G> for PermutateState<G> {
     fn chromosome_as_ref(&self) -> &Option<G::Chromosome> {
         &self.chromosome
     }
@@ -295,7 +295,7 @@ impl<G: PermutableGenotype> StrategyState<G> for PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype> PermutateState<G> {
+impl<G: PermutateGenotype> PermutateState<G> {
     fn update_best_chromosome_and_report<SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
@@ -328,7 +328,7 @@ impl<G: PermutableGenotype> PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     TryFrom<PermutateBuilder<G, F, SR>> for Permutate<G, F, SR>
 {
     type Error = TryFromPermutateBuilderError;
@@ -377,7 +377,7 @@ impl PermutateConfig {
     }
 }
 
-impl<G: PermutableGenotype> PermutateState<G> {
+impl<G: PermutateGenotype> PermutateState<G> {
     pub fn new(_genotype: &G) -> Self {
         Self {
             current_iteration: 0,
@@ -392,7 +392,7 @@ impl<G: PermutableGenotype> PermutateState<G> {
     }
 }
 
-impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
+impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     fmt::Display for Permutate<G, F, SR>
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -414,7 +414,7 @@ impl fmt::Display for PermutateConfig {
     }
 }
 
-impl<G: PermutableGenotype> fmt::Display for PermutateState<G> {
+impl<G: PermutateGenotype> fmt::Display for PermutateState<G> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_state:")?;
         writeln!(f, "  current iteration: -")?;
