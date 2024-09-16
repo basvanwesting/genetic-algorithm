@@ -159,14 +159,16 @@ pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Select, E: Extension> {
 
 pub struct EvolveConfig {
     pub variant: EvolveVariant,
-    pub target_population_size: usize,
-    pub max_stale_generations: Option<usize>,
-    pub max_chromosome_age: Option<usize>,
-    pub target_fitness_score: Option<FitnessValue>,
-    pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
+
+    pub target_fitness_score: Option<FitnessValue>,
+    pub max_stale_generations: Option<usize>,
+    pub valid_fitness_score: Option<FitnessValue>,
+
+    pub target_population_size: usize,
+    pub max_chromosome_age: Option<usize>,
 }
 
 /// Stores the state of the Evolve strategy. Next to the expected general fields, the following
@@ -182,8 +184,8 @@ pub struct EvolveState<G: Genotype> {
     pub durations: HashMap<StrategyAction, Duration>,
     pub chromosome: Option<G::Chromosome>,
     pub population: Population<G::Chromosome>,
-
     pub current_scale_index: Option<usize>,
+
     pub max_scale_index: usize,
 }
 

@@ -151,10 +151,11 @@ pub struct HillClimbConfig {
     pub variant: HillClimbVariant,
     pub fitness_ordering: FitnessOrdering,
     pub par_fitness: bool,
-    pub max_stale_generations: Option<usize>,
-    pub target_fitness_score: Option<FitnessValue>,
-    pub valid_fitness_score: Option<FitnessValue>,
     pub replace_on_equal_fitness: bool,
+
+    pub target_fitness_score: Option<FitnessValue>,
+    pub max_stale_generations: Option<usize>,
+    pub valid_fitness_score: Option<FitnessValue>,
 }
 
 /// Stores the state of the HillClimb strategy. Next to the expected general fields, the following
@@ -170,11 +171,11 @@ pub struct HillClimbState<G: IncrementalGenotype> {
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
     pub durations: HashMap<StrategyAction, Duration>,
-
-    pub current_scale_index: Option<usize>,
-    pub max_scale_index: usize,
     pub chromosome: Option<G::Chromosome>,
     pub population: Population<G::Chromosome>,
+    pub current_scale_index: Option<usize>,
+
+    pub max_scale_index: usize,
 }
 
 impl<G: IncrementalGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>

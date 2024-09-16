@@ -2,10 +2,13 @@
 * [v] look at disabled reporters for generalizable implemented features
 * [x] remove disabled reporters
 * [ ] StrategyBuilder
-      * with_permutate_threshold
       * with_par_fitness_threshold
       * with_par_fitness_min_length
-      * with_hill_climb_variant
+      * with_permutate_threshold?
+      * with_hill_climb_variant?
+
+* [ ] Rename IncrementalGenotype to IncrementableGenotype
+* [ ] Remove max_scale_index on state, it is on Genotype, just take it there. Also implement mutation type for all genotypes, to scaled can trigger current_scale_index initialization
 
 * [ ] Add valid and target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
 * [ ] neigbouring better garantees? Can max stale gen be 1 (maybe is equal_fitness is false)? Check

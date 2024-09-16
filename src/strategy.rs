@@ -70,10 +70,10 @@ pub trait Strategy<G: Genotype> {
 }
 
 pub trait StrategyConfig: Display {
+    fn variant(&self) -> StrategyVariant;
     fn fitness_ordering(&self) -> FitnessOrdering;
     fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
-    fn variant(&self) -> StrategyVariant;
 }
 
 /// Stores the state of the strategy.

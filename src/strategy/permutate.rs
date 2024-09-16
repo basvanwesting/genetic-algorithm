@@ -100,9 +100,9 @@ pub struct PermutateState<G: PermutableGenotype> {
     pub stale_generations: usize,
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
+    pub durations: HashMap<StrategyAction, Duration>,
     pub chromosome: Option<G::Chromosome>,
     pub population: Population<G::Chromosome>,
-    pub durations: HashMap<StrategyAction, Duration>,
 }
 
 impl<G: PermutableGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
