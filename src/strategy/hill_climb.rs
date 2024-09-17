@@ -65,10 +65,10 @@ pub enum HillClimbVariant {
 ///         * Sample single random value for [HillClimbVariant::Stochastic]
 ///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
 ///     * Standard max_stale_generations ending condition
-/// * With only allele_range(s) set on genotype:
+/// * With only allele_range(s) set on genotype (not advised for hill climbing):
 ///     * Mutate uniformly over the complete allele range
 ///         * Sample single random value for [HillClimbVariant::Stochastic]
-///         * Not valid for [HillClimbVariant::SteepestAscent]
+///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
 ///     * Standard max_stale_generations ending condition
 ///
 /// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
@@ -618,7 +618,11 @@ impl<G: HillClimbGenotype> fmt::Display for HillClimbState<G> {
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  stale generations: {:?}", self.stale_generations)?;
-        writeln!(f, "  scale index (current/max): {:?}", self.current_scale_index)?;
+        writeln!(
+            f,
+            "  scale index (current/max): {:?}",
+            self.current_scale_index
+        )?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())
     }
 }

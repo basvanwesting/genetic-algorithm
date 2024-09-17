@@ -189,7 +189,40 @@ fn float_neighbouring_population_1() {
 }
 
 #[test]
-fn float_neighbouring_population_3_unscaled() {
+fn float_neighbouring_population_3_random() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = MultiRangeGenotype::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 2.196, 19.798],
+        0.001
+    ));
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    assert!(relative_population_eq(
+        inspect::population(&population),
+        vec![
+            vec![0.206, 2.195, 19.798],
+            vec![0.943, 2.195, 19.798],
+            vec![0.447, 2.070, 19.798],
+            vec![0.447, 3.845, 19.798],
+            vec![0.447, 2.195, 14.471],
+            vec![0.447, 2.195, 19.878],
+        ],
+        0.001
+    ));
+}
+
+#[test]
+fn float_neighbouring_population_3_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])

@@ -202,7 +202,39 @@ fn float_neighbouring_population_1() {
 }
 
 #[test]
-fn float_neighbouring_population_2_unscaled() {
+fn float_neighbouring_population_2_random() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = RangeGenotype::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 0.439],
+        0.001
+    ));
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    assert!(relative_population_eq(
+        inspect::population(&population),
+        vec![
+            vec![0.438, 0.439],
+            vec![0.702, 0.439],
+            vec![0.447, 0.393],
+            vec![0.447, 0.968],
+        ],
+        0.001,
+    ));
+}
+
+#[test]
+fn float_neighbouring_population_2_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
@@ -429,7 +461,29 @@ fn integer_neighbouring_population_1() {
 }
 
 #[test]
-fn integer_neighbouring_population_2_unscaled() {
+fn integer_neighbouring_population_2_random() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = RangeGenotype::builder()
+        .with_genes_size(2)
+        .with_allele_range(0..=9)
+        .build()
+        .unwrap();
+    genotype.chromosomes_init();
+
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert_eq!(inspect::chromosome(&chromosome), vec![4, 4],);
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    assert_eq!(
+        inspect::population(&population),
+        vec![vec![2, 4], vec![7, 4], vec![4, 3], vec![4, 6]]
+    );
+}
+
+#[test]
+fn integer_neighbouring_population_2_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)

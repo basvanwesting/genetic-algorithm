@@ -27,12 +27,6 @@ pub type DefaultAllele = f32;
 /// restricted to modify the existing value by a difference taken from start and end of the scaled
 /// range (depending on current scale)
 ///
-/// # Panics
-///
-/// The [MutationType::Random] is not supported for [HillClimbGenotype] (i.e. HillClimb,
-/// [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)). Will panic
-/// when used in that context.
-///
 /// # Example (f32, default):
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype};
@@ -431,7 +425,7 @@ where
                 self.fill_neighbouring_population_relative(chromosome, population, rng)
             }
             MutationType::Random => {
-                panic!("Random mutation type is not supported for incremental genotype: HillClimb, SteepestAscent");
+                self.fill_neighbouring_population_random(chromosome, population, rng)
             }
         }
     }
@@ -527,6 +521,36 @@ where
                     let mut new_chromosome = self.chromosome_constructor_from(chromosome);
                     let new_value =
                         rng.gen_range((base_value + T::smallest_increment())..=range_end);
+                    new_chromosome.genes[index] = new_value;
+                    population.chromosomes.push(new_chromosome);
+                };
+            });
+    }
+
+    fn fill_neighbouring_population_random<R: Rng>(
+        &mut self,
+        chromosome: &MultiRangeChromosome<T>,
+        population: &mut Population<MultiRangeChromosome<T>>,
+        rng: &mut R,
+    ) {
+        self.allele_ranges
+            .clone()
+            .into_iter()
+            .enumerate()
+            .for_each(|(index, allele_range)| {
+                let allele_range_start = *allele_range.start();
+                let allele_range_end = *allele_range.end();
+
+                let base_value = chromosome.genes[index];
+                if allele_range_start < base_value {
+                    let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                    new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
+                    population.chromosomes.push(new_chromosome);
+                };
+                if base_value < allele_range_end {
+                    let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                    let new_value =
+                        rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
                     new_chromosome.genes[index] = new_value;
                     population.chromosomes.push(new_chromosome);
                 };
