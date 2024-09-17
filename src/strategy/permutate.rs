@@ -135,6 +135,9 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             None
         }
     }
+    fn flush_reporter(&mut self, output: &mut Vec<u8>) {
+        self.reporter.flush(output);
+    }
 }
 impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Permutate<G, F, SR>

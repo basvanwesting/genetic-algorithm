@@ -7,32 +7,34 @@ use genetic_algorithm::strategy::StrategyBuilder;
 use genetic_algorithm::strategy::{
     StrategyConfig, StrategyReporter, StrategyState, StrategyVariant,
 };
+use std::io::Write;
 use std::marker::PhantomData;
 
 #[derive(Clone)]
-pub struct GenericReporter<G: Genotype>(pub PhantomData<G>);
-impl<G: Genotype> Default for GenericReporter<G> {
+pub struct GenericBufferedReporter<G: Genotype>(pub Vec<u8>, pub PhantomData<G>);
+impl<G: Genotype> Default for GenericBufferedReporter<G> {
     fn default() -> Self {
-        Self(PhantomData)
+        Self(vec![], PhantomData)
     }
 }
-impl<G: Genotype> GenericReporter<G> {
+impl<G: Genotype> GenericBufferedReporter<G> {
     pub fn new() -> Self {
         Self::default()
     }
 }
-impl<G: Genotype> StrategyReporter for GenericReporter<G> {
+impl<G: Genotype> StrategyReporter for GenericBufferedReporter<G> {
     type Genotype = G;
 
+    fn flush(&mut self, output: &mut Vec<u8>) {
+        output.append(&mut self.0);
+    }
     fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        genotype: &Self::Genotype,
+        _genotype: &Self::Genotype,
         state: &S,
-        config: &C,
+        _config: &C,
     ) {
-        println!("{}", genotype);
-        println!("{}", state);
-        println!("{}", config);
+        writeln!(&mut self.0, "init: {}", state.current_iteration()).unwrap_or(());
     }
 }
 
@@ -46,7 +48,7 @@ fn build_invalid_missing_variant() {
     let builder = StrategyBuilder::new()
         .with_genotype(genotype)
         // .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
-        .with_reporter(GenericReporter::new())
+        .with_reporter(GenericBufferedReporter::new())
         .with_target_population_size(100)
         .with_target_fitness_score(5)
         .with_fitness(CountTrue)
@@ -70,12 +72,13 @@ fn call_speciated_evolve() {
         .build()
         .unwrap();
 
-    let strategy = StrategyBuilder::new()
+    let mut strategy = StrategyBuilder::new()
         .with_genotype(genotype)
         .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
-        .with_reporter(GenericReporter::new())
+        .with_reporter(GenericBufferedReporter::new())
         .with_target_population_size(100)
-        .with_target_fitness_score(5)
+        // .with_target_fitness_score(5)
+        .with_max_stale_generations(100)
         .with_fitness(CountTrue)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_crossover(CrossoverSingleGene::new())
@@ -87,6 +90,16 @@ fn call_speciated_evolve() {
     let (best_genes, best_fitness_score) = strategy.best_genes_and_fitness_score().unwrap();
     assert_eq!(best_genes, vec![true; 5]);
     assert_eq!(best_fitness_score, 5);
+
+    // only holds buffer of best iteration
+    let mut buffer: Vec<u8> = vec![];
+    strategy.flush_reporter(&mut buffer);
+    assert_eq!("init: 0\n", String::from_utf8(buffer).unwrap());
+
+    // actually flushes
+    let mut buffer: Vec<u8> = vec![];
+    strategy.flush_reporter(&mut buffer);
+    assert_eq!("", String::from_utf8(buffer).unwrap());
 }
 
 #[test]
@@ -96,10 +109,10 @@ fn call_permutate() {
         .build()
         .unwrap();
 
-    let strategy = StrategyBuilder::new()
+    let mut strategy = StrategyBuilder::new()
         .with_genotype(genotype)
         .with_variant(StrategyVariant::Permutate(PermutateVariant::Standard))
-        .with_reporter(GenericReporter::new())
+        .with_reporter(GenericBufferedReporter::new())
         .with_target_population_size(100)
         .with_target_fitness_score(5)
         .with_fitness(CountTrue)
@@ -113,6 +126,10 @@ fn call_permutate() {
     let (best_genes, best_fitness_score) = strategy.best_genes_and_fitness_score().unwrap();
     assert_eq!(best_genes, vec![true; 5]);
     assert_eq!(best_fitness_score, 5);
+
+    let mut buffer: Vec<u8> = vec![];
+    strategy.flush_reporter(&mut buffer);
+    assert_eq!("init: 0\n", String::from_utf8(buffer).unwrap());
 }
 
 #[test]
@@ -122,10 +139,10 @@ fn call_repeatedly_hill_climb_steepest_ascent() {
         .build()
         .unwrap();
 
-    let strategy = StrategyBuilder::new()
+    let mut strategy = StrategyBuilder::new()
         .with_genotype(genotype)
         .with_variant(StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent))
-        .with_reporter(GenericReporter::new())
+        .with_reporter(GenericBufferedReporter::new())
         .with_target_population_size(100)
         .with_target_fitness_score(5)
         .with_fitness(CountTrue)
@@ -139,4 +156,9 @@ fn call_repeatedly_hill_climb_steepest_ascent() {
     let (best_genes, best_fitness_score) = strategy.best_genes_and_fitness_score().unwrap();
     assert_eq!(best_genes, vec![true; 5]);
     assert_eq!(best_fitness_score, 5);
+
+    // only holds buffer of best iteration
+    let mut buffer: Vec<u8> = vec![];
+    strategy.flush_reporter(&mut buffer);
+    assert_eq!("init: 0\n", String::from_utf8(buffer).unwrap());
 }

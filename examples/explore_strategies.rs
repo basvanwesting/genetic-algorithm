@@ -14,7 +14,8 @@ fn main() {
         .with_genotype(genotype)
         .with_target_population_size(20)
         .with_max_stale_generations(20)
-        .with_target_fitness_score(16)
+        // .with_target_fitness_score(16) // short-circuits
+        .with_max_stale_generations(10)
         .with_fitness(CountTrue)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new())

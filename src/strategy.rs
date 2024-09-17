@@ -93,6 +93,7 @@ pub use self::builder::{
     Builder as StrategyBuilder, TryFromBuilderError as TryFromStrategyBuilderError,
 };
 
+pub use self::reporter::Buffer as StrategyReporterBuffer;
 pub use self::reporter::Duration as StrategyReporterDuration;
 pub use self::reporter::Noop as StrategyReporterNoop;
 pub use self::reporter::Simple as StrategyReporterSimple;
@@ -138,6 +139,8 @@ pub trait Strategy<G: Genotype> {
             None
         }
     }
+    /// strategy can be boxed, need a way to get to the reporter
+    fn flush_reporter(&mut self, _output: &mut Vec<u8>);
 }
 
 pub trait StrategyConfig: Display {
@@ -293,6 +296,8 @@ pub trait StrategyState<G: Genotype>: Display {
 /// ```
 pub trait StrategyReporter: Clone + Send + Sync {
     type Genotype: Genotype;
+
+    fn flush(&mut self, _output: &mut Vec<u8>) {}
     fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,

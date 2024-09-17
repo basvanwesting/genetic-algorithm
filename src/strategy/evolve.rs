@@ -275,6 +275,9 @@ impl<
             None
         }
     }
+    fn flush_reporter(&mut self, output: &mut Vec<u8>) {
+        self.reporter.flush(output);
+    }
 }
 impl<
         G: EvolveGenotype,

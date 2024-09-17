@@ -1,4 +1,5 @@
 use super::{HillClimb, HillClimbVariant};
+pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::HillClimbGenotype;
 use crate::strategy::Strategy;
@@ -7,7 +8,6 @@ use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::*;
 use std::sync::mpsc::channel;
-pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 
 /// The builder for an HillClimb struct.
 #[derive(Clone, Debug)]
