@@ -155,6 +155,7 @@
 pub mod allele;
 pub mod chromosome;
 pub mod crossover;
+pub mod errors;
 pub mod extension;
 pub mod fitness;
 pub mod genotype;

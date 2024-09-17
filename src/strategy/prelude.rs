@@ -36,17 +36,17 @@ pub use crate::select::{SelectElite, SelectTournament, SelectWrapper};
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{
     Evolve, EvolveBuilder, EvolveConfig, EvolveReporterDuration, EvolveReporterNoop,
-    EvolveReporterSimple, EvolveState, EvolveVariant, TryFromEvolveBuilderError,
+    EvolveReporterSimple, EvolveState, EvolveVariant,
 };
 #[doc(no_inline)]
 pub use crate::strategy::hill_climb::{
     HillClimb, HillClimbBuilder, HillClimbConfig, HillClimbReporterDuration, HillClimbReporterNoop,
-    HillClimbReporterSimple, HillClimbState, HillClimbVariant, TryFromHillClimbBuilderError,
+    HillClimbReporterSimple, HillClimbState, HillClimbVariant,
 };
 #[doc(no_inline)]
 pub use crate::strategy::permutate::{
     Permutate, PermutateBuilder, PermutateConfig, PermutateReporterDuration, PermutateReporterNoop,
-    PermutateReporterSimple, PermutateState, PermutateVariant, TryFromPermutateBuilderError,
+    PermutateReporterSimple, PermutateState, PermutateVariant,
 };
 #[doc(no_inline)]
 pub use crate::strategy::{

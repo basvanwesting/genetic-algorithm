@@ -1,8 +1,6 @@
 use super::Genotype;
+pub use crate::errors::TryFromGenotypeBuilderError as TryFromBuilderError;
 use std::ops::RangeInclusive;
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for a Genotype struct
 ///

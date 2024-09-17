@@ -1,4 +1,5 @@
 use crate::crossover::Crossover;
+pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{EvolveGenotype, HillClimbGenotype, PermutateGenotype};
@@ -8,9 +9,6 @@ use crate::strategy::evolve::EvolveBuilder;
 use crate::strategy::hill_climb::HillClimbBuilder;
 use crate::strategy::permutate::PermutateBuilder;
 use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop, StrategyVariant};
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromBuilderError(pub &'static str);
 
 /// The superset builder for all strategies.
 ///
@@ -252,24 +250,15 @@ impl<
 {
     pub fn build(self) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
         match self.variant {
-            Some(StrategyVariant::Permutate(_)) => match self.to_permutate_builder().build() {
-                Ok(permutate) => Ok(Box::new(permutate)),
-                Err(error) => Err(TryFromBuilderError(error.0)),
-            },
-            Some(StrategyVariant::Evolve(_)) => match self.to_evolve_builder().build() {
-                Ok(evolve) => Ok(Box::new(evolve)),
-                Err(error) => Err(TryFromBuilderError(error.0)),
-            },
-            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
-                match self
-                    .to_hill_climb_builder()
-                    .with_variant(hill_climb_variant)
-                    .build()
-                {
-                    Ok(hill_climb) => Ok(Box::new(hill_climb)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
+            Some(StrategyVariant::Permutate(_)) => {
+                Ok(Box::new(self.to_permutate_builder().build()?))
             }
+            Some(StrategyVariant::Evolve(_)) => Ok(Box::new(self.to_evolve_builder().build()?)),
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => Ok(Box::new(
+                self.to_hill_climb_builder()
+                    .with_variant(hill_climb_variant)
+                    .build()?,
+            )),
             None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }
@@ -346,26 +335,17 @@ impl<
         max_repeats: usize,
     ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
         match self.variant {
-            Some(StrategyVariant::Permutate(_)) => match self.to_permutate_builder().call() {
-                Ok(strategy) => Ok(Box::new(strategy)),
-                Err(error) => Err(TryFromBuilderError(error.0)),
-            },
-            Some(StrategyVariant::Evolve(_)) => {
-                match self.to_evolve_builder().call_repeatedly(max_repeats) {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
+            Some(StrategyVariant::Permutate(_)) => {
+                Ok(Box::new(self.to_permutate_builder().call()?))
             }
-            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
-                match self
-                    .to_hill_climb_builder()
+            Some(StrategyVariant::Evolve(_)) => Ok(Box::new(
+                self.to_evolve_builder().call_repeatedly(max_repeats)?,
+            )),
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => Ok(Box::new(
+                self.to_hill_climb_builder()
                     .with_variant(hill_climb_variant)
-                    .call_repeatedly(max_repeats)
-                {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
-            }
+                    .call_repeatedly(max_repeats)?,
+            )),
             None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }
@@ -378,28 +358,17 @@ impl<
         max_repeats: usize,
     ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
         match self.variant {
-            Some(StrategyVariant::Permutate(_)) => {
-                match self.to_permutate_builder().with_par_fitness(true).call() {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
-            }
-            Some(StrategyVariant::Evolve(_)) => {
-                match self.to_evolve_builder().call_par_repeatedly(max_repeats) {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
-            }
-            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
-                match self
-                    .to_hill_climb_builder()
+            Some(StrategyVariant::Permutate(_)) => Ok(Box::new(
+                self.to_permutate_builder().with_par_fitness(true).call()?,
+            )),
+            Some(StrategyVariant::Evolve(_)) => Ok(Box::new(
+                self.to_evolve_builder().call_par_repeatedly(max_repeats)?,
+            )),
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => Ok(Box::new(
+                self.to_hill_climb_builder()
                     .with_variant(hill_climb_variant)
-                    .call_par_repeatedly(max_repeats)
-                {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
-            }
+                    .call_par_repeatedly(max_repeats)?,
+            )),
             None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }
@@ -412,26 +381,17 @@ impl<
         number_of_species: usize,
     ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
         match self.variant {
-            Some(StrategyVariant::Permutate(_)) => match self.to_permutate_builder().call() {
-                Ok(strategy) => Ok(Box::new(strategy)),
-                Err(error) => Err(TryFromBuilderError(error.0)),
-            },
-            Some(StrategyVariant::Evolve(_)) => {
-                match self.to_evolve_builder().call_speciated(number_of_species) {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
+            Some(StrategyVariant::Permutate(_)) => {
+                Ok(Box::new(self.to_permutate_builder().call()?))
             }
-            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
-                match self
-                    .to_hill_climb_builder()
+            Some(StrategyVariant::Evolve(_)) => Ok(Box::new(
+                self.to_evolve_builder().call_speciated(number_of_species)?,
+            )),
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => Ok(Box::new(
+                self.to_hill_climb_builder()
                     .with_variant(hill_climb_variant)
-                    .call_repeatedly(number_of_species)
-                {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
-            }
+                    .call_repeatedly(number_of_species)?,
+            )),
             None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }
@@ -444,31 +404,18 @@ impl<
         number_of_species: usize,
     ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
         match self.variant {
-            Some(StrategyVariant::Permutate(_)) => {
-                match self.to_permutate_builder().with_par_fitness(true).call() {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
-            }
-            Some(StrategyVariant::Evolve(_)) => {
-                match self
-                    .to_evolve_builder()
-                    .call_par_speciated(number_of_species)
-                {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
-            }
-            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
-                match self
-                    .to_hill_climb_builder()
+            Some(StrategyVariant::Permutate(_)) => Ok(Box::new(
+                self.to_permutate_builder().with_par_fitness(true).call()?,
+            )),
+            Some(StrategyVariant::Evolve(_)) => Ok(Box::new(
+                self.to_evolve_builder()
+                    .call_par_speciated(number_of_species)?,
+            )),
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => Ok(Box::new(
+                self.to_hill_climb_builder()
                     .with_variant(hill_climb_variant)
-                    .call_par_repeatedly(number_of_species)
-                {
-                    Ok(strategy) => Ok(Box::new(strategy)),
-                    Err(error) => Err(TryFromBuilderError(error.0)),
-                }
-            }
+                    .call_par_repeatedly(number_of_species)?,
+            )),
             None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }

@@ -2,9 +2,7 @@ use super::Permutate;
 use crate::fitness::{Fitness, FitnessOrdering};
 use crate::genotype::PermutateGenotype;
 use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop};
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromBuilderError(pub &'static str);
+pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 
 /// The builder for an Permutate struct.
 #[derive(Clone, Debug)]

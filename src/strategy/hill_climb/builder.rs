@@ -7,9 +7,7 @@ use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::*;
 use std::sync::mpsc::channel;
-
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromBuilderError(pub &'static str);
+pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 
 /// The builder for an HillClimb struct.
 #[derive(Clone, Debug)]

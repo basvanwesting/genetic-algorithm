@@ -10,9 +10,8 @@ use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::*;
 use std::sync::mpsc::channel;
+pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 
-#[derive(Debug, Clone, Eq, PartialEq)]
-pub struct TryFromBuilderError(pub &'static str);
 
 /// The builder for an Evolve struct.
 #[derive(Clone, Debug)]
