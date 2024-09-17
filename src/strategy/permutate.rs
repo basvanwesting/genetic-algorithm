@@ -93,7 +93,7 @@ pub struct PermutateConfig {
     pub replace_on_equal_fitness: bool,
 }
 
-/// Stores the state of the Permutate strategy. Next to the expected general fields, the following
+/// Stores the state of the Permutate strategy
 pub struct PermutateState<G: PermutateGenotype> {
     pub current_iteration: usize,
     pub current_generation: usize,

@@ -13,7 +13,7 @@ use super::{
 };
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::HillClimbGenotype;
+use crate::genotype::{HillClimbGenotype, MutationType};
 use crate::population::Population;
 use rand::prelude::SliceRandom;
 use rand::rngs::SmallRng;
@@ -158,12 +158,7 @@ pub struct HillClimbConfig {
     pub valid_fitness_score: Option<FitnessValue>,
 }
 
-/// Stores the state of the HillClimb strategy. Next to the expected general fields, the following
-/// strategy specific fields are added:
-/// * current_scale_index: current index of [HillClimbGenotype]'s allele_mutation_scaled_range
-/// * max_scale_index: max index of [HillClimbGenotype]'s allele_mutation_scaled_range
-/// * contending_chromosome: available for all [variants](HillClimbVariant)
-/// * neighbouring_population: only available for SteepestAscent [variants](HillClimbVariant)
+/// Stores the state of the HillClimb strategy.
 pub struct HillClimbState<G: HillClimbGenotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
@@ -174,8 +169,6 @@ pub struct HillClimbState<G: HillClimbGenotype> {
     pub chromosome: Option<G::Chromosome>,
     pub population: Population<G::Chromosome>,
     pub current_scale_index: Option<usize>,
-
-    pub max_scale_index: usize,
 }
 
 impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>> Strategy<G>
@@ -238,7 +231,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             }
             self.reporter
                 .on_new_generation(&self.genotype, &self.state, &self.config);
-            self.state.scale(&self.config);
+            self.state.scale(&self.genotype, &self.config);
         }
         self.state.close_duration(now.elapsed());
         self.reporter
@@ -487,14 +480,16 @@ impl<G: HillClimbGenotype> HillClimbState<G> {
         }
         self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
-    fn scale(&mut self, config: &HillClimbConfig) {
+    fn scale(&mut self, genotype: &G, config: &HillClimbConfig) {
         if let Some(current_scale_index) = self.current_scale_index {
             if let Some(max_stale_generations) = config.max_stale_generations {
-                if self.stale_generations >= max_stale_generations
-                    && current_scale_index < self.max_scale_index
-                {
-                    self.current_scale_index = Some(current_scale_index + 1);
-                    self.reset_stale_generations();
+                if let Some(max_scale_index) = genotype.max_scale_index() {
+                    if self.stale_generations >= max_stale_generations
+                        && current_scale_index < max_scale_index
+                    {
+                        self.current_scale_index = Some(current_scale_index + 1);
+                        self.reset_stale_generations();
+                    }
                 }
             }
         }
@@ -569,21 +564,19 @@ impl<G: HillClimbGenotype> HillClimbState<G> {
             current_generation: 0,
             stale_generations: 0,
             current_scale_index: None,
-            max_scale_index: 0,
             best_generation: 0,
             best_fitness_score: None,
             chromosome: None,
             population: Population::new_empty(),
             durations: HashMap::new(),
         };
-        if let Some(max_scale_index) = genotype.max_scale_index() {
-            Self {
+        match genotype.mutation_type() {
+            MutationType::Scaled => Self {
                 current_scale_index: Some(0),
-                max_scale_index,
                 ..base
-            }
-        } else {
-            base
+            },
+            MutationType::Relative => base,
+            MutationType::Random => base,
         }
     }
 }
@@ -625,11 +618,7 @@ impl<G: HillClimbGenotype> fmt::Display for HillClimbState<G> {
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  stale generations: {:?}", self.stale_generations)?;
-        writeln!(
-            f,
-            "  scale index (current/max): {:?}/{}",
-            self.current_scale_index, self.max_scale_index
-        )?;
+        writeln!(f, "  scale index (current/max): {:?}", self.current_scale_index)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())
     }
 }

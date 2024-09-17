@@ -199,6 +199,9 @@ where
         chromosome.genes.as_slice()
     }
 
+    fn mutation_type(&self) -> MutationType {
+        self.mutation_type
+    }
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,
         number_of_mutations: usize,

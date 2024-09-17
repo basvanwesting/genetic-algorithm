@@ -376,6 +376,7 @@ impl<T: Allele> fmt::Display for MultiUnique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
+        writeln!(f, "  mutation_type: {:?}", self.mutation_type())?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",

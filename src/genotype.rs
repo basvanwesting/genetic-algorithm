@@ -91,6 +91,9 @@ pub trait Genotype:
         panic!("The genotype does not suppport overwriting the Fitness::calculate_for_population implementation");
     }
 
+    fn mutation_type(&self) -> MutationType {
+        MutationType::Random
+    }
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,
         number_of_mutations: usize,
