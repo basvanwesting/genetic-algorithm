@@ -1,6 +1,9 @@
 //! When approacking a (local) optimum in the fitness score, the variation in the population goes
-//! down dramatically. This reduces the efficiency, but also has the risk of local optimum lock-in.
-//! To increase the variation in the population, an [extension](crate::extension) mechanisms can optionally be used
+//! down dramatically. The offspring will become clones of the parents and the only factor seeding
+//! randomness is the mutation of the offspring. But this remaining randomness might not be
+//! selected for, killing of the offspring again. This reduces the efficiency, but also has the
+//! risk of local optimum lock-in. To increase the variation in the population, an
+//! [extension](crate::extension) mechanisms can optionally be used
 mod mass_degeneration;
 mod mass_extinction;
 mod mass_genesis;

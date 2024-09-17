@@ -195,7 +195,6 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 ## TODO
 
 ## MAYBE
-* Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)
 * Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)
 * Add scaling permutate? Can be done by grid search and then search within last grid with new scale
 * Add scaling helper function

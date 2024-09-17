@@ -29,4 +29,5 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         reporter: &mut SR,
         rng: &mut R,
     );
+    fn selected_population_size(&self, working_population_size: usize) -> usize;
 }

@@ -12,6 +12,9 @@ use std::time::Instant;
 /// selection_rate of the population is reached and drop excess chromosomes. This approach kind of
 /// sorts the fitness first, but not very strictly. This preserves a level of diversity, which
 /// avoids local optimum lock-in.
+///
+/// Of you choos a selection_rate < 0.5 the population will slowly die out, which will end the
+/// Evolve loop normally, but possibly yield suboptimal results.
 #[derive(Clone, Debug)]
 pub struct Tournament {
     pub tournament_size: usize,
@@ -30,11 +33,7 @@ impl Select for Tournament {
         let now = Instant::now();
         let mut working_population_size = state.population.size();
         let tournament_size = std::cmp::min(self.tournament_size, working_population_size);
-
-        let selected_population_size = ((working_population_size as f32 * self.selection_rate)
-            .ceil() as usize)
-            .min(working_population_size)
-            .max(2);
+        let selected_population_size = self.selected_population_size(working_population_size);
 
         let mut selected_chromosomes: Vec<G::Chromosome> =
             Vec::with_capacity(selected_population_size);
@@ -93,6 +92,11 @@ impl Select for Tournament {
             .chromosomes
             .append(&mut selected_chromosomes);
         state.add_duration(StrategyAction::Select, now.elapsed());
+    }
+    fn selected_population_size(&self, working_population_size: usize) -> usize {
+        ((working_population_size as f32 * self.selection_rate).ceil() as usize)
+            .min(working_population_size)
+            .max(2)
     }
 }
 

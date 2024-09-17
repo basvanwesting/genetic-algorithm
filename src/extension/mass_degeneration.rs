@@ -6,9 +6,10 @@ use rand::Rng;
 use std::time::Instant;
 
 /// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
-/// population. When this cardinality drops to the threshold, the full population is mutated the
-/// provided number of times, where the [Genotype](crate::genotype::Genotype) determines whether
-/// this is random, relative or scaled.
+/// population after selection. When this cardinality drops to the threshold, the full population
+/// is mutated the provided number of times, where the [Genotype](crate::genotype::Genotype)
+/// determines whether this is random, relative or scaled.
+///
 /// Duplicate mutations of the same gene are allowed. There is no change in population size.
 #[derive(Debug, Clone)]
 pub struct MassDegeneration {
@@ -26,7 +27,7 @@ impl Extension for MassDegeneration {
         rng: &mut R,
     ) {
         let now = Instant::now();
-        if state.population.size() >= config.target_population_size
+        if state.population.size() >= config.selected_population_size
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
             reporter.on_extension_event(

@@ -258,7 +258,7 @@ fn call_binary_mass_degeneration() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
-        .with_target_fitness_score(9)
+        .with_target_fitness_score(10)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new())
@@ -270,11 +270,7 @@ fn call_binary_mass_degeneration() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(9));
-    assert_eq!(
-        evolve.best_genes().unwrap(),
-        vec![true, true, true, false, true, true, true, true, true, true]
-    );
+    assert_eq!(evolve.best_fitness_score(), Some(10));
 }
 
 #[test]
@@ -286,7 +282,7 @@ fn call_binary_mass_extinction() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
-        .with_target_fitness_score(9)
+        .with_target_fitness_score(10)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new())
@@ -298,11 +294,7 @@ fn call_binary_mass_extinction() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(9));
-    assert_eq!(
-        evolve.best_genes().unwrap(),
-        vec![true, true, false, true, true, true, true, true, true, true]
-    );
+    assert_eq!(evolve.best_fitness_score(), Some(10));
 }
 
 #[test]
@@ -314,7 +306,7 @@ fn call_binary_mass_genesis() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
-        .with_target_fitness_score(9)
+        .with_target_fitness_score(10)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new())
@@ -326,11 +318,7 @@ fn call_binary_mass_genesis() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(9));
-    assert_eq!(
-        evolve.best_genes().unwrap(),
-        vec![true, true, true, false, true, true, true, true, true, true]
-    );
+    assert_eq!(evolve.best_fitness_score(), Some(10));
 }
 
 #[test]

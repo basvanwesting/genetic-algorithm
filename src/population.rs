@@ -92,6 +92,7 @@ impl<C: Chromosome> Population<C> {
         });
         estimator.estimate() + nones
     }
+
     pub fn fitness_score_present(&self, fitness_score: Option<isize>) -> bool {
         self.chromosomes
             .iter()

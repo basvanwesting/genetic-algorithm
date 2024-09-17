@@ -276,13 +276,14 @@ fn main() {
         // .with_crossover(CrossoverSinglePoint::new())
         .with_crossover(CrossoverUniform::new())
         // .with_select(SelectTournament::new(4, 0.9))
-        .with_select(SelectElite::new(0.5))
-        .with_extension(ExtensionMassDegeneration::new(180, 10))
+        .with_select(SelectElite::new(0.8))
+        .with_extension(ExtensionMassDegeneration::new(2, 10))
+        // .with_extension(ExtensionMassGenesis::new(2))
         // .with_reporter(EvolveReporterSimple::default())
         // .with_reporter(EvolveReporterSimple::new_with_flags(
-        //     100, false, false, true,
+        //     100, false, false, false, true,
         // ))
-        .with_reporter(EvolveReporterSimple::new(usize::MAX))
+        .with_reporter(EvolveReporterSimple::new(100))
         .with_par_fitness(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),

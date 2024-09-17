@@ -6,8 +6,8 @@ use rand::Rng;
 use std::time::Instant;
 
 /// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
-/// population. When this cardinality drops to the threshold, the population is randomly reduced
-/// regardless of fitness using the survival_rate (fraction of population).
+/// population after selection. When this cardinality drops to the threshold, the population is
+/// randomly reduced regardless of fitness using the survival_rate (fraction of population).
 ///
 /// Ensure you have some population growth in select/crossover by setting the
 /// [Select](crate::select::Select) selection_rate > 0.5 in order for the population to recover
@@ -27,7 +27,7 @@ impl Extension for MassExtinction {
         rng: &mut R,
     ) {
         let now = Instant::now();
-        if state.population.size() >= config.target_population_size
+        if state.population.size() >= config.selected_population_size
             && state.population.fitness_score_cardinality() <= self.cardinality_threshold
         {
             reporter.on_extension_event(

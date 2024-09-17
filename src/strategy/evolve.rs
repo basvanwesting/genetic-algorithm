@@ -41,8 +41,8 @@ pub enum EvolveVariant {
 /// and sets a first best chromosome (if any).
 ///
 /// Then the Evolve strategy runs through generations of chromosomes in a loop:
-/// * [extension](crate::extension) an optional step (e.g. [MassExtinction](crate::extension::ExtensionMassExtinction))
 /// * [select](crate::select) and pair up chromosomes for crossover
+/// * [extension](crate::extension) an optional step triggering on population cardinality after selection (e.g. [MassExtinction](crate::extension::ExtensionMassExtinction))
 /// * [crossover](crate::crossover) to produce new offspring with a mix of parents chromosome.
 /// * [mutate](crate::mutate) the offspring chromosomes to add some additional diversity
 /// * calculate [fitness](crate::fitness) for all chromosomes
@@ -71,6 +71,9 @@ pub enum EvolveVariant {
 /// There are reporting hooks in the loop receiving the [EvolveState], which can by handled by an
 /// [StrategyReporter] (e.g. [EvolveReporterDuration], [EvolveReporterSimple]). But you are encouraged to
 /// roll your own, see [StrategyReporter].
+///
+/// For [Evolve] the reporting `on_new_generation` hook is called just after selection, because
+/// that is a more interesting point in the loop.
 ///
 /// From the [EvolveBuilder] level, there are several calling mechanisms:
 /// * [call](EvolveBuilder::call): this runs a single evolve strategy
@@ -109,8 +112,8 @@ pub enum EvolveVariant {
 /// // the search strategy
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
-///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
 ///     .with_select(SelectElite::new(0.9))                    // sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
+///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10 after the selection, trim to 10% of population
 ///     .with_crossover(CrossoverUniform::new())               // crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
 ///     .with_mutate(MutateSingleGene::new(0.2))               // mutate offspring for a single gene with a 20% probability per chromosome
 ///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
@@ -168,6 +171,7 @@ pub struct EvolveConfig {
     pub valid_fitness_score: Option<FitnessValue>,
 
     pub target_population_size: usize,
+    pub selected_population_size: usize,
     pub max_chromosome_age: Option<usize>,
 }
 
@@ -211,14 +215,16 @@ impl<
                 .population_filter_age(&mut self.genotype, &self.config);
             self.state.population.increment_age();
 
-            self.plugins.extension.call(
+            self.plugins.select.call(
                 &mut self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
                 &mut self.rng,
             );
-            self.plugins.select.call(
+            self.reporter
+                .on_new_generation(&self.genotype, &self.state, &self.config);
+            self.plugins.extension.call(
                 &mut self.genotype,
                 &mut self.state,
                 &self.config,
@@ -249,8 +255,7 @@ impl<
                 &self.config,
                 &mut self.reporter,
             );
-            self.reporter
-                .on_new_generation(&self.genotype, &self.state, &self.config);
+
             self.state.scale(&self.genotype, &self.config);
         }
         self.state.close_duration(now.elapsed());
@@ -587,6 +592,11 @@ impl<
             let rng = builder.rng();
             let genotype = builder.genotype.unwrap();
             let state = EvolveState::new(&genotype);
+            let target_population_size = builder.target_population_size;
+            let selected_population_size =
+                builder.select.as_ref().map_or(target_population_size, |s| {
+                    s.selected_population_size(target_population_size)
+                });
 
             Ok(Self {
                 genotype,
@@ -598,7 +608,8 @@ impl<
                     extension: builder.extension,
                 },
                 config: EvolveConfig {
-                    target_population_size: builder.target_population_size,
+                    target_population_size,
+                    selected_population_size,
                     max_stale_generations: builder.max_stale_generations,
                     max_chromosome_age: builder.max_chromosome_age,
                     target_fitness_score: builder.target_fitness_score,
@@ -621,6 +632,7 @@ impl Default for EvolveConfig {
         Self {
             variant: Default::default(),
             target_population_size: 0,
+            selected_population_size: 0,
             max_stale_generations: None,
             max_chromosome_age: None,
             target_fitness_score: None,

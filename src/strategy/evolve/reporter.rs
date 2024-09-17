@@ -94,6 +94,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         println!("  Total: {:?}", &state.total_duration());
     }
 
+    /// Is triggered after selection
     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
@@ -102,7 +103,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
     ) {
         if state.current_generation() % self.period == 0 {
             println!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, fitness_score_cardinality: {}, population_size: {}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, fitness_score_cardinality: {}, selected_population_size: {}, #extension_events: {}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
@@ -123,12 +124,10 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         println!(
-                "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, fitness_score_cardinality: {}, population_size: {}, genes: {:?}",
+            "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
             state.current_scale_index(),
-            state.population_as_ref().fitness_score_cardinality(),
-            state.population_as_ref().size(),
             if self.show_genes {
                 Some(genotype.best_genes())
             } else {
@@ -145,18 +144,16 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
     ) {
         if self.show_equal_fitness {
             println!(
-                "equal best - generation: {}, fitness_score: {:?}, scale_index: {:?}, fitness_score_cardinality: {}, population_size: {}, genes: {:?}",
-            state.current_generation(),
-            state.best_fitness_score(),
-            state.current_scale_index(),
-            state.population_as_ref().fitness_score_cardinality(),
-            state.population_as_ref().size(),
-            if self.show_genes {
-                Some(genotype.best_genes())
-            } else {
-                None
-            },
-        );
+                "equal best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
+                state.current_generation(),
+                state.best_fitness_score(),
+                state.current_scale_index(),
+                if self.show_genes {
+                    Some(genotype.best_genes())
+                } else {
+                    None
+                },
+            );
         }
     }
 
