@@ -41,7 +41,7 @@ use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 ///
 /// Will panic if more chromosomes are instantiated than the population (M) allows.
 ///
-/// The [MutationType::Random] is not supported for [IncrementalGenotype] (i.e. HillClimb,
+/// The [MutationType::Random] is not supported for [HillClimbGenotype] (i.e. HillClimb,
 /// [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)). Will panic
 /// when used in that context.
 ///

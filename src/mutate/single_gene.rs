@@ -9,8 +9,8 @@ use std::time::Instant;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the provided mutation_probability. Then
-/// mutates the selected chromosomes once, where the [Genotype] determines whether this is random,
-/// relative or scaled.
+/// mutates the selected chromosomes once, where the [Genotype](crate::genotype::Genotype)
+/// determines whether this is random, relative or scaled.
 #[derive(Debug, Clone)]
 pub struct SingleGene {
     pub mutation_probability: f32,

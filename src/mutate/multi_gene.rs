@@ -9,8 +9,8 @@ use std::time::Instant;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the provided mutation_probability. Then
-/// mutates the selected chromosomes the provided number of times, where the [Genotype] determines
-/// whether this is random, relative or scaled.
+/// mutates the selected chromosomes the provided number of times, where the
+/// [Genotype](crate::genotype::Genotype) determines whether this is random, relative or scaled.
 ///
 /// Duplicate mutations of the same gene are allowed, as disallowing duplicates is relatively expensive
 /// and mutations should be quite small, so there is little chance for conflict.

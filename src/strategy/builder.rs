@@ -12,7 +12,10 @@ use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop, Strategy
 #[derive(Debug, Clone, Eq, PartialEq)]
 pub struct TryFromBuilderError(pub &'static str);
 
-/// The builder for a Strategy struct.
+/// The superset builder for all strategies.
+///
+/// *Note: Only Genotypes which implement all strategies are eligable for the superset builder.*
+/// *RangeGenotype and other floating point range based genotypes currently do not support Permutation*
 #[derive(Clone, Debug)]
 pub struct Builder<
     G: EvolveGenotype + HillClimbGenotype + PermutateGenotype,

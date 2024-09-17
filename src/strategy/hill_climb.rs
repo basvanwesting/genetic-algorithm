@@ -160,8 +160,8 @@ pub struct HillClimbConfig {
 
 /// Stores the state of the HillClimb strategy. Next to the expected general fields, the following
 /// strategy specific fields are added:
-/// * current_scale_index: current index of [IncrementalGenotype]'s allele_mutation_scaled_range
-/// * max_scale_index: max index of [IncrementalGenotype]'s allele_mutation_scaled_range
+/// * current_scale_index: current index of [HillClimbGenotype]'s allele_mutation_scaled_range
+/// * max_scale_index: max index of [HillClimbGenotype]'s allele_mutation_scaled_range
 /// * contending_chromosome: available for all [variants](HillClimbVariant)
 /// * neighbouring_population: only available for SteepestAscent [variants](HillClimbVariant)
 pub struct HillClimbState<G: HillClimbGenotype> {

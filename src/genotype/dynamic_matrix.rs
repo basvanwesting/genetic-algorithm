@@ -43,7 +43,7 @@ pub type DefaultAllele = f32;
 ///
 /// # Panics
 ///
-/// The [MutationType::Random] is not supported for [IncrementalGenotype] (i.e. HillClimb,
+/// The [MutationType::Random] is not supported for [HillClimbGenotype] (i.e. HillClimb,
 /// [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)). Will panic
 /// when used in that context.
 ///

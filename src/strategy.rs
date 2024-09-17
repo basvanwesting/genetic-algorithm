@@ -1,10 +1,10 @@
 //! solution strategies for finding the best chromosomes.
 //!
 //! There are 4 strategies:
-//! * [Evolve](self::evolve::Evolve), [Standard](self::evolve::EvolveVariant)
-//! * [Permutate](self::permutate::Permutate), [Standard](self::permutate::PermutateVariant)
-//! * [HillClimb](self::hill_climb::HillClimb), [Stochastic](self::hill_climb::HillClimbVariant::Stochastic)
-//! * [HillClimb](self::hill_climb::HillClimb), [SteepAscent](self::hill_climb::HillClimbVariant::SteepestAscent)
+//! * [Evolve, Standard](self::evolve::Evolve)
+//! * [Permutate, Standard](self::permutate::Permutate)
+//! * [HillClimb, Stochastic](self::hill_climb::HillClimb)
+//! * [HillClimb, SteepestAscent](self::hill_climb::HillClimb)
 //!
 //! See strategies for details. Normally, you build a specific strategy and call directly from the
 //! specific builder. But there is an option for building the superset [StrategyBuilder] and calling
@@ -22,6 +22,9 @@
 //!   * fallback to `call()` once for Permutate, but force `with_par_fitness(true)`
 //!   * fallback to `call_par_repeatedly(usize)` for HillClimb
 //!
+//! *Note: Only Genotypes which implement all strategies are eligable for the superset builder.*
+//! *RangeGenotype and other floating point range based genotypes currently do not support Permutation*
+//!
 //! Example:
 //! ```
 //! use genetic_algorithm::strategy::prelude::*;
@@ -33,29 +36,38 @@
 //!     .build()
 //!     .unwrap();
 //!
-//! // the search strategy
-//! let strategy = StrategyBuilder::new()
-//!     .with_genotype(genotype)
+//! // the search strategy (superset), steps marked (E)volve, (H)illClimb and (P)ermutate
+//! let builder = StrategyBuilder::new()
+//!     .with_genotype(genotype)                                // (E,H,P) the genotype
+//!     .with_extension(ExtensionMassExtinction::new(10, 0.1))  // (E) optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
+//!     .with_select(SelectElite::new(0.9))                     // (E) sort the chromosomes by fitness to determine crossover order and select 90% of the population for crossover (drop 10% of population)
+//!     .with_crossover(CrossoverUniform::new())                // (E) crossover all individual genes between 2 chromosomes for offspring (and restore back to 100% of target population size by keeping the best parents alive)
+//!     .with_mutate(MutateSingleGene::new(0.2))                // (E) mutate offspring for a single gene with a 20% probability per chromosome
+//!     .with_fitness(CountTrue)                                // (E,H,P) count the number of true values in the chromosomes
+//!     .with_fitness_ordering(FitnessOrdering::Minimize)       // (E,H,P) aim for the least true values
+//!     .with_par_fitness(true)                                 // (E,H,P) optional, defaults to false, use parallel fitness calculation
+//!     .with_target_population_size(100)                       // (E) evolve with 100 chromosomes
+//!     .with_target_fitness_score(0)                           // (E,H) ending condition if 0 times true in the best chromosome
+//!     .with_valid_fitness_score(1)                            // (E,H) block ending conditions until at most a 1 times true in the best chromosome
+//!     .with_max_stale_generations(100)                        // (E,H) stop searching if there is no improvement in fitness score for 100 generations
+//!     .with_max_chromosome_age(10)                            // (E) kill chromosomes after 10 generations
+//!     .with_reporter(StrategyReporterSimple::new(usize::MAX)) // (E,H,P) optional builder step, report on new best chromsomes only
+//!     .with_replace_on_equal_fitness(true)                    // (E,H,P) optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
+//!     .with_rng_seed_from_u64(0);                             // (E,H) for testing with deterministic results
+//!
+//! // the search strategy (specified)
+//! let strategy = builder
 //!     .with_variant(StrategyVariant::Permutate(PermutateVariant::Standard))
-//!     // .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
+//!     // .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))build str
 //!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::Stochastic))
 //!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::SteepAscent))
-//!     .with_reporter(StrategyReporterSimple::new(usize::MAX))
-//!     .with_target_population_size(100)
-//!     .with_target_fitness_score(10)
-//!     .with_max_stale_generations(100)
-//!     .with_fitness(CountTrue)
-//!     .with_mutate(MutateSingleGene::new(0.1))
-//!     .with_crossover(CrossoverSingleGene::new())
-//!     .with_select(SelectTournament::new(4, 0.9))
-//!     .with_rng_seed_from_u64(0)
 //!     .call_speciated(3)
 //!     .unwrap();
 //!
 //! // it's all about the best genes after all
 //! let (best_genes, best_fitness_score) = strategy.best_genes_and_fitness_score().unwrap();
-//! assert_eq!(best_genes, vec![true; 10]);
-//! assert_eq!(best_fitness_score, 10);
+//! assert_eq!(best_genes, vec![false; 10]);
+//! assert_eq!(best_fitness_score, 0);
 //! ````
 pub mod builder;
 pub mod evolve;
