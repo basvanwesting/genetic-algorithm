@@ -4,6 +4,48 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.15.0] - 2024-09-17
+
+### Changed
+* Implement `StrategyReporter` trait 
+  * It was held off in previous releases, because of the generics in the API,
+    but it is needed for the superset `StrategyBuilder`
+  * Provide `StrategyReporterNoop`, `StrategyReporterDuration` and
+    `StrategyReporterSimple` reporters, usable by all strategies (but less
+    informative)
+  * Re-export `StrategyReporterNoop` as `EvolveReporterNoop,` `HillClimbReporterNoop`
+    and `PermutateReporterNoop`
+  * Re-export `StrategyReporterDuration` as `EvolveReporterDuration,`
+    `HillClimbReporterDuration` and `PermutateReporterDuration`
+  * Re-implement `EvolveReporterSimple,` `HillClimbReporterSimple,`
+    `PermutateReporterSimple` as strategy specialized versions
+* Implement `EvolveGenotype` for all genotypes (as it was implicit) and move
+  crossover functions over from `Genotype`
+* Rename `IncrementalGenotype` to `HillClimbGenotype`
+* Rename `PermutableGenotype` to `PermutateGenotype`
+* Move `Extension` step to follow after `Select` step, so the `fitness_score_cardinality`
+  of the selected population can be taken as a trigger
+* Move reporter event `on_new_generation` to after selection for `Evolve`, as it
+  is a more informative location in the loop
+
+### Added
+* Add `StrategyBuilder,` a superset builder which delays specialization to
+  `Evolve`, `HillClimb` or `Permutate`. Only usable by genotypes that implement
+  all strategies (i.e. not for `RangeGenotype` and friends)
+* Add `call()`, `call_repeatedly()`, `call_par_repeatedly()`, `call_speciated()` and
+  `call_par_speciated()` to `StrategyBuilder` (fallback to equivalent of not
+  available on specialized strategy)
+* Add `EvolveVariant` (Standard only) and `PermutateVariant` (Standard only) for
+  symmetry next to `HillClimbVariant`
+* Implement `mutation_type()` for all genotypes. Use it to trigger scaling logic
+  in `Evolve` and `HillClimb.`
+* Implement `MutationType::Random` in `fill_neighbouring_population()` for
+  `RangeGenotype`, `MultiRangeGenotype`, `DynamicMatrixGenotype` and `StaticMatrixGenotype`.
+  It is not advised to use in `HillClimb` context, but a panic is worse.
+
+### Dropped
+* Drop `EvolveReporterLog`, `HillClimbReporterLog` and `PermutateReporterLog`
+
 ## [0.14.0] - 2024-09-12
 
 ### Design choices and internal impact (API changes listed separately below)
@@ -45,7 +87,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   to an overal performance improvement, especially noticable for large genes
   sizes and low survival rates.
 
-### Changes (API)
+### Changed (API)
 * The `calculate_for_chromosome(...)` client implementation now gets a
   reference to `Genotype`, which can subsequently be ignored for standard use.
 * The `EvolveReporter`, `HillClimbReporter` and `PermutateReporter` traits now
