@@ -2,7 +2,8 @@ use super::Genotype;
 pub use crate::errors::TryFromGenotypeBuilderError as TryFromBuilderError;
 use std::ops::RangeInclusive;
 
-/// The builder for a Genotype struct
+/// The builder for a Genotype struct.
+/// See specfic [Genotype] for used options.
 ///
 /// Shared initialization options for all Genotypes:
 /// * Builder `with_seed_genes_list(Vec<Genotype::Genes>)`, optional, list of start genes of all chromosomes

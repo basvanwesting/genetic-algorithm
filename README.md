@@ -195,10 +195,8 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 ## TODO
 
 ## MAYBE
-
 * Distinction between poplation, offspring, parent cardinality (as offspring is always freshly mutated, generating cardinality, while the parents could all be equal)
-* Target cardinality range for Mutate Dynamic to avoid constant switching
-* Default max_stale_generations to 1 for SteepestAscent
+* Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)
 * Add scaling permutate? Can be done by grid search and then search within last grid with new scale
 * Add scaling helper function
 * Add simulated annealing strategy
@@ -210,7 +208,9 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 * Maybe use TinyVec for Population? (it us usually less than 1000 anyway),
   maybe useful paired with MatrixGenotype, where the chromosomes are lightweight
   (and Copyable)
-* Chunk parallel iters for less switching? with_min_length, but isn't there already automatic length splitting in rayon?
+* StrategyBuilder, with_par_fitness_threshold, with_permutate_threshold?
+* Add target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
+* Move logic out of random gene factory inside set_random_genes
 
 ## ISSUES
 * hill_climb SteepestAscent actually has a population size requirement of
