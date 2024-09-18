@@ -2,12 +2,14 @@ use crate::extension::ExtensionEvent;
 use crate::genotype::EvolveGenotype;
 use crate::mutate::MutateEvent;
 use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
+use std::io::Write;
 use std::marker::PhantomData;
 
 /// A Simple Evolve reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
 pub struct Simple<G: EvolveGenotype> {
+    pub buffer: Option<Vec<u8>>,
     pub period: usize,
     pub show_genes: bool,
     pub show_equal_fitness: bool,
@@ -20,6 +22,7 @@ pub struct Simple<G: EvolveGenotype> {
 impl<G: EvolveGenotype> Default for Simple<G> {
     fn default() -> Self {
         Self {
+            buffer: None,
             period: 1,
             show_genes: false,
             show_equal_fitness: false,
@@ -38,14 +41,23 @@ impl<G: EvolveGenotype> Simple<G> {
             ..Default::default()
         }
     }
+    pub fn new_with_buffer(period: usize) -> Self {
+        Self {
+            buffer: Some(Vec::new()),
+            period,
+            ..Default::default()
+        }
+    }
     pub fn new_with_flags(
         period: usize,
+        buffered: bool,
         show_genes: bool,
         show_equal_fitness: bool,
         show_mutate_event: bool,
         show_extension_event: bool,
     ) -> Self {
         Self {
+            buffer: if buffered { Some(Vec::new()) } else { None },
             period,
             show_genes,
             show_equal_fitness,
@@ -54,21 +66,39 @@ impl<G: EvolveGenotype> Simple<G> {
             ..Default::default()
         }
     }
+    fn write(&mut self, message: String) {
+        if let Some(buffer) = self.buffer.as_mut() {
+            buffer.write_all(message.as_bytes()).unwrap_or(());
+            writeln!(buffer).unwrap_or(());
+        } else {
+            println!("{}", message);
+        }
+    }
 }
 impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
     type Genotype = G;
 
+    fn flush(&mut self, output: &mut Vec<u8>) {
+        if let Some(buffer) = self.buffer.as_mut() {
+            output.append(buffer);
+        }
+    }
     fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
-        println!("init - iteration: {}", state.current_iteration());
-        genotype
-            .seed_genes_list()
-            .iter()
-            .for_each(|genes| println!("init - seed_genes: {:?}", genes));
+        let number_of_seed_genes = genotype.seed_genes_list().len();
+        if number_of_seed_genes > 0 {
+            self.write(format!(
+                "init - iteration: {}, number of seed genes: {}",
+                state.current_iteration(),
+                number_of_seed_genes
+            ));
+        } else {
+            self.write(format!("init - iteration: {}", state.current_iteration()));
+        }
     }
     fn on_start<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
@@ -76,7 +106,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        println!("start - iteration: {}", state.current_iteration());
+        self.write(format!("start - iteration: {}", state.current_iteration()));
     }
 
     fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -85,13 +115,13 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        println!("finish - iteration: {}", state.current_iteration());
+        self.write(format!("finish - iteration: {}", state.current_iteration()));
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations().get(action) {
-                println!("  {:?}: {:?}", action, duration,);
+                self.write(format!("  {:?}: {:?}", action, duration,));
             }
         });
-        println!("  Total: {:?}", &state.total_duration());
+        self.write(format!("  Total: {:?}", &state.total_duration()));
     }
 
     /// Is triggered after selection
@@ -102,7 +132,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
-            println!(
+            self.write(format!(
                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, fitness_score_cardinality: {}, selected_population_size: {}, #extension_events: {}",
                 state.current_generation(),
                 state.stale_generations(),
@@ -111,7 +141,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
                 state.population_as_ref().fitness_score_cardinality(),
                 state.population_as_ref().size(),
                 self.number_of_extension_events,
-            );
+            ));
             self.number_of_mutate_events = 0;
             self.number_of_extension_events = 0;
         }
@@ -123,7 +153,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        println!(
+        self.write(format!(
             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
@@ -133,7 +163,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
             } else {
                 None
             },
-        );
+        ));
     }
 
     fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -143,7 +173,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if self.show_equal_fitness {
-            println!(
+            self.write(format!(
                 "equal best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
                 state.current_generation(),
                 state.best_fitness_score(),
@@ -153,7 +183,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
                 } else {
                     None
                 },
-            );
+            ));
         }
     }
 
@@ -167,27 +197,21 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         self.number_of_extension_events += 1;
         if self.show_extension_event {
             match event {
-                ExtensionEvent::MassDegeneration(message) => {
-                    println!(
-                        "extension event - mass degeneration - generation {} - {}",
-                        state.current_generation(),
-                        message
-                    )
-                }
-                ExtensionEvent::MassExtinction(message) => {
-                    println!(
-                        "extension event - mass extinction - generation {} - {}",
-                        state.current_generation(),
-                        message
-                    )
-                }
-                ExtensionEvent::MassGenesis(message) => {
-                    println!(
-                        "extension event - mass genesis - generation {} - {}",
-                        state.current_generation(),
-                        message
-                    )
-                }
+                ExtensionEvent::MassDegeneration(message) => self.write(format!(
+                    "extension event - mass degeneration - generation {} - {}",
+                    state.current_generation(),
+                    message
+                )),
+                ExtensionEvent::MassExtinction(message) => self.write(format!(
+                    "extension event - mass extinction - generation {} - {}",
+                    state.current_generation(),
+                    message
+                )),
+                ExtensionEvent::MassGenesis(message) => self.write(format!(
+                    "extension event - mass genesis - generation {} - {}",
+                    state.current_generation(),
+                    message
+                )),
             }
         }
     }
@@ -202,13 +226,11 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         self.number_of_mutate_events += 1;
         if self.show_mutate_event {
             match event {
-                MutateEvent::ChangeMutationProbability(message) => {
-                    println!(
-                        "mutate event - change mutation probability - generation {} - {}",
-                        state.current_generation(),
-                        message
-                    )
-                }
+                MutateEvent::ChangeMutationProbability(message) => self.write(format!(
+                    "mutate event - change mutation probability - generation {} - {}",
+                    state.current_generation(),
+                    message
+                )),
             }
         }
     }

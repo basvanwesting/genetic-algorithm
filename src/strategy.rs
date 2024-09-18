@@ -93,7 +93,6 @@ pub use self::builder::{
     Builder as StrategyBuilder, TryFromBuilderError as TryFromStrategyBuilderError,
 };
 
-pub use self::reporter::Buffer as StrategyReporterBuffer;
 pub use self::reporter::Duration as StrategyReporterDuration;
 pub use self::reporter::Noop as StrategyReporterNoop;
 pub use self::reporter::Simple as StrategyReporterSimple;

@@ -3,12 +3,14 @@ use crate::genotype::HillClimbGenotype;
 use crate::strategy::{
     StrategyConfig, StrategyReporter, StrategyState, StrategyVariant, STRATEGY_ACTIONS,
 };
+use std::io::Write;
 use std::marker::PhantomData;
 
 /// A Simple HillClimb reporter generic over Genotype.
 /// A report is triggered every period generations
 #[derive(Clone)]
 pub struct Simple<G: HillClimbGenotype> {
+    pub buffer: Option<Vec<u8>>,
     pub period: usize,
     pub show_genes: bool,
     pub show_equal_fitness: bool,
@@ -17,6 +19,7 @@ pub struct Simple<G: HillClimbGenotype> {
 impl<G: HillClimbGenotype> Default for Simple<G> {
     fn default() -> Self {
         Self {
+            buffer: None,
             period: 1,
             show_genes: false,
             show_equal_fitness: false,
@@ -31,12 +34,33 @@ impl<G: HillClimbGenotype> Simple<G> {
             ..Default::default()
         }
     }
-    pub fn new_with_flags(period: usize, show_genes: bool, show_equal_fitness: bool) -> Self {
+    pub fn new_with_buffer(period: usize) -> Self {
         Self {
+            buffer: Some(Vec::new()),
+            period,
+            ..Default::default()
+        }
+    }
+    pub fn new_with_flags(
+        period: usize,
+        buffered: bool,
+        show_genes: bool,
+        show_equal_fitness: bool,
+    ) -> Self {
+        Self {
+            buffer: if buffered { Some(Vec::new()) } else { None },
             period,
             show_genes,
             show_equal_fitness,
             ..Default::default()
+        }
+    }
+    fn write(&mut self, message: String) {
+        if let Some(buffer) = self.buffer.as_mut() {
+            buffer.write_all(message.as_bytes()).unwrap_or(());
+            writeln!(buffer).unwrap_or(());
+        } else {
+            println!("{}", message);
         }
     }
 }
@@ -49,20 +73,22 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         state: &S,
         config: &C,
     ) {
-        match config.variant() {
-            StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent) => {
-                println!(
-                    "init - iteration: {}, neighbouring_population_size: {}",
-                    state.current_iteration(),
-                    genotype.neighbouring_population_size(),
-                )
-            }
-            _ => println!("init - iteration: {}", state.current_iteration()),
+        let number_of_seed_genes = genotype.seed_genes_list().len();
+        if number_of_seed_genes > 0 {
+            self.write(format!(
+                "init - iteration: {}, number of seed genes: {}",
+                state.current_iteration(),
+                number_of_seed_genes
+            ));
+        } else {
+            self.write(format!("init - iteration: {}", state.current_iteration()));
         }
-        genotype
-            .seed_genes_list()
-            .iter()
-            .for_each(|genes| println!("init - seed_genes: {:?}", genes));
+        if let StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent) = config.variant() {
+            self.write(format!(
+                "init - neighbouring_population_size: {}",
+                genotype.neighbouring_population_size(),
+            ))
+        }
     }
     fn on_start<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
@@ -70,7 +96,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        println!("start - iteration: {}", state.current_iteration());
+        self.write(format!("start - iteration: {}", state.current_iteration()));
     }
 
     fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -79,13 +105,13 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        println!("finish - iteration: {}", state.current_iteration());
+        self.write(format!("finish - iteration: {}", state.current_iteration()));
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations().get(action) {
-                println!("  {:?}: {:?}", action, duration,);
+                self.write(format!("  {:?}: {:?}", action, duration,));
             }
         });
-        println!("  Total: {:?}", &state.total_duration());
+        self.write(format!("  Total: {:?}", &state.total_duration()));
     }
 
     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -95,13 +121,13 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
-            println!(
+            self.write(format!(
                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
                 state.current_scale_index(),
-            );
+            ));
         }
     }
 
@@ -111,7 +137,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        println!(
+        self.write(format!(
             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
@@ -121,7 +147,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
             } else {
                 None
             },
-        );
+        ));
     }
 
     fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -131,7 +157,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if self.show_equal_fitness {
-            println!(
+            self.write(format!(
                 "equal best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
                 state.current_generation(),
                 state.best_fitness_score(),
@@ -141,7 +167,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
                 } else {
                     None
                 },
-            );
+            ));
         }
     }
 }

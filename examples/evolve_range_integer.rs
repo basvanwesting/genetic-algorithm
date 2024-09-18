@@ -34,7 +34,7 @@ fn main() {
 
     println!("{}", genotype);
 
-    let evolve = Evolve::builder()
+    let mut evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(POPULATION_SIZE)
         .with_max_stale_generations(100)
@@ -45,9 +45,13 @@ fn main() {
         .with_mutate(MutateMultiGene::new(2, 0.2))
         .with_crossover(CrossoverMultiPoint::new(9, false))
         .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(EvolveReporterSimple::new(100))
+        .with_reporter(EvolveReporterSimple::new_with_buffer(100))
         .call()
         .unwrap();
 
     println!("{}", evolve);
+
+    let mut buffer = vec![];
+    evolve.flush_reporter(&mut buffer);
+    print!("{}", String::from_utf8(buffer).unwrap());
 }
