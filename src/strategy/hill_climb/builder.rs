@@ -145,6 +145,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     }
 }
 
+#[allow(clippy::type_complexity)]
 impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Builder<G, F, SR>
 {
