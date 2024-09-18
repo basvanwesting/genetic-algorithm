@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.16.0] - 2024-09-18
+
+### Changed
+* Add a buffered option to all Reporters (through `new_with_buffer()`)
+  * When the buffer is off (default), the reporter will print to stdout
+  * When the buffer is on, the reporter will print to the internal buffer,
+    which can be read out through `flush_reporter()` on the strategy later
+* Change `call_repeatedly()`, `call_par_repeatedly()`, `call_speciated()` and
+  `call_par_speciated()` to return a tuple `(best_run, other_runs)`. This way the
+  reporter buffers of the other runs can be read out as well afterwards
+
+### Dropped
+* Drop `StrategyReporterBuffer`, as all reporters now have a buffered option
+
 ## [0.15.1] - 2024-09-17
 
 ### Added
