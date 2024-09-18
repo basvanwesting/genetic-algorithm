@@ -1,5 +1,6 @@
 use super::Evolve;
 use crate::crossover::Crossover;
+pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::EvolveGenotype;
@@ -10,8 +11,6 @@ use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::*;
 use std::sync::mpsc::channel;
-pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
-
 
 /// The builder for an Evolve struct.
 #[derive(Clone, Debug)]
@@ -249,54 +248,45 @@ impl<
     pub fn call_repeatedly(
         self,
         max_repeats: usize,
-    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
-        let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
-        for iteration in 0..max_repeats {
-            let mut contending_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
-            contending_run.state.current_iteration = iteration;
-            contending_run.call();
-            if contending_run.is_finished_by_target_fitness_score() {
-                best_evolve = Some(contending_run);
-                break;
-            }
-            if let Some(best_run) = best_evolve.as_ref() {
-                match (
-                    best_run.best_fitness_score(),
-                    contending_run.best_fitness_score(),
-                ) {
-                    (None, None) => {}
-                    (Some(_), None) => {}
-                    (None, Some(_)) => {
-                        best_evolve = Some(contending_run);
-                    }
-                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match contending_run.config.fitness_ordering {
-                            FitnessOrdering::Maximize => {
-                                if contending_fitness_score >= current_fitness_score {
-                                    best_evolve = Some(contending_run);
-                                }
-                            }
-                            FitnessOrdering::Minimize => {
-                                if contending_fitness_score <= current_fitness_score {
-                                    best_evolve = Some(contending_run);
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                best_evolve = Some(contending_run);
-            }
-        }
-        Ok(best_evolve.unwrap())
+    ) -> Result<
+        (
+            Evolve<G, M, F, S, C, E, SR>,
+            Vec<Evolve<G, M, F, S, C, E, SR>>,
+        ),
+        TryFromBuilderError,
+    > {
+        let mut runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
+        (0..max_repeats)
+            .filter_map(|iteration| {
+                let mut contending_run: Evolve<G, M, F, S, C, E, SR> =
+                    self.clone().try_into().ok()?;
+                contending_run.state.current_iteration = iteration;
+                Some(contending_run)
+            })
+            .map(|mut contending_run| {
+                contending_run.call();
+                let stop = contending_run.is_finished_by_target_fitness_score();
+                runs.push(contending_run);
+                stop
+            })
+            .any(|x| x);
+
+        let best_run = self.extract_best_run(&mut runs);
+        Ok((best_run, runs))
     }
 
     pub fn call_par_repeatedly(
         self,
         max_repeats: usize,
-    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+    ) -> Result<
+        (
+            Evolve<G, M, F, S, C, E, SR>,
+            Vec<Evolve<G, M, F, S, C, E, SR>>,
+        ),
+        TryFromBuilderError,
+    > {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
-        let mut best_evolve: Option<Evolve<G, M, F, S, C, E, SR>> = None;
+        let mut runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
         rayon::scope(|s| {
             let builder = &self;
             let (sender, receiver) = channel();
@@ -312,55 +302,33 @@ impl<
                     .par_bridge()
                     .map_with(sender, |sender, mut contending_run| {
                         contending_run.call();
-                        let finished_by_target_fitness_score =
-                            contending_run.is_finished_by_target_fitness_score();
+                        let stop = contending_run.is_finished_by_target_fitness_score();
                         sender.send(contending_run).unwrap();
-                        finished_by_target_fitness_score
+                        stop
                     })
                     .any(|x| x);
             });
-
             receiver.iter().for_each(|contending_run| {
-                if let Some(best_run) = best_evolve.as_ref() {
-                    match (
-                        best_run.best_fitness_score(),
-                        contending_run.best_fitness_score(),
-                    ) {
-                        (None, None) => {}
-                        (Some(_), None) => {}
-                        (None, Some(_)) => {
-                            best_evolve = Some(contending_run);
-                        }
-                        (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                            match contending_run.config.fitness_ordering {
-                                FitnessOrdering::Maximize => {
-                                    if contending_fitness_score >= current_fitness_score {
-                                        best_evolve = Some(contending_run);
-                                    }
-                                }
-                                FitnessOrdering::Minimize => {
-                                    if contending_fitness_score <= current_fitness_score {
-                                        best_evolve = Some(contending_run);
-                                    }
-                                }
-                            }
-                        }
-                    }
-                } else {
-                    best_evolve = Some(contending_run);
-                }
+                runs.push(contending_run);
             });
         });
-        Ok(best_evolve.unwrap())
+        let best_run = self.extract_best_run(&mut runs);
+        Ok((best_run, runs))
     }
 
     pub fn call_speciated(
         self,
         number_of_species: usize,
-    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+    ) -> Result<
+        (
+            Evolve<G, M, F, S, C, E, SR>,
+            Vec<Evolve<G, M, F, S, C, E, SR>>,
+        ),
+        TryFromBuilderError,
+    > {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut species_runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
-        let finished_by_target_fitness_score = (0..number_of_species)
+        (0..number_of_species)
             .filter_map(|iteration| {
                 let mut species_run: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into().ok()?;
                 species_run.state.current_iteration = iteration;
@@ -368,18 +336,17 @@ impl<
             })
             .map(|mut species_run| {
                 species_run.call();
-                let finished_by_target_fitness_score =
-                    species_run.is_finished_by_target_fitness_score();
+                let stop = species_run.is_finished_by_target_fitness_score();
                 species_runs.push(species_run);
-                finished_by_target_fitness_score
+                stop
             })
             .any(|x| x);
 
-        let final_run = if finished_by_target_fitness_score {
-            species_runs
-                .into_iter()
-                .find(|species_run| species_run.is_finished_by_target_fitness_score())
-                .unwrap()
+        let final_run = if let Some(index_finished_by_target_fitness_score) = species_runs
+            .iter()
+            .position(|species_run| species_run.is_finished_by_target_fitness_score())
+        {
+            species_runs.remove(index_finished_by_target_fitness_score)
         } else {
             let seed_genes_list = species_runs
                 .iter()
@@ -393,13 +360,19 @@ impl<
             final_run.call();
             final_run
         };
-        Ok(final_run)
+        Ok((final_run, species_runs))
     }
 
     pub fn call_par_speciated(
         self,
         number_of_species: usize,
-    ) -> Result<Evolve<G, M, F, S, C, E, SR>, TryFromBuilderError> {
+    ) -> Result<
+        (
+            Evolve<G, M, F, S, C, E, SR>,
+            Vec<Evolve<G, M, F, S, C, E, SR>>,
+        ),
+        TryFromBuilderError,
+    > {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut species_runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
         rayon::scope(|s| {
@@ -417,10 +390,9 @@ impl<
                     .par_bridge()
                     .map_with(sender, |sender, mut species_run| {
                         species_run.call();
-                        let finished_by_target_fitness_score =
-                            species_run.is_finished_by_target_fitness_score();
+                        let stop = species_run.is_finished_by_target_fitness_score();
                         sender.send(species_run).unwrap();
-                        finished_by_target_fitness_score
+                        stop
                     })
                     .any(|x| x);
             });
@@ -430,15 +402,11 @@ impl<
             });
         });
 
-        let finished_by_target_fitness_score = species_runs
+        let final_run = if let Some(index_finished_by_target_fitness_score) = species_runs
             .iter()
-            .any(|species_run| species_run.is_finished_by_target_fitness_score());
-
-        let final_run = if finished_by_target_fitness_score {
-            species_runs
-                .into_iter()
-                .find(|species_run| species_run.is_finished_by_target_fitness_score())
-                .unwrap()
+            .position(|species_run| species_run.is_finished_by_target_fitness_score())
+        {
+            species_runs.remove(index_finished_by_target_fitness_score)
         } else {
             let seed_genes_list = species_runs
                 .iter()
@@ -452,6 +420,42 @@ impl<
             final_run.call();
             final_run
         };
-        Ok(final_run)
+        Ok((final_run, species_runs))
+    }
+
+    pub fn extract_best_run(
+        &self,
+        runs: &mut Vec<Evolve<G, M, F, S, C, E, SR>>,
+    ) -> Evolve<G, M, F, S, C, E, SR> {
+        let mut best_index = 0;
+        let mut best_fitness_score: Option<FitnessValue> = None;
+        runs.iter().enumerate().for_each(|(index, contending_run)| {
+            let contending_fitness_score = contending_run.best_fitness_score();
+            match (best_fitness_score, contending_fitness_score) {
+                (None, None) => {}
+                (Some(_), None) => {}
+                (None, Some(_)) => {
+                    best_index = index;
+                    best_fitness_score = contending_fitness_score;
+                }
+                (Some(current_fitness_value), Some(contending_fitness_value)) => {
+                    match self.fitness_ordering {
+                        FitnessOrdering::Maximize => {
+                            if contending_fitness_value >= current_fitness_value {
+                                best_index = index;
+                                best_fitness_score = contending_fitness_score;
+                            }
+                        }
+                        FitnessOrdering::Minimize => {
+                            if contending_fitness_value <= current_fitness_value {
+                                best_index = index;
+                                best_fitness_score = contending_fitness_score;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+        runs.remove(best_index)
     }
 }

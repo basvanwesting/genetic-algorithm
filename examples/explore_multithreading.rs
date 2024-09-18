@@ -136,7 +136,7 @@ fn call_evolve_repeatedly() {
         .with_par_fitness(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
-    let evolve = if EXTERNAL_MULTITHREAD {
+    let (evolve, _) = if EXTERNAL_MULTITHREAD {
         evolve_builder.call_par_repeatedly(20).unwrap()
     } else {
         evolve_builder.call_repeatedly(3).unwrap()
@@ -173,7 +173,7 @@ fn call_evolve_speciated() {
         .with_par_fitness(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
-    let evolve = if EXTERNAL_MULTITHREAD {
+    let (evolve, _) = if EXTERNAL_MULTITHREAD {
         evolve_builder.call_par_speciated(20).unwrap()
     } else {
         evolve_builder.call_speciated(3).unwrap()
@@ -209,7 +209,7 @@ fn call_hill_climb_repeatedly() {
         .with_par_fitness(INTERNAL_MULTITHREAD);
 
     let now = std::time::Instant::now();
-    let hill_climb = if EXTERNAL_MULTITHREAD {
+    let (hill_climb, _) = if EXTERNAL_MULTITHREAD {
         hill_climb_builder.call_par_repeatedly(20).unwrap()
     } else {
         hill_climb_builder.call_repeatedly(3).unwrap()

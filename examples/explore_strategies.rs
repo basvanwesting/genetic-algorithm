@@ -42,14 +42,32 @@ fn main() {
 
     strategies.iter().copied().for_each(|variant| {
         println!("call_repeatedly(3): {:?}", variant);
-        let strategy = builder
+        let (mut strategy, mut others) = builder
             .clone()
             .with_variant(variant)
             .call_repeatedly(3)
             .unwrap();
 
+        let other_fitness_scores = others
+            .iter()
+            .map(|s| s.best_fitness_score())
+            .collect::<Vec<_>>();
+
+        let mut buffer = Vec::<u8>::new();
+        strategy.flush_reporter(&mut buffer);
+        others
+            .iter_mut()
+            .for_each(|s| s.flush_reporter(&mut buffer));
+        println!(
+            "  all reporter buffers: {}",
+            String::from_utf8(buffer).unwrap_or_default()
+        );
+
         if let Some(fitness_score) = strategy.best_fitness_score() {
-            println!("  fitness score: {}", fitness_score);
+            println!(
+                "  best fitness score: {}, others: {:?}",
+                fitness_score, other_fitness_scores
+            );
         } else {
             println!("  invalid solution with fitness score: None");
         }
@@ -57,14 +75,32 @@ fn main() {
 
     strategies.iter().copied().for_each(|variant| {
         println!("call_par_speciated(3): {:?}", variant);
-        let strategy = builder
+        let (mut strategy, mut others) = builder
             .clone()
             .with_variant(variant)
             .call_par_speciated(3)
             .unwrap();
 
+        let other_fitness_scores = others
+            .iter()
+            .map(|s| s.best_fitness_score())
+            .collect::<Vec<_>>();
+
+        let mut buffer = Vec::<u8>::new();
+        strategy.flush_reporter(&mut buffer);
+        others
+            .iter_mut()
+            .for_each(|s| s.flush_reporter(&mut buffer));
+        println!(
+            "  all reporter buffers: {}",
+            String::from_utf8(buffer).unwrap_or_default()
+        );
+
         if let Some(fitness_score) = strategy.best_fitness_score() {
-            println!("  fitness score: {}", fitness_score);
+            println!(
+                "  best fitness score: {}, others: {:?}",
+                fitness_score, other_fitness_scores
+            );
         } else {
             println!("  invalid solution with fitness score: None");
         }
@@ -76,6 +112,9 @@ pub struct IterationReporter;
 impl StrategyReporter for IterationReporter {
     type Genotype = BinaryGenotype;
 
+    fn flush(&mut self, output: &mut Vec<u8>) {
+        output.push(b'.')
+    }
     fn on_start<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,

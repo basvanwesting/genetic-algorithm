@@ -56,7 +56,7 @@
 //!     .with_rng_seed_from_u64(0);                             // (E,H) for testing with deterministic results
 //!
 //! // the search strategy (specified)
-//! let strategy = builder
+//! let (strategy, _) = builder
 //!     .with_variant(StrategyVariant::Permutate(PermutateVariant::Standard))
 //!     // .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))build str
 //!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::Stochastic))

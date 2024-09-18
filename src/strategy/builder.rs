@@ -327,95 +327,140 @@ impl<
         Ok(strategy)
     }
 
+    /// Permutate: call (once)
     /// Evolve: call_repeatedly
     /// HillClimb: call_repeatedly
-    /// Permutate: call (once)
     pub fn call_repeatedly(
         self,
         max_repeats: usize,
-    ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
+    ) -> Result<(Box<dyn Strategy<G> + 'a>, Vec<Box<dyn Strategy<G> + 'a>>), TryFromBuilderError>
+    {
         match self.variant {
             Some(StrategyVariant::Permutate(_)) => {
-                Ok(Box::new(self.to_permutate_builder().call()?))
+                let run = self.to_permutate_builder().call()?;
+                Ok((Box::new(run), vec![]))
             }
-            Some(StrategyVariant::Evolve(_)) => Ok(Box::new(
-                self.to_evolve_builder().call_repeatedly(max_repeats)?,
-            )),
-            Some(StrategyVariant::HillClimb(hill_climb_variant)) => Ok(Box::new(
-                self.to_hill_climb_builder()
+            Some(StrategyVariant::Evolve(_)) => {
+                let (run, runs) = self.to_evolve_builder().call_repeatedly(max_repeats)?;
+                Ok((
+                    Box::new(run),
+                    runs.into_iter().map(|r| Box::new(r) as _).collect(),
+                ))
+            }
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
+                let (run, runs) = self
+                    .to_hill_climb_builder()
                     .with_variant(hill_climb_variant)
-                    .call_repeatedly(max_repeats)?,
-            )),
+                    .call_repeatedly(max_repeats)?;
+                Ok((
+                    Box::new(run),
+                    runs.into_iter().map(|r| Box::new(r) as _).collect(),
+                ))
+            }
             None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }
 
+    /// Permutate: call (force with_par_fitness)
     /// Evolve: call_par_repeatedly
     /// HillClimb: call_par_repeatedly
-    /// Permutate: call (force with_par_fitness)
     pub fn call_par_repeatedly(
         self,
         max_repeats: usize,
-    ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
+    ) -> Result<(Box<dyn Strategy<G> + 'a>, Vec<Box<dyn Strategy<G> + 'a>>), TryFromBuilderError>
+    {
         match self.variant {
-            Some(StrategyVariant::Permutate(_)) => Ok(Box::new(
-                self.to_permutate_builder().with_par_fitness(true).call()?,
-            )),
-            Some(StrategyVariant::Evolve(_)) => Ok(Box::new(
-                self.to_evolve_builder().call_par_repeatedly(max_repeats)?,
-            )),
-            Some(StrategyVariant::HillClimb(hill_climb_variant)) => Ok(Box::new(
-                self.to_hill_climb_builder()
+            Some(StrategyVariant::Permutate(_)) => {
+                let run = self.to_permutate_builder().with_par_fitness(true).call()?;
+                Ok((Box::new(run), vec![]))
+            }
+            Some(StrategyVariant::Evolve(_)) => {
+                let (run, runs) = self.to_evolve_builder().call_par_repeatedly(max_repeats)?;
+                Ok((
+                    Box::new(run),
+                    runs.into_iter().map(|r| Box::new(r) as _).collect(),
+                ))
+            }
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
+                let (run, runs) = self
+                    .to_hill_climb_builder()
                     .with_variant(hill_climb_variant)
-                    .call_par_repeatedly(max_repeats)?,
-            )),
+                    .call_par_repeatedly(max_repeats)?;
+                Ok((
+                    Box::new(run),
+                    runs.into_iter().map(|r| Box::new(r) as _).collect(),
+                ))
+            }
             None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }
 
+    /// Permutate: call (once)
     /// Evolve: call_speciated
     /// HillClimb: call_repeatedly
-    /// Permutate: call (once)
     pub fn call_speciated(
         self,
         number_of_species: usize,
-    ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
+    ) -> Result<(Box<dyn Strategy<G> + 'a>, Vec<Box<dyn Strategy<G> + 'a>>), TryFromBuilderError>
+    {
         match self.variant {
             Some(StrategyVariant::Permutate(_)) => {
-                Ok(Box::new(self.to_permutate_builder().call()?))
+                let run = self.to_permutate_builder().call()?;
+                Ok((Box::new(run), vec![]))
             }
-            Some(StrategyVariant::Evolve(_)) => Ok(Box::new(
-                self.to_evolve_builder().call_speciated(number_of_species)?,
-            )),
-            Some(StrategyVariant::HillClimb(hill_climb_variant)) => Ok(Box::new(
-                self.to_hill_climb_builder()
+            Some(StrategyVariant::Evolve(_)) => {
+                let (run, runs) = self.to_evolve_builder().call_speciated(number_of_species)?;
+                Ok((
+                    Box::new(run),
+                    runs.into_iter().map(|r| Box::new(r) as _).collect(),
+                ))
+            }
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
+                let (run, runs) = self
+                    .to_hill_climb_builder()
                     .with_variant(hill_climb_variant)
-                    .call_repeatedly(number_of_species)?,
-            )),
+                    .call_repeatedly(number_of_species)?;
+                Ok((
+                    Box::new(run),
+                    runs.into_iter().map(|r| Box::new(r) as _).collect(),
+                ))
+            }
             None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }
 
+    /// Permutate: call (force with_par_fitness)
     /// Evolve: call_par_speciated
     /// HillClimb: call_par_repeatedly
-    /// Permutate: call (force with_par_fitness)
     pub fn call_par_speciated(
         self,
         number_of_species: usize,
-    ) -> Result<Box<dyn Strategy<G> + 'a>, TryFromBuilderError> {
+    ) -> Result<(Box<dyn Strategy<G> + 'a>, Vec<Box<dyn Strategy<G> + 'a>>), TryFromBuilderError>
+    {
         match self.variant {
-            Some(StrategyVariant::Permutate(_)) => Ok(Box::new(
-                self.to_permutate_builder().with_par_fitness(true).call()?,
-            )),
-            Some(StrategyVariant::Evolve(_)) => Ok(Box::new(
-                self.to_evolve_builder()
-                    .call_par_speciated(number_of_species)?,
-            )),
-            Some(StrategyVariant::HillClimb(hill_climb_variant)) => Ok(Box::new(
-                self.to_hill_climb_builder()
+            Some(StrategyVariant::Permutate(_)) => {
+                let run = self.to_permutate_builder().with_par_fitness(true).call()?;
+                Ok((Box::new(run), vec![]))
+            }
+            Some(StrategyVariant::Evolve(_)) => {
+                let (run, runs) = self
+                    .to_evolve_builder()
+                    .call_par_speciated(number_of_species)?;
+                Ok((
+                    Box::new(run),
+                    runs.into_iter().map(|r| Box::new(r) as _).collect(),
+                ))
+            }
+            Some(StrategyVariant::HillClimb(hill_climb_variant)) => {
+                let (run, runs) = self
+                    .to_hill_climb_builder()
                     .with_variant(hill_climb_variant)
-                    .call_par_repeatedly(number_of_species)?,
-            )),
+                    .call_par_repeatedly(number_of_species)?;
+                Ok((
+                    Box::new(run),
+                    runs.into_iter().map(|r| Box::new(r) as _).collect(),
+                ))
+            }
             None => Err(TryFromBuilderError("StrategyVariant is required")),
         }
     }

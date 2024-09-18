@@ -36,7 +36,7 @@ fn call_speciated_evolve() {
         .build()
         .unwrap();
 
-    let mut strategy = StrategyBuilder::new()
+    let (mut strategy, _) = StrategyBuilder::new()
         .with_genotype(genotype)
         .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
         .with_reporter(StrategyReporterSimple::new_with_buffer(100))
@@ -115,7 +115,7 @@ fn call_repeatedly_hill_climb_steepest_ascent() {
         .build()
         .unwrap();
 
-    let mut strategy = StrategyBuilder::new()
+    let (mut strategy, _) = StrategyBuilder::new()
         .with_genotype(genotype)
         .with_variant(StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent))
         .with_reporter(StrategyReporterSimple::new_with_buffer(100))

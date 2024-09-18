@@ -70,7 +70,7 @@ fn main() {
 
     for _ in 0..10 {
         let now = std::time::Instant::now();
-        let hill_climb = hill_climb_builder.clone().call_repeatedly(1000).unwrap();
+        let (hill_climb, _) = hill_climb_builder.clone().call_repeatedly(1000).unwrap();
         let duration = now.elapsed();
 
         if let Some((best_genes, fitness_score)) = hill_climb.best_genes_and_fitness_score() {

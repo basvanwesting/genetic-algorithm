@@ -165,54 +165,32 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     pub fn call_repeatedly(
         self,
         max_repeats: usize,
-    ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
-        let mut best_hill_climb: Option<HillClimb<G, F, SR>> = None;
-        for iteration in 0..max_repeats {
-            let mut contending_run: HillClimb<G, F, SR> = self.clone().try_into()?;
-            contending_run.state.current_iteration = iteration;
-            contending_run.call();
-            if contending_run.is_finished_by_target_fitness_score() {
-                best_hill_climb = Some(contending_run);
-                break;
-            }
-            if let Some(best_run) = best_hill_climb.as_ref() {
-                match (
-                    best_run.best_fitness_score(),
-                    contending_run.best_fitness_score(),
-                ) {
-                    (None, None) => {}
-                    (Some(_), None) => {}
-                    (None, Some(_)) => {
-                        best_hill_climb = Some(contending_run);
-                    }
-                    (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                        match contending_run.config.fitness_ordering {
-                            FitnessOrdering::Maximize => {
-                                if contending_fitness_score >= current_fitness_score {
-                                    best_hill_climb = Some(contending_run);
-                                }
-                            }
-                            FitnessOrdering::Minimize => {
-                                if contending_fitness_score <= current_fitness_score {
-                                    best_hill_climb = Some(contending_run);
-                                }
-                            }
-                        }
-                    }
-                }
-            } else {
-                best_hill_climb = Some(contending_run);
-            }
-        }
-        Ok(best_hill_climb.unwrap())
+    ) -> Result<(HillClimb<G, F, SR>, Vec<HillClimb<G, F, SR>>), TryFromBuilderError> {
+        let mut runs: Vec<HillClimb<G, F, SR>> = vec![];
+        (0..max_repeats)
+            .filter_map(|iteration| {
+                let mut contending_run: HillClimb<G, F, SR> = self.clone().try_into().ok()?;
+                contending_run.state.current_iteration = iteration;
+                Some(contending_run)
+            })
+            .map(|mut contending_run| {
+                contending_run.call();
+                let stop = contending_run.is_finished_by_target_fitness_score();
+                runs.push(contending_run);
+                stop
+            })
+            .any(|x| x);
+
+        let best_run = self.extract_best_run(&mut runs);
+        Ok((best_run, runs))
     }
 
     pub fn call_par_repeatedly(
         self,
         max_repeats: usize,
-    ) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
+    ) -> Result<(HillClimb<G, F, SR>, Vec<HillClimb<G, F, SR>>), TryFromBuilderError> {
         let _valid_builder: HillClimb<G, F, SR> = self.clone().try_into()?;
-        let mut best_hill_climb: Option<HillClimb<G, F, SR>> = None;
+        let mut runs: Vec<HillClimb<G, F, SR>> = vec![];
         rayon::scope(|s| {
             let builder = &self;
             let (sender, receiver) = channel();
@@ -236,36 +214,43 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             });
 
             receiver.iter().for_each(|contending_run| {
-                if let Some(best_run) = best_hill_climb.as_ref() {
-                    match (
-                        best_run.best_fitness_score(),
-                        contending_run.best_fitness_score(),
-                    ) {
-                        (None, None) => {}
-                        (Some(_), None) => {}
-                        (None, Some(_)) => {
-                            best_hill_climb = Some(contending_run);
+                runs.push(contending_run);
+            });
+        });
+        let best_run = self.extract_best_run(&mut runs);
+        Ok((best_run, runs))
+    }
+
+    pub fn extract_best_run(&self, runs: &mut Vec<HillClimb<G, F, SR>>) -> HillClimb<G, F, SR> {
+        let mut best_index = 0;
+        let mut best_fitness_score: Option<FitnessValue> = None;
+        runs.iter().enumerate().for_each(|(index, contending_run)| {
+            let contending_fitness_score = contending_run.best_fitness_score();
+            match (best_fitness_score, contending_fitness_score) {
+                (None, None) => {}
+                (Some(_), None) => {}
+                (None, Some(_)) => {
+                    best_index = index;
+                    best_fitness_score = contending_fitness_score;
+                }
+                (Some(current_fitness_value), Some(contending_fitness_value)) => {
+                    match self.fitness_ordering {
+                        FitnessOrdering::Maximize => {
+                            if contending_fitness_value >= current_fitness_value {
+                                best_index = index;
+                                best_fitness_score = contending_fitness_score;
+                            }
                         }
-                        (Some(current_fitness_score), Some(contending_fitness_score)) => {
-                            match contending_run.config.fitness_ordering {
-                                FitnessOrdering::Maximize => {
-                                    if contending_fitness_score >= current_fitness_score {
-                                        best_hill_climb = Some(contending_run);
-                                    }
-                                }
-                                FitnessOrdering::Minimize => {
-                                    if contending_fitness_score <= current_fitness_score {
-                                        best_hill_climb = Some(contending_run);
-                                    }
-                                }
+                        FitnessOrdering::Minimize => {
+                            if contending_fitness_value <= current_fitness_value {
+                                best_index = index;
+                                best_fitness_score = contending_fitness_score;
                             }
                         }
                     }
-                } else {
-                    best_hill_climb = Some(contending_run);
                 }
-            });
+            }
         });
-        Ok(best_hill_climb.unwrap())
+        runs.remove(best_index)
     }
 }

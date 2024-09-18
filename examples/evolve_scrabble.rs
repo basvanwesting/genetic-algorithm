@@ -294,7 +294,7 @@ fn main() {
             false,
         ));
 
-    let evolve = evolve_builder.call_speciated(10).unwrap();
+    let (evolve, _) = evolve_builder.call_speciated(10).unwrap();
     // let evolve = evolve_builder.call().unwrap();
     //println!("{}", evolve);
 

@@ -389,7 +389,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Maximize);
 
     let hill_climb = hill_climb_builder.call().unwrap();
-    // let hill_climb = hill_climb_builder.call_repeatedly(10).unwrap();
+    // let (hill_climb, _) = hill_climb_builder.call_repeatedly(10).unwrap();
     println!("{}", hill_climb);
 
     // REPORT

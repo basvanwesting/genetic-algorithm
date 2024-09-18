@@ -99,7 +99,7 @@ fn main() {
         .with_reporter(EvolveReporterSimple::new(1000));
 
     //let evolve = evolve_builder.call().unwrap();
-    let evolve = evolve_builder.call_repeatedly(10).unwrap();
+    let (evolve, _) = evolve_builder.call_repeatedly(10).unwrap();
     println!("{}", evolve);
 
     if let Some((best_genes, fitness_score)) = evolve.best_genes_and_fitness_score() {
