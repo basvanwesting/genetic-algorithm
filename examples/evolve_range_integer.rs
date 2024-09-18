@@ -46,6 +46,7 @@ fn main() {
         .with_crossover(CrossoverMultiPoint::new(9, false))
         .with_select(SelectTournament::new(4, 0.9))
         .with_reporter(EvolveReporterSimple::new_with_buffer(100))
+        // .with_reporter(EvolveReporterSimple::new(100))
         .call()
         .unwrap();
 

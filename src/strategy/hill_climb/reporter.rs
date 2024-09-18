@@ -3,6 +3,7 @@ use crate::genotype::HillClimbGenotype;
 use crate::strategy::{
     StrategyConfig, StrategyReporter, StrategyState, StrategyVariant, STRATEGY_ACTIONS,
 };
+use std::fmt::Arguments;
 use std::io::Write;
 use std::marker::PhantomData;
 
@@ -55,12 +56,13 @@ impl<G: HillClimbGenotype> Simple<G> {
             ..Default::default()
         }
     }
-    fn write(&mut self, message: String) {
+    fn writeln(&mut self, args: Arguments<'_>) {
         if let Some(buffer) = self.buffer.as_mut() {
-            buffer.write_all(message.as_bytes()).unwrap_or(());
-            writeln!(buffer).unwrap_or(());
+            buffer.write_fmt(args).unwrap_or(());
+            writeln!(buffer).unwrap_or(())
         } else {
-            println!("{}", message);
+            std::io::stdout().write_fmt(args).unwrap_or(());
+            println!()
         }
     }
 }
@@ -75,16 +77,19 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
     ) {
         let number_of_seed_genes = genotype.seed_genes_list().len();
         if number_of_seed_genes > 0 {
-            self.write(format!(
+            self.writeln(format_args!(
                 "init - iteration: {}, number of seed genes: {}",
                 state.current_iteration(),
                 number_of_seed_genes
             ));
         } else {
-            self.write(format!("init - iteration: {}", state.current_iteration()));
+            self.writeln(format_args!(
+                "init - iteration: {}",
+                state.current_iteration()
+            ));
         }
         if let StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent) = config.variant() {
-            self.write(format!(
+            self.writeln(format_args!(
                 "init - neighbouring_population_size: {}",
                 genotype.neighbouring_population_size(),
             ))
@@ -96,7 +101,10 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        self.write(format!("start - iteration: {}", state.current_iteration()));
+        self.writeln(format_args!(
+            "start - iteration: {}",
+            state.current_iteration()
+        ));
     }
 
     fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -105,13 +113,16 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        self.write(format!("finish - iteration: {}", state.current_iteration()));
+        self.writeln(format_args!(
+            "finish - iteration: {}",
+            state.current_iteration()
+        ));
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations().get(action) {
-                self.write(format!("  {:?}: {:?}", action, duration,));
+                self.writeln(format_args!("  {:?}: {:?}", action, duration,));
             }
         });
-        self.write(format!("  Total: {:?}", &state.total_duration()));
+        self.writeln(format_args!("  Total: {:?}", &state.total_duration()));
     }
 
     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -121,7 +132,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
-            self.write(format!(
+            self.writeln(format_args!(
                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}",
                 state.current_generation(),
                 state.stale_generations(),
@@ -137,7 +148,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        self.write(format!(
+        self.writeln(format_args!(
             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
@@ -157,7 +168,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if self.show_equal_fitness {
-            self.write(format!(
+            self.writeln(format_args!(
                 "equal best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
                 state.current_generation(),
                 state.best_fitness_score(),

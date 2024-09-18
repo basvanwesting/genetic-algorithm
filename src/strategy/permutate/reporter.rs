@@ -2,6 +2,7 @@
 use crate::genotype::PermutateGenotype;
 use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use num::{BigUint, ToPrimitive};
+use std::fmt::Arguments;
 use std::io::Write;
 use std::marker::PhantomData;
 
@@ -54,12 +55,13 @@ impl<G: PermutateGenotype> Simple<G> {
             ..Default::default()
         }
     }
-    fn write(&mut self, message: String) {
+    fn writeln(&mut self, args: Arguments<'_>) {
         if let Some(buffer) = self.buffer.as_mut() {
-            buffer.write_all(message.as_bytes()).unwrap_or(());
-            writeln!(buffer).unwrap_or(());
+            buffer.write_fmt(args).unwrap_or(());
+            writeln!(buffer).unwrap_or(())
         } else {
-            println!("{}", message);
+            std::io::stdout().write_fmt(args).unwrap_or(());
+            println!()
         }
     }
 }
@@ -81,7 +83,7 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
             let progress = (BigUint::from(state.current_generation() * 100)
                 / &genotype.chromosome_permutations_size())
                 .to_u8();
-            self.write(format!(
+            self.writeln(format_args!(
                 "progress: {}, current_generation: {}, best_generation: {}",
                 progress.map_or("-".to_string(), |v| format!("{:3.3}%", v)),
                 state.current_generation(),
@@ -96,7 +98,7 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        self.write(format!(
+        self.writeln(format_args!(
             "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
@@ -115,7 +117,7 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if self.show_equal_fitness {
-            self.write(format!(
+            self.writeln(format_args!(
                 "equal best - generation: {}, fitness_score: {:?}, genes: {:?}",
                 state.current_generation(),
                 state.best_fitness_score(),
@@ -134,15 +136,15 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        self.write(format!(
+        self.writeln(format_args!(
             "finish - generation: {}",
             state.current_generation()
         ));
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations().get(action) {
-                self.write(format!("  {:?}: {:?}", action, duration,));
+                self.writeln(format_args!("  {:?}: {:?}", action, duration,));
             }
         });
-        self.write(format!("  Total: {:?}", &state.total_duration()));
+        self.writeln(format_args!("  Total: {:?}", &state.total_duration()));
     }
 }
