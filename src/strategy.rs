@@ -176,6 +176,15 @@ pub trait StrategyState<G: Genotype>: Display {
             self.add_duration(StrategyAction::Other, other_duration);
         }
     }
+    fn fitness_duration_rate(&self) -> f32 {
+        let fitness_duration = self
+            .durations()
+            .get(&StrategyAction::Fitness)
+            .copied()
+            .unwrap_or_else(Duration::default);
+        fitness_duration.as_secs_f32() / self.total_duration().as_secs_f32()
+    }
+
     fn increment_stale_generations(&mut self);
     fn reset_stale_generations(&mut self);
     // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
@@ -286,10 +295,14 @@ pub trait StrategyState<G: Genotype>: Display {
 ///         println!("finish - iteration: {}", state.current_iteration());
 ///         STRATEGY_ACTIONS.iter().for_each(|action| {
 ///             if let Some(duration) = state.durations().get(action) {
-///                 println!("  {:?}: {:?}", action, duration,);
+///                 println!("  {:?}: {:.3?}", action, duration);
 ///             }
 ///         });
-///         println!("  Total: {:?}", &state.total_duration());
+///         println!(
+///             "  Total: {:.3?} ({:.0}% fitness)",
+///             &state.total_duration(),
+///             state.fitness_duration_rate() * 100.0
+///         );
 ///     }
 /// }
 /// ```

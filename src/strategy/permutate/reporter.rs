@@ -142,9 +142,13 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         ));
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations().get(action) {
-                self.writeln(format_args!("  {:?}: {:?}", action, duration,));
+                self.writeln(format_args!("  {:?}: {:.3?}", action, duration));
             }
         });
-        self.writeln(format_args!("  Total: {:?}", &state.total_duration()));
+        self.writeln(format_args!(
+            "  Total: {:.3?} ({:.0}% fitness)",
+            &state.total_duration(),
+            state.fitness_duration_rate() * 100.0
+        ));
     }
 }

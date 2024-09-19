@@ -86,10 +86,14 @@ impl<G: Genotype> StrategyReporter for Duration<G> {
         ));
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations().get(action) {
-                self.writeln(format_args!("  {:?}: {:?}", action, duration,));
+                self.writeln(format_args!("  {:?}: {:.3?}", action, duration));
             }
         });
-        self.writeln(format_args!("  Total: {:?}", &state.total_duration()));
+        self.writeln(format_args!(
+            "  Total: {:.3?} ({:.0}% fitness)",
+            &state.total_duration(),
+            state.fitness_duration_rate() * 100.0
+        ));
     }
 }
 
@@ -204,10 +208,14 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
         ));
         STRATEGY_ACTIONS.iter().for_each(|action| {
             if let Some(duration) = state.durations().get(action) {
-                self.writeln(format_args!("  {:?}: {:?}", action, duration,));
+                self.writeln(format_args!("  {:?}: {:.3?}", action, duration));
             }
         });
-        self.writeln(format_args!("  Total: {:?}", &state.total_duration()));
+        self.writeln(format_args!(
+            "  Total: {:.3?} ({:.0}% fitness)",
+            &state.total_duration(),
+            state.fitness_duration_rate() * 100.0
+        ));
     }
 
     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
