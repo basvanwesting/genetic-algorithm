@@ -60,11 +60,14 @@ println!("{}", genotype);
 #[derive(Clone, Debug)]
 pub struct CountTrue;
 impl Fitness for CountTrue {
-   type Genotype = BinaryGenotype; // Genes = Vec<bool>
-      fn calculate_for_chromosome(&mut self, chromosome: &Chromosome<Self::Genotype>, _genotype: &Self::Genotype) -> Option<FitnessValue> {
-         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
-      }
-   }
+    type Genotype = BinaryGenotype; // Genes = Vec<bool>
+    fn calculate_for_chromosome(
+        &mut self, 
+        chromosome: &FitnessChromosome<Self>, 
+        _genotype: &FitnessGenotype<Self>
+    ) -> Option<FitnessValue> {
+        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
+    }
 }
 
 // the search strategy
