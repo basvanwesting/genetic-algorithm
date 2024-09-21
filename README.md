@@ -196,6 +196,7 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
 
 ## TODO
+* Add neighbour_population_size for all genotypes, it's just useful informatively, maybe make option for RangeGenotype?
 
 ## MAYBE
 * Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)

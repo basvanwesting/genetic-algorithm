@@ -130,14 +130,14 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         }
     }
 
-    fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
         self.writeln(format_args!(
-            "finish - generation: {}",
+            "exit - generation: {}",
             state.current_generation()
         ));
         STRATEGY_ACTIONS.iter().for_each(|action| {

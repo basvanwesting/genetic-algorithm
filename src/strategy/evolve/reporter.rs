@@ -85,7 +85,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
             output.append(buffer);
         }
     }
-    fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,
@@ -94,37 +94,25 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         let number_of_seed_genes = genotype.seed_genes_list().len();
         if number_of_seed_genes > 0 {
             self.writeln(format_args!(
-                "init - iteration: {}, number of seed genes: {}",
+                "enter - iteration: {}, number of seed genes: {}",
                 state.current_iteration(),
                 number_of_seed_genes
             ));
         } else {
             self.writeln(format_args!(
-                "init - iteration: {}",
+                "enter - iteration: {}",
                 state.current_iteration()
             ));
         }
     }
-    fn on_start<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
         self.writeln(format_args!(
-            "start - iteration: {}",
-            state.current_iteration()
-        ));
-    }
-
-    fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &S,
-        _config: &C,
-    ) {
-        self.writeln(format_args!(
-            "finish - iteration: {}",
+            "exit - iteration: {}",
             state.current_iteration()
         ));
         STRATEGY_ACTIONS.iter().for_each(|action| {

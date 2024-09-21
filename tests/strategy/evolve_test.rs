@@ -555,7 +555,8 @@ fn call_dynamic_matrix() {
         evolve.best_genes().unwrap(),
         vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
-    assert_eq!(evolve.genotype.data.len(), 10 * 100);
+    // after cleanup
+    assert_eq!(evolve.genotype.data.len(), 0);
 }
 
 #[test]
@@ -609,7 +610,7 @@ fn population_factory_binary() {
         .build()
         .unwrap();
 
-    evolve.init(None);
+    evolve.setup(None);
     assert_eq!(
         inspect::population(&evolve.state.population),
         vec![

@@ -234,6 +234,9 @@ impl<T: Allele> ChromosomeManager<Self> for Unique<T> {
             UniqueChromosome::new(genes)
         })
     }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+    }
 }
 
 impl<T: Allele> fmt::Display for Unique<T> {

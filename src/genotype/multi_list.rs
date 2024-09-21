@@ -345,6 +345,9 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for MultiList<T> {
             MultiListChromosome::new(genes)
         })
     }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+    }
 }
 
 impl<T: Allele + PartialEq> fmt::Display for MultiList<T> {

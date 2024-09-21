@@ -331,7 +331,7 @@ fn chromosome_constructor_with_seed_genes_list() {
         ])
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
     let chromosomes = vec![
         genotype.chromosome_constructor_random(&mut rng),
         genotype.chromosome_constructor_random(&mut rng),
@@ -364,7 +364,7 @@ fn chromosome_manager() {
         .with_genes_size(5)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut chromosomes = (0..4)
         .map(|_| genotype.chromosome_constructor_random(rng))

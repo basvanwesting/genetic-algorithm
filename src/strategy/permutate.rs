@@ -110,7 +110,9 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 {
     fn call(&mut self) {
         let now = Instant::now();
-        self.init();
+        self.reporter
+            .on_enter(&self.genotype, &self.state, &self.config);
+        self.setup();
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         if self.config.par_fitness {
@@ -118,9 +120,12 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         } else {
             self.call_sequential()
         }
-        self.state.close_duration(now.elapsed());
         self.reporter
             .on_finish(&self.genotype, &self.state, &self.config);
+        self.cleanup();
+        self.state.close_duration(now.elapsed());
+        self.reporter
+            .on_exit(&self.genotype, &self.state, &self.config);
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -164,13 +169,11 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>> Permutate<G, F, StrategyRep
 impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     Permutate<G, F, SR>
 {
-    pub fn init(&mut self) {
+    pub fn setup(&mut self) {
         let now = Instant::now();
-        self.reporter
-            .on_init(&self.genotype, &self.state, &self.config);
-
         self.state.chromosome = self.genotype.chromosome_permutations_into_iter().next();
-        self.state.add_duration(StrategyAction::Init, now.elapsed());
+        self.state
+            .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
         self.fitness
             .call_for_state_chromosome(&mut self.state, &self.genotype);
 
@@ -182,6 +185,14 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 
         self.reporter
             .on_new_best_chromosome(&self.genotype, &self.state, &self.config);
+    }
+    pub fn cleanup(&mut self) {
+        let now = Instant::now();
+        self.state.chromosome.take();
+        std::mem::take(&mut self.state.population.chromosomes);
+        self.genotype.chromosomes_cleanup();
+        self.state
+            .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
     }
     fn call_sequential(&mut self) {
         self.genotype

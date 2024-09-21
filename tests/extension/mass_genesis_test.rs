@@ -51,7 +51,7 @@ fn removes_randomly_matrix() {
         .with_allele_range(0..=10)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut chromosomes = (0..8)
         .map(|_| genotype.chromosome_constructor_random(rng))

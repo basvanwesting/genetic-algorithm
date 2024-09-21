@@ -236,7 +236,7 @@ fn dynamic_matrix_genotype_f32() {
         .with_allele_range(0.0_f32..=1.0_f32)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let population = Population::new(
         [
@@ -263,7 +263,7 @@ fn static_matrix_genotype_f32() {
         .with_allele_range(0.0_f32..=1.0_f32)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let population = Population::new(
         [

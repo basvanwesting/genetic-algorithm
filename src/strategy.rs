@@ -99,7 +99,7 @@ pub use self::reporter::Simple as StrategyReporterSimple;
 
 #[derive(Copy, Clone, Debug, Eq, Hash, PartialEq)]
 pub enum StrategyAction {
-    Init,
+    SetupAndCleanup,
     Extension,
     Select,
     Crossover,
@@ -109,7 +109,7 @@ pub enum StrategyAction {
     Other,
 }
 pub const STRATEGY_ACTIONS: [StrategyAction; 8] = [
-    StrategyAction::Init,
+    StrategyAction::SetupAndCleanup,
     StrategyAction::Extension,
     StrategyAction::Select,
     StrategyAction::Crossover,
@@ -237,6 +237,18 @@ pub trait StrategyState<G: Genotype>: Display {
 /// Reporter with event hooks for all Strategies.
 /// You are encouraged to roll your own implementation, depending on your needs.
 ///
+/// Event hooks in lifecycle:
+/// * `on_enter` (before setup)
+/// * `on_start` (of run loop)
+/// * *in run loop:*
+///     * `on_new_generation`
+///     * `on_new_best_chromosome`
+///     * `on_new_best_chromosome_equal_fitness`
+///     * `on_extension_event`
+///     * `on_mutate_event`
+/// * `on_finish` (of run loop)
+/// * `on_exit` (after cleanup)
+///
 /// It has an associated type Genotype, just like Fitness, so you can implement reporting with
 /// access to your domain's specific Genotype and Chromosome etc..
 ///
@@ -286,13 +298,13 @@ pub trait StrategyState<G: Genotype>: Display {
 ///         );
 ///     }
 ///
-///     fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+///     fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
 ///         &mut self,
 ///         _genotype: &Self::Genotype,
 ///         state: &S,
 ///         _config: &C,
 ///     ) {
-///         println!("finish - iteration: {}", state.current_iteration());
+///         println!("exit - iteration: {}", state.current_iteration());
 ///         STRATEGY_ACTIONS.iter().for_each(|action| {
 ///             if let Some(duration) = state.durations().get(action) {
 ///                 println!("  {:?}: {:.3?}", action, duration);
@@ -310,7 +322,14 @@ pub trait StrategyReporter: Clone + Send + Sync {
     type Genotype: Genotype;
 
     fn flush(&mut self, _output: &mut Vec<u8>) {}
-    fn on_init<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,

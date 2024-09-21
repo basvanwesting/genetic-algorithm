@@ -533,6 +533,9 @@ where
             RangeChromosome::new(genes)
         })
     }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+    }
 }
 
 impl<T: RangeAllele> Clone for Range<T>

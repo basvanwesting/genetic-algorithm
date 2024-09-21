@@ -249,6 +249,9 @@ impl ChromosomeManager<Self> for Binary {
             BinaryChromosome::new(genes)
         })
     }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+    }
 }
 
 impl fmt::Display for Binary {

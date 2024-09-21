@@ -58,7 +58,7 @@ fn call_permutate() {
     let mut buffer: Vec<u8> = vec![];
     strategy.flush_reporter(&mut buffer);
     assert_eq!(
-        Some("init - iteration: 0"),
+        Some("enter - iteration: 0"),
         String::from_utf8(buffer).unwrap().lines().next()
     );
 
@@ -98,7 +98,7 @@ fn call_speciated_evolve() {
     let mut buffer: Vec<u8> = vec![];
     strategy.flush_reporter(&mut buffer);
     assert_eq!(
-        Some("init - iteration: 0, number of seed genes: 3"),
+        Some("enter - iteration: 0, number of seed genes: 3"),
         String::from_utf8(buffer).unwrap().lines().next()
     );
 
@@ -123,9 +123,9 @@ fn call_speciated_evolve() {
         .collect();
     assert_eq!(
         vec![
-            "init - iteration: 0",
-            "init - iteration: 1",
-            "init - iteration: 2"
+            "enter - iteration: 0",
+            "enter - iteration: 1",
+            "enter - iteration: 2"
         ],
         other_first_lines
     );
@@ -161,7 +161,7 @@ fn call_repeatedly_hill_climb_steepest_ascent() {
     let mut buffer: Vec<u8> = vec![];
     strategy.flush_reporter(&mut buffer);
     assert_eq!(
-        Some("init - iteration: 2"),
+        Some("enter - iteration: 2"),
         String::from_utf8(buffer).unwrap().lines().next()
     );
 
@@ -185,7 +185,7 @@ fn call_repeatedly_hill_climb_steepest_ascent() {
         })
         .collect();
     assert_eq!(
-        vec!["init - iteration: 0", "init - iteration: 1",],
+        vec!["enter - iteration: 0", "enter - iteration: 1",],
         other_first_lines
     );
 }

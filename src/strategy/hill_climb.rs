@@ -183,12 +183,14 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 {
     fn call(&mut self) {
         let now = Instant::now();
+        self.reporter
+            .on_enter(&self.genotype, &self.state, &self.config);
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
         }
 
-        self.init();
+        self.setup();
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
@@ -240,9 +242,12 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 .on_new_generation(&self.genotype, &self.state, &self.config);
             self.state.scale(&self.genotype, &self.config);
         }
-        self.state.close_duration(now.elapsed());
         self.reporter
             .on_finish(&self.genotype, &self.state, &self.config);
+        self.cleanup(fitness_thread_local.as_mut());
+        self.state.close_duration(now.elapsed());
+        self.reporter
+            .on_exit(&self.genotype, &self.state, &self.config);
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -285,14 +290,12 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>> HillClimb<G, F, StrategyRep
 impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
     HillClimb<G, F, SR>
 {
-    pub fn init(&mut self) {
+    pub fn setup(&mut self) {
         let now = Instant::now();
-        self.reporter
-            .on_init(&self.genotype, &self.state, &self.config);
-
-        self.genotype.chromosomes_init();
+        self.genotype.chromosomes_setup();
         self.state.chromosome = Some(self.genotype.chromosome_constructor_random(&mut self.rng));
-        self.state.add_duration(StrategyAction::Init, now.elapsed());
+        self.state
+            .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
 
         match self.config.variant {
             HillClimbVariant::Stochastic => self
@@ -311,6 +314,17 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 
         self.reporter
             .on_new_best_chromosome(&self.genotype, &self.state, &self.config);
+    }
+    pub fn cleanup(&mut self, fitness_thread_local: Option<&mut ThreadLocal<RefCell<F>>>) {
+        let now = Instant::now();
+        self.state.chromosome.take();
+        std::mem::take(&mut self.state.population.chromosomes);
+        self.genotype.chromosomes_cleanup();
+        if let Some(thread_local) = fitness_thread_local {
+            thread_local.clear();
+        }
+        self.state
+            .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
     }
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()

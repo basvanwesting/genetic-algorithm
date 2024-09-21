@@ -591,6 +591,9 @@ where
             MultiRangeChromosome::new(genes)
         })
     }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+    }
 }
 
 impl<T: RangeAllele + Into<f64>> Clone for MultiRange<T>

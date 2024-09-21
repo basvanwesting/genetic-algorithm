@@ -664,6 +664,10 @@ where
             DynamicMatrixChromosome::new(row_id)
         })
     }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+        std::mem::take(&mut self.data);
+    }
 }
 
 impl<T: RangeAllele> Clone for DynamicMatrix<T>

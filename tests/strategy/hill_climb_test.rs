@@ -308,6 +308,6 @@ fn call_dynamic_matrix_steepest_ascent() {
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(0));
 
-    // the neighbouring_population_size is restricted by allele range boundaries early on, so 37 instead of 40
-    assert_eq!(hill_climb.genotype.data.len(), 20 * 37);
+    // after cleanup
+    assert_eq!(hill_climb.genotype.data.len(), 0);
 }

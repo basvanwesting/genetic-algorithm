@@ -13,7 +13,7 @@ fn chromosome_constructor() {
         .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -39,7 +39,7 @@ fn float_mutate_chromosome_single_relative() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -72,7 +72,7 @@ fn float_mutate_chromosome_single_scaled() {
         .with_allele_mutation_scaled_range(vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01])
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -104,7 +104,7 @@ fn mutate_chromosome_genes_random_with_duplicates() {
         .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -127,7 +127,7 @@ fn mutate_chromosome_genes_random_without_duplicates() {
         .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -151,7 +151,7 @@ fn crossover_chromosome_pair_single_gene() {
         .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut father = genotype.chromosome_constructor_random(rng);
     let mut mother = genotype.chromosome_constructor_random(rng);
@@ -186,7 +186,7 @@ fn crossover_chromosome_pair_single_point() {
         .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut father = genotype.chromosome_constructor_random(rng);
     let mut mother = genotype.chromosome_constructor_random(rng);
@@ -222,7 +222,7 @@ fn float_neighbouring_population_1() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -253,7 +253,7 @@ fn float_neighbouring_population_2_random() {
         .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -290,7 +290,7 @@ fn float_neighbouring_population_2_relative() {
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -327,7 +327,7 @@ fn float_neighbouring_population_2_scaled() {
         .with_allele_mutation_scaled_range(vec![-0.5..=0.5, -0.1..=0.1, -0.01..=0.01])
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -400,7 +400,7 @@ fn float_neighbouring_population_3_one_sided() {
         .with_allele_mutation_range(0.0..=0.1)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
@@ -441,7 +441,7 @@ fn chromosome_constructor_with_seed_genes_list() {
         ])
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let chromosomes = vec![
         genotype.chromosome_constructor_random(&mut rng),
@@ -481,7 +481,7 @@ fn chromosome_manager() {
         .with_allele_range(0.0..=1.0)
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut chromosomes = (0..4)
         .map(|_| genotype.chromosome_constructor_random(rng))

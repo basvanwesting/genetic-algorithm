@@ -23,7 +23,7 @@ fn builders() {
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
@@ -135,7 +135,7 @@ fn crossover_chromosome_points_without_duplicates() {
 fn neighbouring_population() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = BitGenotype::builder().with_genes_size(10).build().unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(inspect::chromosome_to_str(&chromosome), "0011000100");
@@ -244,7 +244,7 @@ fn chromosome_constructor_with_seed_genes_list() {
         ])
         .build()
         .unwrap();
-    genotype.chromosomes_init();
+    genotype.chromosomes_setup();
 
     let chromosomes = vec![
         genotype.chromosome_constructor_random(&mut rng),

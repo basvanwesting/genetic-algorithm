@@ -291,6 +291,9 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
             ListChromosome::new(genes)
         })
     }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+    }
 }
 
 impl<T: Allele + PartialEq> fmt::Display for List<T> {

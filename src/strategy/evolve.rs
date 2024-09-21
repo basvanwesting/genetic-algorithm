@@ -201,11 +201,13 @@ impl<
 {
     fn call(&mut self) {
         let now = Instant::now();
+        self.reporter
+            .on_enter(&self.genotype, &self.state, &self.config);
         let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
         if self.config.par_fitness {
             fitness_thread_local = Some(ThreadLocal::new());
         }
-        self.init(fitness_thread_local.as_ref());
+        self.setup(fitness_thread_local.as_ref());
 
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
@@ -258,9 +260,12 @@ impl<
 
             self.state.scale(&self.genotype, &self.config);
         }
-        self.state.close_duration(now.elapsed());
         self.reporter
             .on_finish(&self.genotype, &self.state, &self.config);
+        self.cleanup(fitness_thread_local.as_mut());
+        self.state.close_duration(now.elapsed());
+        self.reporter
+            .on_exit(&self.genotype, &self.state, &self.config);
     }
     fn best_generation(&self) -> usize {
         self.state.best_generation
@@ -320,16 +325,14 @@ impl<
         SR: StrategyReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
 {
-    pub fn init(&mut self, fitness_thread_local: Option<&ThreadLocal<RefCell<F>>>) {
+    pub fn setup(&mut self, fitness_thread_local: Option<&ThreadLocal<RefCell<F>>>) {
         let now = Instant::now();
-        self.reporter
-            .on_init(&self.genotype, &self.state, &self.config);
-
-        self.genotype.chromosomes_init();
+        self.genotype.chromosomes_setup();
         self.state.population.chromosomes = (0..self.config.target_population_size)
             .map(|_| self.genotype.chromosome_constructor_random(&mut self.rng))
             .collect::<Vec<_>>();
-        self.state.add_duration(StrategyAction::Init, now.elapsed());
+        self.state
+            .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
 
         self.fitness.call_for_state_population(
             &mut self.state,
@@ -351,6 +354,18 @@ impl<
                 .on_new_best_chromosome(&self.genotype, &self.state, &self.config);
             self.state.reset_stale_generations();
         }
+    }
+
+    pub fn cleanup(&mut self, fitness_thread_local: Option<&mut ThreadLocal<RefCell<F>>>) {
+        let now = Instant::now();
+        self.state.chromosome.take();
+        std::mem::take(&mut self.state.population.chromosomes);
+        self.genotype.chromosomes_cleanup();
+        if let Some(thread_local) = fitness_thread_local {
+            thread_local.clear();
+        }
+        self.state
+            .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
     }
 
     fn is_finished(&self) -> bool {

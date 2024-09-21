@@ -79,8 +79,10 @@ pub trait ChromosomeManager<G: Genotype> {
     /// Raise on empty bin here if fixed number of chromosomes is used
     fn chromosome_bin_find_or_create(&mut self) -> G::Chromosome;
 
-    /// Provided, override if recycling bin needs initialization
-    fn chromosomes_init(&mut self) {}
+    /// Provided, override if recycling bin needs setup
+    fn chromosomes_setup(&mut self) {}
+    /// Provided, override if recycling bin needs cleanup
+    fn chromosomes_cleanup(&mut self) {}
 
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {
         let mut chromosome = self.chromosome_bin_find_or_create();

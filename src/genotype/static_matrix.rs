@@ -636,7 +636,7 @@ where
     fn copy_genes(&mut self, source: &StaticMatrixChromosome, target: &mut StaticMatrixChromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
     }
-    fn chromosomes_init(&mut self) {
+    fn chromosomes_setup(&mut self) {
         self.chromosome_bin = (0..M).rev().map(StaticMatrixChromosome::new).collect();
     }
     fn chromosome_bin_push(&mut self, chromosome: StaticMatrixChromosome) {
@@ -646,6 +646,11 @@ where
         self.chromosome_bin.pop().unwrap_or_else(|| {
             panic!("genetic_algorithm error: chromosome capacity exceeded");
         })
+    }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+        // FIXME: does this leave an empty box?
+        // let _ = *self.data;
     }
 }
 

@@ -370,6 +370,9 @@ impl<T: Allele> ChromosomeManager<Self> for MultiUnique<T> {
             MultiUniqueChromosome::new(genes)
         })
     }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+    }
 }
 
 impl<T: Allele> fmt::Display for MultiUnique<T> {

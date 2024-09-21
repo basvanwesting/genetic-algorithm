@@ -330,6 +330,9 @@ impl ChromosomeManager<Self> for Bit {
             BitChromosome::new(genes)
         })
     }
+    fn chromosomes_cleanup(&mut self) {
+        std::mem::take(&mut self.chromosome_bin);
+    }
 }
 
 impl fmt::Display for Bit {
