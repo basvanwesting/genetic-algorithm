@@ -30,7 +30,7 @@ fn main() {
     ];
 
     strategies.iter().copied().for_each(|variant| {
-        println!("call: {:?}", variant);
+        println!("call: {}", variant);
         let strategy = builder.clone().with_variant(variant).call().unwrap();
 
         if let Some(fitness_score) = strategy.best_fitness_score() {
@@ -41,7 +41,7 @@ fn main() {
     });
 
     strategies.iter().copied().for_each(|variant| {
-        println!("call_repeatedly(3): {:?}", variant);
+        println!("call_repeatedly(3): {}", variant);
         let (mut strategy, mut others) = builder
             .clone()
             .with_variant(variant)
@@ -74,7 +74,7 @@ fn main() {
     });
 
     strategies.iter().copied().for_each(|variant| {
-        println!("call_par_speciated(3): {:?}", variant);
+        println!("call_par_speciated(3): {}", variant);
         let (mut strategy, mut others) = builder
             .clone()
             .with_variant(variant)

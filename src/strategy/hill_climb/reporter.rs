@@ -78,13 +78,15 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         let number_of_seed_genes = genotype.seed_genes_list().len();
         if number_of_seed_genes > 0 {
             self.writeln(format_args!(
-                "enter - iteration: {}, number of seed genes: {}",
+                "enter - {}, iteration: {}, number of seed genes: {}",
+                config.variant(),
                 state.current_iteration(),
                 number_of_seed_genes
             ));
         } else {
             self.writeln(format_args!(
-                "enter - iteration: {}",
+                "enter - {}, iteration: {}",
+                config.variant(),
                 state.current_iteration()
             ));
         }
@@ -99,10 +101,11 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
-        _config: &C,
+        config: &C,
     ) {
         self.writeln(format_args!(
-            "exit - iteration: {}",
+            "exit - {}, iteration: {}",
+            config.variant(),
             state.current_iteration()
         ));
         STRATEGY_ACTIONS.iter().for_each(|action| {

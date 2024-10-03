@@ -73,6 +73,52 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
             output.append(buffer);
         }
     }
+    fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        genotype: &Self::Genotype,
+        _state: &S,
+        config: &C,
+    ) {
+        let number_of_seed_genes = genotype.seed_genes_list().len();
+        if number_of_seed_genes > 0 {
+            self.writeln(format_args!(
+                "enter - {}, total generations: {}, number of seed genes: {}",
+                config.variant(),
+                genotype.chromosome_permutations_size(),
+                number_of_seed_genes
+            ));
+        } else {
+            self.writeln(format_args!(
+                "enter - {}, total generations: {}",
+                config.variant(),
+                genotype.chromosome_permutations_size(),
+            ));
+        }
+    }
+
+    fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &S,
+        config: &C,
+    ) {
+        self.writeln(format_args!(
+            "exit - {}, generation: {}",
+            config.variant(),
+            state.current_generation()
+        ));
+        STRATEGY_ACTIONS.iter().for_each(|action| {
+            if let Some(duration) = state.durations().get(action) {
+                self.writeln(format_args!("  {:?}: {:.3?}", action, duration));
+            }
+        });
+        self.writeln(format_args!(
+            "  Total: {:.3?} ({:.0}% fitness)",
+            &state.total_duration(),
+            state.fitness_duration_rate() * 100.0
+        ));
+    }
+
     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
@@ -128,27 +174,5 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
                 },
             ));
         }
-    }
-
-    fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
-        &mut self,
-        _genotype: &Self::Genotype,
-        state: &S,
-        _config: &C,
-    ) {
-        self.writeln(format_args!(
-            "exit - generation: {}",
-            state.current_generation()
-        ));
-        STRATEGY_ACTIONS.iter().for_each(|action| {
-            if let Some(duration) = state.durations().get(action) {
-                self.writeln(format_args!("  {:?}: {:.3?}", action, duration));
-            }
-        });
-        self.writeln(format_args!(
-            "  Total: {:.3?} ({:.0}% fitness)",
-            &state.total_duration(),
-            state.fitness_duration_rate() * 100.0
-        ));
     }
 }
