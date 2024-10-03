@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.17.0] - 2024-10-03
+
+### Added
+* Add `on_exit()` event to `StrategyReporter`
+* Add `StrategyVariant` info in `on_enter()` and `on_exit()` events
+* Add `fitness_duration_rate()` to state and use in reporters
+
+### Changed
+* Permutation with `seed_genes_list` now only permutates over the seed_genes_list
+* Add cleanup step in strategies, as the repeated calls keep the runs around, it seems better to cleanup the population and genotype storage
+* Rename `StrategyAction::Init` to `StrategyAction::SetupAndCleanup`
+* Rename `on_init()` event to `on_enter()` in `StrategyReporter`
+* Move duration reporting to `on_exit()` in reporters to include the cleanup duration
 
 ## [0.16.0] - 2024-09-18
 
