@@ -197,7 +197,9 @@ pub trait HillClimbGenotype: Genotype {
 /// Not all genotypes are permutable, only countable ones (e.g. range genotypes cannot be permutated).
 pub trait PermutateGenotype: Genotype {
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
-    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Self::Chromosome> + Send;
+    fn chromosome_permutations_into_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a>;
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_size(&self) -> BigUint;

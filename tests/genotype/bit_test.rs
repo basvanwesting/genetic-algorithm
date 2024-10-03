@@ -234,6 +234,31 @@ fn chromosome_permutations_genes_size_3() {
 }
 
 #[test]
+fn chromosome_permutations_with_seed_genes_list() {
+    let genotype = BitGenotype::builder()
+        .with_genes_size(6)
+        .with_seed_genes_list(vec![
+            BitGenotype::genes_from_str("111111"),
+            BitGenotype::genes_from_str("011111"),
+            BitGenotype::genes_from_str("101111"),
+            BitGenotype::genes_from_str("001111"),
+        ])
+        .build()
+        .unwrap();
+
+    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(4u32));
+    assert_eq!(
+        inspect::chromosomes_to_str(
+            genotype
+                .chromosome_permutations_into_iter()
+                .collect::<Vec<_>>()
+                .as_slice()
+        ),
+        vec!["111111", "011111", "101111", "001111"]
+    )
+}
+
+#[test]
 fn chromosome_constructor_with_seed_genes_list() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = BitGenotype::builder()

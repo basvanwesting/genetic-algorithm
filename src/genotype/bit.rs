@@ -295,15 +295,32 @@ impl HillClimbGenotype for Bit {
 }
 
 impl PermutateGenotype for Bit {
-    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = BitChromosome> + Send {
-        (0..self.genes_size())
-            .map(|_| vec![true, false])
-            .multi_cartesian_product()
-            .map(Bit::genes_from_bools)
-            .map(BitChromosome::new)
+    fn chromosome_permutations_into_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+        if self.seed_genes_list.is_empty() {
+            Box::new(
+                (0..self.genes_size())
+                    .map(|_| vec![true, false])
+                    .multi_cartesian_product()
+                    .map(Bit::genes_from_bools)
+                    .map(BitChromosome::new),
+            )
+        } else {
+            Box::new(
+                self.seed_genes_list
+                    .clone()
+                    .into_iter()
+                    .map(BitChromosome::new),
+            )
+        }
     }
     fn chromosome_permutations_size(&self) -> BigUint {
-        BigUint::from(2u8).pow(self.genes_size() as u32)
+        if self.seed_genes_list.is_empty() {
+            BigUint::from(2u8).pow(self.genes_size() as u32)
+        } else {
+            self.seed_genes_list.len().into()
+        }
     }
 }
 

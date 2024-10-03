@@ -312,27 +312,42 @@ impl<T: Allele> HillClimbGenotype for MultiUnique<T> {
 }
 
 impl<T: Allele> PermutateGenotype for MultiUnique<T> {
-    fn chromosome_permutations_into_iter(
-        &self,
-    ) -> impl Iterator<Item = MultiUniqueChromosome<T>> + Send {
-        self.allele_lists
-            .clone()
-            .into_iter()
-            .map(|allele_list| {
-                let size = allele_list.len();
-                allele_list.into_iter().permutations(size)
-            })
-            .multi_cartesian_product()
-            .map(|gene_sets| MultiUniqueChromosome::new(gene_sets.into_iter().concat()))
+    fn chromosome_permutations_into_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+        if self.seed_genes_list.is_empty() {
+            Box::new(
+                self.allele_lists
+                    .clone()
+                    .into_iter()
+                    .map(|allele_list| {
+                        let size = allele_list.len();
+                        allele_list.into_iter().permutations(size)
+                    })
+                    .multi_cartesian_product()
+                    .map(|gene_sets| MultiUniqueChromosome::new(gene_sets.into_iter().concat())),
+            )
+        } else {
+            Box::new(
+                self.seed_genes_list
+                    .clone()
+                    .into_iter()
+                    .map(MultiUniqueChromosome::new),
+            )
+        }
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {
-        self.allele_list_sizes
-            .iter()
-            .map(|v| BigUint::from(*v))
-            .fold(BigUint::from(1u8), |acc, allele_list_size| {
-                acc * allele_list_size.factorial()
-            })
+        if self.seed_genes_list.is_empty() {
+            self.allele_list_sizes
+                .iter()
+                .map(|v| BigUint::from(*v))
+                .fold(BigUint::from(1u8), |acc, allele_list_size| {
+                    acc * allele_list_size.factorial()
+                })
+        } else {
+            self.seed_genes_list.len().into()
+        }
     }
 }
 

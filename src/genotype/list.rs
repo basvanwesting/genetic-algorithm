@@ -255,14 +255,32 @@ impl<T: Allele + PartialEq> HillClimbGenotype for List<T> {
 }
 
 impl<T: Allele + PartialEq> PermutateGenotype for List<T> {
-    fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = ListChromosome<T>> + Send {
-        (0..self.genes_size())
-            .map(|_| self.allele_list.clone())
-            .multi_cartesian_product()
-            .map(ListChromosome::new)
+    fn chromosome_permutations_into_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+        if self.seed_genes_list.is_empty() {
+            Box::new(
+                (0..self.genes_size())
+                    .map(|_| self.allele_list.clone())
+                    .multi_cartesian_product()
+                    .map(ListChromosome::new),
+            )
+        } else {
+            Box::new(
+                self.seed_genes_list
+                    .clone()
+                    .into_iter()
+                    .map(ListChromosome::new),
+            )
+        }
     }
+
     fn chromosome_permutations_size(&self) -> BigUint {
-        BigUint::from(self.allele_list.len()).pow(self.genes_size() as u32)
+        if self.seed_genes_list.is_empty() {
+            BigUint::from(self.allele_list.len()).pow(self.genes_size() as u32)
+        } else {
+            self.seed_genes_list.len().into()
+        }
     }
 }
 

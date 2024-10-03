@@ -194,18 +194,33 @@ impl<T: Allele> HillClimbGenotype for Unique<T> {
 }
 
 impl<T: Allele> PermutateGenotype for Unique<T> {
-    fn chromosome_permutations_into_iter(
-        &self,
-    ) -> impl Iterator<Item = UniqueChromosome<T>> + Send {
-        self.allele_list
-            .clone()
-            .into_iter()
-            .permutations(self.genes_size())
-            .map(UniqueChromosome::new)
+    fn chromosome_permutations_into_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+        if self.seed_genes_list.is_empty() {
+            Box::new(
+                self.allele_list
+                    .clone()
+                    .into_iter()
+                    .permutations(self.genes_size())
+                    .map(UniqueChromosome::new),
+            )
+        } else {
+            Box::new(
+                self.seed_genes_list
+                    .clone()
+                    .into_iter()
+                    .map(UniqueChromosome::new),
+            )
+        }
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {
-        BigUint::from(self.genes_size).factorial()
+        if self.seed_genes_list.is_empty() {
+            BigUint::from(self.genes_size).factorial()
+        } else {
+            self.seed_genes_list.len().into()
+        }
     }
 }
 

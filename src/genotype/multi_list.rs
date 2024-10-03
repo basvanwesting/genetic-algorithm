@@ -298,21 +298,36 @@ impl<T: Allele + PartialEq> HillClimbGenotype for MultiList<T> {
 }
 
 impl<T: Allele + PartialEq> PermutateGenotype for MultiList<T> {
-    fn chromosome_permutations_into_iter(
-        &self,
-    ) -> impl Iterator<Item = MultiListChromosome<T>> + Send {
-        self.allele_lists
-            .clone()
-            .into_iter()
-            .multi_cartesian_product()
-            .map(MultiListChromosome::new)
+    fn chromosome_permutations_into_iter<'a>(
+        &'a self,
+    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+        if self.seed_genes_list.is_empty() {
+            Box::new(
+                self.allele_lists
+                    .clone()
+                    .into_iter()
+                    .multi_cartesian_product()
+                    .map(MultiListChromosome::new),
+            )
+        } else {
+            Box::new(
+                self.seed_genes_list
+                    .clone()
+                    .into_iter()
+                    .map(MultiListChromosome::new),
+            )
+        }
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {
-        self.allele_list_sizes
-            .iter()
-            .map(|v| BigUint::from(*v))
-            .product()
+        if self.seed_genes_list.is_empty() {
+            self.allele_list_sizes
+                .iter()
+                .map(|v| BigUint::from(*v))
+                .product()
+        } else {
+            self.seed_genes_list.len().into()
+        }
     }
 }
 
