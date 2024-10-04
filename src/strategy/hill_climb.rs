@@ -34,9 +34,9 @@ pub enum HillClimbVariant {
     SteepestAscent,
 }
 
-/// The HillClimb strategy is an iterative algorithm that starts with an arbitrary solution to a
-/// problem, then attempts to find a better solution by making an incremental change to the
-/// solution
+/// The HillClimb strategy is an iterative algorithm that starts with a single arbitrary solution
+/// to a problem (unless the genotype seeds specific genes to sample a single starting point from),
+/// then attempts to find a better solution by making an incremental change to the solution
 ///
 /// There are 2 variants:
 /// * [HillClimbVariant::Stochastic]: does not examine all neighbors before deciding how to move.

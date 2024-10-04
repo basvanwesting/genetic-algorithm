@@ -31,9 +31,10 @@ pub enum PermutateVariant {
     Standard,
 }
 
-/// All possible combinations of genes are iterated over as chromosomes.
-/// The fitness is calculated for each chromosome and the best is taken.
-/// For efficiency reasons the full population is never instantiated as a whole.
+/// All possible combinations of genes are iterated over as chromosomes (unless the genotype seeds
+/// specific genes, in which case only those genes are iterated over). The fitness is calculated
+/// for each chromosome and the best is taken. For efficiency reasons the full population is never
+/// instantiated as a whole.
 ///
 /// The `chromosome_permutations_size` is subject to combinatorial explosion, so check the genotype
 /// for practical values before using the [Permutate] strategy. This will not pose any memory

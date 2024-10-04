@@ -37,7 +37,7 @@ pub enum EvolveVariant {
 }
 
 /// The Evolve strategy initializes with a random population of chromosomes (unless the genotype
-/// seeds specific genes to start with), calculates [fitness](crate::fitness) for all chromosomes
+/// seeds specific genes to sample from), calculates [fitness](crate::fitness) for all chromosomes
 /// and sets a first best chromosome (if any).
 ///
 /// Then the Evolve strategy runs through generations of chromosomes in a loop:
