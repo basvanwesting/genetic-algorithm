@@ -14,6 +14,7 @@ use std::time::Instant;
 #[derive(Debug, Clone)]
 pub struct SingleGene {
     pub mutation_probability: f32,
+    pub mutation_probability_sampler: Bernoulli,
 }
 
 impl Mutate for SingleGene {
@@ -26,14 +27,13 @@ impl Mutate for SingleGene {
         rng: &mut R,
     ) {
         let now = Instant::now();
-        let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
         for chromosome in state
             .population
             .chromosomes
             .iter_mut()
             .filter(|c| c.age() == 0)
         {
-            if bool_sampler.sample(rng) {
+            if self.mutation_probability_sampler.sample(rng) {
                 genotype.mutate_chromosome_genes(
                     1,
                     true,
@@ -49,8 +49,10 @@ impl Mutate for SingleGene {
 
 impl SingleGene {
     pub fn new(mutation_probability: f32) -> Self {
+        let mutation_probability_sampler = Bernoulli::new(mutation_probability as f64).unwrap();
         Self {
             mutation_probability,
+            mutation_probability_sampler,
         }
     }
 }

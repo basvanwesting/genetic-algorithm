@@ -3,13 +3,13 @@ use crate::chromosome::Chromosome;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
-use rand::distributions::{Bernoulli, Distribution};
+use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use std::time::Instant;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the dynamically updated mutation_probability.
-/// Then mutates the selected chromosomes the provided number of times, where the
+/// Then mutates the selected chromosomes up to the provided number of times (uniform), where the
 /// [Genotype](crate::genotype::Genotype) determines whether this is random, relative or scaled.
 /// The mutation probability is dynamically increased or decreased to achieve a target population
 /// cardinality.
@@ -17,17 +17,17 @@ use std::time::Instant;
 /// Duplicate mutations of the same gene are allowed, as disallowing duplicates is relatively expensive
 /// and mutations should be quite small, so there is little chance for conflict.
 ///
-/// Useful when a single
-/// mutation would generally not lead to improvement, because the problem space behaves more like a
-/// [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be swapped (but the
-/// UniqueGenotype doesn't map to the problem space well). Set number_of_mutations to two in that
-/// situation.
-#[derive(Debug, Clone, Default)]
+/// Useful when a single mutation would generally not lead to improvement, because the problem
+/// space behaves more like a [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be
+/// swapped (but the UniqueGenotype doesn't map to the problem space well). Set number_of_mutations
+/// to two in that situation.
+#[derive(Debug, Clone)]
 pub struct MultiGeneDynamic {
     pub number_of_mutations: usize,
     pub mutation_probability: f32,
     pub mutation_probability_step: f32,
     pub target_cardinality: usize,
+    pub number_of_mutations_sampler: Uniform<usize>,
 }
 
 impl Mutate for MultiGeneDynamic {
@@ -66,7 +66,7 @@ impl Mutate for MultiGeneDynamic {
         {
             if bool_sampler.sample(rng) {
                 genotype.mutate_chromosome_genes(
-                    self.number_of_mutations,
+                    self.number_of_mutations_sampler.sample(rng),
                     true,
                     chromosome,
                     state.current_scale_index,
@@ -84,11 +84,13 @@ impl MultiGeneDynamic {
         mutation_probability_step: f32,
         target_cardinality: usize,
     ) -> Self {
+        let number_of_mutations_sampler = Uniform::from(1..=number_of_mutations);
         Self {
             number_of_mutations,
+            mutation_probability: 0.0,
             mutation_probability_step,
             target_cardinality,
-            ..Default::default()
+            number_of_mutations_sampler,
         }
     }
 }
