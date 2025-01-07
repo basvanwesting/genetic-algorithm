@@ -21,6 +21,9 @@ pub struct Builder<G: Genotype> {
     pub allele_mutation_ranges: Option<Vec<RangeInclusive<G::Allele>>>,
     pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<G::Allele>>>,
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<G::Allele>>>>,
+    pub mutation_gene_index_weights: Option<Vec<f64>>,
+    pub crossover_gene_index_weights: Option<Vec<f64>>,
+    pub crossover_point_index_weights: Option<Vec<f64>>,
     pub seed_genes_list: Vec<G::Genes>,
 }
 
@@ -91,6 +94,21 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    pub fn with_mutation_gene_index_weights<T: Into<f64>>(mut self, weights: Vec<T>) -> Self {
+        self.mutation_gene_index_weights = Some(weights.into_iter().map(Into::into).collect());
+        self
+    }
+
+    pub fn with_crossover_gene_index_weights<T: Into<f64>>(mut self, weights: Vec<T>) -> Self {
+        self.crossover_gene_index_weights = Some(weights.into_iter().map(Into::into).collect());
+        self
+    }
+
+    pub fn with_crossover_point_index_weights<T: Into<f64>>(mut self, weights: Vec<T>) -> Self {
+        self.crossover_point_index_weights = Some(weights.into_iter().map(Into::into).collect());
+        self
+    }
+
     pub fn build(self) -> Result<G, <G as TryFrom<Builder<G>>>::Error> {
         self.try_into()
     }
@@ -108,6 +126,9 @@ impl<G: Genotype> Default for Builder<G> {
             allele_mutation_ranges: None,
             allele_mutation_scaled_range: None,
             allele_mutation_scaled_ranges: None,
+            mutation_gene_index_weights: None,
+            crossover_gene_index_weights: None,
+            crossover_point_index_weights: None,
             seed_genes_list: vec![],
         }
     }
