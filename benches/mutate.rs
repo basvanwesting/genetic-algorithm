@@ -36,7 +36,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::from_entropy();
-    let population_size: usize = 1000;
+    let population_size: usize = 100;
     let genes_sizes = vec![100, 10000];
     config.target_population_size = population_size;
 
@@ -49,7 +49,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         let mutates: Vec<MutateWrapper> = vec![
             MutateSingleGene::new(0.2).into(),
-            MutateMultiGene::new(10, 0.2).into(),
+            MutateMultiGene::new(20, 0.2).into(),
             MutateSingleGeneDynamic::new(0.2, population_size / 2).into(),
             MutateMultiGeneDynamic::new(10, 0.2, population_size / 2).into(),
         ];

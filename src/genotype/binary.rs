@@ -4,7 +4,7 @@ use crate::chromosome::{BinaryChromosome, Chromosome, ChromosomeManager, GenesOw
 use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
-use rand::distributions::{Standard, Uniform};
+use rand::distributions::{Standard, Uniform, WeightedIndex};
 use rand::prelude::*;
 use std::fmt;
 
@@ -24,7 +24,13 @@ use std::fmt;
 #[derive(Clone, Debug)]
 pub struct Binary {
     pub genes_size: usize,
-    gene_index_sampler: Uniform<usize>,
+    pub mutation_gene_index_weights: Option<Vec<f64>>,
+    pub crossover_gene_index_weights: Option<Vec<f64>>,
+    pub crossover_point_index_weights: Option<Vec<f64>>,
+    default_gene_index_sampler: Uniform<usize>,
+    mutation_gene_index_sampler: Option<WeightedIndex<f64>>,
+    crossover_gene_index_sampler: Option<WeightedIndex<f64>>,
+    crossover_point_index_sampler: Option<WeightedIndex<f64>>,
     pub seed_genes_list: Vec<Vec<bool>>,
     pub chromosome_bin: Vec<BinaryChromosome>,
     pub best_genes: Vec<bool>,
@@ -42,7 +48,22 @@ impl TryFrom<Builder<Self>> for Binary {
             let genes_size = builder.genes_size.unwrap();
             Ok(Self {
                 genes_size,
-                gene_index_sampler: Uniform::from(0..genes_size),
+                default_gene_index_sampler: Uniform::from(0..genes_size),
+                mutation_gene_index_sampler: builder
+                    .mutation_gene_index_weights
+                    .as_ref()
+                    .map(|w| WeightedIndex::new(w.clone()).unwrap()),
+                crossover_gene_index_sampler: builder
+                    .crossover_gene_index_weights
+                    .as_ref()
+                    .map(|w| WeightedIndex::new(w.clone()).unwrap()),
+                crossover_point_index_sampler: builder
+                    .crossover_point_index_weights
+                    .as_ref()
+                    .map(|w| WeightedIndex::new(w.clone()).unwrap()),
+                mutation_gene_index_weights: builder.mutation_gene_index_weights,
+                crossover_gene_index_weights: builder.crossover_gene_index_weights,
+                crossover_point_index_weights: builder.crossover_point_index_weights,
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_bin: vec![],
                 best_genes: vec![false; genes_size],
@@ -83,22 +104,49 @@ impl Genotype for Binary {
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
-        if allow_duplicates {
-            rng.sample_iter(self.gene_index_sampler)
-                .take(number_of_mutations)
+        match (
+            allow_duplicates,
+            &self.mutation_gene_index_weights,
+            &self.mutation_gene_index_sampler,
+        ) {
+            (true, _, Some(mutation_gene_index_sampler)) => {
+                rng.sample_iter(mutation_gene_index_sampler)
+                    .take(number_of_mutations)
+                    .for_each(|index| {
+                        chromosome.genes[index] = !chromosome.genes[index];
+                    });
+            }
+            (true, _, _) => {
+                rng.sample_iter(&self.default_gene_index_sampler)
+                    .take(number_of_mutations)
+                    .for_each(|index| {
+                        chromosome.genes[index] = !chromosome.genes[index];
+                    });
+            }
+            (false, Some(mutation_gene_index_weights), _) => {
+                rand::seq::index::sample_weighted(
+                    rng,
+                    self.genes_size,
+                    |i| mutation_gene_index_weights[i],
+                    number_of_mutations.min(self.genes_size),
+                )
+                .unwrap()
+                .iter()
                 .for_each(|index| {
                     chromosome.genes[index] = !chromosome.genes[index];
                 });
-        } else {
-            rand::seq::index::sample(
-                rng,
-                self.genes_size,
-                number_of_mutations.min(self.genes_size),
-            )
-            .iter()
-            .for_each(|index| {
-                chromosome.genes[index] = !chromosome.genes[index];
-            });
+            }
+            (false, _, _) => {
+                rand::seq::index::sample(
+                    rng,
+                    self.genes_size,
+                    number_of_mutations.min(self.genes_size),
+                )
+                .iter()
+                .for_each(|index| {
+                    chromosome.genes[index] = !chromosome.genes[index];
+                });
+            }
         }
         chromosome.taint();
     }
@@ -123,22 +171,49 @@ impl EvolveGenotype for Binary {
         mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
-        if allow_duplicates {
-            rng.sample_iter(self.gene_index_sampler)
-                .take(number_of_crossovers)
+        match (
+            allow_duplicates,
+            &self.crossover_gene_index_weights,
+            &self.crossover_gene_index_sampler,
+        ) {
+            (true, _, Some(crossover_gene_index_sampler)) => {
+                rng.sample_iter(crossover_gene_index_sampler)
+                    .take(number_of_crossovers)
+                    .for_each(|index| {
+                        std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                    });
+            }
+            (true, _, _) => {
+                rng.sample_iter(self.default_gene_index_sampler)
+                    .take(number_of_crossovers)
+                    .for_each(|index| {
+                        std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                    });
+            }
+            (false, Some(crossover_gene_index_weights), _) => {
+                rand::seq::index::sample_weighted(
+                    rng,
+                    self.genes_size,
+                    |i| crossover_gene_index_weights[i],
+                    number_of_crossovers.min(self.genes_size),
+                )
+                .unwrap()
+                .iter()
                 .for_each(|index| {
                     std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
                 });
-        } else {
-            rand::seq::index::sample(
-                rng,
-                self.genes_size(),
-                number_of_crossovers.min(self.genes_size()),
-            )
-            .iter()
-            .for_each(|index| {
-                std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
-            });
+            }
+            (false, _, _) => {
+                rand::seq::index::sample(
+                    rng,
+                    self.genes_size(),
+                    number_of_crossovers.min(self.genes_size()),
+                )
+                .iter()
+                .for_each(|index| {
+                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                });
+            }
         }
         mother.taint();
         father.taint();
@@ -151,22 +226,41 @@ impl EvolveGenotype for Binary {
         mother: &mut Self::Chromosome,
         rng: &mut R,
     ) {
-        if allow_duplicates {
-            rng.sample_iter(self.gene_index_sampler)
+        let mut indexes: Vec<usize> = match (
+            allow_duplicates,
+            &self.crossover_point_index_weights,
+            &self.crossover_point_index_sampler,
+        ) {
+            (true, _, Some(crossover_point_index_sampler)) => rng
+                .sample_iter(crossover_point_index_sampler)
                 .take(number_of_crossovers)
-                .for_each(|index| {
-                    let mother_back = &mut mother.genes[index..];
-                    let father_back = &mut father.genes[index..];
-                    father_back.swap_with_slice(mother_back);
-                });
-        } else {
-            rand::seq::index::sample(
+                .collect(),
+            (true, _, _) => rng
+                .sample_iter(self.default_gene_index_sampler)
+                .take(number_of_crossovers)
+                .collect(),
+            (false, Some(crossover_point_index_weights), _) => rand::seq::index::sample_weighted(
+                rng,
+                self.genes_size,
+                |i| crossover_point_index_weights[i],
+                number_of_crossovers.min(self.genes_size),
+            )
+            .unwrap()
+            .into_iter()
+            .collect(),
+            (false, _, _) => rand::seq::index::sample(
                 rng,
                 self.genes_size(),
                 number_of_crossovers.min(self.genes_size()),
             )
-            .iter()
-            .sorted_unstable()
+            .into_iter()
+            .collect(),
+        };
+
+        indexes.sort_unstable();
+        indexes
+            .into_iter()
+            .dedup()
             .chunks(2)
             .into_iter()
             .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
@@ -182,7 +276,7 @@ impl EvolveGenotype for Binary {
                 }
                 _ => (),
             });
-        }
+
         mother.taint();
         father.taint();
     }
