@@ -1,0 +1,10 @@
+why is dedup 30% faster, the iterator is unsorted, so dedup does almost nothing.
+
+            rng.sample_iter(self.gene_index_sampler)
+                .take(number_of_crossovers)
+                .dedup()
+                .for_each(|index| {
+                    std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
+                });
+
+I don't feel comfortable adding dedup because it works as the underlying reason is non-transparant and can change
