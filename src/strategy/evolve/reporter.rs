@@ -140,11 +140,12 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         if state.current_generation() % self.period == 0 {
             let number_of_extension_events = self.number_of_extension_events;
             self.writeln(format_args!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, fitness_score_cardinality: {}, selected_population_size: {}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, cardinality (genes/fitness): {}/{}, selected_population_size: {}, #extension_events: {}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
                 state.current_scale_index(),
+                state.population_as_ref().genes_cardinality(),
                 state.population_as_ref().fitness_score_cardinality(),
                 state.population_as_ref().size(),
                 number_of_extension_events,

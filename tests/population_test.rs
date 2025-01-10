@@ -84,4 +84,32 @@ mod population_tests {
 
         assert_eq!(population.fitness_score_cardinality(), 3 + 1);
     }
+
+    #[test]
+    fn genes_cardinality() {
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(3)
+            .build()
+            .unwrap();
+
+        let mut population: Population<BinaryChromosome> = build::population(vec![
+            vec![false, false, false],
+            vec![false, false, true],
+            vec![false, true, true],
+            vec![true, true, true],
+            vec![true, true, false],
+            vec![false, false, false],
+            vec![false, false, true],
+            vec![false, true, true],
+        ]);
+
+        assert_eq!(population.genes_cardinality(), 0);
+
+        population.chromosomes.iter_mut().for_each(|chromosome| {
+            let genes_hash = genotype.calculate_genes_hash(chromosome);
+            chromosome.taint(genes_hash);
+        });
+
+        assert_eq!(population.genes_cardinality(), 5);
+    }
 }
