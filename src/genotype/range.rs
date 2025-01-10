@@ -69,6 +69,7 @@ where
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_bin: Vec<RangeChromosome<T>>,
     pub best_genes: Vec<T>,
+    pub genes_hashing: bool,
 }
 
 impl<T: RangeAllele> TryFrom<Builder<Self>> for Range<T>
@@ -110,6 +111,7 @@ where
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_bin: vec![],
                 best_genes: vec![*allele_range.start(); genes_size],
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -195,11 +197,15 @@ where
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash {
-        let mut s = DefaultHasher::new();
-        let bytes: &[u8] = cast_slice(&chromosome.genes);
-        bytes.hash(&mut s);
-        s.finish()
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
+        if self.genes_hashing {
+            let mut s = DefaultHasher::new();
+            let bytes: &[u8] = cast_slice(self.genes_slice(chromosome));
+            bytes.hash(&mut s);
+            Some(s.finish())
+        } else {
+            None
+        }
     }
 
     fn mutation_type(&self) -> MutationType {
@@ -574,6 +580,7 @@ where
             seed_genes_list: self.seed_genes_list.clone(),
             chromosome_bin: vec![],
             best_genes: vec![*self.allele_range.start(); self.genes_size],
+            genes_hashing: self.genes_hashing,
         }
     }
 }

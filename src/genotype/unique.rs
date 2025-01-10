@@ -60,6 +60,7 @@ pub struct Unique<T: Allele + Hash = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_bin: Vec<UniqueChromosome<T>>,
     pub best_genes: Vec<T>,
+    pub genes_hashing: bool,
 }
 
 impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
@@ -82,6 +83,7 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_bin: vec![],
                 best_genes: allele_list.clone(),
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -110,10 +112,14 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash {
-        let mut s = DefaultHasher::new();
-        chromosome.genes.hash(&mut s);
-        s.finish()
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
+        if self.genes_hashing {
+            let mut s = DefaultHasher::new();
+            chromosome.genes.hash(&mut s);
+            Some(s.finish())
+        } else {
+            None
+        }
     }
 
     fn mutate_chromosome_genes<R: Rng>(

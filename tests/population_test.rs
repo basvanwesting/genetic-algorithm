@@ -89,6 +89,7 @@ mod population_tests {
     fn genes_cardinality() {
         let genotype = BinaryGenotype::builder()
             .with_genes_size(3)
+            .with_genes_hashing(true)
             .build()
             .unwrap();
 

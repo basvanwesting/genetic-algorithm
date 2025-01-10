@@ -95,6 +95,7 @@ pub struct MultiList<T: Allele + PartialEq + Hash = DefaultAllele> {
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_bin: Vec<MultiListChromosome<T>>,
     pub best_genes: Vec<T>,
+    pub genes_hashing: bool,
 }
 
 impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
@@ -126,6 +127,7 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_bin: vec![],
                 best_genes: allele_lists.iter().map(|a| a[0]).collect(),
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -154,10 +156,14 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash {
-        let mut s = DefaultHasher::new();
-        chromosome.genes.hash(&mut s);
-        s.finish()
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
+        if self.genes_hashing {
+            let mut s = DefaultHasher::new();
+            chromosome.genes.hash(&mut s);
+            Some(s.finish())
+        } else {
+            None
+        }
     }
 
     fn mutate_chromosome_genes<R: Rng>(

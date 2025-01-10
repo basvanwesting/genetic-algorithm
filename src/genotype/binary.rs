@@ -30,6 +30,7 @@ pub struct Binary {
     pub seed_genes_list: Vec<Vec<bool>>,
     pub chromosome_bin: Vec<BinaryChromosome>,
     pub best_genes: Vec<bool>,
+    pub genes_hashing: bool,
 }
 
 impl TryFrom<Builder<Self>> for Binary {
@@ -48,6 +49,7 @@ impl TryFrom<Builder<Self>> for Binary {
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_bin: vec![],
                 best_genes: vec![false; genes_size],
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -76,10 +78,14 @@ impl Genotype for Binary {
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash {
-        let mut s = DefaultHasher::new();
-        chromosome.genes.hash(&mut s);
-        s.finish()
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
+        if self.genes_hashing {
+            let mut s = DefaultHasher::new();
+            chromosome.genes.hash(&mut s);
+            Some(s.finish())
+        } else {
+            None
+        }
     }
 
     fn mutate_chromosome_genes<R: Rng>(

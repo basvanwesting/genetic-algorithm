@@ -51,7 +51,7 @@ pub trait Chromosome: Clone + Send {
     fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>);
     fn genes_hash(&self) -> Option<GenesHash>;
     fn set_genes_hash(&mut self, genes_hash: Option<GenesHash>);
-    fn taint(&mut self, genes_hash: GenesHash);
+    fn taint(&mut self, genes_hash: Option<GenesHash>);
     fn copy_fields_from(&mut self, other: &Self);
 }
 pub trait GenesOwner: Chromosome {

@@ -32,10 +32,10 @@ impl super::Chromosome for Row {
     fn set_genes_hash(&mut self, genes_hash: Option<GenesHash>) {
         self.genes_hash = genes_hash
     }
-    fn taint(&mut self, genes_hash: GenesHash) {
+    fn taint(&mut self, genes_hash: Option<GenesHash>) {
         self.age = 0;
         self.fitness_score = None;
-        self.genes_hash = Some(genes_hash);
+        self.genes_hash = genes_hash;
         self.reference_id = usize::MAX;
     }
     fn copy_fields_from(&mut self, other: &Self) {

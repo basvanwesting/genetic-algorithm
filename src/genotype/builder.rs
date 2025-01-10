@@ -22,6 +22,7 @@ pub struct Builder<G: Genotype> {
     pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<G::Allele>>>,
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<G::Allele>>>>,
     pub seed_genes_list: Vec<G::Genes>,
+    pub genes_hashing: bool,
 }
 
 impl<G: Genotype> Builder<G> {
@@ -91,6 +92,11 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    pub fn with_genes_hashing(mut self, genes_hashing: bool) -> Self {
+        self.genes_hashing = genes_hashing;
+        self
+    }
+
     pub fn build(self) -> Result<G, <G as TryFrom<Builder<G>>>::Error> {
         self.try_into()
     }
@@ -109,6 +115,7 @@ impl<G: Genotype> Default for Builder<G> {
             allele_mutation_scaled_range: None,
             allele_mutation_scaled_ranges: None,
             seed_genes_list: vec![],
+            genes_hashing: false,
         }
     }
 }

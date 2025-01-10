@@ -94,6 +94,7 @@ where
     allele_relative_sampler: Option<Uniform<T>>,
     pub seed_genes_list: Vec<Box<[T; N]>>,
     pub best_genes: Box<[T; N]>,
+    pub genes_hashing: bool,
 }
 
 impl<T: RangeAllele, const N: usize, const M: usize> TryFrom<Builder<Self>>
@@ -137,6 +138,7 @@ where
                     .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
                 seed_genes_list: builder.seed_genes_list,
                 best_genes: Box::new([T::default(); N]),
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -307,11 +309,15 @@ where
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         self.get_genes_by_id(chromosome.row_id)
     }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash {
-        let mut s = DefaultHasher::new();
-        let bytes: &[u8] = cast_slice(self.genes_slice(chromosome));
-        bytes.hash(&mut s);
-        s.finish()
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
+        if self.genes_hashing {
+            let mut s = DefaultHasher::new();
+            let bytes: &[u8] = cast_slice(self.genes_slice(chromosome));
+            bytes.hash(&mut s);
+            Some(s.finish())
+        } else {
+            None
+        }
     }
 
     fn update_population_fitness_scores(
@@ -694,6 +700,7 @@ where
                 .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
             seed_genes_list: self.seed_genes_list.clone(),
             best_genes: Box::new([T::default(); N]),
+            genes_hashing: self.genes_hashing,
         }
     }
 }
