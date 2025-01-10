@@ -26,7 +26,7 @@ pub use self::static_matrix::StaticMatrix as StaticMatrixGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 pub use crate::allele::{Allele, RangeAllele};
-use crate::chromosome::{Chromosome, ChromosomeManager};
+use crate::chromosome::{Chromosome, ChromosomeManager, GenesHash};
 use crate::fitness::FitnessValue;
 use crate::population::Population;
 use fixedbitset::FixedBitSet;
@@ -72,8 +72,7 @@ pub trait Genotype:
     fn best_genes(&self) -> &Self::Genes;
     fn best_genes_slice(&self) -> &[Self::Allele];
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
-    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64;
-
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash;
     fn update_population_fitness_scores(
         &self,
         _population: &mut Population<Self::Chromosome>,

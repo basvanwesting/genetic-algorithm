@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
-use crate::chromosome::{BitChromosome, Chromosome, ChromosomeManager, GenesOwner};
+use crate::chromosome::{BitChromosome, Chromosome, ChromosomeManager, GenesHash, GenesOwner};
 use crate::population::Population;
 use fixedbitset::{Block, FixedBitSet};
 use itertools::Itertools;
@@ -138,7 +138,7 @@ impl Genotype for Bit {
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
-    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64 {
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash {
         let mut s = DefaultHasher::new();
         chromosome.genes.hash(&mut s);
         s.finish()
@@ -165,7 +165,7 @@ impl Genotype for Bit {
             .iter()
             .for_each(|index| chromosome.genes.toggle(index));
         }
-        chromosome.taint();
+        chromosome.taint(self.calculate_genes_hash(chromosome));
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -225,8 +225,8 @@ impl EvolveGenotype for Bit {
                 }
             });
         }
-        mother.taint();
-        father.taint();
+        mother.taint(self.calculate_genes_hash(mother));
+        father.taint(self.calculate_genes_hash(father));
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -270,8 +270,8 @@ impl EvolveGenotype for Bit {
                 _ => (),
             });
         }
-        mother.taint();
-        father.taint();
+        mother.taint(self.calculate_genes_hash(mother));
+        father.taint(self.calculate_genes_hash(father));
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -290,8 +290,9 @@ impl HillClimbGenotype for Bit {
         _rng: &mut R,
     ) {
         (0..self.genes_size).for_each(|index| {
-            let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+            let mut new_chromosome = self.chromosome_cloner(chromosome);
             new_chromosome.genes.toggle(index);
+            new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
             population.chromosomes.push(new_chromosome);
         });
     }

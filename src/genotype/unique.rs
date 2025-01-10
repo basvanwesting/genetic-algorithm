@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::allele::Allele;
-use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, UniqueChromosome};
+use crate::chromosome::{Chromosome, ChromosomeManager, GenesHash, GenesOwner, UniqueChromosome};
 use crate::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
@@ -110,7 +110,7 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
-    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64 {
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash {
         let mut s = DefaultHasher::new();
         chromosome.genes.hash(&mut s);
         s.finish()
@@ -140,7 +140,7 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
             .tuples()
             .for_each(|(index1, index2)| chromosome.genes.swap(index1, index2));
         }
-        chromosome.taint();
+        chromosome.taint(self.calculate_genes_hash(chromosome));
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
         self.seed_genes_list = seed_genes_list;
@@ -186,8 +186,9 @@ impl<T: Allele + Hash> HillClimbGenotype for Unique<T> {
         (0..self.genes_size())
             .tuple_combinations()
             .for_each(|(first, second)| {
-                let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                let mut new_chromosome = self.chromosome_cloner(chromosome);
                 new_chromosome.genes.swap(first, second);
+                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
                 population.chromosomes.push(new_chromosome);
             });
     }

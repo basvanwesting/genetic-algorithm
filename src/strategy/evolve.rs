@@ -329,7 +329,11 @@ impl<
         let now = Instant::now();
         self.genotype.chromosomes_setup();
         self.state.population.chromosomes = (0..self.config.target_population_size)
-            .map(|_| self.genotype.chromosome_constructor_random(&mut self.rng))
+            .map(|_| {
+                let mut chromosome = self.genotype.chromosome_constructor_random(&mut self.rng);
+                chromosome.taint(self.genotype.calculate_genes_hash(&chromosome));
+                chromosome
+            })
             .collect::<Vec<_>>();
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());

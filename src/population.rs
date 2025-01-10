@@ -92,11 +92,19 @@ impl<C: Chromosome> Population<C> {
         });
         estimator.estimate() + nones
     }
-
     pub fn fitness_score_present(&self, fitness_score: Option<isize>) -> bool {
         self.chromosomes
             .iter()
             .any(|c| c.fitness_score() == fitness_score)
+    }
+    pub fn genes_cardinality(&self) -> usize {
+        let mut estimator = CardinalityEstimator::<u64>::new();
+        self.chromosomes.iter().for_each(|chromosome| {
+            if let Some(genes_hash) = chromosome.genes_hash() {
+                estimator.insert(&genes_hash);
+            }
+        });
+        estimator.estimate()
     }
 }
 

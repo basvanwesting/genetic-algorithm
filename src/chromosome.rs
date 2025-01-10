@@ -20,6 +20,10 @@ use crate::genotype::{Genes, Genotype};
 use rand::prelude::*;
 use std::ops::Range;
 
+/// The GenesHash is used for determining cardinality in the population
+/// It could also be used for caching fitness scores, without lifetime concerns of the chromosome
+pub type GenesHash = u64;
+
 /// The Chromosome is used as an individual in the [Population](crate::population::Population).
 /// Chromosomes [select](crate::select), [crossover](crate::crossover) and [mutate](crate::mutate)
 /// with each other in the [Evolve](crate::strategy::evolve::Evolve) strategy.
@@ -45,12 +49,9 @@ pub trait Chromosome: Clone + Send {
     fn increment_age(&mut self);
     fn fitness_score(&self) -> Option<FitnessValue>;
     fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>);
-    fn taint(&mut self);
-    fn clone_and_taint(&self) -> Self {
-        let mut chromosome = self.clone();
-        chromosome.taint();
-        chromosome
-    }
+    fn genes_hash(&self) -> Option<GenesHash>;
+    fn set_genes_hash(&mut self, genes_hash: Option<GenesHash>);
+    fn taint(&mut self, genes_hash: GenesHash);
     fn copy_fields_from(&mut self, other: &Self);
 }
 pub trait GenesOwner: Chromosome {
@@ -87,7 +88,6 @@ pub trait ChromosomeManager<G: Genotype> {
     fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {
         let mut chromosome = self.chromosome_bin_find_or_create();
         self.set_random_genes(&mut chromosome, rng);
-        chromosome.taint();
         chromosome
     }
     fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
@@ -96,13 +96,6 @@ pub trait ChromosomeManager<G: Genotype> {
         new_chromosome.copy_fields_from(chromosome);
         new_chromosome
     }
-    fn chromosome_constructor_from(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
-        let mut new_chromosome = self.chromosome_bin_find_or_create();
-        self.copy_genes(chromosome, &mut new_chromosome);
-        new_chromosome.taint();
-        new_chromosome
-    }
-
     fn chromosome_destructor(&mut self, chromosome: G::Chromosome) {
         self.chromosome_bin_push(chromosome)
     }

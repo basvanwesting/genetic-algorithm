@@ -1,7 +1,9 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::allele::Allele;
-use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, MultiListChromosome};
+use crate::chromosome::{
+    Chromosome, ChromosomeManager, GenesHash, GenesOwner, MultiListChromosome,
+};
 use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -152,7 +154,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
-    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64 {
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash {
         let mut s = DefaultHasher::new();
         chromosome.genes.hash(&mut s);
         s.finish()
@@ -186,7 +188,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
                     self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
             });
         }
-        chromosome.taint();
+        chromosome.taint(self.calculate_genes_hash(chromosome));
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -226,8 +228,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.taint();
-        father.taint();
+        mother.taint(self.calculate_genes_hash(mother));
+        father.taint(self.calculate_genes_hash(father));
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -269,8 +271,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
                 _ => (),
             });
         }
-        mother.taint();
-        father.taint();
+        mother.taint(self.calculate_genes_hash(mother));
+        father.taint(self.calculate_genes_hash(father));
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -291,8 +293,9 @@ impl<T: Allele + PartialEq + Hash> HillClimbGenotype for MultiList<T> {
         for index in 0..self.genes_size() {
             for allele_value in self.allele_lists[index].clone() {
                 if chromosome.genes[index] != allele_value {
-                    let mut new_chromosome = self.chromosome_constructor_from(chromosome);
+                    let mut new_chromosome = self.chromosome_cloner(chromosome);
                     new_chromosome.genes[index] = allele_value;
+                    new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
                     population.chromosomes.push(new_chromosome);
                 }
             }

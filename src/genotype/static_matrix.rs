@@ -1,7 +1,9 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
 use crate::allele::RangeAllele;
-use crate::chromosome::{Chromosome, ChromosomeManager, GenesPointer, StaticMatrixChromosome};
+use crate::chromosome::{
+    Chromosome, ChromosomeManager, GenesHash, GenesPointer, StaticMatrixChromosome,
+};
 use crate::fitness::FitnessValue;
 use crate::population::Population;
 use bytemuck::cast_slice;
@@ -305,7 +307,7 @@ where
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         self.get_genes_by_id(chromosome.row_id)
     }
-    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64 {
+    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> GenesHash {
         let mut s = DefaultHasher::new();
         let bytes: &[u8] = cast_slice(self.genes_slice(chromosome));
         bytes.hash(&mut s);
@@ -381,7 +383,7 @@ where
                 };
             });
         }
-        chromosome.taint();
+        chromosome.taint(self.calculate_genes_hash(chromosome));
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -427,8 +429,8 @@ where
                 self.swap_gene_by_id(father.row_id, mother.row_id, index);
             });
         }
-        mother.taint();
-        father.taint();
+        mother.taint(self.calculate_genes_hash(mother));
+        father.taint(self.calculate_genes_hash(father));
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -468,8 +470,8 @@ where
                 _ => (),
             });
         }
-        mother.taint();
-        father.taint();
+        mother.taint(self.calculate_genes_hash(mother));
+        father.taint(self.calculate_genes_hash(father));
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -543,13 +545,15 @@ where
             };
 
             if value_start < base_value {
-                let new_chromosome = self.chromosome_constructor_from(chromosome);
+                let mut new_chromosome = self.chromosome_cloner(chromosome);
                 self.set_gene_by_id(new_chromosome.row_id, index, value_start);
+                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
                 population.chromosomes.push(new_chromosome)
             };
             if base_value < value_end {
-                let new_chromosome = self.chromosome_constructor_from(chromosome);
+                let mut new_chromosome = self.chromosome_cloner(chromosome);
                 self.set_gene_by_id(new_chromosome.row_id, index, value_end);
+                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
                 population.chromosomes.push(new_chromosome)
             };
         });
@@ -582,15 +586,17 @@ where
             };
 
             if range_start < base_value {
-                let new_chromosome = self.chromosome_constructor_from(chromosome);
+                let mut new_chromosome = self.chromosome_cloner(chromosome);
                 let new_value = rng.gen_range(range_start..base_value);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
+                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
                 population.chromosomes.push(new_chromosome)
             };
             if base_value < range_end {
-                let new_chromosome = self.chromosome_constructor_from(chromosome);
+                let mut new_chromosome = self.chromosome_cloner(chromosome);
                 let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
+                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
                 population.chromosomes.push(new_chromosome)
             };
         });
@@ -608,16 +614,18 @@ where
         (0..self.genes_size).for_each(|index| {
             let base_value = self.get_gene_by_id(chromosome.row_id, index);
             if allele_range_start < base_value {
-                let new_chromosome = self.chromosome_constructor_from(chromosome);
+                let mut new_chromosome = self.chromosome_cloner(chromosome);
                 let new_value = rng.gen_range(allele_range_start..base_value);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
+                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
                 population.chromosomes.push(new_chromosome)
             };
             if base_value < allele_range_end {
-                let new_chromosome = self.chromosome_constructor_from(chromosome);
+                let mut new_chromosome = self.chromosome_cloner(chromosome);
                 let new_value =
                     rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
+                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
                 population.chromosomes.push(new_chromosome)
             };
         });
