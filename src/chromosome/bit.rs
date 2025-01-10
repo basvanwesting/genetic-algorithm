@@ -1,8 +1,6 @@
 use super::GenesHash;
 use crate::fitness::FitnessValue;
 use fixedbitset::FixedBitSet;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
 
 #[derive(Clone, Debug)]
 pub struct Bit {

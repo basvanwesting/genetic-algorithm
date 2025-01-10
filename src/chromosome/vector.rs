@@ -1,8 +1,6 @@
 use super::GenesHash;
 use crate::allele::Allele;
 use crate::fitness::FitnessValue;
-use std::collections::hash_map::DefaultHasher;
-use std::hash::{Hash, Hasher};
 
 #[derive(Clone, Debug)]
 pub struct Vector<T: Allele> {
