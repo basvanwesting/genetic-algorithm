@@ -72,6 +72,7 @@ pub trait Genotype:
     fn best_genes(&self) -> &Self::Genes;
     fn best_genes_slice(&self) -> &[Self::Allele];
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
+    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64;
 
     fn update_population_fitness_scores(
         &self,

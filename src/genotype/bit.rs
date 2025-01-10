@@ -7,7 +7,9 @@ use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Standard, Uniform};
 use rand::prelude::*;
+use std::collections::hash_map::DefaultHasher;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 
 /// Genes are a [FixedBitSet]. Functionally the same as [BinaryGenotype](super::BinaryGenotype), but
 /// better for large genes sizes as storage is much more efficient than `Vec<bool>`.
@@ -135,6 +137,11 @@ impl Genotype for Bit {
     }
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
+    }
+    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64 {
+        let mut s = DefaultHasher::new();
+        chromosome.genes.hash(&mut s);
+        s.finish()
     }
 
     fn mutate_chromosome_genes<R: Rng>(

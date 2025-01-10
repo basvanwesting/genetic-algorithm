@@ -3,12 +3,15 @@ use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
 use crate::allele::RangeAllele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, RangeChromosome};
 use crate::population::Population;
+use bytemuck::cast_slice;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
+use std::collections::hash_map::DefaultHasher;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 use std::ops::RangeInclusive;
 
 pub type DefaultAllele = f32;
@@ -191,6 +194,12 @@ where
     }
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
+    }
+    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64 {
+        let mut s = DefaultHasher::new();
+        let bytes: &[u8] = cast_slice(&chromosome.genes);
+        bytes.hash(&mut s);
+        s.finish()
     }
 
     fn mutation_type(&self) -> MutationType {

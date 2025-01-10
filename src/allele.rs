@@ -3,8 +3,8 @@ use impl_trait_for_tuples::impl_for_tuples;
 use std::ops::Add;
 
 /// Standard Allele, suitable for [crate::genotype::Genotype]. Implemented for a set of primitives by default
-#[impl_for_tuples(0, 12)]
-pub trait Allele: Clone + Copy + Send + Sync + std::fmt::Debug {}
+// #[impl_for_tuples(0, 12)]
+pub trait Allele: Clone + Copy + Send + Sync + std::fmt::Debug + bytemuck::NoUninit {}
 
 impl Allele for bool {}
 impl Allele for char {}

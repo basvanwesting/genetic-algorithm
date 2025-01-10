@@ -3,11 +3,14 @@ use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, ListChromosome};
 use crate::population::Population;
+use bytemuck::{cast_slice, NoUninit};
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
+use std::collections::hash_map::DefaultHasher;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 
 pub type DefaultAllele = usize;
 
@@ -49,7 +52,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Debug, Clone)]
-pub struct List<T: Allele + PartialEq = DefaultAllele> {
+pub struct List<T: Allele + PartialEq + NoUninit = DefaultAllele> {
     pub genes_size: usize,
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
@@ -59,7 +62,7 @@ pub struct List<T: Allele + PartialEq = DefaultAllele> {
     pub best_genes: Vec<T>,
 }
 
-impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
+impl<T: Allele + PartialEq + NoUninit> TryFrom<Builder<Self>> for List<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -88,7 +91,7 @@ impl<T: Allele + PartialEq> TryFrom<Builder<Self>> for List<T> {
         }
     }
 }
-impl<T: Allele + PartialEq> Genotype for List<T> {
+impl<T: Allele + PartialEq + NoUninit> Genotype for List<T> {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
     type Chromosome = ListChromosome<Self::Allele>;
@@ -110,6 +113,12 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
     }
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
+    }
+    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64 {
+        let mut s = DefaultHasher::new();
+        let bytes: &[u8] = cast_slice(&chromosome.genes);
+        bytes.hash(&mut s);
+        s.finish()
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -150,7 +159,7 @@ impl<T: Allele + PartialEq> Genotype for List<T> {
     }
 }
 
-impl<T: Allele + PartialEq> EvolveGenotype for List<T> {
+impl<T: Allele + PartialEq + NoUninit> EvolveGenotype for List<T> {
     fn crossover_chromosome_genes<R: Rng>(
         &mut self,
         number_of_crossovers: usize,
@@ -230,7 +239,7 @@ impl<T: Allele + PartialEq> EvolveGenotype for List<T> {
         true
     }
 }
-impl<T: Allele + PartialEq> HillClimbGenotype for List<T> {
+impl<T: Allele + PartialEq + NoUninit> HillClimbGenotype for List<T> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
@@ -254,7 +263,7 @@ impl<T: Allele + PartialEq> HillClimbGenotype for List<T> {
     }
 }
 
-impl<T: Allele + PartialEq> PermutateGenotype for List<T> {
+impl<T: Allele + PartialEq + NoUninit> PermutateGenotype for List<T> {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
@@ -284,7 +293,7 @@ impl<T: Allele + PartialEq> PermutateGenotype for List<T> {
     }
 }
 
-impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
+impl<T: Allele + PartialEq + NoUninit> ChromosomeManager<Self> for List<T> {
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
@@ -314,7 +323,7 @@ impl<T: Allele + PartialEq> ChromosomeManager<Self> for List<T> {
     }
 }
 
-impl<T: Allele + PartialEq> fmt::Display for List<T> {
+impl<T: Allele + PartialEq + NoUninit> fmt::Display for List<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;

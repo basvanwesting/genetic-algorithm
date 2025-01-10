@@ -4,13 +4,16 @@ use crate::allele::RangeAllele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesPointer, StaticMatrixChromosome};
 use crate::fitness::FitnessValue;
 use crate::population::Population;
+use bytemuck::cast_slice;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::cmp::Ordering;
+use std::collections::hash_map::DefaultHasher;
 use std::fmt;
+use std::hash::{Hash, Hasher};
 use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 
 /// Genes (`N`) and Population (`M`) are a fixed `N*M` matrix of numeric values, stored on the heap as a
@@ -302,6 +305,13 @@ where
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         self.get_genes_by_id(chromosome.row_id)
     }
+    fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64 {
+        let mut s = DefaultHasher::new();
+        let bytes: &[u8] = cast_slice(self.genes_slice(chromosome));
+        bytes.hash(&mut s);
+        s.finish()
+    }
+
     fn update_population_fitness_scores(
         &self,
         population: &mut Population<Self::Chromosome>,
