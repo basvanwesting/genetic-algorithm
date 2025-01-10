@@ -64,14 +64,3 @@ impl<T: Allele> super::GenesOwner for Vector<T> {
         &self.genes
     }
 }
-
-impl<T: Allele> Vector<T>
-where
-    Vec<T>: Hash,
-{
-    pub fn genes_key(&self) -> super::GenesKey {
-        let mut s = DefaultHasher::new();
-        self.genes.hash(&mut s);
-        s.finish()
-    }
-}

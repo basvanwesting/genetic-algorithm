@@ -1,6 +1,6 @@
 #[doc(no_inline)]
 pub use crate::chromosome::{
-    BinaryChromosome, BitChromosome, Chromosome, GenesKey, ListChromosome, MultiListChromosome,
+    BinaryChromosome, BitChromosome, Chromosome, GenesHash, ListChromosome, MultiListChromosome,
     MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome, UniqueChromosome,
 };
 #[doc(no_inline)]

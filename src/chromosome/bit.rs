@@ -63,11 +63,3 @@ impl super::GenesOwner for Bit {
         &self.genes
     }
 }
-
-impl Bit {
-    pub fn genes_key(&self) -> super::GenesKey {
-        let mut s = DefaultHasher::new();
-        self.genes.hash(&mut s);
-        s.finish()
-    }
-}

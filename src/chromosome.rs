@@ -63,9 +63,6 @@ pub trait GenesPointer: Chromosome {
     fn new(row_id: usize) -> Self;
 }
 
-/// The GenesKey can be used for caching fitness scores, without lifetime concerns of the chromosome
-pub type GenesKey = u64;
-
 pub trait ChromosomeManager<G: Genotype> {
     /// Mandatory, random genes unless seed genes are provided
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
