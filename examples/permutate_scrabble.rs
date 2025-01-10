@@ -1,16 +1,17 @@
-use genetic_algorithm::strategy::evolve::prelude::*;
+use genetic_algorithm::strategy::permutate::prelude::*;
+use num::{BigUint, ToPrimitive};
 use std::collections::{HashMap, HashSet};
 
 type Row = usize;
 type Column = usize;
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, bytemuck::NoUninit)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub enum Orientation {
     Horizontal,
     Vertical,
 }
 
-#[derive(Clone, Copy, Debug, Eq, PartialEq, bytemuck::NoUninit)]
+#[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub struct WordPosition(pub Row, pub Column, pub Orientation);
 impl Allele for WordPosition {}
 
@@ -223,70 +224,49 @@ impl ScrabbleFitness {
     }
 }
 
-use cardinality_estimator::CardinalityEstimator;
-
 #[derive(Clone)]
 pub struct CustomReporter(usize);
 impl StrategyReporter for CustomReporter {
     type Genotype = MultiListGenotype<WordPosition>;
 
-    fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,
-        config: &C,
+        _config: &C,
     ) {
-        let number_of_seed_genes = genotype.seed_genes_list().len();
-        if number_of_seed_genes > 0 {
+        if state.current_generation() % self.0 == 0 {
+            let progress = (BigUint::from(state.current_generation() * 100)
+                / &genotype.chromosome_permutations_size())
+                .to_u8();
             println!(
-                "enter - {}, iteration: {}, number of seed genes: {}",
-                config.variant(),
-                state.current_iteration(),
-                number_of_seed_genes
-            );
-        } else {
-            println!(
-                "enter - {}, iteration: {}",
-                config.variant(),
-                state.current_iteration()
+                "progress: {}, current_generation: {}, best_generation: {}",
+                progress.map_or("-".to_string(), |v| format!("{:3.3}%", v)),
+                state.current_generation(),
+                state.best_generation(),
             );
         }
     }
 
-    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
-        if state.current_generation() % self.0 == 0 {
-            let mut estimator = CardinalityEstimator::<u64>::new();
-            state
-                .population_as_ref()
-                .chromosomes
-                .iter()
-                .map(|c| c.genes_key())
-                .for_each(|key| estimator.insert(&key));
-            let genes_key_cardinality = estimator.estimate();
-            let fitness_score_cardinality = state.population_as_ref().fitness_score_cardinality();
-
-            println!(
-                "current_generation: {}, stale_generations: {}, best_generation: {}, fitness_score_cardinality: {}, genes_key_cardinality: {}",
-                state.current_generation(),
-                state.stale_generations(),
-                state.best_generation(),
-                fitness_score_cardinality,
-                genes_key_cardinality,
-            );
-        }
+        println!(
+            "new best - current_generation: {}, best_fitness_score: {:?}",
+            state.current_generation(),
+            state.best_fitness_score(),
+        );
     }
 }
 
 fn main() {
     env_logger::init();
 
-    let rows = 10;
-    let columns = 10;
+    let rows = 5;
+    let columns = 5;
     let row_scores: Vec<isize> = (0..rows)
         .rev()
         .zip(0..rows)
@@ -298,11 +278,11 @@ fn main() {
         .map(|(v1, v2)| (v1.min(v2) + 1) as isize)
         .collect();
 
-    //println!("{:?}", row_scores);
-    //println!("{:?}", column_scores);
+    println!("{:?}", row_scores);
+    println!("{:?}", column_scores);
 
-    let words: Vec<&'static str> = vec!["bean", "mark", "blade", "edge", "light", "fire", "rifle"];
-
+    //let words: Vec<&'static str> = vec!["ada", "aad", "bas"];
+    let words: Vec<&'static str> = vec!["bean", "glee", "edge", "light", "note"];
     let mut allele_lists: Vec<Vec<WordPosition>> = vec![vec![]; words.len()];
     words.iter().enumerate().for_each(|(index, word)| {
         for row in 0..rows {
@@ -322,29 +302,10 @@ fn main() {
         .build()
         .unwrap();
 
-    //println!("{}", genotype);
+    println!("{}", genotype);
 
-    let evolve_builder = Evolve::builder()
+    let mut permutate = Permutate::builder()
         .with_genotype(genotype)
-        .with_target_population_size(1000)
-        .with_max_stale_generations(250)
-        // .with_max_chromosome_age(50)
-        .with_mutate(MutateMultiGene::new(2, 0.2))
-        //.with_mutate(MutateSingleGeneDynamic::new(0.01, 250))
-        // .with_mutate(MutateMultiGeneDynamic::new(2, 0.1, 250))
-        // .with_crossover(CrossoverSinglePoint::new())
-        .with_crossover(CrossoverUniform::new())
-        // .with_select(SelectTournament::new(4, 0.9))
-        .with_select(SelectElite::new(0.8))
-        .with_extension(ExtensionMassDegeneration::new(2, 10))
-        // .with_extension(ExtensionMassGenesis::new(2))
-        // .with_reporter(EvolveReporterSimple::default())
-        // .with_reporter(EvolveReporterSimple::new_with_flags(
-        //     100, false, false, false, true,
-        // ))
-        // .with_reporter(EvolveReporterSimple::new(100))
-        .with_reporter(CustomReporter(50))
-        .with_par_fitness(true)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
             rows,
@@ -352,13 +313,33 @@ fn main() {
             row_scores.clone(),
             column_scores.clone(),
             false,
-        ));
+        ))
+        .with_par_fitness(true)
+        // .with_reporter(PermutateReporterSimple::new(100_000))
+        .with_reporter(CustomReporter(100_000))
+        .build()
+        .unwrap();
 
-    let (evolve, _) = evolve_builder.call_speciated(10).unwrap();
-    // let evolve = evolve_builder.call().unwrap();
-    //println!("{}", evolve);
+    if false {
+        let guard = pprof::ProfilerGuardBuilder::default()
+            .frequency(1000)
+            .blocklist(&["libc", "libgcc", "pthread", "vdso"])
+            .build()
+            .unwrap();
 
-    if let Some(best_chromosome) = evolve.best_chromosome() {
+        permutate.call();
+
+        if let Ok(report) = guard.report().build() {
+            let file = std::fs::File::create("flamegraph_scrabble.svg").unwrap();
+            report.flamegraph(file).unwrap();
+        };
+    } else {
+        permutate.call();
+    }
+
+    println!("{}", permutate);
+
+    if let Some(best_chromosome) = permutate.best_chromosome() {
         let mut fitness = ScrabbleFitness::new(
             words.clone(),
             rows,
@@ -367,11 +348,15 @@ fn main() {
             column_scores.clone(),
             true,
         );
-        fitness.calculate_for_chromosome(&best_chromosome, &evolve.genotype);
+        fitness.calculate_for_chromosome(&best_chromosome, &permutate.genotype);
         fitness.letter_board.iter().for_each(|columns| {
             let string = String::from_iter(columns.iter());
             println!("{}", string.replace(' ', "."));
         });
+        println!(
+            "Valid solution with fitness score: {:?}",
+            best_chromosome.fitness_score()
+        );
     } else {
         println!("Invalid solution with fitness score: None");
     }

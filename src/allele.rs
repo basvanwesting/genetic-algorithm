@@ -3,8 +3,8 @@ use impl_trait_for_tuples::impl_for_tuples;
 use std::ops::Add;
 
 /// Standard Allele, suitable for [crate::genotype::Genotype]. Implemented for a set of primitives by default
-// #[impl_for_tuples(0, 12)]
-pub trait Allele: Clone + Copy + Send + Sync + std::fmt::Debug + bytemuck::NoUninit {}
+#[impl_for_tuples(0, 12)]
+pub trait Allele: Clone + Copy + Send + Sync + std::fmt::Debug {}
 
 impl Allele for bool {}
 impl Allele for char {}
@@ -26,7 +26,9 @@ impl Allele for usize {}
 /// Special Allele subtrait, used for [crate::genotype::RangeGenotype],
 /// [crate::genotype::MultiRangeGenotype], [crate::genotype::DynamicMatrixGenotype] and
 /// [crate::genotype::StaticMatrixGenotype]
-pub trait RangeAllele: Allele + Add<Output = Self> + std::cmp::PartialOrd + Default {
+pub trait RangeAllele:
+    Allele + Add<Output = Self> + std::cmp::PartialOrd + Default + bytemuck::NoUninit
+{
     /// used to build a start exclusive range, by adding the increment to the start
     fn smallest_increment() -> Self;
 }

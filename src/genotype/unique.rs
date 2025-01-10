@@ -3,7 +3,6 @@ use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, ChromosomeManager, GenesOwner, UniqueChromosome};
 use crate::population::Population;
-use bytemuck::{cast_slice, NoUninit};
 use factorial::Factorial;
 use itertools::Itertools;
 use num::BigUint;
@@ -40,7 +39,7 @@ pub type DefaultAllele = usize;
 /// ```
 /// use genetic_algorithm::genotype::{Allele, Genotype, UniqueGenotype};
 ///
-/// #[derive(Clone, Copy, PartialEq, Debug)]
+/// #[derive(Clone, Copy, PartialEq, Hash, Debug)]
 /// struct Item(pub u16, pub u16);
 /// impl Allele for Item {}
 ///
@@ -54,7 +53,7 @@ pub type DefaultAllele = usize;
 ///     .unwrap();
 /// ```
 #[derive(Debug, Clone)]
-pub struct Unique<T: Allele + NoUninit = DefaultAllele> {
+pub struct Unique<T: Allele + Hash = DefaultAllele> {
     pub genes_size: usize,
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
@@ -63,7 +62,7 @@ pub struct Unique<T: Allele + NoUninit = DefaultAllele> {
     pub best_genes: Vec<T>,
 }
 
-impl<T: Allele + NoUninit> TryFrom<Builder<Self>> for Unique<T> {
+impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
     type Error = TryFromBuilderError;
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
@@ -88,7 +87,7 @@ impl<T: Allele + NoUninit> TryFrom<Builder<Self>> for Unique<T> {
     }
 }
 
-impl<T: Allele + NoUninit> Genotype for Unique<T> {
+impl<T: Allele + Hash> Genotype for Unique<T> {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
     type Chromosome = UniqueChromosome<Self::Allele>;
@@ -113,8 +112,7 @@ impl<T: Allele + NoUninit> Genotype for Unique<T> {
     }
     fn calculate_hash(&self, chromosome: &Self::Chromosome) -> u64 {
         let mut s = DefaultHasher::new();
-        let bytes: &[u8] = cast_slice(&chromosome.genes);
-        bytes.hash(&mut s);
+        chromosome.genes.hash(&mut s);
         s.finish()
     }
 
@@ -155,7 +153,7 @@ impl<T: Allele + NoUninit> Genotype for Unique<T> {
     }
 }
 
-impl<T: Allele + NoUninit> EvolveGenotype for Unique<T> {
+impl<T: Allele + Hash> EvolveGenotype for Unique<T> {
     fn crossover_chromosome_genes<R: Rng>(
         &mut self,
         _number_of_crossovers: usize,
@@ -177,7 +175,7 @@ impl<T: Allele + NoUninit> EvolveGenotype for Unique<T> {
         panic!("UniqueGenotype does not support point crossover")
     }
 }
-impl<T: Allele + NoUninit> HillClimbGenotype for Unique<T> {
+impl<T: Allele + Hash> HillClimbGenotype for Unique<T> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
         chromosome: &Self::Chromosome,
@@ -202,7 +200,7 @@ impl<T: Allele + NoUninit> HillClimbGenotype for Unique<T> {
     }
 }
 
-impl<T: Allele + NoUninit> PermutateGenotype for Unique<T> {
+impl<T: Allele + Hash> PermutateGenotype for Unique<T> {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
     ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
@@ -233,7 +231,7 @@ impl<T: Allele + NoUninit> PermutateGenotype for Unique<T> {
     }
 }
 
-impl<T: Allele + NoUninit> ChromosomeManager<Self> for Unique<T> {
+impl<T: Allele + Hash> ChromosomeManager<Self> for Unique<T> {
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             let mut genes = self.allele_list.clone();
@@ -263,7 +261,7 @@ impl<T: Allele + NoUninit> ChromosomeManager<Self> for Unique<T> {
     }
 }
 
-impl<T: Allele + NoUninit> fmt::Display for Unique<T> {
+impl<T: Allele + Hash> fmt::Display for Unique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
