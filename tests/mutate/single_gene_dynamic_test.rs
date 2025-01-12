@@ -1,7 +1,5 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::fitness::placeholders::CountTrue;
-use genetic_algorithm::fitness::Fitness;
 use genetic_algorithm::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGeneDynamic};
 use genetic_algorithm::population::Population;
@@ -42,6 +40,9 @@ fn binary_genotype() {
     state.population_cardinality = Some(4);
     mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.2);
+    state.population_cardinality = Some(5);
+    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    assert_eq!(mutate.mutation_probability, 0.2);
     state.population_cardinality = Some(6);
     mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.1);
@@ -52,16 +53,16 @@ fn binary_genotype() {
     assert_eq!(
         inspect::population(&state.population),
         vec![
-            vec![true, true, true],
-            vec![true, true, true],
-            vec![true, true, true],
-            vec![true, true, false],
+            vec![false, true, true],
             vec![true, true, true],
             vec![true, true, true],
             vec![true, true, false],
+            vec![true, true, true],
+            vec![true, true, true],
             vec![true, true, true],
             vec![true, true, true],
             vec![true, false, true],
+            vec![true, true, true]
         ]
     );
 }

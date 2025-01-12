@@ -5,6 +5,7 @@ use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
+use std::cmp::Ordering;
 use std::time::Instant;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
@@ -42,22 +43,31 @@ impl Mutate for MultiGeneDynamic {
         let now = Instant::now();
 
         if let Some(cardinality) = state.population_cardinality() {
-            if cardinality < self.target_cardinality {
-                self.mutation_probability =
-                    (self.mutation_probability + self.mutation_probability_step).min(1.0);
-            } else {
-                self.mutation_probability =
-                    (self.mutation_probability - self.mutation_probability_step).max(0.0);
+            let changed = match cardinality.cmp(&self.target_cardinality) {
+                Ordering::Greater => {
+                    self.mutation_probability =
+                        (self.mutation_probability - self.mutation_probability_step).max(0.0);
+                    true
+                }
+                Ordering::Less => {
+                    self.mutation_probability =
+                        (self.mutation_probability + self.mutation_probability_step).min(1.0);
+                    true
+                }
+                Ordering::Equal => false,
+            };
+
+            if changed {
+                reporter.on_mutate_event(
+                    MutateEvent::ChangeMutationProbability(format!(
+                        "set to {:0.3}",
+                        self.mutation_probability
+                    )),
+                    genotype,
+                    state,
+                    config,
+                );
             }
-            reporter.on_mutate_event(
-                MutateEvent::ChangeMutationProbability(format!(
-                    "set to {:0.3}",
-                    self.mutation_probability
-                )),
-                genotype,
-                state,
-                config,
-            );
         }
 
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
