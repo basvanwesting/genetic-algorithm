@@ -111,12 +111,17 @@
 //!
 //! For the [Evolve](strategy::evolve::Evolve) strategy:
 //!
+//! * [Reporting](strategy::reporter): start with [EvolveReporterSimple](strategy::evolve::EvolveReporterSimple) for basic understanding of:
+//!   * fitness v. framework overhead
+//!   * staleness and population characteristics (cardinality etc.)
 //! * [Select](select): no considerations. All selects are basically some form of in-place
 //!   sorting of some kind. This is relatively fast compared to the rest of the
 //!   operations.
 //! * [Crossover](crossover): the workhorse of internal parts. Crossover touches most genes each
 //!   generation and clones up to the whole population to restore lost population size in selection.
 //!   See performance tips below.
+//!   It also calculates new genes hashes if enabled on the [Genotype](genotype), which has a
+//!   relatively high overhead on the main Evolve loop.
 //! * [Mutate](mutate): no considerations. It touches genes like crossover does, but should
 //!   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
 //! * [Fitness](fitness): can be anything. This fully depends on the user domain. Parallelize

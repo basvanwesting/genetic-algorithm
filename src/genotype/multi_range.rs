@@ -53,6 +53,7 @@ pub type DefaultAllele = f32;
 ///        vec![-1.0..=1.0, -2.0..=2.0, -0.5..=0.5, -3.0..=3.0],
 ///        vec![-0.1..=0.1, -0.2..=0.2, -0.05..=0.05, -0.3..=0.3],
 ///     ]) // optional, restricts mutations to relative start/end of each scale
+///     .with_genes_hashing(true) // optional, defaults to false
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -78,6 +79,7 @@ pub type DefaultAllele = f32;
 ///        vec![-1..=1, -2..=2, -1..=1, -5..=5],
 ///        vec![-1..=1, -1..=1, -1..=1, -1..=1],
 ///     ]) // optional, restricts mutations to relative start/end of each scale
+///     .with_genes_hashing(false) // optional, defaults to false
 ///     .build()
 ///     .unwrap();
 /// ```

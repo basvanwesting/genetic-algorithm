@@ -37,6 +37,7 @@ pub type DefaultAllele = f32;
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
 ///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
 ///     .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001]) // optional, restricts mutations to relative start/end of each scale
+///     .with_genes_hashing(false) // optional, defaults to false
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -50,6 +51,7 @@ pub type DefaultAllele = f32;
 ///     .with_allele_range(0..=100) // also default mutation range
 ///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range
 ///     .with_allele_mutation_scaled_range(vec![-10..=10, -3..=3, -1..=1]) // optional, restricts mutations to relative start/end of each scale
+///     .with_genes_hashing(true) // optional, defaults to false
 ///     .build()
 ///     .unwrap();
 /// ```

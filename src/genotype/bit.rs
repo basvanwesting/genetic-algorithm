@@ -28,6 +28,7 @@ use std::hash::{Hash, Hasher};
 ///
 /// let genotype = BitGenotype::builder()
 ///     .with_genes_size(10000)
+///     .with_genes_hashing(false) // optional, defaults to false
 ///     .build()
 ///     .unwrap();
 /// ```

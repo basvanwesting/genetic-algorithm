@@ -1,3 +1,11 @@
+//! Generic strategy reporters:
+//! * [Duration], only reports duration, non-strategy specific
+//! * [Noop], silences reporting, non-strategy specific
+//! * [Simple], prefer to use strategy specific implementations:
+//!     * [EvolveReporterSimple](crate::strategy::evolve::EvolveReporterSimple)
+//!     * [PermutateReporterSimple](crate::strategy::permutate::PermutateReporterSimple)
+//!     * [HillClimbReporterSimple](crate::strategy::hill_climb::HillClimbReporterSimple)
+//!
 use crate::genotype::Genotype;
 use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use std::fmt::Arguments;

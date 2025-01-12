@@ -28,6 +28,7 @@ pub type DefaultAllele = usize;
 /// let genotype = ListGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_list((0..10).collect())
+///     .with_genes_hashing(false) // optional, defaults to false
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -47,6 +48,7 @@ pub type DefaultAllele = usize;
 ///         Item(26, 352),
 ///         Item(20, 458),
 ///     ])
+///     .with_genes_hashing(true) // optional, defaults to false
 ///     .build()
 ///     .unwrap();
 /// ```

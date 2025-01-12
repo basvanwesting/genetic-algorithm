@@ -10,6 +10,11 @@ use std::ops::RangeInclusive;
 ///   which are distributed randomly in the population (instead of the default random genes).
 ///   Sometimes it is efficient to start with a certain population
 ///
+/// * Builder `with_genes_hashing(true)`, optional, store a genes_hash on the chromomose (in
+///   Evolve). This has relatively high overhead for to the main Evolve loop, but might be useful for
+///   better population cardinality estimation (falls back to fitness score cardinality otherwise).
+///   Or it could be used for fitness score caching for instance
+///
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {
     pub genes_size: Option<usize>,
