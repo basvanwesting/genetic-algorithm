@@ -10,28 +10,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Option to store `genes_hash` on `Chromosome` by setting
   `with_genes_hashing(true)` on the `Genotype.` This can be used for better
   population cardinality estimation (with respect to the default fitness score
-  based estimate), but has a relatively high overhead on the main Evolve loop.
+  based estimate), but has a relatively high overhead on the main `Evolve` loop
+  (mostly noticable in `Crossover` duration).
 * Store `population_cardinality` on `EvolveState`, using `genes_hash`
   cardinality if set, otherwise fallback to fitness score cardinality. Update the
   `population_cardinality` just after selection in the `Evolve` loop and use for
   rest of the generation. `Crossover` only extends existing cardinality if
-  present, so using the cardinality at the beginning of the Evolve loop is a good
-  enough estimate.
+  present. `Mutation` always adds cardinality, but might also all be dropped in
+  selection again. So using the cardinality at the beginning of the `Evolve` loop
+  is a good enough estimate
 
 ### Changed
-* No longer count `None`s as unique fitness score cardinality. Instead make
-  `fitness_score_cardinality()` return `None` of no values can be used to estimating
-  the cardinality.
+* No longer count `Nones` as unique fitness score cardinality. Instead make
+  `fitness_score_cardinality()` return `None` of no values can be used to
+  estimating the cardinality (ensuring we keep avoiding the immediate `Extension`
+  trigger at the start of the iteration)
 * Make `MutateSingleGeneDynamic`, `MutateMultiGeneDynamic`, `ExtensionMassGenesis`,
-  `ExtensionMassExtinction` and `ExtensionMassDegeneration` use EvolveState
-  population_cardinality as guard check
+  `ExtensionMassExtinction` and `ExtensionMassDegeneration` use `EvolveState`
+  `population_cardinality` as guard check
 
 ### Dropped
 * Remove old `GenesKey` type and `genes_key()` function, replaced by `GenesHash`
-* Disallow `f32` and `f64` for `List` and `Unique` genotypes by requiring the `Allele`
-  to implement `Hash` for those `Genotypes`. Now we can use standard Hashing for
-  normal Alleles and use `bytemuck` Hashing for `RangeAllele`. This allows for easier
-  implementation of genes based cardinality
+* Disallow `f32` and `f64` as `Allele` for `List` and `Unique` genotypes by
+  requiring the `Allele` to implement `Hash` for those `Genotypes` (including
+  tuple Alleles). Now we can use standard Hashing for normal Alleles and use
+  `bytemuck` Hashing for `RangeAllele`. This allows for easier implementation of
+  genes based cardinality
 
 ## [0.17.1] - 2024-10-10
 
