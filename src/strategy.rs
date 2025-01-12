@@ -182,6 +182,7 @@ pub trait StrategyState<G: Genotype>: Display {
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
     fn current_scale_index(&self) -> Option<usize>;
+    fn population_cardinality(&self) -> Option<usize>;
     fn durations(&self) -> &HashMap<StrategyAction, Duration>;
     fn add_duration(&mut self, action: StrategyAction, duration: Duration);
     fn total_duration(&self) -> Duration;

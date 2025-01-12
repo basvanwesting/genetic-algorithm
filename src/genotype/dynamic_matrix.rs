@@ -320,6 +320,9 @@ where
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         self.get_genes_by_id(chromosome.row_id)
     }
+    fn genes_hashing(&self) -> bool {
+        self.genes_hashing
+    }
     fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
         if self.genes_hashing {
             let mut s = DefaultHasher::new();

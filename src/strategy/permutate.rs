@@ -299,6 +299,9 @@ impl<G: PermutateGenotype> StrategyState<G> for PermutateState<G> {
     fn current_scale_index(&self) -> Option<usize> {
         None
     }
+    fn population_cardinality(&self) -> Option<usize> {
+        None
+    }
     fn durations(&self) -> &HashMap<StrategyAction, Duration> {
         &self.durations
     }

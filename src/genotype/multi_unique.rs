@@ -159,6 +159,9 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
+    fn genes_hashing(&self) -> bool {
+        self.genes_hashing
+    }
     fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
         if self.genes_hashing {
             let mut s = DefaultHasher::new();

@@ -187,6 +187,7 @@ pub struct EvolveState<G: EvolveGenotype> {
     pub chromosome: Option<G::Chromosome>,
     pub population: Population<G::Chromosome>,
     pub current_scale_index: Option<usize>,
+    pub population_cardinality: Option<usize>,
 }
 
 impl<
@@ -224,6 +225,8 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
+            self.state
+                .update_population_cardinality(&mut self.genotype, &self.config);
             self.reporter
                 .on_new_generation(&self.genotype, &self.state, &self.config);
             self.plugins.extension.call(
@@ -469,6 +472,9 @@ impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
     fn current_scale_index(&self) -> Option<usize> {
         self.current_scale_index
     }
+    fn population_cardinality(&self) -> Option<usize> {
+        self.population_cardinality
+    }
     fn durations(&self) -> &HashMap<StrategyAction, Duration> {
         &self.durations
     }
@@ -538,6 +544,13 @@ impl<G: EvolveGenotype> EvolveState<G> {
                     genotype.chromosome_destructor(self.population.chromosomes.swap_remove(i));
                 }
             }
+        }
+    }
+    fn update_population_cardinality(&mut self, genotype: &mut G, _config: &EvolveConfig) {
+        self.population_cardinality = if genotype.genes_hashing() {
+            Some(self.population.genes_cardinality())
+        } else {
+            Some(self.population.fitness_score_cardinality())
         }
     }
 }
@@ -683,6 +696,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
             chromosome: None,
             population: Population::new_empty(),
             durations: HashMap::new(),
+            population_cardinality: None,
         };
         match genotype.mutation_type() {
             MutationType::Scaled => Self {
@@ -755,6 +769,11 @@ impl<G: EvolveGenotype> fmt::Display for EvolveState<G> {
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  stale generations: {:?}", self.stale_generations)?;
         writeln!(f, "  current scale index: {:?}", self.current_scale_index)?;
+        writeln!(
+            f,
+            "  population cardinality: {:?}",
+            self.population_cardinality
+        )?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())
     }
 }

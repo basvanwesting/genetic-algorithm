@@ -426,6 +426,9 @@ impl<G: HillClimbGenotype> StrategyState<G> for HillClimbState<G> {
     fn current_scale_index(&self) -> Option<usize> {
         self.current_scale_index
     }
+    fn population_cardinality(&self) -> Option<usize> {
+        None
+    }
     fn durations(&self) -> &HashMap<StrategyAction, Duration> {
         &self.durations
     }
