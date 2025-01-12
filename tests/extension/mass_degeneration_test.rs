@@ -24,11 +24,11 @@ fn removes_randomly() {
         vec![true, true, true],
     ]);
     population.chromosomes.reserve_exact(2);
-    assert_eq!(population.fitness_score_cardinality(), 8);
     assert_eq!(population.chromosomes.capacity(), 10);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
+    state.population_cardinality = Some(8);
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);

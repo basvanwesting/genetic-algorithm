@@ -26,26 +26,30 @@ impl Extension for MassExtinction {
         reporter: &mut SR,
         rng: &mut R,
     ) {
-        let now = Instant::now();
-        if state.population.size() >= config.selected_population_size
-            && state.population.fitness_score_cardinality() <= self.cardinality_threshold
-        {
-            reporter.on_extension_event(
-                ExtensionEvent::MassExtinction("".to_string()),
-                genotype,
-                state,
-                config,
-            );
+        if state.population.size() >= config.selected_population_size {
+            let now = Instant::now();
+            if let Some(cardinality) = state.population_cardinality() {
+                if cardinality <= self.cardinality_threshold {
+                    reporter.on_extension_event(
+                        ExtensionEvent::MassExtinction("".to_string()),
+                        genotype,
+                        state,
+                        config,
+                    );
 
-            let remaining_size: usize = std::cmp::max(
-                (state.population.size() as f32 * self.survival_rate).ceil() as usize,
-                2,
-            );
-            state.population.shuffle(rng);
-            genotype
-                .chromosome_destructor_truncate(&mut state.population.chromosomes, remaining_size);
+                    let remaining_size: usize = std::cmp::max(
+                        (state.population.size() as f32 * self.survival_rate).ceil() as usize,
+                        2,
+                    );
+                    state.population.shuffle(rng);
+                    genotype.chromosome_destructor_truncate(
+                        &mut state.population.chromosomes,
+                        remaining_size,
+                    );
+                }
+            }
+            state.add_duration(StrategyAction::Extension, now.elapsed());
         }
-        state.add_duration(StrategyAction::Extension, now.elapsed());
     }
 }
 

@@ -26,27 +26,29 @@ impl Extension for MassDegeneration {
         reporter: &mut SR,
         rng: &mut R,
     ) {
-        let now = Instant::now();
-        if state.population.size() >= config.selected_population_size
-            && state.population.fitness_score_cardinality() <= self.cardinality_threshold
-        {
-            reporter.on_extension_event(
-                ExtensionEvent::MassDegeneration("".to_string()),
-                genotype,
-                state,
-                config,
-            );
-            for chromosome in state.population.chromosomes.iter_mut() {
-                genotype.mutate_chromosome_genes(
-                    self.number_of_mutations,
-                    true,
-                    chromosome,
-                    state.current_scale_index,
-                    rng,
-                );
+        if state.population.size() >= config.selected_population_size {
+            let now = Instant::now();
+            if let Some(cardinality) = state.population_cardinality() {
+                if cardinality <= self.cardinality_threshold {
+                    reporter.on_extension_event(
+                        ExtensionEvent::MassDegeneration("".to_string()),
+                        genotype,
+                        state,
+                        config,
+                    );
+                    for chromosome in state.population.chromosomes.iter_mut() {
+                        genotype.mutate_chromosome_genes(
+                            self.number_of_mutations,
+                            true,
+                            chromosome,
+                            state.current_scale_index,
+                            rng,
+                        );
+                    }
+                }
             }
+            state.add_duration(StrategyAction::Extension, now.elapsed());
         }
-        state.add_duration(StrategyAction::Extension, now.elapsed());
     }
 }
 

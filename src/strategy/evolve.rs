@@ -548,9 +548,9 @@ impl<G: EvolveGenotype> EvolveState<G> {
     }
     fn update_population_cardinality(&mut self, genotype: &mut G, _config: &EvolveConfig) {
         self.population_cardinality = if genotype.genes_hashing() {
-            Some(self.population.genes_cardinality())
+            self.population.genes_cardinality()
         } else {
-            Some(self.population.fitness_score_cardinality())
+            self.population.fitness_score_cardinality()
         }
     }
 }

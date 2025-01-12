@@ -25,33 +25,36 @@ impl Extension for MassGenesis {
         reporter: &mut SR,
         _rng: &mut R,
     ) {
-        let now = Instant::now();
-        if state.population.size() >= config.selected_population_size
-            && state.population.fitness_score_cardinality() <= self.cardinality_threshold
-        {
-            reporter.on_extension_event(
-                ExtensionEvent::MassGenesis("".to_string()),
-                genotype,
-                state,
-                config,
-            );
-            if let Some(best_chromosome_index) = state
-                .population
-                .best_chromosome_index(config.fitness_ordering)
-            {
-                let best_chromosome = state
-                    .population
-                    .chromosomes
-                    .swap_remove(best_chromosome_index);
-                genotype.chromosome_destructor_truncate(&mut state.population.chromosomes, 0);
-                state
-                    .population
-                    .chromosomes
-                    .push(genotype.chromosome_cloner(&best_chromosome));
-                state.population.chromosomes.push(best_chromosome);
+        if state.population.size() >= config.selected_population_size {
+            let now = Instant::now();
+            if let Some(cardinality) = state.population_cardinality() {
+                if cardinality <= self.cardinality_threshold {
+                    reporter.on_extension_event(
+                        ExtensionEvent::MassGenesis("".to_string()),
+                        genotype,
+                        state,
+                        config,
+                    );
+                    if let Some(best_chromosome_index) = state
+                        .population
+                        .best_chromosome_index(config.fitness_ordering)
+                    {
+                        let best_chromosome = state
+                            .population
+                            .chromosomes
+                            .swap_remove(best_chromosome_index);
+                        genotype
+                            .chromosome_destructor_truncate(&mut state.population.chromosomes, 0);
+                        state
+                            .population
+                            .chromosomes
+                            .push(genotype.chromosome_cloner(&best_chromosome));
+                        state.population.chromosomes.push(best_chromosome);
+                    }
+                }
             }
+            state.add_duration(StrategyAction::Extension, now.elapsed());
         }
-        state.add_duration(StrategyAction::Extension, now.elapsed());
     }
 }
 

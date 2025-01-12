@@ -1,6 +1,6 @@
 //! The population is a  container for [Chromosomes](Chromosome)
 use crate::chromosome::Chromosome;
-use crate::fitness::FitnessOrdering;
+use crate::fitness::{FitnessOrdering, FitnessValue};
 use cardinality_estimator::CardinalityEstimator;
 use rand::prelude::*;
 
@@ -80,31 +80,33 @@ impl<C: Chromosome> Population<C> {
     pub fn fitness_score_stddev(&self) -> f32 {
         stats::stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score())) as f32
     }
-    pub fn fitness_score_cardinality(&self) -> usize {
-        let mut estimator = CardinalityEstimator::<isize>::new();
-        let mut nones = 0;
-        self.chromosomes.iter().for_each(|chromosome| {
-            if let Some(fitness_score) = chromosome.fitness_score() {
-                estimator.insert(&fitness_score);
-            } else {
-                nones += 1;
-            }
-        });
-        estimator.estimate() + nones
-    }
-    pub fn fitness_score_present(&self, fitness_score: Option<isize>) -> bool {
-        self.chromosomes
+    pub fn fitness_score_cardinality(&self) -> Option<usize> {
+        let mut values = self
+            .chromosomes
             .iter()
-            .any(|c| c.fitness_score() == fitness_score)
+            .filter_map(|c| c.fitness_score())
+            .peekable();
+        if values.peek().is_some() {
+            let mut estimator = CardinalityEstimator::<FitnessValue>::new();
+            values.for_each(|fitness_score| estimator.insert(&fitness_score));
+            Some(estimator.estimate())
+        } else {
+            None
+        }
     }
-    pub fn genes_cardinality(&self) -> usize {
-        let mut estimator = CardinalityEstimator::<u64>::new();
-        self.chromosomes.iter().for_each(|chromosome| {
-            if let Some(genes_hash) = chromosome.genes_hash() {
-                estimator.insert(&genes_hash);
-            }
-        });
-        estimator.estimate()
+    pub fn genes_cardinality(&self) -> Option<usize> {
+        let mut values = self
+            .chromosomes
+            .iter()
+            .filter_map(|c| c.genes_hash())
+            .peekable();
+        if values.peek().is_some() {
+            let mut estimator = CardinalityEstimator::<u64>::new();
+            values.for_each(|genes_hash| estimator.insert(&genes_hash));
+            Some(estimator.estimate())
+        } else {
+            None
+        }
     }
 }
 

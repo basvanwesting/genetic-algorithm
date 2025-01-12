@@ -74,6 +74,15 @@ mod population_tests {
 
     #[test]
     fn fitness_score_cardinality() {
+        let population: Population<BinaryChromosome> = build::population(vec![
+            vec![false, false, false],
+            vec![false, false, true],
+            vec![false, true, true],
+            vec![true, true, true],
+            vec![true, true, false],
+        ]);
+        assert_eq!(population.fitness_score_cardinality(), None);
+
         let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
             (vec![false, false, false], Some(0)),
             (vec![false, false, true], Some(2)),
@@ -82,7 +91,7 @@ mod population_tests {
             (vec![true, true, false], None),
         ]);
 
-        assert_eq!(population.fitness_score_cardinality(), 3 + 1);
+        assert_eq!(population.fitness_score_cardinality(), Some(3));
     }
 
     #[test]
@@ -104,13 +113,13 @@ mod population_tests {
             vec![false, true, true],
         ]);
 
-        assert_eq!(population.genes_cardinality(), 0);
+        assert_eq!(population.genes_cardinality(), None);
 
         population.chromosomes.iter_mut().for_each(|chromosome| {
             let genes_hash = genotype.calculate_genes_hash(chromosome);
             chromosome.taint(genes_hash);
         });
 
-        assert_eq!(population.genes_cardinality(), 5);
+        assert_eq!(population.genes_cardinality(), Some(5));
     }
 }

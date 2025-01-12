@@ -40,22 +40,25 @@ impl Mutate for MultiGeneDynamic {
         rng: &mut R,
     ) {
         let now = Instant::now();
-        if state.population.fitness_score_cardinality() < self.target_cardinality {
-            self.mutation_probability =
-                (self.mutation_probability + self.mutation_probability_step).min(1.0);
-        } else {
-            self.mutation_probability =
-                (self.mutation_probability - self.mutation_probability_step).max(0.0);
+
+        if let Some(cardinality) = state.population_cardinality() {
+            if cardinality < self.target_cardinality {
+                self.mutation_probability =
+                    (self.mutation_probability + self.mutation_probability_step).min(1.0);
+            } else {
+                self.mutation_probability =
+                    (self.mutation_probability - self.mutation_probability_step).max(0.0);
+            }
+            reporter.on_mutate_event(
+                MutateEvent::ChangeMutationProbability(format!(
+                    "set to {:0.3}",
+                    self.mutation_probability
+                )),
+                genotype,
+                state,
+                config,
+            );
         }
-        reporter.on_mutate_event(
-            MutateEvent::ChangeMutationProbability(format!(
-                "set to {:0.3}",
-                self.mutation_probability
-            )),
-            genotype,
-            state,
-            config,
-        );
 
         let bool_sampler = Bernoulli::new(self.mutation_probability as f64).unwrap();
         for chromosome in state

@@ -26,11 +26,11 @@ fn removes_randomly() {
         (vec![true, false, false], Some(1)),
     ]);
     population.chromosomes.reserve_exact(2);
-    assert_eq!(population.fitness_score_cardinality(), 5);
     assert_eq!(population.chromosomes.capacity(), 10);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
+    state.population_cardinality = Some(5);
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
@@ -62,11 +62,11 @@ fn removes_randomly_matrix() {
     let mut population = Population::new(chromosomes);
 
     population.chromosomes.reserve_exact(2);
-    assert_eq!(population.fitness_score_cardinality(), 6);
     assert_eq!(population.chromosomes.capacity(), 10);
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
+    state.population_cardinality = Some(6);
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     ExtensionMassGenesis::new(8).call(&mut genotype, &mut state, &config, &mut reporter, rng);

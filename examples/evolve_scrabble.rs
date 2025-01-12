@@ -260,6 +260,7 @@ fn main() {
 
     let genotype = MultiListGenotype::builder()
         .with_allele_lists(allele_lists)
+        // .with_genes_hashing(true)
         .build()
         .unwrap();
 
