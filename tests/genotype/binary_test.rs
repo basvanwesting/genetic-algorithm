@@ -460,3 +460,32 @@ fn chromosome_manager() {
         vec![false, true, true, false, true],
     );
 }
+
+#[test]
+fn calculate_genes_hash() {
+    let mut genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .with_genes_hashing(true)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    let chromosome_1 = build::chromosome(vec![true, true, true]);
+    let chromosome_2 = build::chromosome(vec![true, true, true]);
+    let chromosome_3 = build::chromosome(vec![true, false, true]);
+    let chromosome_4 = build::chromosome(vec![true, false, true]);
+
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_2),
+    );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_3),
+        genotype.calculate_genes_hash(&chromosome_4),
+    );
+
+    assert_ne!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_3),
+    );
+}

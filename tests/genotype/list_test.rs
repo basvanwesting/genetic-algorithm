@@ -205,3 +205,34 @@ fn chromosome_permutations_genes_size_huge() {
         vec![vec![0; 30]]
     )
 }
+
+#[test]
+fn integer_calculate_genes_hash() {
+    let mut genotype = ListGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_list((-10..10).collect())
+        .with_genes_hashing(true)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    let chromosome_1 = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_2 = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_3 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_4 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_2),
+    );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_3),
+        genotype.calculate_genes_hash(&chromosome_4),
+    );
+
+    // the sign on does not matter
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_3),
+    );
+}

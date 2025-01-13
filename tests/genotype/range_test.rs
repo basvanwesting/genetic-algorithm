@@ -581,3 +581,65 @@ fn integer_neighbouring_population_3_one_sided() {
         vec![vec![5, 4, 9], vec![4, 5, 9]]
     );
 }
+
+#[test]
+fn float_calculate_genes_hash() {
+    let mut genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .with_genes_hashing(true)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    let chromosome_1 = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let chromosome_2 = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let chromosome_3 = build::chromosome(vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let chromosome_4 = build::chromosome(vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_2),
+    );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_3),
+        genotype.calculate_genes_hash(&chromosome_4),
+    );
+
+    // the sign on zero matters
+    assert_ne!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_3),
+    );
+}
+
+#[test]
+fn integer_calculate_genes_hash() {
+    let mut genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(-10..=10)
+        .with_genes_hashing(true)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    let chromosome_1 = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_2 = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_3 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_4 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_2),
+    );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_3),
+        genotype.calculate_genes_hash(&chromosome_4),
+    );
+
+    // the sign on does not matter
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_3),
+    );
+}
