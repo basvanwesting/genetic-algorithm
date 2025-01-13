@@ -7,7 +7,7 @@ use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Standard, Uniform};
 use rand::prelude::*;
-use std::collections::hash_map::DefaultHasher;
+use rustc_hash::FxHasher;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 
@@ -146,7 +146,7 @@ impl Genotype for Bit {
     }
     fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
         if self.genes_hashing {
-            let mut s = DefaultHasher::new();
+            let mut s = FxHasher::default();
             chromosome.genes.hash(&mut s);
             Some(s.finish())
         } else {

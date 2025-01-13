@@ -12,8 +12,8 @@ use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
+use rustc_hash::FxHasher;
 use std::cmp::Ordering;
-use std::collections::hash_map::DefaultHasher;
 use std::fmt;
 use std::hash::{Hash, Hasher};
 use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
@@ -316,7 +316,7 @@ where
     }
     fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
         if self.genes_hashing {
-            let mut s = DefaultHasher::new();
+            let mut s = FxHasher::default();
             let bytes: &[u8] = cast_slice(self.genes_slice(chromosome));
             bytes.hash(&mut s);
             Some(s.finish())

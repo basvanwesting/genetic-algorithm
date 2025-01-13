@@ -26,6 +26,7 @@ log = "0.4.0"
 cardinality-estimator = "1.0.2"
 impl-trait-for-tuples = "0.2.2"
 fixedbitset = "0.5.7"
+rustc-hash = "2.1.0"
 bytemuck = { version = "1.21.0", features = ["derive"] }
 
 [dev-dependencies]
