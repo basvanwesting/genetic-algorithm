@@ -32,7 +32,7 @@ bytemuck = { version = "1.21.0", features = ["derive"] }
 [dev-dependencies]
 lru = "0.12.4"
 criterion = "0.5.1"
-pprof = { version = "0.13", features = ["criterion", "flamegraph"] }
+pprof = { version = "0.14", features = ["criterion", "flamegraph"] }
 distance = "0.4.0"
 chrono = "0.4.38"
 statrs = "0.18.0"
