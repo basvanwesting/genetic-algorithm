@@ -12,7 +12,7 @@ use super::{
     StrategyState, StrategyVariant,
 };
 use crate::chromosome::{Chromosome, GenesOwner};
-use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
+use crate::fitness::{Fitness, FitnessCachePointer, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutateGenotype;
 use crate::population::Population;
 use rayon::prelude::*;
@@ -92,6 +92,7 @@ pub struct PermutateConfig {
     pub fitness_ordering: FitnessOrdering,
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
+    pub fitness_cache_pointer: Option<FitnessCachePointer>,
 }
 
 /// Stores the state of the Permutate strategy
@@ -176,7 +177,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
         self.fitness
-            .call_for_state_chromosome(&mut self.state, &self.genotype);
+            .call_for_state_chromosome(&self.genotype, &mut self.state, &self.config);
 
         // best by definition
         self.state.best_generation = self.state.current_generation;
@@ -202,8 +203,11 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             .for_each(|chromosome| {
                 self.state.current_generation += 1;
                 self.state.chromosome.replace(chromosome);
-                self.fitness
-                    .call_for_state_chromosome(&mut self.state, &self.genotype);
+                self.fitness.call_for_state_chromosome(
+                    &self.genotype,
+                    &mut self.state,
+                    &self.config,
+                );
                 self.state.update_best_chromosome_and_report(
                     &mut self.genotype,
                     &self.config,
@@ -217,6 +221,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         rayon::scope(|s| {
             let thread_genotype = self.genotype.clone();
             let fitness = self.fitness.clone();
+            let fitness_cache_pointer = self.config.fitness_cache_pointer.as_ref();
             let (sender, receiver) = sync_channel(1000);
 
             s.spawn(move |_| {
@@ -225,7 +230,11 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     .par_bridge()
                     .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
                         let now = Instant::now();
-                        fitness.call_for_chromosome(&mut chromosome, &thread_genotype);
+                        fitness.call_for_chromosome(
+                            &mut chromosome,
+                            &thread_genotype,
+                            fitness_cache_pointer,
+                        );
                         sender.send((chromosome, now.elapsed())).unwrap();
                     });
             });
@@ -250,6 +259,9 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 impl StrategyConfig for PermutateConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
+    }
+    fn fitness_cache_pointer(&self) -> Option<&FitnessCachePointer> {
+        self.fitness_cache_pointer.as_ref()
     }
     fn par_fitness(&self) -> bool {
         self.par_fitness
@@ -370,6 +382,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     fitness_ordering: builder.fitness_ordering,
                     par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
+                    fitness_cache_pointer: builder.fitness_cache_pointer,
                     ..Default::default()
                 },
                 state,
@@ -386,6 +399,7 @@ impl Default for PermutateConfig {
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
             replace_on_equal_fitness: false,
+            fitness_cache_pointer: None,
         }
     }
 }

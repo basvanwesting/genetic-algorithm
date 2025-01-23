@@ -81,7 +81,7 @@ use self::hill_climb::HillClimbVariant;
 use self::permutate::PermutateVariant;
 use crate::chromosome::Chromosome;
 use crate::extension::ExtensionEvent;
-use crate::fitness::{FitnessOrdering, FitnessValue};
+use crate::fitness::{FitnessCachePointer, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::MutateEvent;
 use crate::population::Population;
@@ -159,6 +159,7 @@ pub trait Strategy<G: Genotype> {
 pub trait StrategyConfig: Display {
     fn variant(&self) -> StrategyVariant;
     fn fitness_ordering(&self) -> FitnessOrdering;
+    fn fitness_cache_pointer(&self) -> Option<&FitnessCachePointer>;
     fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
 }

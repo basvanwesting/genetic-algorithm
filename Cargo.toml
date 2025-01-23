@@ -28,9 +28,9 @@ impl-trait-for-tuples = "0.2.2"
 fixedbitset = "0.5.7"
 rustc-hash = "2.1.0"
 bytemuck = { version = "1.21.0", features = ["derive"] }
+lru = "0.12.4"
 
 [dev-dependencies]
-lru = "0.12.4"
 criterion = "0.5.1"
 pprof = { version = "0.14", features = ["criterion", "flamegraph"] }
 distance = "0.4.0"

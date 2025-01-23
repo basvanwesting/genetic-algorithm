@@ -31,7 +31,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| genotype.chromosome_constructor_random(&mut rng))
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountTrue.call_for_population(population, &genotype, None);
+        CountTrue.call_for_population(population, &genotype, None, None);
 
         group.bench_with_input(
             BenchmarkId::new(
@@ -53,7 +53,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| random_chromosome.clone())
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountTrue.call_for_population(population, &genotype, None);
+        CountTrue.call_for_population(population, &genotype, None, None);
 
         group.bench_with_input(
             BenchmarkId::new(

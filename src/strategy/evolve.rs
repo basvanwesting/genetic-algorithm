@@ -14,7 +14,7 @@ use super::{
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
-use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
+use crate::fitness::{Fitness, FitnessCachePointer, FitnessOrdering, FitnessValue};
 use crate::genotype::{EvolveGenotype, MutationType};
 use crate::mutate::Mutate;
 use crate::population::Population;
@@ -169,6 +169,7 @@ pub struct EvolveConfig {
     pub target_fitness_score: Option<FitnessValue>,
     pub max_stale_generations: Option<usize>,
     pub valid_fitness_score: Option<FitnessValue>,
+    pub fitness_cache_pointer: Option<FitnessCachePointer>,
 
     pub target_population_size: usize,
     pub selected_population_size: usize,
@@ -251,8 +252,9 @@ impl<
                 &mut self.rng,
             );
             self.fitness.call_for_state_population(
-                &mut self.state,
                 &self.genotype,
+                &mut self.state,
+                &self.config,
                 fitness_thread_local.as_ref(),
             );
             self.state.update_best_chromosome_and_report(
@@ -342,8 +344,9 @@ impl<
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
 
         self.fitness.call_for_state_population(
-            &mut self.state,
             &self.genotype,
+            &mut self.state,
+            &self.config,
             fitness_thread_local,
         );
         self.state.update_best_chromosome_and_report(
@@ -423,6 +426,9 @@ impl<
 impl StrategyConfig for EvolveConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
+    }
+    fn fitness_cache_pointer(&self) -> Option<&FitnessCachePointer> {
+        self.fitness_cache_pointer.as_ref()
     }
     fn par_fitness(&self) -> bool {
         self.par_fitness
@@ -650,6 +656,7 @@ impl<
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
                     fitness_ordering: builder.fitness_ordering,
+                    fitness_cache_pointer: builder.fitness_cache_pointer,
                     par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
                     ..Default::default()
@@ -673,6 +680,7 @@ impl Default for EvolveConfig {
             target_fitness_score: None,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
+            fitness_cache_pointer: None,
             par_fitness: false,
             replace_on_equal_fitness: false,
         }

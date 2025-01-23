@@ -1,8 +1,8 @@
 use super::Permutate;
-use crate::fitness::{Fitness, FitnessOrdering};
+pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
+use crate::fitness::{Fitness, FitnessCachePointer, FitnessOrdering};
 use crate::genotype::PermutateGenotype;
 use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop};
-pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 
 /// The builder for an Permutate struct.
 #[derive(Clone, Debug)]
@@ -14,6 +14,7 @@ pub struct Builder<
     pub genotype: Option<G>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
+    pub fitness_cache_pointer: Option<FitnessCachePointer>,
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
     pub reporter: SR,
@@ -26,6 +27,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>> Default
         Self {
             genotype: None,
             fitness_ordering: FitnessOrdering::Maximize,
+            fitness_cache_pointer: None,
             par_fitness: false,
             replace_on_equal_fitness: false,
             fitness: None,
@@ -53,6 +55,10 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.fitness_ordering = fitness_ordering;
         self
     }
+    pub fn with_fitness_cache_size(mut self, fitness_cache_size: usize) -> Self {
+        self.fitness_cache_pointer = Some(FitnessCachePointer::new(fitness_cache_size));
+        self
+    }
     pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
         self.par_fitness = par_fitness;
         self
@@ -72,6 +78,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         Builder {
             genotype: self.genotype,
             fitness_ordering: self.fitness_ordering,
+            fitness_cache_pointer: self.fitness_cache_pointer,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,

@@ -6,13 +6,16 @@
 //! a single [Genotype] type).
 //!
 //! See [Fitness] Trait for examples and further documentation
+pub mod cache;
 pub mod placeholders;
 pub mod prelude;
+
+pub use self::cache::CachePointer as FitnessCachePointer;
 
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
 use crate::population::Population;
-use crate::strategy::{StrategyAction, StrategyState};
+use crate::strategy::{StrategyAction, StrategyConfig, StrategyState};
 use rayon::prelude::*;
 use std::cell::RefCell;
 use std::time::Instant;
@@ -202,24 +205,31 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///
 pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: Genotype;
-    fn call_for_state_population<S: StrategyState<Self::Genotype>>(
+    fn call_for_state_population<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        state: &mut S,
         genotype: &Self::Genotype,
+        state: &mut S,
+        config: &C,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         let now = Instant::now();
-        self.call_for_population(state.population_as_mut(), genotype, thread_local);
+        self.call_for_population(
+            state.population_as_mut(),
+            genotype,
+            thread_local,
+            config.fitness_cache_pointer(),
+        );
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
-    fn call_for_state_chromosome<S: StrategyState<Self::Genotype>>(
+    fn call_for_state_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        state: &mut S,
         genotype: &Self::Genotype,
+        state: &mut S,
+        config: &C,
     ) {
         if let Some(chromosome) = state.chromosome_as_mut() {
             let now = Instant::now();
-            self.call_for_chromosome(chromosome, genotype);
+            self.call_for_chromosome(chromosome, genotype, config.fitness_cache_pointer());
             state.add_duration(StrategyAction::Fitness, now.elapsed());
         }
     }
@@ -229,6 +239,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         population: &mut FitnessPopulation<Self>,
         genotype: &Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
+        cache_pointer: Option<&FitnessCachePointer>,
     ) {
         let fitness_scores = self.calculate_for_population(population, genotype);
         if fitness_scores.is_empty() {
@@ -244,7 +255,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                                 .borrow_mut()
                         },
                         |fitness, chromosome| {
-                            fitness.call_for_chromosome(chromosome, genotype);
+                            fitness.call_for_chromosome(chromosome, genotype, cache_pointer);
                         },
                     );
             } else {
@@ -252,7 +263,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                     .chromosomes
                     .iter_mut()
                     .filter(|c| c.fitness_score().is_none())
-                    .for_each(|c| self.call_for_chromosome(c, genotype));
+                    .for_each(|c| self.call_for_chromosome(c, genotype, cache_pointer));
             }
         } else {
             genotype.update_population_fitness_scores(population, fitness_scores);
@@ -262,8 +273,25 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         &mut self,
         chromosome: &mut FitnessChromosome<Self>,
         genotype: &Self::Genotype,
+        cache_pointer: Option<&FitnessCachePointer>,
     ) {
-        chromosome.set_fitness_score(self.calculate_for_chromosome(chromosome, genotype));
+        let value = if let Some(cache) = cache_pointer {
+            if let Some(genes_hash) = chromosome.genes_hash() {
+                if let Some(value) = cache.read(genes_hash) {
+                    Some(value)
+                } else if let Some(value) = self.calculate_for_chromosome(chromosome, genotype) {
+                    cache.write(genes_hash, value);
+                    Some(value)
+                } else {
+                    None
+                }
+            } else {
+                self.calculate_for_chromosome(chromosome, genotype)
+            }
+        } else {
+            self.calculate_for_chromosome(chromosome, genotype)
+        };
+        chromosome.set_fitness_score(value);
     }
     /// Optional interception point for client implementation.
     ///

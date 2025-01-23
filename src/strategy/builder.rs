@@ -1,7 +1,7 @@
 use crate::crossover::Crossover;
 pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 use crate::extension::{Extension, ExtensionNoop};
-use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
+use crate::fitness::{Fitness, FitnessCachePointer, FitnessOrdering, FitnessValue};
 use crate::genotype::{EvolveGenotype, HillClimbGenotype, PermutateGenotype};
 use crate::mutate::Mutate;
 use crate::select::Select;
@@ -30,6 +30,7 @@ pub struct Builder<
     pub extension: E,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
+    pub fitness_cache_pointer: Option<FitnessCachePointer>,
     pub max_chromosome_age: Option<usize>,
     pub max_stale_generations: Option<usize>,
     pub mutate: Option<M>,
@@ -61,6 +62,7 @@ impl<
             target_fitness_score: None,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
+            fitness_cache_pointer: None,
             par_fitness: false,
             replace_on_equal_fitness: false,
             mutate: None,
@@ -157,6 +159,10 @@ impl<
         self.fitness_ordering = fitness_ordering;
         self
     }
+    pub fn with_fitness_cache_size(mut self, fitness_cache_size: usize) -> Self {
+        self.fitness_cache_pointer = Some(FitnessCachePointer::new(fitness_cache_size));
+        self
+    }
     pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
         self.par_fitness = par_fitness;
         self
@@ -191,6 +197,7 @@ impl<
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
+            fitness_cache_pointer: self.fitness_cache_pointer,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
@@ -215,6 +222,7 @@ impl<
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
+            fitness_cache_pointer: self.fitness_cache_pointer,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
@@ -266,6 +274,7 @@ impl<
         PermutateBuilder {
             genotype: self.genotype,
             fitness_ordering: self.fitness_ordering,
+            fitness_cache_pointer: self.fitness_cache_pointer,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,
@@ -281,6 +290,7 @@ impl<
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
+            fitness_cache_pointer: self.fitness_cache_pointer,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
@@ -300,6 +310,7 @@ impl<
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
+            fitness_cache_pointer: self.fitness_cache_pointer,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,
