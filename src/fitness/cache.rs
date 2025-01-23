@@ -10,10 +10,11 @@ pub struct CachePointer {
     pub cache_size: usize,
     pub cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
     pub cache_hit_miss_pointer: Arc<RwLock<(usize, usize)>>,
+    pub track_hit_miss: bool,
 }
 
 impl CachePointer {
-    pub fn new(cache_size: usize) -> Self {
+    pub fn new(cache_size: usize, track_hit_miss: bool) -> Self {
         let non_zero_cache_size = NonZeroUsize::new(cache_size).unwrap();
         let cache: LruCache<GenesHash, FitnessValue> = LruCache::new(non_zero_cache_size);
         let cache_pointer = Arc::new(RwLock::new(cache));
@@ -22,16 +23,31 @@ impl CachePointer {
             cache_size,
             cache_pointer,
             cache_hit_miss_pointer,
+            track_hit_miss,
         }
     }
 
     pub fn read(&self, genes_hash: GenesHash) -> Option<FitnessValue> {
-        self.cache_pointer
+        let value = self
+            .cache_pointer
             .read()
             .map(|c| c.peek(&genes_hash).cloned())
-            .unwrap()
+            .unwrap();
+
+        if self.track_hit_miss {
+            if value.is_some() {
+                self.cache_hit_miss_pointer.write().unwrap().0 += 1
+            } else {
+                self.cache_hit_miss_pointer.write().unwrap().1 += 1
+            }
+        }
+
+        value
     }
     pub fn write(&self, genes_hash: GenesHash, value: FitnessValue) {
         self.cache_pointer.write().unwrap().put(genes_hash, value);
+    }
+    pub fn number_of_hits_and_misses(&self) -> (usize, usize) {
+        *self.cache_hit_miss_pointer.read().unwrap()
     }
 }

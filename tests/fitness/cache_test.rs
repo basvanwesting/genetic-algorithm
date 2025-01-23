@@ -1,0 +1,18 @@
+#[cfg(test)]
+// use crate::support::*;
+use genetic_algorithm::fitness::cache::CachePointer;
+
+#[test]
+fn standard() {
+    let cache_pointer = CachePointer::new(3, true);
+
+    cache_pointer.write(1, 10);
+    cache_pointer.write(2, 20);
+
+    assert_eq!(cache_pointer.read(1), Some(10));
+    assert_eq!(cache_pointer.read(1), Some(10));
+    assert_eq!(cache_pointer.read(2), Some(20));
+    assert_eq!(cache_pointer.read(3), None);
+
+    assert_eq!(cache_pointer.number_of_hits_and_misses(), (3, 1));
+}
