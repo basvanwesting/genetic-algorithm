@@ -80,11 +80,6 @@ impl Fitness for CachedExpensiveCount {
 fn main() {
     env_logger::init();
 
-    let cache: LruCache<GenesHash, FitnessValue> =
-        LruCache::new(NonZeroUsize::new(100 * 1000).unwrap());
-    let cache_pointer = Arc::new(RwLock::new(cache));
-    let cache_counter_pointer = Arc::new(RwLock::new((0, 0)));
-
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .with_genes_hashing(true)
@@ -93,33 +88,42 @@ fn main() {
 
     println!("{}", genotype);
 
-    // let evolve = Evolve::builder()
-    let (evolve, _others) = Evolve::builder()
+    let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(1000)
         // .with_target_fitness_score(100)
         .with_mutate(MutateSingleGene::new(0.05))
-        //.with_fitness(ExpensiveCount::new(1000))
-        .with_fitness(CachedExpensiveCount::new(
-            10,
-            cache_pointer,
-            cache_counter_pointer.clone(),
-        ))
-        .with_par_fitness(true)
         .with_crossover(CrossoverClone::new())
-        .with_select(SelectTournament::new(4, 0.9))
-        .with_reporter(EvolveReporterSimple::new(100))
-        // .call()
-        .call_par_repeatedly(10)
-        .unwrap();
+        .with_select(SelectTournament::new(4, 0.9));
 
-    println!("{}", evolve);
+    // println!("{}", evolve);
 
-    let cache_hits = cache_counter_pointer.read().unwrap().0;
-    let cache_misses = cache_counter_pointer.read().unwrap().1;
+    for repeats in [1, 2, 4, 8, 16, 32, 64, 128] {
+        for cache_size in [1000, 10_000, 100_000, 1_000_000] {
+            let cache: LruCache<GenesHash, FitnessValue> =
+                LruCache::new(NonZeroUsize::new(100_000_000).unwrap());
+            let cache_pointer = Arc::new(RwLock::new(cache));
+            let cache_counter_pointer = Arc::new(RwLock::new((0, 0)));
 
-    println! {"cache_hits: {}, cache_misses: {}", cache_hits, cache_misses};
+            let _ = evolve_builder
+                .clone()
+                .with_fitness(CachedExpensiveCount::new(
+                    0,
+                    cache_pointer,
+                    cache_counter_pointer.clone(),
+                ))
+                // .with_par_fitness(true)
+                // .with_reporter(EvolveReporterSimple::new(100))
+                .call_par_repeatedly(repeats);
+
+            let cache_hits = cache_counter_pointer.read().unwrap().0;
+            let cache_misses = cache_counter_pointer.read().unwrap().1;
+            let ratio = cache_hits as f32 / cache_misses as f32;
+
+            println! {"repeats: {}, cache_size: {}, cache_hits: {}, cache_misses: {}, ratio: {}", repeats, cache_size, cache_hits, cache_misses, ratio};
+        }
+    }
 }
 
 // Not very useful of you can find a target_score (hit: 243, miss: 1252)
