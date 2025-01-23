@@ -33,17 +33,20 @@ pub struct CachedExpensiveCount {
     pub micro_seconds: MicroSeconds,
     pub cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
     pub cache_counter_pointer: Arc<RwLock<(usize, usize)>>,
+    pub cache_hit_fitness_score: Arc<RwLock<isize>>,
 }
 impl CachedExpensiveCount {
     pub fn new(
         micro_seconds: MicroSeconds,
         cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
         cache_counter_pointer: Arc<RwLock<(usize, usize)>>,
+        cache_hit_fitness_score: Arc<RwLock<isize>>,
     ) -> Self {
         Self {
             micro_seconds,
             cache_pointer,
             cache_counter_pointer,
+            cache_hit_fitness_score,
         }
     }
 }
@@ -64,6 +67,7 @@ impl Fitness for CachedExpensiveCount {
 
         if let Some(value) = maybe_value {
             self.cache_counter_pointer.write().unwrap().0 += 1;
+            *self.cache_hit_fitness_score.write().unwrap() += value;
             // println!("cache-hit");
             Some(value)
         } else {
@@ -100,11 +104,12 @@ fn main() {
     // println!("{}", evolve);
 
     for repeats in [1, 2, 4, 8, 16, 32, 64, 128] {
-        for cache_size in [1000, 10_000, 100_000, 1_000_000] {
+        for cache_size in [10, 100, 1000, 10_000, 100_000, 1_000_000] {
             let cache: LruCache<GenesHash, FitnessValue> =
-                LruCache::new(NonZeroUsize::new(100_000_000).unwrap());
+                LruCache::new(NonZeroUsize::new(cache_size).unwrap());
             let cache_pointer = Arc::new(RwLock::new(cache));
             let cache_counter_pointer = Arc::new(RwLock::new((0, 0)));
+            let cache_hit_fitness_score = Arc::new(RwLock::new(0));
 
             let _ = evolve_builder
                 .clone()
@@ -112,6 +117,7 @@ fn main() {
                     0,
                     cache_pointer,
                     cache_counter_pointer.clone(),
+                    cache_hit_fitness_score.clone(),
                 ))
                 // .with_par_fitness(true)
                 // .with_reporter(EvolveReporterSimple::new(100))
@@ -121,7 +127,10 @@ fn main() {
             let cache_misses = cache_counter_pointer.read().unwrap().1;
             let ratio = cache_hits as f32 / cache_misses as f32;
 
-            println! {"repeats: {}, cache_size: {}, cache_hits: {}, cache_misses: {}, ratio: {}", repeats, cache_size, cache_hits, cache_misses, ratio};
+            let hit_fitness_score = *cache_hit_fitness_score.read().unwrap();
+            let avg_hit_fitness_score = hit_fitness_score as f32 / cache_hits as f32;
+
+            println! {"repeats: {}, cache_size: {}, cache_hits: {}, cache_misses: {}, ratio: {}, avg_hit_fitness_score: {}", repeats, cache_size, cache_hits, cache_misses, ratio, avg_hit_fitness_score};
         }
     }
 }
