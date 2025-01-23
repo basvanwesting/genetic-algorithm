@@ -93,8 +93,8 @@ fn main() {
 
     println!("{}", genotype);
 
-    let evolve = Evolve::builder()
-        // let (evolve, _others) = Evolve::builder()
+    // let evolve = Evolve::builder()
+    let (evolve, _others) = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(1000)
@@ -110,8 +110,8 @@ fn main() {
         .with_crossover(CrossoverClone::new())
         .with_select(SelectTournament::new(4, 0.9))
         .with_reporter(EvolveReporterSimple::new(100))
-        .call()
-        // .call_repeatedly(10)
+        // .call()
+        .call_par_repeatedly(10)
         .unwrap();
 
     println!("{}", evolve);
