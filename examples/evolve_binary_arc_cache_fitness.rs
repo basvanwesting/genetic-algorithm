@@ -32,19 +32,18 @@ impl Fitness for ExpensiveCount {
 pub struct CachedExpensiveCount {
     pub micro_seconds: MicroSeconds,
     pub cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
-    pub cache_hits: usize,
-    pub cache_misses: usize,
+    pub cache_counter_pointer: Arc<RwLock<(usize, usize)>>,
 }
 impl CachedExpensiveCount {
     pub fn new(
         micro_seconds: MicroSeconds,
         cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
+        cache_counter_pointer: Arc<RwLock<(usize, usize)>>,
     ) -> Self {
         Self {
             micro_seconds,
             cache_pointer,
-            cache_hits: 0,
-            cache_misses: 0,
+            cache_counter_pointer,
         }
     }
 }
@@ -64,11 +63,11 @@ impl Fitness for CachedExpensiveCount {
             .unwrap();
 
         if let Some(value) = maybe_value {
-            self.cache_hits += 1;
+            self.cache_counter_pointer.write().unwrap().0 += 1;
             // println!("cache-hit");
             Some(value)
         } else {
-            self.cache_misses += 1;
+            self.cache_counter_pointer.write().unwrap().1 += 1;
             // println!("cache-miss");
             thread::sleep(time::Duration::from_micros(self.micro_seconds));
             let value = chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue;
@@ -84,6 +83,7 @@ fn main() {
     let cache: LruCache<GenesHash, FitnessValue> =
         LruCache::new(NonZeroUsize::new(100 * 1000).unwrap());
     let cache_pointer = Arc::new(RwLock::new(cache));
+    let cache_counter_pointer = Arc::new(RwLock::new((0, 0)));
 
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
@@ -93,25 +93,33 @@ fn main() {
 
     println!("{}", genotype);
 
-    // let evolve = Evolve::builder()
-    let (evolve, _others) = Evolve::builder()
+    let evolve = Evolve::builder()
+        // let (evolve, _others) = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(1000)
         // .with_target_fitness_score(100)
         .with_mutate(MutateSingleGene::new(0.05))
         //.with_fitness(ExpensiveCount::new(1000))
-        .with_fitness(CachedExpensiveCount::new(10, cache_pointer))
-        // .with_par_fitness(true)
+        .with_fitness(CachedExpensiveCount::new(
+            10,
+            cache_pointer,
+            cache_counter_pointer.clone(),
+        ))
+        .with_par_fitness(true)
         .with_crossover(CrossoverClone::new())
         .with_select(SelectTournament::new(4, 0.9))
         .with_reporter(EvolveReporterSimple::new(100))
-        // .call()
-        .call_repeatedly(10)
+        .call()
+        // .call_repeatedly(10)
         .unwrap();
 
     println!("{}", evolve);
-    println! {"cache_hits: {}, cache_misses: {}", evolve.fitness.cache_hits, evolve.fitness.cache_misses};
+
+    let cache_hits = cache_counter_pointer.read().unwrap().0;
+    let cache_misses = cache_counter_pointer.read().unwrap().1;
+
+    println! {"cache_hits: {}, cache_misses: {}", cache_hits, cache_misses};
 }
 
 // Not very useful of you can find a target_score (hit: 243, miss: 1252)
