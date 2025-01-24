@@ -57,15 +57,13 @@ fn main() {
                 .call_par_repeatedly(repeats)
                 .unwrap();
 
-            let (cache_hits, cache_misses) = evolve
+            let (cache_hits, cache_misses, cache_ratio) = evolve
                 .config
                 .fitness_cache_pointer()
-                .map(|c| c.number_of_hits_and_misses())
+                .map(|c| c.hit_miss_stats())
                 .unwrap();
 
-            let ratio = cache_hits as f32 / cache_misses as f32;
-
-            println! {"repeats: {}, cache_size: {}, cache_hits: {}, cache_misses: {}, ratio: {:.2}", repeats, cache_size, cache_hits, cache_misses, ratio};
+            println! {"repeats: {}, cache_size: {}, cache_hits: {}, cache_misses: {}, cache_ratio: {:.2}", repeats, cache_size, cache_hits, cache_misses, cache_ratio};
         }
     }
 }

@@ -50,7 +50,16 @@ impl CachePointer {
     pub fn write(&self, genes_hash: GenesHash, value: FitnessValue) {
         self.cache_pointer.write().unwrap().put(genes_hash, value);
     }
-    pub fn number_of_hits_and_misses(&self) -> (usize, usize) {
-        *self.cache_hit_miss_pointer.read().unwrap()
+
+    /// hit_miss_stats() -> (hits, misses, ratio)
+    pub fn hit_miss_stats(&self) -> (usize, usize, f32) {
+        match *self.cache_hit_miss_pointer.read().unwrap() {
+            (cache_hits, 0) => (cache_hits, 0, 0.0),
+            (cache_hits, cache_misses) => (
+                cache_hits,
+                cache_misses,
+                cache_hits as f32 / cache_misses as f32,
+            ),
+        }
     }
 }
