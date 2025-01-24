@@ -270,7 +270,7 @@ fn main() {
         .with_genotype(genotype)
         .with_target_population_size(1000)
         .with_max_stale_generations(250)
-        // .with_fitness_cache(1000, true)
+        // .with_fitness_cache(1000)
         // .with_max_chromosome_age(50)
         .with_mutate(MutateMultiGene::new(2, 0.2))
         //.with_mutate(MutateSingleGeneDynamic::new(0.01, 250))

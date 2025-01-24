@@ -13,11 +13,10 @@ pub struct CachePointer {
     pub cache_size: usize,
     pub cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue, LruCacheBuildHasher>>>,
     pub cache_hit_miss_pointer: Arc<RwLock<(usize, usize)>>,
-    pub track_hit_miss: bool,
 }
 
 impl CachePointer {
-    pub fn new(cache_size: usize, track_hit_miss: bool) -> Self {
+    pub fn new(cache_size: usize) -> Self {
         let non_zero_cache_size = NonZeroUsize::new(cache_size).unwrap();
         let cache = LruCache::with_hasher(non_zero_cache_size, LruCacheBuildHasher::default());
         let cache_pointer = Arc::new(RwLock::new(cache));
@@ -26,7 +25,6 @@ impl CachePointer {
             cache_size,
             cache_pointer,
             cache_hit_miss_pointer,
-            track_hit_miss,
         }
     }
 
@@ -37,12 +35,10 @@ impl CachePointer {
             .map(|c| c.peek(&genes_hash).cloned())
             .unwrap();
 
-        if self.track_hit_miss {
-            if value.is_some() {
-                self.cache_hit_miss_pointer.write().unwrap().0 += 1
-            } else {
-                self.cache_hit_miss_pointer.write().unwrap().1 += 1
-            }
+        if value.is_some() {
+            self.cache_hit_miss_pointer.write().unwrap().0 += 1
+        } else {
+            self.cache_hit_miss_pointer.write().unwrap().1 += 1
         }
 
         value

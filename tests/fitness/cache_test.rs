@@ -4,7 +4,7 @@ use genetic_algorithm::fitness::cache::CachePointer;
 
 #[test]
 fn standard() {
-    let cache_pointer = CachePointer::new(3, true);
+    let cache_pointer = CachePointer::new(3);
 
     cache_pointer.write(1, 10);
     cache_pointer.write(2, 20);

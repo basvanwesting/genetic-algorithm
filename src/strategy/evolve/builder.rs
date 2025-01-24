@@ -146,9 +146,8 @@ impl<
         self.fitness_ordering = fitness_ordering;
         self
     }
-    pub fn with_fitness_cache(mut self, fitness_cache_size: usize, track_hit_miss: bool) -> Self {
-        self.fitness_cache_pointer =
-            Some(FitnessCachePointer::new(fitness_cache_size, track_hit_miss));
+    pub fn with_fitness_cache(mut self, fitness_cache_size: usize) -> Self {
+        self.fitness_cache_pointer = Some(FitnessCachePointer::new(fitness_cache_size));
         self
     }
     pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {

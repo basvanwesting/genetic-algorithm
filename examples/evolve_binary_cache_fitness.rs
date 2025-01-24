@@ -51,7 +51,7 @@ fn main() {
         for cache_size in [100, 1000, 10_000] {
             let (evolve, _) = evolve_builder
                 .clone()
-                .with_fitness_cache(cache_size, true)
+                .with_fitness_cache(cache_size)
                 // .with_par_fitness(true)
                 // .with_reporter(EvolveReporterSimple::new(100))
                 .call_par_repeatedly(repeats)
