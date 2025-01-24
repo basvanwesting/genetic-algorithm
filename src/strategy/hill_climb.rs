@@ -12,7 +12,7 @@ use super::{
     StrategyState, StrategyVariant,
 };
 use crate::chromosome::{Chromosome, GenesOwner};
-use crate::fitness::{Fitness, FitnessCachePointer, FitnessOrdering, FitnessValue};
+use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::{HillClimbGenotype, MutationType};
 use crate::population::Population;
 use rand::prelude::SliceRandom;
@@ -163,7 +163,6 @@ pub struct HillClimbConfig {
     pub target_fitness_score: Option<FitnessValue>,
     pub max_stale_generations: Option<usize>,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub fitness_cache_pointer: Option<FitnessCachePointer>,
 }
 
 /// Stores the state of the HillClimb strategy.
@@ -385,9 +384,6 @@ impl StrategyConfig for HillClimbConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
     }
-    fn fitness_cache_pointer(&self) -> Option<&FitnessCachePointer> {
-        self.fitness_cache_pointer.as_ref()
-    }
     fn par_fitness(&self) -> bool {
         self.par_fitness
     }
@@ -564,7 +560,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 config: HillClimbConfig {
                     variant: builder.variant.unwrap_or_default(),
                     fitness_ordering: builder.fitness_ordering,
-                    fitness_cache_pointer: builder.fitness_cache_pointer,
                     par_fitness: builder.par_fitness,
                     max_stale_generations: builder.max_stale_generations,
                     target_fitness_score: builder.target_fitness_score,
@@ -589,7 +584,6 @@ impl Default for HillClimbConfig {
             target_fitness_score: None,
             valid_fitness_score: None,
             replace_on_equal_fitness: false,
-            fitness_cache_pointer: None,
         }
     }
 }

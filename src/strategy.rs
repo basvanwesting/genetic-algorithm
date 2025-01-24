@@ -46,7 +46,7 @@
 //!     .with_mutate(MutateSingleGene::new(0.2))                // (E) mutate offspring for a single gene with a 20% probability per chromosome
 //!     .with_fitness(CountTrue)                                // (E,H,P) count the number of true values in the chromosomes
 //!     .with_fitness_ordering(FitnessOrdering::Minimize)       // (E,H,P) aim for the least true values
-//!     .with_fitness_cache(1000)                               // (E) enable caching of fitness values, only works when genes_hash is stored in chromosome. (H,P) it makes no sense to use in this context.
+//!     .with_fitness_cache(1000)                               // (E) enable caching of fitness values, only works when genes_hash is stored in chromosome.
 //!     .with_par_fitness(true)                                 // (E,H,P) optional, defaults to false, use parallel fitness calculation
 //!     .with_target_population_size(100)                       // (E) evolve with 100 chromosomes
 //!     .with_target_fitness_score(0)                           // (E,H) ending condition if 0 times true in the best chromosome
@@ -161,7 +161,10 @@ pub trait Strategy<G: Genotype> {
 pub trait StrategyConfig: Display {
     fn variant(&self) -> StrategyVariant;
     fn fitness_ordering(&self) -> FitnessOrdering;
-    fn fitness_cache_pointer(&self) -> Option<&FitnessCachePointer>;
+    // stored on config instead of state as it is a cache external to the strategy
+    fn fitness_cache_pointer(&self) -> Option<&FitnessCachePointer> {
+        None
+    }
     fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
 }
