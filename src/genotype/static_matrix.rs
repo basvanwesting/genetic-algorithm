@@ -318,6 +318,12 @@ where
         if self.genes_hashing {
             let mut s = FxHasher::default();
             let bytes: &[u8] = cast_slice(self.genes_slice(chromosome));
+            // unsafe {
+            //     let (prefix, shorts, suffix) = bytes.align_to::<u64>();
+            //     prefix.hash(&mut s);
+            //     shorts.hash(&mut s);
+            //     suffix.hash(&mut s);
+            // }
             bytes.hash(&mut s);
             Some(s.finish())
         } else {
