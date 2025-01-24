@@ -101,9 +101,9 @@
 //!     * See [examples/explore_multithreading](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_multithreading.rs)
 //! * Use superset StrategyBuilder for easier switching in implementation
 //!     * See [examples/explore_strategies](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_strategies.rs)
-//! * Custom Fitness function with LRU cache
-//!     * See [examples/evolve_binary_lru_cache_fitness](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_binary_lru_cache_fitness.rs)
-//!     * _Note: doesn't help performance much in this case... or any case, better fix your population cardinality_
+//! * Use fitness LRU cache
+//!     * See [examples/evolve_binary_cache_fitness](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_binary_cache_fitness.rs)
+//!     * _Note: doesn't help performance much in this case... or any case, better fix your population diversity_
 //! * Custom Reporting implementation
 //!     * See [examples/permutate_scrabble](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_scrabble.rs)
 //!

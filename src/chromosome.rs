@@ -1,4 +1,4 @@
-//! The chromosome is a container for the genes and caches a fitness score
+//! The chromosome is a container for the genes and stores some useful values
 
 mod bit;
 mod row;

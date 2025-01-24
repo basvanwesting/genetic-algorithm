@@ -233,7 +233,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             state.add_duration(StrategyAction::Fitness, now.elapsed());
         }
     }
-    /// Pass thread_local for external control of fitness caching in multithreading
+    /// Pass thread_local for external control of fitness state in multithreading
     fn call_for_population(
         &mut self,
         population: &mut FitnessPopulation<Self>,
