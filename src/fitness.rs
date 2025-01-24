@@ -275,8 +275,8 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         genotype: &Self::Genotype,
         cache_pointer: Option<&FitnessCachePointer>,
     ) {
-        let value = if let Some(cache) = cache_pointer {
-            if let Some(genes_hash) = chromosome.genes_hash() {
+        let value = match (cache_pointer, chromosome.genes_hash()) {
+            (Some(cache), Some(genes_hash)) => {
                 if let Some(value) = cache.read(genes_hash) {
                     Some(value)
                 } else if let Some(value) = self.calculate_for_chromosome(chromosome, genotype) {
@@ -285,11 +285,8 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                 } else {
                     None
                 }
-            } else {
-                self.calculate_for_chromosome(chromosome, genotype)
             }
-        } else {
-            self.calculate_for_chromosome(chromosome, genotype)
+            _ => self.calculate_for_chromosome(chromosome, genotype),
         };
         chromosome.set_fitness_score(value);
     }
