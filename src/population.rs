@@ -102,7 +102,7 @@ impl<C: Chromosome> Population<C> {
             .peekable();
         if values.peek().is_some() {
             let mut estimator = CardinalityEstimator::<u64>::new();
-            values.for_each(|genes_hash| estimator.insert(&genes_hash));
+            values.for_each(|genes_hash| estimator.insert_hash(genes_hash));
             Some(estimator.estimate())
         } else {
             None
