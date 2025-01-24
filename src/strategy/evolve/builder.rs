@@ -146,6 +146,8 @@ impl<
         self.fitness_ordering = fitness_ordering;
         self
     }
+    /// Only works when genes_hash is stored on chromosome, as this is the cache key.
+    /// Only useful for long stale runs, but better to increase population diversity.
     pub fn with_fitness_cache(mut self, fitness_cache_size: usize) -> Self {
         self.fitness_cache_pointer = Some(FitnessCachePointer::new(fitness_cache_size));
         self

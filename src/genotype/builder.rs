@@ -11,9 +11,9 @@ use std::ops::RangeInclusive;
 ///   Sometimes it is efficient to start with a certain population
 ///
 /// * Builder `with_genes_hashing(true)`, optional, store a genes_hash on the chromomose (in
-///   Evolve). This has relatively high overhead for to the main Evolve loop, but might be useful for
+///   Evolve). This is needed when using `with_fitness_cache` on the strategy as key for the cache.
+///   Hashing the genes has relatively high overhead for to the main Evolve loop, but might be useful for
 ///   better population cardinality estimation (falls back to fitness score cardinality otherwise).
-///   Or it could be used for fitness score caching for instance
 ///
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {

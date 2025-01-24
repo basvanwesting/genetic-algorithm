@@ -106,6 +106,7 @@ pub enum EvolveVariant {
 /// // the search space
 /// let genotype = BinaryGenotype::builder() // boolean alleles
 ///     .with_genes_size(100)                // 100 genes per chromosome
+///     .with_genes_hashing(true)            // store genes_hash on chromosome (required for fitness_cache, optional for better population cardinality estimation)
 ///     .build()
 ///     .unwrap();
 ///
@@ -118,6 +119,7 @@ pub enum EvolveVariant {
 ///     .with_mutate(MutateSingleGene::new(0.2))               // mutate offspring for a single gene with a 20% probability per chromosome
 ///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)      // aim for the least true values
+///     .with_fitness_cache(1000)                              // enable caching of fitness values (LRU size 1000), only works when genes_hash is stored in chromosome. Only useful for long stale runs, but better to increase population diversity
 ///     .with_par_fitness(true)                                // optional, defaults to false, use parallel fitness calculation
 ///     .with_target_population_size(100)                      // evolve with 100 chromosomes
 ///     .with_target_fitness_score(0)                          // ending condition if 0 times true in the best chromosome

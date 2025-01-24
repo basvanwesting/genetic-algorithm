@@ -74,6 +74,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.fitness_ordering = fitness_ordering;
         self
     }
+    /// makes no sense to use for hill_climb
     pub fn with_fitness_cache(mut self, fitness_cache_size: usize) -> Self {
         self.fitness_cache_pointer = Some(FitnessCachePointer::new(fitness_cache_size));
         self
