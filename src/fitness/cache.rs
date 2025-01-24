@@ -1,14 +1,17 @@
 use super::FitnessValue;
 use crate::chromosome::GenesHash;
 use lru::LruCache;
+use rustc_hash::FxHasher;
+use std::hash::BuildHasherDefault;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, RwLock};
-// use std::{thread, time};
+
+type LruCacheBuildHasher = BuildHasherDefault<FxHasher>;
 
 #[derive(Debug, Clone)]
 pub struct CachePointer {
     pub cache_size: usize,
-    pub cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
+    pub cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue, LruCacheBuildHasher>>>,
     pub cache_hit_miss_pointer: Arc<RwLock<(usize, usize)>>,
     pub track_hit_miss: bool,
 }
@@ -16,7 +19,7 @@ pub struct CachePointer {
 impl CachePointer {
     pub fn new(cache_size: usize, track_hit_miss: bool) -> Self {
         let non_zero_cache_size = NonZeroUsize::new(cache_size).unwrap();
-        let cache: LruCache<GenesHash, FitnessValue> = LruCache::new(non_zero_cache_size);
+        let cache = LruCache::with_hasher(non_zero_cache_size, LruCacheBuildHasher::default());
         let cache_pointer = Arc::new(RwLock::new(cache));
         let cache_hit_miss_pointer = Arc::new(RwLock::new((0, 0)));
         Self {
