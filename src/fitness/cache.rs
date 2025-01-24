@@ -1,12 +1,12 @@
 use super::FitnessValue;
 use crate::chromosome::GenesHash;
 use lru::LruCache;
-use rustc_hash::FxHasher;
+use nohash_hasher::NoHashHasher;
 use std::hash::BuildHasherDefault;
 use std::num::NonZeroUsize;
 use std::sync::{Arc, RwLock};
 
-type LruCacheBuildHasher = BuildHasherDefault<FxHasher>;
+type LruCacheBuildHasher = BuildHasherDefault<NoHashHasher<u64>>;
 
 #[derive(Debug, Clone)]
 pub struct CachePointer {

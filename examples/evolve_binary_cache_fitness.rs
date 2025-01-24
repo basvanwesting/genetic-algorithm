@@ -35,28 +35,39 @@ fn main() {
 
     println!("{}", genotype);
 
-    let (evolve, _other) = Evolve::builder()
+    let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(1000)
         // .with_target_fitness_score(100)
+        .with_fitness(ExpensiveCount::new(0))
         .with_mutate(MutateSingleGene::new(0.05))
-        .with_fitness(ExpensiveCount::new(10))
-        .with_fitness_cache(1000, true)
         .with_crossover(CrossoverClone::new())
-        .with_select(SelectTournament::new(4, 0.9))
-        // .with_reporter(EvolveReporterSimple::new(100))
-        .call_par_repeatedly(10)
-        .unwrap();
+        .with_select(SelectTournament::new(4, 0.9));
 
-    println!("{}", evolve);
-    println!(
-        "cache hits/misses: {:?}",
-        evolve
-            .config
-            .fitness_cache_pointer()
-            .map(|c| c.number_of_hits_and_misses())
-    );
+    // println!("{}", evolve);
+
+    for repeats in [1, 2, 4, 8, 16, 32, 64, 128] {
+        for cache_size in [100, 1000, 10_000] {
+            let (evolve, _) = evolve_builder
+                .clone()
+                .with_fitness_cache(cache_size, true)
+                // .with_par_fitness(true)
+                // .with_reporter(EvolveReporterSimple::new(100))
+                .call_par_repeatedly(repeats)
+                .unwrap();
+
+            let (cache_hits, cache_misses) = evolve
+                .config
+                .fitness_cache_pointer()
+                .map(|c| c.number_of_hits_and_misses())
+                .unwrap();
+
+            let ratio = cache_hits as f32 / cache_misses as f32;
+
+            println! {"repeats: {}, cache_size: {}, cache_hits: {}, cache_misses: {}, ratio: {:.2}", repeats, cache_size, cache_hits, cache_misses, ratio};
+        }
+    }
 }
 
 // Not very useful of you can find a target_score (hit: 243, miss: 1252)
