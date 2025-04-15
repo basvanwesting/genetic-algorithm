@@ -166,7 +166,11 @@ pub trait EvolveGenotype: Genotype {
                     .iter()
                     .cycle()
                     .take(population_size)
-                    .map(|genes| self.chromosome_constructor_genes(genes))
+                    .map(|genes| {
+                        let mut chromosome = self.chromosome_constructor_genes(genes);
+                        chromosome.taint(self.calculate_genes_hash(&chromosome));
+                        chromosome
+                    })
                     .collect::<Vec<_>>(),
             )
         }
