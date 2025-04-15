@@ -9,14 +9,14 @@ use std::sync::{Arc, RwLock};
 type LruCacheBuildHasher = BuildHasherDefault<NoHashHasher<u64>>;
 
 #[derive(Debug, Clone)]
-pub struct SharedCache {
+pub struct Cache {
     pub cache_size: usize,
     pub cache_state: Arc<RwLock<LruCache<GenesHash, FitnessValue, LruCacheBuildHasher>>>,
     pub cache_hit_counter: Arc<RwLock<usize>>,
     pub cache_miss_counter: Arc<RwLock<usize>>,
 }
 
-impl SharedCache {
+impl Cache {
     pub fn new(cache_size: usize) -> Self {
         let non_zero_cache_size = NonZeroUsize::new(cache_size).unwrap();
         let cache = LruCache::with_hasher(non_zero_cache_size, LruCacheBuildHasher::default());

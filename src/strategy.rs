@@ -83,7 +83,7 @@ use self::hill_climb::HillClimbVariant;
 use self::permutate::PermutateVariant;
 use crate::chromosome::Chromosome;
 use crate::extension::ExtensionEvent;
-use crate::fitness::{FitnessOrdering, FitnessSharedCache, FitnessValue};
+use crate::fitness::{FitnessCache, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::MutateEvent;
 use crate::population::Population;
@@ -162,7 +162,7 @@ pub trait StrategyConfig: Display {
     fn variant(&self) -> StrategyVariant;
     fn fitness_ordering(&self) -> FitnessOrdering;
     // stored on config instead of state as it is a cache external to the strategy
-    fn fitness_shared_cache(&self) -> Option<&FitnessSharedCache> {
+    fn fitness_cache(&self) -> Option<&FitnessCache> {
         None
     }
     fn par_fitness(&self) -> bool;

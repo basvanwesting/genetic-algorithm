@@ -2,7 +2,7 @@ use super::Evolve;
 use crate::crossover::Crossover;
 pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
 use crate::extension::{Extension, ExtensionNoop};
-use crate::fitness::{Fitness, FitnessOrdering, FitnessSharedCache, FitnessValue};
+use crate::fitness::{Fitness, FitnessCache, FitnessOrdering, FitnessValue};
 use crate::genotype::EvolveGenotype;
 use crate::mutate::Mutate;
 use crate::select::Select;
@@ -30,7 +30,7 @@ pub struct Builder<
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
-    pub fitness_shared_cache: Option<FitnessSharedCache>,
+    pub fitness_cache: Option<FitnessCache>,
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
     pub mutate: Option<M>,
@@ -54,7 +54,7 @@ impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Se
             target_fitness_score: None,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
-            fitness_shared_cache: None,
+            fitness_cache: None,
             par_fitness: false,
             replace_on_equal_fitness: false,
             mutate: None,
@@ -149,7 +149,7 @@ impl<
     /// Only works when genes_hash is stored on chromosome, as this is the cache key.
     /// Only useful for long stale runs, but better to increase population diversity.
     pub fn with_fitness_cache(mut self, fitness_cache_size: usize) -> Self {
-        self.fitness_shared_cache = Some(FitnessSharedCache::new(fitness_cache_size));
+        self.fitness_cache = Some(FitnessCache::new(fitness_cache_size));
         self
     }
     pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
@@ -185,7 +185,7 @@ impl<
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
-            fitness_shared_cache: self.fitness_shared_cache,
+            fitness_cache: self.fitness_cache,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
@@ -209,7 +209,7 @@ impl<
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
-            fitness_shared_cache: self.fitness_shared_cache,
+            fitness_cache: self.fitness_cache,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,

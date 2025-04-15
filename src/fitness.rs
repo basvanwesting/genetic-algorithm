@@ -10,7 +10,7 @@ pub mod cache;
 pub mod placeholders;
 pub mod prelude;
 
-pub use self::cache::SharedCache as FitnessSharedCache;
+pub use self::cache::Cache as FitnessCache;
 
 use crate::chromosome::Chromosome;
 use crate::genotype::Genotype;
@@ -217,7 +217,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             state.population_as_mut(),
             genotype,
             thread_local,
-            config.fitness_shared_cache(),
+            config.fitness_cache(),
         );
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
@@ -229,7 +229,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     ) {
         if let Some(chromosome) = state.chromosome_as_mut() {
             let now = Instant::now();
-            self.call_for_chromosome(chromosome, genotype, config.fitness_shared_cache());
+            self.call_for_chromosome(chromosome, genotype, config.fitness_cache());
             state.add_duration(StrategyAction::Fitness, now.elapsed());
         }
     }
@@ -239,7 +239,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         population: &mut FitnessPopulation<Self>,
         genotype: &Self::Genotype,
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
-        shared_cache: Option<&FitnessSharedCache>,
+        cache: Option<&FitnessCache>,
     ) {
         let fitness_scores = self.calculate_for_population(population, genotype);
         if fitness_scores.is_empty() {
@@ -255,7 +255,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                                 .borrow_mut()
                         },
                         |fitness, chromosome| {
-                            fitness.call_for_chromosome(chromosome, genotype, shared_cache);
+                            fitness.call_for_chromosome(chromosome, genotype, cache);
                         },
                     );
             } else {
@@ -263,7 +263,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                     .chromosomes
                     .iter_mut()
                     .filter(|c| c.fitness_score().is_none())
-                    .for_each(|c| self.call_for_chromosome(c, genotype, shared_cache));
+                    .for_each(|c| self.call_for_chromosome(c, genotype, cache));
             }
         } else {
             genotype.update_population_fitness_scores(population, fitness_scores);
@@ -273,9 +273,9 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         &mut self,
         chromosome: &mut FitnessChromosome<Self>,
         genotype: &Self::Genotype,
-        shared_cache: Option<&FitnessSharedCache>,
+        cache: Option<&FitnessCache>,
     ) {
-        let value = match (shared_cache, chromosome.genes_hash()) {
+        let value = match (cache, chromosome.genes_hash()) {
             (Some(cache), Some(genes_hash)) => {
                 if let Some(value) = cache.read(genes_hash) {
                     Some(value)
