@@ -335,13 +335,9 @@ impl<
     pub fn setup(&mut self, fitness_thread_local: Option<&ThreadLocal<RefCell<F>>>) {
         let now = Instant::now();
         self.genotype.chromosomes_setup();
-        self.state.population.chromosomes = (0..self.config.target_population_size)
-            .map(|_| {
-                let mut chromosome = self.genotype.chromosome_constructor_random(&mut self.rng);
-                chromosome.taint(self.genotype.calculate_genes_hash(&chromosome));
-                chromosome
-            })
-            .collect::<Vec<_>>();
+        self.state.population = self
+            .genotype
+            .population_constructor(self.config.target_population_size, &mut self.rng);
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
 

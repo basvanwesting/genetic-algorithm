@@ -144,6 +144,22 @@ pub trait Genotype:
 
 /// Genotype suitable for [Evolve](crate::strategy::evolve::Evolve).
 pub trait EvolveGenotype: Genotype {
+    fn population_constructor<R: Rng>(
+        &mut self,
+        population_size: usize,
+        rng: &mut R,
+    ) -> Population<Self::Chromosome> {
+        Population::new(
+            (0..population_size)
+                .map(|_| {
+                    let mut chromosome = self.chromosome_constructor_random(rng);
+                    chromosome.taint(self.calculate_genes_hash(&chromosome));
+                    chromosome
+                })
+                .collect::<Vec<_>>(),
+        )
+    }
+
     /// Crossover genes between a pair of chromosomes.
     /// Choose between allowing duplicates or not (~2x slower).
     /// panics if there are no valid crossover indexes
