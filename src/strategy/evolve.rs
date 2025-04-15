@@ -14,7 +14,7 @@ use super::{
 use crate::chromosome::{Chromosome, GenesOwner};
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
-use crate::fitness::{Fitness, FitnessCacheReference, FitnessOrdering, FitnessValue};
+use crate::fitness::{Fitness, FitnessOrdering, FitnessSharedCache, FitnessValue};
 use crate::genotype::{EvolveGenotype, MutationType};
 use crate::mutate::Mutate;
 use crate::population::Population;
@@ -171,7 +171,7 @@ pub struct EvolveConfig {
     pub target_fitness_score: Option<FitnessValue>,
     pub max_stale_generations: Option<usize>,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub fitness_cache_reference: Option<FitnessCacheReference>,
+    pub fitness_shared_cache: Option<FitnessSharedCache>,
 
     pub target_population_size: usize,
     pub selected_population_size: usize,
@@ -429,8 +429,8 @@ impl StrategyConfig for EvolveConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
     }
-    fn fitness_cache_reference(&self) -> Option<&FitnessCacheReference> {
-        self.fitness_cache_reference.as_ref()
+    fn fitness_shared_cache(&self) -> Option<&FitnessSharedCache> {
+        self.fitness_shared_cache.as_ref()
     }
     fn par_fitness(&self) -> bool {
         self.par_fitness
@@ -658,7 +658,7 @@ impl<
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
                     fitness_ordering: builder.fitness_ordering,
-                    fitness_cache_reference: builder.fitness_cache_reference,
+                    fitness_shared_cache: builder.fitness_shared_cache,
                     par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
                     ..Default::default()
@@ -682,7 +682,7 @@ impl Default for EvolveConfig {
             target_fitness_score: None,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
-            fitness_cache_reference: None,
+            fitness_shared_cache: None,
             par_fitness: false,
             replace_on_equal_fitness: false,
         }

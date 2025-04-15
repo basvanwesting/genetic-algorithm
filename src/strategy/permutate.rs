@@ -220,7 +220,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         rayon::scope(|s| {
             let thread_genotype = self.genotype.clone();
             let fitness = self.fitness.clone();
-            let fitness_cache_reference = self.config.fitness_cache_reference();
+            let fitness_shared_cache = self.config.fitness_shared_cache();
             let (sender, receiver) = sync_channel(1000);
 
             s.spawn(move |_| {
@@ -232,7 +232,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                         fitness.call_for_chromosome(
                             &mut chromosome,
                             &thread_genotype,
-                            fitness_cache_reference,
+                            fitness_shared_cache,
                         );
                         sender.send((chromosome, now.elapsed())).unwrap();
                     });

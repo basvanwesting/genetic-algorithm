@@ -59,7 +59,7 @@ fn main() {
 
             let (cache_hits, cache_misses, cache_ratio) = evolve
                 .config
-                .fitness_cache_reference()
+                .fitness_shared_cache()
                 .map(|c| c.hit_miss_stats())
                 .unwrap();
 

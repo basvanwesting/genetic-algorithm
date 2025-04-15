@@ -8,12 +8,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Add `with_fitness_cache(size)` builder step to the `EvolveBuilder`. When
-  applying this step, a thread-safe `FitnessCacheReference` object is stored on
+  applying this step, a thread-safe `FitnessSharedCache` object is stored on
   the `EvolveConfig` which manages an LRU cache of fitness values for genes.
   * Note that caching only works when the `genes_hash` is stored on chromosome as
     well (through the `with_genes_hashing()` builder step), as this is the cache
     key.
-  * Note the `FitnessCacheReference` is stored on `EvolveConfig`, not
+  * Note the `FitnessSharedCache` is stored on `EvolveConfig`, not
     `EvolveState`, as the cache is external to the strategy (and reused over
     multiple repeated runs), hence "reference" in the name.
   * Note that caching is only useful for long stale runs, but it is better to
@@ -29,7 +29,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Changed
 * Update pprof to v0.14.0 due to security issue on v0.13.0
 * Change some internal Fitness trait method parameters as the `StrategyConfig`
-  and `FitnessCacheReference` need to be passed around.
+  and `FitnessSharedCache` need to be passed around.
 
 ## [0.18.1] - 2025-01-13
 
