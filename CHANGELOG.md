@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.1] - 2025-04-15
+
+### Changed
+* Silently ignore zero cache size in `with_fitness_cache(size)`, to support
+  superset builder strategies where cache size is derived from unset parameters
+  (defaulting to zero)
+
 ## [0.19.0] - 2025-04-15
 
 ### Added
