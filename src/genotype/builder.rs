@@ -10,7 +10,7 @@ use std::ops::RangeInclusive;
 ///   chromosomes which are cycled into the starting population until the target_population_size is
 ///   met (instead of the default random genes). Sometimes it is efficient to start with a certain
 ///   population in the Evolve strategy. For the HillClimb strategy a single random seed genes is
-///   taken as the starting point (not cycling through them).
+///   taken as the starting point for each run (not cycling through them in repeated runs).
 ///
 /// * Builder `with_genes_hashing(true)`, optional, store a genes_hash on the chromomose (in
 ///   Evolve). This is needed when using `with_fitness_cache` on the strategy as key for the cache.

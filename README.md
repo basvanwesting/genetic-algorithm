@@ -218,7 +218,6 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
   (and Copyable)
 * StrategyBuilder, with_par_fitness_threshold, with_permutate_threshold?
 * Add target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
-* Move logic out of random gene factory inside set_random_genes
 
 ## ISSUES
 * hill_climb SteepestAscent actually has a population size requirement of

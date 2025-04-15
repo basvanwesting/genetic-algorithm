@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.2] - 2025-04-15
+
+### Changed
+* Cycle through the `seed_genes_list` to fill the initial population for
+  `Evolve` strategy (instead of random sampling from the seed genes). This is
+  done to ensure all seed genes reach the initial population (if the
+  `target_population_size` is larger than the `seed_genes_list`). The
+  `HillClimb` strategy still samples a single random starting seed gene as the
+  starting point for each run (not cycling through them in repeated runs)
+
 ## [0.19.1] - 2025-04-15
 
 ### Changed
