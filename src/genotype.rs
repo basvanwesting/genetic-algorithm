@@ -149,15 +149,27 @@ pub trait EvolveGenotype: Genotype {
         population_size: usize,
         rng: &mut R,
     ) -> Population<Self::Chromosome> {
-        Population::new(
-            (0..population_size)
-                .map(|_| {
-                    let mut chromosome = self.chromosome_constructor_random(rng);
-                    chromosome.taint(self.calculate_genes_hash(&chromosome));
-                    chromosome
-                })
-                .collect::<Vec<_>>(),
-        )
+        if self.seed_genes_list().is_empty() {
+            Population::new(
+                (0..population_size)
+                    .map(|_| {
+                        let mut chromosome = self.chromosome_constructor_random(rng);
+                        chromosome.taint(self.calculate_genes_hash(&chromosome));
+                        chromosome
+                    })
+                    .collect::<Vec<_>>(),
+            )
+        } else {
+            Population::new(
+                self.seed_genes_list()
+                    .clone()
+                    .iter()
+                    .cycle()
+                    .take(population_size)
+                    .map(|genes| self.chromosome_constructor_genes(genes))
+                    .collect::<Vec<_>>(),
+            )
+        }
     }
 
     /// Crossover genes between a pair of chromosomes.

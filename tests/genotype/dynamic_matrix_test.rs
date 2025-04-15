@@ -469,6 +469,63 @@ fn chromosome_constructor_with_seed_genes_list() {
 }
 
 #[test]
+fn population_constructor_random() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = DynamicMatrixGenotype::builder()
+        .with_genes_size(4)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+    let population = genotype.population_constructor(5, &mut rng);
+    println!("{:#?}", population.chromosomes);
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.genes_slice(c).to_vec())
+            .collect(),
+        vec![
+            vec![0.447, 0.439, 0.979, 0.462],
+            vec![0.897, 0.942, 0.588, 0.456],
+            vec![0.395, 0.818, 0.240, 0.976],
+            vec![0.644, 0.054, 0.921, 0.225],
+            vec![0.232, 0.296, 0.787, 0.724],
+        ],
+        0.001
+    ));
+}
+
+#[test]
+fn population_constructor_with_seed_genes_list() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = DynamicMatrixGenotype::builder()
+        .with_genes_size(4)
+        .with_allele_range(0.0..=1.0)
+        .with_seed_genes_list(vec![vec![0.0, 0.1, 0.2, 0.3], vec![0.4, 0.5, 0.6, 0.7]])
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+    let population = genotype.population_constructor(5, &mut rng);
+    println!("{:#?}", population.chromosomes);
+    assert!(relative_population_eq(
+        population
+            .chromosomes
+            .iter()
+            .map(|c| genotype.genes_slice(c).to_vec())
+            .collect(),
+        vec![
+            vec![0.0, 0.1, 0.2, 0.3],
+            vec![0.4, 0.5, 0.6, 0.7],
+            vec![0.0, 0.1, 0.2, 0.3],
+            vec![0.4, 0.5, 0.6, 0.7],
+            vec![0.0, 0.1, 0.2, 0.3],
+        ],
+        0.001
+    ));
+}
+
+#[test]
 fn chromosome_manager() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let mut genotype = DynamicMatrixGenotype::builder()

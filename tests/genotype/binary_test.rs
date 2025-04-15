@@ -388,6 +388,54 @@ fn chromosome_constructor_with_seed_genes_list() {
 }
 
 #[test]
+fn population_constructor_random() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = BinaryGenotype::builder()
+        .with_genes_size(4)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+    let population = genotype.population_constructor(5, &mut rng);
+    println!("{:#?}", population.chromosomes);
+    assert_eq!(
+        inspect::population(&population),
+        vec![
+            vec![false, false, true, false],
+            vec![true, true, true, false],
+            vec![false, true, false, true],
+            vec![true, false, true, false],
+            vec![false, false, true, true],
+        ]
+    )
+}
+
+#[test]
+fn population_constructor_with_seed_genes_list() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = BinaryGenotype::builder()
+        .with_genes_size(4)
+        .with_seed_genes_list(vec![
+            vec![true, true, false, false],
+            vec![false, false, true, true],
+        ])
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+    let population = genotype.population_constructor(5, &mut rng);
+    println!("{:#?}", population.chromosomes);
+    assert_eq!(
+        inspect::population(&population),
+        vec![
+            vec![true, true, false, false],
+            vec![false, false, true, true],
+            vec![true, true, false, false],
+            vec![false, false, true, true],
+            vec![true, true, false, false],
+        ]
+    )
+}
+
+#[test]
 fn chromosome_manager() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let mut genotype = BinaryGenotype::builder()

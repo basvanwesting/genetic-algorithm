@@ -6,9 +6,11 @@ use std::ops::RangeInclusive;
 /// See specfic [Genotype] for used options.
 ///
 /// Shared initialization options for all Genotypes:
-/// * Builder `with_seed_genes_list(Vec<Genotype::Genes>)`, optional, list of start genes of all chromosomes
-///   which are distributed randomly in the population (instead of the default random genes).
-///   Sometimes it is efficient to start with a certain population
+/// * Builder `with_seed_genes_list(Vec<Genotype::Genes>)`, optional, list of start genes for
+///   chromosomes which are cycled into the starting population until the target_population_size is
+///   met (instead of the default random genes). Sometimes it is efficient to start with a certain
+///   population in the Evolve strategy. For the HillClimb strategy a single random seed genes is
+///   taken as the starting point (not cycling through them).
 ///
 /// * Builder `with_genes_hashing(true)`, optional, store a genes_hash on the chromomose (in
 ///   Evolve). This is needed when using `with_fitness_cache` on the strategy as key for the cache.
