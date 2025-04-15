@@ -75,7 +75,7 @@ pub trait Genotype:
     fn genes_hashing(&self) -> bool;
     fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash>;
     fn taint_chromosome(&self, chromosome: &mut Self::Chromosome) {
-        chromosome.taint(self.calculate_genes_hash(chromosome));
+        chromosome.reset_state(self.calculate_genes_hash(chromosome));
     }
     fn update_population_fitness_scores(
         &self,

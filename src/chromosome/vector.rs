@@ -33,7 +33,7 @@ impl<T: Allele> super::Chromosome for Vector<T> {
     fn set_genes_hash(&mut self, genes_hash: Option<GenesHash>) {
         self.genes_hash = genes_hash
     }
-    fn taint(&mut self, genes_hash: Option<GenesHash>) {
+    fn reset_state(&mut self, genes_hash: Option<GenesHash>) {
         self.age = 0;
         self.fitness_score = None;
         self.genes_hash = genes_hash;

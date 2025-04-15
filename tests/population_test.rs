@@ -117,7 +117,7 @@ mod population_tests {
 
         population.chromosomes.iter_mut().for_each(|chromosome| {
             let genes_hash = genotype.calculate_genes_hash(chromosome);
-            chromosome.taint(genes_hash);
+            chromosome.reset_state(genes_hash);
         });
 
         assert_eq!(population.genes_cardinality(), Some(5));
