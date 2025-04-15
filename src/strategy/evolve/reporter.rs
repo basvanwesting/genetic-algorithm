@@ -182,7 +182,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
                 config.fitness_cache_pointer().map(|c| c.hit_miss_stats().2);
 
             self.writeln(format_args!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, selected_population_size: {}, fitness_cache_hit_miss_ratio: {:?}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, selected_population_size: {}, fitness_cache_hit_miss_ratio: {:.2?}, #extension_events: {}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
