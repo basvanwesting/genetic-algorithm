@@ -74,8 +74,13 @@ pub trait Genotype:
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
     fn genes_hashing(&self) -> bool;
     fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash>;
+    // lives on Genotype because only genotype can calculate_genes_hash
     fn reset_chromosome_state(&self, chromosome: &mut Self::Chromosome) {
         chromosome.reset_state(self.calculate_genes_hash(chromosome));
+    }
+    // lives on Genotype for symmetry reasons with reset_chromosome_state
+    fn copy_chromosome_state(&self, source: &Self::Chromosome, target: &mut Self::Chromosome) {
+        target.copy_state(source)
     }
     fn update_population_fitness_scores(
         &self,

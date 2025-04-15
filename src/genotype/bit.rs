@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
-use crate::chromosome::{BitChromosome, Chromosome, ChromosomeManager, GenesHash, GenesOwner};
+use crate::chromosome::{BitChromosome, ChromosomeManager, GenesHash, GenesOwner};
 use crate::population::Population;
 use fixedbitset::{Block, FixedBitSet};
 use itertools::Itertools;
@@ -356,7 +356,7 @@ impl ChromosomeManager<Self> for Bit {
     }
     fn copy_genes(&mut self, source: &BitChromosome, target: &mut BitChromosome) {
         target.genes.clone_from(&source.genes);
-        target.copy_state(source);
+        self.copy_chromosome_state(source, target);
     }
     fn chromosome_bin_push(&mut self, chromosome: BitChromosome) {
         self.chromosome_bin.push(chromosome);

@@ -1,9 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
 use crate::allele::RangeAllele;
-use crate::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, GenesOwner, MultiRangeChromosome,
-};
+use crate::chromosome::{ChromosomeManager, GenesHash, GenesOwner, MultiRangeChromosome};
 use crate::population::Population;
 use bytemuck::cast_slice;
 use itertools::Itertools;
@@ -610,7 +608,7 @@ where
         target: &mut MultiRangeChromosome<T>,
     ) {
         target.genes.clone_from(&source.genes);
-        target.copy_state(source);
+        self.copy_chromosome_state(source, target);
     }
     fn chromosome_bin_push(&mut self, chromosome: MultiRangeChromosome<T>) {
         self.chromosome_bin.push(chromosome);

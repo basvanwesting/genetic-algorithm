@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
 use crate::allele::RangeAllele;
-use crate::chromosome::{Chromosome, ChromosomeManager, GenesHash, GenesOwner, RangeChromosome};
+use crate::chromosome::{ChromosomeManager, GenesHash, GenesOwner, RangeChromosome};
 use crate::population::Population;
 use bytemuck::cast_slice;
 use itertools::Itertools;
@@ -550,7 +550,7 @@ where
     }
     fn copy_genes(&mut self, source: &RangeChromosome<T>, target: &mut RangeChromosome<T>) {
         target.genes.clone_from(&source.genes);
-        target.copy_state(source);
+        self.copy_chromosome_state(source, target);
     }
     fn chromosome_bin_push(&mut self, chromosome: RangeChromosome<T>) {
         self.chromosome_bin.push(chromosome);

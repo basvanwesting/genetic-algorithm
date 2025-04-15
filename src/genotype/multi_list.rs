@@ -1,9 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::allele::Allele;
-use crate::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, GenesOwner, MultiListChromosome,
-};
+use crate::chromosome::{ChromosomeManager, GenesHash, GenesOwner, MultiListChromosome};
 use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -373,7 +371,7 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for MultiList<T> {
     }
     fn copy_genes(&mut self, source: &MultiListChromosome<T>, target: &mut MultiListChromosome<T>) {
         target.genes.clone_from(&source.genes);
-        target.copy_state(source);
+        self.copy_chromosome_state(source, target);
     }
     fn chromosome_bin_push(&mut self, chromosome: MultiListChromosome<T>) {
         self.chromosome_bin.push(chromosome);

@@ -1,9 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::allele::Allele;
-use crate::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, GenesOwner, MultiUniqueChromosome,
-};
+use crate::chromosome::{ChromosomeManager, GenesHash, GenesOwner, MultiUniqueChromosome};
 use crate::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
@@ -397,7 +395,7 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for MultiUnique<T> {
         target: &mut MultiUniqueChromosome<T>,
     ) {
         target.genes.clone_from(&source.genes);
-        target.copy_state(source);
+        self.copy_chromosome_state(source, target);
     }
     fn chromosome_bin_push(&mut self, chromosome: MultiUniqueChromosome<T>) {
         self.chromosome_bin.push(chromosome);

@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
-use crate::chromosome::{BinaryChromosome, Chromosome, ChromosomeManager, GenesHash, GenesOwner};
+use crate::chromosome::{BinaryChromosome, ChromosomeManager, GenesHash, GenesOwner};
 use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -275,7 +275,7 @@ impl ChromosomeManager<Self> for Binary {
     }
     fn copy_genes(&mut self, source: &BinaryChromosome, target: &mut BinaryChromosome) {
         target.genes.clone_from(&source.genes);
-        target.copy_state(source);
+        self.copy_chromosome_state(source, target);
     }
     fn chromosome_bin_push(&mut self, chromosome: BinaryChromosome) {
         self.chromosome_bin.push(chromosome);
