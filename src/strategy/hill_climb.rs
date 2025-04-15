@@ -298,8 +298,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         let now = Instant::now();
         self.genotype.chromosomes_setup();
 
-        let mut chromosome = self.genotype.chromosome_constructor_random(&mut self.rng);
-        self.genotype.reset_chromosome_state(&mut chromosome);
+        let chromosome = self.genotype.chromosome_constructor_random(&mut self.rng);
         self.state.chromosome = Some(chromosome);
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());

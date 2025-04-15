@@ -599,6 +599,10 @@ fn float_calculate_genes_hash() {
 
     assert_eq!(
         genotype.calculate_genes_hash(&chromosome_1),
+        Some(13948481349068670127)
+    );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
         genotype.calculate_genes_hash(&chromosome_2),
     );
     assert_eq!(
@@ -628,6 +632,10 @@ fn integer_calculate_genes_hash() {
     let chromosome_3 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
     let chromosome_4 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        Some(10064628735429642131)
+    );
     assert_eq!(
         genotype.calculate_genes_hash(&chromosome_1),
         genotype.calculate_genes_hash(&chromosome_2),

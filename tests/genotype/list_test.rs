@@ -223,6 +223,10 @@ fn integer_calculate_genes_hash() {
 
     assert_eq!(
         genotype.calculate_genes_hash(&chromosome_1),
+        Some(10873053262589934868)
+    );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
         genotype.calculate_genes_hash(&chromosome_2),
     );
     assert_eq!(

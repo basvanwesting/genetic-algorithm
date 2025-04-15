@@ -525,6 +525,10 @@ fn calculate_genes_hash() {
 
     assert_eq!(
         genotype.calculate_genes_hash(&chromosome_1),
+        Some(1044924641990395411)
+    );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
         genotype.calculate_genes_hash(&chromosome_2),
     );
     assert_eq!(

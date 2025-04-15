@@ -66,9 +66,9 @@ pub trait GenesPointer: Chromosome {
 pub trait ChromosomeManager<G: Genotype> {
     /// Mandatory, random genes unless seed genes are provided
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
-    /// Mandatory, also resolves taints
+    /// Mandatory, also copies state
     fn copy_genes(&mut self, source: &G::Chromosome, target: &mut G::Chromosome);
-    /// Mandatory, also taints
+    /// Mandatory, also resets state
     fn set_genes(&mut self, chromosome: &mut G::Chromosome, genes: &G::Genes);
     /// Mandatory
     fn chromosome_bin_push(&mut self, _chromosome: G::Chromosome);
