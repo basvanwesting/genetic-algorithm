@@ -4,6 +4,33 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.0] - 2025-04-15
+
+### Added
+* Add `with_fitness_cache(size)` builder step to the `EvolveBuilder`. When
+  applying this step, a thread-safe `FitnessCachePointer` object is stored on
+  the `EvolveConfig` which manages an LRU cache of fitness values for genes.
+  * Note that caching only works when the `genes_hash` is stored on chromosome as
+    well (through the `with_genes_hashing()` builder step), as this is the cache
+    key.
+  * Note the `FitnessCachePointer` is stored on `EvolveConfig`, not
+    `EvolveState`, as the cache is external to the strategy (and reused over
+    multiple repeated runs), hence "pointer" in the name.
+  * Note that caching is only useful for long stale runs, but it is better to
+    avoid those in general. This makes the cache hit/miss reported in the
+    `EvolveReporterSimple` more of a hint where the hyperparameters should be
+    adjusted to maintain population diversity. I don't think caching is the
+    proper solution to ovelry revisiting the same genes.
+  * Note that +0.0 and -0.0 hash differently on floats when using
+    `with_genes_hashing()`.
+  * Decided not to support the fitness cache in the `Permutate` and `HillClimb`
+    strategies as these should (almost) never revisit the same genes anyway.
+
+### Changed
+* Update pprof to v0.14.0 due to security issue on v0.13.0
+* Change some internal Fitness trait method parameters as the `StrategyConfig`
+  and `FitnessCachePointer` need to be passed around.
+
 ## [0.18.1] - 2025-01-13
 
 ### Changed
