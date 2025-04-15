@@ -17,17 +17,20 @@ pub struct Cache {
 }
 
 impl Cache {
-    pub fn new(cache_size: usize) -> Self {
-        let non_zero_cache_size = NonZeroUsize::new(cache_size).unwrap();
-        let cache = LruCache::with_hasher(non_zero_cache_size, LruCacheBuildHasher::default());
-        let cache_state = Arc::new(RwLock::new(cache));
-        let cache_hit_counter = Arc::new(RwLock::new(0));
-        let cache_miss_counter = Arc::new(RwLock::new(0));
-        Self {
-            cache_size,
-            cache_state,
-            cache_hit_counter,
-            cache_miss_counter,
+    pub fn try_new(cache_size: usize) -> Result<Self, &'static str> {
+        if let Some(non_zero_cache_size) = NonZeroUsize::new(cache_size) {
+            let cache = LruCache::with_hasher(non_zero_cache_size, LruCacheBuildHasher::default());
+            let cache_state = Arc::new(RwLock::new(cache));
+            let cache_hit_counter = Arc::new(RwLock::new(0));
+            let cache_miss_counter = Arc::new(RwLock::new(0));
+            Ok(Self {
+                cache_size,
+                cache_state,
+                cache_hit_counter,
+                cache_miss_counter,
+            })
+        } else {
+            Err("cache_size must be greater than 0")
         }
     }
 

@@ -148,8 +148,12 @@ impl<
     }
     /// Only works when genes_hash is stored on chromosome, as this is the cache key.
     /// Only useful for long stale runs, but better to increase population diversity.
+    /// Silently ignore cache_size of zero, to support superset builder which delays specialization
     pub fn with_fitness_cache(mut self, fitness_cache_size: usize) -> Self {
-        self.fitness_cache = Some(FitnessCache::new(fitness_cache_size));
+        match FitnessCache::try_new(fitness_cache_size) {
+            Ok(cache) => self.fitness_cache = Some(cache),
+            Err(_error) => (),
+        }
         self
     }
     pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
