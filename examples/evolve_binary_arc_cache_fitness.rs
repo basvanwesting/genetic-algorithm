@@ -31,21 +31,21 @@ impl Fitness for ExpensiveCount {
 #[derive(Debug, Clone)]
 pub struct CachedExpensiveCount {
     pub micro_seconds: MicroSeconds,
-    pub cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
-    pub cache_counter_pointer: Arc<RwLock<(usize, usize)>>,
+    pub cache_state: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
+    pub cache_counter: Arc<RwLock<(usize, usize)>>,
     pub cache_hit_fitness_score: Arc<RwLock<isize>>,
 }
 impl CachedExpensiveCount {
     pub fn new(
         micro_seconds: MicroSeconds,
-        cache_pointer: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
-        cache_counter_pointer: Arc<RwLock<(usize, usize)>>,
+        cache_state: Arc<RwLock<LruCache<GenesHash, FitnessValue>>>,
+        cache_counter: Arc<RwLock<(usize, usize)>>,
         cache_hit_fitness_score: Arc<RwLock<isize>>,
     ) -> Self {
         Self {
             micro_seconds,
-            cache_pointer,
-            cache_counter_pointer,
+            cache_state,
+            cache_counter,
             cache_hit_fitness_score,
         }
     }
@@ -60,22 +60,22 @@ impl Fitness for CachedExpensiveCount {
         let hash = chromosome.genes_hash().unwrap();
 
         let maybe_value = self
-            .cache_pointer
+            .cache_state
             .read()
             .map(|c| c.peek(&hash).cloned())
             .unwrap();
 
         if let Some(value) = maybe_value {
-            self.cache_counter_pointer.write().unwrap().0 += 1;
+            self.cache_counter.write().unwrap().0 += 1;
             *self.cache_hit_fitness_score.write().unwrap() += value;
             // println!("cache-hit");
             Some(value)
         } else {
-            self.cache_counter_pointer.write().unwrap().1 += 1;
+            self.cache_counter.write().unwrap().1 += 1;
             // println!("cache-miss");
             thread::sleep(time::Duration::from_micros(self.micro_seconds));
             let value = chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue;
-            self.cache_pointer.write().unwrap().put(hash, value);
+            self.cache_state.write().unwrap().put(hash, value);
             Some(value)
         }
     }
@@ -107,24 +107,24 @@ fn main() {
         for cache_size in [10, 100, 1000, 10_000, 100_000, 1_000_000] {
             let cache: LruCache<GenesHash, FitnessValue> =
                 LruCache::new(NonZeroUsize::new(cache_size).unwrap());
-            let cache_pointer = Arc::new(RwLock::new(cache));
-            let cache_counter_pointer = Arc::new(RwLock::new((0, 0)));
+            let cache_state = Arc::new(RwLock::new(cache));
+            let cache_counter = Arc::new(RwLock::new((0, 0)));
             let cache_hit_fitness_score = Arc::new(RwLock::new(0));
 
             let _ = evolve_builder
                 .clone()
                 .with_fitness(CachedExpensiveCount::new(
                     0,
-                    cache_pointer,
-                    cache_counter_pointer.clone(),
+                    cache_state,
+                    cache_counter.clone(),
                     cache_hit_fitness_score.clone(),
                 ))
                 // .with_par_fitness(true)
                 // .with_reporter(EvolveReporterSimple::new(100))
                 .call_par_repeatedly(repeats);
 
-            let cache_hits = cache_counter_pointer.read().unwrap().0;
-            let cache_misses = cache_counter_pointer.read().unwrap().1;
+            let cache_hits = cache_counter.read().unwrap().0;
+            let cache_misses = cache_counter.read().unwrap().1;
             let ratio = cache_hits as f32 / cache_misses as f32;
 
             let hit_fitness_score = *cache_hit_fitness_score.read().unwrap();

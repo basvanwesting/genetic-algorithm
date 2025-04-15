@@ -178,8 +178,9 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
     ) {
         if state.current_generation() % self.period == 0 {
             let number_of_extension_events = self.number_of_extension_events;
-            let fitness_cache_hit_miss_ratio =
-                config.fitness_cache_pointer().map(|c| c.hit_miss_stats().2);
+            let fitness_cache_hit_miss_ratio = config
+                .fitness_cache_reference()
+                .map(|c| c.hit_miss_stats().2);
 
             self.writeln(format_args!(
                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, selected_population_size: {}, fitness_cache_hit_miss_ratio: {:.2?}, #extension_events: {}",
