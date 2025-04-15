@@ -550,7 +550,7 @@ where
     }
     fn copy_genes(&mut self, source: &RangeChromosome<T>, target: &mut RangeChromosome<T>) {
         target.genes.clone_from(&source.genes);
-        target.copy_fields_from(source);
+        target.copy_state(source);
     }
     fn chromosome_bin_push(&mut self, chromosome: RangeChromosome<T>) {
         self.chromosome_bin.push(chromosome);

@@ -397,7 +397,7 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for MultiUnique<T> {
         target: &mut MultiUniqueChromosome<T>,
     ) {
         target.genes.clone_from(&source.genes);
-        target.copy_fields_from(source);
+        target.copy_state(source);
     }
     fn chromosome_bin_push(&mut self, chromosome: MultiUniqueChromosome<T>) {
         self.chromosome_bin.push(chromosome);

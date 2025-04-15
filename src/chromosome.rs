@@ -52,7 +52,7 @@ pub trait Chromosome: Clone + Send {
     fn genes_hash(&self) -> Option<GenesHash>;
     fn set_genes_hash(&mut self, genes_hash: Option<GenesHash>);
     fn reset_state(&mut self, genes_hash: Option<GenesHash>);
-    fn copy_fields_from(&mut self, other: &Self);
+    fn copy_state(&mut self, other: &Self);
 }
 pub trait GenesOwner: Chromosome {
     type Genes: Genes;

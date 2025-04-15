@@ -669,7 +669,7 @@ where
     }
     fn copy_genes(&mut self, source: &StaticMatrixChromosome, target: &mut StaticMatrixChromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
-        target.copy_fields_from(source);
+        target.copy_state(source);
     }
     fn chromosomes_setup(&mut self) {
         self.chromosome_bin = (0..M).rev().map(StaticMatrixChromosome::new).collect();

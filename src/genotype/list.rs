@@ -319,7 +319,7 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for List<T> {
     }
     fn copy_genes(&mut self, source: &ListChromosome<T>, target: &mut ListChromosome<T>) {
         target.genes.clone_from(&source.genes);
-        target.copy_fields_from(source);
+        target.copy_state(source);
     }
     fn chromosome_bin_push(&mut self, chromosome: ListChromosome<T>) {
         self.chromosome_bin.push(chromosome);

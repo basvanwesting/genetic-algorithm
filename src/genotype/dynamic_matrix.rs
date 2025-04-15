@@ -680,7 +680,7 @@ where
         target: &mut DynamicMatrixChromosome,
     ) {
         self.copy_genes_by_id(source.row_id, target.row_id);
-        target.copy_fields_from(source);
+        target.copy_state(source);
     }
     fn chromosome_bin_push(&mut self, chromosome: DynamicMatrixChromosome) {
         self.chromosome_bin.push(chromosome);

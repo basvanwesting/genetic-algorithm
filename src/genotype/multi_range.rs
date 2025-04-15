@@ -610,7 +610,7 @@ where
         target: &mut MultiRangeChromosome<T>,
     ) {
         target.genes.clone_from(&source.genes);
-        target.copy_fields_from(source);
+        target.copy_state(source);
     }
     fn chromosome_bin_push(&mut self, chromosome: MultiRangeChromosome<T>) {
         self.chromosome_bin.push(chromosome);

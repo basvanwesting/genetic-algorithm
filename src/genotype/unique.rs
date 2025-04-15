@@ -259,7 +259,7 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for Unique<T> {
     }
     fn copy_genes(&mut self, source: &UniqueChromosome<T>, target: &mut UniqueChromosome<T>) {
         target.genes.clone_from(&source.genes);
-        target.copy_fields_from(source);
+        target.copy_state(source);
     }
     fn chromosome_bin_push(&mut self, chromosome: UniqueChromosome<T>) {
         self.chromosome_bin.push(chromosome);

@@ -38,7 +38,7 @@ impl super::Chromosome for Row {
         self.genes_hash = genes_hash;
         self.reference_id = usize::MAX;
     }
-    fn copy_fields_from(&mut self, other: &Self) {
+    fn copy_state(&mut self, other: &Self) {
         self.age = other.age;
         self.fitness_score = other.fitness_score;
         self.genes_hash = other.genes_hash;
