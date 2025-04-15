@@ -662,9 +662,7 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    // FIXME: directly set genes
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut StaticMatrixChromosome, rng: &mut R) {
-        let genes = self.random_genes_factory(rng);
+    fn set_genes(&mut self, chromosome: &mut StaticMatrixChromosome, genes: &Box<[T; N]>) {
         let x = self.data[chromosome.row_id].as_mut_slice();
         x.copy_from_slice(genes.as_slice());
     }

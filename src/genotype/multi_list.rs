@@ -367,8 +367,8 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for MultiList<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut MultiListChromosome<T>, rng: &mut R) {
-        chromosome.genes.clone_from(&self.random_genes_factory(rng));
+    fn set_genes(&mut self, chromosome: &mut MultiListChromosome<T>, genes: &Vec<T>) {
+        chromosome.genes.clone_from(genes)
     }
     fn copy_genes(&mut self, source: &MultiListChromosome<T>, target: &mut MultiListChromosome<T>) {
         target.genes.clone_from(&source.genes);

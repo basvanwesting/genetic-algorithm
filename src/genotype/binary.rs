@@ -269,8 +269,8 @@ impl ChromosomeManager<Self> for Binary {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut BinaryChromosome, rng: &mut R) {
-        chromosome.genes.clone_from(&self.random_genes_factory(rng));
+    fn set_genes(&mut self, chromosome: &mut BinaryChromosome, genes: &Vec<bool>) {
+        chromosome.genes.clone_from(genes)
     }
     fn copy_genes(&mut self, source: &BinaryChromosome, target: &mut BinaryChromosome) {
         target.genes.clone_from(&source.genes);

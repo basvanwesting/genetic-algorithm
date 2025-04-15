@@ -544,8 +544,8 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut RangeChromosome<T>, rng: &mut R) {
-        chromosome.genes.clone_from(&self.random_genes_factory(rng));
+    fn set_genes(&mut self, chromosome: &mut RangeChromosome<T>, genes: &Vec<T>) {
+        chromosome.genes.clone_from(genes)
     }
     fn copy_genes(&mut self, source: &RangeChromosome<T>, target: &mut RangeChromosome<T>) {
         target.genes.clone_from(&source.genes);

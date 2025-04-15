@@ -350,8 +350,8 @@ impl ChromosomeManager<Self> for Bit {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut BitChromosome, rng: &mut R) {
-        chromosome.genes.clone_from(&self.random_genes_factory(rng));
+    fn set_genes(&mut self, chromosome: &mut BitChromosome, genes: &FixedBitSet) {
+        chromosome.genes.clone_from(genes)
     }
     fn copy_genes(&mut self, source: &BitChromosome, target: &mut BitChromosome) {
         target.genes.clone_from(&source.genes);

@@ -69,7 +69,7 @@ pub trait ChromosomeManager<G: Genotype> {
     /// Mandatory
     fn copy_genes(&mut self, source: &G::Chromosome, target: &mut G::Chromosome);
     /// Mandatory
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R);
+    fn set_genes(&mut self, chromosome: &mut G::Chromosome, genes: &G::Genes);
     /// Mandatory
     fn chromosome_bin_push(&mut self, _chromosome: G::Chromosome);
     /// Mandatory
@@ -82,10 +82,18 @@ pub trait ChromosomeManager<G: Genotype> {
     /// Provided, override if recycling bin needs cleanup
     fn chromosomes_cleanup(&mut self) {}
 
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {
+    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R) {
+        let genes = self.random_genes_factory(rng);
+        self.set_genes(chromosome, &genes);
+    }
+    fn chromosome_constructor_genes(&mut self, genes: &G::Genes) -> G::Chromosome {
         let mut chromosome = self.chromosome_bin_find_or_create();
-        self.set_random_genes(&mut chromosome, rng);
+        self.set_genes(&mut chromosome, genes);
         chromosome
+    }
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {
+        let genes = self.random_genes_factory(rng);
+        self.chromosome_constructor_genes(&genes)
     }
     fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
         let mut new_chromosome = self.chromosome_bin_find_or_create();
