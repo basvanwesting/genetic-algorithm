@@ -154,7 +154,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
                 chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
             });
         }
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -194,8 +194,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for List<T> {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        self.taint_chromosome(mother);
-        self.taint_chromosome(father);
+        self.reset_chromosome_state(mother);
+        self.reset_chromosome_state(father);
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -237,8 +237,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for List<T> {
                 _ => (),
             });
         }
-        self.taint_chromosome(mother);
-        self.taint_chromosome(father);
+        self.reset_chromosome_state(mother);
+        self.reset_chromosome_state(father);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -261,7 +261,7 @@ impl<T: Allele + PartialEq + Hash> HillClimbGenotype for List<T> {
                 if chromosome.genes[index] != allele_value {
                     let mut new_chromosome = self.chromosome_cloner(chromosome);
                     new_chromosome.genes[index] = allele_value;
-                    self.taint_chromosome(&mut new_chromosome);
+                    self.reset_chromosome_state(&mut new_chromosome);
                     population.chromosomes.push(new_chromosome);
                 }
             }
@@ -315,7 +315,7 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for List<T> {
     }
     fn set_genes(&mut self, chromosome: &mut ListChromosome<T>, genes: &Vec<T>) {
         chromosome.genes.clone_from(genes);
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
     fn copy_genes(&mut self, source: &ListChromosome<T>, target: &mut ListChromosome<T>) {
         target.genes.clone_from(&source.genes);

@@ -151,7 +151,7 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
             .tuples()
             .for_each(|(index1, index2)| chromosome.genes.swap(index1, index2));
         }
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
         self.seed_genes_list = seed_genes_list;
@@ -199,7 +199,7 @@ impl<T: Allele + Hash> HillClimbGenotype for Unique<T> {
             .for_each(|(first, second)| {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 new_chromosome.genes.swap(first, second);
-                self.taint_chromosome(&mut new_chromosome);
+                self.reset_chromosome_state(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome);
             });
     }
@@ -255,7 +255,7 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for Unique<T> {
     }
     fn set_genes(&mut self, chromosome: &mut UniqueChromosome<T>, genes: &Vec<T>) {
         chromosome.genes.clone_from(genes);
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
     fn copy_genes(&mut self, source: &UniqueChromosome<T>, target: &mut UniqueChromosome<T>) {
         target.genes.clone_from(&source.genes);

@@ -117,7 +117,7 @@ impl Genotype for Binary {
                 chromosome.genes[index] = !chromosome.genes[index];
             });
         }
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -157,8 +157,8 @@ impl EvolveGenotype for Binary {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        self.taint_chromosome(mother);
-        self.taint_chromosome(father);
+        self.reset_chromosome_state(mother);
+        self.reset_chromosome_state(father);
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -200,8 +200,8 @@ impl EvolveGenotype for Binary {
                 _ => (),
             });
         }
-        self.taint_chromosome(mother);
-        self.taint_chromosome(father);
+        self.reset_chromosome_state(mother);
+        self.reset_chromosome_state(father);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -222,7 +222,7 @@ impl HillClimbGenotype for Binary {
         (0..self.genes_size).for_each(|index| {
             let mut new_chromosome = self.chromosome_cloner(chromosome);
             new_chromosome.genes[index] = !new_chromosome.genes[index];
-            self.taint_chromosome(&mut new_chromosome);
+            self.reset_chromosome_state(&mut new_chromosome);
             population.chromosomes.push(new_chromosome);
         });
     }
@@ -271,7 +271,7 @@ impl ChromosomeManager<Self> for Binary {
     }
     fn set_genes(&mut self, chromosome: &mut BinaryChromosome, genes: &Vec<bool>) {
         chromosome.genes.clone_from(genes);
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
     fn copy_genes(&mut self, source: &BinaryChromosome, target: &mut BinaryChromosome) {
         target.genes.clone_from(&source.genes);

@@ -266,7 +266,7 @@ where
                 };
             });
         }
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -312,8 +312,8 @@ where
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        self.taint_chromosome(mother);
-        self.taint_chromosome(father);
+        self.reset_chromosome_state(mother);
+        self.reset_chromosome_state(father);
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -355,8 +355,8 @@ where
                 _ => (),
             });
         }
-        self.taint_chromosome(mother);
-        self.taint_chromosome(father);
+        self.reset_chromosome_state(mother);
+        self.reset_chromosome_state(father);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -432,13 +432,13 @@ where
             if value_start < base_value {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 new_chromosome.genes[index] = value_start;
-                self.taint_chromosome(&mut new_chromosome);
+                self.reset_chromosome_state(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome);
             };
             if base_value < value_end {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 new_chromosome.genes[index] = value_end;
-                self.taint_chromosome(&mut new_chromosome);
+                self.reset_chromosome_state(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome);
             };
         });
@@ -473,14 +473,14 @@ where
             if range_start < base_value {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
-                self.taint_chromosome(&mut new_chromosome);
+                self.reset_chromosome_state(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome);
             };
             if base_value < range_end {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
                 new_chromosome.genes[index] = new_value;
-                self.taint_chromosome(&mut new_chromosome);
+                self.reset_chromosome_state(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome);
             };
         });
@@ -500,7 +500,7 @@ where
             if allele_range_start < base_value {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
-                self.taint_chromosome(&mut new_chromosome);
+                self.reset_chromosome_state(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome);
             };
             if base_value < allele_range_end {
@@ -508,7 +508,7 @@ where
                 let new_value =
                     rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
                 new_chromosome.genes[index] = new_value;
-                self.taint_chromosome(&mut new_chromosome);
+                self.reset_chromosome_state(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome);
             };
         });
@@ -546,7 +546,7 @@ where
     }
     fn set_genes(&mut self, chromosome: &mut RangeChromosome<T>, genes: &Vec<T>) {
         chromosome.genes.clone_from(genes);
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
     fn copy_genes(&mut self, source: &RangeChromosome<T>, target: &mut RangeChromosome<T>) {
         target.genes.clone_from(&source.genes);

@@ -214,7 +214,7 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
                         })
                 });
         }
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -283,8 +283,8 @@ impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
                 _ => (),
             });
         }
-        self.taint_chromosome(mother);
-        self.taint_chromosome(father);
+        self.reset_chromosome_state(mother);
+        self.reset_chromosome_state(father);
     }
     fn has_crossover_points(&self) -> bool {
         true
@@ -312,7 +312,7 @@ impl<T: Allele + Hash> HillClimbGenotype for MultiUnique<T> {
                         new_chromosome
                             .genes
                             .swap(index_offset + first, index_offset + second);
-                        self.taint_chromosome(&mut new_chromosome);
+                        self.reset_chromosome_state(&mut new_chromosome);
                         population.chromosomes.push(new_chromosome);
                     });
             });
@@ -389,7 +389,7 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for MultiUnique<T> {
     }
     fn set_genes(&mut self, chromosome: &mut MultiUniqueChromosome<T>, genes: &Vec<T>) {
         chromosome.genes.clone_from(genes);
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
     fn copy_genes(
         &mut self,

@@ -175,7 +175,7 @@ impl Genotype for Bit {
             .iter()
             .for_each(|index| chromosome.genes.toggle(index));
         }
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -235,8 +235,8 @@ impl EvolveGenotype for Bit {
                 }
             });
         }
-        self.taint_chromosome(mother);
-        self.taint_chromosome(father);
+        self.reset_chromosome_state(mother);
+        self.reset_chromosome_state(father);
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -280,8 +280,8 @@ impl EvolveGenotype for Bit {
                 _ => (),
             });
         }
-        self.taint_chromosome(mother);
-        self.taint_chromosome(father);
+        self.reset_chromosome_state(mother);
+        self.reset_chromosome_state(father);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -302,7 +302,7 @@ impl HillClimbGenotype for Bit {
         (0..self.genes_size).for_each(|index| {
             let mut new_chromosome = self.chromosome_cloner(chromosome);
             new_chromosome.genes.toggle(index);
-            self.taint_chromosome(&mut new_chromosome);
+            self.reset_chromosome_state(&mut new_chromosome);
             population.chromosomes.push(new_chromosome);
         });
     }
@@ -352,7 +352,7 @@ impl ChromosomeManager<Self> for Bit {
     }
     fn set_genes(&mut self, chromosome: &mut BitChromosome, genes: &FixedBitSet) {
         chromosome.genes.clone_from(genes);
-        self.taint_chromosome(chromosome);
+        self.reset_chromosome_state(chromosome);
     }
     fn copy_genes(&mut self, source: &BitChromosome, target: &mut BitChromosome) {
         target.genes.clone_from(&source.genes);
