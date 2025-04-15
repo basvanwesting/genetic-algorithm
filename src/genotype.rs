@@ -74,6 +74,9 @@ pub trait Genotype:
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
     fn genes_hashing(&self) -> bool;
     fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash>;
+    fn taint_chromosome(&self, chromosome: &mut Self::Chromosome) {
+        chromosome.taint(self.calculate_genes_hash(chromosome));
+    }
     fn update_population_fitness_scores(
         &self,
         _population: &mut Population<Self::Chromosome>,
@@ -152,11 +155,7 @@ pub trait EvolveGenotype: Genotype {
         if self.seed_genes_list().is_empty() {
             Population::new(
                 (0..population_size)
-                    .map(|_| {
-                        let mut chromosome = self.chromosome_constructor_random(rng);
-                        chromosome.taint(self.calculate_genes_hash(&chromosome));
-                        chromosome
-                    })
+                    .map(|_| self.chromosome_constructor_random(rng))
                     .collect::<Vec<_>>(),
             )
         } else {
@@ -166,11 +165,7 @@ pub trait EvolveGenotype: Genotype {
                     .iter()
                     .cycle()
                     .take(population_size)
-                    .map(|genes| {
-                        let mut chromosome = self.chromosome_constructor_genes(genes);
-                        chromosome.taint(self.calculate_genes_hash(&chromosome));
-                        chromosome
-                    })
+                    .map(|genes| self.chromosome_constructor_genes(genes))
                     .collect::<Vec<_>>(),
             )
         }

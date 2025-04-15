@@ -405,7 +405,7 @@ where
                 };
             });
         }
-        chromosome.taint(self.calculate_genes_hash(chromosome));
+        self.taint_chromosome(chromosome);
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -451,8 +451,8 @@ where
                 self.swap_gene_by_id(father.row_id, mother.row_id, index);
             });
         }
-        mother.taint(self.calculate_genes_hash(mother));
-        father.taint(self.calculate_genes_hash(father));
+        self.taint_chromosome(mother);
+        self.taint_chromosome(father);
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -492,8 +492,8 @@ where
                 _ => (),
             });
         }
-        mother.taint(self.calculate_genes_hash(mother));
-        father.taint(self.calculate_genes_hash(father));
+        self.taint_chromosome(mother);
+        self.taint_chromosome(father);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -569,13 +569,13 @@ where
             if value_start < base_value {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 self.set_gene_by_id(new_chromosome.row_id, index, value_start);
-                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
+                self.taint_chromosome(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome)
             };
             if base_value < value_end {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 self.set_gene_by_id(new_chromosome.row_id, index, value_end);
-                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
+                self.taint_chromosome(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome)
             };
         });
@@ -611,14 +611,14 @@ where
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 let new_value = rng.gen_range(range_start..base_value);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
-                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
+                self.taint_chromosome(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome)
             };
             if base_value < range_end {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
-                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
+                self.taint_chromosome(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome)
             };
         });
@@ -639,7 +639,7 @@ where
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 let new_value = rng.gen_range(allele_range_start..base_value);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
-                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
+                self.taint_chromosome(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome)
             };
             if base_value < allele_range_end {
@@ -647,7 +647,7 @@ where
                 let new_value =
                     rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
                 self.set_gene_by_id(new_chromosome.row_id, index, new_value);
-                new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
+                self.taint_chromosome(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome)
             };
         });
@@ -672,6 +672,7 @@ where
         let linear_genes_range = self.linear_genes_range(chromosome.row_id);
         let x = &mut self.data[linear_genes_range];
         x.copy_from_slice(genes);
+        self.taint_chromosome(chromosome);
     }
     fn copy_genes(
         &mut self,
@@ -679,6 +680,7 @@ where
         target: &mut DynamicMatrixChromosome,
     ) {
         self.copy_genes_by_id(source.row_id, target.row_id);
+        target.copy_fields_from(source);
     }
     fn chromosome_bin_push(&mut self, chromosome: DynamicMatrixChromosome) {
         self.chromosome_bin.push(chromosome);

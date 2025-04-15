@@ -117,7 +117,7 @@ impl Genotype for Binary {
                 chromosome.genes[index] = !chromosome.genes[index];
             });
         }
-        chromosome.taint(self.calculate_genes_hash(chromosome));
+        self.taint_chromosome(chromosome);
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -157,8 +157,8 @@ impl EvolveGenotype for Binary {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.taint(self.calculate_genes_hash(mother));
-        father.taint(self.calculate_genes_hash(father));
+        self.taint_chromosome(mother);
+        self.taint_chromosome(father);
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -200,8 +200,8 @@ impl EvolveGenotype for Binary {
                 _ => (),
             });
         }
-        mother.taint(self.calculate_genes_hash(mother));
-        father.taint(self.calculate_genes_hash(father));
+        self.taint_chromosome(mother);
+        self.taint_chromosome(father);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -222,7 +222,7 @@ impl HillClimbGenotype for Binary {
         (0..self.genes_size).for_each(|index| {
             let mut new_chromosome = self.chromosome_cloner(chromosome);
             new_chromosome.genes[index] = !new_chromosome.genes[index];
-            new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
+            self.taint_chromosome(&mut new_chromosome);
             population.chromosomes.push(new_chromosome);
         });
     }
@@ -270,10 +270,12 @@ impl ChromosomeManager<Self> for Binary {
         }
     }
     fn set_genes(&mut self, chromosome: &mut BinaryChromosome, genes: &Vec<bool>) {
-        chromosome.genes.clone_from(genes)
+        chromosome.genes.clone_from(genes);
+        self.taint_chromosome(chromosome);
     }
     fn copy_genes(&mut self, source: &BinaryChromosome, target: &mut BinaryChromosome) {
         target.genes.clone_from(&source.genes);
+        target.copy_fields_from(source);
     }
     fn chromosome_bin_push(&mut self, chromosome: BinaryChromosome) {
         self.chromosome_bin.push(chromosome);

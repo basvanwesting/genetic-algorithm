@@ -175,7 +175,7 @@ impl Genotype for Bit {
             .iter()
             .for_each(|index| chromosome.genes.toggle(index));
         }
-        chromosome.taint(self.calculate_genes_hash(chromosome));
+        self.taint_chromosome(chromosome);
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -235,8 +235,8 @@ impl EvolveGenotype for Bit {
                 }
             });
         }
-        mother.taint(self.calculate_genes_hash(mother));
-        father.taint(self.calculate_genes_hash(father));
+        self.taint_chromosome(mother);
+        self.taint_chromosome(father);
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -280,8 +280,8 @@ impl EvolveGenotype for Bit {
                 _ => (),
             });
         }
-        mother.taint(self.calculate_genes_hash(mother));
-        father.taint(self.calculate_genes_hash(father));
+        self.taint_chromosome(mother);
+        self.taint_chromosome(father);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -302,7 +302,7 @@ impl HillClimbGenotype for Bit {
         (0..self.genes_size).for_each(|index| {
             let mut new_chromosome = self.chromosome_cloner(chromosome);
             new_chromosome.genes.toggle(index);
-            new_chromosome.taint(self.calculate_genes_hash(&new_chromosome));
+            self.taint_chromosome(&mut new_chromosome);
             population.chromosomes.push(new_chromosome);
         });
     }
@@ -351,10 +351,12 @@ impl ChromosomeManager<Self> for Bit {
         }
     }
     fn set_genes(&mut self, chromosome: &mut BitChromosome, genes: &FixedBitSet) {
-        chromosome.genes.clone_from(genes)
+        chromosome.genes.clone_from(genes);
+        self.taint_chromosome(chromosome);
     }
     fn copy_genes(&mut self, source: &BitChromosome, target: &mut BitChromosome) {
         target.genes.clone_from(&source.genes);
+        target.copy_fields_from(source);
     }
     fn chromosome_bin_push(&mut self, chromosome: BitChromosome) {
         self.chromosome_bin.push(chromosome);

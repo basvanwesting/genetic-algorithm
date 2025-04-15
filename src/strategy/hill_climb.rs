@@ -299,7 +299,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.genotype.chromosomes_setup();
 
         let mut chromosome = self.genotype.chromosome_constructor_random(&mut self.rng);
-        chromosome.taint(self.genotype.calculate_genes_hash(&chromosome));
+        self.genotype.taint_chromosome(&mut chromosome);
         self.state.chromosome = Some(chromosome);
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());

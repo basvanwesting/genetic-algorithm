@@ -66,9 +66,9 @@ pub trait GenesPointer: Chromosome {
 pub trait ChromosomeManager<G: Genotype> {
     /// Mandatory, random genes unless seed genes are provided
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
-    /// Mandatory
+    /// Mandatory, also resolves taints
     fn copy_genes(&mut self, source: &G::Chromosome, target: &mut G::Chromosome);
-    /// Mandatory
+    /// Mandatory, also taints
     fn set_genes(&mut self, chromosome: &mut G::Chromosome, genes: &G::Genes);
     /// Mandatory
     fn chromosome_bin_push(&mut self, _chromosome: G::Chromosome);
@@ -98,7 +98,6 @@ pub trait ChromosomeManager<G: Genotype> {
     fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
         let mut new_chromosome = self.chromosome_bin_find_or_create();
         self.copy_genes(chromosome, &mut new_chromosome);
-        new_chromosome.copy_fields_from(chromosome);
         new_chromosome
     }
     fn chromosome_destructor(&mut self, chromosome: G::Chromosome) {
