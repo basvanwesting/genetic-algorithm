@@ -34,6 +34,8 @@ pub enum FitnessOrdering {
 pub type FitnessGenotype<F> = <F as Fitness>::Genotype;
 /// This is just a shortcut for `<Self::Genotype as Genotype>::Chromosome`
 pub type FitnessChromosome<F> = <<F as Fitness>::Genotype as Genotype>::Chromosome;
+/// This is just a shortcut for `<Self::Genotype as Genotype>::Genes`
+pub type FitnessGenes<F> = <<F as Fitness>::Genotype as Genotype>::Genes;
 /// This is just a shortcut for `Population<<Self::Genotype as Genotype::Chromosome>`
 pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype>::Chromosome>;
 

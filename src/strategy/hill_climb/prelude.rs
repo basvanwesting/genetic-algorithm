@@ -6,7 +6,8 @@ pub use crate::chromosome::{
 };
 #[doc(no_inline)]
 pub use crate::fitness::{
-    Fitness, FitnessChromosome, FitnessGenotype, FitnessOrdering, FitnessPopulation, FitnessValue,
+    Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessPopulation,
+    FitnessValue,
 };
 #[doc(no_inline)]
 pub use crate::genotype::{
