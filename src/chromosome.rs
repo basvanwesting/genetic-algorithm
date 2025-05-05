@@ -18,7 +18,6 @@ pub type BinaryChromosome = self::vector::Vector<bool>;
 use crate::fitness::FitnessValue;
 use crate::genotype::{Genes, Genotype};
 use rand::prelude::*;
-use std::ops::Range;
 
 /// The GenesHash is used for determining cardinality in the population
 /// It could also be used for caching fitness scores, without lifetime concerns of the chromosome
@@ -112,14 +111,18 @@ pub trait ChromosomeManager<G: Genotype> {
             .drain(target_population_size..)
             .for_each(|c| self.chromosome_destructor(c));
     }
-    fn chromosome_cloner_range(
+    fn chromosome_cloner_upto(
         &mut self,
         chromosomes: &mut Vec<G::Chromosome>,
-        range: Range<usize>,
+        target_population_size: usize,
     ) {
-        let modulo = chromosomes.len();
-        for i in range {
-            let chromosome = &chromosomes[i % modulo];
+        let starting_population_size = chromosomes.len();
+        let cloned_population_size = (target_population_size - starting_population_size).max(0);
+
+        // maybe use cycle here, but this is oddly elegant as the modulo ensures the newly pushed
+        // chromosomes are never in the cycled selection
+        for i in 0..cloned_population_size {
+            let chromosome = &chromosomes[i % starting_population_size];
             chromosomes.push(self.chromosome_cloner(chromosome));
         }
     }

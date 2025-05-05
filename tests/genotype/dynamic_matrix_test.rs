@@ -575,7 +575,7 @@ fn chromosome_manager() {
         0.001
     ));
 
-    genotype.chromosome_cloner_range(&mut chromosomes, 0..2);
+    genotype.chromosome_cloner_upto(&mut chromosomes, 4);
     dbg!("clone range", &chromosomes, &genotype.best_genes());
 
     assert!(relative_population_eq(
