@@ -111,7 +111,7 @@ pub trait ChromosomeManager<G: Genotype> {
             .drain(target_population_size..)
             .for_each(|c| self.chromosome_destructor(c));
     }
-    fn chromosome_cloner_upto(
+    fn chromosome_cloner_restore(
         &mut self,
         chromosomes: &mut Vec<G::Chromosome>,
         target_population_size: usize,

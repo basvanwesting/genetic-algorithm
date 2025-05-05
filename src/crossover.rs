@@ -49,7 +49,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
         let population_size = state.population.size();
         match config.target_population_size.cmp(&population_size) {
             Ordering::Greater => {
-                genotype.chromosome_cloner_upto(
+                genotype.chromosome_cloner_restore(
                     &mut state.population.chromosomes,
                     config.target_population_size,
                 );
