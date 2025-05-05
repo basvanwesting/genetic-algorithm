@@ -37,9 +37,8 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
         rng: &mut R,
     );
 
-    /// The population is restored towards the target_population_size by keeping the best parents
-    /// alive. Excess parents are dropped. The number of crossovers to execute from the front of
-    /// the population is returned
+    /// The population is restored towards the target_population_size by cycled cloning of the existing population.
+    /// Excess parents are dropped. The number of crossovers to execute from the front of the population is returned
     fn prepare_population<G: EvolveGenotype>(
         &mut self,
         genotype: &mut G,

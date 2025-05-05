@@ -3,6 +3,7 @@ use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use itertools::Itertools;
+use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 use std::time::Instant;
 
@@ -17,8 +18,11 @@ use std::time::Instant;
 /// uniqueness in the children.
 #[derive(Clone, Debug)]
 pub struct MultiGene {
+    pub crossover_rate: f32,
+    pub elitism_rate: f32,
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
+    pub crossover_sampler: Bernoulli,
 }
 impl Crossover for MultiGene {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
@@ -30,21 +34,19 @@ impl Crossover for MultiGene {
         rng: &mut R,
     ) {
         let now = Instant::now();
-        let crossover_size = self.prepare_population(genotype, state, config);
-        for (father, mother) in state
-            .population
-            .chromosomes
-            .iter_mut()
-            .take(crossover_size)
-            .tuples()
-        {
-            genotype.crossover_chromosome_genes(
-                self.number_of_crossovers,
-                self.allow_duplicates,
-                father,
-                mother,
-                rng,
-            );
+        self.prepare_population(genotype, state, config);
+        let elitism_size = (self.elitism_rate * state.population.size() as f32).ceil() as usize;
+        let iterator = state.population.chromosomes.iter_mut().skip(elitism_size);
+        for (father, mother) in iterator.tuples() {
+            if self.crossover_sampler.sample(rng) {
+                genotype.crossover_chromosome_genes(
+                    self.number_of_crossovers,
+                    self.allow_duplicates,
+                    father,
+                    mother,
+                    rng,
+                );
+            }
         }
         state.add_duration(StrategyAction::Crossover, now.elapsed());
     }
@@ -54,8 +56,17 @@ impl Crossover for MultiGene {
 }
 
 impl MultiGene {
-    pub fn new(number_of_crossovers: usize, allow_duplicates: bool) -> Self {
+    pub fn new(
+        crossover_rate: f32,
+        elitism_rate: f32,
+        number_of_crossovers: usize,
+        allow_duplicates: bool,
+    ) -> Self {
+        let crossover_sampler = Bernoulli::new(crossover_rate as f64).unwrap();
         Self {
+            crossover_rate,
+            crossover_sampler,
+            elitism_rate,
             number_of_crossovers,
             allow_duplicates,
         }

@@ -27,7 +27,7 @@ fn population_even_shortage() {
     };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(4, true).call(
+    CrossoverMultiGene::new(1.0, 0.0, 4, true).call(
         &mut genotype,
         &mut state,
         &config,
@@ -65,7 +65,7 @@ fn population_shortage_below_target() {
     };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverMultiGene::new(3, true).call(
+    CrossoverMultiGene::new(1.0, 0.0, 3, true).call(
         &mut genotype,
         &mut state,
         &config,

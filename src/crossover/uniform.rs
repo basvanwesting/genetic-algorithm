@@ -7,7 +7,7 @@ use rand::Rng;
 use std::time::Instant;
 
 /// Crossover with 50% probability for each gene to come from one of the two parents.
-/// Actually implemented as `CrossoverMultiGene::new(<genes_size> / 2, allow_duplicates=true)`
+/// Actually implemented as `CrossoverMultiGene::new(.., <genes_size> / 2, allow_duplicates=true)`
 ///
 /// The population is restored towards the target_population_size by keeping the best parents
 /// alive. Excess parents are dropped.

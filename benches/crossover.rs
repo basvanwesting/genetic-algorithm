@@ -50,8 +50,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             // CrossoverSinglePoint::new().into(),
             // CrossoverMultiGene::new(genes_size / 2, false).into(),
             // CrossoverMultiGene::new(genes_size / 2, true).into(),
-            CrossoverMultiPoint::new(genes_size / 10, false).into(),
-            CrossoverMultiPoint::new(genes_size / 10, true).into(),
+            CrossoverMultiPoint::new(1.0, 0.0, genes_size / 10, false).into(),
+            CrossoverMultiPoint::new(1.0, 0.0, genes_size / 10, true).into(),
         ];
         for mut crossover in crossovers {
             group.throughput(Throughput::Elements(population_size as u64));
