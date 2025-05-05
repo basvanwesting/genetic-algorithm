@@ -117,11 +117,11 @@ pub trait ChromosomeManager<G: Genotype> {
         target_population_size: usize,
     ) {
         let starting_population_size = chromosomes.len();
-        let cloned_population_size = (target_population_size - starting_population_size).max(0);
+        let restore_population_size = (target_population_size - starting_population_size).max(0);
 
         // maybe use cycle here, but this is oddly elegant as the modulo ensures the newly pushed
         // chromosomes are never in the cycled selection
-        for i in 0..cloned_population_size {
+        for i in 0..restore_population_size {
             let chromosome = &chromosomes[i % starting_population_size];
             chromosomes.push(self.chromosome_cloner(chromosome));
         }
