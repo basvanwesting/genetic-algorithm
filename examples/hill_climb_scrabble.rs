@@ -260,6 +260,7 @@ fn main() {
 
     let genotype = MultiListGenotype::builder()
         .with_allele_lists(allele_lists)
+        // .with_genes_hashing(true)
         .build()
         .unwrap();
 
@@ -270,6 +271,7 @@ fn main() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(2)
         .with_par_fitness(true)
+        // .with_fitness_cache(1000)
         .with_fitness(ScrabbleFitness::new(
             words.clone(),
             rows,

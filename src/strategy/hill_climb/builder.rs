@@ -1,6 +1,6 @@
 use super::{HillClimb, HillClimbVariant};
 pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
-use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
+use crate::fitness::{Fitness, FitnessCache, FitnessOrdering, FitnessValue};
 use crate::genotype::HillClimbGenotype;
 use crate::strategy::Strategy;
 pub use crate::strategy::{StrategyReporter, StrategyReporterNoop, StrategyState};
@@ -20,6 +20,7 @@ pub struct Builder<
     pub variant: Option<HillClimbVariant>,
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
+    pub fitness_cache: Option<FitnessCache>,
     pub par_fitness: bool,
     pub max_stale_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
@@ -38,6 +39,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>> Default
             variant: None,
             fitness: None,
             fitness_ordering: FitnessOrdering::Maximize,
+            fitness_cache: None,
             par_fitness: false,
             max_stale_generations: None,
             target_fitness_score: None,
@@ -70,6 +72,16 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     }
     pub fn with_fitness_ordering(mut self, fitness_ordering: FitnessOrdering) -> Self {
         self.fitness_ordering = fitness_ordering;
+        self
+    }
+    /// Only works when genes_hash is stored on chromosome, as this is the cache key.
+    /// Only useful for long stale runs
+    /// Silently ignore cache_size of zero, to support superset builder which delays specialization
+    pub fn with_fitness_cache(mut self, fitness_cache_size: usize) -> Self {
+        match FitnessCache::try_new(fitness_cache_size) {
+            Ok(cache) => self.fitness_cache = Some(cache),
+            Err(_error) => (),
+        }
         self
     }
     pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
@@ -126,6 +138,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             variant: self.variant,
             fitness: self.fitness,
             fitness_ordering: self.fitness_ordering,
+            fitness_cache: self.fitness_cache,
             par_fitness: self.par_fitness,
             max_stale_generations: self.max_stale_generations,
             target_fitness_score: self.target_fitness_score,

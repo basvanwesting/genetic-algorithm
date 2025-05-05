@@ -200,10 +200,11 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
-        _config: &C,
+        config: &C,
     ) {
         self.writeln(format_args!(
-            "exit - iteration: {}",
+            "exit - {}, iteration: {}",
+            config.variant(),
             state.current_iteration()
         ));
         STRATEGY_ACTIONS.iter().for_each(|action| {

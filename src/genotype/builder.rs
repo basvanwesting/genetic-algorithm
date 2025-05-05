@@ -12,10 +12,11 @@ use std::ops::RangeInclusive;
 ///   population in the Evolve strategy. For the HillClimb strategy a single random seed genes is
 ///   taken as the starting point for each run (not cycling through them in repeated runs).
 ///
-/// * Builder `with_genes_hashing(true)`, optional, store a genes_hash on the chromomose (in
-///   Evolve). This is needed when using `with_fitness_cache` on the strategy as key for the cache.
-///   Hashing the genes has relatively high overhead for to the main Evolve loop, but might be useful for
-///   better population cardinality estimation (falls back to fitness score cardinality otherwise).
+/// * Builder `with_genes_hashing(true)`, optional, store a genes_hash on the chromomose (in Evolve
+///   or HillClimb). This is needed when using `with_fitness_cache` on the strategy as key for the
+///   cache. Hashing the genes has relatively high overhead for to the main Evolve loop, but might be
+///   useful for better population cardinality estimation (falls back to fitness score cardinality
+///   otherwise).
 ///
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {

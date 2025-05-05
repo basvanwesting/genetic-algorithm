@@ -315,6 +315,7 @@ impl<
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
+            fitness_cache: self.fitness_cache,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,
