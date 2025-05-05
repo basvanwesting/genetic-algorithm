@@ -28,7 +28,7 @@ fn population_even_no_shortage() {
     };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
-    CrossoverMultiPoint::new(3, true).call(
+    CrossoverMultiPoint::new(1.0, 0.0, 3, true).call(
         &mut genotype,
         &mut state,
         &config,

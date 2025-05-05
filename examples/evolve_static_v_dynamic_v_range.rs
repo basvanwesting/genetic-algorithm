@@ -100,9 +100,9 @@ fn main() {
         .with_fitness(StaticDistanceTo(0.5, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateSingleGene::new(0.2))
-        // .with_crossover(CrossoverMultiPoint::new(10, true))
+        // .with_crossover(CrossoverMultiPoint::new(0.8, 0.05, 10, true))
         .with_crossover(CrossoverUniform::new())
-        .with_select(SelectTournament::new(4, 0.9))
+        .with_select(SelectTournament::new(4, 0.4))
         .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();

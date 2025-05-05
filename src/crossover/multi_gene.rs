@@ -19,10 +19,10 @@ use std::time::Instant;
 #[derive(Clone, Debug)]
 pub struct MultiGene {
     pub crossover_rate: f32,
+    pub crossover_sampler: Bernoulli,
     pub elitism_rate: f32,
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
-    pub crossover_sampler: Bernoulli,
 }
 impl Crossover for MultiGene {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
@@ -35,7 +35,8 @@ impl Crossover for MultiGene {
     ) {
         let now = Instant::now();
         self.prepare_population(genotype, state, config);
-        let elitism_size = (self.elitism_rate * state.population.size() as f32).ceil() as usize;
+        let elitism_size =
+            (self.elitism_rate * config.target_population_size as f32).ceil() as usize;
         let iterator = state.population.chromosomes.iter_mut().skip(elitism_size);
         for (father, mother) in iterator.tuples() {
             if self.crossover_sampler.sample(rng) {
