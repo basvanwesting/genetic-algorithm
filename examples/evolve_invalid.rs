@@ -13,8 +13,8 @@ fn main() {
         .with_target_population_size(1000)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(CountTrue)
-        .with_crossover(CrossoverSingleGene::new())
-        .with_select(SelectTournament::new(4, 0.9))
+        .with_crossover(CrossoverSingleGene::new(0.8, 0.05))
+        .with_select(SelectTournament::new(4, 0.4))
         .build();
 
     match evolve {

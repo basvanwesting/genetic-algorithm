@@ -31,8 +31,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .with_max_stale_generations(max_stale_generations)
                 .with_mutate(MutateSingleGene::new(0.2))
                 .with_fitness(Zero::new())
-                .with_crossover(CrossoverSingleGene::new())
-                .with_select(SelectTournament::new(4, 0.9));
+                .with_crossover(CrossoverSingleGene::new(0.8, 0.05))
+                .with_select(SelectTournament::new(4, 0.4));
 
             b.iter_batched(
                 || evolve_builder.clone().build().unwrap(),
@@ -60,8 +60,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 .with_max_stale_generations(max_stale_generations)
                 .with_mutate(MutateSingleGene::new(0.2))
                 .with_fitness(Zero::new())
-                .with_crossover(CrossoverSingleGene::new())
-                .with_select(SelectTournament::new(4, 0.9));
+                .with_crossover(CrossoverSingleGene::new(0.8, 0.05))
+                .with_select(SelectTournament::new(4, 0.4));
 
             b.iter_batched(
                 || evolve_builder.clone().build().unwrap(),
