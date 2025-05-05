@@ -75,7 +75,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self
     }
     /// Only works when genes_hash is stored on chromosome, as this is the cache key.
-    /// Only useful for long stale runs
+    /// Only useful for long stale runs.
     /// Silently ignore cache_size of zero, to support superset builder which delays specialization
     pub fn with_fitness_cache(mut self, fitness_cache_size: usize) -> Self {
         match FitnessCache::try_new(fitness_cache_size) {

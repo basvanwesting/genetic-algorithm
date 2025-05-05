@@ -4,6 +4,15 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.19.4] - 2025-05-05
+
+### Added
+* Add `with_fitness_cache(size)` builder step to the `HillClimbBuider` as well.
+  There are some use cases with long tails and `replace_on_equal_fitness(true)`
+  where caching information is useful.
+* Add `FitnessGenes<Self>` type alias for better fitness API (next to
+  `FitnessChromosome<Self>` etc.)
+
 ## [0.19.3] - 2025-04-15
 
 ### Fixed
