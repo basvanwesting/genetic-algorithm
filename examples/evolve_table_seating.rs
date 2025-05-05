@@ -94,8 +94,8 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.3))
-        .with_crossover(CrossoverSinglePoint::new())
-        .with_select(SelectTournament::new(4, 0.9))
+        .with_crossover(CrossoverSinglePoint::new(0.8, 0.05))
+        .with_select(SelectTournament::new(4, 0.4))
         .with_reporter(EvolveReporterSimple::new(1000));
 
     //let evolve = evolve_builder.call().unwrap();

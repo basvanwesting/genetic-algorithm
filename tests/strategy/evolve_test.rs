@@ -69,8 +69,8 @@ fn build_invalid_require_crossover_points() {
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSinglePoint::new())
-        .with_select(SelectTournament::new(4, 0.9))
+        .with_crossover(CrossoverSinglePoint::new(0.8, 0.05))
+        .with_select(SelectTournament::new(4, 0.4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterNoop::new())
         .build();

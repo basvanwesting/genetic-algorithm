@@ -47,7 +47,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let crossovers: Vec<CrossoverWrapper> = vec![
             // CrossoverClone::new().into(), //noop
             // CrossoverSingleGene::new(0.8, 0.05).into(),
-            // CrossoverSinglePoint::new().into(),
+            // CrossoverSinglePoint::new(0.8, 0.05).into(),
             // CrossoverMultiGene::new(0.8, 0.05, genes_size / 2, false).into(),
             // CrossoverMultiGene::new(0.8, 0.05, genes_size / 2, true).into(),
             CrossoverMultiPoint::new(0.8, 0.05, genes_size / 10, false).into(),
