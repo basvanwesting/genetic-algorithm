@@ -276,7 +276,7 @@ fn main() {
         //.with_mutate(MutateSingleGeneDynamic::new(0.01, 250))
         // .with_mutate(MutateMultiGeneDynamic::new(2, 0.1, 250))
         // .with_crossover(CrossoverSinglePoint::new(0.8, 0.05))
-        .with_crossover(CrossoverUniform::new())
+        .with_crossover(CrossoverUniform::new(0.8, 0.05))
         // .with_select(SelectTournament::new(4, 0.9))
         .with_select(SelectElite::new(0.4))
         .with_extension(ExtensionMassDegeneration::new(2, 10))
