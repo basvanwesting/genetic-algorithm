@@ -117,8 +117,9 @@ pub trait ChromosomeManager<G: Genotype> {
         chromosomes: &mut Vec<G::Chromosome>,
         range: Range<usize>,
     ) {
+        let modulo = chromosomes.len();
         for i in range {
-            let chromosome = &chromosomes[i];
+            let chromosome = &chromosomes[i % modulo];
             chromosomes.push(self.chromosome_cloner(chromosome));
         }
     }

@@ -134,6 +134,8 @@ fn population_shortage_below_target() {
         vec![
             vec![true, false, true, false, true],
             vec![true, false, true, false, true],
+            vec![true, false, true, false, true],
+            vec![true, false, true, false, true],
         ]
     )
 }
