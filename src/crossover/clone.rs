@@ -23,12 +23,11 @@ impl Crossover for Clone {
         _rng: &mut R,
     ) {
         let now = Instant::now();
-        let crossover_size = self.prepare_population(genotype, state, config);
+        self.prepare_population(genotype, state, config);
         state
             .population
             .chromosomes
             .iter_mut()
-            .take(crossover_size)
             .for_each(|c| c.reset_age());
 
         state.add_duration(StrategyAction::Crossover, now.elapsed());
