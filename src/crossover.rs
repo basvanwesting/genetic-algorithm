@@ -2,9 +2,16 @@
 //! [selection](crate::select) phase determines the order and the amount of the parent pairing
 //! (overall with fitter first).
 //!
+//! For the crossover-rate, typically set between 0.7 and 0.9 (70%-90% of the population undergoes
+//! crossover). Higher crossover rates promote exploration and recombination of genetic material.
+//!
+//! To further prevent the population from "dying out" or losing important genetic material:
+//! Elitism is often used through the elitism_rate, where a small number of the best individuals
+//! (e.g., top 1%-5%) are directly carried over to the next generation without modification.
+//!
 //! If the [selection](crate::select) dropped some chromosomes due to the selection_rate, the
-//! crossover will restore the population towards the target_population_size by keeping the best
-//! parents alive. Excess parents are dropped.
+//! crossover will restore the population towards the target_population_size by cycling through the
+//! selected population as parents for the crossover. Excess parents are dropped.
 mod clone;
 mod multi_gene;
 mod multi_point;
@@ -38,13 +45,13 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     );
 
     /// The population is restored towards the target_population_size by cycled cloning of the existing population.
-    /// Excess parents are dropped. The number of crossovers to execute from the front of the population is returned
+    /// Excess parents are dropped.
     fn prepare_population<G: EvolveGenotype>(
         &mut self,
         genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
-    ) -> usize {
+    ) {
         let population_size = state.population.size();
         match config.target_population_size.cmp(&population_size) {
             Ordering::Greater => {
@@ -66,7 +73,6 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
             }
             Ordering::Equal => (),
         }
-        population_size.min(config.target_population_size)
     }
 
     /// to guard against invalid Crossover strategies which break the internal consistency

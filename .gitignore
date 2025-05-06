@@ -1,3 +1,5 @@
 /target
 /flamegraph*.svg
 .DS_Store
+
+/design.md

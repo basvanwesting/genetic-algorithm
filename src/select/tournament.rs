@@ -12,9 +12,6 @@ use std::time::Instant;
 /// selection_rate of the population is reached and drop excess chromosomes. This approach kind of
 /// sorts the fitness first, but not very strictly. This preserves a level of diversity, which
 /// avoids local optimum lock-in.
-///
-/// Of you choos a selection_rate < 0.5 the population will slowly die out, which will end the
-/// Evolve loop normally, but possibly yield suboptimal results.
 #[derive(Clone, Debug)]
 pub struct Tournament {
     pub tournament_size: usize,
