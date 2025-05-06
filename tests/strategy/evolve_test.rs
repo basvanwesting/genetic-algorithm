@@ -312,7 +312,7 @@ fn call_binary_mass_genesis() {
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
         .with_select(SelectTournament::new(4))
         .with_extension(ExtensionMassGenesis::new(10))
-        .with_reporter(StrategyReporterSimple::new(1))
+        .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
         .unwrap();
