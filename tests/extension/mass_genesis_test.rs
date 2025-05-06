@@ -69,7 +69,7 @@ fn removes_randomly_matrix() {
     state.population_cardinality = Some(6);
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
-    ExtensionMassGenesis::new(8).call(&mut genotype, &mut state, &config, &mut reporter, rng);
+    ExtensionMassGenesis::new(7).call(&mut genotype, &mut state, &config, &mut reporter, rng);
 
     assert_eq!(
         state

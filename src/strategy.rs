@@ -40,9 +40,9 @@
 //! // the search strategy (superset), steps marked (E)volve, (H)illClimb and (P)ermutate
 //! let builder = StrategyBuilder::new()
 //!     .with_genotype(genotype)                                // (E,H,P) the genotype
-//!     .with_extension(ExtensionMassExtinction::new(10, 0.1))  // (E) optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10, trim to 10% of population
-//!     .with_select(SelectElite::new(0.4))                     // (E) sort the chromosomes by fitness to determine crossover order and select 40% of the population for crossover (drop 60% of population)
-//!     .with_crossover(CrossoverUniform::new(0.8, 0.05))       // (E) crossover all individual genes between 2 chromosomes for offspring with 80% chance of crossover and 5% elite passthrough (and restore back to 100% of target population size by cycling through selected population)
+//!     .with_select(SelectElite::new())                        // (E) sort the chromosomes by fitness to determine crossover order and drop excess population above target_population_size
+//!     .with_extension(ExtensionMassExtinction::new(10, 0.1))  // (E) optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10 after the selection, trim to 10% of population
+//!     .with_crossover(CrossoverUniform::new(0.4, 0.8))        // (E) crossover all individual genes between 2 chromosomes for offspring with 40% parent selection (60% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
 //!     .with_mutate(MutateSingleGene::new(0.2))                // (E) mutate offspring for a single gene with a 20% probability per chromosome
 //!     .with_fitness(CountTrue)                                // (E,H,P) count the number of true values in the chromosomes
 //!     .with_fitness_ordering(FitnessOrdering::Minimize)       // (E,H,P) aim for the least true values

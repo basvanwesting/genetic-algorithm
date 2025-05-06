@@ -33,9 +33,10 @@ fn maximize() {
     CountTrue.call_for_population(&mut state.population, &genotype, None, None);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Maximize,
+        target_population_size: 6,
         ..Default::default()
     };
-    SelectElite::new(0.74).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new().call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -75,9 +76,10 @@ fn minimize() {
     CountTrue.call_for_population(&mut state.population, &genotype, None, None);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 6,
         ..Default::default()
     };
-    SelectElite::new(0.74).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new().call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -112,9 +114,10 @@ fn fitness_ordering_with_none_fitness() {
     let mut rng = SmallRng::seed_from_u64(0);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Maximize,
+        target_population_size: 5,
         ..Default::default()
     };
-    SelectElite::new(1.0).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new().call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
@@ -128,9 +131,10 @@ fn fitness_ordering_with_none_fitness() {
 
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 5,
         ..Default::default()
     };
-    SelectElite::new(1.0).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectElite::new().call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![

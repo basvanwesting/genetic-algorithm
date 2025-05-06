@@ -113,22 +113,23 @@ pub enum EvolveVariant {
 /// // the search strategy
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
-///     .with_select(SelectElite::new(0.4))                    // sort the chromosomes by fitness to determine crossover order and select 40% of the population (drop 60% of population)
-///     .with_extension(ExtensionMassExtinction::new(10, 0.1)) // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10 after the selection, trim to 10% of population
-///     .with_crossover(CrossoverUniform::new(0.8, 0.05))      // crossover all individual genes between 2 chromosomes for offspring with 80% chance of crossover and 5% elite passthrough (and restore back to 100% of target population size by cycling through selected population)
-///     .with_mutate(MutateSingleGene::new(0.2))               // mutate offspring for a single gene with a 20% probability per chromosome
-///     .with_fitness(CountTrue)                               // count the number of true values in the chromosomes
-///     .with_fitness_ordering(FitnessOrdering::Minimize)      // aim for the least true values
-///     .with_fitness_cache(1000)                              // enable caching of fitness values (LRU size 1000), only works when genes_hash is stored in chromosome. Only useful for long stale runs, but better to increase population diversity
-///     .with_par_fitness(true)                                // optional, defaults to false, use parallel fitness calculation
-///     .with_target_population_size(100)                      // evolve with 100 chromosomes
-///     .with_target_fitness_score(0)                          // ending condition if 0 times true in the best chromosome
-///     .with_valid_fitness_score(10)                          // block ending conditions until at most a 10 times true in the best chromosome
-///     .with_max_stale_generations(1000)                      // stop searching if there is no improvement in fitness score for 1000 generations
-///     .with_max_chromosome_age(10)                           // kill chromosomes after 10 generations
-///     .with_reporter(EvolveReporterSimple::new(100))         // optional builder step, report every 100 generations
-///     .with_replace_on_equal_fitness(true)                   // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
-///     .with_rng_seed_from_u64(0)                             // for testing with deterministic results
+///
+///     .with_select(SelectElite::new())                        // sort the chromosomes by fitness to determine crossover order and drop excess population above target_population_size
+///     .with_extension(ExtensionMassExtinction::new(10, 0.1))  // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10 after the selection, trim to 10% of population
+///     .with_crossover(CrossoverUniform::new(0.4, 0.8))        // crossover all individual genes between 2 chromosomes for offspring with 40% parent selection (60% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
+///     .with_mutate(MutateSingleGene::new(0.2))                // mutate offspring for a single gene with a 20% probability per chromosome
+///     .with_fitness(CountTrue)                                // count the number of true values in the chromosomes
+///     .with_fitness_ordering(FitnessOrdering::Minimize)       // aim for the least true values
+///     .with_fitness_cache(1000)                               // enable caching of fitness values (LRU size 1000), only works when genes_hash is stored in chromosome. Only useful for long stale runs, but better to increase population diversity
+///     .with_par_fitness(true)                                 // optional, defaults to false, use parallel fitness calculation
+///     .with_target_population_size(100)                       // evolve with 100 chromosomes
+///     .with_target_fitness_score(0)                           // ending condition if 0 times true in the best chromosome
+///     .with_valid_fitness_score(10)                           // block ending conditions until at most a 10 times true in the best chromosome
+///     .with_max_stale_generations(1000)                       // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_max_chromosome_age(10)                            // kill chromosomes after 10 generations
+///     .with_reporter(EvolveReporterSimple::new(100))          // optional builder step, report every 100 generations
+///     .with_replace_on_equal_fitness(true)                    // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
+///     .with_rng_seed_from_u64(0)                              // for testing with deterministic results
 ///     .call()
 ///     .unwrap();
 ///
@@ -174,7 +175,6 @@ pub struct EvolveConfig {
     pub fitness_cache: Option<FitnessCache>,
 
     pub target_population_size: usize,
-    pub selected_population_size: usize,
     pub max_chromosome_age: Option<usize>,
 }
 
@@ -632,10 +632,6 @@ impl<
             let genotype = builder.genotype.unwrap();
             let state = EvolveState::new(&genotype);
             let target_population_size = builder.target_population_size;
-            let selected_population_size =
-                builder.select.as_ref().map_or(target_population_size, |s| {
-                    s.selected_population_size(target_population_size)
-                });
 
             Ok(Self {
                 genotype,
@@ -648,7 +644,6 @@ impl<
                 },
                 config: EvolveConfig {
                     target_population_size,
-                    selected_population_size,
                     max_stale_generations: builder.max_stale_generations,
                     max_chromosome_age: builder.max_chromosome_age,
                     target_fitness_score: builder.target_fitness_score,
@@ -672,7 +667,6 @@ impl Default for EvolveConfig {
         Self {
             variant: Default::default(),
             target_population_size: 0,
-            selected_population_size: 0,
             max_stale_generations: None,
             max_chromosome_age: None,
             target_fitness_score: None,

@@ -83,8 +83,8 @@ fn main() {
         .with_max_stale_generations(100)
         .with_fitness(fitness)
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverSinglePoint::new(0.8, 0.05))
-        .with_select(SelectTournament::new(4, 0.4))
+        .with_crossover(CrossoverSinglePoint::new(0.4, 0.8))
+        .with_select(SelectTournament::new(4))
         .with_reporter(EvolveReporterDuration::new())
         .build()
         .unwrap();

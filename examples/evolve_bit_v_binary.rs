@@ -20,8 +20,8 @@ fn main() {
         .with_fitness(CountOnes)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverMultiPoint::new(0.8, 0.05, 10, true))
-        .with_select(SelectTournament::new(4, 0.4))
+        .with_crossover(CrossoverMultiPoint::new(0.4, 0.8, 10, true))
+        .with_select(SelectTournament::new(4))
         .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();
@@ -49,8 +49,8 @@ fn main() {
         .with_fitness(CountTrue)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateSingleGene::new(0.2))
-        .with_crossover(CrossoverMultiPoint::new(0.8, 0.05, 10, true))
-        .with_select(SelectTournament::new(4, 0.4))
+        .with_crossover(CrossoverMultiPoint::new(0.4, 0.8, 10, true))
+        .with_select(SelectTournament::new(4))
         .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();

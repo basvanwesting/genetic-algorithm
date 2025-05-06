@@ -73,8 +73,8 @@ impl Fitness for CountTrue {
 // the search strategy
 let evolve = Evolve::builder()
     .with_genotype(genotype)
-    .with_select(SelectElite::new(0.4))               // sort the chromosomes by fitness to determine crossover order and select 40% of the population for crossover (drop 60% of population)
-    .with_crossover(CrossoverUniform::new(0.8, 0.05)) // crossover all individual genes between 2 chromosomes for offspring with 80% chance of crossover and 5% elite passthrough (and restore back to 100% of target population size by cycling through selected population)
+    .with_select(SelectElite::new())                  // sort the chromosomes by fitness to determine crossover order and drop excess population above target_population_size
+    .with_crossover(CrossoverUniform::new(0.4, 0.8))  // crossover all individual genes between 2 chromosomes for offspring with 40% parent selection (60% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
     .with_mutate(MutateSingleGene::new(0.2))          // mutate offspring for a single gene with a 20% probability per chromosome
     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
     .with_fitness_ordering(FitnessOrdering::Maximize) // optional, default is Maximize, aim towards the most true values

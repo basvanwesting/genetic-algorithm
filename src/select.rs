@@ -1,11 +1,6 @@
 //! The selection phase, where chromosomes are lined up for pairing in the
-//! [crossover](crate::crossover) phase, dropping the chromosomes outside of the selection_rate.
-//!
-//! For the selection-rate, typically set between 0.2 and 0.5 (20%-50% of the population is selected for reproduction).
-//! A higher selection rate (closer to 50%) can accelerate convergence but risks premature convergence (getting stuck in local optima).
-//! A lower selection rate (closer to 20%) maintains diversity but may slow down the algorithm.
-//! Other sources suggest a higher selection-rate, somewhere in the 0.75-1.0 range. Apparantly
-//! there is no broad consensus
+//! [crossover](crate::crossover) phase, dropping the chromosomes outside of the
+//! target_population_size.
 mod elite;
 mod tournament;
 mod wrapper;
@@ -28,5 +23,4 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         reporter: &mut SR,
         rng: &mut R,
     );
-    fn selected_population_size(&self, working_population_size: usize) -> usize;
 }

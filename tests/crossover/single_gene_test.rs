@@ -7,7 +7,7 @@ use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};
 use genetic_algorithm::strategy::StrategyReporterNoop;
 
 #[test]
-fn population_even_no_shortage() {
+fn standard() {
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(5)
         .build()
@@ -29,7 +29,7 @@ fn population_even_no_shortage() {
     };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CrossoverSingleGene::new(1.0, 0.0).call(
+    CrossoverSingleGene::new(0.5, 1.0).call(
         &mut genotype,
         &mut state,
         &config,
@@ -40,11 +40,13 @@ fn population_even_no_shortage() {
     assert_eq!(
         inspect::population(&state.population),
         vec![
-            vec![true, true, false, true, true],
-            vec![false, false, true, false, false],
+            vec![true, true, true, true, true],
+            vec![false, false, false, false, false],
+            vec![true, true, true, true, true],
+            vec![false, false, false, false, false],
             vec![true, true, false, true, true],
             vec![false, false, true, false, false],
         ]
     );
-    assert_eq!(state.population.chromosomes.capacity(), 4);
+    assert_eq!(state.population.chromosomes.capacity(), 8);
 }

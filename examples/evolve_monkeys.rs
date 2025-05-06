@@ -56,8 +56,8 @@ fn main() {
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.3))
         // .with_mutate(MutateSingleGeneDynamic::new(0.01, 2))
-        .with_crossover(CrossoverClone::new())
-        .with_select(SelectElite::new(0.9))
+        .with_crossover(CrossoverClone::new(0.5))
+        .with_select(SelectElite::new())
         .with_reporter(EvolveReporterDuration::new())
         .build()
         .unwrap();

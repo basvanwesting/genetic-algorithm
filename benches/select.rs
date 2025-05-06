@@ -48,9 +48,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         let selects: Vec<SelectWrapper> = vec![
-            SelectElite::new(0.9).into(),
-            SelectTournament::new(4, 0.9).into(),
-            SelectTournament::new(8, 0.9).into(),
+            SelectElite::new().into(),
+            SelectTournament::new(4).into(),
+            SelectTournament::new(8).into(),
         ];
         for mut select in selects {
             group.throughput(Throughput::Elements(population_size as u64));

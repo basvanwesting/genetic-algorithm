@@ -17,24 +17,24 @@ use std::marker::PhantomData;
 /// new best - generation: 6,  fitness_score: Some(-2012), scale_index: None, genes: None
 /// new best - generation: 38, fitness_score: Some(-1440), scale_index: None, genes: None
 /// new best - generation: 47, fitness_score: Some(-1439), scale_index: None, genes: None
-/// periodic - current_generation: 50, stale_generations: 2, best_generation: 47, scale_index: None, population_cardinality: Some(6), selected_population_size: 800, #extension_events: 0
+/// periodic - current_generation: 50, stale_generations: 2, best_generation: 47, scale_index: None, population_cardinality: Some(6), current_population_size: 800, #extension_events: 0
 /// new best - generation: 51, fitness_score: Some(-1437), scale_index: None, genes: None
 /// new best - generation: 60, fitness_score: Some(-1435), scale_index: None, genes: None
 /// new best - generation: 77, fitness_score: Some(-1120), scale_index: None, genes: None
 /// new best - generation: 99, fitness_score: Some(-639),  scale_index: None, genes: None
-/// periodic - current_generation: 100, stale_generations: 0, best_generation: 99, scale_index: None, population_cardinality: Some(11), selected_population_size: 800, #extension_events: 1
+/// periodic - current_generation: 100, stale_generations: 0, best_generation: 99, scale_index: None, population_cardinality: Some(11), current_population_size: 800, #extension_events: 1
 /// new best - generation: 146, fitness_score: Some(-125), scale_index: None, genes: None
-/// periodic - current_generation: 150, stale_generations: 3,   best_generation: 146, scale_index: None, population_cardinality: Some(59),  selected_population_size: 800, #extension_events: 1
-/// periodic - current_generation: 200, stale_generations: 53,  best_generation: 146, scale_index: None, population_cardinality: Some(592), selected_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 250, stale_generations: 103, best_generation: 146, scale_index: None, population_cardinality: Some(4),   selected_population_size: 800, #extension_events: 2
-/// periodic - current_generation: 300, stale_generations: 153, best_generation: 146, scale_index: None, population_cardinality: Some(335), selected_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 350, stale_generations: 203, best_generation: 146, scale_index: None, population_cardinality: Some(1),   selected_population_size: 800, #extension_events: 2
+/// periodic - current_generation: 150, stale_generations: 3,   best_generation: 146, scale_index: None, population_cardinality: Some(59),  current_population_size: 800, #extension_events: 1
+/// periodic - current_generation: 200, stale_generations: 53,  best_generation: 146, scale_index: None, population_cardinality: Some(592), current_population_size: 800, #extension_events: 3
+/// periodic - current_generation: 250, stale_generations: 103, best_generation: 146, scale_index: None, population_cardinality: Some(4),   current_population_size: 800, #extension_events: 2
+/// periodic - current_generation: 300, stale_generations: 153, best_generation: 146, scale_index: None, population_cardinality: Some(335), current_population_size: 800, #extension_events: 3
+/// periodic - current_generation: 350, stale_generations: 203, best_generation: 146, scale_index: None, population_cardinality: Some(1),   current_population_size: 800, #extension_events: 2
 /// new best - generation: 379, fitness_score: Some(66), scale_index: None, genes: None
-/// periodic - current_generation: 400, stale_generations: 20,  best_generation: 379, scale_index: None, population_cardinality: Some(570), selected_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 450, stale_generations: 70,  best_generation: 379, scale_index: None, population_cardinality: Some(5),   selected_population_size: 800, #extension_events: 2
-/// periodic - current_generation: 500, stale_generations: 120, best_generation: 379, scale_index: None, population_cardinality: Some(368), selected_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 550, stale_generations: 170, best_generation: 379, scale_index: None, population_cardinality: Some(692), selected_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 600, stale_generations: 220, best_generation: 379, scale_index: None, population_cardinality: Some(75),  selected_population_size: 800, #extension_events: 2
+/// periodic - current_generation: 400, stale_generations: 20,  best_generation: 379, scale_index: None, population_cardinality: Some(570), current_population_size: 800, #extension_events: 3
+/// periodic - current_generation: 450, stale_generations: 70,  best_generation: 379, scale_index: None, population_cardinality: Some(5),   current_population_size: 800, #extension_events: 2
+/// periodic - current_generation: 500, stale_generations: 120, best_generation: 379, scale_index: None, population_cardinality: Some(368), current_population_size: 800, #extension_events: 3
+/// periodic - current_generation: 550, stale_generations: 170, best_generation: 379, scale_index: None, population_cardinality: Some(692), current_population_size: 800, #extension_events: 3
+/// periodic - current_generation: 600, stale_generations: 220, best_generation: 379, scale_index: None, population_cardinality: Some(75),  current_population_size: 800, #extension_events: 2
 /// exit - evolve, iteration: 0
 ///   SetupAndCleanup: 141.833µs
 ///   Extension: 2.139ms
@@ -195,7 +195,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
             let fitness_cache_hit_miss_ratio = config.fitness_cache().map(|c| c.hit_miss_stats().2);
 
             self.writeln(format_args!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, selected_population_size: {}, fitness_cache_hit_miss_ratio: {:.2?}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, current_population_size: {}, fitness_cache_hit_miss_ratio: {:.2?}, #extension_events: {}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),

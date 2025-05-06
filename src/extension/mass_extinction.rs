@@ -26,7 +26,7 @@ impl Extension for MassExtinction {
         reporter: &mut SR,
         rng: &mut R,
     ) {
-        if state.population.size() >= config.selected_population_size {
+        if state.population.size() > self.cardinality_threshold {
             let now = Instant::now();
             if let Some(cardinality) = state.population_cardinality() {
                 if cardinality <= self.cardinality_threshold {

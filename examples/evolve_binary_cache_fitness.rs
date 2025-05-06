@@ -42,8 +42,8 @@ fn main() {
         // .with_target_fitness_score(100)
         .with_fitness(ExpensiveCount::new(0))
         .with_mutate(MutateSingleGene::new(0.05))
-        .with_crossover(CrossoverClone::new())
-        .with_select(SelectTournament::new(4, 0.9));
+        .with_crossover(CrossoverClone::new(0.5))
+        .with_select(SelectTournament::new(4));
 
     // println!("{}", evolve);
 

@@ -111,18 +111,12 @@ pub trait ChromosomeManager<G: Genotype> {
             .drain(target_population_size..)
             .for_each(|c| self.chromosome_destructor(c));
     }
-    fn chromosome_cloner_restore(
-        &mut self,
-        chromosomes: &mut Vec<G::Chromosome>,
-        target_population_size: usize,
-    ) {
-        let starting_population_size = chromosomes.len();
-        let restore_population_size = (target_population_size - starting_population_size).max(0);
-
+    fn chromosome_cloner_expand(&mut self, chromosomes: &mut Vec<G::Chromosome>, amount: usize) {
         // maybe use cycle here, but this is oddly elegant as the modulo ensures the newly pushed
         // chromosomes are never in the cycled selection
-        for i in 0..restore_population_size {
-            let chromosome = &chromosomes[i % starting_population_size];
+        let modulo = chromosomes.len();
+        for i in 0..amount {
+            let chromosome = &chromosomes[i % modulo];
             chromosomes.push(self.chromosome_cloner(chromosome));
         }
     }

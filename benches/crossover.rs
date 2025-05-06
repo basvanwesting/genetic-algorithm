@@ -45,13 +45,13 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
     for genes_size in &genes_sizes {
         let crossovers: Vec<CrossoverWrapper> = vec![
-            // CrossoverClone::new().into(), //noop
-            // CrossoverSingleGene::new(0.8, 0.05).into(),
-            // CrossoverSinglePoint::new(0.8, 0.05).into(),
-            // CrossoverMultiGene::new(0.8, 0.05, genes_size / 2, false).into(),
-            // CrossoverMultiGene::new(0.8, 0.05, genes_size / 2, true).into(),
-            CrossoverMultiPoint::new(0.8, 0.05, genes_size / 10, false).into(),
-            CrossoverMultiPoint::new(0.8, 0.05, genes_size / 10, true).into(),
+            // CrossoverClone::new(0.4).into(), //noop
+            // CrossoverSingleGene::new(0.4, 0.8).into(),
+            // CrossoverSinglePoint::new(0.4, 0.8).into(),
+            // CrossoverMultiGene::new(0.4, 0.8, genes_size / 2, false).into(),
+            // CrossoverMultiGene::new(0.4, 0.8, genes_size / 2, true).into(),
+            CrossoverMultiPoint::new(0.4, 0.8, genes_size / 10, false).into(),
+            CrossoverMultiPoint::new(0.4, 0.8, genes_size / 10, true).into(),
         ];
         for mut crossover in crossovers {
             group.throughput(Throughput::Elements(population_size as u64));

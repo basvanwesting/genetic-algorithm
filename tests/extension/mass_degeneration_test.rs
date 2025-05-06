@@ -28,11 +28,11 @@ fn removes_randomly() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    state.population_cardinality = Some(8);
+    state.population_cardinality = Some(6);
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassDegeneration::new(8, 2).call(
+    ExtensionMassDegeneration::new(7, 2).call(
         &mut genotype,
         &mut state,
         &config,

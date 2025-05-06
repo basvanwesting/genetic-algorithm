@@ -27,12 +27,6 @@ impl Select for Wrapper {
             Wrapper::Tournament(select) => select.call(genotype, state, config, reporter, rng),
         }
     }
-    fn selected_population_size(&self, working_population_size: usize) -> usize {
-        match self {
-            Wrapper::Elite(select) => select.selected_population_size(working_population_size),
-            Wrapper::Tournament(select) => select.selected_population_size(working_population_size),
-        }
-    }
 }
 impl From<SelectElite> for Wrapper {
     fn from(select: SelectElite) -> Self {

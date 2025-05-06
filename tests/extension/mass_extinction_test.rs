@@ -28,11 +28,11 @@ fn removes_randomly() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    state.population_cardinality = Some(8);
+    state.population_cardinality = Some(6);
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassExtinction::new(8, 0.75).call(
+    ExtensionMassExtinction::new(7, 0.75).call(
         &mut genotype,
         &mut state,
         &config,
@@ -74,11 +74,11 @@ fn never_leaves_less_than_tow() {
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
-    state.population_cardinality = Some(8);
+    state.population_cardinality = Some(6);
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassExtinction::new(8, 0.01).call(
+    ExtensionMassExtinction::new(7, 0.01).call(
         &mut genotype,
         &mut state,
         &config,

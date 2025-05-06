@@ -8,15 +8,11 @@ use rand::prelude::*;
 use std::cmp::Reverse;
 use std::time::Instant;
 
-/// Simply sort the chromosomes with fittest first. Then take the selection_rate of the populations
-/// best and drop excess chromosomes. This approach has the risk of locking in to a local optimum.
-///
-/// Of you choos a selection_rate < 0.5 the population will slowly die out, which will end the
-/// Evolve loop normally, but possibly yield suboptimal results.
+/// Simply sort the chromosomes with fittest first. Then take the target_population_size (or full
+/// population when in shortage) of the populations best and drop excess chromosomes. This approach
+/// has the risk of locking in to a local optimum.
 #[derive(Clone, Debug)]
-pub struct Elite {
-    pub selection_rate: f32,
-}
+pub struct Elite;
 
 impl Select for Elite {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
@@ -28,8 +24,6 @@ impl Select for Elite {
         _rng: &mut R,
     ) {
         let now = Instant::now();
-        let population_size = state.population.size();
-        let selected_population_size = self.selected_population_size(population_size);
 
         match config.fitness_ordering {
             FitnessOrdering::Maximize => {
@@ -53,19 +47,14 @@ impl Select for Elite {
         }
         genotype.chromosome_destructor_truncate(
             &mut state.population.chromosomes,
-            selected_population_size,
+            config.target_population_size,
         );
         state.add_duration(StrategyAction::Select, now.elapsed());
-    }
-    fn selected_population_size(&self, working_population_size: usize) -> usize {
-        ((working_population_size as f32 * self.selection_rate).ceil() as usize)
-            .min(working_population_size)
-            .max(2)
     }
 }
 
 impl Elite {
-    pub fn new(selection_rate: f32) -> Self {
-        Self { selection_rate }
+    pub fn new() -> Self {
+        Self {}
     }
 }
