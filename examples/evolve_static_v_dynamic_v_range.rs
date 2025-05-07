@@ -102,7 +102,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.2))
         // .with_crossover(CrossoverMultiPoint::new(0.4, 0.8, 10, true))
         .with_crossover(CrossoverUniform::new(0.4, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_select(SelectTournament::new(0.5, 0.02, None, 4))
         .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();
@@ -143,7 +143,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverUniform::new(0.4, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_select(SelectTournament::new(0.5, 0.02, None, 4))
         .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();
@@ -184,7 +184,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverUniform::new(0.4, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_select(SelectTournament::new(0.5, 0.02, None, 4))
         .with_reporter(EvolveReporterDuration::new())
         .call()
         .unwrap();

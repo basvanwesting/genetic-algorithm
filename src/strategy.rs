@@ -40,7 +40,7 @@
 //! // the search strategy (superset), steps marked (E)volve, (H)illClimb and (P)ermutate
 //! let builder = StrategyBuilder::new()
 //!     .with_genotype(genotype)                                // (E,H,P) the genotype
-//!     .with_select(SelectElite::new(0.5, 0.02))                        // (E) sort the chromosomes by fitness to determine crossover order and drop excess population above target_population_size
+//!     .with_select(SelectElite::new(0.5, 0.02, None))                        // (E) sort the chromosomes by fitness to determine crossover order and drop excess population above target_population_size
 //!     .with_extension(ExtensionMassExtinction::new(10, 0.1))  // (E) optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10 after the selection, trim to 10% of population
 //!     .with_crossover(CrossoverUniform::new(0.4, 0.8))        // (E) crossover all individual genes between 2 chromosomes for offspring with 40% parent selection (60% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
 //!     .with_mutate(MutateSingleGene::new(0.2))                // (E) mutate offspring for a single gene with a 20% probability per chromosome

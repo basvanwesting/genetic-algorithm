@@ -44,7 +44,7 @@ fn main() {
         // .with_par_fitness(true) // 2x slower in this case
         .with_mutate(MutateMultiGene::new(2, 0.2))
         .with_crossover(CrossoverMultiPoint::new(0.4, 0.8, 9, false))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_select(SelectTournament::new(0.5, 0.02, None, 4))
         .with_reporter(EvolveReporterSimple::new_with_buffer(100))
         // .with_reporter(EvolveReporterSimple::new(100))
         .call()
