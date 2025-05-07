@@ -37,17 +37,25 @@ fn maximize() {
         target_population_size: 6,
         ..Default::default()
     };
-    SelectTournament::new(4).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectTournament::new(0.02, 4).call(
+        &mut genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(&state.population),
         vec![
+            // elite
             vec![true, true, true],
+            // normal
             vec![true, true, false],
-            vec![false, true, true],
-            vec![true, false, false],
             vec![true, false, true],
+            vec![false, true, true],
             vec![false, false, true],
+            vec![false, true, false],
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 8);
@@ -80,17 +88,25 @@ fn minimize() {
         target_population_size: 6,
         ..Default::default()
     };
-    SelectTournament::new(4).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectTournament::new(0.02, 4).call(
+        &mut genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population(&state.population),
         vec![
+            // elite
             vec![false, false, false],
+            // normal
+            vec![true, false, false],
             vec![false, true, false],
             vec![false, false, true],
-            vec![true, false, false],
-            vec![true, false, true],
             vec![false, true, true],
+            vec![true, false, true],
         ]
     );
 }
@@ -121,15 +137,23 @@ fn fitness_ordering_with_none_fitness() {
         target_population_size: 8,
         ..Default::default()
     };
-    SelectTournament::new(4).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectTournament::new(0.02, 4).call(
+        &mut genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
+            // elite
             (vec![false, false, false], Some(0)),
-            (vec![false, true, false], Some(1)),
-            (vec![true, false, false], Some(1)),
-            (vec![true, false, true], Some(2)),
+            // normal
             (vec![false, true, true], Some(2)),
+            (vec![true, false, false], Some(1)),
+            (vec![false, true, false], Some(1)),
+            (vec![true, false, true], Some(2)),
             (vec![true, true, false], Some(2)),
             (vec![true, true, true], Some(3)),
             (vec![false, false, true], None),
@@ -141,18 +165,26 @@ fn fitness_ordering_with_none_fitness() {
         target_population_size: 8,
         ..Default::default()
     };
-    SelectTournament::new(4).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    SelectTournament::new(0.02, 4).call(
+        &mut genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
-            (vec![false, true, true], Some(2)),
+            // elite
+            (vec![true, true, true], Some(3)),
+            // normal
             (vec![true, false, true], Some(2)),
+            (vec![false, true, true], Some(2)),
             (vec![true, true, false], Some(2)),
             (vec![true, false, false], Some(1)),
-            (vec![true, true, true], Some(3)),
             (vec![false, true, false], Some(1)),
-            (vec![false, false, true], None),
             (vec![false, false, false], Some(0)),
+            (vec![false, false, true], None),
         ]
     );
 }

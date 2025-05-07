@@ -12,7 +12,9 @@ use std::time::Instant;
 /// population when in shortage) of the populations best and drop excess chromosomes. This approach
 /// has the risk of locking in to a local optimum.
 #[derive(Clone, Debug)]
-pub struct Elite;
+pub struct Elite {
+    pub ageless_elitism_rate: f32,
+}
 
 impl Select for Elite {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
@@ -45,6 +47,10 @@ impl Select for Elite {
                     })
             }
         }
+
+        // let agless_elitism_size =
+        //     (state.population.size() as f32 * self.ageless_elitism_rate).ceil() as usize;
+
         genotype.chromosome_destructor_truncate(
             &mut state.population.chromosomes,
             config.target_population_size,
@@ -54,7 +60,9 @@ impl Select for Elite {
 }
 
 impl Elite {
-    pub fn new() -> Self {
-        Self {}
+    pub fn new(ageless_elitism_rate: f32) -> Self {
+        Self {
+            ageless_elitism_rate,
+        }
     }
 }

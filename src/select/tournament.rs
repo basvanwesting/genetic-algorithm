@@ -6,6 +6,7 @@ use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::prelude::*;
+use std::cmp::Reverse;
 use std::time::Instant;
 
 /// Run tournaments with randomly chosen chromosomes and pick a single winner. Do this untill the
@@ -14,6 +15,7 @@ use std::time::Instant;
 /// This preserves a level of diversity, which avoids local optimum lock-in.
 #[derive(Clone, Debug)]
 pub struct Tournament {
+    pub ageless_elitism_rate: f32,
     pub tournament_size: usize,
 }
 
@@ -27,8 +29,10 @@ impl Select for Tournament {
         rng: &mut R,
     ) {
         let now = Instant::now();
+
         let mut working_population_size = state.population.size();
-        let selected_population_size = config.target_population_size.min(working_population_size);
+        let mut selected_population_size =
+            config.target_population_size.min(working_population_size);
         let tournament_size = std::cmp::min(self.tournament_size, working_population_size);
 
         let mut selected_chromosomes: Vec<G::Chromosome> =
@@ -37,6 +41,38 @@ impl Select for Tournament {
         let mut winning_index: usize;
         let mut sample_fitness_value: FitnessValue;
         let mut winning_fitness_value: FitnessValue;
+
+        if self.ageless_elitism_rate > 0.0 {
+            let ageless_elitism_size =
+                (state.population.size() as f32 * self.ageless_elitism_rate).ceil() as usize;
+            match config.fitness_ordering {
+                FitnessOrdering::Maximize => {
+                    state
+                        .population
+                        .chromosomes
+                        .sort_unstable_by_key(|c| match c.fitness_score() {
+                            Some(fitness_score) => Reverse(fitness_score),
+                            None => Reverse(FitnessValue::MIN),
+                        })
+                }
+                FitnessOrdering::Minimize => {
+                    state
+                        .population
+                        .chromosomes
+                        .sort_unstable_by_key(|c| match c.fitness_score() {
+                            Some(fitness_score) => fitness_score,
+                            None => FitnessValue::MAX,
+                        })
+                }
+            }
+
+            for index in (0..ageless_elitism_size).rev() {
+                let chromosome = state.population.chromosomes.swap_remove(index);
+                selected_chromosomes.push(chromosome);
+                working_population_size -= 1;
+                selected_population_size -= 1;
+            }
+        }
 
         match config.fitness_ordering {
             FitnessOrdering::Maximize => {
@@ -92,7 +128,10 @@ impl Select for Tournament {
 }
 
 impl Tournament {
-    pub fn new(tournament_size: usize) -> Self {
-        Self { tournament_size }
+    pub fn new(ageless_elitism_rate: f32, tournament_size: usize) -> Self {
+        Self {
+            ageless_elitism_rate,
+            tournament_size,
+        }
     }
 }

@@ -17,7 +17,7 @@ fn build_invalid_missing_ending_condition() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         // .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterNoop::new())
         .build();
@@ -44,7 +44,7 @@ fn build_invalid_require_crossover_indexes() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .build();
@@ -70,7 +70,7 @@ fn build_invalid_require_crossover_points() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSinglePoint::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterNoop::new())
         .build();
@@ -97,7 +97,7 @@ fn call_binary_max_stale_generations_maximize() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -126,7 +126,7 @@ fn call_binary_max_stale_generations_minimize() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64_option(Some(0))
@@ -155,7 +155,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -181,7 +181,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -205,7 +205,7 @@ fn call_binary_target_fitness_score_maximize() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -213,10 +213,10 @@ fn call_binary_target_fitness_score_maximize() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(9));
+    assert_eq!(evolve.best_fitness_score(), Some(10));
     assert_eq!(
         evolve.best_genes().unwrap(),
-        vec![true, true, true, true, true, true, true, true, true, false]
+        vec![true, true, true, true, true, true, true, true, true, true]
     );
 }
 
@@ -234,7 +234,7 @@ fn call_binary_target_fitness_score_minimize() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -262,7 +262,7 @@ fn call_binary_mass_degeneration() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionMassDegeneration::new(10, 10))
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -286,7 +286,7 @@ fn call_binary_mass_extinction() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionMassExtinction::new(10, 0.1))
         // .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -310,7 +310,7 @@ fn call_binary_mass_genesis() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionMassGenesis::new(10))
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -331,7 +331,7 @@ fn call_bit() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountOnes)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -360,7 +360,7 @@ fn call_range_f32() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -368,10 +368,10 @@ fn call_range_f32() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(9833));
+    assert_eq!(evolve.best_fitness_score(), Some(9897));
     assert!(relative_chromosome_eq(
         evolve.best_genes().unwrap(),
-        vec![0.968, 0.981, 0.967, 0.975, 0.997, 0.976, 0.988, 0.987, 0.995, 0.995,],
+        vec![0.980, 0.993, 0.967, 0.994, 0.997, 0.998, 0.993, 0.987, 0.991, 0.995],
         0.001
     ));
 }
@@ -390,7 +390,7 @@ fn call_range_usize() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -398,10 +398,10 @@ fn call_range_usize() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(90));
+    assert_eq!(evolve.best_fitness_score(), Some(89));
     assert_eq!(
         evolve.best_genes().unwrap(),
-        vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+        vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 8]
     );
 }
 
@@ -420,7 +420,7 @@ fn call_range_isize() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         // .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -450,7 +450,7 @@ fn call_list() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -483,7 +483,7 @@ fn call_multi_list() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(SumGenes::new())
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -511,7 +511,7 @@ fn call_static_matrix() {
         .with_fitness(SumStaticMatrix::new())
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterSimple::new(1))
         .with_rng_seed_from_u64(0)
@@ -519,10 +519,10 @@ fn call_static_matrix() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(0));
+    assert_eq!(evolve.best_fitness_score(), Some(1));
     assert_eq!(
         evolve.best_genes().unwrap(),
-        Box::new([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        Box::new([0, 0, 0, 0, 0, 0, 0, 0, 1, 0])
     );
 }
 
@@ -542,7 +542,7 @@ fn call_dynamic_matrix() {
         .with_fitness(SumDynamicMatrix::new())
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterSimple::new(1))
         .with_rng_seed_from_u64(0)
@@ -550,10 +550,10 @@ fn call_dynamic_matrix() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(0));
+    assert_eq!(evolve.best_fitness_score(), Some(1));
     assert_eq!(
         evolve.best_genes().unwrap(),
-        vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
     );
     // after cleanup
     assert_eq!(evolve.genotype.data.len(), 0);
@@ -575,7 +575,7 @@ fn call_par_fitness() {
         .with_fitness(SumGenes::new())
         .with_par_fitness(true)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         // .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
@@ -603,7 +603,7 @@ fn population_factory_binary() {
         .with_mutate(MutateSingleGene::new(0.1))
         .with_fitness(CountTrue)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_extension(ExtensionNoop::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)

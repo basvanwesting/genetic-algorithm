@@ -51,7 +51,7 @@ fn main() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateMultiGene::new(2, 0.2))
         .with_crossover(CrossoverMultiPoint::new(0.4, 0.8, 9, false))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_reporter(EvolveReporterSimple::new(100))
         .call()
         .unwrap();

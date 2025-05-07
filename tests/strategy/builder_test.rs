@@ -18,7 +18,7 @@ fn build_invalid_missing_variant() {
         .with_fitness(CountTrue)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_rng_seed_from_u64(0);
 
     let strategy = builder.build();
@@ -45,7 +45,7 @@ fn call_permutate() {
         .with_fitness(CountTrue)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_rng_seed_from_u64(0)
         .call()
         .unwrap();
@@ -85,7 +85,7 @@ fn call_speciated_evolve() {
         .with_fitness(CountTrue)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_rng_seed_from_u64(0)
         .call_speciated(3)
         .unwrap();
@@ -148,7 +148,7 @@ fn call_repeatedly_hill_climb_steepest_ascent() {
         .with_fitness(CountTrue)
         .with_mutate(MutateSingleGene::new(0.1))
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4))
+        .with_select(SelectTournament::new(0.02, 4))
         .with_rng_seed_from_u64(0)
         .call_repeatedly(3)
         .unwrap();

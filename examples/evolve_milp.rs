@@ -68,7 +68,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.4))
         .with_fitness(MILPFitness)
         .with_crossover(CrossoverSingleGene::new(0.4, 0.8))
-        .with_select(SelectTournament::new(4));
+        .with_select(SelectTournament::new(0.02, 4));
 
     for _ in 0..10 {
         let now = std::time::Instant::now();
