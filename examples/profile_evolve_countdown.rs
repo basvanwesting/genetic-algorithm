@@ -44,8 +44,8 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        // .with_select(SelectElite::new(0.5, 0.02, None))
-        .with_select(SelectTournament::new(0.5, 0.02, None, TOURNAMENT_SIZE))
+        // .with_select(SelectElite::new(0.5, 0.02))
+        .with_select(SelectTournament::new(0.5, 0.02, TOURNAMENT_SIZE))
         // .with_crossover(CrossoverClone::new(SELECTION_RATE))
         .with_crossover(CrossoverMultiPoint::new(SELECTION_RATE, 0.8, 9, false))
         .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 0.2))
@@ -83,7 +83,7 @@ fn main() {
 //
 //     let evolve_builder = Evolve::builder()
 //         .with_genotype(genotype)
-//         .with_select(SelectTournament::new(0.5, 0.02, None, TOURNAMENT_SIZE))
+//         .with_select(SelectTournament::new(0.5, 0.02, TOURNAMENT_SIZE))
 //         .with_crossover(CrossoverMultiPoint::new(1.0))
 //         // .with_reporter(EvolveReporterSimple::new(100))
 //         .with_fitness(CountdownNoisy::new(

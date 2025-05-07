@@ -50,7 +50,7 @@ fn main() {
         // .with_replace_on_equal_fitness(true) // not crucial for this problem
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new(0.5))
-        .with_select(SelectElite::new(0.5, 0.02, None))
+        .with_select(SelectElite::new(0.5, 0.02))
         .with_reporter(EvolveReporterSimple::new(100))
         .build()
         .unwrap();

@@ -36,13 +36,7 @@ fn maximize() {
         target_population_size: 6,
         ..Default::default()
     };
-    SelectElite::new(0.5, 0.02, None).call(
-        &mut genotype,
-        &mut state,
-        &config,
-        &mut reporter,
-        &mut rng,
-    );
+    SelectElite::new(0.5, 0.02).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -85,13 +79,7 @@ fn minimize() {
         target_population_size: 6,
         ..Default::default()
     };
-    SelectElite::new(0.5, 0.02, None).call(
-        &mut genotype,
-        &mut state,
-        &config,
-        &mut reporter,
-        &mut rng,
-    );
+    SelectElite::new(0.5, 0.02).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
@@ -129,13 +117,7 @@ fn fitness_ordering_with_none_fitness() {
         target_population_size: 5,
         ..Default::default()
     };
-    SelectElite::new(0.5, 0.02, None).call(
-        &mut genotype,
-        &mut state,
-        &config,
-        &mut reporter,
-        &mut rng,
-    );
+    SelectElite::new(0.5, 0.02).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
@@ -152,13 +134,7 @@ fn fitness_ordering_with_none_fitness() {
         target_population_size: 5,
         ..Default::default()
     };
-    SelectElite::new(0.5, 0.02, None).call(
-        &mut genotype,
-        &mut state,
-        &config,
-        &mut reporter,
-        &mut rng,
-    );
+    SelectElite::new(0.5, 0.02).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![

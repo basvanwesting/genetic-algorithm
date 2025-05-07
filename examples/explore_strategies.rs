@@ -19,7 +19,7 @@ fn main() {
         .with_fitness(CountTrue)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_crossover(CrossoverClone::new(0.5))
-        .with_select(SelectTournament::new(0.5, 0.02, None, 4))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_reporter(IterationReporter);
 
     let strategies = [

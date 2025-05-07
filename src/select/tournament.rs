@@ -17,7 +17,6 @@ pub struct Tournament {
     pub replacement_rate: f32,
     pub ageless_elitism_rate: f32,
     pub tournament_size: usize,
-    pub max_age: Option<usize>,
 }
 
 impl Select for Tournament {
@@ -62,16 +61,10 @@ impl Select for Tournament {
 }
 
 impl Tournament {
-    pub fn new(
-        replacement_rate: f32,
-        ageless_elitism_rate: f32,
-        max_age: Option<usize>,
-        tournament_size: usize,
-    ) -> Self {
+    pub fn new(replacement_rate: f32, ageless_elitism_rate: f32, tournament_size: usize) -> Self {
         Self {
             replacement_rate,
             ageless_elitism_rate,
-            max_age,
             tournament_size,
         }
     }

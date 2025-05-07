@@ -15,7 +15,6 @@ use std::time::Instant;
 pub struct Elite {
     pub replacement_rate: f32,
     pub ageless_elitism_rate: f32,
-    pub max_age: Option<usize>,
 }
 
 impl Select for Elite {
@@ -60,11 +59,10 @@ impl Select for Elite {
 }
 
 impl Elite {
-    pub fn new(replacement_rate: f32, ageless_elitism_rate: f32, max_age: Option<usize>) -> Self {
+    pub fn new(replacement_rate: f32, ageless_elitism_rate: f32) -> Self {
         Self {
             replacement_rate,
             ageless_elitism_rate,
-            max_age,
         }
     }
 

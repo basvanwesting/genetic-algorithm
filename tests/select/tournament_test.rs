@@ -37,7 +37,7 @@ fn maximize() {
         target_population_size: 6,
         ..Default::default()
     };
-    SelectTournament::new(0.5, 0.02, None, 4).call(
+    SelectTournament::new(0.5, 0.02, 4).call(
         &mut genotype,
         &mut state,
         &config,
@@ -88,7 +88,7 @@ fn minimize() {
         target_population_size: 6,
         ..Default::default()
     };
-    SelectTournament::new(0.5, 0.02, None, 4).call(
+    SelectTournament::new(0.5, 0.02, 4).call(
         &mut genotype,
         &mut state,
         &config,
@@ -137,7 +137,7 @@ fn fitness_ordering_with_none_fitness() {
         target_population_size: 8,
         ..Default::default()
     };
-    SelectTournament::new(0.5, 0.02, None, 4).call(
+    SelectTournament::new(0.5, 0.02, 4).call(
         &mut genotype,
         &mut state,
         &config,
@@ -165,7 +165,7 @@ fn fitness_ordering_with_none_fitness() {
         target_population_size: 8,
         ..Default::default()
     };
-    SelectTournament::new(0.5, 0.02, None, 4).call(
+    SelectTournament::new(0.5, 0.02, 4).call(
         &mut genotype,
         &mut state,
         &config,
