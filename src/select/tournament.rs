@@ -6,7 +6,6 @@ use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::prelude::*;
-use std::cmp::Reverse;
 use std::time::Instant;
 
 /// Run tournaments with randomly chosen chromosomes and pick a single winner. Do this untill the
@@ -15,6 +14,7 @@ use std::time::Instant;
 /// This preserves a level of diversity, which avoids local optimum lock-in.
 #[derive(Clone, Debug)]
 pub struct Tournament {
+    pub replacement_rate: f32,
     pub ageless_elitism_rate: f32,
     pub tournament_size: usize,
 }
@@ -30,59 +30,71 @@ impl Select for Tournament {
     ) {
         let now = Instant::now();
 
-        let mut working_population_size = state.population.size();
-        let mut selected_population_size =
-            config.target_population_size.min(working_population_size);
+        let mut ageless_elite_chromosomes =
+            self.extract_ageless_elite_chromosomes(state, config, self.ageless_elitism_rate);
+
+        let (offspring, parents): (Vec<G::Chromosome>, Vec<G::Chromosome>) = state
+            .population
+            .chromosomes
+            .drain(..)
+            .partition(|c| c.age() == 0);
+
+        let (new_parents_size, new_offspring_size) = self.survival_sizes(
+            parents.len(),
+            offspring.len(),
+            config.target_population_size - ageless_elite_chromosomes.len(),
+            self.replacement_rate,
+        );
+
+        let mut parents = self.selection(parents, new_parents_size, genotype, config, rng);
+        let mut offspring = self.selection(offspring, new_offspring_size, genotype, config, rng);
+
+        state
+            .population
+            .chromosomes
+            .append(&mut ageless_elite_chromosomes);
+        state.population.chromosomes.append(&mut offspring);
+        state.population.chromosomes.append(&mut parents);
+
+        state.add_duration(StrategyAction::Select, now.elapsed());
+    }
+}
+
+impl Tournament {
+    pub fn new(replacement_rate: f32, ageless_elitism_rate: f32, tournament_size: usize) -> Self {
+        Self {
+            replacement_rate,
+            ageless_elitism_rate,
+            tournament_size,
+        }
+    }
+
+    pub fn selection<G: EvolveGenotype, R: Rng>(
+        &self,
+        mut chromosomes: Vec<G::Chromosome>,
+        selection_size: usize,
+        genotype: &mut G,
+        config: &EvolveConfig,
+        rng: &mut R,
+    ) -> Vec<G::Chromosome> {
+        let mut working_population_size = chromosomes.len();
         let tournament_size = std::cmp::min(self.tournament_size, working_population_size);
 
-        let mut selected_chromosomes: Vec<G::Chromosome> =
-            Vec::with_capacity(selected_population_size);
+        let mut selected_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(selection_size);
         let mut sample_index: usize;
         let mut winning_index: usize;
         let mut sample_fitness_value: FitnessValue;
         let mut winning_fitness_value: FitnessValue;
 
-        if self.ageless_elitism_rate > 0.0 {
-            let ageless_elitism_size =
-                (state.population.size() as f32 * self.ageless_elitism_rate).ceil() as usize;
-            match config.fitness_ordering {
-                FitnessOrdering::Maximize => {
-                    state
-                        .population
-                        .chromosomes
-                        .sort_unstable_by_key(|c| match c.fitness_score() {
-                            Some(fitness_score) => Reverse(fitness_score),
-                            None => Reverse(FitnessValue::MIN),
-                        })
-                }
-                FitnessOrdering::Minimize => {
-                    state
-                        .population
-                        .chromosomes
-                        .sort_unstable_by_key(|c| match c.fitness_score() {
-                            Some(fitness_score) => fitness_score,
-                            None => FitnessValue::MAX,
-                        })
-                }
-            }
-
-            for index in (0..ageless_elitism_size).rev() {
-                let chromosome = state.population.chromosomes.swap_remove(index);
-                selected_chromosomes.push(chromosome);
-                working_population_size -= 1;
-                selected_population_size -= 1;
-            }
-        }
-
         match config.fitness_ordering {
             FitnessOrdering::Maximize => {
-                for _ in 0..selected_population_size {
+                for _ in 0..selection_size {
                     winning_index = 0;
                     winning_fitness_value = FitnessValue::MIN;
 
                     for _ in 0..tournament_size {
                         sample_index = rng.gen_range(0..working_population_size);
-                        sample_fitness_value = state.population.chromosomes[sample_index]
+                        sample_fitness_value = chromosomes[sample_index]
                             .fitness_score()
                             .unwrap_or(FitnessValue::MIN);
 
@@ -91,19 +103,19 @@ impl Select for Tournament {
                             winning_fitness_value = sample_fitness_value;
                         }
                     }
-                    let chromosome = state.population.chromosomes.swap_remove(winning_index);
+                    let chromosome = chromosomes.swap_remove(winning_index);
                     selected_chromosomes.push(chromosome);
                     working_population_size -= 1;
                 }
             }
             FitnessOrdering::Minimize => {
-                for _ in 0..selected_population_size {
+                for _ in 0..selection_size {
                     winning_index = 0;
                     winning_fitness_value = FitnessValue::MAX;
 
                     for _ in 0..tournament_size {
                         sample_index = rng.gen_range(0..working_population_size);
-                        sample_fitness_value = state.population.chromosomes[sample_index]
+                        sample_fitness_value = chromosomes[sample_index]
                             .fitness_score()
                             .unwrap_or(FitnessValue::MAX);
 
@@ -112,26 +124,13 @@ impl Select for Tournament {
                             winning_fitness_value = sample_fitness_value;
                         }
                     }
-                    let chromosome = state.population.chromosomes.swap_remove(winning_index);
+                    let chromosome = chromosomes.swap_remove(winning_index);
                     selected_chromosomes.push(chromosome);
                     working_population_size -= 1;
                 }
             }
         };
-        genotype.chromosome_destructor_truncate(&mut state.population.chromosomes, 0);
-        state
-            .population
-            .chromosomes
-            .append(&mut selected_chromosomes);
-        state.add_duration(StrategyAction::Select, now.elapsed());
-    }
-}
-
-impl Tournament {
-    pub fn new(ageless_elitism_rate: f32, tournament_size: usize) -> Self {
-        Self {
-            ageless_elitism_rate,
-            tournament_size,
-        }
+        genotype.chromosome_destructor_truncate(&mut chromosomes, 0);
+        selected_chromosomes
     }
 }

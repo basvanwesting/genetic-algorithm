@@ -99,7 +99,7 @@ fn main() {
         // .with_target_fitness_score(100)
         .with_mutate(MutateSingleGene::new(0.05))
         .with_crossover(CrossoverClone::new(0.5))
-        .with_select(SelectTournament::new(0.02, 4));
+        .with_select(SelectTournament::new(0.5, 0.02, 4));
 
     // println!("{}", evolve);
 

@@ -27,6 +27,45 @@ impl Select for Wrapper {
             Wrapper::Tournament(select) => select.call(genotype, state, config, reporter, rng),
         }
     }
+
+    fn extract_ageless_elite_chromosomes<G: EvolveGenotype>(
+        &self,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        ageless_elitism_rate: f32,
+    ) -> Vec<G::Chromosome> {
+        match self {
+            Wrapper::Elite(select) => {
+                select.extract_ageless_elite_chromosomes(state, config, ageless_elitism_rate)
+            }
+            Wrapper::Tournament(select) => {
+                select.extract_ageless_elite_chromosomes(state, config, ageless_elitism_rate)
+            }
+        }
+    }
+
+    fn survival_sizes(
+        &self,
+        parents_size: usize,
+        offspring_size: usize,
+        target_population_size: usize,
+        replacement_rate: f32,
+    ) -> (usize, usize) {
+        match self {
+            Wrapper::Elite(select) => select.survival_sizes(
+                parents_size,
+                offspring_size,
+                target_population_size,
+                replacement_rate,
+            ),
+            Wrapper::Tournament(select) => select.survival_sizes(
+                parents_size,
+                offspring_size,
+                target_population_size,
+                replacement_rate,
+            ),
+        }
+    }
 }
 impl From<SelectElite> for Wrapper {
     fn from(select: SelectElite) -> Self {

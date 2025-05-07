@@ -13,6 +13,7 @@ use std::time::Instant;
 /// has the risk of locking in to a local optimum.
 #[derive(Clone, Debug)]
 pub struct Elite {
+    pub replacement_rate: f32,
     pub ageless_elitism_rate: f32,
 }
 
@@ -23,46 +24,71 @@ impl Select for Elite {
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         _reporter: &mut SR,
-        _rng: &mut R,
+        rng: &mut R,
     ) {
         let now = Instant::now();
 
-        match config.fitness_ordering {
-            FitnessOrdering::Maximize => {
-                state
-                    .population
-                    .chromosomes
-                    .sort_unstable_by_key(|c| match c.fitness_score() {
-                        Some(fitness_score) => Reverse(fitness_score),
-                        None => Reverse(FitnessValue::MIN),
-                    })
-            }
-            FitnessOrdering::Minimize => {
-                state
-                    .population
-                    .chromosomes
-                    .sort_unstable_by_key(|c| match c.fitness_score() {
-                        Some(fitness_score) => fitness_score,
-                        None => FitnessValue::MAX,
-                    })
-            }
-        }
+        let mut ageless_elite_chromosomes =
+            self.extract_ageless_elite_chromosomes(state, config, self.ageless_elitism_rate);
 
-        // let agless_elitism_size =
-        //     (state.population.size() as f32 * self.ageless_elitism_rate).ceil() as usize;
+        let (offspring, parents): (Vec<G::Chromosome>, Vec<G::Chromosome>) = state
+            .population
+            .chromosomes
+            .drain(..)
+            .partition(|c| c.age() == 0);
 
-        genotype.chromosome_destructor_truncate(
-            &mut state.population.chromosomes,
-            config.target_population_size,
+        let (new_parents_size, new_offspring_size) = self.survival_sizes(
+            parents.len(),
+            offspring.len(),
+            config.target_population_size - ageless_elite_chromosomes.len(),
+            self.replacement_rate,
         );
+
+        let mut parents = self.selection(parents, new_parents_size, genotype, config, rng);
+        let mut offspring = self.selection(offspring, new_offspring_size, genotype, config, rng);
+
+        state
+            .population
+            .chromosomes
+            .append(&mut ageless_elite_chromosomes);
+        state.population.chromosomes.append(&mut offspring);
+        state.population.chromosomes.append(&mut parents);
+
         state.add_duration(StrategyAction::Select, now.elapsed());
     }
 }
 
 impl Elite {
-    pub fn new(ageless_elitism_rate: f32) -> Self {
+    pub fn new(replacement_rate: f32, ageless_elitism_rate: f32) -> Self {
         Self {
+            replacement_rate,
             ageless_elitism_rate,
         }
+    }
+
+    pub fn selection<G: EvolveGenotype, R: Rng>(
+        &self,
+        mut chromosomes: Vec<G::Chromosome>,
+        selection_size: usize,
+        genotype: &mut G,
+        config: &EvolveConfig,
+        _rng: &mut R,
+    ) -> Vec<G::Chromosome> {
+        match config.fitness_ordering {
+            FitnessOrdering::Maximize => {
+                chromosomes.sort_unstable_by_key(|c| match c.fitness_score() {
+                    Some(fitness_score) => Reverse(fitness_score),
+                    None => Reverse(FitnessValue::MIN),
+                });
+            }
+            FitnessOrdering::Minimize => {
+                chromosomes.sort_unstable_by_key(|c| match c.fitness_score() {
+                    Some(fitness_score) => fitness_score,
+                    None => FitnessValue::MAX,
+                });
+            }
+        }
+        genotype.chromosome_destructor_truncate(&mut chromosomes, selection_size);
+        chromosomes
     }
 }
