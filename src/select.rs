@@ -27,16 +27,15 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         rng: &mut R,
     );
 
-    fn extract_ageless_elite_chromosomes<G: EvolveGenotype>(
+    fn extract_elite_chromosomes<G: EvolveGenotype>(
         &self,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
-        ageless_elitism_rate: f32,
+        elitism_rate: f32,
     ) -> Vec<G::Chromosome> {
         let mut elite_chromosomes: Vec<G::Chromosome> = Vec::new(); //small capacity
-        if ageless_elitism_rate > 0.0 {
-            let ageless_elitism_size = ((state.population.size() as f32 * ageless_elitism_rate)
-                .ceil() as usize)
+        if elitism_rate > 0.0 {
+            let elitism_size = ((state.population.size() as f32 * elitism_rate).ceil() as usize)
                 .min(state.population.size());
 
             match config.fitness_ordering {
@@ -60,7 +59,7 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
                 }
             }
 
-            for index in (0..ageless_elitism_size).rev() {
+            for index in (0..elitism_size).rev() {
                 let chromosome = state.population.chromosomes.swap_remove(index);
                 elite_chromosomes.push(chromosome);
             }

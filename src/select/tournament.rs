@@ -15,7 +15,7 @@ use std::time::Instant;
 #[derive(Clone, Debug)]
 pub struct Tournament {
     pub replacement_rate: f32,
-    pub ageless_elitism_rate: f32,
+    pub elitism_rate: f32,
     pub tournament_size: usize,
 }
 
@@ -30,8 +30,8 @@ impl Select for Tournament {
     ) {
         let now = Instant::now();
 
-        let mut ageless_elite_chromosomes =
-            self.extract_ageless_elite_chromosomes(state, config, self.ageless_elitism_rate);
+        let mut elite_chromosomes =
+            self.extract_elite_chromosomes(state, config, self.elitism_rate);
 
         let (offspring, parents): (Vec<G::Chromosome>, Vec<G::Chromosome>) = state
             .population
@@ -42,17 +42,14 @@ impl Select for Tournament {
         let (new_parents_size, new_offspring_size) = self.survival_sizes(
             parents.len(),
             offspring.len(),
-            config.target_population_size - ageless_elite_chromosomes.len(),
+            config.target_population_size - elite_chromosomes.len(),
             self.replacement_rate,
         );
 
         let mut parents = self.selection(parents, new_parents_size, genotype, config, rng);
         let mut offspring = self.selection(offspring, new_offspring_size, genotype, config, rng);
 
-        state
-            .population
-            .chromosomes
-            .append(&mut ageless_elite_chromosomes);
+        state.population.chromosomes.append(&mut elite_chromosomes);
         state.population.chromosomes.append(&mut offspring);
         state.population.chromosomes.append(&mut parents);
 
@@ -61,10 +58,10 @@ impl Select for Tournament {
 }
 
 impl Tournament {
-    pub fn new(replacement_rate: f32, ageless_elitism_rate: f32, tournament_size: usize) -> Self {
+    pub fn new(replacement_rate: f32, elitism_rate: f32, tournament_size: usize) -> Self {
         Self {
             replacement_rate,
-            ageless_elitism_rate,
+            elitism_rate,
             tournament_size,
         }
     }

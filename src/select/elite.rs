@@ -14,7 +14,7 @@ use std::time::Instant;
 #[derive(Clone, Debug)]
 pub struct Elite {
     pub replacement_rate: f32,
-    pub ageless_elitism_rate: f32,
+    pub elitism_rate: f32,
 }
 
 impl Select for Elite {
@@ -28,8 +28,8 @@ impl Select for Elite {
     ) {
         let now = Instant::now();
 
-        let mut ageless_elite_chromosomes =
-            self.extract_ageless_elite_chromosomes(state, config, self.ageless_elitism_rate);
+        let mut elite_chromosomes =
+            self.extract_elite_chromosomes(state, config, self.elitism_rate);
 
         let (offspring, parents): (Vec<G::Chromosome>, Vec<G::Chromosome>) = state
             .population
@@ -40,17 +40,14 @@ impl Select for Elite {
         let (new_parents_size, new_offspring_size) = self.survival_sizes(
             parents.len(),
             offspring.len(),
-            config.target_population_size - ageless_elite_chromosomes.len(),
+            config.target_population_size - elite_chromosomes.len(),
             self.replacement_rate,
         );
 
         let mut parents = self.selection(parents, new_parents_size, genotype, config, rng);
         let mut offspring = self.selection(offspring, new_offspring_size, genotype, config, rng);
 
-        state
-            .population
-            .chromosomes
-            .append(&mut ageless_elite_chromosomes);
+        state.population.chromosomes.append(&mut elite_chromosomes);
         state.population.chromosomes.append(&mut offspring);
         state.population.chromosomes.append(&mut parents);
 
@@ -59,10 +56,10 @@ impl Select for Elite {
 }
 
 impl Elite {
-    pub fn new(replacement_rate: f32, ageless_elitism_rate: f32) -> Self {
+    pub fn new(replacement_rate: f32, elitism_rate: f32) -> Self {
         Self {
             replacement_rate,
-            ageless_elitism_rate,
+            elitism_rate,
         }
     }
 

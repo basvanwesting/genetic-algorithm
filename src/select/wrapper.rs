@@ -28,18 +28,16 @@ impl Select for Wrapper {
         }
     }
 
-    fn extract_ageless_elite_chromosomes<G: EvolveGenotype>(
+    fn extract_elite_chromosomes<G: EvolveGenotype>(
         &self,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
-        ageless_elitism_rate: f32,
+        elitism_rate: f32,
     ) -> Vec<G::Chromosome> {
         match self {
-            Wrapper::Elite(select) => {
-                select.extract_ageless_elite_chromosomes(state, config, ageless_elitism_rate)
-            }
+            Wrapper::Elite(select) => select.extract_elite_chromosomes(state, config, elitism_rate),
             Wrapper::Tournament(select) => {
-                select.extract_ageless_elite_chromosomes(state, config, ageless_elitism_rate)
+                select.extract_elite_chromosomes(state, config, elitism_rate)
             }
         }
     }
