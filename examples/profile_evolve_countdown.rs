@@ -10,6 +10,7 @@ const POPULATION_SIZE: usize = 225;
 const TARGET_GENERATION: usize = (500_f32 * SELECTION_RATE) as usize;
 const TOURNAMENT_SIZE: usize = 20;
 const MUTATIONS_PER_CHROMOSOME: usize = 50;
+const MATRIX_ROWS: usize = POPULATION_SIZE + (POPULATION_SIZE as f32 * SELECTION_RATE) as usize;
 
 // Crossover is where the main work is taking place in the base loop
 
@@ -24,7 +25,7 @@ fn main() {
     //     .with_allele_range(ALLELE_RANGE)
     //     .build()
     //     .unwrap();
-    let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
+    let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, MATRIX_ROWS>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(ALLELE_RANGE)
         .with_genes_hashing(true)
