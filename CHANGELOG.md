@@ -7,7 +7,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.20.0] - 2025-05-08
 
 ### Changed
-* Completely redo `Selection` in order to align with general genetic-algorithm terminology:
+* Completely redo `Selection` in order to align with general genetic-algorithm
+  terminology:
   * `replacement_rate`: the target fraction of the population which exists of
     children. Generational Replacement and Steady-State Replacement can both be
     modelled with this parameter by setting it respectively to 1.0 and 0.2-0.8.
@@ -18,31 +19,36 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     collapse.
   * `elitism_rate`: a non-generational elite gate, which ensures passing of the
     best chromosomes before selection and replacement takes place. Value should
-    typically be very low, between 0.01 and 0.05. Relevant for `SelectTournament`
-    where the best chromosome is not guaranteed to be selected for a tournament
-    if the `population_size` is larger than the `target_population_size`
-* Completely redo `Crossover` in order to align with general genetic-algorithm terminology:
+    typically be very low, between 0.01 and 0.05. Relevant for
+    `SelectTournament` where the best chromosome is not guaranteed to be
+    selected for a tournament if the `population_size` is larger than the
+    `target_population_size`
+* Completely redo `Crossover` in order to align with general genetic-algorithm
+  terminology:
   * `selection_rate`: the fraction of parents which are selected for
     reproduction. This selection adds offspring to the population, the other
-    parents do not. The population now grows by the added offspring, as the parents
-    are not replaced yet. Value should typically be between 0.4 and 0.7.
-    High values risk of premature convergence. Low values reduce diversity if overused.
-  * `crossover_rate` (or recombination-rate): the fraction of selected parents to crossover, the
-    remaining parents just clone as offspring. Value should typically be
-    between 0.5 and 0.7. High values converge faster, but risk losing good
-    solutions. Low values have poor exploration and risk of premature
-    convergence
+    parents do not. The population now grows by the added offspring, as the
+    parents are not replaced yet. Value should typically be between 0.4 and
+    0.7. High values risk of premature convergence. Low values reduce diversity
+    if overused.
+  * `crossover_rate` (or recombination-rate): the fraction of selected parents
+    to crossover, the remaining parents just clone as offspring. Value should
+    typically be between 0.5 and 0.7. High values converge faster, but risk
+    losing good solutions. Low values have poor exploration and risk of
+    premature convergence
 * Note that `max_chromosome_age` is implemented at the `EvolveBuilder` level,
   it will remove old chromosomes in the evolve loop before selection. The
   `elitism_rate` will not save them.
-* Note that `population_size` now grows with added offspring during crossover and no longer
-  replaces parents in-place with children. This means the `StaticMatrixGenotype`
-  needs to reserve extra population space beyond the `target_population_size`
+* Note that `population_size` now grows with added offspring during crossover
+  and no longer replaces parents in-place with children. This means the
+  `StaticMatrixGenotype` needs to reserve extra population space beyond the
+  `target_population_size`
 * Rename and refactor some internal `Chromosome` recycling methods
 
 ### Added
-* Add `best_chromosome_indices()` on `Population`, used to implement `elitism_rate`
-* Add `CrossoverRejuvenate` as new implementation for old `CrossoverClone`
+* Add `best_chromosome_indices()` on `Population`, used to implement
+  `elitism_rate` without the need for a full sort
+* Add `CrossoverRejuvenate` as new implementation for the old `CrossoverClone`
   behaviour. No copying, just turn parents into offspring in-place. The
   `CrossoverClone` now adds actual clones as offspring without removing the
   parents
