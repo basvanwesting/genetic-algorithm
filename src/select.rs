@@ -74,14 +74,22 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         target_size: usize,
         replacement_rate: f32,
     ) -> (usize, usize) {
-        let min_parents_size = (target_size as isize - offspring_size as isize).max(0) as usize;
-        let new_parents_size = ((parents_size as f32 * (1.0 - replacement_rate)).ceil() as usize)
-            .max(min_parents_size)
-            .min(parents_size);
+        let target_offspring_size =
+            ((target_size as f32 * replacement_rate).ceil() as usize).min(target_size);
+        let target_parents_size = target_size - target_offspring_size;
 
-        let new_offspring_size = (target_size as isize - new_parents_size as isize)
-            .max(0)
-            .min(offspring_size as isize) as usize;
+        let mut new_offspring_size = target_offspring_size.min(offspring_size);
+        let mut new_parents_size = target_parents_size.min(parents_size);
+
+        let target_shortage =
+            (target_size as isize - new_offspring_size as isize - new_parents_size as isize).max(0)
+                as usize;
+        new_offspring_size += target_shortage.min(offspring_size - new_offspring_size);
+
+        let target_shortage =
+            (target_size as isize - new_offspring_size as isize - new_parents_size as isize).max(0)
+                as usize;
+        new_parents_size += target_shortage.min(parents_size - new_parents_size);
 
         (new_parents_size, new_offspring_size)
     }

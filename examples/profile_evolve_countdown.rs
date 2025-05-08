@@ -5,7 +5,10 @@ use std::ops::RangeInclusive;
 const GENES_SIZE: usize = 40_695;
 #[allow(dead_code)]
 const ALLELE_RANGE: RangeInclusive<f32> = -150.0..=120.0;
+const REPLACEMENT_RATE: f32 = 0.5;
+const ELITISM_RATE: f32 = 0.02;
 const SELECTION_RATE: f32 = 0.4;
+const CROSSOVER_RATE: f32 = 0.8;
 const POPULATION_SIZE: usize = 225;
 const TARGET_GENERATION: usize = (500_f32 * SELECTION_RATE) as usize;
 const TOURNAMENT_SIZE: usize = 20;
@@ -44,10 +47,19 @@ fn main() {
 
     let evolve_builder = Evolve::builder()
         .with_genotype(genotype)
-        // .with_select(SelectElite::new(0.5, 0.02))
-        .with_select(SelectTournament::new(0.5, 0.02, TOURNAMENT_SIZE))
+        // .with_select(SelectElite::new(REPLACEMENT_RATE, ELITISM_RATE))
+        .with_select(SelectTournament::new(
+            REPLACEMENT_RATE,
+            ELITISM_RATE,
+            TOURNAMENT_SIZE,
+        ))
         // .with_crossover(CrossoverClone::new(SELECTION_RATE))
-        .with_crossover(CrossoverMultiPoint::new(SELECTION_RATE, 0.8, 9, false))
+        .with_crossover(CrossoverMultiPoint::new(
+            SELECTION_RATE,
+            CROSSOVER_RATE,
+            9,
+            false,
+        ))
         .with_mutate(MutateMultiGene::new(MUTATIONS_PER_CHROMOSOME, 0.2))
         .with_reporter(EvolveReporterSimple::new(100))
         .with_fitness(CountdownNoisy::new(
@@ -83,7 +95,7 @@ fn main() {
 //
 //     let evolve_builder = Evolve::builder()
 //         .with_genotype(genotype)
-//         .with_select(SelectTournament::new(0.5, 0.02, TOURNAMENT_SIZE))
+//         .with_select(SelectTournament::new(REPLACEMENT_RATE, ELITISM_RATE, TOURNAMENT_SIZE))
 //         .with_crossover(CrossoverMultiPoint::new(1.0))
 //         // .with_reporter(EvolveReporterSimple::new(100))
 //         .with_fitness(CountdownNoisy::new(
