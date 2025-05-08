@@ -279,9 +279,9 @@ fn main() {
         .with_crossover(CrossoverUniform::new(0.7, 0.8))
         // .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_select(SelectElite::new(0.5, 0.02))
-        .with_extension(ExtensionMassDegeneration::new(2, 10))
+        .with_extension(ExtensionMassDegeneration::new(2, 10, 0.02))
         // .with_extension(ExtensionMassGenesis::new(2))
-        // .with_extension(ExtensionMassExtinction::new(2, 0.1))
+        // .with_extension(ExtensionMassExtinction::new(2, 0.1, 0.02))
         // .with_reporter(EvolveReporterSimple::default())
         // .with_reporter(EvolveReporterSimple::new_with_flags(
         //     100, false, false, false, true,

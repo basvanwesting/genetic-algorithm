@@ -30,6 +30,25 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
         reporter: &mut SR,
         rng: &mut R,
     );
+
+    fn extract_elite_chromosomes<G: EvolveGenotype>(
+        &self,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        elitism_size: usize,
+    ) -> Vec<G::Chromosome> {
+        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
+        for index in state
+            .population
+            .best_chromosome_indices(elitism_size, config.fitness_ordering)
+            .into_iter()
+            .rev()
+        {
+            let chromosome = state.population.chromosomes.swap_remove(index);
+            elite_chromosomes.push(chromosome);
+        }
+        elite_chromosomes
+    }
 }
 
 #[derive(Clone, Debug)]

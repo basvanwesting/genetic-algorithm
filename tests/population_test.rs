@@ -133,6 +133,51 @@ mod population_tests {
     }
 
     #[test]
+    fn best_chromosome_indices_no_fitness() {
+        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
+            (vec![false, true, true], None),
+            (vec![false, false, false], None),
+            (vec![true, true, true], None),
+            (vec![false, false, true], None),
+            (vec![true, true, false], None),
+        ]);
+
+        assert_eq!(
+            population.best_chromosome_indices(2, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(1, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(0, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(10, FitnessOrdering::Maximize),
+            vec![]
+        );
+
+        assert_eq!(
+            population.best_chromosome_indices(2, FitnessOrdering::Minimize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(1, FitnessOrdering::Minimize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(0, FitnessOrdering::Minimize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(10, FitnessOrdering::Minimize),
+            vec![]
+        );
+    }
+
+    #[test]
     fn fitness_score_cardinality() {
         let population: Population<BinaryChromosome> = build::population(vec![
             vec![false, false, false],

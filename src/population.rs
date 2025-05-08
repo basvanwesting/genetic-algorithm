@@ -77,18 +77,22 @@ impl<C: Chromosome> Population<C> {
             .enumerate()
             .collect();
 
-        let index = amount.min(data.len().saturating_sub(1));
-        let (lesser, _median, _greater) = match fitness_ordering {
-            FitnessOrdering::Maximize => {
-                data.select_nth_unstable_by_key(index, |(_, score)| Reverse(*score))
-            }
-            FitnessOrdering::Minimize => {
-                data.select_nth_unstable_by_key(index, |(_, score)| *score)
-            }
-        };
-        let mut result: Vec<usize> = lesser.iter().map(|(idx, _)| *idx).collect();
-        result.sort_unstable();
-        result
+        if data.is_empty() {
+            Vec::new()
+        } else {
+            let index = amount.min(data.len().saturating_sub(1));
+            let (lesser, _median, _greater) = match fitness_ordering {
+                FitnessOrdering::Maximize => {
+                    data.select_nth_unstable_by_key(index, |(_, score)| Reverse(*score))
+                }
+                FitnessOrdering::Minimize => {
+                    data.select_nth_unstable_by_key(index, |(_, score)| *score)
+                }
+            };
+            let mut result: Vec<usize> = lesser.iter().map(|(idx, _)| *idx).collect();
+            result.sort_unstable();
+            result
+        }
     }
 
     pub fn age_mean(&self) -> f32 {

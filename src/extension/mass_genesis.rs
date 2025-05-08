@@ -34,22 +34,17 @@ impl Extension for MassGenesis {
                         state,
                         config,
                     );
-                    if let Some(best_chromosome_index) = state
-                        .population
-                        .best_chromosome_index(config.fitness_ordering)
-                    {
-                        let best_chromosome = state
-                            .population
-                            .chromosomes
-                            .swap_remove(best_chromosome_index);
-                        genotype
-                            .chromosome_destructor_truncate(&mut state.population.chromosomes, 0);
-                        state
-                            .population
-                            .chromosomes
-                            .push(genotype.chromosome_cloner(&best_chromosome));
-                        state.population.chromosomes.push(best_chromosome);
-                    }
+
+                    let mut elite_chromosomes = self.extract_elite_chromosomes(state, config, 2);
+                    let elitism_size = elite_chromosomes.len();
+
+                    let remaining_size = 2usize.saturating_sub(elitism_size);
+
+                    genotype.chromosome_destructor_truncate(
+                        &mut state.population.chromosomes,
+                        remaining_size,
+                    );
+                    state.population.chromosomes.append(&mut elite_chromosomes);
                 }
             }
             state.add_duration(StrategyAction::Extension, now.elapsed());

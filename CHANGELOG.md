@@ -4,6 +4,16 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.1] - 2025-05-08
+### Added
+* Add `elitism_rate` to `ExtensionMassExtinction` and
+  `ExtensionMassDegeneration`. The `elitism_rate` ensures the passing of the best
+  chromosomes before extinction or degeneration is applied
+
+### Fixed
+* Fix `best_chromosome_indices()` on `Population` in case where there are no
+  fitness values other than None
+
 ## [0.20.0] - 2025-05-08
 
 ### Changed

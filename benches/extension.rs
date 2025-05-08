@@ -49,8 +49,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     for genes_size in &genes_sizes {
         let extensions: Vec<ExtensionWrapper> = vec![
             ExtensionMassGenesis::new(population_size).into(),
-            ExtensionMassExtinction::new(population_size, 0.10).into(),
-            ExtensionMassDegeneration::new(population_size, 10).into(),
+            ExtensionMassExtinction::new(population_size, 0.10, 0.02).into(),
+            ExtensionMassDegeneration::new(population_size, 10, 0.02).into(),
         ];
         for mut extension in extensions {
             group.throughput(Throughput::Elements(population_size as u64));
