@@ -74,7 +74,7 @@ impl Fitness for CountTrue {
 let evolve = Evolve::builder()
     .with_genotype(genotype)
     .with_select(SelectElite::new(0.5, 0.02))                  // sort the chromosomes by fitness to determine crossover order and drop excess population above target_population_size
-    .with_crossover(CrossoverUniform::new(0.4, 0.8))  // crossover all individual genes between 2 chromosomes for offspring with 40% parent selection (60% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
+    .with_crossover(CrossoverUniform::new(0.7, 0.8))  // crossover all individual genes between 2 chromosomes for offspring with 40% parent selection (60% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
     .with_mutate(MutateSingleGene::new(0.2))          // mutate offspring for a single gene with a 20% probability per chromosome
     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
     .with_fitness_ordering(FitnessOrdering::Maximize) // optional, default is Maximize, aim towards the most true values
@@ -218,6 +218,7 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
   (and Copyable)
 * StrategyBuilder, with_par_fitness_threshold, with_permutate_threshold?
 * Add target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
+* Add negative selection-rate to encode in-place crossover?
 
 ## ISSUES
 * hill_climb SteepestAscent actually has a population size requirement of

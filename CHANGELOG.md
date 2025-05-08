@@ -29,11 +29,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     reproduction. This selection adds offspring to the population, the other
     parents do not. The population now grows by the added offspring, as the
     parents are not replaced yet. Value should typically be between 0.4 and
-    0.7. High values risk of premature convergence. Low values reduce diversity
+    0.8. High values risk of premature convergence. Low values reduce diversity
     if overused.
   * `crossover_rate` (or recombination-rate): the fraction of selected parents
     to crossover, the remaining parents just clone as offspring. Value should
-    typically be between 0.5 and 0.7. High values converge faster, but risk
+    typically be between 0.5 and 0.8. High values converge faster, but risk
     losing good solutions. Low values have poor exploration and risk of
     premature convergence
 * Note that `max_chromosome_age` is implemented at the `EvolveBuilder` level,
@@ -43,6 +43,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and no longer replaces parents in-place with children. This means the
   `StaticMatrixGenotype` needs to reserve extra population space beyond the
   `target_population_size`
+* Note that in previous releases all parents had an in-place crossover. The
+  behaviour from previous releases can be achieved by setting the
+  replacement_rate to 1.0 (drop parents), the selection_rate to 1.0 (all
+  crossover) and the crossover_rate to 1.0 (all crossover). The new release is
+  a bit slower as in-place crossover was faster than keeping the parents around
+  and dropping them during selection
 * Rename and refactor some internal `Chromosome` recycling methods
 
 ### Added

@@ -2,11 +2,14 @@ use genetic_algorithm::strategy::evolve::prelude::*;
 
 const GENES_SIZE: usize = 100;
 const POPULATION_SIZE: usize = 100;
+const SELECTION_RATE: f32 = 0.7;
+const MATRIX_POP_SIZE: usize =
+    POPULATION_SIZE + (POPULATION_SIZE as f32 * SELECTION_RATE + 1.0) as usize;
 
 #[derive(Clone, Debug)]
 pub struct DistanceTo(pub f32, pub f32); // target, precision
 impl Fitness for DistanceTo {
-    type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, POPULATION_SIZE>;
+    type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, MATRIX_POP_SIZE>;
     fn calculate_for_population(
         &mut self,
         _population: &Population<StaticMatrixChromosome>,
@@ -31,7 +34,7 @@ impl Fitness for DistanceTo {
 fn main() {
     env_logger::init();
 
-    let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
+    let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, MATRIX_POP_SIZE>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
         // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
@@ -55,7 +58,7 @@ fn main() {
         .with_fitness(DistanceTo(0.5, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateMultiGene::new(2, 0.2))
-        .with_crossover(CrossoverMultiPoint::new(0.4, 0.8, 9, false))
+        .with_crossover(CrossoverMultiPoint::new(SELECTION_RATE, 0.8, 9, false))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_reporter(EvolveReporterSimple::new(100))
         .call()

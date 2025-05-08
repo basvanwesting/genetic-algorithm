@@ -42,7 +42,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(MonkeyFitness)
-        .with_crossover(CrossoverSinglePoint::new(0.4, 0.8))
+        .with_crossover(CrossoverSinglePoint::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4));
 
     c.bench_function("profile_evolve_monkeys", |b| {

@@ -47,10 +47,10 @@ fn main() {
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        // .with_replace_on_equal_fitness(true) // not crucial for this problem
-        .with_mutate(MutateSingleGene::new(0.2))
+        .with_replace_on_equal_fitness(true)
+        .with_mutate(MutateSingleGene::new(1.0))
         .with_crossover(CrossoverRejuvenate::new(1.0))
-        .with_select(SelectElite::new(0.5, 0.02))
+        .with_select(SelectElite::new(1.0, 0.0))
         .with_reporter(EvolveReporterSimple::new(100))
         .build()
         .unwrap();
@@ -72,4 +72,6 @@ fn main() {
     } else {
         println!("Invalid solution with fitness score: None");
     }
+
+    println!("The Evolve strategy is very inefficient for this problem as there is only mutation and no crossover. HillClimb works much better for this case");
 }

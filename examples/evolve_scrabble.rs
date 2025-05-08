@@ -275,12 +275,13 @@ fn main() {
         .with_mutate(MutateMultiGene::new(2, 0.2))
         //.with_mutate(MutateSingleGeneDynamic::new(0.01, 250))
         // .with_mutate(MutateMultiGeneDynamic::new(2, 0.1, 250))
-        // .with_crossover(CrossoverSinglePoint::new(0.4, 0.8))
-        .with_crossover(CrossoverUniform::new(0.4, 0.8))
+        // .with_crossover(CrossoverSinglePoint::new(0.7, 0.8))
+        .with_crossover(CrossoverUniform::new(0.7, 0.8))
         // .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_select(SelectElite::new(0.5, 0.02))
         .with_extension(ExtensionMassDegeneration::new(2, 10))
         // .with_extension(ExtensionMassGenesis::new(2))
+        // .with_extension(ExtensionMassExtinction::new(2, 0.1))
         // .with_reporter(EvolveReporterSimple::default())
         // .with_reporter(EvolveReporterSimple::new_with_flags(
         //     100, false, false, false, true,
