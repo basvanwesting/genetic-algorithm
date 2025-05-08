@@ -9,8 +9,7 @@ use std::time::Instant;
 /// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where only an adam
 /// and eve of current best chromosomes survive
 ///
-/// Ensure you have some population growth in select/crossover by setting the
-/// [Select](crate::select::Select) selection_rate > 0.5 in order for the population to recover
+/// Population will recover in the following generations
 #[derive(Debug, Clone)]
 pub struct MassGenesis {
     pub cardinality_threshold: usize,

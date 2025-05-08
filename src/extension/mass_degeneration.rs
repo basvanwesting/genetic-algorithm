@@ -5,7 +5,7 @@ use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
 use std::time::Instant;
 
-/// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
+/// Simulates a cambrian explosion. The controlling metric is population cardinality in the
 /// population after selection. When this cardinality drops to the threshold, the full population
 /// is mutated the provided number of times, where the [Genotype](crate::genotype::Genotype)
 /// determines whether this is random, relative or scaled.

@@ -5,12 +5,11 @@ use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
 use std::time::Instant;
 
-/// Simulates a cambrian explosion. The controlling metric is fitness score cardinality in the
+/// Simulates a cambrian explosion. The controlling metric is population cardinality in the
 /// population after selection. When this cardinality drops to the threshold, the population is
 /// randomly reduced regardless of fitness using the survival_rate (fraction of population).
 ///
-/// Ensure you have some population growth in select/crossover by setting the
-/// [Select](crate::select::Select) selection_rate > 0.5 in order for the population to recover
+/// Population will recover in the following generations
 #[derive(Debug, Clone)]
 pub struct MassExtinction {
     pub cardinality_threshold: usize,

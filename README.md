@@ -73,8 +73,8 @@ impl Fitness for CountTrue {
 // the search strategy
 let evolve = Evolve::builder()
     .with_genotype(genotype)
-    .with_select(SelectElite::new(0.5, 0.02))                  // sort the chromosomes by fitness to determine crossover order and drop excess population above target_population_size
-    .with_crossover(CrossoverUniform::new(0.7, 0.8))  // crossover all individual genes between 2 chromosomes for offspring with 40% parent selection (60% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
+    .with_select(SelectElite::new(0.5, 0.02))         // sort the chromosomes by fitness to determine crossover order. Strive to replace 50% of the population with offspring. Allow 2% through the non-generational best chromosomes gate before selection and replacement
+    .with_crossover(CrossoverUniform::new(0.7, 0.8))  // crossover all individual genes between 2 chromosomes for offspring with 70% parent selection (30% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
     .with_mutate(MutateSingleGene::new(0.2))          // mutate offspring for a single gene with a 20% probability per chromosome
     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
     .with_fitness_ordering(FitnessOrdering::Maximize) // optional, default is Maximize, aim towards the most true values
@@ -137,31 +137,15 @@ For the Evolve strategy:
   sorting of some kind. This is relatively fast compared to the rest of the
   operations.
 * Crossover: the workhorse of internal parts. Crossover touches most genes each
-  generation and clones up to the whole population to restore lost population
-  size in selection. See performance tips below.
-  It also calculates new genes hashes if enabled on the Genotype,
-  which has a relatively high overhead on the main Evolve loop.
+  generation and clones up to the whole population to produce offspring
+  (depending on selection-rate). It also calculates
+  new genes hashes if enabled on the Genotype, which has a relatively high
+  overhead on the main Evolve loop.
 * Mutate: no considerations. It touches genes like crossover does, but should
   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
 * Fitness: can be anything. This fully depends on the user domain. Parallelize
   it using `with_par_fitness()` in the Builder. But beware that parallelization
   has it's own overhead and is not always faster.
-
-**Performance Tips**
-* Small genes sizes
-  * It seems that CrossoverMultiGene with `number_of_crossovers = genes_size / 2`
-  and `allow_duplicates = true` is the best tradeoff between performance and
-  effect. CrossoverUniform is an alias for the same approach, taking the
-  genes_size from the genotype at runtime.
-  * Restoring the population doesn't matter that much as the cloning is
-  relatively less pronounced (but becomes more prominent for larger population
-  sizes)
-* Large genes sizes
-  * It seems that CrossoverMultiPoint with `number_of_crossovers = genes_size / 9` 
-  and `allow_duplicates = false` is the best tradeoff between performance and effect.
-  * Restoring the population has considerable performance effects.
-  Use a high selection_rate or even 100%, so there is little parent
-  cloning. Explore non-Vec based genotypes like BitGenotype.
 
 **GPU acceleration**
 

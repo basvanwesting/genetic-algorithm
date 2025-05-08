@@ -44,7 +44,9 @@ use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 ///
 /// # Panics
 ///
-/// Will panic if more chromosomes are instantiated than the population (M) allows.
+/// Will panic if more chromosomes are instantiated than the population (M) allows. M should
+/// account for the target_population_size and the crossover selection_rate which adds offspring on
+/// top of that.
 ///
 /// # Example (f32):
 /// ```

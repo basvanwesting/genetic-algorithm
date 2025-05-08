@@ -53,6 +53,37 @@ pub enum EvolveVariant {
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 ///
+/// General Hyper-parameters:
+/// * `replacement_rate` (selection): the target fraction of the population which exists of
+///   children. Generational Replacement and Steady-State Replacement can both be
+///   modelled with this parameter by setting it respectively to 1.0 and 0.2-0.8.
+///   High values converge faster, but risk losing good solutions. Low values
+///   convergence slower. If there is a shortage of population after the ideal
+///   fraction, firstly remaining non-selected children and secondly remaining
+///   non-selected parents will be used to fill the shortage to avoid population
+///   collapse.
+/// * `elitism_rate` (selection): a non-generational elite gate, which ensures passing of the
+///   best chromosomes before selection and replacement takes place. Value should
+///   typically be very low, between 0.01 and 0.05. Relevant for
+///   `SelectTournament` where the best chromosome is not guaranteed to be
+///   selected for a tournament if the `population_size` is larger than the
+///   `target_population_size`
+/// * `selection_rate` (crossover): the fraction of parents which are selected for
+///   reproduction. This selection adds offspring to the population, the other
+///   parents do not. The population now grows by the added offspring, as the
+///   parents are not replaced yet. Value should typically be between 0.4 and
+///   0.8. High values risk of premature convergence. Low values reduce diversity
+///   if overused.
+/// * `crossover_rate (or recombination-rate)` (crossover): the fraction of selected parents
+///   to crossover, the remaining parents just clone as offspring. Value should
+///   typically be between 0.5 and 0.8. High values converge faster, but risk
+///   losing good solutions. Low values have poor exploration and risk of
+///   premature convergence
+/// * `mutation_probability` (mutation): the fraction of offspring which gets mutated.
+///   Typically low, between 0.01 and 0.10. High values reduces convergence
+///   ability. Low have a risk of stagnation.
+///
+///
 /// There are optional mutation distance limitations for
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
 /// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) chromosomes. Listed in descending
@@ -114,9 +145,9 @@ pub enum EvolveVariant {
 /// let evolve = Evolve::builder()
 ///     .with_genotype(genotype)
 ///
-///     .with_select(SelectElite::new(0.5, 0.02))               // sort the chromosomes by fitness to determine crossover order and drop excess population above target_population_size
-///     .with_extension(ExtensionMassExtinction::new(10, 0.1))  // optional builder step, simulate cambrian explosion by mass extinction, when fitness score cardinality drops to 10 after the selection, trim to 10% of population
-///     .with_crossover(CrossoverUniform::new(0.7, 0.8))        // crossover all individual genes between 2 chromosomes for offspring with 40% parent selection (60% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
+///     .with_select(SelectElite::new(0.5, 0.02))               // sort the chromosomes by fitness to determine crossover order. Strive to replace 50% of the population with offspring. Allow 2% through the non-generational best chromosomes gate before selection and replacement
+///     .with_extension(ExtensionMassExtinction::new(10, 0.1))  // optional builder step, simulate cambrian explosion by mass extinction, when population cardinality drops to 10 after the selection, trim to 10% of population
+///     .with_crossover(CrossoverUniform::new(0.7, 0.8))        // crossover all individual genes between 2 chromosomes for offspring with 70% parent selection (30% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
 ///     .with_mutate(MutateSingleGene::new(0.2))                // mutate offspring for a single gene with a 20% probability per chromosome
 ///     .with_fitness(CountTrue)                                // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)       // aim for the least true values
