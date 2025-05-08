@@ -23,6 +23,7 @@ pub struct Builder<
     pub fitness_cache: Option<FitnessCache>,
     pub par_fitness: bool,
     pub max_stale_generations: Option<usize>,
+    pub max_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub replace_on_equal_fitness: bool,
@@ -42,6 +43,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>> Default
             fitness_cache: None,
             par_fitness: false,
             max_stale_generations: None,
+            max_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
             replace_on_equal_fitness: true,
@@ -103,6 +105,14 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.max_stale_generations = max_stale_generations_option;
         self
     }
+    pub fn with_max_generations(mut self, max_generations: usize) -> Self {
+        self.max_generations = Some(max_generations);
+        self
+    }
+    pub fn with_max_generations_option(mut self, max_generations_option: Option<usize>) -> Self {
+        self.max_generations = max_generations_option;
+        self
+    }
     pub fn with_target_fitness_score(mut self, target_fitness_score: FitnessValue) -> Self {
         self.target_fitness_score = Some(target_fitness_score);
         self
@@ -141,6 +151,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             fitness_cache: self.fitness_cache,
             par_fitness: self.par_fitness,
             max_stale_generations: self.max_stale_generations,
+            max_generations: self.max_generations,
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             replace_on_equal_fitness: self.replace_on_equal_fitness,

@@ -52,6 +52,7 @@ pub enum EvolveVariant {
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
+/// * max_generations: when the ultimate goal in terms of fitness score is unknown and there is a effort constraint
 ///
 /// General Hyper-parameters:
 /// * `replacement_rate` (selection): the target fraction of the population which exists of
@@ -156,7 +157,8 @@ pub enum EvolveVariant {
 ///     .with_target_population_size(100)                       // evolve with 100 chromosomes
 ///     .with_target_fitness_score(0)                           // ending condition if 0 times true in the best chromosome
 ///     .with_valid_fitness_score(10)                           // block ending conditions until at most a 10 times true in the best chromosome
-///     .with_max_stale_generations(1000)                       // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_max_stale_generations(1000)                       // stop searching if there is no improvement in fitness score for 1000 generations (per scaled_range)
+///     .with_max_generations(1_000_000)                        // optional, stop searching after 1M generations
 ///     .with_max_chromosome_age(10)                            // kill chromosomes after 10 generations
 ///     .with_reporter(EvolveReporterSimple::new(100))          // optional builder step, report every 100 generations
 ///     .with_replace_on_equal_fitness(true)                    // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
@@ -202,6 +204,7 @@ pub struct EvolveConfig {
 
     pub target_fitness_score: Option<FitnessValue>,
     pub max_stale_generations: Option<usize>,
+    pub max_generations: Option<usize>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_cache: Option<FitnessCache>,
 
@@ -410,12 +413,21 @@ impl<
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
             && (self.is_finished_by_max_stale_generations()
+                || self.is_finished_by_max_generations()
                 || self.is_finished_by_target_fitness_score())
     }
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
         if let Some(max_stale_generations) = self.config.max_stale_generations {
             self.state.stale_generations >= max_stale_generations
+        } else {
+            false
+        }
+    }
+
+    fn is_finished_by_max_generations(&self) -> bool {
+        if let Some(max_generations) = self.config.max_generations {
+            self.state.current_generation >= max_generations
         } else {
             false
         }
@@ -653,10 +665,12 @@ impl<
             Err(TryFromEvolveBuilderError(
                 "Evolve requires a target_population_size > 0",
             ))
-        } else if builder.max_stale_generations.is_none() && builder.target_fitness_score.is_none()
+        } else if builder.max_stale_generations.is_none()
+            && builder.max_generations.is_none()
+            && builder.target_fitness_score.is_none()
         {
             Err(TryFromEvolveBuilderError(
-                "Evolve requires at least a max_stale_generations or target_fitness_score ending condition",
+                "Evolve requires at least a max_stale_generations, max_generations or target_fitness_score ending condition",
             ))
         } else {
             let rng = builder.rng();
@@ -676,6 +690,7 @@ impl<
                 config: EvolveConfig {
                     target_population_size,
                     max_stale_generations: builder.max_stale_generations,
+                    max_generations: builder.max_generations,
                     max_chromosome_age: builder.max_chromosome_age,
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
@@ -699,6 +714,7 @@ impl Default for EvolveConfig {
             variant: Default::default(),
             target_population_size: 0,
             max_stale_generations: None,
+            max_generations: None,
             max_chromosome_age: None,
             target_fitness_score: None,
             valid_fitness_score: None,
@@ -785,6 +801,7 @@ impl fmt::Display for EvolveConfig {
             "  max_stale_generations: {:?}",
             self.max_stale_generations
         )?;
+        writeln!(f, "  max_generations: {:?}", self.max_generations)?;
         writeln!(f, "  max_chromosome_age: {:?}", self.max_chromosome_age)?;
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;

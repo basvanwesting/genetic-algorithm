@@ -53,6 +53,7 @@ pub enum HillClimbVariant {
 ///   * set to a low value for [HillClimbVariant::SteepestAscent], preferably even `1`, unless
 ///   there is a replace_on_equal_fitness consideration or some remaining randomness in the neighbouring population (see RangeGenotype
 ///   below)
+/// * max_generations: when the ultimate goal in terms of fitness score is unknown and there is a effort constraint
 ///
 /// There are optional mutation distance limitations for
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
@@ -131,7 +132,8 @@ pub enum HillClimbVariant {
 ///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
 ///     .with_target_fitness_score(0)                     // ending condition if sum of genes is <= 0.00001 in the best chromosome
 ///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
-///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations
+///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations (per scaled_range)
+///     .with_max_generations(1_000_000)                  // optional, stop searching after 1M generations
 ///     .with_replace_on_equal_fitness(true)              // optional, defaults to true, crucial for some type of problems with discrete fitness steps like nqueens
 ///     .with_reporter(HillClimbReporterSimple::new(100)) // optional, report every 100 generations
 ///     .with_rng_seed_from_u64(0)                        // for testing with deterministic results
@@ -164,6 +166,7 @@ pub struct HillClimbConfig {
 
     pub target_fitness_score: Option<FitnessValue>,
     pub max_stale_generations: Option<usize>,
+    pub max_generations: Option<usize>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_cache: Option<FitnessCache>,
 }
@@ -340,12 +343,21 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     fn is_finished(&self) -> bool {
         self.allow_finished_by_valid_fitness_score()
             && (self.is_finished_by_max_stale_generations()
+                || self.is_finished_by_max_generations()
                 || self.is_finished_by_target_fitness_score())
     }
 
     fn is_finished_by_max_stale_generations(&self) -> bool {
         if let Some(max_stale_generations) = self.config.max_stale_generations {
             self.state.stale_generations >= max_stale_generations
+        } else {
+            false
+        }
+    }
+
+    fn is_finished_by_max_generations(&self) -> bool {
+        if let Some(max_generations) = self.config.max_generations {
+            self.state.current_generation >= max_generations
         } else {
             false
         }
@@ -549,10 +561,12 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             ))
         } else if builder.fitness.is_none() {
             Err(TryFromHillClimbBuilderError("HillClimb requires a Fitness"))
-        } else if builder.max_stale_generations.is_none() && builder.target_fitness_score.is_none()
+        } else if builder.max_stale_generations.is_none()
+            && builder.max_generations.is_none()
+            && builder.target_fitness_score.is_none()
         {
             Err(TryFromHillClimbBuilderError(
-                "HillClimb requires at least a max_stale_generations or target_fitness_score ending condition",
+                "HillClimb requires at least a max_stale_generations, max_generations or target_fitness_score ending condition",
             ))
         } else {
             let rng = builder.rng();
@@ -568,6 +582,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     fitness_cache: builder.fitness_cache,
                     par_fitness: builder.par_fitness,
                     max_stale_generations: builder.max_stale_generations,
+                    max_generations: builder.max_generations,
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
@@ -588,6 +603,7 @@ impl Default for HillClimbConfig {
             fitness_cache: None,
             par_fitness: false,
             max_stale_generations: None,
+            max_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
             replace_on_equal_fitness: false,
@@ -648,6 +664,7 @@ impl fmt::Display for HillClimbConfig {
             "  max_stale_generations: {:?}",
             self.max_stale_generations
         )?;
+        writeln!(f, "  max_generations: {:?}", self.max_generations)?;
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;

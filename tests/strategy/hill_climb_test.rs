@@ -25,7 +25,7 @@ fn build_invalid_missing_ending_condition() {
     assert_eq!(
         hill_climb.err(),
         Some(TryFromHillClimbBuilderError(
-            "HillClimb requires at least a max_stale_generations or target_fitness_score ending condition"
+            "HillClimb requires at least a max_stale_generations, max_generations or target_fitness_score ending condition"
         ))
     );
 }
@@ -79,6 +79,32 @@ fn call_range_max_stale_generations_minimize() {
     assert!(relative_chromosome_eq(
         hill_climb.best_genes().unwrap(),
         vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,],
+        0.001
+    ));
+}
+
+#[test]
+fn call_range_max_generations_maximize() {
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_mutation_range(-0.1..=0.1)
+        .build()
+        .unwrap();
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_max_generations(1000)
+        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_reporter(StrategyReporterNoop::new())
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    println!("{:#?}", hill_climb.best_genes());
+    assert_eq!(hill_climb.best_fitness_score(), Some(10000));
+    assert!(relative_chromosome_eq(
+        hill_climb.best_genes().unwrap(),
+        vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,],
         0.001
     ));
 }

@@ -26,6 +26,7 @@ pub struct Builder<
     pub genotype: Option<G>,
     pub target_population_size: usize,
     pub max_stale_generations: Option<usize>,
+    pub max_generations: Option<usize>,
     pub max_chromosome_age: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
@@ -50,6 +51,7 @@ impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Se
             genotype: None,
             target_population_size: 0,
             max_stale_generations: None,
+            max_generations: None,
             max_chromosome_age: None,
             target_fitness_score: None,
             valid_fitness_score: None,
@@ -107,6 +109,14 @@ impl<
         max_stale_generations_option: Option<usize>,
     ) -> Self {
         self.max_stale_generations = max_stale_generations_option;
+        self
+    }
+    pub fn with_max_generations(mut self, max_generations: usize) -> Self {
+        self.max_generations = Some(max_generations);
+        self
+    }
+    pub fn with_max_generations_option(mut self, max_generations_option: Option<usize>) -> Self {
+        self.max_generations = max_generations_option;
         self
     }
     pub fn with_max_chromosome_age(mut self, max_chromosome_age: usize) -> Self {
@@ -185,6 +195,7 @@ impl<
             genotype: self.genotype,
             target_population_size: self.target_population_size,
             max_stale_generations: self.max_stale_generations,
+            max_generations: self.max_generations,
             max_chromosome_age: self.max_chromosome_age,
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
@@ -209,6 +220,7 @@ impl<
             genotype: self.genotype,
             target_population_size: self.target_population_size,
             max_stale_generations: self.max_stale_generations,
+            max_generations: self.max_generations,
             max_chromosome_age: self.max_chromosome_age,
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,

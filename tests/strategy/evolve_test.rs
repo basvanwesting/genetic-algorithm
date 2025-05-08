@@ -26,7 +26,7 @@ fn build_invalid_missing_ending_condition() {
     assert_eq!(
         evolve.err(),
         Some(TryFromEvolveBuilderError(
-            "Evolve requires at least a max_stale_generations or target_fitness_score ending condition"
+            "Evolve requires at least a max_stale_generations, max_generations or target_fitness_score ending condition"
         ))
     );
 }
@@ -138,6 +138,34 @@ fn call_binary_max_stale_generations_minimize() {
     assert_eq!(
         evolve.best_genes().unwrap(),
         vec![false, false, false, false, false, false, false, false, false, false]
+    );
+}
+
+#[test]
+fn call_binary_max_generations_maximize() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(100)
+        .with_max_generations(50)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_fitness(CountTrue)
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_extension(ExtensionNoop::new())
+        .with_reporter(StrategyReporterNoop::new())
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    println!("{:#?}", evolve.best_genes());
+    assert_eq!(evolve.best_fitness_score(), Some(10));
+    assert_eq!(
+        evolve.best_genes().unwrap(),
+        vec![true, true, true, true, true, true, true, true, true, true]
     );
 }
 
