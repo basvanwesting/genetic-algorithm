@@ -6,8 +6,8 @@ pub use crate::chromosome::{
 };
 #[doc(no_inline)]
 pub use crate::crossover::{
-    CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverSingleGene,
-    CrossoverSinglePoint, CrossoverUniform, CrossoverWrapper,
+    CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverRejuvenate,
+    CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform, CrossoverWrapper,
 };
 #[doc(no_inline)]
 pub use crate::extension::{

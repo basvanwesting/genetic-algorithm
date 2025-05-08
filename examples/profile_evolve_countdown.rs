@@ -54,6 +54,7 @@ fn main() {
             TOURNAMENT_SIZE,
         ))
         // .with_crossover(CrossoverClone::new(SELECTION_RATE))
+        // .with_crossover(CrossoverRejuvenate::new(1.0))
         .with_crossover(CrossoverMultiPoint::new(
             SELECTION_RATE,
             CROSSOVER_RATE,

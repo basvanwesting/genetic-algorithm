@@ -16,6 +16,7 @@
 mod clone;
 mod multi_gene;
 mod multi_point;
+mod rejuvenate;
 mod single_gene;
 mod single_point;
 mod uniform;
@@ -24,6 +25,7 @@ mod wrapper;
 pub use self::clone::Clone as CrossoverClone;
 pub use self::multi_gene::MultiGene as CrossoverMultiGene;
 pub use self::multi_point::MultiPoint as CrossoverMultiPoint;
+pub use self::rejuvenate::Rejuvenate as CrossoverRejuvenate;
 pub use self::single_gene::SingleGene as CrossoverSingleGene;
 pub use self::single_point::SinglePoint as CrossoverSinglePoint;
 pub use self::uniform::Uniform as CrossoverUniform;

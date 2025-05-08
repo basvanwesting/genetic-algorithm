@@ -91,7 +91,7 @@ fn main() {
         .with_mutate(MutateSingleGene::new(0.05))
         //.with_fitness(ExpensiveCount::new(1000))
         .with_fitness(CachedExpensiveCount::new(10, 100 * 1000))
-        .with_crossover(CrossoverClone::new(0.5))
+        .with_crossover(CrossoverRejuvenate::new(1.0))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_reporter(EvolveReporterSimple::new(100))
         .call()
