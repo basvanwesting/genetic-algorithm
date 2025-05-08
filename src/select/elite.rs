@@ -31,7 +31,7 @@ impl Select for Elite {
         let mut elite_chromosomes =
             self.extract_elite_chromosomes(state, config, self.elitism_rate);
 
-        let (offspring, parents): (Vec<G::Chromosome>, Vec<G::Chromosome>) = state
+        let (mut offspring, mut parents): (Vec<G::Chromosome>, Vec<G::Chromosome>) = state
             .population
             .chromosomes
             .drain(..)
@@ -44,12 +44,20 @@ impl Select for Elite {
             self.replacement_rate,
         );
 
-        let mut parents = self.selection(parents, new_parents_size, genotype, config, rng);
-        let mut offspring = self.selection(offspring, new_offspring_size, genotype, config, rng);
+        self.selection(&mut parents, new_parents_size, genotype, config, rng);
+        self.selection(&mut offspring, new_offspring_size, genotype, config, rng);
 
         state.population.chromosomes.append(&mut elite_chromosomes);
         state.population.chromosomes.append(&mut offspring);
         state.population.chromosomes.append(&mut parents);
+
+        self.selection(
+            &mut state.population.chromosomes,
+            config.target_population_size,
+            genotype,
+            config,
+            rng,
+        );
 
         state.add_duration(StrategyAction::Select, now.elapsed());
     }
@@ -65,12 +73,13 @@ impl Elite {
 
     pub fn selection<G: EvolveGenotype, R: Rng>(
         &self,
-        mut chromosomes: Vec<G::Chromosome>,
+        chromosomes: &mut Vec<G::Chromosome>,
         selection_size: usize,
         genotype: &mut G,
         config: &EvolveConfig,
         _rng: &mut R,
-    ) -> Vec<G::Chromosome> {
+    ) {
+        let selection_size = std::cmp::min(selection_size, chromosomes.len());
         match config.fitness_ordering {
             FitnessOrdering::Maximize => {
                 chromosomes.sort_unstable_by_key(|c| match c.fitness_score() {
@@ -85,7 +94,6 @@ impl Elite {
                 });
             }
         }
-        genotype.chromosome_destructor_truncate(&mut chromosomes, selection_size);
-        chromosomes
+        genotype.chromosome_destructor_truncate(chromosomes, selection_size);
     }
 }
