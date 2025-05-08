@@ -48,10 +48,10 @@ mod population_tests {
     #[test]
     fn best_chromosome() {
         let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-            (vec![false, false, false], Some(0)),
-            (vec![false, false, true], Some(1)),
             (vec![false, true, true], Some(2)),
+            (vec![false, false, false], Some(0)),
             (vec![true, true, true], Some(3)),
+            (vec![false, false, true], Some(1)),
             (vec![true, true, false], None),
         ]);
 
@@ -65,11 +65,71 @@ mod population_tests {
             best_chromosome.map_or(Some(99), |c| c.fitness_score),
             Some(0)
         );
+    }
 
-        let best_chromosome_index = population.best_chromosome_index(FitnessOrdering::Maximize);
-        assert_eq!(best_chromosome_index, Some(3));
-        let best_chromosome_index = population.best_chromosome_index(FitnessOrdering::Minimize);
-        assert_eq!(best_chromosome_index, Some(0));
+    #[test]
+    fn best_chromosome_index() {
+        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
+            (vec![false, true, true], Some(2)),
+            (vec![false, false, false], Some(0)),
+            (vec![true, true, true], Some(3)),
+            (vec![false, false, true], Some(1)),
+            (vec![true, true, false], None),
+        ]);
+
+        assert_eq!(
+            population.best_chromosome_index(FitnessOrdering::Maximize),
+            Some(2)
+        );
+        assert_eq!(
+            population.best_chromosome_index(FitnessOrdering::Minimize),
+            Some(1)
+        );
+    }
+
+    #[test]
+    fn best_chromosome_indices() {
+        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
+            (vec![false, true, true], Some(2)),
+            (vec![false, false, false], Some(0)),
+            (vec![true, true, true], Some(3)),
+            (vec![false, false, true], Some(1)),
+            (vec![true, true, false], None),
+        ]);
+
+        assert_eq!(
+            population.best_chromosome_indices(2, FitnessOrdering::Maximize),
+            vec![0, 2]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(1, FitnessOrdering::Maximize),
+            vec![2]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(0, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(10, FitnessOrdering::Maximize),
+            vec![0, 2, 3]
+        );
+
+        assert_eq!(
+            population.best_chromosome_indices(2, FitnessOrdering::Minimize),
+            vec![1, 3]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(1, FitnessOrdering::Minimize),
+            vec![1]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(0, FitnessOrdering::Minimize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(10, FitnessOrdering::Minimize),
+            vec![0, 1, 3]
+        );
     }
 
     #[test]

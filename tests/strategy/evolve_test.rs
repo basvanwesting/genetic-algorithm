@@ -213,10 +213,10 @@ fn call_binary_target_fitness_score_maximize() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(10));
+    assert_eq!(evolve.best_fitness_score(), Some(9));
     assert_eq!(
         evolve.best_genes().unwrap(),
-        vec![true, true, true, true, true, true, true, true, true, true]
+        vec![true, true, true, true, true, true, true, true, false, true]
     );
 }
 
@@ -368,10 +368,10 @@ fn call_range_f32() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(9897));
+    assert_eq!(evolve.best_fitness_score(), Some(9885));
     assert!(relative_chromosome_eq(
         evolve.best_genes().unwrap(),
-        vec![0.980, 0.993, 0.967, 0.994, 0.997, 0.998, 0.993, 0.987, 0.991, 0.995],
+        vec![0.980, 0.993, 0.967, 0.994, 0.995, 0.998, 0.993, 0.976, 0.991, 0.995],
         0.001
     ));
 }
@@ -398,10 +398,10 @@ fn call_range_usize() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(89));
+    assert_eq!(evolve.best_fitness_score(), Some(90));
     assert_eq!(
         evolve.best_genes().unwrap(),
-        vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 8]
+        vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
     );
 }
 
@@ -519,10 +519,10 @@ fn call_static_matrix() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(1));
+    assert_eq!(evolve.best_fitness_score(), Some(0));
     assert_eq!(
         evolve.best_genes().unwrap(),
-        Box::new([0, 0, 0, 0, 0, 0, 0, 0, 1, 0])
+        Box::new([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
     );
 }
 
@@ -550,10 +550,10 @@ fn call_dynamic_matrix() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(1));
+    assert_eq!(evolve.best_fitness_score(), Some(0));
     assert_eq!(
         evolve.best_genes().unwrap(),
-        vec![0, 0, 0, 0, 0, 0, 0, 0, 1, 0]
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
     // after cleanup
     assert_eq!(evolve.genotype.data.len(), 0);

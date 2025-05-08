@@ -51,9 +51,9 @@ fn maximize() {
             // elite
             vec![true, true, true],
             // normal
+            vec![false, true, true],
             vec![true, true, false],
             vec![true, false, true],
-            vec![false, true, true],
             vec![false, false, true],
             vec![false, true, false],
         ]
@@ -102,10 +102,10 @@ fn minimize() {
             // elite
             vec![false, false, false],
             // normal
-            vec![true, false, false],
+            vec![false, true, true],
             vec![false, true, false],
             vec![false, false, true],
-            vec![false, true, true],
+            vec![true, false, false],
             vec![true, false, true],
         ]
     );
@@ -151,8 +151,8 @@ fn fitness_ordering_with_none_fitness() {
             (vec![false, false, false], Some(0)),
             // normal
             (vec![false, true, true], Some(2)),
-            (vec![true, false, false], Some(1)),
             (vec![false, true, false], Some(1)),
+            (vec![true, false, false], Some(1)),
             (vec![true, false, true], Some(2)),
             (vec![true, true, false], Some(2)),
             (vec![true, true, true], Some(3)),
@@ -180,9 +180,9 @@ fn fitness_ordering_with_none_fitness() {
             // normal
             (vec![true, false, true], Some(2)),
             (vec![false, true, true], Some(2)),
-            (vec![true, true, false], Some(2)),
-            (vec![true, false, false], Some(1)),
             (vec![false, true, false], Some(1)),
+            (vec![true, false, false], Some(1)),
+            (vec![true, true, false], Some(2)),
             (vec![false, false, false], Some(0)),
             (vec![false, false, true], None),
         ]

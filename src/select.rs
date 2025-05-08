@@ -9,13 +9,10 @@ pub use self::elite::Elite as SelectElite;
 pub use self::tournament::Tournament as SelectTournament;
 pub use self::wrapper::Wrapper as SelectWrapper;
 
-use crate::chromosome::Chromosome;
-use crate::fitness::{FitnessOrdering, FitnessValue};
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::prelude::*;
-use std::cmp::Reverse;
 
 pub trait Select: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
@@ -33,36 +30,18 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         config: &EvolveConfig,
         elitism_rate: f32,
     ) -> Vec<G::Chromosome> {
-        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::new(); //small capacity
-        if elitism_rate > 0.0 {
-            let elitism_size = ((state.population.size() as f32 * elitism_rate).ceil() as usize)
-                .min(state.population.size());
+        let elitism_size = ((state.population.size() as f32 * elitism_rate).ceil() as usize)
+            .min(state.population.size());
 
-            match config.fitness_ordering {
-                FitnessOrdering::Maximize => {
-                    state
-                        .population
-                        .chromosomes
-                        .sort_unstable_by_key(|c| match c.fitness_score() {
-                            Some(fitness_score) => Reverse(fitness_score),
-                            None => Reverse(FitnessValue::MIN),
-                        })
-                }
-                FitnessOrdering::Minimize => {
-                    state
-                        .population
-                        .chromosomes
-                        .sort_unstable_by_key(|c| match c.fitness_score() {
-                            Some(fitness_score) => fitness_score,
-                            None => FitnessValue::MAX,
-                        })
-                }
-            }
-
-            for index in (0..elitism_size).rev() {
-                let chromosome = state.population.chromosomes.swap_remove(index);
-                elite_chromosomes.push(chromosome);
-            }
+        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
+        for index in state
+            .population
+            .best_chromosome_indices(elitism_size, config.fitness_ordering)
+            .into_iter()
+            .rev()
+        {
+            let chromosome = state.population.chromosomes.swap_remove(index);
+            elite_chromosomes.push(chromosome);
         }
         elite_chromosomes
     }

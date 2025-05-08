@@ -146,3 +146,56 @@ fn fitness_ordering_with_none_fitness() {
         ]
     );
 }
+
+#[test]
+fn extreme_elitism_rates() {
+    let mut genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
+    let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
+        (vec![false, false, false], Some(0)),
+        (vec![false, false, true], Some(1)),
+        (vec![false, true, true], Some(2)),
+        (vec![true, true, true], Some(3)),
+        (vec![true, true, false], None),
+    ]);
+
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
+    let mut reporter = StrategyReporterNoop::<BinaryGenotype>::new();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Maximize,
+        target_population_size: 5,
+        ..Default::default()
+    };
+    SelectElite::new(0.5, 0.0).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    assert_eq!(
+        inspect::population_with_fitness_scores(&state.population),
+        vec![
+            (vec![true, true, true], Some(3)),
+            (vec![false, true, true], Some(2)),
+            (vec![false, false, true], Some(1)),
+            (vec![false, false, false], Some(0)),
+            (vec![true, true, false], None),
+        ]
+    );
+
+    let config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Minimize,
+        target_population_size: 5,
+        ..Default::default()
+    };
+    SelectElite::new(0.5, 1.0).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    assert_eq!(
+        inspect::population_with_fitness_scores(&state.population),
+        vec![
+            (vec![false, false, false], Some(0)),
+            (vec![false, false, true], Some(1)),
+            (vec![false, true, true], Some(2)),
+            (vec![true, true, true], Some(3)),
+            (vec![true, true, false], None),
+        ]
+    );
+}

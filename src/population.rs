@@ -3,6 +3,7 @@ use crate::chromosome::Chromosome;
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use cardinality_estimator::CardinalityEstimator;
 use rand::prelude::*;
+use std::cmp::Reverse;
 
 #[derive(Clone, Debug)]
 pub struct Population<C: Chromosome> {
@@ -60,6 +61,34 @@ impl<C: Chromosome> Population<C> {
                 .min_by_key(|(_idx, c)| c.fitness_score())
                 .map(|(idx, _)| idx),
         }
+    }
+
+    // Returns one less than total size with known fitness due to implementation constraints
+    // Doesn't matter the amount should be much less than the population size
+    pub fn best_chromosome_indices(
+        &self,
+        amount: usize,
+        fitness_ordering: FitnessOrdering,
+    ) -> Vec<usize> {
+        let mut data: Vec<(usize, isize)> = self
+            .chromosomes
+            .iter()
+            .filter_map(|c| c.fitness_score())
+            .enumerate()
+            .collect();
+
+        let index = amount.min(data.len().saturating_sub(1));
+        let (lesser, _median, _greater) = match fitness_ordering {
+            FitnessOrdering::Maximize => {
+                data.select_nth_unstable_by_key(index, |(_, score)| Reverse(*score))
+            }
+            FitnessOrdering::Minimize => {
+                data.select_nth_unstable_by_key(index, |(_, score)| *score)
+            }
+        };
+        let mut result: Vec<usize> = lesser.iter().map(|(idx, _)| *idx).collect();
+        result.sort_unstable();
+        result
     }
 
     pub fn age_mean(&self) -> f32 {
