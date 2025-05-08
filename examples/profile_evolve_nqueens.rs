@@ -46,8 +46,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.2))
         .with_fitness(NQueensFitness)
-        .with_crossover(CrossoverRejuvenate::new(1.0))
-        .with_select(SelectElite::new(0.5, 0.02));
+        // .with_crossover(CrossoverRejuvenate::new(0.9)) // works remarkably bad, extremely interesting why, probably the best_genes are lost all the time?
+        .with_crossover(CrossoverClone::new(0.9))
+        .with_select(SelectElite::new(0.5, 0.5));
 
     c.bench_function("profile_evolve_nqueens", |b| {
         b.iter_batched(

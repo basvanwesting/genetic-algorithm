@@ -218,7 +218,8 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
   (and Copyable)
 * StrategyBuilder, with_par_fitness_threshold, with_permutate_threshold?
 * Add target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
-* Add negative selection-rate to encode in-place crossover?
+* Add negative selection-rate to encode in-place crossover? But do keep the old
+  extend with best-parents with the pre v0.20 selection-rate behaviour which was crucial for evolve_nqueens
 
 ## ISSUES
 * hill_climb SteepestAscent actually has a population size requirement of

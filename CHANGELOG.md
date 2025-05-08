@@ -57,7 +57,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add `CrossoverRejuvenate` as new implementation for the old `CrossoverClone`
   behaviour. No copying, just turn parents into offspring in-place. The
   `CrossoverClone` now adds actual clones as offspring without removing the
-  parents
+  parents. However `CrossoverRejuvenate` works remarkably bad, as the old
+  `CrossoverClone` had the pre-v0.20 selection-rate which still copied the best
+  parent chromosomes to repopulate after selection.
 
 ## [0.19.4] - 2025-05-05
 

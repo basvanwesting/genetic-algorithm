@@ -35,6 +35,7 @@ fn main() {
 
     let genotype = UniqueGenotype::builder()
         .with_allele_list((0..BOARD_SIZE).collect())
+        .with_genes_hashing(true)
         .build()
         .unwrap();
 
@@ -46,11 +47,13 @@ fn main() {
         .with_max_stale_generations(10000)
         .with_fitness(NQueensFitness)
         .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_fitness_cache(10000)
         .with_target_fitness_score(0)
-        .with_replace_on_equal_fitness(true)
-        .with_mutate(MutateSingleGene::new(1.0))
-        .with_crossover(CrossoverRejuvenate::new(1.0))
-        .with_select(SelectElite::new(1.0, 0.0))
+        // .with_replace_on_equal_fitness(true) // not crucial for this problem
+        .with_mutate(MutateSingleGene::new(0.2))
+        // .with_crossover(CrossoverRejuvenate::new(0.9)) // works remarkably bad, extremely interesting why, probably the best_genes are lost all the time?
+        .with_crossover(CrossoverClone::new(0.9))
+        .with_select(SelectElite::new(0.5, 0.5))
         .with_reporter(EvolveReporterSimple::new(100))
         .build()
         .unwrap();
