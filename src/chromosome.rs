@@ -46,6 +46,7 @@ pub trait Chromosome: Clone + Send {
     fn age(&self) -> usize;
     fn reset_age(&mut self);
     fn increment_age(&mut self);
+    fn set_age(&mut self, age: usize);
     fn fitness_score(&self) -> Option<FitnessValue>;
     fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>);
     fn genes_hash(&self) -> Option<GenesHash>;

@@ -13,11 +13,11 @@ fn standard() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryChromosome> = build::population(vec![
-        vec![true; 10],
-        vec![false; 10],
-        vec![true; 10],
-        vec![false; 10],
+    let population: Population<BinaryChromosome> = build::population_with_age(vec![
+        (vec![true; 10], 1),
+        (vec![false; 10], 1),
+        (vec![true; 10], 1),
+        (vec![false; 10], 1),
     ]);
 
     let mut state = EvolveState::new(&genotype);
@@ -37,14 +37,20 @@ fn standard() {
     );
 
     assert_eq!(
-        inspect::population(&state.population),
+        inspect::population_with_age(&state.population),
         vec![
-            vec![true; 10],
-            vec![false; 10],
-            vec![true; 10],
-            vec![false; 10],
-            vec![true, true, true, true, false, true, true, true, false, false],
-            vec![false, false, false, false, true, false, false, false, true, true],
+            (vec![true; 10], 1),
+            (vec![false; 10], 1),
+            (vec![true; 10], 1),
+            (vec![false; 10], 1),
+            (
+                vec![true, true, true, true, false, true, true, true, false, false],
+                0
+            ),
+            (
+                vec![false, false, false, false, true, false, false, false, true, true],
+                0
+            ),
         ]
     )
 }

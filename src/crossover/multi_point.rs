@@ -1,4 +1,5 @@
 use super::Crossover;
+use crate::chromosome::Chromosome;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
@@ -51,6 +52,14 @@ impl Crossover for MultiPoint {
                     mother,
                     rng,
                 );
+            } else {
+                father.reset_age();
+                mother.reset_age();
+            }
+        }
+        if selected_population_size % 2 == 1 {
+            if let Some(chromosome) = state.population.chromosomes.last_mut() {
+                chromosome.reset_age();
             }
         }
         state.add_duration(StrategyAction::Crossover, now.elapsed());

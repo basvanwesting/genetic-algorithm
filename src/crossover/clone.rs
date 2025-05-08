@@ -1,4 +1,5 @@
 use super::Crossover;
+use crate::chromosome::Chromosome;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
@@ -21,10 +22,17 @@ impl Crossover for Clone {
         _rng: &mut R,
     ) {
         let now = Instant::now();
+        let existing_population_size = state.population.chromosomes.len();
         let selected_population_size =
             (state.population.size() as f32 * self.selection_rate).ceil() as usize;
         genotype
             .chromosome_cloner_expand(&mut state.population.chromosomes, selected_population_size);
+        state
+            .population
+            .chromosomes
+            .iter_mut()
+            .skip(existing_population_size)
+            .for_each(|c| c.reset_age());
         state.add_duration(StrategyAction::Crossover, now.elapsed());
     }
 }

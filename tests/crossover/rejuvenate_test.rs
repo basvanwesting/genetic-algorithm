@@ -13,10 +13,10 @@ fn standard() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryChromosome> = build::population(vec![
-        vec![true, true, true],
-        vec![false, false, false],
-        vec![true, true, true],
+    let population: Population<BinaryChromosome> = build::population_with_age(vec![
+        (vec![true, true, true], 1),
+        (vec![false, false, false], 2),
+        (vec![true, true, true], 1),
     ]);
 
     let mut state = EvolveState::new(&genotype);
@@ -30,11 +30,11 @@ fn standard() {
     CrossoverRejuvenate::new(0.5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population(&state.population),
+        inspect::population_with_age(&state.population),
         vec![
-            vec![true, true, true],
-            vec![false, false, false],
-            vec![true, true, true],
+            (vec![true, true, true], 0),
+            (vec![false, false, false], 0),
+            (vec![true, true, true], 1),
         ]
     )
 }

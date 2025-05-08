@@ -20,6 +20,9 @@ impl super::Chromosome for Row {
     fn increment_age(&mut self) {
         self.age += 1
     }
+    fn set_age(&mut self, age: usize) {
+        self.age = age
+    }
     fn fitness_score(&self) -> Option<FitnessValue> {
         self.fitness_score
     }

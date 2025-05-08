@@ -31,6 +31,10 @@ pub fn chromosome_with_fitness_score<C: GenesOwner>(
 ) -> (C::Genes, Option<FitnessValue>) {
     (chromosome.genes().clone(), chromosome.fitness_score())
 }
+#[allow(dead_code)]
+pub fn chromosome_with_age<C: GenesOwner>(chromosome: &C) -> (C::Genes, usize) {
+    (chromosome.genes().clone(), chromosome.age())
+}
 
 #[allow(dead_code)]
 pub fn chromosomes<C: GenesOwner>(chromosomes: &[C]) -> Vec<C::Genes> {
@@ -54,6 +58,10 @@ pub fn chromosomes_with_fitness_score<C: GenesOwner>(
         .map(chromosome_with_fitness_score)
         .collect()
 }
+#[allow(dead_code)]
+pub fn chromosomes_with_age<C: GenesOwner>(chromosomes: &[C]) -> Vec<(C::Genes, usize)> {
+    chromosomes.iter().map(chromosome_with_age).collect()
+}
 
 #[allow(dead_code)]
 pub fn population<C: GenesOwner>(population: &Population<C>) -> Vec<C::Genes> {
@@ -76,5 +84,13 @@ pub fn population_with_fitness_scores<C: GenesOwner>(
         .chromosomes
         .iter()
         .map(chromosome_with_fitness_score)
+        .collect()
+}
+#[allow(dead_code)]
+pub fn population_with_age<C: GenesOwner>(population: &Population<C>) -> Vec<(C::Genes, usize)> {
+    population
+        .chromosomes
+        .iter()
+        .map(chromosome_with_age)
         .collect()
 }
