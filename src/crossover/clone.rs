@@ -24,7 +24,7 @@ impl Crossover for Clone {
         let now = Instant::now();
         let existing_population_size = state.population.chromosomes.len();
         let selected_population_size =
-            (state.population.size() as f32 * self.selection_rate).ceil() as usize;
+            (existing_population_size as f32 * self.selection_rate).ceil() as usize;
         genotype
             .chromosome_cloner_expand(&mut state.population.chromosomes, selected_population_size);
         state

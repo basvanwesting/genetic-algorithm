@@ -54,12 +54,16 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ### Added
 * Add `best_chromosome_indices()` on `Population`, used to implement
   `elitism_rate` without the need for a full sort
-* Add `CrossoverRejuvenate` as new implementation for the old `CrossoverClone`
-  behaviour. No copying, just turn parents into offspring in-place. The
+* Add `CrossoverRejuvenate` as new limited cloning implementation for the old
+  `CrossoverClone` behaviour, which had limited cloning. The new
   `CrossoverClone` now adds actual clones as offspring without removing the
-  parents. However `CrossoverRejuvenate` works remarkably bad, as the old
-  `CrossoverClone` had the pre-v0.20 selection-rate which still copied the best
-  parent chromosomes to repopulate after selection.
+  parents, which is much more cloning than the original. For
+  `CrossoverRejuvenate`: drop non-selected parents, then clone top parents to
+  repopulate, then rejuvenate selected parents to children in place. No copying
+  of chromosomes for creating the offspring itself, only for repopulating the
+  dropped non-selected parents (smaller fraction). However the cloning of
+  top-parents is crucial for driving the Evolve process as experimenting with
+  the evolve_nqueens example demonstrated.
 
 ## [0.19.4] - 2025-05-05
 
