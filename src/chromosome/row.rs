@@ -7,7 +7,6 @@ pub struct Row {
     pub fitness_score: Option<FitnessValue>,
     pub genes_hash: Option<GenesHash>,
     pub age: usize,
-    pub reference_id: usize,
 }
 
 impl super::Chromosome for Row {
@@ -39,13 +38,11 @@ impl super::Chromosome for Row {
         self.age = 0;
         self.fitness_score = None;
         self.genes_hash = genes_hash;
-        self.reference_id = usize::MAX;
     }
     fn copy_state(&mut self, other: &Self) {
         self.age = other.age;
         self.fitness_score = other.fitness_score;
         self.genes_hash = other.genes_hash;
-        self.reference_id = other.reference_id;
     }
 }
 impl super::GenesPointer for Row {
@@ -55,7 +52,6 @@ impl super::GenesPointer for Row {
             fitness_score: None,
             genes_hash: None,
             age: 0,
-            reference_id: usize::MAX,
         }
     }
 }

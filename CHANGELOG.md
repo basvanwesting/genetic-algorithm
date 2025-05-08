@@ -65,6 +65,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   top-parents is crucial for driving the Evolve process as experimenting with
   the evolve_nqueens example demonstrated.
 
+### Removed
+* Remove `reference_id: usize` from `Chromosome` as user controlled alternative
+  to genes_hash, as genes_hash is now formally supported for all types.
+
 ## [0.19.4] - 2025-05-05
 
 ### Added
