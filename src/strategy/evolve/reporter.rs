@@ -260,6 +260,11 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         self.number_of_extension_events += 1;
         if self.show_extension_event {
             match event {
+                ExtensionEvent::MassDeduplication(message) => self.writeln(format_args!(
+                    "extension event - mass deduplication - generation {} - {}",
+                    state.current_generation(),
+                    message
+                )),
                 ExtensionEvent::MassDegeneration(message) => self.writeln(format_args!(
                     "extension event - mass degeneration - generation {} - {}",
                     state.current_generation(),

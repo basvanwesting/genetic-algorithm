@@ -6,9 +6,9 @@ use rand::Rng;
 use std::time::Instant;
 
 /// Simulates a cambrian explosion. The controlling metric is population cardinality in the
-/// population after selection. When this cardinality drops to the threshold, the population
-/// (except for the two best chromosomes) is mutated the provided number of times, where the
-/// [Genotype](crate::genotype::Genotype) determines whether this is random, relative or scaled.
+/// population after selection. When this cardinality drops to the threshold, the population is
+/// mutated the provided number of times, where the [Genotype](crate::genotype::Genotype)
+/// determines whether this is random, relative or scaled.
 /// The elitism_rate ensures the passing of the best chromosomes before mutations are applied.
 ///
 /// Duplicate mutations of the same gene are allowed. There is no change in population size.

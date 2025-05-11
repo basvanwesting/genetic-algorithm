@@ -194,6 +194,10 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 * Add simulated annealing strategy
 * Add Roulette selection with and without duplicates (with fitness ordering)
 * Add OrderOne crossover for UniqueGenotype?
+  * Order Crossover (OX): Simple and works well for many permutation problems.
+  * Partially Mapped Crossover (PMX): Preserves more of the parent's structure but is slightly more complex.
+  * Cycle Crossover (CX): Ensures all genes come from one parent, useful for strict preservation of order.
+  * Edge Crossover (EX): Preserves adjacency relationships, suitable for Traveling Salesman Problem or similar.
 * Add WholeArithmetic crossover for RangeGenotype?
 * Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
 * Explore more non-Vec genes: PackedSimd?

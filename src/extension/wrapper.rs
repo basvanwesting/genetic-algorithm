@@ -1,3 +1,4 @@
+pub use super::mass_deduplication::MassDeduplication as ExtensionMassDeduplication;
 pub use super::mass_degeneration::MassDegeneration as ExtensionMassDegeneration;
 pub use super::mass_extinction::MassExtinction as ExtensionMassExtinction;
 pub use super::mass_genesis::MassGenesis as ExtensionMassGenesis;
@@ -11,10 +12,11 @@ use rand::Rng;
 
 #[derive(Clone, Debug)]
 pub enum Wrapper {
-    Noop(ExtensionNoop),
+    MassDeduplication(ExtensionMassDeduplication),
+    MassDegeneration(ExtensionMassDegeneration),
     MassExtinction(ExtensionMassExtinction),
     MassGenesis(ExtensionMassGenesis),
-    MassDegeneration(ExtensionMassDegeneration),
+    Noop(ExtensionNoop),
 }
 
 impl Extension for Wrapper {
@@ -27,23 +29,31 @@ impl Extension for Wrapper {
         rng: &mut R,
     ) {
         match self {
-            Wrapper::Noop(extension) => extension.call(genotype, state, config, reporter, rng),
+            Wrapper::MassDeduplication(extension) => {
+                extension.call(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassDegeneration(extension) => {
+                extension.call(genotype, state, config, reporter, rng)
+            }
             Wrapper::MassExtinction(extension) => {
                 extension.call(genotype, state, config, reporter, rng)
             }
             Wrapper::MassGenesis(extension) => {
                 extension.call(genotype, state, config, reporter, rng)
             }
-            Wrapper::MassDegeneration(extension) => {
-                extension.call(genotype, state, config, reporter, rng)
-            }
+            Wrapper::Noop(extension) => extension.call(genotype, state, config, reporter, rng),
         }
     }
 }
 
-impl From<ExtensionNoop> for Wrapper {
-    fn from(extension: ExtensionNoop) -> Self {
-        Wrapper::Noop(extension)
+impl From<ExtensionMassDeduplication> for Wrapper {
+    fn from(extension: ExtensionMassDeduplication) -> Self {
+        Wrapper::MassDeduplication(extension)
+    }
+}
+impl From<ExtensionMassDegeneration> for Wrapper {
+    fn from(extension: ExtensionMassDegeneration) -> Self {
+        Wrapper::MassDegeneration(extension)
     }
 }
 impl From<ExtensionMassExtinction> for Wrapper {
@@ -56,8 +66,8 @@ impl From<ExtensionMassGenesis> for Wrapper {
         Wrapper::MassGenesis(extension)
     }
 }
-impl From<ExtensionMassDegeneration> for Wrapper {
-    fn from(extension: ExtensionMassDegeneration) -> Self {
-        Wrapper::MassDegeneration(extension)
+impl From<ExtensionNoop> for Wrapper {
+    fn from(extension: ExtensionNoop) -> Self {
+        Wrapper::Noop(extension)
     }
 }

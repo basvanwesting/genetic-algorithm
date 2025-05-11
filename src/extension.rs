@@ -4,12 +4,14 @@
 //! selected for, killing of the offspring again. This reduces the efficiency, but also has the
 //! risk of local optimum lock-in. To increase the variation in the population, an
 //! [extension](crate::extension) mechanisms can optionally be used
+mod mass_deduplication;
 mod mass_degeneration;
 mod mass_extinction;
 mod mass_genesis;
 mod noop;
 mod wrapper;
 
+pub use self::mass_deduplication::MassDeduplication as ExtensionMassDeduplication;
 pub use self::mass_degeneration::MassDegeneration as ExtensionMassDegeneration;
 pub use self::mass_extinction::MassExtinction as ExtensionMassExtinction;
 pub use self::mass_genesis::MassGenesis as ExtensionMassGenesis;
@@ -53,6 +55,7 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
 
 #[derive(Clone, Debug)]
 pub enum ExtensionEvent {
+    MassDeduplication(String),
     MassDegeneration(String),
     MassExtinction(String),
     MassGenesis(String),

@@ -50,6 +50,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let extensions: Vec<ExtensionWrapper> = vec![
             ExtensionMassGenesis::new(population_size).into(),
             ExtensionMassExtinction::new(population_size, 0.10, 0.02).into(),
+            ExtensionMassDeduplication::new(population_size).into(),
             ExtensionMassDegeneration::new(population_size, 10, 0.02).into(),
         ];
         for mut extension in extensions {
