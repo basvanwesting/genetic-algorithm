@@ -2,17 +2,20 @@
 //! [selection](crate::select) phase determines the order the parent pairing (overall with fitter
 //! first).
 //!
-//! For the selection-rate, typically set between 0.2 and 0.5 (20%-50% of the population is
-//! selected for reproduction). A higher selection rate (closer to 50%) can accelerate convergence
-//! but risks premature convergence (getting stuck in local optima). A lower selection rate (closer
-//! to 20%) maintains diversity but may slow down the algorithm. Other sources suggest a higher
-//! selection-rate, somewhere in the 0.75-1.0 range. Apparantly there is no broad consensus.
+//! The selection_rate is the fraction of parents which are selected for
+//! reproduction. This selection adds offspring to the population, the other
+//! parents do not. The population now grows by the added offspring, as the
+//! parents are not replaced yet. Value should typically be between 0.4 and
+//! 0.8. High values risk of premature convergence. Low values reduce diversity
+//! if overused.
 //!
-//! For the crossover-rate, typically set between 0.7 and 0.9 (70%-90% of the population undergoes
-//! crossover). Higher crossover rates promote exploration and recombination of genetic material.
+//! The crossover_rate (or recombination-rate) is the fraction of selected parents to crossover,
+//! the remaining parents just clone as offspring. Value should typically be between 0.5 and 0.8.
+//! High values converge faster, but risk losing good solutions. Low values have poor exploration
+//! and risk of premature convergence
 //!
-//! The crossover adds children, thus potentially increasing the population_size above the
-//! target_population_size
+//! Normally the crossover adds children to the popluation, thus increasing the population_size
+//! above the target_population_size. Selection will reduce this again in the next generation
 mod clone;
 mod multi_gene;
 mod multi_point;

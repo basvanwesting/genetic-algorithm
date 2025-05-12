@@ -7,9 +7,9 @@ use rand::Rng;
 use std::time::Instant;
 
 /// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where only an Adam
-/// and Eve of current best chromosomes survive. Tries to select distinct Adem and Eve when
+/// and Eve of current best chromosomes survive. Tries to select distinct Adam and Eve when
 /// genes_hash is stored on chromosome, otherwise it will just take 2 of the best (possibly
-/// dupicates).
+/// duplicates).
 ///
 /// Population will recover in the following generations
 #[derive(Debug, Clone)]

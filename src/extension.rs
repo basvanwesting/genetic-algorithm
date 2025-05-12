@@ -40,7 +40,7 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
         config: &EvolveConfig,
         elitism_size: usize,
     ) -> Vec<G::Chromosome> {
-        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::new();
+        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
         for index in state
             .population
             .best_chromosome_indices(elitism_size, config.fitness_ordering)
@@ -60,7 +60,7 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
         config: &EvolveConfig,
         elitism_size: usize,
     ) -> Vec<G::Chromosome> {
-        let mut unique_elite_chromosomes: Vec<G::Chromosome> = Vec::new();
+        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
         for index in state
             .population
             .best_unique_chromosome_indices(elitism_size, config.fitness_ordering)
@@ -68,9 +68,9 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
             .rev()
         {
             let chromosome = state.population.chromosomes.swap_remove(index);
-            unique_elite_chromosomes.push(chromosome);
+            elite_chromosomes.push(chromosome);
         }
-        unique_elite_chromosomes
+        elite_chromosomes
     }
 
     fn extract_unique_chromosomes<G: EvolveGenotype>(

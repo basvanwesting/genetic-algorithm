@@ -6,9 +6,9 @@ use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
 use std::time::Instant;
 
-/// Drop non-selected parents, then clone top parents to repopulate, then rejuvenate selected
-/// parents to children in place. No copying of chromosomes for creating the offspring itself, only
-/// for repopulating the dropped non-selected parents (smaller fraction)
+/// Drop non-selected parents, then clone top parents to repopulate up to target_population_size,
+/// then rejuvenate selected parents to children in place. No copying of chromosomes for creating
+/// the offspring itself, only for repopulating the dropped non-selected parents (smaller fraction)
 /// Allowed for unique genotypes.
 #[derive(Clone, Debug)]
 pub struct Rejuvenate {

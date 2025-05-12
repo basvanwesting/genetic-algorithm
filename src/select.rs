@@ -1,6 +1,22 @@
 //! The selection phase, where chromosomes are lined up for pairing in the
 //! [crossover](crate::crossover) phase, dropping the chromosomes outside of the
 //! target_population_size.
+//!
+//! The replacement_rate is the target fraction of the population which exists of
+//! children. Generational Replacement and Steady-State Replacement can both be
+//! modelled with this parameter by setting it respectively to 1.0 and 0.2-0.8.
+//! High values converge faster, but risk losing good solutions. Low values
+//! convergence slower. If there is a shortage of population after the ideal
+//! fraction, firstly remaining non-selected children and secondly remaining
+//! non-selected parents will be used to fill the shortage to avoid population
+//! collapse.
+//!
+//! The elitism_rate is a non-generational elite gate, which ensures passing of the
+//! best chromosomes before selection and replacement takes place. Value should
+//! typically be very low, between 0.01 and 0.05. Relevant for
+//! `SelectTournament` where the best chromosome is not guaranteed to be
+//! selected for a tournament if the `population_size` is larger than the
+//! `target_population_size`
 mod elite;
 mod tournament;
 mod wrapper;

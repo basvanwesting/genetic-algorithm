@@ -4,6 +4,24 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.2] - 2025-05-12
+### Added
+* Add `max_generations` ending condition on `Evolve` and `HillClimb` strategies
+  (also blocked by optional `valid_fitness_score,` as `max_stale_generations` is)
+* Add `ExtensionMassDeduplication` which requires `with_genes_hashing(true)` on
+  the `Genotype` (otherwise ignored)
+* Add `Population` `unique_chromosome_indices()` and
+  `best_unique_chromosome_indices()` support functions
+
+### Changed
+* Nuance `ExtensionMassGenesis` trying to use unique Adam en Eve Chromosomes
+  when genes_hashes are availble, otherwise just take 2 best chromosomes
+  (possibly duplicates)
+* Decided not to use unique best chromosomes for the elitism_rate in
+  `ExtensionMassDegeneration` and `ExtensionMassExtinction`. Just use the best
+  chromosomes (possibly duplicates), as uniqueness hard-limits the amount of selected
+  elites in the typical low cardinality situation, which seems unwanted behaviour
+
 ## [0.20.1] - 2025-05-08
 ### Added
 * Add `elitism_rate` to `ExtensionMassExtinction` and
