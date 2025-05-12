@@ -65,9 +65,10 @@ impl<C: Chromosome> Population<C> {
         }
     }
 
-    // Returns one less than total size with known fitness due to implementation constraints
-    // Doesn't matter the amount should be much less than the population size
-    // Does not care about uniqueness of the genes_hash
+    // In summary a bit quirky, but fast and doesn't require genes_hashing.
+    // Doesn't matter the amount should be much less than the population size.
+    // Returns one less than total size with known fitness due to implementation constraints.
+    // Does not care about uniqueness of the genes_hash.
     pub fn best_chromosome_indices(
         &self,
         amount: usize,

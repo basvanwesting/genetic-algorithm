@@ -88,51 +88,6 @@ mod population_tests {
     }
 
     #[test]
-    fn best_chromosome_indices() {
-        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-            (vec![false, true, true], Some(2)),
-            (vec![false, false, false], Some(0)),
-            (vec![true, true, true], Some(3)),
-            (vec![false, false, true], Some(1)),
-            (vec![true, true, false], None),
-        ]);
-
-        assert_eq!(
-            population.best_chromosome_indices(2, FitnessOrdering::Maximize),
-            vec![0, 2]
-        );
-        assert_eq!(
-            population.best_chromosome_indices(1, FitnessOrdering::Maximize),
-            vec![2]
-        );
-        assert_eq!(
-            population.best_chromosome_indices(0, FitnessOrdering::Maximize),
-            vec![]
-        );
-        assert_eq!(
-            population.best_chromosome_indices(10, FitnessOrdering::Maximize),
-            vec![0, 2, 3]
-        );
-
-        assert_eq!(
-            population.best_chromosome_indices(2, FitnessOrdering::Minimize),
-            vec![1, 3]
-        );
-        assert_eq!(
-            population.best_chromosome_indices(1, FitnessOrdering::Minimize),
-            vec![1]
-        );
-        assert_eq!(
-            population.best_chromosome_indices(0, FitnessOrdering::Minimize),
-            vec![]
-        );
-        assert_eq!(
-            population.best_chromosome_indices(10, FitnessOrdering::Minimize),
-            vec![0, 1, 3]
-        );
-    }
-
-    #[test]
     fn best_chromosome_indices_no_fitness() {
         let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
             (vec![false, true, true], None),
@@ -178,7 +133,7 @@ mod population_tests {
     }
 
     #[test]
-    fn unique_chromosome_indices() {
+    fn chromosome_indices_all_variants_with_fitness_with_genes_hash() {
         let genotype = BinaryGenotype::builder()
             .with_genes_size(3)
             .with_genes_hashing(true)
@@ -204,68 +159,243 @@ mod population_tests {
             chromosome.set_genes_hash(genes_hash);
         });
 
+        // uniqueness
         assert_eq!(population.unique_chromosome_indices(), vec![0, 2, 3, 6, 8]);
-    }
 
-    #[test]
-    fn best_unique_chromosome_indices() {
-        let genotype = BinaryGenotype::builder()
-            .with_genes_size(3)
-            .with_genes_hashing(true)
-            .build()
-            .unwrap();
-
-        let mut population: Population<BinaryChromosome> =
-            build::population_with_fitness_scores(vec![
-                (vec![false, true, true], Some(2)),
-                (vec![false, true, true], Some(2)),
-                (vec![false, false, false], Some(0)),
-                (vec![true, true, true], Some(3)),
-                (vec![false, false, false], Some(0)),
-                (vec![true, true, true], Some(3)),
-                (vec![false, false, true], Some(1)),
-                (vec![false, false, true], Some(1)),
-                (vec![true, true, false], None),
-                (vec![true, true, false], None),
-            ]);
-
-        population.chromosomes.iter_mut().for_each(|chromosome| {
-            let genes_hash = genotype.calculate_genes_hash(chromosome);
-            chromosome.set_genes_hash(genes_hash);
-        });
-
+        // top N
         assert_eq!(
             population.best_unique_chromosome_indices(2, FitnessOrdering::Maximize),
             vec![0, 3]
         );
         assert_eq!(
+            population.best_chromosome_indices(2, FitnessOrdering::Maximize),
+            vec![3, 5] // same genes hash
+        );
+        assert_eq!(
+            population.best_chromosome_indices(3, FitnessOrdering::Maximize),
+            vec![0, 3, 5] // same genes hash
+        );
+
+        // top 1
+        assert_eq!(
             population.best_unique_chromosome_indices(1, FitnessOrdering::Maximize),
             vec![3]
         );
+        assert_eq!(
+            population.best_chromosome_indices(1, FitnessOrdering::Maximize),
+            vec![3]
+        );
+
+        // top 0
         assert_eq!(
             population.best_unique_chromosome_indices(0, FitnessOrdering::Maximize),
             vec![]
         );
         assert_eq!(
+            population.best_chromosome_indices(0, FitnessOrdering::Maximize),
+            vec![]
+        );
+
+        // top all
+        assert_eq!(
             population.best_unique_chromosome_indices(10, FitnessOrdering::Maximize),
             vec![0, 2, 3, 6]
         );
+        assert_eq!(
+            population.best_chromosome_indices(10, FitnessOrdering::Maximize),
+            vec![0, 1, 3, 4, 5, 6, 7] // one less
+        );
 
+        // top N
         assert_eq!(
             population.best_unique_chromosome_indices(2, FitnessOrdering::Minimize),
             vec![2, 6]
         );
         assert_eq!(
+            population.best_chromosome_indices(2, FitnessOrdering::Minimize),
+            vec![2, 4] // same genes hash
+        );
+        assert_eq!(
+            population.best_chromosome_indices(3, FitnessOrdering::Minimize),
+            vec![2, 4, 6] // same genes hash
+        );
+
+        // top 1
+        assert_eq!(
             population.best_unique_chromosome_indices(1, FitnessOrdering::Minimize),
             vec![2]
         );
+        assert_eq!(
+            population.best_chromosome_indices(1, FitnessOrdering::Minimize),
+            vec![2]
+        );
+
+        // top 0
         assert_eq!(
             population.best_unique_chromosome_indices(0, FitnessOrdering::Minimize),
             vec![]
         );
         assert_eq!(
+            population.best_chromosome_indices(0, FitnessOrdering::Minimize),
+            vec![]
+        );
+
+        // top all
+        assert_eq!(
             population.best_unique_chromosome_indices(10, FitnessOrdering::Minimize),
             vec![0, 2, 3, 6]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(10, FitnessOrdering::Minimize),
+            vec![0, 1, 2, 4, 5, 6, 7] // one less
+        );
+    }
+
+    #[test]
+    fn chromosome_indices_all_variants_without_fitness_with_genes_hash() {
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(3)
+            .with_genes_hashing(true)
+            .build()
+            .unwrap();
+
+        let mut population: Population<BinaryChromosome> =
+            build::population_with_fitness_scores(vec![
+                (vec![false, true, true], None),
+                (vec![false, true, true], None),
+                (vec![false, false, false], None),
+                (vec![true, true, true], None),
+                (vec![false, false, false], None),
+                (vec![true, true, true], None),
+                (vec![false, false, true], None),
+                (vec![false, false, true], None),
+                (vec![true, true, false], None),
+                (vec![true, true, false], None),
+            ]);
+
+        population.chromosomes.iter_mut().for_each(|chromosome| {
+            let genes_hash = genotype.calculate_genes_hash(chromosome);
+            chromosome.set_genes_hash(genes_hash);
+        });
+
+        // uniqueness
+        assert_eq!(population.unique_chromosome_indices(), vec![0, 2, 3, 6, 8]);
+
+        // all empty
+        assert_eq!(
+            population.best_unique_chromosome_indices(2, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(2, FitnessOrdering::Maximize),
+            vec![]
+        );
+    }
+
+    #[test]
+    fn chromosome_indices_all_variants_with_fitness_without_genes_hash() {
+        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
+            (vec![false, true, true], Some(2)),
+            (vec![false, true, true], Some(2)),
+            (vec![false, false, false], Some(0)),
+            (vec![true, true, true], Some(3)),
+            (vec![false, false, false], Some(0)),
+            (vec![true, true, true], Some(3)),
+            (vec![false, false, true], Some(1)),
+            (vec![false, false, true], Some(1)),
+            (vec![true, true, false], None),
+            (vec![true, true, false], None),
+        ]);
+
+        // uniqueness
+        assert_eq!(population.unique_chromosome_indices(), vec![]);
+
+        // top N
+        assert_eq!(
+            population.best_unique_chromosome_indices(2, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(2, FitnessOrdering::Maximize),
+            vec![3, 5] // same genes hash
+        );
+        assert_eq!(
+            population.best_chromosome_indices(3, FitnessOrdering::Maximize),
+            vec![0, 3, 5] // same genes hash
+        );
+
+        // top 1
+        assert_eq!(
+            population.best_unique_chromosome_indices(1, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(1, FitnessOrdering::Maximize),
+            vec![3]
+        );
+
+        // top 0
+        assert_eq!(
+            population.best_unique_chromosome_indices(0, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(0, FitnessOrdering::Maximize),
+            vec![]
+        );
+
+        // top all
+        assert_eq!(
+            population.best_unique_chromosome_indices(10, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(10, FitnessOrdering::Maximize),
+            vec![0, 1, 3, 4, 5, 6, 7] // one less
+        );
+
+        // top N
+        assert_eq!(
+            population.best_unique_chromosome_indices(2, FitnessOrdering::Minimize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(2, FitnessOrdering::Minimize),
+            vec![2, 4] // same genes hash
+        );
+        assert_eq!(
+            population.best_chromosome_indices(3, FitnessOrdering::Minimize),
+            vec![2, 4, 6] // same genes hash
+        );
+
+        // top 1
+        assert_eq!(
+            population.best_unique_chromosome_indices(1, FitnessOrdering::Minimize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(1, FitnessOrdering::Minimize),
+            vec![2]
+        );
+
+        // top 0
+        assert_eq!(
+            population.best_unique_chromosome_indices(0, FitnessOrdering::Minimize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(0, FitnessOrdering::Minimize),
+            vec![]
+        );
+
+        // top all
+        assert_eq!(
+            population.best_unique_chromosome_indices(10, FitnessOrdering::Minimize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(10, FitnessOrdering::Minimize),
+            vec![0, 1, 2, 4, 5, 6, 7] // one less
         );
     }
 
