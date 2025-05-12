@@ -65,8 +65,9 @@ impl<C: Chromosome> Population<C> {
         }
     }
 
-    // In summary a bit quirky, but fast and doesn't require genes_hashing.
-    // Doesn't matter the amount should be much less than the population size.
+    // In summary a bit quirky, but fast and doesn't require genes_hashing,
+    // which doesn't matter as the amount should be much less than the population size (usage in elitism_rate)
+    //
     // Returns one less than total size with known fitness due to implementation constraints.
     // Does not care about uniqueness of the genes_hash.
     pub fn best_chromosome_indices(
@@ -115,8 +116,7 @@ impl<C: Chromosome> Population<C> {
     }
 
     // Only works when genes_hash is stored on chromosome, as this is the uniqueness key.
-    // Assume chromosomes sorted by fitness, takes the first index occurence of a genes_hash
-    // Returns indices in ascending order (irrespective of fitness)
+    // Takes the first index occurence of a genes_hash. Returns indices in ascending order (irrespective of fitness)
     pub fn best_unique_chromosome_indices(
         &self,
         amount: usize,

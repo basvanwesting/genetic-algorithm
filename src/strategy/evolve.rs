@@ -138,7 +138,7 @@ pub enum EvolveVariant {
 /// // the search space
 /// let genotype = BinaryGenotype::builder() // boolean alleles
 ///     .with_genes_size(100)                // 100 genes per chromosome
-///     .with_genes_hashing(true)            // store genes_hash on chromosome (required for fitness_cache, optional for better population cardinality estimation)
+///     .with_genes_hashing(true)            // store genes_hash on chromosome (required for fitness_cache and deduplication extension, optional for better population cardinality estimation)
 ///     .build()
 ///     .unwrap();
 ///
@@ -147,7 +147,7 @@ pub enum EvolveVariant {
 ///     .with_genotype(genotype)
 ///
 ///     .with_select(SelectElite::new(0.5, 0.02))               // sort the chromosomes by fitness to determine crossover order. Strive to replace 50% of the population with offspring. Allow 2% through the non-generational best chromosomes gate before selection and replacement
-///     .with_extension(ExtensionMassExtinction::new(10, 0.1, 0.02))  // optional builder step, simulate cambrian explosion by mass extinction, when population cardinality drops to 10 after the selection, trim to 10% of population
+///     .with_extension(ExtensionMassExtinction::new(10, 0.1, 0.02)) // optional builder step, simulate cambrian explosion by mass extinction, when population cardinality drops to 10 after the selection, trim to 10% of population
 ///     .with_crossover(CrossoverUniform::new(0.7, 0.8))        // crossover all individual genes between 2 chromosomes for offspring with 70% parent selection (30% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
 ///     .with_mutate(MutateSingleGene::new(0.2))                // mutate offspring for a single gene with a 20% probability per chromosome
 ///     .with_fitness(CountTrue)                                // count the number of true values in the chromosomes

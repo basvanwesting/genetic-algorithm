@@ -52,11 +52,11 @@ fn removes_randomly() {
         inspect::population_with_fitness_scores(&state.population),
         vec![
             // elite
-            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
             (vec![true, false, false], Some(2)),
             // normal
             (vec![true, true, true], Some(0)),
-            (vec![true, true, true], Some(0))
+            (vec![true, true, true], Some(0)),
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 10);

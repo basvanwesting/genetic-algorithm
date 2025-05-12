@@ -33,7 +33,7 @@
 //! // the search space
 //! let genotype = BinaryGenotype::builder()
 //!     .with_genes_size(10)
-//!     .with_genes_hashing(true) // store genes_hash on chromosome (required for fitness_cache, optional for better population cardinality estimation)
+//!     .with_genes_hashing(true) // store genes_hash on chromosome (required for fitness_cache and deduplication extension, optional for better population cardinality estimation)
 //!     .build()
 //!     .unwrap();
 //!

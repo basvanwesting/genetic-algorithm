@@ -7,8 +7,9 @@ use std::time::Instant;
 
 /// Simulates a cambrian explosion. The controlling metric is population cardinality in the
 /// population after selection. When this cardinality drops to the threshold, the population is
-/// randomly reduced regardless of fitness using the survival_rate (fraction of population).
-/// The elitism_rate ensures the passing of the best chromosomes before random reduction starts.
+/// randomly reduced regardless of fitness using the survival_rate (fraction of population). The
+/// elitism_rate ensures the passing of the best chromosomes before random reduction starts
+/// (doesn't care about best chromosome uniqueness).
 ///
 /// Population will recover in the following generations
 #[derive(Debug, Clone)]
@@ -42,12 +43,8 @@ impl Extension for MassExtinction {
                     let elitism_size = ((population_size as f32 * self.elitism_rate).ceil()
                         as usize)
                         .min(population_size);
-                    let mut elite_chromosomes = self.extract_unique_elite_chromosomes(
-                        genotype,
-                        state,
-                        config,
-                        elitism_size,
-                    );
+                    let mut elite_chromosomes =
+                        self.extract_elite_chromosomes(genotype, state, config, elitism_size);
                     let elitism_size = elite_chromosomes.len();
 
                     let remaining_size: usize = ((population_size as f32 * self.survival_rate)

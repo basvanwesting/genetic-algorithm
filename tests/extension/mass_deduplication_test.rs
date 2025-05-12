@@ -104,10 +104,9 @@ fn never_leaves_less_than_two() {
 }
 
 #[test]
-fn never_removes_all_if_no_genes_hash() {
+fn skips_execution_if_no_genes_hash() {
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
-        .with_genes_hashing(true)
         .build()
         .unwrap();
 
@@ -125,8 +124,8 @@ fn never_removes_all_if_no_genes_hash() {
     assert_eq!(population.chromosomes.capacity(), 10);
 
     let mut state = EvolveState::new(&genotype);
-    assert_eq!(population.genes_cardinality(), None); // trigger, because no cardinality if no genes hashes
-    state.population_cardinality = population.genes_cardinality();
+    assert_eq!(population.genes_cardinality(), None);
+    state.population_cardinality = Some(2); // hard trigger, because no cardinality if no genes hashes
     state.population = population;
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();

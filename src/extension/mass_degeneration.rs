@@ -8,8 +8,9 @@ use std::time::Instant;
 /// Simulates a cambrian explosion. The controlling metric is population cardinality in the
 /// population after selection. When this cardinality drops to the threshold, the population is
 /// mutated the provided number of times, where the [Genotype](crate::genotype::Genotype)
-/// determines whether this is random, relative or scaled.
-/// The elitism_rate ensures the passing of the best chromosomes before mutations are applied.
+/// determines whether this is random, relative or scaled. The elitism_rate ensures the passing of
+/// the best chromosomes before mutations are applied (doesn't care about best chromosome
+/// uniqueness).
 ///
 /// Duplicate mutations of the same gene are allowed. There is no change in population size.
 #[derive(Debug, Clone)]
@@ -43,12 +44,8 @@ impl Extension for MassDegeneration {
                     let elitism_size = ((population_size as f32 * self.elitism_rate).ceil()
                         as usize)
                         .min(population_size);
-                    let mut elite_chromosomes = self.extract_unique_elite_chromosomes(
-                        genotype,
-                        state,
-                        config,
-                        elitism_size,
-                    );
+                    let mut elite_chromosomes =
+                        self.extract_elite_chromosomes(genotype, state, config, elitism_size);
                     let elitism_size = elite_chromosomes.len();
 
                     for chromosome in state.population.chromosomes.iter_mut() {

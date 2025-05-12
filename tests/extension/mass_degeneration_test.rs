@@ -40,7 +40,7 @@ fn degenerates_randomly() {
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassDegeneration::new(3, 2, 0.25).call(
+    ExtensionMassDegeneration::new(3, 2, 0.33).call(
         &mut genotype,
         &mut state,
         &config,
@@ -54,13 +54,13 @@ fn degenerates_randomly() {
             // elite
             (vec![true, true, false], Some(1)),
             (vec![true, false, false], Some(2)),
-            // others
-            (vec![true, true, false], None),
+            (vec![true, false, false], Some(2)),
+            // normal
             (vec![true, true, true], None),
             (vec![true, false, true], None),
-            (vec![false, false, true], None),
-            (vec![true, false, false], None),
-            (vec![true, true, true], None)
+            (vec![true, true, true], None),
+            (vec![true, false, true], None),
+            (vec![true, true, true], None),
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 10);

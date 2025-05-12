@@ -111,7 +111,7 @@ pub enum HillClimbVariant {
 /// // the search space
 /// let genotype = RangeGenotype::builder()     // f32 alleles
 ///     .with_genes_size(16)                    // 16 genes
-///     .with_genes_hashing(true)               // store genes_hash on chromosome (required for fitness_cache)
+///     .with_genes_hashing(true)               // store genes_hash on chromosome (required for fitness_cache and deduplication extension)
 ///     .with_allele_range(0.0..=1.0)           // allow gene values between 0.0 and 1.0
 ///     .with_allele_mutation_range(-0.1..=0.1) // neighbouring step size randomly sampled from range
 ///     .with_allele_mutation_scaled_range(vec![
