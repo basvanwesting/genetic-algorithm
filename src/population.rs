@@ -1,9 +1,11 @@
 //! The population is a  container for [Chromosomes](Chromosome)
-use crate::chromosome::Chromosome;
+use crate::chromosome::{Chromosome, GenesHash};
 use crate::fitness::{FitnessOrdering, FitnessValue};
 use cardinality_estimator::CardinalityEstimator;
+use itertools::Itertools;
 use rand::prelude::*;
 use std::cmp::Reverse;
+use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
 pub struct Population<C: Chromosome> {
@@ -65,6 +67,7 @@ impl<C: Chromosome> Population<C> {
 
     // Returns one less than total size with known fitness due to implementation constraints
     // Doesn't matter the amount should be much less than the population size
+    // Does not care about uniqueness of the genes_hash
     pub fn best_chromosome_indices(
         &self,
         amount: usize,
@@ -92,6 +95,57 @@ impl<C: Chromosome> Population<C> {
             let mut result: Vec<usize> = lesser.iter().map(|(idx, _)| *idx).collect();
             result.sort_unstable();
             result
+        }
+    }
+
+    // Only works when genes_hash is stored on chromosome, as this is the uniqueness key.
+    // Takes the first index occurence of a genes_hash. Returns indices in ascending order
+    pub fn unique_chromosome_indices(&self) -> Vec<usize> {
+        let mut data: HashMap<GenesHash, usize> = HashMap::new();
+        self.chromosomes
+            .iter()
+            .enumerate()
+            .for_each(|(index, chromosome)| {
+                if let Some(genes_hash) = chromosome.genes_hash() {
+                    data.entry(genes_hash).or_insert_with(|| index);
+                }
+            });
+        data.into_values().sorted().collect()
+    }
+
+    // Only works when genes_hash is stored on chromosome, as this is the uniqueness key.
+    // Assume chromosomes sorted by fitness, takes the first index occurence of a genes_hash
+    // Returns indices in ascending order (irrespective of fitness)
+    pub fn best_unique_chromosome_indices(
+        &self,
+        amount: usize,
+        fitness_ordering: FitnessOrdering,
+    ) -> Vec<usize> {
+        let mut data: HashMap<GenesHash, (usize, isize)> = HashMap::new();
+        self.chromosomes
+            .iter()
+            .enumerate()
+            .for_each(|(index, chromosome)| {
+                if let Some(genes_hash) = chromosome.genes_hash() {
+                    if let Some(fitness_score) = chromosome.fitness_score() {
+                        data.entry(genes_hash)
+                            .or_insert_with(|| (index, fitness_score));
+                    }
+                }
+            });
+
+        if data.is_empty() {
+            Vec::new()
+        } else {
+            let iterator = match fitness_ordering {
+                FitnessOrdering::Maximize => data
+                    .into_values()
+                    .sorted_unstable_by_key(|(_, score)| Reverse(*score)),
+                FitnessOrdering::Minimize => data
+                    .into_values()
+                    .sorted_unstable_by_key(|(_, score)| *score),
+            };
+            iterator.take(amount).map(|(idx, _)| idx).sorted().collect()
         }
     }
 

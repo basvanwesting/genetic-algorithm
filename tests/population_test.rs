@@ -178,6 +178,98 @@ mod population_tests {
     }
 
     #[test]
+    fn unique_chromosome_indices() {
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(3)
+            .with_genes_hashing(true)
+            .build()
+            .unwrap();
+
+        let mut population: Population<BinaryChromosome> =
+            build::population_with_fitness_scores(vec![
+                (vec![false, true, true], Some(2)),
+                (vec![false, true, true], Some(2)),
+                (vec![false, false, false], Some(0)),
+                (vec![true, true, true], Some(3)),
+                (vec![false, false, false], Some(0)),
+                (vec![true, true, true], Some(3)),
+                (vec![false, false, true], Some(1)),
+                (vec![false, false, true], Some(1)),
+                (vec![true, true, false], None),
+                (vec![true, true, false], None),
+            ]);
+
+        population.chromosomes.iter_mut().for_each(|chromosome| {
+            let genes_hash = genotype.calculate_genes_hash(chromosome);
+            chromosome.set_genes_hash(genes_hash);
+        });
+
+        assert_eq!(population.unique_chromosome_indices(), vec![0, 2, 3, 6, 8]);
+    }
+
+    #[test]
+    fn best_unique_chromosome_indices() {
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(3)
+            .with_genes_hashing(true)
+            .build()
+            .unwrap();
+
+        let mut population: Population<BinaryChromosome> =
+            build::population_with_fitness_scores(vec![
+                (vec![false, true, true], Some(2)),
+                (vec![false, true, true], Some(2)),
+                (vec![false, false, false], Some(0)),
+                (vec![true, true, true], Some(3)),
+                (vec![false, false, false], Some(0)),
+                (vec![true, true, true], Some(3)),
+                (vec![false, false, true], Some(1)),
+                (vec![false, false, true], Some(1)),
+                (vec![true, true, false], None),
+                (vec![true, true, false], None),
+            ]);
+
+        population.chromosomes.iter_mut().for_each(|chromosome| {
+            let genes_hash = genotype.calculate_genes_hash(chromosome);
+            chromosome.set_genes_hash(genes_hash);
+        });
+
+        assert_eq!(
+            population.best_unique_chromosome_indices(2, FitnessOrdering::Maximize),
+            vec![0, 3]
+        );
+        assert_eq!(
+            population.best_unique_chromosome_indices(1, FitnessOrdering::Maximize),
+            vec![3]
+        );
+        assert_eq!(
+            population.best_unique_chromosome_indices(0, FitnessOrdering::Maximize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_unique_chromosome_indices(10, FitnessOrdering::Maximize),
+            vec![0, 2, 3, 6]
+        );
+
+        assert_eq!(
+            population.best_unique_chromosome_indices(2, FitnessOrdering::Minimize),
+            vec![2, 6]
+        );
+        assert_eq!(
+            population.best_unique_chromosome_indices(1, FitnessOrdering::Minimize),
+            vec![2]
+        );
+        assert_eq!(
+            population.best_unique_chromosome_indices(0, FitnessOrdering::Minimize),
+            vec![]
+        );
+        assert_eq!(
+            population.best_unique_chromosome_indices(10, FitnessOrdering::Minimize),
+            vec![0, 2, 3, 6]
+        );
+    }
+
+    #[test]
     fn fitness_score_cardinality() {
         let population: Population<BinaryChromosome> = build::population(vec![
             vec![false, false, false],
