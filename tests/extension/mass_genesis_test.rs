@@ -12,35 +12,43 @@ use rand::prelude::*;
 fn removes_lesser() {
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
+        .with_genes_hashing(true)
         .build()
         .unwrap();
 
     let mut population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-        (vec![false, true, true], Some(1)),
-        (vec![false, true, false], Some(2)),
-        (vec![false, false, true], Some(3)),
-        (vec![false, false, false], Some(4)),
-        (vec![true, true, true], Some(5)),
-        (vec![true, true, false], Some(3)),
-        (vec![true, false, true], Some(2)),
-        (vec![true, false, false], Some(1)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
     ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
+    population.chromosomes.iter_mut().for_each(|chromosome| {
+        let genes_hash = genotype.calculate_genes_hash(chromosome);
+        chromosome.set_genes_hash(genes_hash);
+    });
+
     let mut state = EvolveState::new(&genotype);
+    assert_eq!(population.genes_cardinality(), Some(3));
+    state.population_cardinality = population.genes_cardinality();
     state.population = population;
-    state.population_cardinality = Some(5);
+
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassGenesis::new(5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    ExtensionMassGenesis::new(3).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
-            (vec![true, true, true], Some(5)),
-            (vec![false, false, false], Some(4)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, false], Some(1)),
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 10);
@@ -50,35 +58,43 @@ fn removes_lesser() {
 fn removes_lesser_no_fitness() {
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
+        .with_genes_hashing(true)
         .build()
         .unwrap();
 
     let mut population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-        (vec![false, true, true], None),
-        (vec![false, true, false], None),
-        (vec![false, false, true], None),
-        (vec![false, false, false], None),
         (vec![true, true, true], None),
         (vec![true, true, false], None),
-        (vec![true, false, true], None),
         (vec![true, false, false], None),
+        (vec![true, true, true], None),
+        (vec![true, true, false], None),
+        (vec![true, false, false], None),
+        (vec![true, true, true], None),
+        (vec![true, true, false], None),
     ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
+    population.chromosomes.iter_mut().for_each(|chromosome| {
+        let genes_hash = genotype.calculate_genes_hash(chromosome);
+        chromosome.set_genes_hash(genes_hash);
+    });
+
     let mut state = EvolveState::new(&genotype);
+    assert_eq!(population.genes_cardinality(), Some(3));
+    state.population_cardinality = population.genes_cardinality();
     state.population = population;
-    state.population_cardinality = Some(5);
+
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassGenesis::new(5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    ExtensionMassGenesis::new(3).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
         vec![
-            (vec![false, true, true], None),
-            (vec![false, true, false], None)
+            (vec![true, true, true], None),
+            (vec![true, true, false], None)
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 10);
@@ -89,6 +105,7 @@ fn removes_lesser_matrix() {
     let rng = &mut SmallRng::seed_from_u64(1);
     let mut genotype = StaticMatrixGenotype::<u8, 3, 8>::builder()
         .with_genes_size(3)
+        .with_genes_hashing(true)
         .with_allele_range(0..=10)
         .build()
         .unwrap();
@@ -105,12 +122,19 @@ fn removes_lesser_matrix() {
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
+    population.chromosomes.iter_mut().for_each(|chromosome| {
+        let genes_hash = genotype.calculate_genes_hash(chromosome);
+        chromosome.set_genes_hash(genes_hash);
+    });
+
     let mut state = EvolveState::new(&genotype);
+    assert_eq!(population.genes_cardinality(), Some(8));
+    state.population_cardinality = population.genes_cardinality();
     state.population = population;
-    state.population_cardinality = Some(6);
+
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
-    ExtensionMassGenesis::new(7).call(&mut genotype, &mut state, &config, &mut reporter, rng);
+    ExtensionMassGenesis::new(10).call(&mut genotype, &mut state, &config, &mut reporter, rng);
 
     assert_eq!(
         state

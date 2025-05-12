@@ -42,8 +42,12 @@ impl Extension for MassExtinction {
                     let elitism_size = ((population_size as f32 * self.elitism_rate).ceil()
                         as usize)
                         .min(population_size);
-                    let mut elite_chromosomes =
-                        self.extract_elite_chromosomes(state, config, elitism_size);
+                    let mut elite_chromosomes = self.extract_unique_elite_chromosomes(
+                        genotype,
+                        state,
+                        config,
+                        elitism_size,
+                    );
                     let elitism_size = elite_chromosomes.len();
 
                     let remaining_size: usize = ((population_size as f32 * self.survival_rate)

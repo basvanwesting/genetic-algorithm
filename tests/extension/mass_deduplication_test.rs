@@ -104,7 +104,7 @@ fn never_leaves_less_than_two() {
 }
 
 #[test]
-fn never_removes_all_of_no_genes_hash() {
+fn never_removes_all_if_no_genes_hash() {
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)

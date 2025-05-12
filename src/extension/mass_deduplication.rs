@@ -1,11 +1,8 @@
 use super::{Extension, ExtensionEvent};
-use crate::chromosome::{Chromosome, GenesHash};
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
-use std::collections::hash_map::Entry;
-use std::collections::HashMap;
 use std::time::Instant;
 
 /// Simulates a cambrian explosion. The controlling metric is population cardinality in the
@@ -30,7 +27,6 @@ impl Extension for MassDeduplication {
     ) {
         if genotype.genes_hashing() && state.population.size() >= config.target_population_size {
             let now = Instant::now();
-            // ensures min 1
             if let Some(cardinality) = state.population_cardinality() {
                 if cardinality <= self.cardinality_threshold {
                     reporter.on_extension_event(
@@ -40,36 +36,16 @@ impl Extension for MassDeduplication {
                         config,
                     );
 
-                    let mut selected_chromosomes: HashMap<GenesHash, G::Chromosome> =
-                        HashMap::new();
-                    state
-                        .population
-                        .chromosomes
-                        .drain(..)
-                        .for_each(|chromosome| {
-                            if let Some(genes_hash) = chromosome.genes_hash() {
-                                match selected_chromosomes.entry(genes_hash) {
-                                    Entry::Occupied(_) => {
-                                        genotype.chromosome_destructor(chromosome);
-                                    }
-                                    Entry::Vacant(entry) => {
-                                        entry.insert(chromosome);
-                                    }
-                                }
-                            } else {
-                                genotype.chromosome_destructor(chromosome);
-                            }
-                        });
+                    let mut unique_chromosomes =
+                        self.extract_unique_chromosomes(genotype, state, config);
+                    let unique_size = unique_chromosomes.len();
 
-                    state
-                        .population
-                        .chromosomes
-                        .extend(selected_chromosomes.into_values());
-
-                    // ensures min 2
-                    if state.population.size() == 1 {
-                        genotype.chromosome_cloner_expand(&mut state.population.chromosomes, 1);
-                    }
+                    let remaining_size = 2usize.saturating_sub(unique_size);
+                    genotype.chromosome_destructor_truncate(
+                        &mut state.population.chromosomes,
+                        remaining_size,
+                    );
+                    state.population.chromosomes.append(&mut unique_chromosomes);
                 }
             }
             state.add_duration(StrategyAction::Extension, now.elapsed());
