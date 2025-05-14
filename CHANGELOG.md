@@ -4,6 +4,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.20.3] - 2025-05-14
+### Added
+* Initialize first `HillClimb` `SteepestAscent` population with the
+  `seed_genes_list`, to ensure the best seed is taken as the starting point
+  when seeds are provided.
+
 ## [0.20.2] - 2025-05-12
 ### Added
 * Add `max_generations` ending condition on `Evolve` and `HillClimb` strategies
