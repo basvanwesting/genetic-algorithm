@@ -310,24 +310,47 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
 
         match self.config.variant {
-            HillClimbVariant::Stochastic => self.fitness.call_for_state_chromosome(
-                &self.genotype,
-                &mut self.state,
-                &self.config,
-            ),
+            HillClimbVariant::Stochastic => {
+                self.fitness.call_for_state_chromosome(
+                    &self.genotype,
+                    &mut self.state,
+                    &self.config,
+                );
+                self.state.update_best_chromosome_from_state_chromosome(
+                    &mut self.genotype,
+                    &self.config,
+                    &mut self.reporter,
+                );
+            }
             HillClimbVariant::SteepestAscent => {
-                // skip so calculate_for_chromosome does not have to be implemented on Fitness
+                // population of one
+                self.state.population.chromosomes.push(
+                    self.genotype
+                        .chromosome_cloner(self.state.chromosome.as_ref().unwrap()),
+                );
+                // calculate_for_chromosome does not have to be implemented on Fitness
+                self.fitness.call_for_state_population(
+                    &self.genotype,
+                    &mut self.state,
+                    &self.config,
+                    None,
+                );
+                self.state.update_best_chromosome_from_state_population(
+                    &mut self.genotype,
+                    &self.config,
+                    &mut self.reporter,
+                    &mut self.rng,
+                );
+                // cleanup population
+                self.genotype
+                    .chromosome_destructor_truncate(&mut self.state.population.chromosomes, 0);
             }
         }
 
-        // best by definition
+        // in case fitness_score is None, set best by definition anyway
         self.state.best_generation = self.state.current_generation;
-        self.state.best_fitness_score = self.state.chromosome.as_ref().unwrap().fitness_score();
         self.genotype
             .save_best_genes(self.state.chromosome.as_ref().unwrap());
-
-        self.reporter
-            .on_new_best_chromosome(&self.genotype, &self.state, &self.config);
     }
     pub fn cleanup(&mut self, fitness_thread_local: Option<&mut ThreadLocal<RefCell<F>>>) {
         let now = Instant::now();

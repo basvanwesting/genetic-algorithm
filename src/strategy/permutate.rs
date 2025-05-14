@@ -177,15 +177,16 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
         self.fitness
             .call_for_state_chromosome(&self.genotype, &mut self.state, &self.config);
+        self.state.update_best_chromosome_and_report(
+            &mut self.genotype,
+            &self.config,
+            &mut self.reporter,
+        );
 
-        // best by definition
+        // in case fitness_score is None, set best by definition anyway
         self.state.best_generation = self.state.current_generation;
-        self.state.best_fitness_score = self.state.chromosome.as_ref().unwrap().fitness_score();
         self.genotype
             .save_best_genes(self.state.chromosome.as_ref().unwrap());
-
-        self.reporter
-            .on_new_best_chromosome(&self.genotype, &self.state, &self.config);
     }
     pub fn cleanup(&mut self) {
         let now = Instant::now();
