@@ -273,6 +273,9 @@ impl ChromosomeManager<Self> for Binary {
         chromosome.genes.clone_from(genes);
         self.reset_chromosome_state(chromosome);
     }
+    fn get_genes(&self, chromosome: &BinaryChromosome) -> Vec<bool> {
+        chromosome.genes.clone()
+    }
     fn copy_genes(&mut self, source: &BinaryChromosome, target: &mut BinaryChromosome) {
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);

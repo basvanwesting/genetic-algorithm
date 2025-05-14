@@ -602,6 +602,9 @@ where
         chromosome.genes.clone_from(genes);
         self.reset_chromosome_state(chromosome);
     }
+    fn get_genes(&self, chromosome: &MultiRangeChromosome<T>) -> Vec<T> {
+        chromosome.genes.clone()
+    }
     fn copy_genes(
         &mut self,
         source: &MultiRangeChromosome<T>,

@@ -369,6 +369,9 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for MultiList<T> {
         chromosome.genes.clone_from(genes);
         self.reset_chromosome_state(chromosome);
     }
+    fn get_genes(&self, chromosome: &MultiListChromosome<T>) -> Vec<T> {
+        chromosome.genes.clone()
+    }
     fn copy_genes(&mut self, source: &MultiListChromosome<T>, target: &mut MultiListChromosome<T>) {
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);

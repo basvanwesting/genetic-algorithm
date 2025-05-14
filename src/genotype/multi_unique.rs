@@ -389,6 +389,9 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for MultiUnique<T> {
         chromosome.genes.clone_from(genes);
         self.reset_chromosome_state(chromosome);
     }
+    fn get_genes(&self, chromosome: &MultiUniqueChromosome<T>) -> Vec<T> {
+        chromosome.genes.clone()
+    }
     fn copy_genes(
         &mut self,
         source: &MultiUniqueChromosome<T>,

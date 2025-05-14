@@ -669,6 +669,9 @@ where
         x.copy_from_slice(genes.as_slice());
         self.reset_chromosome_state(chromosome);
     }
+    fn get_genes(&self, chromosome: &StaticMatrixChromosome) -> Box<[T; N]> {
+        Box::new(self.data[chromosome.row_id])
+    }
     fn copy_genes(&mut self, source: &StaticMatrixChromosome, target: &mut StaticMatrixChromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
         self.copy_chromosome_state(source, target);

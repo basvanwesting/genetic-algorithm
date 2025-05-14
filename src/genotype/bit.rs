@@ -354,6 +354,9 @@ impl ChromosomeManager<Self> for Bit {
         chromosome.genes.clone_from(genes);
         self.reset_chromosome_state(chromosome);
     }
+    fn get_genes(&self, chromosome: &BitChromosome) -> FixedBitSet {
+        chromosome.genes.clone()
+    }
     fn copy_genes(&mut self, source: &BitChromosome, target: &mut BitChromosome) {
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);

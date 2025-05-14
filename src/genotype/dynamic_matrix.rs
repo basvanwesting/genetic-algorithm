@@ -674,6 +674,9 @@ where
         x.copy_from_slice(genes);
         self.reset_chromosome_state(chromosome);
     }
+    fn get_genes(&self, chromosome: &DynamicMatrixChromosome) -> Vec<T> {
+        self.get_genes_by_id(chromosome.row_id).to_vec()
+    }
     fn copy_genes(
         &mut self,
         source: &DynamicMatrixChromosome,

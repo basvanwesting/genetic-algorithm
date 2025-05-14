@@ -257,6 +257,9 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for Unique<T> {
         chromosome.genes.clone_from(genes);
         self.reset_chromosome_state(chromosome);
     }
+    fn get_genes(&self, chromosome: &UniqueChromosome<T>) -> Vec<T> {
+        chromosome.genes.clone()
+    }
     fn copy_genes(&mut self, source: &UniqueChromosome<T>, target: &mut UniqueChromosome<T>) {
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);

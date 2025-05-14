@@ -317,6 +317,9 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for List<T> {
         chromosome.genes.clone_from(genes);
         self.reset_chromosome_state(chromosome);
     }
+    fn get_genes(&self, chromosome: &ListChromosome<T>) -> Vec<T> {
+        chromosome.genes.clone()
+    }
     fn copy_genes(&mut self, source: &ListChromosome<T>, target: &mut ListChromosome<T>) {
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);

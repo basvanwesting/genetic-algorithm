@@ -71,6 +71,8 @@ pub trait ChromosomeManager<G: Genotype> {
     /// Mandatory, also resets state
     fn set_genes(&mut self, chromosome: &mut G::Chromosome, genes: &G::Genes);
     /// Mandatory
+    fn get_genes(&self, chromosome: &G::Chromosome) -> G::Genes;
+    /// Mandatory
     fn chromosome_bin_push(&mut self, _chromosome: G::Chromosome);
     /// Mandatory
     /// Take from the recycling bin or create new chromosome with capacities set.
