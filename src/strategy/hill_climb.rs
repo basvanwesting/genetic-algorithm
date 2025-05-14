@@ -306,6 +306,9 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 
         let chromosome = self.genotype.chromosome_constructor_random(&mut self.rng);
         self.state.chromosome = Some(chromosome);
+        self.genotype
+            .save_best_genes(self.state.chromosome.as_ref().unwrap());
+        self.state.best_generation = self.state.current_generation;
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
 
@@ -323,12 +326,13 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 );
             }
             HillClimbVariant::SteepestAscent => {
-                // population of one
-                self.state.population.chromosomes.push(
-                    self.genotype
-                        .chromosome_cloner(self.state.chromosome.as_ref().unwrap()),
-                );
-                // calculate_for_chromosome does not have to be implemented on Fitness
+                // init population with all seeds for first population if present, or just a single
+                // random chromosome
+                let population_size = self.genotype.seed_genes_list().len().max(1);
+                self.state.population = self
+                    .genotype
+                    .population_constructor(population_size, &mut self.rng);
+
                 self.fitness.call_for_state_population(
                     &self.genotype,
                     &mut self.state,
@@ -341,16 +345,8 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     &mut self.reporter,
                     &mut self.rng,
                 );
-                // cleanup population
-                self.genotype
-                    .chromosome_destructor_truncate(&mut self.state.population.chromosomes, 0);
             }
         }
-
-        // in case fitness_score is None, set best by definition anyway
-        self.state.best_generation = self.state.current_generation;
-        self.genotype
-            .save_best_genes(self.state.chromosome.as_ref().unwrap());
     }
     pub fn cleanup(&mut self, fitness_thread_local: Option<&mut ThreadLocal<RefCell<F>>>) {
         let now = Instant::now();

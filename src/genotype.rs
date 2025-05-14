@@ -148,10 +148,7 @@ pub trait Genotype:
         .map(|(n, e)| format!("{} => {}", n, e))
         .join(", ")
     }
-}
 
-/// Genotype suitable for [Evolve](crate::strategy::evolve::Evolve).
-pub trait EvolveGenotype: Genotype {
     fn population_constructor<R: Rng>(
         &mut self,
         population_size: usize,
@@ -175,7 +172,10 @@ pub trait EvolveGenotype: Genotype {
             )
         }
     }
+}
 
+/// Genotype suitable for [Evolve](crate::strategy::evolve::Evolve).
+pub trait EvolveGenotype: Genotype {
     /// Crossover genes between a pair of chromosomes.
     /// Choose between allowing duplicates or not (~2x slower).
     /// panics if there are no valid crossover indexes

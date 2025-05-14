@@ -54,7 +54,7 @@
 //!     .with_max_stale_generations(100)                        // (E,H) stop searching if there is no improvement in fitness score for 100 generations
 //!     .with_max_generations(1_000_000)                        // (E,H) optional, stop searching after 1M generations
 //!     .with_max_chromosome_age(10)                            // (E) kill chromosomes after 10 generations
-//!     .with_reporter(StrategyReporterSimple::new(usize::MAX)) // (E,H,P) optional builder step, report on new best chromsomes only
+//!     .with_reporter(StrategyReporterSimple::new(usize::MAX)) // (E,H,P) optional builder step, report on new best chromosomes only
 //!     .with_replace_on_equal_fitness(true)                    // (E,H,P) optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
 //!     .with_rng_seed_from_u64(0);                             // (E,H) for testing with deterministic results
 //!
