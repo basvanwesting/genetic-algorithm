@@ -552,26 +552,26 @@ where
 
         (0..self.genes_size).for_each(|index| {
             let base_value = self.get_gene_by_id(chromosome.row_id, index);
-            let value_start = if base_value + working_range_start < allele_range_start {
+            let value_low = if base_value + working_range_start < allele_range_start {
                 allele_range_start
             } else {
                 base_value + working_range_start
             };
-            let value_end = if base_value + working_range_end > allele_range_end {
+            let value_high = if base_value + working_range_end > allele_range_end {
                 allele_range_end
             } else {
                 base_value + working_range_end
             };
 
-            if value_start < base_value {
+            if value_low < base_value {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
-                self.set_gene_by_id(new_chromosome.row_id, index, value_start);
+                self.set_gene_by_id(new_chromosome.row_id, index, value_low);
                 self.reset_chromosome_state(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome)
             };
-            if base_value < value_end {
+            if value_high > base_value {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
-                self.set_gene_by_id(new_chromosome.row_id, index, value_end);
+                self.set_gene_by_id(new_chromosome.row_id, index, value_high);
                 self.reset_chromosome_state(&mut new_chromosome);
                 population.chromosomes.push(new_chromosome)
             };
