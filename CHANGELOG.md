@@ -4,6 +4,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.20.4] - 2025-05-15
+### Fixed
+* The `replacement_rate` in selection was not working, as the age was
+  incremented before selection leading to only parents and no offspring during
+  selection. Effectively the whole population was selected against without
+  partitioninig. Fix by moving the age increment from the start of the evolve
+  generation (before selection) to just before crossover (after selection).
+* For `GenotypeMultiRange`, remove the weighted probability of mutating a gene,
+  depending on its allele_range size. The assumption of weighted mutation
+  probability holds for `GenotypeMultiList` and `GenotypeMultiUnique`, in order
+  to avoid over mutating the smaller sets with regard to the larger sets. But
+  it does not for `GenotypeMultiRange`. We cannot make the assumption that the
+  range size says anything about the search space size. Now probability of
+  mutating a gene is uniform, regardless of its allele_range size in
+  `GenotypeMultiRange`.
 
 ## [0.20.3] - 2025-05-14
 ### Added
