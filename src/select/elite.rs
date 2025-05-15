@@ -37,7 +37,7 @@ impl Select for Elite {
             .drain(..)
             .partition(|c| c.is_offspring());
 
-        let (new_parents_size, new_offspring_size) = self.survival_sizes(
+        let (new_parents_size, new_offspring_size) = self.parent_and_offspring_survival_sizes(
             parents.len(),
             offspring.len(),
             config.target_population_size - elite_chromosomes.len(),

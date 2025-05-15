@@ -42,7 +42,7 @@ impl Select for Wrapper {
         }
     }
 
-    fn survival_sizes(
+    fn parent_and_offspring_survival_sizes(
         &self,
         parents_size: usize,
         offspring_size: usize,
@@ -50,13 +50,13 @@ impl Select for Wrapper {
         replacement_rate: f32,
     ) -> (usize, usize) {
         match self {
-            Wrapper::Elite(select) => select.survival_sizes(
+            Wrapper::Elite(select) => select.parent_and_offspring_survival_sizes(
                 parents_size,
                 offspring_size,
                 target_population_size,
                 replacement_rate,
             ),
-            Wrapper::Tournament(select) => select.survival_sizes(
+            Wrapper::Tournament(select) => select.parent_and_offspring_survival_sizes(
                 parents_size,
                 offspring_size,
                 target_population_size,

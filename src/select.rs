@@ -62,7 +62,7 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         elite_chromosomes
     }
 
-    fn survival_sizes(
+    fn parent_and_offspring_survival_sizes(
         &self,
         parents_size: usize,
         offspring_size: usize,
