@@ -253,7 +253,6 @@ impl<
             self.state.current_generation += 1;
             self.state
                 .population_filter_age(&mut self.genotype, &self.config);
-            self.state.population.increment_age();
 
             self.plugins.select.call(
                 &mut self.genotype,
@@ -266,6 +265,8 @@ impl<
                 .update_population_cardinality(&mut self.genotype, &self.config);
             self.reporter
                 .on_new_generation(&self.genotype, &self.state, &self.config);
+            self.state.population.increment_age();
+
             self.plugins.extension.call(
                 &mut self.genotype,
                 &mut self.state,

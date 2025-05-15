@@ -396,10 +396,10 @@ fn call_range_f32() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(9778));
+    assert_eq!(evolve.best_fitness_score(), Some(9880));
     assert!(relative_chromosome_eq(
         evolve.best_genes().unwrap(),
-        vec![0.998, 0.981, 0.869, 0.984, 0.994, 0.999, 0.986, 0.976, 0.992, 0.995],
+        vec![0.998, 0.993, 0.979, 0.992, 0.982, 0.999, 0.987, 0.972, 0.979, 0.995],
         0.001
     ));
 }
@@ -426,10 +426,10 @@ fn call_range_usize() {
         .unwrap();
 
     println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(90));
+    assert_eq!(evolve.best_fitness_score(), Some(89));
     assert_eq!(
         evolve.best_genes().unwrap(),
-        vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
+        vec![9, 9, 9, 8, 9, 9, 9, 9, 9, 9]
     );
 }
 
