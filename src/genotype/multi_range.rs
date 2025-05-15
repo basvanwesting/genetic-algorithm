@@ -7,7 +7,7 @@ use bytemuck::cast_slice;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
-use rand::distributions::{Distribution, Uniform, WeightedIndex};
+use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use rustc_hash::FxHasher;
 use std::fmt;
@@ -18,8 +18,8 @@ pub type DefaultAllele = f32;
 
 /// Genes are a vector of numberic values, each individually taken from its own allele_range. The
 /// genes_size is derived to be the allele_ranges length. On random initialization, each gene gets
-/// a value from its own allele_range with a uniform probability. Each gene has a weighted
-/// probability of mutating, depending on its allele_range size. If a gene mutates, a new values is
+/// a value from its own allele_range with a uniform probability. Each gene has a equal
+/// probability of mutating, regardless of its allele_range size. If a gene mutates, a new values is
 /// taken from its own allele_range with a uniform probability. Duplicate allele values are
 /// allowed.
 ///
@@ -92,10 +92,8 @@ where
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<T>>>>,
     pub mutation_type: MutationType,
     gene_index_sampler: Uniform<usize>,
-    gene_weighted_index_sampler: WeightedIndex<f64>,
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
-    pub index_weights: Vec<f64>,
     pub seed_genes_list: Vec<Vec<T>>,
     pub chromosome_bin: Vec<MultiRangeChromosome<T>>,
     pub best_genes: Vec<T>,
@@ -126,10 +124,6 @@ where
         } else {
             let allele_ranges = builder.allele_ranges.unwrap();
             let genes_size = allele_ranges.len();
-            let index_weights: Vec<f64> = allele_ranges
-                .iter()
-                .map(|allele_range| (*allele_range.end()).into() - (*allele_range.start()).into())
-                .collect();
             let mutation_type = if builder.allele_mutation_scaled_ranges.is_some() {
                 MutationType::Scaled
             } else if builder.allele_mutation_ranges.is_some() {
@@ -145,7 +139,6 @@ where
                 allele_mutation_scaled_ranges: builder.allele_mutation_scaled_ranges.clone(),
                 mutation_type,
                 gene_index_sampler: Uniform::from(0..genes_size),
-                gene_weighted_index_sampler: WeightedIndex::new(index_weights.clone()).unwrap(),
                 allele_samplers: allele_ranges
                     .iter()
                     .map(|allele_range| Uniform::from(allele_range.clone()))
@@ -160,7 +153,6 @@ where
                             .collect()
                     },
                 ),
-                index_weights,
                 seed_genes_list: builder.seed_genes_list,
                 chromosome_bin: vec![],
                 best_genes: allele_ranges.iter().map(|a| *a.start()).collect(),
@@ -281,7 +273,7 @@ where
     ) {
         if allow_duplicates {
             for _ in 0..number_of_mutations {
-                let index = self.gene_weighted_index_sampler.sample(rng);
+                let index = self.gene_index_sampler.sample(rng);
                 match self.mutation_type {
                     MutationType::Scaled => self.mutate_chromosome_index_scaled(
                         index,
@@ -298,13 +290,11 @@ where
                 };
             }
         } else {
-            rand::seq::index::sample_weighted(
+            rand::seq::index::sample(
                 rng,
                 self.genes_size,
-                |i| self.index_weights[i],
                 number_of_mutations.min(self.genes_size),
             )
-            .unwrap()
             .iter()
             .for_each(|index| {
                 match self.mutation_type {
@@ -640,7 +630,6 @@ where
             allele_mutation_scaled_ranges: self.allele_mutation_scaled_ranges.clone(),
             mutation_type: self.mutation_type,
             gene_index_sampler: self.gene_index_sampler,
-            gene_weighted_index_sampler: self.gene_weighted_index_sampler.clone(),
             allele_samplers: self
                 .allele_ranges
                 .iter()
@@ -654,7 +643,6 @@ where
                         .collect()
                 },
             ),
-            index_weights: self.index_weights.clone(),
             seed_genes_list: self.seed_genes_list.clone(),
             chromosome_bin: vec![],
             best_genes: self.allele_ranges.iter().map(|a| *a.start()).collect(),
@@ -678,7 +666,6 @@ where
                 &self.allele_mutation_scaled_ranges,
             )
             .field("mutation_type", &self.mutation_type)
-            .field("index_weights", &self.index_weights)
             .field("seed_genes_list", &self.seed_genes_list)
             .finish()
     }

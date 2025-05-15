@@ -24,7 +24,7 @@ fn float_mutate_chromosome_single_random() {
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 2.195, 18.970],
+        vec![0.447, 4.485, 19.798],
         0.001
     ));
 }
@@ -49,7 +49,7 @@ fn float_mutate_chromosome_single_relative() {
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 2.196, 20.0],
+        vec![0.447, 2.592, 19.798],
         0.001
     ));
 
@@ -57,7 +57,7 @@ fn float_mutate_chromosome_single_relative() {
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 2.196, 19.790],
+        vec![0.447, 2.487, 19.975],
         0.001
     ));
 }
@@ -86,14 +86,14 @@ fn float_mutate_chromosome_single_scaled() {
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 2.195, 19.698],
+        vec![0.447, 2.145, 19.798],
         0.001
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 2.195, 19.598],
+        vec![0.447, 2.145, 19.698],
         0.001
     ));
 }
@@ -110,7 +110,7 @@ fn mutate_chromosome_genes_random_with_duplicates() {
     genotype.mutate_chromosome_genes(3, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.0, 0.0, 19.429],
+        vec![0.0, 2.195, 19.429],
         0.001
     ));
 }
@@ -126,7 +126,7 @@ fn mutate_chromosome_genes_random_without_duplicates() {
     genotype.mutate_chromosome_genes(2, false, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.0, 4.485, 14.621],
+        vec![0.0, 4.094, 13.951],
         0.001
     ));
 }
