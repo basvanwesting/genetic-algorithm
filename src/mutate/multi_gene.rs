@@ -9,11 +9,10 @@ use std::time::Instant;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the
 /// [Population](crate::population::Population) with the provided mutation_probability. Then
-/// mutates the selected chromosomes up to the provided number of times (uniform), where the
+/// mutates the selected chromosomes the provided number of times, where the
 /// [Genotype](crate::genotype::Genotype) determines whether this is random, relative or scaled.
 ///
-/// Duplicate mutations of the same gene are allowed, as disallowing duplicates is relatively expensive
-/// and mutations should be quite small, so there is little chance for conflict.
+/// Duplicate mutations of the same gene are avoided.
 ///
 /// Useful when a single mutation would generally not lead to improvement, because the problem
 /// space behaves more like a [UniqueGenotype](crate::genotype::UniqueGenotype) where genes must be
@@ -45,8 +44,8 @@ impl Mutate for MultiGene {
         {
             if self.mutation_probability_sampler.sample(rng) {
                 genotype.mutate_chromosome_genes(
-                    self.number_of_mutations_sampler.sample(rng),
-                    true,
+                    self.number_of_mutations,
+                    false,
                     chromosome,
                     state.current_scale_index,
                     rng,

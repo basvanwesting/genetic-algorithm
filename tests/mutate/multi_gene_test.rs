@@ -24,16 +24,16 @@ fn binary_genotype() {
     state.population = population;
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
-    let mut rng = SmallRng::seed_from_u64(0);
+    let mut rng = SmallRng::seed_from_u64(1);
     MutateMultiGene::new(2, 0.5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
         inspect::population(&state.population),
         vec![
-            vec![true, true, false],
+            vec![true, true, true],
+            vec![false, false, true],
+            vec![false, false, true],
             vec![true, false, false],
-            vec![true, true, false],
-            vec![false, false, true]
         ]
     );
 }
@@ -62,6 +62,6 @@ fn list_genotype() {
 
     assert_eq!(
         inspect::population(&state.population),
-        vec![vec![0, 0, 3], vec![0, 0, 0], vec![0, 0, 2], vec![3, 0, 2]]
+        vec![vec![1, 0, 3], vec![0, 0, 0], vec![0, 0, 0], vec![2, 2, 0]]
     );
 }
