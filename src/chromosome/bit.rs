@@ -23,6 +23,9 @@ impl super::Chromosome for Bit {
     fn set_age(&mut self, age: usize) {
         self.age = age
     }
+    fn is_offspring(&self) -> bool {
+        self.age == 0
+    }
     fn fitness_score(&self) -> Option<FitnessValue> {
         self.fitness_score
     }

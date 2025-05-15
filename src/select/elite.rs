@@ -35,7 +35,7 @@ impl Select for Elite {
             .population
             .chromosomes
             .drain(..)
-            .partition(|c| c.age() == 0);
+            .partition(|c| c.is_offspring());
 
         let (new_parents_size, new_offspring_size) = self.survival_sizes(
             parents.len(),

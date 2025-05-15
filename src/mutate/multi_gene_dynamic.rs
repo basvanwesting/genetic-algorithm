@@ -75,7 +75,7 @@ impl Mutate for MultiGeneDynamic {
             .population
             .chromosomes
             .iter_mut()
-            .filter(|c| c.age() == 0)
+            .filter(|c| c.is_offspring())
         {
             if bool_sampler.sample(rng) {
                 genotype.mutate_chromosome_genes(

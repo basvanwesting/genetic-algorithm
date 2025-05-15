@@ -31,7 +31,7 @@ impl Mutate for SingleGene {
             .population
             .chromosomes
             .iter_mut()
-            .filter(|c| c.age() == 0)
+            .filter(|c| c.is_offspring())
         {
             if self.mutation_probability_sampler.sample(rng) {
                 genotype.mutate_chromosome_genes(
