@@ -449,4 +449,20 @@ mod population_tests {
 
         assert_eq!(population.genes_cardinality(), Some(5));
     }
+
+    #[test]
+    fn offspring_and_parents_size() {
+        let population: Population<BinaryChromosome> = build::population_with_age(vec![
+            (vec![false, false, false], 1),
+            (vec![false, false, true], 1),
+            (vec![false, true, true], 0),
+            (vec![true, true, true], 1),
+            (vec![true, true, false], 1),
+            (vec![false, false, false], 0),
+            (vec![false, false, true], 1),
+            (vec![false, true, true], 0),
+        ]);
+
+        assert_eq!(population.offspring_and_parents_size(), (3, 5));
+    }
 }

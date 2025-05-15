@@ -26,6 +26,17 @@ impl<C: Chromosome> Population<C> {
     pub fn size(&self) -> usize {
         self.chromosomes.len()
     }
+    pub fn offspring_and_parents_size(&self) -> (usize, usize) {
+        self.chromosomes
+            .iter()
+            .fold((0, 0), |(offspring_size, parents_size), chromosome| {
+                if chromosome.is_offspring() {
+                    (offspring_size + 1, parents_size)
+                } else {
+                    (offspring_size, parents_size + 1)
+                }
+            })
+    }
     pub fn shuffle<R: Rng>(&mut self, rng: &mut R) {
         self.chromosomes.shuffle(rng);
     }
