@@ -272,7 +272,7 @@ fn main() {
         .with_max_stale_generations(250)
         // .with_fitness_cache(1000)
         // .with_max_chromosome_age(50)
-        .with_mutate(MutateMultiGene::new(2, 0.2))
+        .with_mutate(MutateMultiGeneRange::new(1..=2, 0.2))
         //.with_mutate(MutateSingleGeneDynamic::new(0.01, 250))
         // .with_mutate(MutateMultiGeneDynamic::new(2, 0.1, 250))
         // .with_crossover(CrossoverSinglePoint::new(0.7, 0.8))

@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   behaviour. This samples the `number_of_mutations` from the provided
   `number_of_mutations_range`. And it allows for duplicate mutations of the
   same gene (as it is less strict anyway)
+* Add parents and offspring size to `on_new_generation` reporting of
+  `EvolveReporterSimple`
 
 ## [0.20.3] - 2025-05-14
 ### Added
