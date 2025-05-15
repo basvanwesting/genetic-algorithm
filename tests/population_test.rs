@@ -451,7 +451,7 @@ mod population_tests {
     }
 
     #[test]
-    fn offspring_and_parents_size() {
+    fn parents_and_offspring_size() {
         let population: Population<BinaryChromosome> = build::population_with_age(vec![
             (vec![false, false, false], 1),
             (vec![false, false, true], 1),
@@ -463,6 +463,6 @@ mod population_tests {
             (vec![false, true, true], 0),
         ]);
 
-        assert_eq!(population.offspring_and_parents_size(), (3, 5));
+        assert_eq!(population.parents_and_offspring_size(), (5, 3));
     }
 }

@@ -26,14 +26,14 @@ impl<C: Chromosome> Population<C> {
     pub fn size(&self) -> usize {
         self.chromosomes.len()
     }
-    pub fn offspring_and_parents_size(&self) -> (usize, usize) {
+    pub fn parents_and_offspring_size(&self) -> (usize, usize) {
         self.chromosomes
             .iter()
-            .fold((0, 0), |(offspring_size, parents_size), chromosome| {
+            .fold((0, 0), |(parents_size, offspring_size), chromosome| {
                 if chromosome.is_offspring() {
-                    (offspring_size + 1, parents_size)
+                    (parents_size, offspring_size + 1)
                 } else {
-                    (offspring_size, parents_size + 1)
+                    (parents_size + 1, offspring_size)
                 }
             })
     }
