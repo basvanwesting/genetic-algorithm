@@ -9,8 +9,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * The `replacement_rate` in selection was not working, as the age was
   incremented before selection leading to only parents and no offspring during
   selection. Effectively the whole population was selected against without
-  partitioninig. Fix by moving the age increment from the start of the evolve
-  generation (before selection) to just before crossover (after selection).
+  partitioninig. Fix by moving the age increment from the start of the new
+  evolve generation (before selection) to just before crossover (after
+  selection and after extension, as extension is form of selection where
+  offspring information might still be relevant as well).
 * For `GenotypeMultiRange`, remove the weighted probability of mutating a gene,
   depending on its allele_range size. The assumption of weighted mutation
   probability holds for `GenotypeMultiList` and `GenotypeMultiUnique`, in order

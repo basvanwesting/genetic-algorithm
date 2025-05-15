@@ -265,7 +265,6 @@ impl<
                 .update_population_cardinality(&mut self.genotype, &self.config);
             self.reporter
                 .on_new_generation(&self.genotype, &self.state, &self.config);
-            self.state.population.increment_age();
 
             self.plugins.extension.call(
                 &mut self.genotype,
@@ -274,6 +273,8 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
+
+            self.state.population.increment_age();
             self.plugins.crossover.call(
                 &mut self.genotype,
                 &mut self.state,
