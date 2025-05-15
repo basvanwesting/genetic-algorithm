@@ -3,12 +3,14 @@
 //! 5% and 20%.
 mod multi_gene;
 mod multi_gene_dynamic;
+mod multi_gene_range;
 mod single_gene;
 mod single_gene_dynamic;
 mod wrapper;
 
 pub use self::multi_gene::MultiGene as MutateMultiGene;
 pub use self::multi_gene_dynamic::MultiGeneDynamic as MutateMultiGeneDynamic;
+pub use self::multi_gene_range::MultiGeneRange as MutateMultiGeneRange;
 pub use self::single_gene::SingleGene as MutateSingleGene;
 pub use self::single_gene_dynamic::SingleGeneDynamic as MutateSingleGeneDynamic;
 pub use self::wrapper::Wrapper as MutateWrapper;

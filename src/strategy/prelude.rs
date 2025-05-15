@@ -27,7 +27,7 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateEvent, MutateMultiGene, MutateMultiGeneDynamic, MutateSingleGene,
+    MutateEvent, MutateMultiGene, MutateMultiGeneDynamic, MutateMultiGeneRange, MutateSingleGene,
     MutateSingleGeneDynamic, MutateWrapper,
 };
 #[doc(no_inline)]

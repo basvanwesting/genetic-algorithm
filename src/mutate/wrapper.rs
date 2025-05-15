@@ -1,5 +1,6 @@
 pub use super::multi_gene::MultiGene as MutateMultiGene;
 pub use super::multi_gene_dynamic::MultiGeneDynamic as MutateMultiGeneDynamic;
+pub use super::multi_gene_range::MultiGeneRange as MutateMultiGeneRange;
 pub use super::single_gene::SingleGene as MutateSingleGene;
 pub use super::single_gene_dynamic::SingleGeneDynamic as MutateSingleGeneDynamic;
 pub use super::Mutate;
@@ -13,6 +14,7 @@ use rand::Rng;
 pub enum Wrapper {
     MultiGene(MutateMultiGene),
     MultiGeneDynamic(MutateMultiGeneDynamic),
+    MultiGeneRange(MutateMultiGeneRange),
     SingleGene(MutateSingleGene),
     SingleGeneDynamic(MutateSingleGeneDynamic),
 }
@@ -31,6 +33,7 @@ impl Mutate for Wrapper {
             Wrapper::MultiGeneDynamic(mutate) => {
                 mutate.call(genotype, state, config, reporter, rng)
             }
+            Wrapper::MultiGeneRange(mutate) => mutate.call(genotype, state, config, reporter, rng),
             Wrapper::SingleGene(mutate) => mutate.call(genotype, state, config, reporter, rng),
             Wrapper::SingleGeneDynamic(mutate) => {
                 mutate.call(genotype, state, config, reporter, rng)
@@ -57,5 +60,10 @@ impl From<MutateSingleGeneDynamic> for Wrapper {
 impl From<MutateMultiGeneDynamic> for Wrapper {
     fn from(mutate: MutateMultiGeneDynamic) -> Self {
         Wrapper::MultiGeneDynamic(mutate)
+    }
+}
+impl From<MutateMultiGeneRange> for Wrapper {
+    fn from(mutate: MutateMultiGeneRange) -> Self {
+        Wrapper::MultiGeneRange(mutate)
     }
 }

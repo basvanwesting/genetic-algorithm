@@ -22,6 +22,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   mutating a gene is uniform, regardless of its allele_range size in
   `GenotypeMultiRange`.
 
+### Changed
+* `MutateMultiGene` and `MutateMultiGeneDynamic` now avoid mutating the same
+  genes twice
+* `MutateMultiGene` and `MutateMultiGeneDynamic` now mutate the exact
+  `number_of_mutations` times if mutation is occuring
+
+### Added
+* Add `MutateMultiGeneRange` to provide the previous `MutateMultiGene`
+  behaviour. This samples the `number_of_mutations` from the provided
+  `number_of_mutations_range`. And it allows for duplicate mutations of the
+  same gene (as it is less strict anyway)
+
 ## [0.20.3] - 2025-05-14
 ### Added
 * Initialize first `HillClimb` `SteepestAscent` population with the

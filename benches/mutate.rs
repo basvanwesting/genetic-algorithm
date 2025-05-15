@@ -50,6 +50,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let mutates: Vec<MutateWrapper> = vec![
             MutateSingleGene::new(0.2).into(),
             MutateMultiGene::new(10, 0.2).into(),
+            MutateMultiGeneRange::new(1..=10, 0.2).into(),
             MutateSingleGeneDynamic::new(0.2, population_size / 2).into(),
             MutateMultiGeneDynamic::new(10, 0.2, population_size / 2).into(),
         ];
