@@ -8,9 +8,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 * Add `PermutableGenotype` support for scaled `RangeGenotype` and scaled
-  `MultiRangeGenotype.` This approach implements a increasingly localized grid search with
-  increasing precision using the `allele_mutation_scaled_range(s)` to define
-  the search scope and grid steps
+  `MultiRangeGenotype.` This approach implements a increasingly localized grid
+  search with increasing precision using the `allele_mutation_scaled_range(s)`
+  to define the search scope and grid steps
   * First scale (index = 0) traverses the whole `allele_range(s)` with the
     upper bound of the first scale as step size.
   * Other scales (index > 0) center around the best chromosome of the previous
@@ -18,13 +18,20 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     the upper bound of the current scale as step size.
   * Scale down and repeat after grid is fully traversed
   * _Note: Not implemented for relative or random mutation types_
-  * _Note: Scales should be symmetrical around zero, as always, but good to remember_
-* Keep track of `scale_generation` next to `current_generation` in `StrategyState`, resets every scale increment
-* Add `mutation_type_allows_permutation()` guard on `Genotype` and check in `Permutate` strategy
+  * _Note: Not implemented for `DynamicMatrixGenotype` and
+    `StaticMatrixGenotype`, as matrix has no use for permutation_
+  * _Note: Scales should be symmetrical around zero, as always, but good to
+    remember_
+* Keep track of `scale_generation` next to `current_generation` in
+  `StrategyState`, resets every scale increment
+* Add `mutation_type_allows_permutation()` guard on `Genotype` and check in
+  `Permutate` strategy builder
 
 ### Changed
-* Add `chromosome` and `scale_index` parameters to `PermutateGenotype` trait functions, ignore for all existing implementations
-* Use `scale_generation` in `PermutateReporterSimple` progress, resetting progress counter per scale
+* Add `chromosome` and `scale_index` parameters to `PermutateGenotype` trait
+  functions, ignore for all existing implementations
+* Use `scale_generation` in `PermutateReporterSimple` progress, resetting
+  progress counter per scale
 
 ## [0.20.4] - 2025-05-15
 ### Fixed
