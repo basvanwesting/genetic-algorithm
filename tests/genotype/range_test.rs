@@ -424,7 +424,7 @@ fn float_chromosome_permutations_2_scaled() {
         BigUint::from(16u32)
     );
     let chromosomes = genotype
-        .chromosome_permutations_into_iter(Some(1))
+        .chromosome_permutations_into_iter(None, Some(1))
         .collect::<Vec<_>>();
 
     assert!(relative_population_eq(
@@ -669,7 +669,7 @@ fn integer_chromosome_permutations_2_scaled() {
         BigUint::from(16u32)
     );
     let chromosomes = genotype
-        .chromosome_permutations_into_iter(Some(1))
+        .chromosome_permutations_into_iter(None, Some(1))
         .collect::<Vec<_>>();
 
     assert_eq!(

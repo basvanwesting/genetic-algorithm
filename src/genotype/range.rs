@@ -545,6 +545,7 @@ where
 {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
+        _chromosome: Option<&Self::Chromosome>,
         scale_index: Option<usize>,
     ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
         if self.seed_genes_list.is_empty() {

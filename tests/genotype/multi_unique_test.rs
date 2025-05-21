@@ -221,7 +221,7 @@ fn chromosome_permutations_genes_size_1() {
     assert_eq!(
         inspect::chromosomes(
             genotype
-                .chromosome_permutations_into_iter(None)
+                .chromosome_permutations_into_iter(None, None)
                 .collect::<Vec<_>>()
                 .as_slice()
         ),
@@ -246,7 +246,7 @@ fn chromosome_permutations_genes_size_4() {
     assert_eq!(
         inspect::chromosomes(
             genotype
-                .chromosome_permutations_into_iter(None)
+                .chromosome_permutations_into_iter(None, None)
                 .collect::<Vec<_>>()
                 .as_slice()
         ),
@@ -307,7 +307,7 @@ fn chromosome_permutations_genes_size_huge() {
     assert_eq!(
         inspect::chromosomes(
             genotype
-                .chromosome_permutations_into_iter(None)
+                .chromosome_permutations_into_iter(None, None)
                 .take(1)
                 .collect::<Vec<_>>()
                 .as_slice()
