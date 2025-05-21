@@ -358,7 +358,7 @@ impl<T: Allele + Hash> PermutateGenotype for MultiUnique<T> {
         }
     }
 
-    fn chromosome_permutations_size(&self, _scale_index: Option<usize>) -> BigUint {
+    fn chromosome_permutations_size(&self) -> BigUint {
         if self.seed_genes_list.is_empty() {
             self.allele_list_sizes
                 .iter()
@@ -427,7 +427,7 @@ impl<T: Allele + Hash> fmt::Display for MultiUnique<T> {
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
-            self.chromosome_permutations_size(None)
+            self.chromosome_permutations_size()
         )?;
         writeln!(
             f,

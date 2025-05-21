@@ -341,7 +341,7 @@ impl<T: Allele + PartialEq + Hash> PermutateGenotype for MultiList<T> {
         }
     }
 
-    fn chromosome_permutations_size(&self, _scale_index: Option<usize>) -> BigUint {
+    fn chromosome_permutations_size(&self) -> BigUint {
         if self.seed_genes_list.is_empty() {
             self.allele_list_sizes
                 .iter()
@@ -403,7 +403,7 @@ impl<T: Allele + PartialEq + Hash> fmt::Display for MultiList<T> {
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
-            self.chromosome_permutations_size(None)
+            self.chromosome_permutations_size()
         )?;
         writeln!(
             f,

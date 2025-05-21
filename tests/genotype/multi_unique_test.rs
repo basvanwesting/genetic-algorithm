@@ -39,7 +39,7 @@ fn mutate_chromosome_single() {
     );
 
     assert_eq!(
-        genotype.chromosome_permutations_size(None),
+        genotype.chromosome_permutations_size(),
         BigUint::from(288u32)
     );
 }
@@ -214,10 +214,7 @@ fn chromosome_permutations_genes_size_1() {
     assert_eq!(genotype.allele_list_sizes, vec![1]);
     assert_eq!(genotype.allele_list_index_offsets, vec![0, 1]);
     assert_eq!(genotype.crossover_points, vec![]);
-    assert_eq!(
-        genotype.chromosome_permutations_size(None),
-        BigUint::from(1u32)
-    );
+    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(1u32));
     assert_eq!(
         inspect::chromosomes(
             genotype
@@ -240,7 +237,7 @@ fn chromosome_permutations_genes_size_4() {
     assert_eq!(genotype.allele_list_index_offsets, vec![0, 1, 3, 6, 8]);
     assert_eq!(genotype.crossover_points, vec![1, 3, 6]);
     assert_eq!(
-        genotype.chromosome_permutations_size(None),
+        genotype.chromosome_permutations_size(),
         BigUint::from(24u32)
     );
     assert_eq!(
@@ -299,7 +296,7 @@ fn chromosome_permutations_genes_size_huge() {
     );
     assert_eq!(genotype.crossover_points, vec![10, 20, 30, 40, 50]);
     assert_eq!(
-        genotype.chromosome_permutations_size(None),
+        genotype.chromosome_permutations_size(),
         BigUint::parse_bytes(b"2283380023591730815784976384000000000000", 10).unwrap()
     );
 

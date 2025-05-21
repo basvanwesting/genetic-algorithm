@@ -76,7 +76,7 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
     fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
-        state: &S,
+        _state: &S,
         config: &C,
     ) {
         let number_of_seed_genes = genotype.seed_genes_list().len();
@@ -84,14 +84,14 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
             self.writeln(format_args!(
                 "enter - {}, total generations: {}, number of seed genes: {}",
                 config.variant(),
-                genotype.chromosome_permutations_size(state.current_scale_index()),
+                genotype.chromosome_permutations_size(),
                 number_of_seed_genes
             ));
         } else {
             self.writeln(format_args!(
                 "enter - {}, total generations: {}",
                 config.variant(),
-                genotype.chromosome_permutations_size(state.current_scale_index()),
+                genotype.chromosome_permutations_size(),
             ));
         }
     }
@@ -126,8 +126,8 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
-            let progress = (BigUint::from(state.scale_generation() * 100)
-                / &genotype.chromosome_permutations_size(state.current_scale_index()))
+            let progress = (BigUint::from(state.current_generation() * 100)
+                / &genotype.chromosome_permutations_size())
                 .to_u8();
             self.writeln(format_args!(
                 "progress: {}, current_generation: {}, best_generation: {}, scale_index: {:?}",

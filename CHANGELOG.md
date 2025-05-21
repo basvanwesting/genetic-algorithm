@@ -19,22 +19,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * Scale down and repeat after grid is fully traversed
   * _Note: Not implemented for relative or random mutation types_
   * _Note: Not implemented for `DynamicMatrixGenotype` and
-    `StaticMatrixGenotype`, as matrix has no use for permutation_
+    `StaticMatrixGenotype`, as matrix has no use in permutation_
   * _Note: Scales should be symmetrical around zero, as always, but good to
     remember_
   * _Note: As an added benefit the generic `StrategyBuilder` with deferred
     specialization can now also be used for `RangeGenotype` and
     `MultiRangeGenotype`_
 * Keep track of `scale_generation` next to `current_generation` in
-  `StrategyState`, resets every scale increment
+  `StrategyState`, resets every scale increment, no use yet
 * Add `mutation_type_allows_permutation()` guard on `Genotype` and check in
   `Permutate` strategy builder
 
 ### Changed
-* Add `chromosome` and `scale_index` parameters to `PermutateGenotype` trait
-  functions, ignore for all existing implementations
-* Use `scale_generation` in `PermutateReporterSimple` progress, resetting
-  progress counter per scale
+* Add `chromosome` and `scale_index` parameters to `PermutateGenotype`
+  `chromosome_permutations_into_iter()` function, ignore for all existing
+  implementations, used by `RangeGenotype` and `MultiRangeGenotype`
 
 ## [0.20.4] - 2025-05-15
 ### Fixed

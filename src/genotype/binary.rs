@@ -254,7 +254,7 @@ impl PermutateGenotype for Binary {
             )
         }
     }
-    fn chromosome_permutations_size(&self, _scale_index: Option<usize>) -> BigUint {
+    fn chromosome_permutations_size(&self) -> BigUint {
         if self.seed_genes_list.is_empty() {
             BigUint::from(2u8).pow(self.genes_size() as u32)
         } else {
@@ -307,7 +307,7 @@ impl fmt::Display for Binary {
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
-            self.chromosome_permutations_size(None)
+            self.chromosome_permutations_size()
         )?;
         writeln!(
             f,

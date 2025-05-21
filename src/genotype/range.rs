@@ -550,13 +550,12 @@ where
         }
     }
 
-    fn chromosome_permutations_size(&self, scale_index: Option<usize>) -> BigUint {
+    fn chromosome_permutations_size(&self) -> BigUint {
         if self.seed_genes_list.is_empty() {
             match self.mutation_type {
-                MutationType::Scaled => {
-                    BigUint::from(self.permutable_allele_size_scaled(scale_index.unwrap()))
-                        .pow(self.genes_size() as u32)
-                }
+                MutationType::Scaled => (0..self.max_scale_index().unwrap())
+                    .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
+                    .sum(),
                 MutationType::Relative => {
                     panic!("RangeGenotype is not permutable for MutationType::Relative")
                 }
@@ -769,11 +768,16 @@ where
         writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  mutation_type: {:?}", self.mutation_type)?;
 
-        if let Some(max_scale_index) = self.max_scale_index() {
-            let sizes: Vec<BigUint> = (0..max_scale_index)
+        if self.mutation_type_allows_permutation() {
+            let size_per_scale: Vec<BigUint> = (0..self.max_scale_index().unwrap())
                 .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
                 .collect();
-            writeln!(f, "  chromosome_permutations_size (per scale): {:?}", sizes)?;
+            writeln!(
+                f,
+                "  chromosome_permutations_size: {}, per scale {:?}",
+                self.chromosome_permutations_size(),
+                size_per_scale
+            )?;
         } else {
             writeln!(f, "  chromosome_permutations_size: uncountable")?;
         }

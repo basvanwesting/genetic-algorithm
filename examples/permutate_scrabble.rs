@@ -237,7 +237,7 @@ impl StrategyReporter for CustomReporter {
     ) {
         if state.current_generation() % self.0 == 0 {
             let progress = (BigUint::from(state.current_generation() * 100)
-                / &genotype.chromosome_permutations_size(None))
+                / &genotype.chromosome_permutations_size())
                 .to_u8();
             println!(
                 "progress: {}, current_generation: {}, best_generation: {}",
