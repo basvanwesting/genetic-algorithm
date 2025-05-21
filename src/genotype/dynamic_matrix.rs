@@ -33,7 +33,7 @@ pub type DefaultAllele = f32;
 /// This is a simple heap based example implementation. The size doesn't need to be known up front,
 /// as de storage extend if needed.
 ///
-/// The rest is like [RangeGenotype](super::RangeGenotype):
+/// The rest is like [RangeGenotype](super::RangeGenotype), but it cannot be permutated:
 ///
 /// The values are taken from the allele range. On random initialization, each gene gets a value
 /// from the allele_range with a uniform probability. Each gene has an equal probability of

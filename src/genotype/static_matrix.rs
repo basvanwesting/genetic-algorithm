@@ -29,7 +29,7 @@ use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 /// [calculate_for_population](crate::fitness::Fitness::calculate_for_population) instead of
 /// [calculate_for_chromosome](crate::fitness::Fitness::calculate_for_chromosome).
 ///
-/// The rest is like [RangeGenotype](super::RangeGenotype):
+/// The rest is like [RangeGenotype](super::RangeGenotype), but it cannot be permutated:
 ///
 /// The values are taken from the allele range. On random initialization, each gene gets a value
 /// from the allele_range with a uniform probability. Each gene has an equal probability of

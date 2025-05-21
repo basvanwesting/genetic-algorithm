@@ -23,7 +23,7 @@
 //!   * fallback to `call_par_repeatedly(usize)` for HillClimb
 //!
 //! *Note: Only Genotypes which implement all strategies are eligable for the superset builder.*
-//! *RangeGenotype and other floating point range based genotypes currently do not support Permutation*
+//! *RangeGenotype and other floating point range based genotypes currently do not support Permutation unless scaled*
 //!
 //! Example:
 //! ```
