@@ -282,13 +282,13 @@ where
             Bound::Excluded(&i) => i + 1,
         }
         .max(0);
-        let max_index = match range.end_bound() {
+        let max_index_excl = match range.end_bound() {
             Bound::Unbounded => self.genes_size,
             Bound::Included(&i) => i + 1,
             Bound::Excluded(&i) => i,
         }
         .min(self.genes_size);
-        (min_index..max_index, min_index..max_index)
+        (min_index..max_index_excl, min_index..max_index_excl)
     }
 }
 

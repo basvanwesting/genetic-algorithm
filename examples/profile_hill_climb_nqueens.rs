@@ -15,9 +15,9 @@ impl Fitness for NQueensFitness {
         _genotype: &FitnessGenotype<Self>,
     ) -> Option<FitnessValue> {
         let mut score = 0;
-        let max_index = chromosome.genes.len() - 1;
-        for i in 0..max_index {
-            for j in 0..max_index {
+        let genes_size = chromosome.genes.len();
+        for i in 0..genes_size {
+            for j in 0..genes_size {
                 if i != j {
                     let dx = i.abs_diff(j);
                     let dy = chromosome.genes[i].abs_diff(chromosome.genes[j]) as usize;

@@ -464,7 +464,7 @@ fn float_chromosome_permutations_2_scaled() {
 
     assert_eq!(
         genotype.chromosome_permutations_size(),
-        BigUint::from(45u32)
+        BigUint::from(70u32)
     );
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
@@ -843,7 +843,7 @@ fn integer_chromosome_permutations_2_scaled() {
 
     assert_eq!(
         genotype.chromosome_permutations_size(),
-        BigUint::from(45u32)
+        BigUint::from(70u32)
     );
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
