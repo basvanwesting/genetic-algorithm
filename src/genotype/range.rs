@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::allele::RangeAllele;
 use crate::chromosome::{ChromosomeManager, GenesHash, GenesOwner, RangeChromosome};
 use crate::population::Population;
@@ -169,6 +169,29 @@ where
         } else {
             chromosome.genes[index] = new_value;
         }
+    }
+
+    // scales should be symmetrical, so the stap is simply the scale end
+    pub fn allele_values_scaled(&self, scale_index: usize) -> Vec<T> {
+        let allele_range_start = *self.allele_range.start();
+        let allele_range_end = *self.allele_range.end();
+
+        let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
+        let working_range_step = *working_range.end();
+
+        std::iter::successors(Some(allele_range_start), |value| {
+            if *value < allele_range_end {
+                let next_value = *value + working_range_step;
+                if next_value > allele_range_end {
+                    Some(allele_range_end)
+                } else {
+                    Some(next_value)
+                }
+            } else {
+                None
+            }
+        })
+        .collect()
     }
 }
 
@@ -512,6 +535,63 @@ where
                 population.chromosomes.push(new_chromosome);
             };
         });
+    }
+}
+
+impl<T: RangeAllele> PermutateGenotype for Range<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn chromosome_permutations_into_iter<'a>(
+        &'a self,
+        scale_index: Option<usize>,
+    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+        if self.seed_genes_list.is_empty() {
+            match self.mutation_type {
+                MutationType::Scaled => {
+                    let allele_values = self.allele_values_scaled(scale_index.unwrap());
+                    Box::new(
+                        (0..self.genes_size())
+                            .map(|_| allele_values.clone())
+                            .multi_cartesian_product()
+                            .map(RangeChromosome::new),
+                    )
+                }
+                MutationType::Relative => {
+                    panic!("RangeGenotype is not permutable for MutationType::Relative")
+                }
+                MutationType::Random => {
+                    panic!("RangeGenotype is not permutable for MutationType::Random")
+                }
+            }
+        } else {
+            Box::new(
+                self.seed_genes_list
+                    .clone()
+                    .into_iter()
+                    .map(RangeChromosome::new),
+            )
+        }
+    }
+
+    fn chromosome_permutations_size(&self, scale_index: Option<usize>) -> BigUint {
+        if self.seed_genes_list.is_empty() {
+            match self.mutation_type {
+                MutationType::Scaled => {
+                    let allele_values = self.allele_values_scaled(scale_index.unwrap());
+                    BigUint::from(allele_values.len()).pow(self.genes_size() as u32)
+                }
+                MutationType::Relative => {
+                    panic!("RangeGenotype is not permutable for MutationType::Relative")
+                }
+                MutationType::Random => {
+                    panic!("RangeGenotype is not permutable for MutationType::Random")
+                }
+            }
+        } else {
+            self.seed_genes_list.len().into()
+        }
     }
 }
 
