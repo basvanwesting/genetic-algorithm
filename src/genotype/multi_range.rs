@@ -741,6 +741,13 @@ where
             })
             .collect()
     }
+
+    pub fn chromosome_permutations_size_scaled(&self, scale_index: usize) -> BigUint {
+        self.permutable_allele_sizes_scaled(scale_index)
+            .iter()
+            .map(|v| BigUint::from(*v))
+            .product()
+    }
 }
 
 impl<T: RangeAllele + Into<f64>> ChromosomeManager<Self> for MultiRange<T>
@@ -849,7 +856,16 @@ where
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  mutation_type: {:?}", self.mutation_type)?;
-        writeln!(f, "  chromosome_permutations_size: uncountable")?;
+
+        if let Some(max_scale_index) = self.max_scale_index() {
+            let sizes: Vec<BigUint> = (0..max_scale_index)
+                .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
+                .collect();
+            writeln!(f, "  chromosome_permutations_size (per scale): {:?}", sizes)?;
+        } else {
+            writeln!(f, "  chromosome_permutations_size: uncountable")?;
+        }
+
         writeln!(
             f,
             "  neighbouring_population_size: {}",

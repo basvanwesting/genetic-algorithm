@@ -22,6 +22,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
     `StaticMatrixGenotype`, as matrix has no use for permutation_
   * _Note: Scales should be symmetrical around zero, as always, but good to
     remember_
+  * _Note: As an added benefit the generic `StrategyBuilder` with deferred
+    specialization can now also be used for `RangeGenotype` and
+    `MultiRangeGenotype`_
 * Keep track of `scale_generation` next to `current_generation` in
   `StrategyState`, resets every scale increment
 * Add `mutation_type_allows_permutation()` guard on `Genotype` and check in
@@ -600,7 +603,7 @@ This is a major breaking release, see Changed:
   * Rename `MutateSingleGeneRandomDynamic` to `MutateSingleGeneDynamic` as it just calls `mutate_chromosome()` on `Genotype`
   * Rename `MutateMultiGeneRandom` to `MutateMultiGene` as it just calls `mutate_chromosome()` on `Genotype`
   * Rename `MutateMultiGeneRandomDynamic` to `MutateMultiGeneDynamic`as it just calls `mutate_chromosome()` on `Genotype`
-  * Rename `allele_neighbour_range` to `allele_mutation_range` in `RangeGenoype` (incl. Multi) to define relative mutation
+  * Rename `allele_neighbour_range` to `allele_mutation_range` in `RangeGenotype` (incl. Multi) to define relative mutation
   * Add `allele_mutation_scaled_range` to `RangeGenotype` (incl. Multi) to define scaled mutation
 * All changes to `RangeGenotype` are reflected in `MultiRangeGenotype` as well
 

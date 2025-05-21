@@ -668,6 +668,10 @@ where
         })
         .count()
     }
+
+    pub fn chromosome_permutations_size_scaled(&self, scale_index: usize) -> BigUint {
+        BigUint::from(self.permutable_allele_size_scaled(scale_index)).pow(self.genes_size() as u32)
+    }
 }
 
 impl<T: RangeAllele> ChromosomeManager<Self> for Range<T>
@@ -767,7 +771,7 @@ where
 
         if let Some(max_scale_index) = self.max_scale_index() {
             let sizes: Vec<BigUint> = (0..max_scale_index)
-                .map(|scale_index| self.chromosome_permutations_size(Some(scale_index)))
+                .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
                 .collect();
             writeln!(f, "  chromosome_permutations_size (per scale): {:?}", sizes)?;
         } else {
