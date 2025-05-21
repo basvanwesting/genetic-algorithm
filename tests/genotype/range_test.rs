@@ -452,45 +452,6 @@ fn float_permutable_gene_values_scaled() {
 }
 
 #[test]
-fn float_median_chromosome() {
-    // large
-    let mut genotype = RangeGenotype::builder()
-        .with_genes_size(2)
-        .with_allele_range(0.0..=1.0)
-        .with_allele_mutation_scaled_range(vec![-0.1..=0.1])
-        .build()
-        .unwrap();
-    genotype.chromosomes_setup();
-
-    let chromosome = genotype.median_chromosome();
-    assert_eq!(inspect::chromosome(&chromosome), vec![0.6, 0.6]);
-
-    // even
-    let mut genotype = RangeGenotype::builder()
-        .with_genes_size(2)
-        .with_allele_range(0.0..=0.1)
-        .with_allele_mutation_scaled_range(vec![-0.1..=0.1])
-        .build()
-        .unwrap();
-    genotype.chromosomes_setup();
-
-    let chromosome = genotype.median_chromosome();
-    assert_eq!(inspect::chromosome(&chromosome), vec![0.1, 0.1]);
-
-    // odd
-    let mut genotype = RangeGenotype::builder()
-        .with_genes_size(2)
-        .with_allele_range(0.0..=0.2)
-        .with_allele_mutation_scaled_range(vec![-0.1..=0.1])
-        .build()
-        .unwrap();
-    genotype.chromosomes_setup();
-
-    let chromosome = genotype.median_chromosome();
-    assert_eq!(inspect::chromosome(&chromosome), vec![0.1, 0.1]);
-}
-
-#[test]
 fn float_chromosome_permutations_2_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = RangeGenotype::builder()
@@ -862,45 +823,6 @@ fn integer_permutable_gene_values_scaled() {
             ]
         ]
     );
-}
-
-#[test]
-fn integer_median_chromosome() {
-    // large
-    let mut genotype = RangeGenotype::builder()
-        .with_genes_size(2)
-        .with_allele_range(0..=1000)
-        .with_allele_mutation_scaled_range(vec![-1..=1])
-        .build()
-        .unwrap();
-    genotype.chromosomes_setup();
-
-    let chromosome = genotype.median_chromosome();
-    assert_eq!(inspect::chromosome(&chromosome), vec![500, 500]);
-
-    // even
-    let mut genotype = RangeGenotype::builder()
-        .with_genes_size(2)
-        .with_allele_range(0..=1)
-        .with_allele_mutation_scaled_range(vec![-1..=1])
-        .build()
-        .unwrap();
-    genotype.chromosomes_setup();
-
-    let chromosome = genotype.median_chromosome();
-    assert_eq!(inspect::chromosome(&chromosome), vec![1, 1]);
-
-    // odd
-    let mut genotype = RangeGenotype::builder()
-        .with_genes_size(2)
-        .with_allele_range(0..=2)
-        .with_allele_mutation_scaled_range(vec![-1..=1])
-        .build()
-        .unwrap();
-    genotype.chromosomes_setup();
-
-    let chromosome = genotype.median_chromosome();
-    assert_eq!(inspect::chromosome(&chromosome), vec![1, 1]);
 }
 
 #[test]

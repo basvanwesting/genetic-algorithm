@@ -612,16 +612,11 @@ where
     fn chromosome_permutations_size(&self, scale_index: Option<usize>) -> BigUint {
         if self.seed_genes_list.is_empty() {
             match self.mutation_type {
-                MutationType::Scaled => {
-                    let median_chromosome = self.median_chromosome();
-                    self.permutable_gene_values_scaled(
-                        Some(&median_chromosome),
-                        scale_index.unwrap(),
-                    )
+                MutationType::Scaled => self
+                    .permutable_allele_sizes_scaled(scale_index.unwrap())
                     .iter()
-                    .map(|v| BigUint::from(v.len()))
-                    .product()
-                }
+                    .map(|v| BigUint::from(*v))
+                    .product(),
                 MutationType::Relative => {
                     panic!("RangeGenotype is not permutable for MutationType::Relative")
                 }
@@ -710,51 +705,41 @@ where
             .collect()
     }
 
-    // pub fn permutable_gene_values_relative(
-    //     &self,
-    //     _chromosome: Option<&MultiRangeChromosome<T>>,
-    // ) -> Vec<Vec<T>> {
-    //     panic!("MultiRangeGenotype is not permutable for MutationType::Relative");
-    // }
-    //
-    // pub fn permutable_gene_values_random(
-    //     &self,
-    //     _chromosome: Option<&MultiRangeChromosome<T>>,
-    // ) -> Vec<Vec<T>> {
-    //     panic!("MultiRangeGenotype is not permutable for MutationType::Random");
-    // }
-
-    pub fn median_chromosome(&self) -> MultiRangeChromosome<T> {
-        let median_genes = self
-            .allele_ranges
+    pub fn permutable_allele_sizes_scaled(&self, scale_index: usize) -> Vec<usize> {
+        self.allele_ranges
             .clone()
             .into_iter()
             .enumerate()
             .map(|(index, allele_range)| {
-                let allele_range_start = *allele_range.start();
-                let allele_range_end = *allele_range.end();
+                let (allele_value_start, allele_value_end) =
+                    if let Some(previous_scale_index) = scale_index.checked_sub(1) {
+                        let working_range = &self.allele_mutation_scaled_ranges.as_ref().unwrap()
+                            [previous_scale_index][index];
 
-                let working_range = &self.allele_mutation_scaled_ranges.as_ref().unwrap()[0][index];
+                        (*working_range.start(), *working_range.end())
+                    } else {
+                        (*allele_range.start(), *allele_range.end())
+                    };
+
+                let working_range =
+                    &self.allele_mutation_scaled_ranges.as_ref().unwrap()[scale_index][index];
                 let working_range_step = *working_range.end();
 
-                let allele_value_iter = std::iter::successors(Some(allele_range_start), |value| {
-                    if *value < allele_range_end {
+                std::iter::successors(Some(allele_value_start), |value| {
+                    if *value < allele_value_end {
                         let next_value = *value + working_range_step;
-                        if next_value > allele_range_end {
-                            Some(allele_range_end)
+                        if next_value > allele_value_end {
+                            Some(allele_value_end)
                         } else {
                             Some(next_value)
                         }
                     } else {
                         None
                     }
-                });
-
-                let median_step = allele_value_iter.clone().count() / 2;
-                allele_value_iter.clone().nth(median_step).unwrap()
+                })
+                .count()
             })
-            .collect();
-        MultiRangeChromosome::new(median_genes)
+            .collect()
     }
 }
 
