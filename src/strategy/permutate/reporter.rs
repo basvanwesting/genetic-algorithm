@@ -76,7 +76,7 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
     fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
-        _state: &S,
+        state: &S,
         config: &C,
     ) {
         let number_of_seed_genes = genotype.seed_genes_list().len();
@@ -84,14 +84,14 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
             self.writeln(format_args!(
                 "enter - {}, total generations: {}, number of seed genes: {}",
                 config.variant(),
-                genotype.chromosome_permutations_size(None),
+                genotype.chromosome_permutations_size(state.current_scale_index()),
                 number_of_seed_genes
             ));
         } else {
             self.writeln(format_args!(
                 "enter - {}, total generations: {}",
                 config.variant(),
-                genotype.chromosome_permutations_size(None),
+                genotype.chromosome_permutations_size(state.current_scale_index()),
             ));
         }
     }
@@ -126,14 +126,15 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
-            let progress = (BigUint::from(state.current_generation() * 100)
-                / &genotype.chromosome_permutations_size(None))
+            let progress = (BigUint::from(state.scale_generation() * 100)
+                / &genotype.chromosome_permutations_size(state.current_scale_index()))
                 .to_u8();
             self.writeln(format_args!(
-                "progress: {}, current_generation: {}, best_generation: {}",
+                "progress: {}, current_generation: {}, best_generation: {}, scale_index: {:?}",
                 progress.map_or("-".to_string(), |v| format!("{:3.3}%", v)),
                 state.current_generation(),
                 state.best_generation(),
+                state.current_scale_index(),
             ));
         }
     }
@@ -145,9 +146,10 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         _config: &C,
     ) {
         self.writeln(format_args!(
-            "new best - generation: {}, fitness_score: {:?}, genes: {:?}",
+            "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
+            state.current_scale_index(),
             if self.show_genes {
                 Some(genotype.best_genes())
             } else {
@@ -164,9 +166,10 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
     ) {
         if self.show_equal_fitness {
             self.writeln(format_args!(
-                "equal best - generation: {}, fitness_score: {:?}, genes: {:?}",
+                "equal best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
                 state.current_generation(),
                 state.best_fitness_score(),
+                state.current_scale_index(),
                 if self.show_genes {
                     Some(genotype.best_genes())
                 } else {

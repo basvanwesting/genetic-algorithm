@@ -176,6 +176,7 @@ pub struct HillClimbState<G: HillClimbGenotype> {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub stale_generations: usize,
+    pub scale_generation: usize,
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
     pub durations: HashMap<StrategyAction, Duration>,
@@ -200,7 +201,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
-            self.state.current_generation += 1;
+            self.state.increment_generation();
             match self.config.variant {
                 HillClimbVariant::Stochastic => {
                     self.genotype
@@ -456,6 +457,10 @@ impl<G: HillClimbGenotype> StrategyState<G> for HillClimbState<G> {
     fn current_iteration(&self) -> usize {
         self.current_iteration
     }
+    fn increment_generation(&mut self) {
+        self.current_generation += 1;
+        self.scale_generation += 1;
+    }
     fn stale_generations(&self) -> usize {
         self.stale_generations
     }
@@ -464,6 +469,12 @@ impl<G: HillClimbGenotype> StrategyState<G> for HillClimbState<G> {
     }
     fn reset_stale_generations(&mut self) {
         self.stale_generations = 0;
+    }
+    fn scale_generation(&self) -> usize {
+        self.scale_generation
+    }
+    fn reset_scale_generation(&mut self) {
+        self.scale_generation = 0;
     }
     fn current_scale_index(&self) -> Option<usize> {
         self.current_scale_index
@@ -560,6 +571,7 @@ impl<G: HillClimbGenotype> HillClimbState<G> {
                         && current_scale_index < max_scale_index
                     {
                         self.current_scale_index = Some(current_scale_index + 1);
+                        self.reset_scale_generation();
                         self.reset_stale_generations();
                     }
                 }
@@ -576,7 +588,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     fn try_from(builder: HillClimbBuilder<G, F, SR>) -> Result<Self, Self::Error> {
         if builder.genotype.is_none() {
             Err(TryFromHillClimbBuilderError(
-                "HillClimb requires a Genotype",
+                "HillClimb requires a HillClimbGenotype",
             ))
         } else if builder.fitness.is_none() {
             Err(TryFromHillClimbBuilderError("HillClimb requires a Fitness"))
@@ -641,6 +653,7 @@ impl<G: HillClimbGenotype> HillClimbState<G> {
             current_iteration: 0,
             current_generation: 0,
             stale_generations: 0,
+            scale_generation: 0,
             current_scale_index: None,
             best_generation: 0,
             best_fitness_score: None,
@@ -697,11 +710,7 @@ impl<G: HillClimbGenotype> fmt::Display for HillClimbState<G> {
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  stale generations: {:?}", self.stale_generations)?;
-        writeln!(
-            f,
-            "  scale index (current/max): {:?}",
-            self.current_scale_index
-        )?;
+        writeln!(f, "  current scale index: {:?}", self.current_scale_index)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())
     }
 }

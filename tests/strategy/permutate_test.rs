@@ -1,4 +1,5 @@
 #[cfg(test)]
+use crate::support::*;
 use genetic_algorithm::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::strategy::permutate::prelude::*;
 
@@ -92,6 +93,75 @@ fn call_multi_list() {
     println!("{:#?}", permutate.best_genes());
     assert_eq!(permutate.best_fitness_score(), Some(8));
     assert_eq!(permutate.best_genes().unwrap(), vec![4, 1, 0, 3]);
+}
+
+#[test]
+fn call_range_f32_scaled() {
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(4)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
+        .build()
+        .unwrap();
+
+    let permutate = Permutate::builder()
+        .with_genotype(genotype)
+        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_reporter(StrategyReporterNoop::new())
+        .call()
+        .unwrap();
+
+    println!("{:#?}", permutate.best_genes());
+    assert_eq!(permutate.best_fitness_score(), Some(4000));
+    assert!(relative_chromosome_eq(
+        permutate.best_genes().unwrap(),
+        vec![1.0, 1.0, 1.0, 1.0],
+        0.001
+    ));
+}
+
+#[test]
+fn call_range_usize_scaled() {
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(4)
+        .with_allele_range(0..=100)
+        .with_allele_mutation_scaled_range(vec![-10..=10, -1..=1])
+        .build()
+        .unwrap();
+
+    let permutate = Permutate::builder()
+        .with_genotype(genotype)
+        .with_fitness(SumGenes::new())
+        .with_reporter(StrategyReporterNoop::new())
+        .call()
+        .unwrap();
+
+    println!("{:#?}", permutate.best_genes());
+    assert_eq!(permutate.best_fitness_score(), Some(400));
+    assert_eq!(permutate.best_genes().unwrap(), vec![100, 100, 100, 100]);
+}
+
+#[test]
+fn call_range_f32_random_invalid() {
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(4)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+
+    let permutate = Permutate::builder()
+        .with_genotype(genotype)
+        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_reporter(StrategyReporterNoop::new())
+        .build();
+
+    assert!(permutate.is_err());
+    assert_eq!(
+        permutate.err(),
+        Some(TryFromPermutateBuilderError(
+            "The Genotype's mutation_type does not allow permutation"
+        ))
+    );
 }
 
 #[test]

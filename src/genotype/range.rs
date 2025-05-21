@@ -574,6 +574,13 @@ where
             self.seed_genes_list.len().into()
         }
     }
+    fn mutation_type_allows_permutation(&self) -> bool {
+        match self.mutation_type {
+            MutationType::Scaled => true,
+            MutationType::Relative => false,
+            MutationType::Random => false,
+        }
+    }
 }
 
 impl<T: RangeAllele> Range<T>

@@ -188,6 +188,7 @@ pub trait StrategyState<G: Genotype>: Display {
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
+    fn scale_generation(&self) -> usize;
     fn current_scale_index(&self) -> Option<usize>;
     fn population_cardinality(&self) -> Option<usize>;
     fn durations(&self) -> &HashMap<StrategyAction, Duration>;
@@ -207,8 +208,10 @@ pub trait StrategyState<G: Genotype>: Display {
         fitness_duration.as_secs_f32() / self.total_duration().as_secs_f32()
     }
 
+    fn increment_generation(&mut self);
     fn increment_stale_generations(&mut self);
     fn reset_stale_generations(&mut self);
+    fn reset_scale_generation(&mut self);
     // return tuple (new_best_chomesome, improved_fitness). This way a sideways move in
     // best_chromosome (with equal fitness, which doesn't update the best_generation) can be
     // distinguished for reporting purposes
