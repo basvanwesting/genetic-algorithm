@@ -588,7 +588,7 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    // scales should be symmetrical, so the stap is simply the scale end
+    // scales should be symmetrical, so the step is simply the scale end
     pub fn permutable_gene_values_scaled(
         &self,
         chromosome: Option<&RangeChromosome<T>>,
@@ -687,21 +687,6 @@ where
         RangeChromosome::new(median_genes)
     }
 }
-
-// impl<T: RangeAllele> PermutableGenotype for Range<T>
-// where
-//     T: SampleUniform,
-//     Uniform<T>: Send + Sync,
-// {
-//     fn chromosome_permutations_into_iter(&self) -> impl Iterator<Item = Self::Chromosome> + Send {
-//         panic!("RangeGenotype is not permutable");
-//         #[allow(unreachable_code)]
-//         [].into_iter()
-//     }
-//     fn chromosome_permutations_size(&self) -> BigUint {
-//         BigUint::default()
-//     }
-// }
 
 impl<T: RangeAllele> ChromosomeManager<Self> for Range<T>
 where
