@@ -333,6 +333,7 @@ impl<T: Allele + Hash> HillClimbGenotype for MultiUnique<T> {
 impl<T: Allele + Hash> PermutateGenotype for MultiUnique<T> {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
+        _scale_index: Option<usize>,
     ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
             Box::new(
@@ -356,7 +357,7 @@ impl<T: Allele + Hash> PermutateGenotype for MultiUnique<T> {
         }
     }
 
-    fn chromosome_permutations_size(&self) -> BigUint {
+    fn chromosome_permutations_size(&self, _scale_index: Option<usize>) -> BigUint {
         if self.seed_genes_list.is_empty() {
             self.allele_list_sizes
                 .iter()
@@ -422,7 +423,7 @@ impl<T: Allele + Hash> fmt::Display for MultiUnique<T> {
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
-            self.chromosome_permutations_size()
+            self.chromosome_permutations_size(None)
         )?;
         writeln!(
             f,

@@ -84,14 +84,14 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
             self.writeln(format_args!(
                 "enter - {}, total generations: {}, number of seed genes: {}",
                 config.variant(),
-                genotype.chromosome_permutations_size(),
+                genotype.chromosome_permutations_size(None),
                 number_of_seed_genes
             ));
         } else {
             self.writeln(format_args!(
                 "enter - {}, total generations: {}",
                 config.variant(),
-                genotype.chromosome_permutations_size(),
+                genotype.chromosome_permutations_size(None),
             ));
         }
     }
@@ -127,7 +127,7 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
     ) {
         if state.current_generation() % self.period == 0 {
             let progress = (BigUint::from(state.current_generation() * 100)
-                / &genotype.chromosome_permutations_size())
+                / &genotype.chromosome_permutations_size(None))
                 .to_u8();
             self.writeln(format_args!(
                 "progress: {}, current_generation: {}, best_generation: {}",

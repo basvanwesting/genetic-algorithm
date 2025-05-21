@@ -168,11 +168,14 @@ fn neighbouring_population() {
 fn chromosome_permutations_genes_size_1() {
     let genotype = BitGenotype::builder().with_genes_size(1).build().unwrap();
 
-    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(2u32));
+    assert_eq!(
+        genotype.chromosome_permutations_size(None),
+        BigUint::from(2u32)
+    );
     assert_eq!(
         inspect::chromosomes_to_str(
             genotype
-                .chromosome_permutations_into_iter()
+                .chromosome_permutations_into_iter(None)
                 .collect::<Vec<_>>()
                 .as_slice()
         ),
@@ -184,11 +187,14 @@ fn chromosome_permutations_genes_size_1() {
 fn chromosome_permutations_genes_size_2() {
     let genotype = BitGenotype::builder().with_genes_size(2).build().unwrap();
 
-    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(4u32));
+    assert_eq!(
+        genotype.chromosome_permutations_size(None),
+        BigUint::from(4u32)
+    );
     assert_eq!(
         inspect::chromosomes_to_str(
             genotype
-                .chromosome_permutations_into_iter()
+                .chromosome_permutations_into_iter(None)
                 .collect::<Vec<_>>()
                 .as_slice()
         ),
@@ -200,7 +206,7 @@ fn chromosome_permutations_genes_size_2() {
 fn chromosome_permutations_genes_size_huge() {
     let genotype = BitGenotype::builder().with_genes_size(100).build().unwrap();
     assert_eq!(
-        genotype.chromosome_permutations_size(),
+        genotype.chromosome_permutations_size(None),
         BigUint::parse_bytes(b"1267650600228229401496703205376", 10).unwrap()
     );
 
@@ -208,7 +214,7 @@ fn chromosome_permutations_genes_size_huge() {
     assert_eq!(
         inspect::chromosomes_to_blocks(
             genotype
-                .chromosome_permutations_into_iter()
+                .chromosome_permutations_into_iter(None)
                 .take(1)
                 .collect::<Vec<_>>()
                 .as_slice()
@@ -221,11 +227,14 @@ fn chromosome_permutations_genes_size_huge() {
 fn chromosome_permutations_genes_size_3() {
     let genotype = BitGenotype::builder().with_genes_size(3).build().unwrap();
 
-    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(8u32));
+    assert_eq!(
+        genotype.chromosome_permutations_size(None),
+        BigUint::from(8u32)
+    );
     assert_eq!(
         inspect::chromosomes_to_str(
             genotype
-                .chromosome_permutations_into_iter()
+                .chromosome_permutations_into_iter(None)
                 .collect::<Vec<_>>()
                 .as_slice()
         ),
@@ -246,11 +255,14 @@ fn chromosome_permutations_with_seed_genes_list() {
         .build()
         .unwrap();
 
-    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(4u32));
+    assert_eq!(
+        genotype.chromosome_permutations_size(None),
+        BigUint::from(4u32)
+    );
     assert_eq!(
         inspect::chromosomes_to_str(
             genotype
-                .chromosome_permutations_into_iter()
+                .chromosome_permutations_into_iter(None)
                 .collect::<Vec<_>>()
                 .as_slice()
         ),

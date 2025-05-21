@@ -232,8 +232,9 @@ pub trait PermutateGenotype: Genotype {
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
+        _scale_index: Option<usize>,
     ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a>;
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
-    fn chromosome_permutations_size(&self) -> BigUint;
+    fn chromosome_permutations_size(&self, _scale_index: Option<usize>) -> BigUint;
 }

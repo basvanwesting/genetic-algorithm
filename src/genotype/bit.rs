@@ -315,6 +315,7 @@ impl HillClimbGenotype for Bit {
 impl PermutateGenotype for Bit {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
+        _scale_index: Option<usize>,
     ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
             Box::new(
@@ -333,7 +334,7 @@ impl PermutateGenotype for Bit {
             )
         }
     }
-    fn chromosome_permutations_size(&self) -> BigUint {
+    fn chromosome_permutations_size(&self, _scale_index: Option<usize>) -> BigUint {
         if self.seed_genes_list.is_empty() {
             BigUint::from(2u8).pow(self.genes_size() as u32)
         } else {
@@ -383,7 +384,7 @@ impl fmt::Display for Bit {
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
-            self.chromosome_permutations_size()
+            self.chromosome_permutations_size(None)
         )?;
         writeln!(
             f,

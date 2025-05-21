@@ -172,7 +172,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 {
     pub fn setup(&mut self) {
         let now = Instant::now();
-        self.state.chromosome = self.genotype.chromosome_permutations_into_iter().next();
+        self.state.chromosome = self.genotype.chromosome_permutations_into_iter(None).next();
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
         self.fitness
@@ -199,7 +199,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     fn call_sequential(&mut self) {
         self.genotype
             .clone()
-            .chromosome_permutations_into_iter()
+            .chromosome_permutations_into_iter(None)
             .for_each(|chromosome| {
                 self.state.current_generation += 1;
                 self.state.chromosome.replace(chromosome);
@@ -226,7 +226,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 
             s.spawn(move |_| {
                 thread_genotype
-                    .chromosome_permutations_into_iter()
+                    .chromosome_permutations_into_iter(None)
                     .par_bridge()
                     .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
                         let now = Instant::now();
