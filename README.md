@@ -188,8 +188,6 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 
 ## MAYBE
 * Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)
-* Add scaling permutate? Can be done by grid search and then search within last grid with new scale
-* Add chromosome_permutations_size for all genotypes, it's just useful informatively, maybe make option for RangeGenotype?
 * Add scaling helper function
 * Add simulated annealing strategy
 * Add Roulette selection with and without duplicates (with fitness ordering)

@@ -51,7 +51,7 @@ pub enum PermutateVariant {
 ///     * Other scales (index > 0) center around the best chromomsome of the previous scale,
 ///     traversing the previous scale bounds around the best chromosome with the upper bound of the
 ///     current scale as step size.
-///     * Scale down after grid is full traversed
+///     * Scale down after grid is fully traversed
 /// * With allele_mutation_range(s) set on genotype: Permutation not supported
 /// * With only allele_range(s) set on genotype:  Permutation not supported
 ///
