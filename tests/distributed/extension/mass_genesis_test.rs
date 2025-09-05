@@ -2,7 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::distributed::chromosome::ChromosomeManager;
 use genetic_algorithm::distributed::extension::{Extension, ExtensionMassGenesis};
-use genetic_algorithm::distributed::genotype::{BinaryGenotype, Genotype, StaticMatrixGenotype};
+use genetic_algorithm::distributed::genotype::{BinaryGenotype, Genotype, StaticRangeGenotype};
 use genetic_algorithm::distributed::population::Population;
 use genetic_algorithm::distributed::strategy::evolve::{EvolveConfig, EvolveState};
 use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
@@ -103,7 +103,7 @@ fn removes_lesser_no_fitness() {
 #[test]
 fn removes_lesser_matrix() {
     let rng = &mut SmallRng::seed_from_u64(1);
-    let mut genotype = StaticMatrixGenotype::<u8, 3, 8>::builder()
+    let mut genotype = StaticRangeGenotype::<u8, 3, 8>::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .with_allele_range(0..=10)

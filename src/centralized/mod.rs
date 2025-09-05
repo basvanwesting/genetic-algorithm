@@ -1,7 +1,7 @@
 //! Centralized genetic algorithms with population-wide gene storage
 //!
 //! Use this module for:
-//! - DynamicMatrix and StaticMatrix genotypes
+//! - DynamicRange and StaticRange genotypes
 //! - GPU/SIMD-ready operations
 //! - Maximum performance with large populations
 

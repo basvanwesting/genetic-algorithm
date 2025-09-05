@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::centralized::fitness::placeholders::{
-    CountOnes, CountTrue, SumDynamicMatrix, SumGenes, SumStaticMatrix,
+    CountOnes, CountTrue, SumDynamicRange, SumGenes, SumStaticRange,
 };
 use genetic_algorithm::centralized::strategy::evolve::prelude::*;
 
@@ -524,8 +524,8 @@ fn call_multi_list() {
 }
 
 #[test]
-fn call_static_matrix() {
-    let genotype = StaticMatrixGenotype::<u16, 10, 170>::builder()
+fn call_static_range() {
+    let genotype = StaticRangeGenotype::<u16, 10, 170>::builder()
         .with_genes_size(10)
         .with_allele_range(0..=10)
         .build()
@@ -536,7 +536,7 @@ fn call_static_matrix() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumStaticMatrix::new())
+        .with_fitness(SumStaticRange::new())
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
@@ -555,8 +555,8 @@ fn call_static_matrix() {
 }
 
 #[test]
-fn call_dynamic_matrix() {
-    let genotype = DynamicMatrixGenotype::<u16>::builder()
+fn call_dynamic_range() {
+    let genotype = DynamicRangeGenotype::<u16>::builder()
         .with_genes_size(10)
         .with_allele_range(0..=10)
         .build()
@@ -567,7 +567,7 @@ fn call_dynamic_matrix() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumDynamicMatrix::new())
+        .with_fitness(SumDynamicRange::new())
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))

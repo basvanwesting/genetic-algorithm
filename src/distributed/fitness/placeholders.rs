@@ -3,7 +3,7 @@ use crate::distributed::allele::RangeAllele;
 use crate::distributed::chromosome::GenesOwner;
 use crate::distributed::fitness::{Fitness, FitnessChromosome, FitnessPopulation, FitnessValue};
 use crate::distributed::genotype::{
-    BinaryGenotype, BitGenotype, DynamicMatrixGenotype, Genotype, StaticMatrixGenotype,
+    BinaryGenotype, BitGenotype, DynamicRangeGenotype, Genotype, StaticRangeGenotype,
 };
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
@@ -121,7 +121,7 @@ where
 /// * new(), precision is defaulted to 1.0
 /// * new_with_precision(precision)
 #[derive(Clone, Debug)]
-pub struct SumDynamicMatrix<T: RangeAllele + Into<f64>>
+pub struct SumDynamicRange<T: RangeAllele + Into<f64>>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -129,7 +129,7 @@ where
     precision: f64,
     _phantom: PhantomData<T>,
 }
-impl<T: RangeAllele + Into<f64>> SumDynamicMatrix<T>
+impl<T: RangeAllele + Into<f64>> SumDynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -144,7 +144,7 @@ where
         }
     }
 }
-impl<T: RangeAllele + Into<f64>> Default for SumDynamicMatrix<T>
+impl<T: RangeAllele + Into<f64>> Default for SumDynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -156,12 +156,12 @@ where
         }
     }
 }
-impl<T: RangeAllele + Into<f64>> Fitness for SumDynamicMatrix<T>
+impl<T: RangeAllele + Into<f64>> Fitness for SumDynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    type Genotype = DynamicMatrixGenotype<T>;
+    type Genotype = DynamicRangeGenotype<T>;
     fn calculate_for_population(
         &mut self,
         _population: &FitnessPopulation<Self>,
@@ -185,7 +185,7 @@ where
 /// * new(), precision is defaulted to 1.0
 /// * new_with_precision(precision)
 #[derive(Clone, Debug)]
-pub struct SumStaticMatrix<T: RangeAllele + Into<f64>, const N: usize, const M: usize>
+pub struct SumStaticRange<T: RangeAllele + Into<f64>, const N: usize, const M: usize>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -193,7 +193,7 @@ where
     precision: f64,
     _phantom: PhantomData<T>,
 }
-impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> SumStaticMatrix<T, N, M>
+impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> SumStaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -209,7 +209,7 @@ where
     }
 }
 impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Default
-    for SumStaticMatrix<T, N, M>
+    for SumStaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -223,12 +223,12 @@ where
 }
 
 impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Fitness
-    for SumStaticMatrix<T, N, M>
+    for SumStaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    type Genotype = StaticMatrixGenotype<T, N, M>;
+    type Genotype = StaticRangeGenotype<T, N, M>;
     fn calculate_for_population(
         &mut self,
         _population: &FitnessPopulation<Self>,

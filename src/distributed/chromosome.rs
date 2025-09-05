@@ -5,8 +5,8 @@ mod row;
 mod vector;
 
 pub use self::bit::Bit as BitChromosome;
-pub use self::row::Row as DynamicMatrixChromosome;
-pub use self::row::Row as StaticMatrixChromosome;
+pub use self::row::Row as DynamicRangeChromosome;
+pub use self::row::Row as StaticRangeChromosome;
 pub use self::vector::Vector as ListChromosome;
 pub use self::vector::Vector as MultiListChromosome;
 pub use self::vector::Vector as MultiRangeChromosome;

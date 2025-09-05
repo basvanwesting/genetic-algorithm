@@ -186,8 +186,8 @@ name = "distributed_evolve_scrabble"
 path = "examples/distributed/evolve_scrabble.rs"
 
 [[example]]
-name = "distributed_evolve_static_matrix"
-path = "examples/distributed/evolve_static_matrix.rs"
+name = "distributed_evolve_static_range"
+path = "examples/distributed/evolve_static_range.rs"
 
 [[example]]
 name = "distributed_evolve_static_v_dynamic_v_range"
@@ -319,8 +319,8 @@ name = "centralized_evolve_scrabble"
 path = "examples/centralized/evolve_scrabble.rs"
 
 [[example]]
-name = "centralized_evolve_static_matrix"
-path = "examples/centralized/evolve_static_matrix.rs"
+name = "centralized_evolve_static_range"
+path = "examples/centralized/evolve_static_range.rs"
 
 [[example]]
 name = "centralized_evolve_static_v_dynamic_v_range"

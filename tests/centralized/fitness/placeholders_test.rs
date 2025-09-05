@@ -4,11 +4,11 @@ use genetic_algorithm::centralized::chromosome::{
     BinaryChromosome, ChromosomeManager, ListChromosome, RangeChromosome,
 };
 use genetic_algorithm::centralized::fitness::placeholders::{
-    CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumDynamicMatrix, SumGenes,
-    SumStaticMatrix, Zero,
+    CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumDynamicRange, SumGenes,
+    SumStaticRange, Zero,
 };
 use genetic_algorithm::centralized::fitness::Fitness;
-use genetic_algorithm::centralized::genotype::{DynamicMatrixGenotype, StaticMatrixGenotype};
+use genetic_algorithm::centralized::genotype::{DynamicRangeGenotype, StaticRangeGenotype};
 
 #[test]
 fn binary_genotype() {
@@ -229,9 +229,9 @@ fn range_genotype_f64() {
 }
 
 #[test]
-fn dynamic_matrix_genotype_f32() {
+fn dynamic_range_genotype_f32() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = DynamicRangeGenotype::builder()
         .with_genes_size(4)
         .with_allele_range(0.0_f32..=1.0_f32)
         .build()
@@ -250,15 +250,15 @@ fn dynamic_matrix_genotype_f32() {
     );
 
     assert_eq!(
-        SumDynamicMatrix::new_with_precision(1e-3).calculate_for_population(&population, &genotype),
+        SumDynamicRange::new_with_precision(1e-3).calculate_for_population(&population, &genotype),
         vec![Some(2328), Some(2884), Some(2431), Some(1845), Some(2041)]
     );
 }
 
 #[test]
-fn static_matrix_genotype_f32() {
+fn static_range_genotype_f32() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = StaticMatrixGenotype::<f32, 4, 5>::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 4, 5>::builder()
         .with_genes_size(4)
         .with_allele_range(0.0_f32..=1.0_f32)
         .build()
@@ -277,7 +277,7 @@ fn static_matrix_genotype_f32() {
     );
 
     assert_eq!(
-        SumStaticMatrix::new_with_precision(1e-3).calculate_for_population(&population, &genotype),
+        SumStaticRange::new_with_precision(1e-3).calculate_for_population(&population, &genotype),
         vec![Some(2328), Some(2884), Some(2431), Some(1845), Some(2041)]
     );
 }

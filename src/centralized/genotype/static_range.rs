@@ -1,11 +1,11 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
-use crate::distributed::allele::RangeAllele;
-use crate::distributed::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, GenesPointer, StaticMatrixChromosome,
+use crate::centralized::allele::RangeAllele;
+use crate::centralized::chromosome::{
+    Chromosome, ChromosomeManager, GenesHash, GenesPointer, StaticRangeChromosome,
 };
-use crate::distributed::fitness::FitnessValue;
-use crate::distributed::population::Population;
+use crate::centralized::fitness::FitnessValue;
+use crate::centralized::population::Population;
 use bytemuck::cast_slice;
 use itertools::Itertools;
 use num::BigUint;
@@ -50,12 +50,12 @@ use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 ///
 /// # Example (f32):
 /// ```
-/// use genetic_algorithm::distributed::genotype::{Genotype, StaticMatrixGenotype};
+/// use genetic_algorithm::centralized::genotype::{Genotype, StaticRangeGenotype};
 ///
 /// const GENES_SIZE: usize = 100;
 /// const POPULATION_SIZE: usize = 200;
 ///
-/// let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
+/// let genotype = StaticRangeGenotype::<f32, GENES_SIZE, POPULATION_SIZE>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
 ///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
@@ -67,12 +67,12 @@ use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 ///
 /// # Example (isize):
 /// ```
-/// use genetic_algorithm::distributed::genotype::{Genotype, StaticMatrixGenotype};
+/// use genetic_algorithm::centralized::genotype::{Genotype, StaticRangeGenotype};
 ///
 /// const GENES_SIZE: usize = 100;
 /// const POPULATION_SIZE: usize = 200;
 ///
-/// let genotype = StaticMatrixGenotype::<isize, GENES_SIZE, POPULATION_SIZE>::builder()
+/// let genotype = StaticRangeGenotype::<isize, GENES_SIZE, POPULATION_SIZE>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=100) // also default mutation range
 ///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range
@@ -81,13 +81,13 @@ use std::ops::{Bound, Range, RangeBounds, RangeInclusive};
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct StaticMatrix<T: RangeAllele, const N: usize, const M: usize>
+pub struct StaticRange<T: RangeAllele, const N: usize, const M: usize>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     pub data: Box<[[T; N]; M]>,
-    pub chromosome_bin: Vec<StaticMatrixChromosome>,
+    pub chromosome_bin: Vec<StaticRangeChromosome>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
@@ -102,7 +102,7 @@ where
 }
 
 impl<T: RangeAllele, const N: usize, const M: usize> TryFrom<Builder<Self>>
-    for StaticMatrix<T, N, M>
+    for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -148,7 +148,7 @@ where
     }
 }
 
-impl<T: RangeAllele, const N: usize, const M: usize> StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -156,7 +156,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut StaticMatrixChromosome,
+        chromosome: &mut StaticRangeChromosome,
         rng: &mut R,
     ) {
         self.set_gene_by_id(chromosome.row_id, index, self.allele_sampler.sample(rng));
@@ -164,7 +164,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut StaticMatrixChromosome,
+        chromosome: &mut StaticRangeChromosome,
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
@@ -180,7 +180,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut StaticMatrixChromosome,
+        chromosome: &mut StaticRangeChromosome,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -284,14 +284,14 @@ where
     }
 }
 
-impl<T: RangeAllele, const N: usize, const M: usize> Genotype for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> Genotype for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     type Allele = T;
     type Genes = Box<[T; N]>;
-    type Chromosome = StaticMatrixChromosome;
+    type Chromosome = StaticRangeChromosome;
 
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -418,7 +418,7 @@ where
     }
 }
 
-impl<T: RangeAllele, const N: usize, const M: usize> EvolveGenotype for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> EvolveGenotype for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -500,7 +500,7 @@ where
         true
     }
 }
-impl<T: RangeAllele, const N: usize, const M: usize> HillClimbGenotype for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> HillClimbGenotype for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -532,15 +532,15 @@ where
     }
 }
 
-impl<T: RangeAllele, const N: usize, const M: usize> StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn fill_neighbouring_population_scaled(
         &mut self,
-        chromosome: &StaticMatrixChromosome,
-        population: &mut Population<StaticMatrixChromosome>,
+        chromosome: &StaticRangeChromosome,
+        population: &mut Population<StaticRangeChromosome>,
         scale_index: usize,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -580,8 +580,8 @@ where
 
     fn fill_neighbouring_population_relative<R: Rng>(
         &mut self,
-        chromosome: &StaticMatrixChromosome,
-        population: &mut Population<StaticMatrixChromosome>,
+        chromosome: &StaticRangeChromosome,
+        population: &mut Population<StaticRangeChromosome>,
         rng: &mut R,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -623,8 +623,8 @@ where
 
     fn fill_neighbouring_population_random<R: Rng>(
         &mut self,
-        chromosome: &StaticMatrixChromosome,
-        population: &mut Population<StaticMatrixChromosome>,
+        chromosome: &StaticRangeChromosome,
+        population: &mut Population<StaticRangeChromosome>,
         rng: &mut R,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -652,7 +652,7 @@ where
 }
 
 impl<T: RangeAllele, const N: usize, const M: usize> ChromosomeManager<Self>
-    for StaticMatrix<T, N, M>
+    for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -664,25 +664,25 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_genes(&mut self, chromosome: &mut StaticMatrixChromosome, genes: &Box<[T; N]>) {
+    fn set_genes(&mut self, chromosome: &mut StaticRangeChromosome, genes: &Box<[T; N]>) {
         let x = self.data[chromosome.row_id].as_mut_slice();
         x.copy_from_slice(genes.as_slice());
         self.reset_chromosome_state(chromosome);
     }
-    fn get_genes(&self, chromosome: &StaticMatrixChromosome) -> Box<[T; N]> {
+    fn get_genes(&self, chromosome: &StaticRangeChromosome) -> Box<[T; N]> {
         Box::new(self.data[chromosome.row_id])
     }
-    fn copy_genes(&mut self, source: &StaticMatrixChromosome, target: &mut StaticMatrixChromosome) {
+    fn copy_genes(&mut self, source: &StaticRangeChromosome, target: &mut StaticRangeChromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
         self.copy_chromosome_state(source, target);
     }
     fn chromosomes_setup(&mut self) {
-        self.chromosome_bin = (0..M).rev().map(StaticMatrixChromosome::new).collect();
+        self.chromosome_bin = (0..M).rev().map(StaticRangeChromosome::new).collect();
     }
-    fn chromosome_bin_push(&mut self, chromosome: StaticMatrixChromosome) {
+    fn chromosome_bin_push(&mut self, chromosome: StaticRangeChromosome) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_find_or_create(&mut self) -> StaticMatrixChromosome {
+    fn chromosome_bin_find_or_create(&mut self) -> StaticRangeChromosome {
         self.chromosome_bin.pop().unwrap_or_else(|| {
             panic!("genetic_algorithm error: chromosome capacity exceeded");
         })
@@ -694,7 +694,7 @@ where
     }
 }
 
-impl<T: RangeAllele, const N: usize, const M: usize> Clone for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> Clone for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -721,7 +721,7 @@ where
     }
 }
 
-impl<T: RangeAllele, const N: usize, const M: usize> fmt::Debug for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> fmt::Debug for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -741,7 +741,7 @@ where
     }
 }
 
-impl<T: RangeAllele, const N: usize, const M: usize> fmt::Display for StaticMatrix<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> fmt::Display for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

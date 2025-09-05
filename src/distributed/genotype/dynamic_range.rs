@@ -1,11 +1,11 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
-use crate::centralized::allele::RangeAllele;
-use crate::centralized::chromosome::{
-    Chromosome, ChromosomeManager, DynamicMatrixChromosome, GenesHash, GenesPointer,
+use crate::distributed::allele::RangeAllele;
+use crate::distributed::chromosome::{
+    Chromosome, ChromosomeManager, DynamicRangeChromosome, GenesHash, GenesPointer,
 };
-use crate::centralized::fitness::FitnessValue;
-use crate::centralized::population::Population;
+use crate::distributed::fitness::FitnessValue;
+use crate::distributed::population::Population;
 use bytemuck::cast_slice;
 use itertools::Itertools;
 use num::BigUint;
@@ -48,9 +48,9 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (f32, default):
 /// ```
-/// use genetic_algorithm::centralized::genotype::{Genotype, DynamicMatrixGenotype};
+/// use genetic_algorithm::distributed::genotype::{Genotype, DynamicRangeGenotype};
 ///
-/// let genotype = DynamicMatrixGenotype::builder()
+/// let genotype = DynamicRangeGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
 ///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
@@ -62,9 +62,9 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (isize):
 /// ```
-/// use genetic_algorithm::centralized::genotype::{Genotype, DynamicMatrixGenotype};
+/// use genetic_algorithm::distributed::genotype::{Genotype, DynamicRangeGenotype};
 ///
-/// let genotype = DynamicMatrixGenotype::<isize>::builder()
+/// let genotype = DynamicRangeGenotype::<isize>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=100) // also default mutation range
 ///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range
@@ -73,13 +73,13 @@ pub type DefaultAllele = f32;
 ///     .build()
 ///     .unwrap();
 /// ```
-pub struct DynamicMatrix<T: RangeAllele = DefaultAllele>
+pub struct DynamicRange<T: RangeAllele = DefaultAllele>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     pub data: Vec<T>,
-    pub chromosome_bin: Vec<DynamicMatrixChromosome>,
+    pub chromosome_bin: Vec<DynamicRangeChromosome>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
@@ -93,7 +93,7 @@ where
     pub genes_hashing: bool,
 }
 
-impl<T: RangeAllele> TryFrom<Builder<Self>> for DynamicMatrix<T>
+impl<T: RangeAllele> TryFrom<Builder<Self>> for DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -139,7 +139,7 @@ where
     }
 }
 
-impl<T: RangeAllele> DynamicMatrix<T>
+impl<T: RangeAllele> DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -147,7 +147,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut DynamicMatrixChromosome,
+        chromosome: &mut DynamicRangeChromosome,
         rng: &mut R,
     ) {
         self.set_gene_by_id(chromosome.row_id, index, self.allele_sampler.sample(rng));
@@ -155,7 +155,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut DynamicMatrixChromosome,
+        chromosome: &mut DynamicRangeChromosome,
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
@@ -171,7 +171,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut DynamicMatrixChromosome,
+        chromosome: &mut DynamicRangeChromosome,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -292,14 +292,14 @@ where
     }
 }
 
-impl<T: RangeAllele> Genotype for DynamicMatrix<T>
+impl<T: RangeAllele> Genotype for DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     type Allele = T;
     type Genes = Vec<T>;
-    type Chromosome = DynamicMatrixChromosome;
+    type Chromosome = DynamicRangeChromosome;
 
     fn genes_size(&self) -> usize {
         self.genes_size
@@ -421,7 +421,7 @@ where
     }
 }
 
-impl<T: RangeAllele> EvolveGenotype for DynamicMatrix<T>
+impl<T: RangeAllele> EvolveGenotype for DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -503,7 +503,7 @@ where
         true
     }
 }
-impl<T: RangeAllele> HillClimbGenotype for DynamicMatrix<T>
+impl<T: RangeAllele> HillClimbGenotype for DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -535,15 +535,15 @@ where
     }
 }
 
-impl<T: RangeAllele> DynamicMatrix<T>
+impl<T: RangeAllele> DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn fill_neighbouring_population_scaled(
         &mut self,
-        chromosome: &DynamicMatrixChromosome,
-        population: &mut Population<DynamicMatrixChromosome>,
+        chromosome: &DynamicRangeChromosome,
+        population: &mut Population<DynamicRangeChromosome>,
         scale_index: usize,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -583,8 +583,8 @@ where
 
     fn fill_neighbouring_population_relative<R: Rng>(
         &mut self,
-        chromosome: &DynamicMatrixChromosome,
-        population: &mut Population<DynamicMatrixChromosome>,
+        chromosome: &DynamicRangeChromosome,
+        population: &mut Population<DynamicRangeChromosome>,
         rng: &mut R,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -626,8 +626,8 @@ where
 
     fn fill_neighbouring_population_random<R: Rng>(
         &mut self,
-        chromosome: &DynamicMatrixChromosome,
-        population: &mut Population<DynamicMatrixChromosome>,
+        chromosome: &DynamicRangeChromosome,
+        population: &mut Population<DynamicRangeChromosome>,
         rng: &mut R,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -654,7 +654,7 @@ where
     }
 }
 
-impl<T: RangeAllele> ChromosomeManager<Self> for DynamicMatrix<T>
+impl<T: RangeAllele> ChromosomeManager<Self> for DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -668,32 +668,32 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_genes(&mut self, chromosome: &mut DynamicMatrixChromosome, genes: &Vec<T>) {
+    fn set_genes(&mut self, chromosome: &mut DynamicRangeChromosome, genes: &Vec<T>) {
         let linear_genes_range = self.linear_genes_range(chromosome.row_id);
         let x = &mut self.data[linear_genes_range];
         x.copy_from_slice(genes);
         self.reset_chromosome_state(chromosome);
     }
-    fn get_genes(&self, chromosome: &DynamicMatrixChromosome) -> Vec<T> {
+    fn get_genes(&self, chromosome: &DynamicRangeChromosome) -> Vec<T> {
         self.get_genes_by_id(chromosome.row_id).to_vec()
     }
     fn copy_genes(
         &mut self,
-        source: &DynamicMatrixChromosome,
-        target: &mut DynamicMatrixChromosome,
+        source: &DynamicRangeChromosome,
+        target: &mut DynamicRangeChromosome,
     ) {
         self.copy_genes_by_id(source.row_id, target.row_id);
         self.copy_chromosome_state(source, target);
     }
-    fn chromosome_bin_push(&mut self, chromosome: DynamicMatrixChromosome) {
+    fn chromosome_bin_push(&mut self, chromosome: DynamicRangeChromosome) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_find_or_create(&mut self) -> DynamicMatrixChromosome {
+    fn chromosome_bin_find_or_create(&mut self) -> DynamicRangeChromosome {
         self.chromosome_bin.pop().unwrap_or_else(|| {
             let row_id = self.data.len() / self.genes_size;
             self.data
                 .resize_with(self.data.len() + self.genes_size, Default::default);
-            DynamicMatrixChromosome::new(row_id)
+            DynamicRangeChromosome::new(row_id)
         })
     }
     fn chromosomes_cleanup(&mut self) {
@@ -702,7 +702,7 @@ where
     }
 }
 
-impl<T: RangeAllele> Clone for DynamicMatrix<T>
+impl<T: RangeAllele> Clone for DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -729,7 +729,7 @@ where
     }
 }
 
-impl<T: RangeAllele> fmt::Debug for DynamicMatrix<T>
+impl<T: RangeAllele> fmt::Debug for DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -749,7 +749,7 @@ where
     }
 }
 
-impl<T: RangeAllele> fmt::Display for DynamicMatrix<T>
+impl<T: RangeAllele> fmt::Display for DynamicRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

@@ -24,8 +24,8 @@ impl Allele for u8 {}
 impl Allele for usize {}
 
 /// Special Allele subtrait, used for [crate::genotype::RangeGenotype],
-/// [crate::genotype::MultiRangeGenotype], [crate::genotype::DynamicMatrixGenotype] and
-/// [crate::genotype::StaticMatrixGenotype]
+/// [crate::genotype::MultiRangeGenotype], [crate::genotype::DynamicRangeGenotype] and
+/// [crate::genotype::StaticRangeGenotype]
 pub trait RangeAllele:
     Allele + Add<Output = Self> + std::cmp::PartialOrd + Default + bytemuck::NoUninit
 {

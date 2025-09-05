@@ -67,8 +67,8 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///   * Only for [Genotype] with [GenesPointer](crate::chromosome::GenesPointer) chromosomes. These
 ///     chromosomes don't have a `genes` field to read, but a `row_id`. The matrix [Genotype] has a contiguous
 ///     memory `data` field with all the data, which can be calculated in one go.
-///     * [DynamicMatrixGenotype](crate::genotype::DynamicMatrixGenotype)
-///     * [StaticMatrixGenotype](crate::genotype::StaticMatrixGenotype)
+///     * [DynamicRangeGenotype](crate::genotype::DynamicRangeGenotype)
+///     * [StaticRangeGenotype](crate::genotype::StaticRangeGenotype)
 ///   * The order and length of the rows in the genotype data matrix needs to be preserved in the
 ///     returned vector as it matches the row_id on the chromosome
 ///   * The order and length of the population does not matter at all and will most likely not align.
@@ -129,12 +129,12 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// use genetic_algorithm::centralized::strategy::evolve::prelude::*;
 ///
 /// #[derive(Clone, Debug)]
-/// pub struct SumStaticMatrixGenes;
-/// impl Fitness for SumStaticMatrixGenes {
-///     type Genotype = StaticMatrixGenotype<u16, 10, 100>;
+/// pub struct SumStaticRangeGenes;
+/// impl Fitness for SumStaticRangeGenes {
+///     type Genotype = StaticRangeGenotype<u16, 10, 100>;
 ///     fn calculate_for_population(
 ///         &mut self,
-///         population: &Population<StaticMatrixChromosome>,
+///         population: &Population<StaticRangeChromosome>,
 ///         genotype: &FitnessGenotype<Self>,
 ///     ) -> Vec<Option<FitnessValue>> {
 ///         // pure matrix data calculation on [[T; N] M]
@@ -160,12 +160,12 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// use genetic_algorithm::centralized::strategy::evolve::prelude::*;
 ///
 /// #[derive(Clone, Debug)]
-/// pub struct SumDynamicMatrixGenes;
-/// impl Fitness for SumDynamicMatrixGenes {
-///     type Genotype = DynamicMatrixGenotype<u16>;
+/// pub struct SumDynamicRangeGenes;
+/// impl Fitness for SumDynamicRangeGenes {
+///     type Genotype = DynamicRangeGenotype<u16>;
 ///     fn calculate_for_population(
 ///         &mut self,
-///         population: &Population<DynamicMatrixChromosome>,
+///         population: &Population<DynamicRangeChromosome>,
 ///         genotype: &FitnessGenotype<Self>,
 ///     ) -> Vec<Option<FitnessValue>> {
 ///         // pure matrix data calculation on Vec<T> with genes_size step
@@ -192,9 +192,9 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// use genetic_algorithm::centralized::strategy::hill_climb::prelude::*;
 ///
 /// #[derive(Clone, Debug)]
-/// pub struct SumStaticMatrixGenes;
-/// impl Fitness for SumStaticMatrixGenes {
-///     type Genotype = StaticMatrixGenotype<u16, 10, 100>;
+/// pub struct SumStaticRangeGenes;
+/// impl Fitness for SumStaticRangeGenes {
+///     type Genotype = StaticRangeGenotype<u16, 10, 100>;
 ///     fn calculate_for_chromosome(
 ///         &mut self,
 ///         chromosome: &FitnessChromosome<Self>,
@@ -309,6 +309,6 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         _chromosome: &FitnessChromosome<Self>,
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
-        panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticMatrixGenotype)");
+        panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticRangeGenotype)");
     }
 }

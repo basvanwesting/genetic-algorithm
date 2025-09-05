@@ -1,14 +1,14 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::distributed::chromosome::ChromosomeManager;
-use genetic_algorithm::distributed::genotype::{
-    DynamicMatrixGenotype, EvolveGenotype, Genotype, HillClimbGenotype,
+use genetic_algorithm::centralized::chromosome::ChromosomeManager;
+use genetic_algorithm::centralized::genotype::{
+    EvolveGenotype, Genotype, HillClimbGenotype, StaticRangeGenotype,
 };
 
 #[test]
 fn chromosome_constructor() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -33,7 +33,7 @@ fn chromosome_constructor() {
 #[test]
 fn float_mutate_chromosome_single_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -66,7 +66,7 @@ fn float_mutate_chromosome_single_relative() {
 #[test]
 fn float_mutate_chromosome_single_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_scaled_range(vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01])
@@ -99,7 +99,7 @@ fn float_mutate_chromosome_single_scaled() {
 #[test]
 fn mutate_chromosome_genes_random_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -122,7 +122,7 @@ fn mutate_chromosome_genes_random_with_duplicates() {
 #[test]
 fn mutate_chromosome_genes_random_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -146,7 +146,7 @@ fn mutate_chromosome_genes_random_without_duplicates() {
 #[test]
 fn crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -181,7 +181,7 @@ fn crossover_chromosome_pair_single_gene() {
 #[test]
 fn crossover_chromosome_pair_single_point() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -216,7 +216,7 @@ fn crossover_chromosome_pair_single_point() {
 #[test]
 fn float_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 1, 3>::builder()
         .with_genes_size(1)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -248,7 +248,7 @@ fn float_neighbouring_population_1() {
 #[test]
 fn float_neighbouring_population_2_random() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 2, 5>::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -262,6 +262,7 @@ fn float_neighbouring_population_2_random() {
         0.001
     ));
 
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
     let mut population = Population::new(vec![]);
     genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
     assert!(relative_population_eq(
@@ -283,7 +284,7 @@ fn float_neighbouring_population_2_random() {
 #[test]
 fn float_neighbouring_population_2_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 2, 5>::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -298,6 +299,7 @@ fn float_neighbouring_population_2_relative() {
         0.001
     ));
 
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
     let mut population = Population::new(vec![]);
     genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
     assert!(relative_population_eq(
@@ -319,7 +321,7 @@ fn float_neighbouring_population_2_relative() {
 #[test]
 fn float_neighbouring_population_2_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 2, 5>::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_scaled_range(vec![-0.5..=0.5, -0.1..=0.1, -0.01..=0.01])
@@ -392,7 +394,7 @@ fn float_neighbouring_population_2_scaled() {
 #[test]
 fn float_neighbouring_population_3_one_sided() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 3, 7>::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(0.0..=0.1)
@@ -430,10 +432,13 @@ fn float_neighbouring_population_3_one_sided() {
 #[test]
 fn chromosome_constructor_with_seed_genes_list() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 4, 4>::builder()
         .with_genes_size(4)
         .with_allele_range(0.0..=1.0)
-        .with_seed_genes_list(vec![vec![0.0, 0.1, 0.2, 0.3], vec![0.4, 0.5, 0.6, 0.7]])
+        .with_seed_genes_list(vec![
+            Box::new([0.0, 0.1, 0.2, 0.3]),
+            Box::new([0.4, 0.5, 0.6, 0.7]),
+        ])
         .build()
         .unwrap();
     genotype.chromosomes_setup();
@@ -471,7 +476,7 @@ fn chromosome_constructor_with_seed_genes_list() {
 #[test]
 fn population_constructor_random() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 4, 5>::builder()
         .with_genes_size(4)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -499,10 +504,13 @@ fn population_constructor_random() {
 #[test]
 fn population_constructor_with_seed_genes_list() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 4, 5>::builder()
         .with_genes_size(4)
         .with_allele_range(0.0..=1.0)
-        .with_seed_genes_list(vec![vec![0.0, 0.1, 0.2, 0.3], vec![0.4, 0.5, 0.6, 0.7]])
+        .with_seed_genes_list(vec![
+            Box::new([0.0, 0.1, 0.2, 0.3]),
+            Box::new([0.4, 0.5, 0.6, 0.7]),
+        ])
         .build()
         .unwrap();
     genotype.chromosomes_setup();
@@ -528,7 +536,7 @@ fn population_constructor_with_seed_genes_list() {
 #[test]
 fn chromosome_manager() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicMatrixGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 5, 4>::builder()
         .with_genes_size(5)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -538,6 +546,7 @@ fn chromosome_manager() {
     let mut chromosomes = (0..4)
         .map(|_| genotype.chromosome_constructor_random(rng))
         .collect::<Vec<_>>();
+
     genotype.save_best_genes(&chromosomes[2]);
     dbg!("init", &chromosomes, &genotype.best_genes());
 

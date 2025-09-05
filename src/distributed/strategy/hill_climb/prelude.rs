@@ -1,8 +1,8 @@
 #[doc(no_inline)]
 pub use crate::distributed::chromosome::{
-    BinaryChromosome, BitChromosome, Chromosome, DynamicMatrixChromosome, GenesHash,
+    BinaryChromosome, BitChromosome, Chromosome, DynamicRangeChromosome, GenesHash,
     ListChromosome, MultiListChromosome, MultiRangeChromosome, MultiUniqueChromosome,
-    RangeChromosome, StaticMatrixChromosome, UniqueChromosome,
+    RangeChromosome, StaticRangeChromosome, UniqueChromosome,
 };
 #[doc(no_inline)]
 pub use crate::distributed::fitness::{
@@ -11,9 +11,9 @@ pub use crate::distributed::fitness::{
 };
 #[doc(no_inline)]
 pub use crate::distributed::genotype::{
-    Allele, BinaryGenotype, BitGenotype, DynamicMatrixGenotype, Genotype, GenotypeBuilder,
+    Allele, BinaryGenotype, BitGenotype, DynamicRangeGenotype, Genotype, GenotypeBuilder,
     HillClimbGenotype, ListGenotype, MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype,
-    RangeAllele, RangeGenotype, StaticMatrixGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
+    RangeAllele, RangeGenotype, StaticRangeGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::distributed::strategy::hill_climb::{

@@ -1,10 +1,10 @@
 pub mod binary_test;
 pub mod bit_test;
-pub mod dynamic_matrix_test;
+pub mod dynamic_range_test;
 pub mod list_test;
 pub mod multi_list_test;
 pub mod multi_range_test;
 pub mod multi_unique_test;
 pub mod range_test;
-pub mod static_matrix_test;
+pub mod static_range_test;
 pub mod unique_test;

@@ -9,10 +9,10 @@ const MATRIX_POP_SIZE: usize =
 #[derive(Clone, Debug)]
 pub struct DistanceTo(pub f32, pub f32); // target, precision
 impl Fitness for DistanceTo {
-    type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, MATRIX_POP_SIZE>;
+    type Genotype = StaticRangeGenotype<f32, GENES_SIZE, MATRIX_POP_SIZE>;
     fn calculate_for_population(
         &mut self,
-        _population: &Population<StaticMatrixChromosome>,
+        _population: &Population<StaticRangeChromosome>,
         genotype: &FitnessGenotype<Self>,
     ) -> Vec<Option<FitnessValue>> {
         // pure matrix data calculation on [[T; N] M]
@@ -34,7 +34,7 @@ impl Fitness for DistanceTo {
 fn main() {
     env_logger::init();
 
-    let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, MATRIX_POP_SIZE>::builder()
+    let genotype = StaticRangeGenotype::<f32, GENES_SIZE, MATRIX_POP_SIZE>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
         // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations

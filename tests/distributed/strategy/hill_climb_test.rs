@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::distributed::fitness::placeholders::{
-    CountTrue, SumDynamicMatrix, SumGenes, SumStaticMatrix,
+    CountTrue, SumDynamicRange, SumGenes, SumStaticRange,
 };
 use genetic_algorithm::distributed::genotype::HillClimbGenotype;
 use genetic_algorithm::distributed::strategy::hill_climb::prelude::*;
@@ -282,8 +282,8 @@ fn call_binary_steepest_ascent() {
 }
 
 #[test]
-fn call_static_matrix_steepest_ascent() {
-    let genotype = StaticMatrixGenotype::<i16, 20, { 40 + 1 }>::builder()
+fn call_static_range_steepest_ascent() {
+    let genotype = StaticRangeGenotype::<i16, 20, { 40 + 1 }>::builder()
         .with_genes_size(20)
         .with_allele_range(0..=10)
         .with_allele_mutation_range(-1..=1)
@@ -298,7 +298,7 @@ fn call_static_matrix_steepest_ascent() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_fitness(SumStaticMatrix::new())
+        .with_fitness(SumStaticRange::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -309,8 +309,8 @@ fn call_static_matrix_steepest_ascent() {
 }
 
 #[test]
-fn call_dynamic_matrix_steepest_ascent() {
-    let genotype = DynamicMatrixGenotype::<i16>::builder()
+fn call_dynamic_range_steepest_ascent() {
+    let genotype = DynamicRangeGenotype::<i16>::builder()
         .with_genes_size(20)
         .with_allele_range(0..=10)
         .with_allele_mutation_range(-1..=1)
@@ -325,7 +325,7 @@ fn call_dynamic_matrix_steepest_ascent() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_fitness(SumDynamicMatrix::new())
+        .with_fitness(SumDynamicRange::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()

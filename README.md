@@ -152,8 +152,8 @@ For the Evolve strategy:
 There are two genotypes where Genes (N) and Population (M) are a stored in single contiguous
 memory range of Alleles (T) with length N*M on the heap. A pointer to this data can be taken to
 calculate the whole population at once. These are:
-* DynamicMatrixGenotype
-* StaticMatrixGenotype
+* DynamicRangeGenotype
+* StaticRangeGenotype
 
 Useful in the following strategies where a whole population is calculated:
 * Evolve
@@ -210,5 +210,5 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 ## ISSUES
 * hill_climb SteepestAscent actually has a population size requirement of
   neighbouring_population_size + 1, because of the working chromosome. This could
-  overflow StaticMatrixGenotype<T, N, M>, use StaticMatrixGenotype<T, N, { M + 1 }>
+  overflow StaticRangeGenotype<T, N, M>, use StaticRangeGenotype<T, N, { M + 1 }>
   as workaround

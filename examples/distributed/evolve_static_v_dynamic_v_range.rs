@@ -9,10 +9,10 @@ const MATRIX_POP_SIZE: usize =
 #[derive(Clone, Debug)]
 pub struct StaticDistanceTo(pub f32, pub f32); // target, precision
 impl Fitness for StaticDistanceTo {
-    type Genotype = StaticMatrixGenotype<f32, GENES_SIZE, MATRIX_POP_SIZE>;
+    type Genotype = StaticRangeGenotype<f32, GENES_SIZE, MATRIX_POP_SIZE>;
     fn calculate_for_population(
         &mut self,
-        _population: &Population<StaticMatrixChromosome>,
+        _population: &Population<StaticRangeChromosome>,
         genotype: &FitnessGenotype<Self>,
     ) -> Vec<Option<FitnessValue>> {
         // pure matrix data calculation on [[T; N] M]
@@ -34,10 +34,10 @@ impl Fitness for StaticDistanceTo {
 #[derive(Clone, Debug)]
 pub struct DynamicDistanceTo(pub f32, pub f32); // target, precision
 impl Fitness for DynamicDistanceTo {
-    type Genotype = DynamicMatrixGenotype;
+    type Genotype = DynamicRangeGenotype;
     fn calculate_for_population(
         &mut self,
-        _population: &Population<DynamicMatrixChromosome>,
+        _population: &Population<DynamicRangeChromosome>,
         genotype: &FitnessGenotype<Self>,
     ) -> Vec<Option<FitnessValue>> {
         // pure matrix data calculation on vec![T; N*M]
@@ -78,7 +78,7 @@ impl Fitness for RangeDistanceTo {
 fn main() {
     env_logger::init();
 
-    let genotype = StaticMatrixGenotype::<f32, GENES_SIZE, MATRIX_POP_SIZE>::builder()
+    let genotype = StaticRangeGenotype::<f32, GENES_SIZE, MATRIX_POP_SIZE>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
         // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
@@ -112,15 +112,15 @@ fn main() {
     // println!("{}", evolve);
     // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
-        "StaticMatrixGenotype, best_generation: {:?}",
+        "StaticRangeGenotype, best_generation: {:?}",
         evolve.best_generation()
     );
     println!(
-        "StaticMatrixGenotype, best_fitness_score: {:?}",
+        "StaticRangeGenotype, best_fitness_score: {:?}",
         evolve.best_fitness_score()
     );
 
-    let genotype = DynamicMatrixGenotype::builder()
+    let genotype = DynamicRangeGenotype::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
         // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
@@ -153,11 +153,11 @@ fn main() {
     // println!("{}", evolve);
     // println!("genes: {:b}", evolve.best_genes().unwrap());
     println!(
-        "DynamicMatrixGenotype, best_generation: {:?}",
+        "DynamicRangeGenotype, best_generation: {:?}",
         evolve.best_generation()
     );
     println!(
-        "DynamicMatrixGenotype, best_fitness_score: {:?}",
+        "DynamicRangeGenotype, best_fitness_score: {:?}",
         evolve.best_fitness_score()
     );
 
