@@ -185,6 +185,8 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
 
 ## TODO
+* One cannot permutate centralized static binary, yet. Need a window approach setting the matrix for each iteration. To calculate that matrix as a whole repeatedly
+* Remove FixedBit from distributed? It is the only non-Vec implementation. And distributed is about flexibility not performance, centralized is for performance (it could implement Binary as FixedBit because the internals private in centralized)
 
 ## MAYBE
 * Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)
@@ -212,3 +214,4 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
   neighbouring_population_size + 1, because of the working chromosome. This could
   overflow StaticRangeGenotype<T, N, M>, use StaticRangeGenotype<T, N, { M + 1 }>
   as workaround
+

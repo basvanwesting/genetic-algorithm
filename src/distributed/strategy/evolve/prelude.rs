@@ -1,8 +1,8 @@
 #[doc(no_inline)]
 pub use crate::distributed::chromosome::{
-    BinaryChromosome, BitChromosome, Chromosome, DynamicRangeChromosome, GenesHash,
-    ListChromosome, MultiListChromosome, MultiRangeChromosome, MultiUniqueChromosome,
-    RangeChromosome, StaticRangeChromosome, UniqueChromosome,
+    BinaryChromosome, BitChromosome, Chromosome, DynamicRangeChromosome, GenesHash, ListChromosome,
+    MultiListChromosome, MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome,
+    StaticRangeChromosome, UniqueChromosome,
 };
 #[doc(no_inline)]
 pub use crate::distributed::crossover::{

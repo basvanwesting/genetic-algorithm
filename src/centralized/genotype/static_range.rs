@@ -101,8 +101,7 @@ where
     pub genes_hashing: bool,
 }
 
-impl<T: RangeAllele, const N: usize, const M: usize> TryFrom<Builder<Self>>
-    for StaticRange<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> TryFrom<Builder<Self>> for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -750,7 +749,7 @@ where
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  mutation_type: {:?}", self.mutation_type)?;
-        writeln!(f, "  chromosome_permutations_size: uncountable")?;
+        writeln!(f, "  chromosome_permutations_size: unsupported")?;
         writeln!(
             f,
             "  neighbouring_population_size: {}",

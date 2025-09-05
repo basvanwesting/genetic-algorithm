@@ -677,11 +677,7 @@ where
     fn get_genes(&self, chromosome: &DynamicRangeChromosome) -> Vec<T> {
         self.get_genes_by_id(chromosome.row_id).to_vec()
     }
-    fn copy_genes(
-        &mut self,
-        source: &DynamicRangeChromosome,
-        target: &mut DynamicRangeChromosome,
-    ) {
+    fn copy_genes(&mut self, source: &DynamicRangeChromosome, target: &mut DynamicRangeChromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
         self.copy_chromosome_state(source, target);
     }

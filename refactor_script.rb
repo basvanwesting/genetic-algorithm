@@ -10,12 +10,13 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
+  /static_matrix/ => 'static_range',
+  /dynamic_matrix/ => 'dynamic_range',
 }
 
 other_translations = {
-  /EvolveReporter/ => 'StrategyReporter',
-  /HillClimbReporter/ => 'StrategyReporter',
-  /PermutateReporter/ => 'StrategyReporter',
+  /StaticMatrix/ => 'StaticRange',
+  /DynamicMatrix/ => 'DynamicRange',
 }
 
 #check:

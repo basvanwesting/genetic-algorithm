@@ -208,8 +208,7 @@ where
         }
     }
 }
-impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Default
-    for SumStaticRange<T, N, M>
+impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Default for SumStaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -222,8 +221,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Fitness
-    for SumStaticRange<T, N, M>
+impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Fitness for SumStaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

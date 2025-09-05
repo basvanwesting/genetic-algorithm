@@ -101,8 +101,7 @@ where
     pub genes_hashing: bool,
 }
 
-impl<T: RangeAllele, const N: usize, const M: usize> TryFrom<Builder<Self>>
-    for StaticRange<T, N, M>
+impl<T: RangeAllele, const N: usize, const M: usize> TryFrom<Builder<Self>> for StaticRange<T, N, M>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

@@ -8,6 +8,7 @@ mod multi_list;
 mod multi_range;
 mod multi_unique;
 mod range;
+mod static_binary;
 mod static_range;
 mod unique;
 
@@ -22,6 +23,7 @@ pub use self::multi_list::MultiList as MultiListGenotype;
 pub use self::multi_range::MultiRange as MultiRangeGenotype;
 pub use self::multi_unique::MultiUnique as MultiUniqueGenotype;
 pub use self::range::Range as RangeGenotype;
+pub use self::static_binary::StaticBinary as StaticBinaryGenotype;
 pub use self::static_range::StaticRange as StaticRangeGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
