@@ -1,6 +1,6 @@
 [package]
 name = "genetic_algorithm"
-version = "0.20.5"
+version = "0.20.5-cd.0"
 edition = "2021"
 readme = "README.md"
 description = "A genetic algorithm implementation"
@@ -44,38 +44,369 @@ approx = "0.5.1"
 # [profile.release]
 # debug = 1
 
+# Distributed benchmarks
 [[bench]]
-name = "fitness"
+name = "distributed_fitness"
+path = "benches/distributed/fitness.rs"
 harness = false
 
 [[bench]]
-name = "select"
+name = "distributed_select"
+path = "benches/distributed/select.rs"
 harness = false
 
 [[bench]]
-name = "extension"
+name = "distributed_extension"
+path = "benches/distributed/extension.rs"
 harness = false
 
 [[bench]]
-name = "mutate"
+name = "distributed_mutate"
+path = "benches/distributed/mutate.rs"
 harness = false
 
 [[bench]]
-name = "crossover"
+name = "distributed_crossover"
+path = "benches/distributed/crossover.rs"
 harness = false
 
 [[bench]]
-name = "genotype"
+name = "distributed_genotype"
+path = "benches/distributed/genotype.rs"
 harness = false
 
 [[bench]]
-name = "evolve"
+name = "distributed_evolve"
+path = "benches/distributed/evolve.rs"
 harness = false
 
 [[bench]]
-name = "neighbours"
+name = "distributed_neighbours"
+path = "benches/distributed/neighbours.rs"
 harness = false
 
 [[bench]]
-name = "population"
+name = "distributed_population"
+path = "benches/distributed/population.rs"
 harness = false
+
+# Centralized benchmarks
+[[bench]]
+name = "centralized_fitness"
+path = "benches/centralized/fitness.rs"
+harness = false
+
+[[bench]]
+name = "centralized_select"
+path = "benches/centralized/select.rs"
+harness = false
+
+[[bench]]
+name = "centralized_extension"
+path = "benches/centralized/extension.rs"
+harness = false
+
+[[bench]]
+name = "centralized_mutate"
+path = "benches/centralized/mutate.rs"
+harness = false
+
+[[bench]]
+name = "centralized_crossover"
+path = "benches/centralized/crossover.rs"
+harness = false
+
+[[bench]]
+name = "centralized_genotype"
+path = "benches/centralized/genotype.rs"
+harness = false
+
+[[bench]]
+name = "centralized_evolve"
+path = "benches/centralized/evolve.rs"
+harness = false
+
+[[bench]]
+name = "centralized_neighbours"
+path = "benches/centralized/neighbours.rs"
+harness = false
+
+[[bench]]
+name = "centralized_population"
+path = "benches/centralized/population.rs"
+harness = false
+
+# Distributed examples
+[[example]]
+name = "distributed_evolve_binary_arc_cache_fitness"
+path = "examples/distributed/evolve_binary_arc_cache_fitness.rs"
+
+[[example]]
+name = "distributed_evolve_binary_cache_fitness"
+path = "examples/distributed/evolve_binary_cache_fitness.rs"
+
+[[example]]
+name = "distributed_evolve_binary_lru_cache_fitness"
+path = "examples/distributed/evolve_binary_lru_cache_fitness.rs"
+
+[[example]]
+name = "distributed_evolve_bit_v_binary"
+path = "examples/distributed/evolve_bit_v_binary.rs"
+
+[[example]]
+name = "distributed_evolve_invalid"
+path = "examples/distributed/evolve_invalid.rs"
+
+[[example]]
+name = "distributed_evolve_knapsack"
+path = "examples/distributed/evolve_knapsack.rs"
+
+[[example]]
+name = "distributed_evolve_milp"
+path = "examples/distributed/evolve_milp.rs"
+
+[[example]]
+name = "distributed_evolve_monkeys"
+path = "examples/distributed/evolve_monkeys.rs"
+
+[[example]]
+name = "distributed_evolve_nqueens"
+path = "examples/distributed/evolve_nqueens.rs"
+
+[[example]]
+name = "distributed_evolve_range_float"
+path = "examples/distributed/evolve_range_float.rs"
+
+[[example]]
+name = "distributed_evolve_range_integer"
+path = "examples/distributed/evolve_range_integer.rs"
+
+[[example]]
+name = "distributed_evolve_scrabble"
+path = "examples/distributed/evolve_scrabble.rs"
+
+[[example]]
+name = "distributed_evolve_static_matrix"
+path = "examples/distributed/evolve_static_matrix.rs"
+
+[[example]]
+name = "distributed_evolve_static_v_dynamic_v_range"
+path = "examples/distributed/evolve_static_v_dynamic_v_range.rs"
+
+[[example]]
+name = "distributed_evolve_table_seating"
+path = "examples/distributed/evolve_table_seating.rs"
+
+[[example]]
+name = "distributed_explore_multithreading"
+path = "examples/distributed/explore_multithreading.rs"
+
+[[example]]
+name = "distributed_explore_strategies"
+path = "examples/distributed/explore_strategies.rs"
+
+[[example]]
+name = "distributed_hill_climb_milp"
+path = "examples/distributed/hill_climb_milp.rs"
+
+[[example]]
+name = "distributed_hill_climb_nqueens"
+path = "examples/distributed/hill_climb_nqueens.rs"
+
+[[example]]
+name = "distributed_hill_climb_range"
+path = "examples/distributed/hill_climb_range.rs"
+
+[[example]]
+name = "distributed_hill_climb_recess"
+path = "examples/distributed/hill_climb_recess.rs"
+
+[[example]]
+name = "distributed_hill_climb_scrabble"
+path = "examples/distributed/hill_climb_scrabble.rs"
+
+[[example]]
+name = "distributed_hill_climb_table_seating"
+path = "examples/distributed/hill_climb_table_seating.rs"
+
+[[example]]
+name = "distributed_permutate_knapsack"
+path = "examples/distributed/permutate_knapsack.rs"
+
+[[example]]
+name = "distributed_permutate_range"
+path = "examples/distributed/permutate_range.rs"
+
+[[example]]
+name = "distributed_permutate_scrabble"
+path = "examples/distributed/permutate_scrabble.rs"
+
+[[example]]
+name = "distributed_permutate_seed_genes_list"
+path = "examples/distributed/permutate_seed_genes_list.rs"
+
+[[example]]
+name = "distributed_permutate_tuple"
+path = "examples/distributed/permutate_tuple.rs"
+
+[[example]]
+name = "distributed_profile_evolve_binary"
+path = "examples/distributed/profile_evolve_binary.rs"
+
+[[example]]
+name = "distributed_profile_evolve_countdown"
+path = "examples/distributed/profile_evolve_countdown.rs"
+
+[[example]]
+name = "distributed_profile_evolve_monkeys"
+path = "examples/distributed/profile_evolve_monkeys.rs"
+
+[[example]]
+name = "distributed_profile_evolve_nqueens"
+path = "examples/distributed/profile_evolve_nqueens.rs"
+
+[[example]]
+name = "distributed_profile_hill_climb_nqueens"
+path = "examples/distributed/profile_hill_climb_nqueens.rs"
+
+# Centralized examples
+[[example]]
+name = "centralized_evolve_binary_arc_cache_fitness"
+path = "examples/centralized/evolve_binary_arc_cache_fitness.rs"
+
+[[example]]
+name = "centralized_evolve_binary_cache_fitness"
+path = "examples/centralized/evolve_binary_cache_fitness.rs"
+
+[[example]]
+name = "centralized_evolve_binary_lru_cache_fitness"
+path = "examples/centralized/evolve_binary_lru_cache_fitness.rs"
+
+[[example]]
+name = "centralized_evolve_bit_v_binary"
+path = "examples/centralized/evolve_bit_v_binary.rs"
+
+[[example]]
+name = "centralized_evolve_invalid"
+path = "examples/centralized/evolve_invalid.rs"
+
+[[example]]
+name = "centralized_evolve_knapsack"
+path = "examples/centralized/evolve_knapsack.rs"
+
+[[example]]
+name = "centralized_evolve_milp"
+path = "examples/centralized/evolve_milp.rs"
+
+[[example]]
+name = "centralized_evolve_monkeys"
+path = "examples/centralized/evolve_monkeys.rs"
+
+[[example]]
+name = "centralized_evolve_nqueens"
+path = "examples/centralized/evolve_nqueens.rs"
+
+[[example]]
+name = "centralized_evolve_range_float"
+path = "examples/centralized/evolve_range_float.rs"
+
+[[example]]
+name = "centralized_evolve_range_integer"
+path = "examples/centralized/evolve_range_integer.rs"
+
+[[example]]
+name = "centralized_evolve_scrabble"
+path = "examples/centralized/evolve_scrabble.rs"
+
+[[example]]
+name = "centralized_evolve_static_matrix"
+path = "examples/centralized/evolve_static_matrix.rs"
+
+[[example]]
+name = "centralized_evolve_static_v_dynamic_v_range"
+path = "examples/centralized/evolve_static_v_dynamic_v_range.rs"
+
+[[example]]
+name = "centralized_evolve_table_seating"
+path = "examples/centralized/evolve_table_seating.rs"
+
+[[example]]
+name = "centralized_explore_multithreading"
+path = "examples/centralized/explore_multithreading.rs"
+
+[[example]]
+name = "centralized_explore_strategies"
+path = "examples/centralized/explore_strategies.rs"
+
+[[example]]
+name = "centralized_hill_climb_milp"
+path = "examples/centralized/hill_climb_milp.rs"
+
+[[example]]
+name = "centralized_hill_climb_nqueens"
+path = "examples/centralized/hill_climb_nqueens.rs"
+
+[[example]]
+name = "centralized_hill_climb_range"
+path = "examples/centralized/hill_climb_range.rs"
+
+[[example]]
+name = "centralized_hill_climb_recess"
+path = "examples/centralized/hill_climb_recess.rs"
+
+[[example]]
+name = "centralized_hill_climb_scrabble"
+path = "examples/centralized/hill_climb_scrabble.rs"
+
+[[example]]
+name = "centralized_hill_climb_table_seating"
+path = "examples/centralized/hill_climb_table_seating.rs"
+
+[[example]]
+name = "centralized_permutate_knapsack"
+path = "examples/centralized/permutate_knapsack.rs"
+
+[[example]]
+name = "centralized_permutate_range"
+path = "examples/centralized/permutate_range.rs"
+
+[[example]]
+name = "centralized_permutate_scrabble"
+path = "examples/centralized/permutate_scrabble.rs"
+
+[[example]]
+name = "centralized_permutate_seed_genes_list"
+path = "examples/centralized/permutate_seed_genes_list.rs"
+
+[[example]]
+name = "centralized_permutate_tuple"
+path = "examples/centralized/permutate_tuple.rs"
+
+[[example]]
+name = "centralized_profile_evolve_binary"
+path = "examples/centralized/profile_evolve_binary.rs"
+
+[[example]]
+name = "centralized_profile_evolve_countdown"
+path = "examples/centralized/profile_evolve_countdown.rs"
+
+[[example]]
+name = "centralized_profile_evolve_monkeys"
+path = "examples/centralized/profile_evolve_monkeys.rs"
+
+[[example]]
+name = "centralized_profile_evolve_nqueens"
+path = "examples/centralized/profile_evolve_nqueens.rs"
+
+[[example]]
+name = "centralized_profile_hill_climb_nqueens"
+path = "examples/centralized/profile_hill_climb_nqueens.rs"
+
+# Test configurations
+[[test]]
+name = "distributed_tests"
+path = "tests/distributed/main.rs"
+
+[[test]]
+name = "centralized_tests"
+path = "tests/centralized/main.rs"
