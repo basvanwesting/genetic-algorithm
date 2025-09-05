@@ -51,7 +51,7 @@ Located in `src/genotype/`, defines the representation of solutions:
 - `ListGenotype<T>`: List of values from a fixed set of alleles
 - `UniqueGenotype<T>`: Permutation of unique values
 - `RangeGenotype<T>`: Numeric values within ranges
-- `DynamicMatrixGenotype<T>` / `StaticMatrixGenotype<T>`: Matrix representations for GPU-friendly operations
+- `DynamicRangeGenotype<T>` / `StaticRangeGenotype<T>`: Matrix representations for GPU-friendly operations
 
 ### 2. **Fitness** (Search Goal)
 Located in `src/fitness/`, evaluates chromosome quality:
@@ -91,6 +91,18 @@ Exhaustive search for small spaces with 100% guarantee
 - Use `.with_rng_seed_from_u64(0)` for deterministic test results
 - Benchmarks in `benches/` using criterion
 - Examples serve as both documentation and integration tests
+
+## Dual Module System
+
+The library has two parallel module hierarchies:
+
+### **Centralized** (`src/centralized/`)
+Standard single-machine implementation where chromosomes own their genes directly
+
+### **Distributed** (`src/distributed/`)
+For distributed/parallel computing where chromosomes reference genes stored separately (e.g., in matrices for GPU operations)
+
+Both systems share the same API surface but differ in internal implementation details.
 
 ## Performance Considerations
 
