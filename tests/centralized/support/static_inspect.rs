@@ -1,38 +1,131 @@
-use genetic_algorithm::centralized::chromosome::StaticBinaryChromosome;
-use genetic_algorithm::centralized::genotype::{Genotype, StaticBinaryGenotype};
+use genetic_algorithm::centralized::chromosome::{Chromosome, GenesPointer};
+use genetic_algorithm::centralized::fitness::FitnessValue;
+use genetic_algorithm::centralized::genotype::Genotype;
 use genetic_algorithm::centralized::population::Population;
 
-/// Extract genes from a StaticBinaryChromosome by looking them up in the genotype's matrix
 #[allow(dead_code)]
-pub fn chromosome<const N: usize, const M: usize>(
-    genotype: &StaticBinaryGenotype<N, M>,
-    chromosome: &StaticBinaryChromosome,
-) -> Vec<bool> {
+pub fn chromosome<G, C>(genotype: &G, chromosome: &C) -> Vec<G::Allele>
+where
+    G: Genotype<Chromosome = C>,
+    C: GenesPointer,
+    G::Allele: Clone,
+{
     genotype.genes_slice(chromosome).to_vec()
 }
 
-/// Extract all genes from a Population of StaticBinaryChromosomes
 #[allow(dead_code)]
-pub fn chromosomes<const N: usize, const M: usize>(
-    genotype: &StaticBinaryGenotype<N, M>,
-    chromosomes: &[StaticBinaryChromosome],
-) -> Vec<Vec<bool>> {
+pub fn chromosome_with_fitness_score<G, C>(
+    genotype: &G,
+    chromosome: &C,
+) -> (Vec<G::Allele>, Option<FitnessValue>)
+where
+    G: Genotype<Chromosome = C>,
+    C: GenesPointer + Chromosome,
+    G::Allele: Clone,
+{
+    (
+        genotype.genes_slice(chromosome).to_vec(),
+        chromosome.fitness_score(),
+    )
+}
+
+#[allow(dead_code)]
+pub fn chromosome_with_age<G, C>(genotype: &G, chromosome: &C) -> (Vec<G::Allele>, usize)
+where
+    G: Genotype<Chromosome = C>,
+    C: GenesPointer + Chromosome,
+    G::Allele: Clone,
+{
+    (genotype.genes_slice(chromosome).to_vec(), chromosome.age())
+}
+
+#[allow(dead_code)]
+pub fn chromosomes<G, C>(genotype: &G, chromosomes: &[C]) -> Vec<Vec<G::Allele>>
+where
+    G: Genotype<Chromosome = C>,
+    C: GenesPointer,
+    G::Allele: Clone,
+{
     chromosomes
         .iter()
         .map(|c| chromosome(genotype, c))
         .collect()
 }
 
-/// Extract all genes from a Population of StaticBinaryChromosomes
 #[allow(dead_code)]
-pub fn population<const N: usize, const M: usize>(
-    genotype: &StaticBinaryGenotype<N, M>,
-    population: &Population<StaticBinaryChromosome>,
-) -> Vec<Vec<bool>> {
+pub fn chromosomes_with_fitness_score<G, C>(
+    genotype: &G,
+    chromosomes: &[C],
+) -> Vec<(Vec<G::Allele>, Option<FitnessValue>)>
+where
+    G: Genotype<Chromosome = C>,
+    C: GenesPointer + Chromosome,
+    G::Allele: Clone,
+{
+    chromosomes
+        .iter()
+        .map(|c| chromosome_with_fitness_score(genotype, c))
+        .collect()
+}
+
+#[allow(dead_code)]
+pub fn chromosomes_with_age<G, C>(genotype: &G, chromosomes: &[C]) -> Vec<(Vec<G::Allele>, usize)>
+where
+    G: Genotype<Chromosome = C>,
+    C: GenesPointer + Chromosome,
+    G::Allele: Clone,
+{
+    chromosomes
+        .iter()
+        .map(|c| chromosome_with_age(genotype, c))
+        .collect()
+}
+
+#[allow(dead_code)]
+pub fn population<G, C>(genotype: &G, population: &Population<C>) -> Vec<Vec<G::Allele>>
+where
+    G: Genotype<Chromosome = C>,
+    C: GenesPointer,
+    G::Allele: Clone,
+{
     population
         .chromosomes
         .iter()
         .map(|c| chromosome(genotype, c))
+        .collect()
+}
+
+#[allow(dead_code)]
+pub fn population_with_fitness_scores<G, C>(
+    genotype: &G,
+    population: &Population<C>,
+) -> Vec<(Vec<G::Allele>, Option<FitnessValue>)>
+where
+    G: Genotype<Chromosome = C>,
+    C: GenesPointer + Chromosome,
+    G::Allele: Clone,
+{
+    population
+        .chromosomes
+        .iter()
+        .map(|c| chromosome_with_fitness_score(genotype, c))
+        .collect()
+}
+
+#[allow(dead_code)]
+pub fn population_with_age<G, C>(
+    genotype: &G,
+    population: &Population<C>,
+) -> Vec<(Vec<G::Allele>, usize)>
+where
+    G: Genotype<Chromosome = C>,
+    C: GenesPointer + Chromosome,
+    G::Allele: Clone,
+{
+    population
+        .chromosomes
+        .iter()
+        .map(|c| chromosome_with_age(genotype, c))
         .collect()
 }
 
