@@ -37,7 +37,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut reporter = StrategyReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::from_entropy();
     let population_size: usize = 1000;
-    let genes_sizes = vec![100, 10000];
     config.target_population_size = population_size;
 
     let mut group = c.benchmark_group(format!("mutates-pop{}", population_size));
@@ -46,7 +45,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    for genes_size in &genes_sizes {
+    // Benchmarks for genes_size = 100
+    {
+        let genes_size = 100;
         let mutates: Vec<MutateWrapper> = vec![
             MutateSingleGene::new(0.2).into(),
             MutateMultiGene::new(10, 0.2).into(),
@@ -56,10 +57,39 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         ];
         for mut mutate in mutates {
             group.throughput(Throughput::Elements(population_size as u64));
-            let (mut genotype, state) = setup(*genes_size, population_size, &mut rng);
+            let (mut genotype, state) = setup(genes_size, population_size, &mut rng);
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}", mutate), genes_size),
-                genes_size,
+                &genes_size,
+                |b, &_genes_size| {
+                    b.iter_batched(
+                        || state.clone(),
+                        |mut data| {
+                            mutate.call(&mut genotype, &mut data, &config, &mut reporter, &mut rng)
+                        },
+                        BatchSize::SmallInput,
+                    )
+                },
+            );
+        }
+    }
+
+    // Benchmarks for genes_size = 10000
+    {
+        let genes_size = 10000;
+        let mutates: Vec<MutateWrapper> = vec![
+            MutateSingleGene::new(0.2).into(),
+            MutateMultiGene::new(10, 0.2).into(),
+            MutateMultiGeneRange::new(1..=10, 0.2).into(),
+            MutateSingleGeneDynamic::new(0.2, population_size / 2).into(),
+            MutateMultiGeneDynamic::new(10, 0.2, population_size / 2).into(),
+        ];
+        for mut mutate in mutates {
+            group.throughput(Throughput::Elements(population_size as u64));
+            let (mut genotype, state) = setup(genes_size, population_size, &mut rng);
+            group.bench_with_input(
+                BenchmarkId::new(format!("{:?}", mutate), genes_size),
+                &genes_size,
                 |b, &_genes_size| {
                     b.iter_batched(
                         || state.clone(),

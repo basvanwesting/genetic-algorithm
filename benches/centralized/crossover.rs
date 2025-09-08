@@ -34,7 +34,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut reporter = StrategyReporterNoop::<BinaryGenotype>::new();
     let mut rng = SmallRng::from_entropy();
     let population_size: usize = 1000;
-    let genes_sizes = vec![100, 10000];
     config.target_population_size = population_size;
 
     let mut group = c.benchmark_group(format!("crossovers-pop{}", population_size));
@@ -43,23 +42,51 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    for genes_size in &genes_sizes {
+    // Benchmarks for genes_size = 100
+    {
+        let genes_size = 100;
         let crossovers: Vec<CrossoverWrapper> = vec![
-            // CrossoverClone::new(0.7).into(), //clones
-            // CrossoverRejuvenate::new(0.7).into(), //noop
-            // CrossoverSingleGene::new(0.7, 0.8).into(),
-            // CrossoverSinglePoint::new(0.7, 0.8).into(),
-            // CrossoverMultiGene::new(0.7, 0.8, genes_size / 2, false).into(),
-            // CrossoverMultiGene::new(0.7, 0.8, genes_size / 2, true).into(),
             CrossoverMultiPoint::new(0.7, 0.8, genes_size / 10, false).into(),
             CrossoverMultiPoint::new(0.7, 0.8, genes_size / 10, true).into(),
         ];
         for mut crossover in crossovers {
             group.throughput(Throughput::Elements(population_size as u64));
-            let (mut genotype, state) = setup(*genes_size, population_size, &mut rng);
+            let (mut genotype, state) = setup(genes_size, population_size, &mut rng);
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}", crossover), genes_size),
-                genes_size,
+                &genes_size,
+                |b, &_genes_size| {
+                    b.iter_batched(
+                        || state.clone(),
+                        |mut data| {
+                            crossover.call(
+                                &mut genotype,
+                                &mut data,
+                                &config,
+                                &mut reporter,
+                                &mut rng,
+                            )
+                        },
+                        BatchSize::SmallInput,
+                    )
+                },
+            );
+        }
+    }
+
+    // Benchmarks for genes_size = 10000
+    {
+        let genes_size = 10000;
+        let crossovers: Vec<CrossoverWrapper> = vec![
+            CrossoverMultiPoint::new(0.7, 0.8, genes_size / 10, false).into(),
+            CrossoverMultiPoint::new(0.7, 0.8, genes_size / 10, true).into(),
+        ];
+        for mut crossover in crossovers {
+            group.throughput(Throughput::Elements(population_size as u64));
+            let (mut genotype, state) = setup(genes_size, population_size, &mut rng);
+            group.bench_with_input(
+                BenchmarkId::new(format!("{:?}", crossover), genes_size),
+                &genes_size,
                 |b, &_genes_size| {
                     b.iter_batched(
                         || state.clone(),

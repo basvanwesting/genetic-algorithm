@@ -10,7 +10,6 @@ use rand::rngs::SmallRng;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    let population_sizes = vec![100, 1000];
 
     let mut group = c.benchmark_group("population");
     //group.warm_up_time(Duration::from_secs(3));
@@ -24,10 +23,12 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         .build()
         .unwrap();
 
-    for population_size in &population_sizes {
-        group.throughput(Throughput::Elements(*population_size as u64));
+    // Benchmarks for population_size = 100
+    {
+        let population_size = 100;
+        group.throughput(Throughput::Elements(population_size as u64));
 
-        let chromosomes = (0..*population_size)
+        let chromosomes = (0..population_size)
             .map(|_| genotype.chromosome_constructor_random(&mut rng))
             .collect();
         let population = &mut Population::new(chromosomes);
@@ -38,7 +39,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 "fitness_score_cardinality (known score), low",
                 population_size,
             ),
-            population_size,
+            &population_size,
             |b, &_population_size| {
                 b.iter_batched(
                     || population.clone(),
@@ -49,7 +50,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
 
         let random_chromosome = population.chromosomes.choose(&mut rng).unwrap();
-        let chromosomes = (0..*population_size)
+        let chromosomes = (0..population_size)
             .map(|_| random_chromosome.clone())
             .collect();
         let population = &mut Population::new(chromosomes);
@@ -60,7 +61,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 "fitness_score_cardinality (known score), high",
                 population_size,
             ),
-            population_size,
+            &population_size,
             |b, &_population_size| {
                 b.iter_batched(
                     || population.clone(),
@@ -70,14 +71,14 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             },
         );
 
-        let chromosomes = (0..*population_size)
+        let chromosomes = (0..population_size)
             .map(|_| genotype.chromosome_constructor_random(&mut rng))
             .collect();
         let population = &mut Population::new(chromosomes);
 
         group.bench_with_input(
             BenchmarkId::new("genes_cardinality (unknown hash), low", population_size),
-            population_size,
+            &population_size,
             |b, &_population_size| {
                 b.iter_batched(
                     || population.clone(),
@@ -93,14 +94,108 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
 
         let random_chromosome = population.chromosomes.choose(&mut rng).unwrap();
-        let chromosomes = (0..*population_size)
+        let chromosomes = (0..population_size)
             .map(|_| random_chromosome.clone())
             .collect();
         let population = &mut Population::new(chromosomes);
 
         group.bench_with_input(
             BenchmarkId::new("genes_cardinality (unknown hash), high", population_size),
-            population_size,
+            &population_size,
+            |b, &_population_size| {
+                b.iter_batched(
+                    || population.clone(),
+                    |mut data| {
+                        data.chromosomes.iter_mut().for_each(|c| {
+                            genotype.calculate_genes_hash(c);
+                        });
+                        data.genes_cardinality()
+                    },
+                    BatchSize::SmallInput,
+                )
+            },
+        );
+    }
+
+    // Benchmarks for population_size = 1000
+    {
+        let population_size = 1000;
+        group.throughput(Throughput::Elements(population_size as u64));
+
+        let chromosomes = (0..population_size)
+            .map(|_| genotype.chromosome_constructor_random(&mut rng))
+            .collect();
+        let population = &mut Population::new(chromosomes);
+        CountTrue.call_for_population(population, &genotype, None, None);
+
+        group.bench_with_input(
+            BenchmarkId::new(
+                "fitness_score_cardinality (known score), low",
+                population_size,
+            ),
+            &population_size,
+            |b, &_population_size| {
+                b.iter_batched(
+                    || population.clone(),
+                    |data| data.fitness_score_cardinality(),
+                    BatchSize::SmallInput,
+                )
+            },
+        );
+
+        let random_chromosome = population.chromosomes.choose(&mut rng).unwrap();
+        let chromosomes = (0..population_size)
+            .map(|_| random_chromosome.clone())
+            .collect();
+        let population = &mut Population::new(chromosomes);
+        CountTrue.call_for_population(population, &genotype, None, None);
+
+        group.bench_with_input(
+            BenchmarkId::new(
+                "fitness_score_cardinality (known score), high",
+                population_size,
+            ),
+            &population_size,
+            |b, &_population_size| {
+                b.iter_batched(
+                    || population.clone(),
+                    |data| data.fitness_score_cardinality(),
+                    BatchSize::SmallInput,
+                )
+            },
+        );
+
+        let chromosomes = (0..population_size)
+            .map(|_| genotype.chromosome_constructor_random(&mut rng))
+            .collect();
+        let population = &mut Population::new(chromosomes);
+
+        group.bench_with_input(
+            BenchmarkId::new("genes_cardinality (unknown hash), low", population_size),
+            &population_size,
+            |b, &_population_size| {
+                b.iter_batched(
+                    || population.clone(),
+                    |mut data| {
+                        data.chromosomes.iter_mut().for_each(|c| {
+                            genotype.calculate_genes_hash(c);
+                        });
+                        data.genes_cardinality()
+                    },
+                    BatchSize::SmallInput,
+                )
+            },
+        );
+
+        let random_chromosome = population.chromosomes.choose(&mut rng).unwrap();
+        let chromosomes = (0..population_size)
+            .map(|_| random_chromosome.clone())
+            .collect();
+        let population = &mut Population::new(chromosomes);
+
+        group.bench_with_input(
+            BenchmarkId::new("genes_cardinality (unknown hash), high", population_size),
+            &population_size,
             |b, &_population_size| {
                 b.iter_batched(
                     || population.clone(),

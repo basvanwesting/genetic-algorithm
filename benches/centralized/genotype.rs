@@ -7,8 +7,7 @@ use rand::rngs::SmallRng;
 
 pub fn mutation_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    //let genes_sizes = vec![10, 100, 1000, 10000];
-    let genes_sizes = vec![100];
+    let genes_size = 100;
 
     let mut group = c.benchmark_group("genotype-mutation");
     //group.warm_up_time(Duration::from_secs(3));
@@ -16,10 +15,11 @@ pub fn mutation_benchmark(c: &mut Criterion) {
     let plot_config = PlotConfiguration::default().summary_scale(AxisScale::Logarithmic);
     group.plot_config(plot_config);
 
-    for genes_size in &genes_sizes {
-        //group.throughput(Throughput::Elements(*genes_size as u64));
+    // Binary genotype benchmarks
+    {
+        //group.throughput(Throughput::Elements(genes_size as u64));
         let mut genotype = BinaryGenotype::builder()
-            .with_genes_size(*genes_size)
+            .with_genes_size(genes_size)
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
@@ -54,10 +54,11 @@ pub fn mutation_benchmark(c: &mut Criterion) {
         );
     }
 
-    for genes_size in &genes_sizes {
-        //group.throughput(Throughput::Elements(*genes_size as u64));
+    // Range genotype benchmarks - random mutation
+    {
+        //group.throughput(Throughput::Elements(genes_size as u64));
         let mut genotype = RangeGenotype::builder()
-            .with_genes_size(*genes_size)
+            .with_genes_size(genes_size)
             .with_allele_range(0.0..=1.0)
             .build()
             .unwrap();
@@ -91,9 +92,12 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                 })
             },
         );
+    }
 
+    // Range genotype benchmarks - relative mutation
+    {
         let mut genotype = RangeGenotype::builder()
-            .with_genes_size(*genes_size)
+            .with_genes_size(genes_size)
             .with_allele_range(0.0..=1.0)
             .with_allele_mutation_range(-0.1..=0.1)
             .build()
@@ -127,9 +131,12 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                 })
             },
         );
+    }
 
+    // Range genotype benchmarks - scaled mutation
+    {
         let mut genotype = RangeGenotype::builder()
-            .with_genes_size(*genes_size)
+            .with_genes_size(genes_size)
             .with_allele_range(0.0..=1.0)
             .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
             .build()
