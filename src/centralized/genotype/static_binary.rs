@@ -427,12 +427,12 @@ impl<const N: usize, const M: usize> ChromosomeManager<Self> for StaticBinary<N,
 impl<const N: usize, const M: usize> Clone for StaticBinary<N, M> {
     fn clone(&self) -> Self {
         Self {
-            data: Box::new([[false; N]; M]),
+            data: self.data.clone(),
             chromosome_bin: Vec::with_capacity(M),
             genes_size: self.genes_size,
             gene_index_sampler: self.gene_index_sampler,
             seed_genes_list: self.seed_genes_list.clone(),
-            best_genes: Box::new([false; N]),
+            best_genes: self.best_genes.clone(),
             genes_hashing: self.genes_hashing,
         }
     }

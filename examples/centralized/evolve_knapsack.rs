@@ -1,3 +1,4 @@
+use genetic_algorithm::centralized::genotype::StaticBinaryGenotype;
 use genetic_algorithm::centralized::strategy::evolve::prelude::*;
 
 // see https://en.wikipedia.org/wiki/Knapsack_problem
@@ -20,32 +21,43 @@ struct KnapsackFitness<'a> {
 impl KnapsackFitness<'_> {
     const EXCESS_WEIGHT_PENALTY: FitnessValue = 1000;
 }
+const NUMBER_OF_ITEMS: usize = 10; // Gene size
+const MAX_POPULATION: usize = 200; // For static genotype capacity
+
 impl Fitness for KnapsackFitness<'_> {
-    type Genotype = BinaryGenotype;
+    type Genotype = StaticBinaryGenotype<NUMBER_OF_ITEMS, MAX_POPULATION>;
 
-    fn calculate_for_chromosome(
+    fn calculate_for_population(
         &mut self,
-        chromosome: &FitnessChromosome<Self>,
-        _genotype: &FitnessGenotype<Self>,
-    ) -> Option<FitnessValue> {
-        let item_indices: Vec<usize> = chromosome
-            .genes
+        _population: &FitnessPopulation<Self>,
+        genotype: &FitnessGenotype<Self>,
+    ) -> Vec<Option<FitnessValue>> {
+        // pure matrix data calculation on [[T; N] M]
+        // the order of the rows needs to be preserved as it matches the row_id on the chromosome
+        genotype
+            .data
             .iter()
-            .enumerate()
-            .filter_map(|(i, v)| if *v { Some(i) } else { None })
-            .collect();
-        let weight: u16 = item_indices.iter().map(|i| self.items[*i].0).sum();
-        let value: u16 = item_indices.iter().map(|i| self.items[*i].1).sum();
+            .map(|genes| {
+                let item_indices: Vec<usize> = genes
+                    .iter()
+                    .enumerate()
+                    .filter_map(|(i, v)| if *v { Some(i) } else { None })
+                    .collect();
+                let weight: u16 = item_indices.iter().map(|i| self.items[*i].0).sum();
+                let value: u16 = item_indices.iter().map(|i| self.items[*i].1).sum();
 
-        // base score with total value
-        let mut score = value as FitnessValue;
+                // base score with total value
+                let mut score = value as FitnessValue;
 
-        // penalize score with excess weight, to nudge towards valid solutions
-        if weight > self.weight_limit {
-            score -= (weight - self.weight_limit) as FitnessValue * Self::EXCESS_WEIGHT_PENALTY;
-        }
-
-        Some(score)
+                // penalize score with excess weight, to nudge towards valid solutions
+                if weight > self.weight_limit {
+                    score -=
+                        (weight - self.weight_limit) as FitnessValue * Self::EXCESS_WEIGHT_PENALTY;
+                }
+                score
+            })
+            .map(Some)
+            .collect()
     }
 }
 
@@ -70,7 +82,7 @@ fn main() {
         weight_limit,
     };
 
-    let genotype = BinaryGenotype::builder()
+    let genotype = StaticBinaryGenotype::<NUMBER_OF_ITEMS, MAX_POPULATION>::builder()
         .with_genes_size(items.len())
         .build()
         .unwrap();

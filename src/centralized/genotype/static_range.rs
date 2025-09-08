@@ -777,7 +777,7 @@ where
 {
     fn clone(&self) -> Self {
         Self {
-            data: Box::new([[T::default(); N]; M]),
+            data: self.data.clone(),
             chromosome_bin: Vec::with_capacity(M),
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
@@ -791,7 +791,7 @@ where
                 .clone()
                 .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
             seed_genes_list: self.seed_genes_list.clone(),
-            best_genes: Box::new([T::default(); N]),
+            best_genes: self.best_genes.clone(),
             genes_hashing: self.genes_hashing,
         }
     }

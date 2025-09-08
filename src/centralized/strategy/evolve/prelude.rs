@@ -2,7 +2,7 @@
 pub use crate::centralized::chromosome::{
     BinaryChromosome, BitChromosome, Chromosome, DynamicRangeChromosome, GenesHash, ListChromosome,
     MultiListChromosome, MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome,
-    StaticRangeChromosome, UniqueChromosome,
+    StaticBinaryChromosome, StaticRangeChromosome, UniqueChromosome,
 };
 #[doc(no_inline)]
 pub use crate::centralized::crossover::{
@@ -23,7 +23,8 @@ pub use crate::centralized::fitness::{
 pub use crate::centralized::genotype::{
     Allele, BinaryGenotype, BitGenotype, DynamicRangeGenotype, EvolveGenotype, Genotype,
     GenotypeBuilder, ListGenotype, MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype,
-    RangeAllele, RangeGenotype, StaticRangeGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
+    RangeAllele, RangeGenotype, StaticBinaryGenotype, StaticRangeGenotype,
+    TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::centralized::mutate::{

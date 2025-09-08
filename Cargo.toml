@@ -92,11 +92,6 @@ harness = false
 
 # Centralized benchmarks
 [[bench]]
-name = "centralized_fitness"
-path = "benches/centralized/fitness.rs"
-harness = false
-
-[[bench]]
 name = "centralized_select"
 path = "benches/centralized/select.rs"
 harness = false
@@ -271,40 +266,12 @@ path = "examples/distributed/profile_hill_climb_nqueens.rs"
 
 # Centralized examples
 [[example]]
-name = "centralized_evolve_binary_arc_cache_fitness"
-path = "examples/centralized/evolve_binary_arc_cache_fitness.rs"
-
-[[example]]
-name = "centralized_evolve_binary_cache_fitness"
-path = "examples/centralized/evolve_binary_cache_fitness.rs"
-
-[[example]]
-name = "centralized_evolve_binary_lru_cache_fitness"
-path = "examples/centralized/evolve_binary_lru_cache_fitness.rs"
-
-[[example]]
-name = "centralized_evolve_bit_v_binary"
-path = "examples/centralized/evolve_bit_v_binary.rs"
-
-[[example]]
 name = "centralized_evolve_invalid"
 path = "examples/centralized/evolve_invalid.rs"
 
 [[example]]
 name = "centralized_evolve_knapsack"
 path = "examples/centralized/evolve_knapsack.rs"
-
-[[example]]
-name = "centralized_evolve_milp"
-path = "examples/centralized/evolve_milp.rs"
-
-[[example]]
-name = "centralized_evolve_monkeys"
-path = "examples/centralized/evolve_monkeys.rs"
-
-[[example]]
-name = "centralized_evolve_nqueens"
-path = "examples/centralized/evolve_nqueens.rs"
 
 [[example]]
 name = "centralized_evolve_range_float"
@@ -315,92 +282,16 @@ name = "centralized_evolve_range_integer"
 path = "examples/centralized/evolve_range_integer.rs"
 
 [[example]]
-name = "centralized_evolve_scrabble"
-path = "examples/centralized/evolve_scrabble.rs"
-
-[[example]]
 name = "centralized_evolve_static_range"
 path = "examples/centralized/evolve_static_range.rs"
 
 [[example]]
-name = "centralized_evolve_static_v_dynamic_v_range"
-path = "examples/centralized/evolve_static_v_dynamic_v_range.rs"
-
-[[example]]
-name = "centralized_evolve_table_seating"
-path = "examples/centralized/evolve_table_seating.rs"
-
-[[example]]
-name = "centralized_explore_multithreading"
-path = "examples/centralized/explore_multithreading.rs"
-
-[[example]]
-name = "centralized_explore_strategies"
-path = "examples/centralized/explore_strategies.rs"
-
-[[example]]
-name = "centralized_hill_climb_milp"
-path = "examples/centralized/hill_climb_milp.rs"
-
-[[example]]
-name = "centralized_hill_climb_nqueens"
-path = "examples/centralized/hill_climb_nqueens.rs"
+name = "centralized_evolve_static_binary"
+path = "examples/centralized/evolve_static_binary.rs"
 
 [[example]]
 name = "centralized_hill_climb_range"
 path = "examples/centralized/hill_climb_range.rs"
-
-[[example]]
-name = "centralized_hill_climb_recess"
-path = "examples/centralized/hill_climb_recess.rs"
-
-[[example]]
-name = "centralized_hill_climb_scrabble"
-path = "examples/centralized/hill_climb_scrabble.rs"
-
-[[example]]
-name = "centralized_hill_climb_table_seating"
-path = "examples/centralized/hill_climb_table_seating.rs"
-
-[[example]]
-name = "centralized_permutate_knapsack"
-path = "examples/centralized/permutate_knapsack.rs"
-
-[[example]]
-name = "centralized_permutate_range"
-path = "examples/centralized/permutate_range.rs"
-
-[[example]]
-name = "centralized_permutate_scrabble"
-path = "examples/centralized/permutate_scrabble.rs"
-
-[[example]]
-name = "centralized_permutate_seed_genes_list"
-path = "examples/centralized/permutate_seed_genes_list.rs"
-
-[[example]]
-name = "centralized_permutate_tuple"
-path = "examples/centralized/permutate_tuple.rs"
-
-[[example]]
-name = "centralized_profile_evolve_binary"
-path = "examples/centralized/profile_evolve_binary.rs"
-
-[[example]]
-name = "centralized_profile_evolve_countdown"
-path = "examples/centralized/profile_evolve_countdown.rs"
-
-[[example]]
-name = "centralized_profile_evolve_monkeys"
-path = "examples/centralized/profile_evolve_monkeys.rs"
-
-[[example]]
-name = "centralized_profile_evolve_nqueens"
-path = "examples/centralized/profile_evolve_nqueens.rs"
-
-[[example]]
-name = "centralized_profile_hill_climb_nqueens"
-path = "examples/centralized/profile_hill_climb_nqueens.rs"
 
 # Test configurations
 [[test]]
