@@ -41,35 +41,6 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             );
         },
     );
-
-    group.bench_function(
-        format!(
-            "list-{}-pop{}-gen{}",
-            genes_size, target_population_size, max_stale_generations
-        ),
-        |b| {
-            let genotype = ListGenotype::builder()
-                .with_genes_size(genes_size)
-                .with_allele_list((0..10).collect())
-                .build()
-                .unwrap();
-
-            let evolve_builder = Evolve::builder()
-                .with_genotype(genotype)
-                .with_target_population_size(target_population_size)
-                .with_max_stale_generations(max_stale_generations)
-                .with_mutate(MutateSingleGene::new(0.2))
-                .with_fitness(Zero::new())
-                .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-                .with_select(SelectTournament::new(0.5, 0.02, 4));
-
-            b.iter_batched(
-                || evolve_builder.clone().build().unwrap(),
-                |mut e| e.call(),
-                BatchSize::SmallInput,
-            );
-        },
-    );
 }
 
 criterion_group!(benches, criterion_benchmark);
