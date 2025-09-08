@@ -87,6 +87,54 @@ impl<const N: usize, const M: usize> Fitness for CountStaticTrue<N, M> {
     }
 }
 
+/// placeholder for testing and benchmarking, not used in practice
+/// Counts true values in static binary matrix rows with simulated work via sleep
+#[derive(Debug)]
+pub struct CountStaticTrueWithSleep<const N: usize, const M: usize> {
+    pub micro_seconds: u64,
+    pub print_on_clone: bool,
+}
+impl<const N: usize, const M: usize> CountStaticTrueWithSleep<N, M> {
+    pub fn new(micro_seconds: u64, print_on_clone: bool) -> Self {
+        Self {
+            micro_seconds,
+            print_on_clone,
+        }
+    }
+}
+impl<const N: usize, const M: usize> Fitness for CountStaticTrueWithSleep<N, M> {
+    type Genotype = StaticBinaryGenotype<N, M>;
+    fn calculate_for_population(
+        &mut self,
+        _population: &FitnessPopulation<Self>,
+        genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .iter()
+            .map(|genes| {
+                thread::sleep(time::Duration::from_micros(self.micro_seconds));
+                genes[..genotype.genes_size()]
+                    .iter()
+                    .filter(|&value| *value)
+                    .count() as FitnessValue
+            })
+            .map(Some)
+            .collect()
+    }
+}
+impl<const N: usize, const M: usize> Clone for CountStaticTrueWithSleep<N, M> {
+    fn clone(&self) -> Self {
+        if self.print_on_clone {
+            println!("Cloned CountStaticTrueWithSleep: {:?}", thread::current().id());
+        }
+        Self {
+            micro_seconds: self.micro_seconds,
+            print_on_clone: self.print_on_clone,
+        }
+    }
+}
+
 /// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
 pub struct CountOnes;
@@ -376,5 +424,87 @@ impl<G: Genotype> Fitness for CountdownNoisy<G> {
             let result = base + self.noise_sampler.sample(&mut self.rng);
             Some(result as FitnessValue)
         }
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Static version of Countdown that works with population-based calculation
+#[derive(Clone, Debug)]
+pub struct StaticCountdown<G: Genotype> {
+    start: usize,
+    _phantom: PhantomData<G>,
+}
+impl<G: Genotype> StaticCountdown<G> {
+    pub fn new(start: usize) -> Self {
+        Self {
+            start,
+            _phantom: PhantomData,
+        }
+    }
+}
+impl<G: Genotype> Fitness for StaticCountdown<G> {
+    type Genotype = G;
+    fn calculate_for_population(
+        &mut self,
+        population: &FitnessPopulation<Self>,
+        _genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        population
+            .chromosomes
+            .iter()
+            .map(|_| {
+                if self.start == 0 {
+                    Some(0)
+                } else {
+                    self.start -= 1;
+                    Some(self.start as FitnessValue)
+                }
+            })
+            .collect()
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Static version of CountdownNoisy that works with population-based calculation
+#[derive(Clone, Debug)]
+pub struct StaticCountdownNoisy<G: Genotype> {
+    start: usize,
+    step: usize,
+    noise_sampler: Uniform<usize>,
+    rng: SmallRng,
+    _phantom: PhantomData<G>,
+}
+impl<G: Genotype> StaticCountdownNoisy<G> {
+    pub fn new(start: usize, step: usize, noise_range: Range<usize>) -> Self {
+        Self {
+            start,
+            step,
+            noise_sampler: Uniform::from(noise_range),
+            rng: SmallRng::seed_from_u64(0),
+            _phantom: PhantomData,
+        }
+    }
+}
+impl<G: Genotype> Fitness for StaticCountdownNoisy<G> {
+    type Genotype = G;
+    fn calculate_for_population(
+        &mut self,
+        population: &FitnessPopulation<Self>,
+        _genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        population
+            .chromosomes
+            .iter()
+            .map(|_| {
+                if self.start == 0 {
+                    Some(0)
+                } else {
+                    self.start -= 1;
+                    let base = (self.start / self.step + 1) * self.step;
+                    let result = base + self.noise_sampler.sample(&mut self.rng);
+                    Some(result as FitnessValue)
+                }
+            })
+            .collect()
     }
 }
