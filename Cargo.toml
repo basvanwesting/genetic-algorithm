@@ -274,16 +274,12 @@ name = "centralized_evolve_knapsack"
 path = "examples/centralized/evolve_knapsack.rs"
 
 [[example]]
-name = "centralized_evolve_range_float"
-path = "examples/centralized/evolve_range_float.rs"
+name = "centralized_evolve_static_float"
+path = "examples/centralized/evolve_static_float.rs"
 
 [[example]]
-name = "centralized_evolve_range_integer"
-path = "examples/centralized/evolve_range_integer.rs"
-
-[[example]]
-name = "centralized_evolve_static_range"
-path = "examples/centralized/evolve_static_range.rs"
+name = "centralized_evolve_static_integer"
+path = "examples/centralized/evolve_static_integer.rs"
 
 [[example]]
 name = "centralized_evolve_static_binary"
