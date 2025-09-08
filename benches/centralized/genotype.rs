@@ -5,9 +5,11 @@ use rand::prelude::*;
 use rand::rngs::SmallRng;
 //use std::time::Duration;
 
+const GENES_SIZE: usize = 100;
+const MAX_POPULATION_SIZE: usize = 100;
+
 pub fn mutation_benchmark(c: &mut Criterion) {
     let mut rng = SmallRng::from_entropy();
-    let genes_size = 100;
 
     let mut group = c.benchmark_group("genotype-mutation");
     //group.warm_up_time(Duration::from_secs(3));
@@ -17,15 +19,15 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     // Binary genotype benchmarks
     {
-        //group.throughput(Throughput::Elements(genes_size as u64));
-        let mut genotype = BinaryGenotype::builder()
-            .with_genes_size(genes_size)
+        //group.throughput(Throughput::Elements(GENES_SIZE as u64));
+        let mut genotype = StaticBinaryGenotype::<GENES_SIZE, MAX_POPULATION_SIZE>::builder()
+            .with_genes_size(GENES_SIZE)
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
 
         group.bench_function(
-            BenchmarkId::new("binary-random-multi-10-with-duplicates", genes_size),
+            BenchmarkId::new("binary-random-multi-10-with-duplicates", GENES_SIZE),
             |b| {
                 b.iter(|| {
                     genotype.mutate_chromosome_genes(
@@ -39,7 +41,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             },
         );
         group.bench_function(
-            BenchmarkId::new("binary-random-multi-10-without-duplicates", genes_size),
+            BenchmarkId::new("binary-random-multi-10-without-duplicates", GENES_SIZE),
             |b| {
                 b.iter(|| {
                     genotype.mutate_chromosome_genes(
@@ -56,16 +58,16 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     // Range genotype benchmarks - random mutation
     {
-        //group.throughput(Throughput::Elements(genes_size as u64));
-        let mut genotype = RangeGenotype::builder()
-            .with_genes_size(genes_size)
+        //group.throughput(Throughput::Elements(GENES_SIZE as u64));
+        let mut genotype = StaticRangeGenotype::<f32, GENES_SIZE, MAX_POPULATION_SIZE>::builder()
+            .with_genes_size(GENES_SIZE)
             .with_allele_range(0.0..=1.0)
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
 
         group.bench_function(
-            BenchmarkId::new("range-random-multi-10-with-duplicates", genes_size),
+            BenchmarkId::new("range-random-multi-10-with-duplicates", GENES_SIZE),
             |b| {
                 b.iter(|| {
                     genotype.mutate_chromosome_genes(
@@ -79,7 +81,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             },
         );
         group.bench_function(
-            BenchmarkId::new("range-random-multi-10-without-duplicates", genes_size),
+            BenchmarkId::new("range-random-multi-10-without-duplicates", GENES_SIZE),
             |b| {
                 b.iter(|| {
                     genotype.mutate_chromosome_genes(
@@ -96,15 +98,15 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     // Range genotype benchmarks - relative mutation
     {
-        let mut genotype = RangeGenotype::builder()
-            .with_genes_size(genes_size)
+        let mut genotype = StaticRangeGenotype::<f32, GENES_SIZE, MAX_POPULATION_SIZE>::builder()
+            .with_genes_size(GENES_SIZE)
             .with_allele_range(0.0..=1.0)
             .with_allele_mutation_range(-0.1..=0.1)
             .build()
             .unwrap();
         let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
         group.bench_function(
-            BenchmarkId::new("range-relative-multi-10-with-duplicates", genes_size),
+            BenchmarkId::new("range-relative-multi-10-with-duplicates", GENES_SIZE),
             |b| {
                 b.iter(|| {
                     genotype.mutate_chromosome_genes(
@@ -118,7 +120,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             },
         );
         group.bench_function(
-            BenchmarkId::new("range-relative-multi-10-without-duplicates", genes_size),
+            BenchmarkId::new("range-relative-multi-10-without-duplicates", GENES_SIZE),
             |b| {
                 b.iter(|| {
                     genotype.mutate_chromosome_genes(
@@ -135,8 +137,8 @@ pub fn mutation_benchmark(c: &mut Criterion) {
 
     // Range genotype benchmarks - scaled mutation
     {
-        let mut genotype = RangeGenotype::builder()
-            .with_genes_size(genes_size)
+        let mut genotype = StaticRangeGenotype::<f32, GENES_SIZE, MAX_POPULATION_SIZE>::builder()
+            .with_genes_size(GENES_SIZE)
             .with_allele_range(0.0..=1.0)
             .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
             .build()
@@ -144,7 +146,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
         let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
 
         group.bench_function(
-            BenchmarkId::new("range-scaled-multi-10-with-duplicates", genes_size),
+            BenchmarkId::new("range-scaled-multi-10-with-duplicates", GENES_SIZE),
             |b| {
                 b.iter(|| {
                     genotype.mutate_chromosome_genes(
@@ -158,7 +160,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             },
         );
         group.bench_function(
-            BenchmarkId::new("range-scaled-multi-10-without-duplicates", genes_size),
+            BenchmarkId::new("range-scaled-multi-10-without-duplicates", GENES_SIZE),
             |b| {
                 b.iter(|| {
                     genotype.mutate_chromosome_genes(

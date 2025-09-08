@@ -1,11 +1,13 @@
 use criterion::*;
-use genetic_algorithm::centralized::fitness::placeholders::Zero;
+use genetic_algorithm::centralized::fitness::placeholders::StaticZero;
+use genetic_algorithm::centralized::genotype::StaticBinaryGenotype;
 use genetic_algorithm::centralized::strategy::evolve::prelude::*;
 use std::time::Duration;
 
 pub fn criterion_benchmark(c: &mut Criterion) {
-    let genes_size = 100;
-    let target_population_size = 100;
+    const GENES_SIZE: usize = 100;
+    const TARGET_POPULATION_SIZE: usize = 100;
+    const MAX_POPULATION_SIZE: usize = 300; // For static genotype capacity
     let max_stale_generations = 100;
 
     let mut group = c.benchmark_group("evolve");
@@ -17,20 +19,20 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.bench_function(
         format!(
             "binary-{}-pop{}-gen{}",
-            genes_size, target_population_size, max_stale_generations
+            GENES_SIZE, TARGET_POPULATION_SIZE, max_stale_generations
         ),
         |b| {
-            let genotype = BinaryGenotype::builder()
-                .with_genes_size(genes_size)
+            let genotype = StaticBinaryGenotype::<GENES_SIZE, MAX_POPULATION_SIZE>::builder()
+                .with_genes_size(GENES_SIZE)
                 .build()
                 .unwrap();
 
             let evolve_builder = Evolve::builder()
                 .with_genotype(genotype)
-                .with_target_population_size(target_population_size)
+                .with_target_population_size(TARGET_POPULATION_SIZE)
                 .with_max_stale_generations(max_stale_generations)
                 .with_mutate(MutateSingleGene::new(0.2))
-                .with_fitness(Zero::new())
+                .with_fitness(StaticZero::new())
                 .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
                 .with_select(SelectTournament::new(0.5, 0.02, 4));
 
