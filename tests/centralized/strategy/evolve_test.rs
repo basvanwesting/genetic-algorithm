@@ -4,7 +4,9 @@ use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::fitness::placeholders::{
     CountOnes, CountStaticTrue, SumDynamicRange, SumGenes, SumStaticRange,
 };
-use genetic_algorithm::centralized::genotype::{Genotype, StaticBinaryGenotype};
+use genetic_algorithm::centralized::genotype::{
+    DynamicRangeGenotype, Genotype, StaticBinaryGenotype, StaticRangeGenotype,
+};
 use genetic_algorithm::centralized::strategy::evolve::prelude::*;
 
 #[test]
@@ -14,7 +16,7 @@ fn build_invalid_missing_ending_condition() {
         .build()
         .unwrap();
     genotype.chromosomes_setup();
-    
+
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
@@ -390,7 +392,7 @@ fn call_bit() {
 
 #[test]
 fn call_range_f32() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f32, 10, 200>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -400,7 +402,7 @@ fn call_range_f32() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         // .with_extension(ExtensionNoop::new())
@@ -419,8 +421,8 @@ fn call_range_f32() {
 }
 
 #[test]
-fn call_range_usize() {
-    let genotype = RangeGenotype::builder()
+fn call_range_u32() {
+    let genotype = StaticRangeGenotype::<u32, 10, 200>::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
         .build()
@@ -430,7 +432,7 @@ fn call_range_usize() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new())
+        .with_fitness(SumStaticRange::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         // .with_extension(ExtensionNoop::new())
@@ -448,8 +450,8 @@ fn call_range_usize() {
 }
 
 #[test]
-fn call_range_isize() {
-    let genotype = RangeGenotype::builder()
+fn call_range_i32() {
+    let genotype = StaticRangeGenotype::<i32, 10, 200>::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
         .with_allele_mutation_range(-1..=1)
@@ -460,7 +462,7 @@ fn call_range_isize() {
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new())
+        .with_fitness(SumStaticRange::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         // .with_extension(ExtensionNoop::new())
@@ -639,7 +641,7 @@ fn population_factory_binary() {
         .build()
         .unwrap();
     genotype.chromosomes_setup();
-    
+
     let mut evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(8)

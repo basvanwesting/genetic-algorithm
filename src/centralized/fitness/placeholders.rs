@@ -126,7 +126,10 @@ impl<const N: usize, const M: usize> Fitness for CountStaticTrueWithSleep<N, M> 
 impl<const N: usize, const M: usize> Clone for CountStaticTrueWithSleep<N, M> {
     fn clone(&self) -> Self {
         if self.print_on_clone {
-            println!("Cloned CountStaticTrueWithSleep: {:?}", thread::current().id());
+            println!(
+                "Cloned CountStaticTrueWithSleep: {:?}",
+                thread::current().id()
+            );
         }
         Self {
             micro_seconds: self.micro_seconds,

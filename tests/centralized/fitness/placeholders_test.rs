@@ -4,8 +4,8 @@ use genetic_algorithm::centralized::chromosome::{
     BinaryChromosome, ChromosomeManager, ListChromosome, RangeChromosome,
 };
 use genetic_algorithm::centralized::fitness::placeholders::{
-    CountStaticTrue, CountStaticTrueWithSleep, CountTrue, CountTrueWithSleep, Countdown, 
-    CountdownNoisy, StaticCountdown, StaticCountdownNoisy, SumDynamicRange, SumGenes, 
+    CountStaticTrue, CountStaticTrueWithSleep, CountTrue, CountTrueWithSleep, Countdown,
+    CountdownNoisy, StaticCountdown, StaticCountdownNoisy, SumDynamicRange, SumGenes,
     SumStaticRange, Zero,
 };
 use genetic_algorithm::centralized::fitness::Fitness;
@@ -292,7 +292,8 @@ fn static_range_genotype_f32() {
     );
 
     // Test StaticCountdownNoisy with StaticRangeGenotype
-    let mut countdown_noisy = StaticCountdownNoisy::<StaticRangeGenotype<f32, 4, 5>>::new(20, 3, 0..3);
+    let mut countdown_noisy =
+        StaticCountdownNoisy::<StaticRangeGenotype<f32, 4, 5>>::new(20, 3, 0..3);
     let results = countdown_noisy.calculate_for_population(&population, &genotype);
     assert_eq!(results.len(), 5);
     assert!(results.iter().all(|r| r.is_some()));
@@ -325,7 +326,8 @@ fn static_binary_genotype() {
 
     // Test CountStaticTrueWithSleep
     assert_eq!(
-        CountStaticTrueWithSleep::<4, 5>::new(100, false).calculate_for_population(&population, &genotype),
+        CountStaticTrueWithSleep::<4, 5>::new(100, false)
+            .calculate_for_population(&population, &genotype),
         vec![Some(4), Some(3), Some(2), Some(1), Some(0)]
     );
 

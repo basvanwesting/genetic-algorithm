@@ -2,7 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::genotype::{
-    Genotype, ListGenotype, RangeGenotype, StaticBinaryGenotype,
+    Genotype, ListGenotype, StaticBinaryGenotype, StaticRangeGenotype,
 };
 use genetic_algorithm::centralized::mutate::{Mutate, MutateSingleGene};
 use genetic_algorithm::centralized::strategy::evolve::{EvolveConfig, EvolveState};
@@ -74,19 +74,23 @@ fn list_genotype() {
 
 #[test]
 fn range_float_genotype_unscaled() {
-    let mut genotype = RangeGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f64, 3, 10>::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let population = build::population(vec![
-        vec![0.5, 0.5, 0.5],
-        vec![0.5, 0.5, 0.5],
-        vec![0.5, 0.5, 0.5],
-        vec![0.5, 0.5, 0.5],
-    ]);
+    let population = static_build::population(
+        &mut genotype,
+        vec![
+            vec![0.5, 0.5, 0.5],
+            vec![0.5, 0.5, 0.5],
+            vec![0.5, 0.5, 0.5],
+            vec![0.5, 0.5, 0.5],
+        ],
+    );
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
@@ -96,7 +100,7 @@ fn range_float_genotype_unscaled() {
     MutateSingleGene::new(0.5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert!(relative_population_eq(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![
             vec![0.5, 0.595, 0.5],
             vec![0.5, 0.5, 0.588],
@@ -111,7 +115,7 @@ fn range_float_genotype_unscaled() {
     MutateSingleGene::new(0.5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert!(relative_population_eq(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![
             vec![0.5, 0.595, 0.528],
             vec![0.572, 0.586, 0.533],
@@ -124,19 +128,23 @@ fn range_float_genotype_unscaled() {
 
 #[test]
 fn range_float_genotype_scaled() {
-    let mut genotype = RangeGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<f64, 3, 10>::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let population = build::population(vec![
-        vec![0.5, 0.5, 0.5],
-        vec![0.5, 0.5, 0.5],
-        vec![0.5, 0.5, 0.5],
-        vec![0.5, 0.5, 0.5],
-    ]);
+    let population = static_build::population(
+        &mut genotype,
+        vec![
+            vec![0.5, 0.5, 0.5],
+            vec![0.5, 0.5, 0.5],
+            vec![0.5, 0.5, 0.5],
+            vec![0.5, 0.5, 0.5],
+        ],
+    );
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
@@ -145,7 +153,7 @@ fn range_float_genotype_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     MutateSingleGene::new(0.5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert!(relative_population_eq(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![
             vec![0.5, 0.4, 0.5],
             vec![0.5, 0.5, 0.4],
@@ -157,7 +165,7 @@ fn range_float_genotype_scaled() {
 
     MutateSingleGene::new(0.5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert!(relative_population_eq(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![
             vec![0.5, 0.4, 0.4],
             vec![0.5, 0.5, 0.5],
@@ -170,7 +178,7 @@ fn range_float_genotype_scaled() {
     state.current_scale_index = Some(1);
     MutateSingleGene::new(0.5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
     assert!(relative_population_eq(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![
             vec![0.5, 0.4, 0.4],
             vec![0.49, 0.5, 0.5],
@@ -183,19 +191,18 @@ fn range_float_genotype_scaled() {
 
 #[test]
 fn range_integer_genotype() {
-    let mut genotype = RangeGenotype::builder()
+    let mut genotype = StaticRangeGenotype::<i32, 3, 10>::builder()
         .with_genes_size(3)
         .with_allele_range(-9..=9)
         .with_allele_mutation_range(-1..=1)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let population = build::population(vec![
-        vec![0, 0, 0],
-        vec![0, 0, 0],
-        vec![0, 0, 0],
-        vec![0, 0, 0],
-    ]);
+    let population = static_build::population(
+        &mut genotype,
+        vec![vec![0, 0, 0], vec![0, 0, 0], vec![0, 0, 0], vec![0, 0, 0]],
+    );
 
     let mut state = EvolveState::new(&genotype);
     state.population = population;
@@ -205,7 +212,7 @@ fn range_integer_genotype() {
     MutateSingleGene::new(0.5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![vec![0, 1, 0], vec![0, 0, 1], vec![0, 0, 0], vec![0, 1, 0]],
     );
 
@@ -214,7 +221,7 @@ fn range_integer_genotype() {
     MutateSingleGene::new(0.5).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![vec![0, 1, 0], vec![1, 1, 0], vec![1, -1, 1], vec![0, 1, 0]]
     );
 }

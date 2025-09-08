@@ -2,14 +2,16 @@
 use crate::support::*;
 use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::fitness::placeholders::{
-    CountStaticTrue, SumDynamicRange, SumGenes, SumStaticRange,
+    CountStaticTrue, SumDynamicRange, SumStaticRange,
 };
-use genetic_algorithm::centralized::genotype::{Genotype, HillClimbGenotype, StaticBinaryGenotype};
+use genetic_algorithm::centralized::genotype::{
+    DynamicRangeGenotype, Genotype, HillClimbGenotype, StaticBinaryGenotype, StaticRangeGenotype,
+};
 use genetic_algorithm::centralized::strategy::hill_climb::prelude::*;
 
 #[test]
 fn build_invalid_missing_ending_condition() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f64, 10, 100>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -19,7 +21,7 @@ fn build_invalid_missing_ending_condition() {
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscent)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         // .with_reporter(StrategyReporterNoop::new())
         .build();
 
@@ -34,7 +36,7 @@ fn build_invalid_missing_ending_condition() {
 
 #[test]
 fn call_range_max_stale_generations_maximize() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f64, 10, 100>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -44,7 +46,7 @@ fn call_range_max_stale_generations_maximize() {
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(1000)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -53,7 +55,7 @@ fn call_range_max_stale_generations_maximize() {
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(10000));
     assert!(relative_chromosome_eq(
-        hill_climb.best_genes().unwrap(),
+        hill_climb.best_genes().unwrap().to_vec(),
         vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,],
         0.001
     ));
@@ -61,7 +63,7 @@ fn call_range_max_stale_generations_maximize() {
 
 #[test]
 fn call_range_max_stale_generations_minimize() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f64, 10, 100>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -72,7 +74,7 @@ fn call_range_max_stale_generations_minimize() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(100)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         // .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -81,7 +83,7 @@ fn call_range_max_stale_generations_minimize() {
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(0));
     assert!(relative_chromosome_eq(
-        hill_climb.best_genes().unwrap(),
+        hill_climb.best_genes().unwrap().to_vec(),
         vec![0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0,],
         0.001
     ));
@@ -89,7 +91,7 @@ fn call_range_max_stale_generations_minimize() {
 
 #[test]
 fn call_range_max_generations_maximize() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f64, 10, 100>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -99,7 +101,7 @@ fn call_range_max_generations_maximize() {
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_generations(1000)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -108,7 +110,7 @@ fn call_range_max_generations_maximize() {
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(10000));
     assert!(relative_chromosome_eq(
-        hill_climb.best_genes().unwrap(),
+        hill_climb.best_genes().unwrap().to_vec(),
         vec![1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0, 1.0,],
         0.001
     ));
@@ -116,7 +118,7 @@ fn call_range_max_generations_maximize() {
 
 #[test]
 fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f64, 100, 300>::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -127,7 +129,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(10)
         .with_valid_fitness_score(75000)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -139,7 +141,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
 
 #[test]
 fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f64, 100, 300>::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -151,7 +153,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(10)
         .with_valid_fitness_score(25000)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         // .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -163,7 +165,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
 
 #[test]
 fn call_range_target_fitness_score_maximize() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f64, 10, 100>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -173,7 +175,7 @@ fn call_range_target_fitness_score_maximize() {
         .with_genotype(genotype)
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_target_fitness_score(8000)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -182,7 +184,7 @@ fn call_range_target_fitness_score_maximize() {
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(8051));
     assert!(relative_chromosome_eq(
-        hill_climb.best_genes().unwrap(),
+        hill_climb.best_genes().unwrap().to_vec(),
         vec![0.692, 0.976, 0.921, 0.692, 0.988, 0.499, 0.599, 0.810, 0.954, 0.915],
         0.001
     ));
@@ -190,7 +192,7 @@ fn call_range_target_fitness_score_maximize() {
 
 #[test]
 fn call_range_target_fitness_score_minimize() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f64, 10, 100>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -201,7 +203,7 @@ fn call_range_target_fitness_score_minimize() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(1000)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         // .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -210,7 +212,7 @@ fn call_range_target_fitness_score_minimize() {
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(934));
     assert!(relative_chromosome_eq(
-        hill_climb.best_genes().unwrap(),
+        hill_climb.best_genes().unwrap().to_vec(),
         vec![0.001, 0.241, 0.039, 0.054, 0.032, 0.032, 0.039, 0.012, 0.180, 0.301],
         0.001
     ));
@@ -218,7 +220,7 @@ fn call_range_target_fitness_score_minimize() {
 
 #[test]
 fn call_range_par_fitness() {
-    let genotype = RangeGenotype::builder()
+    let genotype = StaticRangeGenotype::<f64, 10, 100>::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -230,7 +232,7 @@ fn call_range_par_fitness() {
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_par_fitness(true)
         .with_target_fitness_score(1000)
-        .with_fitness(SumGenes::new_with_precision(1e-3))
+        .with_fitness(SumStaticRange::new_with_precision(1e-3))
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
@@ -239,7 +241,7 @@ fn call_range_par_fitness() {
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(934));
     assert!(relative_chromosome_eq(
-        hill_climb.best_genes().unwrap(),
+        hill_climb.best_genes().unwrap().to_vec(),
         vec![0.001, 0.241, 0.039, 0.054, 0.032, 0.032, 0.039, 0.012, 0.180, 0.301],
         0.001
     ));

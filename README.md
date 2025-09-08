@@ -187,6 +187,8 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 ## TODO
 * One cannot permutate centralized static binary, yet. Need a window approach setting the matrix for each iteration. To calculate that matrix as a whole repeatedly
 * Remove FixedBit from distributed? It is the only non-Vec implementation. And distributed is about flexibility not performance, centralized is for performance (it could implement Binary as FixedBit because the internals private in centralized)
+* remove hillclimb/stochastic from centralized as it make no sense
+* remove calculate_for_chromosome in centralized, remove calculate_for_population in distributed
 
 ## MAYBE
 * Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)
