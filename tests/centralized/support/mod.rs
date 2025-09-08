@@ -1,5 +1,7 @@
 pub mod build;
 pub mod inspect;
+pub mod static_build;
+pub mod static_inspect;
 
 #[allow(unused_imports)]
 pub use approx::relative_eq;
