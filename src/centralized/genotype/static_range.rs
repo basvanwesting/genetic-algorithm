@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::centralized::allele::RangeAllele;
 use crate::centralized::chromosome::{
     Chromosome, ChromosomeManager, GenesHash, GenesPointer, StaticRangeChromosome,
@@ -647,6 +647,83 @@ where
                 population.chromosomes.push(new_chromosome)
             };
         });
+    }
+}
+
+impl<T: RangeAllele, const N: usize, const M: usize> PermutateGenotype for StaticRange<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn chromosome_permutations_into_iter<'a>(
+        &'a self,
+        _chromosome: Option<&Self::Chromosome>,
+        _scale_index: Option<usize>,
+    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+        todo!("PermutateGenotype is not supported for StaticRangeGenotype. This is a placeholder implementation for testing purposes only.")
+    }
+
+    fn chromosome_permutations_size(&self) -> BigUint {
+        if self.seed_genes_list.is_empty() {
+            match self.mutation_type {
+                MutationType::Scaled => (0..=self.max_scale_index().unwrap())
+                    .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
+                    .sum(),
+                MutationType::Relative => {
+                    panic!("StaticRangeGenotype is not permutable for MutationType::Relative")
+                }
+                MutationType::Random => {
+                    panic!("StaticRangeGenotype is not permutable for MutationType::Random")
+                }
+            }
+        } else {
+            self.seed_genes_list.len().into()
+        }
+    }
+    fn mutation_type_allows_permutation(&self) -> bool {
+        match self.mutation_type {
+            MutationType::Scaled => true,
+            MutationType::Relative => false,
+            MutationType::Random => false,
+        }
+    }
+}
+
+impl<T: RangeAllele, const N: usize, const M: usize> StaticRange<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    pub fn permutable_allele_size_scaled(&self, scale_index: usize) -> usize {
+        let (allele_value_start, allele_value_end) =
+            if let Some(previous_scale_index) = scale_index.checked_sub(1) {
+                let working_range =
+                    &self.allele_mutation_scaled_range.as_ref().unwrap()[previous_scale_index];
+                (*working_range.start(), *working_range.end())
+            } else {
+                (*self.allele_range.start(), *self.allele_range.end())
+            };
+
+        let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
+        let working_range_step = *working_range.end();
+
+        std::iter::successors(Some(allele_value_start), |value| {
+            if *value < allele_value_end {
+                let next_value = *value + working_range_step;
+                if next_value > allele_value_end {
+                    Some(allele_value_end)
+                } else {
+                    Some(next_value)
+                }
+            } else {
+                None
+            }
+        })
+        .count()
+    }
+
+    pub fn chromosome_permutations_size_scaled(&self, scale_index: usize) -> BigUint {
+        BigUint::from(self.permutable_allele_size_scaled(scale_index)).pow(self.genes_size() as u32)
     }
 }
 

@@ -1,21 +1,25 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::fitness::placeholders::{
-    CountOnes, CountTrue, SumDynamicRange, SumGenes, SumStaticRange,
+    CountOnes, CountStaticTrue, SumDynamicRange, SumGenes, SumStaticRange,
 };
+use genetic_algorithm::centralized::genotype::{Genotype, StaticBinaryGenotype};
 use genetic_algorithm::centralized::strategy::evolve::prelude::*;
 
 #[test]
 fn build_invalid_missing_ending_condition() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<10, 200>::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
+    
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<10, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         // .with_extension(ExtensionNoop::new())
@@ -86,16 +90,17 @@ fn build_invalid_require_crossover_points() {
 
 #[test]
 fn call_binary_max_stale_generations_maximize() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<10, 200>::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<10, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionNoop::new())
@@ -107,24 +112,25 @@ fn call_binary_max_stale_generations_maximize() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(10));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![true, true, true, true, true, true, true, true, true, true]
     );
 }
 
 #[test]
 fn call_binary_max_stale_generations_minimize() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<10, 200>::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<10, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionNoop::new())
@@ -136,23 +142,24 @@ fn call_binary_max_stale_generations_minimize() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(0));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![false, false, false, false, false, false, false, false, false, false]
     );
 }
 
 #[test]
 fn call_binary_max_generations_maximize() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<10, 200>::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_generations(50)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<10, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionNoop::new())
@@ -164,24 +171,25 @@ fn call_binary_max_generations_maximize() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(10));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![true, true, true, true, true, true, true, true, true, true]
     );
 }
 
 #[test]
 fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<100, 200>::builder()
         .with_genes_size(100)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(20)
         .with_max_stale_generations(2)
         .with_valid_fitness_score(75)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<100, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         // .with_extension(ExtensionNoop::new())
@@ -196,10 +204,11 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
 
 #[test]
 fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<100, 200>::builder()
         .with_genes_size(100)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(20)
@@ -207,7 +216,7 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
         .with_max_stale_generations(2)
         .with_valid_fitness_score(25)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<100, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionNoop::new())
@@ -222,16 +231,17 @@ fn call_binary_max_stale_generations_and_valid_fitness_score_minimize() {
 
 #[test]
 fn call_binary_target_fitness_score_maximize() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<10, 200>::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_target_fitness_score(9)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<10, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionNoop::new())
@@ -243,24 +253,25 @@ fn call_binary_target_fitness_score_maximize() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(9));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![true, true, true, false, true, true, true, true, true, true]
     );
 }
 
 #[test]
 fn call_binary_target_fitness_score_minimize() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<10, 200>::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<10, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionNoop::new())
@@ -272,23 +283,24 @@ fn call_binary_target_fitness_score_minimize() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(0));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![false, false, false, false, false, false, false, false, false, false]
     );
 }
 
 #[test]
 fn call_binary_mass_degeneration() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<10, 200>::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_target_fitness_score(10)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<10, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionMassDegeneration::new(10, 10, 0.02))
@@ -303,16 +315,17 @@ fn call_binary_mass_degeneration() {
 
 #[test]
 fn call_binary_mass_extinction() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<10, 200>::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_target_fitness_score(10)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<10, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionMassExtinction::new(10, 0.1, 0.02))
@@ -327,16 +340,17 @@ fn call_binary_mass_extinction() {
 
 #[test]
 fn call_binary_mass_genesis() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<10, 200>::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_target_fitness_score(10)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<10, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionMassGenesis::new(10))
@@ -398,7 +412,7 @@ fn call_range_f32() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(9880));
     assert!(relative_chromosome_eq(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![0.998, 0.993, 0.979, 0.992, 0.982, 0.999, 0.987, 0.972, 0.979, 0.995],
         0.001
     ));
@@ -428,7 +442,7 @@ fn call_range_usize() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(89));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![9, 9, 9, 8, 9, 9, 9, 9, 9, 9]
     );
 }
@@ -458,7 +472,7 @@ fn call_range_isize() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(90));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![9, 9, 9, 9, 9, 9, 9, 9, 9, 9]
     );
 }
@@ -488,7 +502,7 @@ fn call_list() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(30));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
     );
 }
@@ -549,8 +563,8 @@ fn call_static_range() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(0));
     assert_eq!(
-        evolve.best_genes().unwrap(),
-        Box::new([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+        evolve.best_genes().unwrap().to_vec(),
+        vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
 }
 
@@ -580,7 +594,7 @@ fn call_dynamic_range() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(0));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
     );
     // after cleanup
@@ -613,23 +627,25 @@ fn call_par_fitness() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(30));
     assert_eq!(
-        evolve.best_genes().unwrap(),
+        evolve.best_genes().unwrap().to_vec(),
         vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
     );
 }
 
 #[test]
 fn population_factory_binary() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<4, 200>::builder()
         .with_genes_size(4)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
+    
     let mut evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(8)
         .with_max_stale_generations(20)
         .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<4, 200>::new())
         .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_extension(ExtensionNoop::new())
@@ -640,7 +656,7 @@ fn population_factory_binary() {
 
     evolve.setup(None);
     assert_eq!(
-        inspect::population(&evolve.state.population),
+        static_inspect::population(&evolve.genotype, &evolve.state.population),
         vec![
             vec![false, false, true, false],
             vec![true, true, true, false],

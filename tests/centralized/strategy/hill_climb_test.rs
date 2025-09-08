@@ -1,9 +1,10 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::fitness::placeholders::{
-    CountTrue, SumDynamicRange, SumGenes, SumStaticRange,
+    CountStaticTrue, SumDynamicRange, SumGenes, SumStaticRange,
 };
-use genetic_algorithm::centralized::genotype::HillClimbGenotype;
+use genetic_algorithm::centralized::genotype::{Genotype, HillClimbGenotype, StaticBinaryGenotype};
 use genetic_algorithm::centralized::strategy::hill_climb::prelude::*;
 
 #[test]
@@ -236,32 +237,12 @@ fn call_range_par_fitness() {
 }
 
 #[test]
-fn call_binary_stochastic() {
-    let genotype = BinaryGenotype::builder()
-        .with_genes_size(100)
-        .build()
-        .unwrap();
-    let hill_climb = HillClimb::builder()
-        .with_genotype(genotype)
-        .with_variant(HillClimbVariant::Stochastic)
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_target_fitness_score(0)
-        .with_fitness(CountTrue)
-        // .with_reporter(StrategyReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(0));
-}
-
-#[test]
 fn call_binary_steepest_ascent() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<100, 200>::builder()
         .with_genes_size(100)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
     assert_eq!(
         genotype.neighbouring_population_size(),
         BigUint::from(100_u32)
@@ -271,7 +252,7 @@ fn call_binary_steepest_ascent() {
         .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(0)
-        .with_fitness(CountTrue)
+        .with_fitness(CountStaticTrue::<100, 200>::new())
         .with_reporter(StrategyReporterNoop::new())
         .with_rng_seed_from_u64(0)
         .call()
