@@ -18,6 +18,7 @@ fn build_invalid_missing_ending_condition() {
 
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         // .with_reporter(StrategyReporterNoop::new())
         .build();
@@ -41,6 +42,7 @@ fn call_range_max_stale_generations_maximize() {
         .unwrap();
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(1000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_reporter(StrategyReporterNoop::new())
@@ -67,6 +69,7 @@ fn call_range_max_stale_generations_minimize() {
         .unwrap();
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(100)
         .with_fitness(SumGenes::new_with_precision(1e-3))
@@ -94,6 +97,7 @@ fn call_range_max_generations_maximize() {
         .unwrap();
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_generations(1000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_reporter(StrategyReporterNoop::new())
@@ -120,6 +124,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
         .unwrap();
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_max_stale_generations(10)
         .with_valid_fitness_score(75000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
@@ -129,7 +134,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(76681));
+    assert_eq!(hill_climb.best_fitness_score(), Some(99985));
 }
 
 #[test]
@@ -142,6 +147,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
         .unwrap();
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_max_stale_generations(10)
         .with_valid_fitness_score(25000)
@@ -152,7 +158,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(24930));
+    assert_eq!(hill_climb.best_fitness_score(), Some(10));
 }
 
 #[test]
@@ -165,6 +171,7 @@ fn call_range_target_fitness_score_maximize() {
         .unwrap();
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_target_fitness_score(8000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
         .with_reporter(StrategyReporterNoop::new())
@@ -173,10 +180,10 @@ fn call_range_target_fitness_score_maximize() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(8088));
+    assert_eq!(hill_climb.best_fitness_score(), Some(8051));
     assert!(relative_chromosome_eq(
         hill_climb.best_genes().unwrap(),
-        vec![0.673, 0.629, 1.0, 0.722, 1.0, 1.0, 0.737, 0.735, 0.590, 1.0,],
+        vec![0.692, 0.976, 0.921, 0.692, 0.988, 0.499, 0.599, 0.810, 0.954, 0.915],
         0.001
     ));
 }
@@ -191,6 +198,7 @@ fn call_range_target_fitness_score_minimize() {
         .unwrap();
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_target_fitness_score(1000)
         .with_fitness(SumGenes::new_with_precision(1e-3))
@@ -200,10 +208,10 @@ fn call_range_target_fitness_score_minimize() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(964));
+    assert_eq!(hill_climb.best_fitness_score(), Some(934));
     assert!(relative_chromosome_eq(
         hill_climb.best_genes().unwrap(),
-        vec![0.0, 0.0, 0.173, 0.0, 0.626, 0.006, 0.0, 0.0, 0.0, 0.159,],
+        vec![0.001, 0.241, 0.039, 0.054, 0.032, 0.032, 0.039, 0.012, 0.180, 0.301],
         0.001
     ));
 }
@@ -218,6 +226,7 @@ fn call_range_par_fitness() {
         .unwrap();
     let hill_climb = HillClimb::builder()
         .with_genotype(genotype)
+        .with_variant(HillClimbVariant::SteepestAscent)
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_par_fitness(true)
         .with_target_fitness_score(1000)
@@ -228,10 +237,10 @@ fn call_range_par_fitness() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(964));
+    assert_eq!(hill_climb.best_fitness_score(), Some(934));
     assert!(relative_chromosome_eq(
         hill_climb.best_genes().unwrap(),
-        vec![0.0, 0.0, 0.173, 0.0, 0.626, 0.006, 0.0, 0.0, 0.0, 0.159,],
+        vec![0.001, 0.241, 0.039, 0.054, 0.032, 0.032, 0.039, 0.012, 0.180, 0.301],
         0.001
     ));
 }
