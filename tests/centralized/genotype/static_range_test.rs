@@ -6,7 +6,7 @@ use genetic_algorithm::centralized::genotype::{
 };
 
 #[test]
-fn chromosome_constructor() {
+fn float_mutate_chromosome_single_random() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
@@ -17,15 +17,15 @@ fn chromosome_constructor() {
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
-        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
-        vec![0.447, 0.439, 0.976, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![0.447, 0.439, 0.976, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 }
@@ -43,21 +43,21 @@ fn float_mutate_chromosome_single_relative() {
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
-        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
-        vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.499, 0.456, 0.395, 0.818],
         0.001,
     ));
@@ -76,21 +76,21 @@ fn float_mutate_chromosome_single_scaled() {
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![0.447, 0.439, 0.969, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, Some(2), &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![0.447, 0.439, 0.969, 0.462, 0.897, 0.942, 0.598, 0.456, 0.395, 0.818],
         0.001,
     ));
@@ -106,17 +106,12 @@ fn mutate_chromosome_genes_random_with_duplicates() {
         .unwrap();
     genotype.chromosomes_setup();
 
-    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
-        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
-        0.001,
-    ));
+    let mut chromosome = static_build::chromosome(&mut genotype, vec![0.0; 10]);
     genotype.mutate_chromosome_genes(5, true, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
-        vec![0.447, 0.439, 0.296, 0.462, 0.897, 0.942, 0.054, 0.724, 0.395, 0.225],
-        0.001,
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![0.0, 0.0, 0.0, 0.818, 0.439, 0.456, 0.0, 0.0, 0.942, 0.462],
+        0.001
     ));
 }
 #[test]
@@ -129,17 +124,12 @@ fn mutate_chromosome_genes_random_without_duplicates() {
         .unwrap();
     genotype.chromosomes_setup();
 
-    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
-        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
-        0.001,
-    ));
+    let mut chromosome = static_build::chromosome(&mut genotype, vec![0.0; 10]);
     genotype.mutate_chromosome_genes(5, false, &mut chromosome, None, &mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
-        vec![0.787, 0.225, 0.979, 0.462, 0.897, 0.296, 0.232, 0.456, 0.395, 0.724],
-        0.001,
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![0.0, 0.0, 0.395, 0.818, 0.644, 0.0, 0.0, 0.240, 0.976, 0.0],
+        0.001
     ));
 }
 
@@ -148,34 +138,28 @@ fn crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
     let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
         .with_genes_size(10)
-        .with_allele_range(0.0..=1.0)
+        .with_allele_range(0.0..=2.0)
         .build()
         .unwrap();
     genotype.chromosomes_setup();
 
-    let mut father = genotype.chromosome_constructor_random(rng);
-    let mut mother = genotype.chromosome_constructor_random(rng);
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&father).to_vec(),
-        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
-        0.001
-    ));
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&mother).to_vec(),
-        vec![0.240, 0.976, 0.644, 0.054, 0.921, 0.225, 0.232, 0.296, 0.787, 0.724],
-        0.001
-    ));
-    genotype.crossover_chromosome_genes(3, false, &mut father, &mut mother, rng);
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&father).to_vec(),
-        vec![0.447, 0.976, 0.644, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.724],
-        0.001
-    ));
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&mother).to_vec(),
-        vec![0.240, 0.439, 0.979, 0.054, 0.921, 0.225, 0.232, 0.296, 0.787, 0.818],
-        0.001
-    ));
+    let mut father = static_build::chromosome(
+        &mut genotype,
+        vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    );
+    let mut mother = static_build::chromosome(
+        &mut genotype,
+        vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9],
+    );
+    genotype.crossover_chromosome_genes(1, true, &mut father, &mut mother, rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &father),
+        vec![0.0, 0.1, 0.2, 0.3, 1.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    );
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &mother),
+        vec![1.0, 1.1, 1.2, 1.3, 0.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+    );
 }
 
 #[test]
@@ -188,35 +172,29 @@ fn crossover_chromosome_pair_single_point() {
         .unwrap();
     genotype.chromosomes_setup();
 
-    let mut father = genotype.chromosome_constructor_random(rng);
-    let mut mother = genotype.chromosome_constructor_random(rng);
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&father).to_vec(),
-        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
-        0.001
-    ));
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&mother).to_vec(),
-        vec![0.240, 0.976, 0.644, 0.054, 0.921, 0.225, 0.232, 0.296, 0.787, 0.724],
-        0.001
-    ));
-    genotype.crossover_chromosome_points(2, false, &mut father, &mut mother, rng);
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&father).to_vec(),
-        vec![0.447, 0.439, 0.644, 0.054, 0.921, 0.942, 0.588, 0.456, 0.395, 0.818],
-        0.001
-    ));
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&mother).to_vec(),
-        vec![0.240, 0.976, 0.979, 0.462, 0.897, 0.225, 0.232, 0.296, 0.787, 0.724],
-        0.001
-    ));
+    let mut father = static_build::chromosome(
+        &mut genotype,
+        vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    );
+    let mut mother = static_build::chromosome(
+        &mut genotype,
+        vec![1.0, 1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9],
+    );
+    genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &father),
+        vec![0.0, 0.1, 0.2, 0.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+    );
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &mother),
+        vec![1.0, 1.1, 1.2, 1.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+    );
 }
 
 #[test]
 fn float_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = StaticRangeGenotype::<f32, 1, 3>::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 1, 5>::builder()
         .with_genes_size(1)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -226,7 +204,7 @@ fn float_neighbouring_population_1() {
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![0.447],
         0.001
     ));
@@ -235,11 +213,7 @@ fn float_neighbouring_population_1() {
     let mut population = Population::new(vec![]);
     genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
     assert!(relative_population_eq(
-        population
-            .chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
+        static_inspect::population(&genotype, &population),
         vec![vec![0.391], vec![0.545]],
         0.001,
     ));
@@ -257,7 +231,7 @@ fn float_neighbouring_population_2_random() {
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![0.447, 0.439],
         0.001
     ));
@@ -266,11 +240,7 @@ fn float_neighbouring_population_2_random() {
     let mut population = Population::new(vec![]);
     genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
     assert!(relative_population_eq(
-        population
-            .chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
+        static_inspect::population(&genotype, &population),
         vec![
             vec![0.438, 0.439],
             vec![0.702, 0.439],
@@ -294,7 +264,7 @@ fn float_neighbouring_population_2_relative() {
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![0.447, 0.439],
         0.001
     ));
@@ -303,11 +273,7 @@ fn float_neighbouring_population_2_relative() {
     let mut population = Population::new(vec![]);
     genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
     assert!(relative_population_eq(
-        population
-            .chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
+        static_inspect::population(&genotype, &population),
         vec![
             vec![0.445, 0.439],
             vec![0.494, 0.439],
@@ -331,21 +297,16 @@ fn float_neighbouring_population_2_scaled() {
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![0.447, 0.439],
         0.001
     ));
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
-
     let mut population = Population::new(vec![]);
     genotype.fill_neighbouring_population(&chromosome, &mut population, Some(0), &mut rng);
     assert!(relative_population_eq(
-        population
-            .chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
+        static_inspect::population(&genotype, &population),
         vec![
             vec![0.0, 0.439],
             vec![0.947, 0.439],
@@ -355,14 +316,9 @@ fn float_neighbouring_population_2_scaled() {
         0.001,
     ));
     genotype.chromosome_destructor_truncate(&mut population.chromosomes, 0);
-
     genotype.fill_neighbouring_population(&chromosome, &mut population, Some(1), &mut rng);
     assert!(relative_population_eq(
-        population
-            .chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
+        static_inspect::population(&genotype, &population),
         vec![
             vec![0.347, 0.439],
             vec![0.547, 0.439],
@@ -372,14 +328,9 @@ fn float_neighbouring_population_2_scaled() {
         0.001,
     ));
     genotype.chromosome_destructor_truncate(&mut population.chromosomes, 0);
-
     genotype.fill_neighbouring_population(&chromosome, &mut population, Some(2), &mut rng);
     assert!(relative_population_eq(
-        population
-            .chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
+        static_inspect::population(&genotype, &population),
         vec![
             vec![0.437, 0.439],
             vec![0.457, 0.439],
@@ -388,13 +339,47 @@ fn float_neighbouring_population_2_scaled() {
         ],
         0.001,
     ));
-    genotype.chromosome_destructor_truncate(&mut population.chromosomes, 0);
+}
+
+#[test]
+fn float_neighbouring_population_3() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = StaticRangeGenotype::<f32, 3, 10>::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..=1.0)
+        .with_allele_mutation_range(-0.1..=0.1)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert!(relative_chromosome_eq(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![0.447, 0.439, 0.980],
+        0.001,
+    ));
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    assert!(relative_population_eq(
+        static_inspect::population(&genotype, &population),
+        vec![
+            vec![0.394, 0.439, 0.980],
+            vec![0.537, 0.439, 0.980],
+            vec![0.447, 0.433, 0.980],
+            vec![0.447, 0.498, 0.980],
+            vec![0.447, 0.439, 0.925],
+            vec![0.447, 0.439, 0.987],
+        ],
+        0.001,
+    ));
 }
 
 #[test]
 fn float_neighbouring_population_3_one_sided() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = StaticRangeGenotype::<f32, 3, 7>::builder()
+    let mut genotype = StaticRangeGenotype::<f32, 3, 5>::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(0.0..=0.1)
@@ -404,22 +389,17 @@ fn float_neighbouring_population_3_one_sided() {
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosome).to_vec(),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![0.447, 0.439, 0.980],
-        0.001
+        0.001,
     ));
 
     // size makes error as it counts 0.0 twice, this is fine
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
-
     let mut population = Population::new(vec![]);
     genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
     assert!(relative_population_eq(
-        population
-            .chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
+        static_inspect::population(&genotype, &population),
         vec![
             vec![0.494, 0.439, 0.980],
             vec![0.447, 0.529, 0.980],
@@ -430,199 +410,294 @@ fn float_neighbouring_population_3_one_sided() {
 }
 
 #[test]
-fn chromosome_constructor_with_seed_genes_list() {
+fn integer_mutate_chromosome_single_random() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = StaticRangeGenotype::<f32, 4, 4>::builder()
-        .with_genes_size(4)
-        .with_allele_range(0.0..=1.0)
-        .with_seed_genes_list(vec![
-            Box::new([0.0, 0.1, 0.2, 0.3]),
-            Box::new([0.4, 0.5, 0.6, 0.7]),
-        ])
+    let mut genotype = StaticRangeGenotype::<i32, 10, 5>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0..=9)
         .build()
         .unwrap();
     genotype.chromosomes_setup();
 
-    let chromosomes = vec![
-        genotype.chromosome_constructor_random(&mut rng),
-        genotype.chromosome_constructor_random(&mut rng),
-        genotype.chromosome_constructor_random(&mut rng),
-        genotype.chromosome_constructor_random(&mut rng),
-    ];
-    println!("{:#?}", chromosomes);
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![4, 4, 9, 4, 8, 9, 5, 4, 3, 8],
+    );
 
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosomes[0]).to_vec(),
-        vec![0.4, 0.5, 0.6, 0.7],
-        0.001,
-    ));
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosomes[1]).to_vec(),
-        vec![0.0, 0.1, 0.2, 0.3],
-        0.001,
-    ));
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosomes[2]).to_vec(),
-        vec![0.4, 0.5, 0.6, 0.7],
-        0.001,
-    ));
-    assert!(relative_chromosome_eq(
-        genotype.genes_slice(&chromosomes[3]).to_vec(),
-        vec![0.0, 0.1, 0.2, 0.3],
-        0.001,
-    ));
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![4, 4, 9, 4, 8, 9, 0, 4, 3, 8],
+    );
 }
 
 #[test]
-fn population_constructor_random() {
+fn integer_mutate_chromosome_single_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = StaticRangeGenotype::<f32, 4, 5>::builder()
-        .with_genes_size(4)
-        .with_allele_range(0.0..=1.0)
+    let mut genotype = StaticRangeGenotype::<i32, 10, 5>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0..=9)
+        .with_allele_mutation_range(-1..=1)
         .build()
         .unwrap();
     genotype.chromosomes_setup();
-    let population = genotype.population_constructor(5, &mut rng);
-    println!("{:#?}", population.chromosomes);
-    assert!(relative_population_eq(
-        population
-            .chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
-        vec![
-            vec![0.447, 0.439, 0.979, 0.462],
-            vec![0.897, 0.942, 0.588, 0.456],
-            vec![0.395, 0.818, 0.240, 0.976],
-            vec![0.644, 0.054, 0.921, 0.225],
-            vec![0.232, 0.296, 0.787, 0.724],
-        ],
-        0.001
-    ));
+
+    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![4, 4, 9, 4, 8, 9, 5, 4, 3, 8],
+    );
+
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![4, 4, 9, 4, 8, 9, 4, 4, 3, 8],
+    );
 }
 
 #[test]
-fn population_constructor_with_seed_genes_list() {
+fn integer_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = StaticRangeGenotype::<f32, 4, 5>::builder()
-        .with_genes_size(4)
-        .with_allele_range(0.0..=1.0)
-        .with_seed_genes_list(vec![
-            Box::new([0.0, 0.1, 0.2, 0.3]),
-            Box::new([0.4, 0.5, 0.6, 0.7]),
-        ])
+    let mut genotype = StaticRangeGenotype::<i32, 1, 5>::builder()
+        .with_genes_size(1)
+        .with_allele_range(0..=9)
+        .with_allele_mutation_range(-1..=1)
         .build()
         .unwrap();
     genotype.chromosomes_setup();
-    let population = genotype.population_constructor(5, &mut rng);
-    println!("{:#?}", population.chromosomes);
-    assert!(relative_population_eq(
-        population
-            .chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
-        vec![
-            vec![0.0, 0.1, 0.2, 0.3],
-            vec![0.4, 0.5, 0.6, 0.7],
-            vec![0.0, 0.1, 0.2, 0.3],
-            vec![0.4, 0.5, 0.6, 0.7],
-            vec![0.0, 0.1, 0.2, 0.3],
-        ],
-        0.001
-    ));
+
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert_eq!(static_inspect::chromosome(&genotype, &chromosome), vec![4]);
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    assert_eq!(
+        static_inspect::population(&genotype, &population),
+        vec![vec![3], vec![5]],
+    );
 }
 
 #[test]
-fn chromosome_manager() {
-    let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = StaticRangeGenotype::<f32, 5, 4>::builder()
-        .with_genes_size(5)
-        .with_allele_range(0.0..=1.0)
+fn integer_neighbouring_population_2_random() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = StaticRangeGenotype::<i32, 2, 5>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0..=9)
         .build()
         .unwrap();
     genotype.chromosomes_setup();
 
-    let mut chromosomes = (0..4)
-        .map(|_| genotype.chromosome_constructor_random(rng))
-        .collect::<Vec<_>>();
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![4, 4],
+    );
 
-    genotype.save_best_genes(&chromosomes[2]);
-    dbg!("init", &chromosomes, &genotype.best_genes());
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    assert_eq!(
+        static_inspect::population(&genotype, &population),
+        vec![vec![2, 4], vec![7, 4], vec![4, 3], vec![4, 6]]
+    );
+}
 
-    assert!(relative_population_eq(
-        chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
+#[test]
+fn integer_neighbouring_population_2_relative() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = StaticRangeGenotype::<i32, 2, 5>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0..=9)
+        .with_allele_mutation_range(-2..=2)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![4, 4],
+    );
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    assert_eq!(
+        static_inspect::population(&genotype, &population),
+        vec![vec![3, 4], vec![5, 4], vec![4, 3], vec![4, 5]]
+    );
+}
+
+#[test]
+fn integer_neighbouring_population_2_scaled() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = StaticRangeGenotype::<i32, 2, 5>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0..=9)
+        .with_allele_mutation_scaled_range(vec![-3..=3, -2..=2, -1..=1])
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![4, 4]
+    );
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, Some(1), &mut rng);
+    assert_eq!(
+        static_inspect::population(&genotype, &population),
+        vec![vec![2, 4], vec![6, 4], vec![4, 2], vec![4, 6]]
+    );
+}
+
+#[test]
+fn integer_neighbouring_population_3() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = StaticRangeGenotype::<i32, 3, 10>::builder()
+        .with_genes_size(3)
+        .with_allele_range(0..=9)
+        .with_allele_mutation_range(-1..=1)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![4, 4, 9]
+    );
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    assert_eq!(
+        static_inspect::population(&genotype, &population),
         vec![
-            vec![0.447, 0.439, 0.979, 0.462, 0.897],
-            vec![0.942, 0.588, 0.456, 0.395, 0.818],
-            vec![0.240, 0.976, 0.644, 0.054, 0.921],
-            vec![0.225, 0.232, 0.296, 0.787, 0.724],
-        ],
-        0.001
-    ));
-    assert!(relative_chromosome_eq(
-        genotype.best_genes().to_vec(),
-        vec![0.240, 0.976, 0.644, 0.054, 0.921],
-        0.001
-    ));
+            vec![3, 4, 9],
+            vec![5, 4, 9],
+            vec![4, 3, 9],
+            vec![4, 5, 9],
+            vec![4, 4, 8],
+        ]
+    );
+}
 
-    genotype.chromosome_destructor_truncate(&mut chromosomes, 2);
-    dbg!("truncate", &chromosomes, &genotype.best_genes());
+#[test]
+fn integer_neighbouring_population_3_one_sided() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = StaticRangeGenotype::<i32, 3, 5>::builder()
+        .with_genes_size(3)
+        .with_allele_range(0..=9)
+        .with_allele_mutation_range(0..=1)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
 
-    assert!(relative_population_eq(
-        chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
-        vec![
-            vec![0.447, 0.439, 0.979, 0.462, 0.897],
-            vec![0.942, 0.588, 0.456, 0.395, 0.818],
-        ],
-        0.001
-    ));
+    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![4, 4, 9]
+    );
 
-    genotype.chromosome_cloner_expand(&mut chromosomes, 2);
-    dbg!("clone range", &chromosomes, &genotype.best_genes());
+    // size makes error as it counts 0.0 twice, this is fine
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
 
-    assert!(relative_population_eq(
-        chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
-        vec![
-            vec![0.447, 0.439, 0.979, 0.462, 0.897],
-            vec![0.942, 0.588, 0.456, 0.395, 0.818],
-            vec![0.447, 0.439, 0.979, 0.462, 0.897],
-            vec![0.942, 0.588, 0.456, 0.395, 0.818],
-        ],
-        0.001
-    ));
+    let mut population = Population::new(vec![]);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    assert_eq!(
+        static_inspect::population(&genotype, &population),
+        vec![vec![5, 4, 9], vec![4, 5, 9]]
+    );
+}
 
-    chromosomes
-        .iter_mut()
-        .take(2)
-        .for_each(|c| genotype.mutate_chromosome_genes(3, false, c, None, rng));
-    dbg!("mutate", &chromosomes, &genotype.best_genes());
+#[test]
+fn float_calculate_genes_hash() {
+    let mut genotype = StaticRangeGenotype::<f32, 10, 5>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=1.0)
+        .with_genes_hashing(true)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
 
-    assert!(relative_population_eq(
-        chromosomes
-            .iter()
-            .map(|c| genotype.genes_slice(c).to_vec())
-            .collect(),
-        vec![
-            vec![0.447, 0.900, 0.979, 0.390, 0.971],
-            vec![0.848, 0.588, 0.346, 0.014, 0.818],
-            vec![0.447, 0.439, 0.979, 0.462, 0.897],
-            vec![0.942, 0.588, 0.456, 0.395, 0.818],
-        ],
-        0.001
-    ));
-    assert!(relative_chromosome_eq(
-        genotype.best_genes().to_vec(),
-        vec![0.240, 0.976, 0.644, 0.054, 0.921],
-        0.001
-    ));
+    let chromosome_1 = static_build::chromosome(
+        &mut genotype,
+        vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    );
+    let chromosome_2 = static_build::chromosome(
+        &mut genotype,
+        vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    );
+    let chromosome_3 = static_build::chromosome(
+        &mut genotype,
+        vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    );
+    let chromosome_4 = static_build::chromosome(
+        &mut genotype,
+        vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9],
+    );
+
+    assert!(genotype.calculate_genes_hash(&chromosome_1).is_some());
+    // assert_eq!(
+    //     genotype.calculate_genes_hash(&chromosome_1),
+    //     Some(13948481349068670127)
+    // );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_2),
+    );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_3),
+        genotype.calculate_genes_hash(&chromosome_4),
+    );
+
+    // the sign on zero matters
+    assert_ne!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_3),
+    );
+}
+
+#[test]
+fn integer_calculate_genes_hash() {
+    let mut genotype = StaticRangeGenotype::<i32, 10, 5>::builder()
+        .with_genes_size(10)
+        .with_allele_range(-10..=10)
+        .with_genes_hashing(true)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    let chromosome_1 = static_build::chromosome(&mut genotype, vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_2 = static_build::chromosome(&mut genotype, vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_3 = static_build::chromosome(&mut genotype, vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_4 = static_build::chromosome(&mut genotype, vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+
+    assert!(genotype.calculate_genes_hash(&chromosome_1).is_some());
+    // assert_eq!(
+    //     genotype.calculate_genes_hash(&chromosome_1),
+    //     Some(10064628735429642131)
+    // );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_2),
+    );
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_3),
+        genotype.calculate_genes_hash(&chromosome_4),
+    );
+
+    // the sign on does not matter
+    assert_eq!(
+        genotype.calculate_genes_hash(&chromosome_1),
+        genotype.calculate_genes_hash(&chromosome_3),
+    );
 }
