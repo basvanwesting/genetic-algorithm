@@ -5,7 +5,7 @@ use genetic_algorithm::centralized::chromosome::{
 };
 use genetic_algorithm::centralized::fitness::placeholders::{
     CountStaticTrue, CountStaticTrueWithSleep, CountTrue, CountTrueWithSleep, Countdown,
-    CountdownNoisy, StaticCountdown, StaticCountdownNoisy, SumDynamicRange, SumGenes,
+    CountdownNoisy, StaticCountdown, StaticCountdownNoisy, StaticZero, SumDynamicRange, SumGenes,
     SumStaticRange, Zero,
 };
 use genetic_algorithm::centralized::fitness::Fitness;
@@ -284,6 +284,13 @@ fn static_range_genotype_f32() {
         vec![Some(2328), Some(2884), Some(2431), Some(1845), Some(2041)]
     );
 
+    // Test StaticZero with StaticRangeGenotype
+    let mut zero = StaticZero::<StaticRangeGenotype<f32, 4, 5>>::new();
+    assert_eq!(
+        zero.calculate_for_population(&population, &genotype),
+        vec![Some(0), Some(0), Some(0), Some(0), Some(0)]
+    );
+
     // Test StaticCountdown with StaticRangeGenotype
     let mut countdown = StaticCountdown::<StaticRangeGenotype<f32, 4, 5>>::new(20);
     assert_eq!(
@@ -322,6 +329,13 @@ fn static_binary_genotype() {
     assert_eq!(
         CountStaticTrue::<4, 5>::new().calculate_for_population(&population, &genotype),
         vec![Some(4), Some(3), Some(2), Some(1), Some(0)]
+    );
+
+    // Test StaticZero with StaticRangeGenotype
+    let mut zero = StaticZero::new();
+    assert_eq!(
+        zero.calculate_for_population(&population, &genotype),
+        vec![Some(0), Some(0), Some(0), Some(0), Some(0)]
     );
 
     // Test CountStaticTrueWithSleep

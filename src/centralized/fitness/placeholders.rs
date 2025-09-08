@@ -39,6 +39,31 @@ impl<G: Genotype> Fitness for Zero<G> {
 }
 
 /// placeholder for testing and bootstrapping, not really used in practice
+/// Static version of Zero that works with population-based calculation
+#[derive(Clone, Debug)]
+pub struct StaticZero<G: Genotype>(PhantomData<G>);
+impl<G: Genotype> StaticZero<G> {
+    pub fn new() -> Self {
+        Self(PhantomData)
+    }
+}
+impl<G: Genotype> Default for StaticZero<G> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl<G: Genotype> Fitness for StaticZero<G> {
+    type Genotype = G;
+    fn calculate_for_population(
+        &mut self,
+        population: &FitnessPopulation<Self>,
+        _genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        vec![Some(0); population.chromosomes.len()]
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
 #[derive(Clone, Debug)]
 pub struct CountTrue;
 impl Fitness for CountTrue {
