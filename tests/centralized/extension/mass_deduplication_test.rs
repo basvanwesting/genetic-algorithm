@@ -1,29 +1,33 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::extension::{Extension, ExtensionMassDeduplication};
-use genetic_algorithm::centralized::genotype::{BinaryGenotype, Genotype};
-use genetic_algorithm::centralized::population::Population;
+use genetic_algorithm::centralized::genotype::{Genotype, StaticBinaryGenotype};
 use genetic_algorithm::centralized::strategy::evolve::{EvolveConfig, EvolveState};
 use genetic_algorithm::centralized::strategy::StrategyReporterNoop;
 
 #[test]
 fn standard() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<3, 10>::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let mut population: Population<BinaryChromosome> = build::population(vec![
-        vec![false, true, true],
-        vec![false, true, true],
-        vec![false, true, true],
-        vec![true, false, true],
-        vec![true, false, true],
-        vec![true, false, true],
-        vec![true, true, true],
-        vec![true, true, true],
-    ]);
+    let mut population = static_build::population(
+        &mut genotype,
+        vec![
+            vec![false, true, true],
+            vec![false, true, true],
+            vec![false, true, true],
+            vec![true, false, true],
+            vec![true, false, true],
+            vec![true, false, true],
+            vec![true, true, true],
+            vec![true, true, true],
+        ],
+    );
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
     population.chromosomes.iter_mut().for_each(|chromosome| {
@@ -47,7 +51,7 @@ fn standard() {
 
     state.population.chromosomes.sort_by_key(|c| c.genes_hash());
     assert_eq!(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![
             vec![true, true, true],
             vec![true, false, true],
@@ -59,22 +63,26 @@ fn standard() {
 
 #[test]
 fn never_leaves_less_than_two() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<3, 10>::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let mut population: Population<BinaryChromosome> = build::population(vec![
-        vec![true, true, true],
-        vec![true, true, true],
-        vec![true, true, true],
-        vec![true, true, true],
-        vec![true, true, true],
-        vec![true, true, true],
-        vec![true, true, true],
-        vec![true, true, true],
-    ]);
+    let mut population = static_build::population(
+        &mut genotype,
+        vec![
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+            vec![true, true, true],
+        ],
+    );
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
     population.chromosomes.iter_mut().for_each(|chromosome| {
@@ -97,7 +105,7 @@ fn never_leaves_less_than_two() {
     );
 
     assert_eq!(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![vec![true, true, true], vec![true, true, true]]
     );
     assert_eq!(state.population.chromosomes.capacity(), 10);
@@ -105,21 +113,25 @@ fn never_leaves_less_than_two() {
 
 #[test]
 fn skips_execution_if_no_genes_hash() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<3, 10>::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let mut population: Population<BinaryChromosome> = build::population(vec![
-        vec![false, true, true],
-        vec![false, true, true],
-        vec![false, true, true],
-        vec![true, false, true],
-        vec![true, false, true],
-        vec![true, false, true],
-        vec![true, true, true],
-        vec![true, true, true],
-    ]);
+    let mut population = static_build::population(
+        &mut genotype,
+        vec![
+            vec![false, true, true],
+            vec![false, true, true],
+            vec![false, true, true],
+            vec![true, false, true],
+            vec![true, false, true],
+            vec![true, false, true],
+            vec![true, true, true],
+            vec![true, true, true],
+        ],
+    );
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
@@ -140,7 +152,7 @@ fn skips_execution_if_no_genes_hash() {
 
     state.population.chromosomes.sort_by_key(|c| c.genes_hash());
     assert_eq!(
-        inspect::population(&state.population),
+        static_inspect::population(&genotype, &state.population),
         vec![
             vec![false, true, true],
             vec![false, true, true],

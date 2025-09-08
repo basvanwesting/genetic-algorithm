@@ -2,7 +2,9 @@
 use crate::support::*;
 use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::extension::{Extension, ExtensionMassGenesis};
-use genetic_algorithm::centralized::genotype::{BinaryGenotype, Genotype, StaticRangeGenotype};
+use genetic_algorithm::centralized::genotype::{
+    Genotype, StaticBinaryGenotype, StaticRangeGenotype,
+};
 use genetic_algorithm::centralized::population::Population;
 use genetic_algorithm::centralized::strategy::evolve::{EvolveConfig, EvolveState};
 use genetic_algorithm::centralized::strategy::StrategyReporterNoop;
@@ -10,22 +12,26 @@ use rand::prelude::*;
 
 #[test]
 fn removes_lesser() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<3, 10>::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let mut population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-    ]);
+    let mut population = static_build::population_with_fitness_scores(
+        &mut genotype,
+        vec![
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+        ],
+    );
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
@@ -45,7 +51,7 @@ fn removes_lesser() {
     ExtensionMassGenesis::new(3).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population_with_fitness_scores(&state.population),
+        static_inspect::population_with_fitness_scores(&genotype, &state.population),
         vec![
             (vec![true, false, false], Some(2)),
             (vec![true, true, false], Some(1)),
@@ -56,22 +62,26 @@ fn removes_lesser() {
 
 #[test]
 fn removes_lesser_no_fitness() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<3, 10>::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let mut population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-        (vec![true, true, true], None),
-        (vec![true, true, false], None),
-        (vec![true, false, false], None),
-        (vec![true, true, true], None),
-        (vec![true, true, false], None),
-        (vec![true, false, false], None),
-        (vec![true, true, true], None),
-        (vec![true, true, false], None),
-    ]);
+    let mut population = static_build::population_with_fitness_scores(
+        &mut genotype,
+        vec![
+            (vec![true, true, true], None),
+            (vec![true, true, false], None),
+            (vec![true, false, false], None),
+            (vec![true, true, true], None),
+            (vec![true, true, false], None),
+            (vec![true, false, false], None),
+            (vec![true, true, true], None),
+            (vec![true, true, false], None),
+        ],
+    );
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
@@ -91,7 +101,7 @@ fn removes_lesser_no_fitness() {
     ExtensionMassGenesis::new(3).call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
 
     assert_eq!(
-        inspect::population_with_fitness_scores(&state.population),
+        static_inspect::population_with_fitness_scores(&genotype, &state.population),
         vec![
             (vec![true, true, true], None),
             (vec![true, true, false], None)

@@ -3,7 +3,8 @@ use crate::centralized::allele::RangeAllele;
 use crate::centralized::chromosome::GenesOwner;
 use crate::centralized::fitness::{Fitness, FitnessChromosome, FitnessPopulation, FitnessValue};
 use crate::centralized::genotype::{
-    BinaryGenotype, BitGenotype, DynamicRangeGenotype, Genotype, StaticRangeGenotype,
+    BinaryGenotype, BitGenotype, DynamicRangeGenotype, Genotype, StaticBinaryGenotype,
+    StaticRangeGenotype,
 };
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
@@ -48,6 +49,41 @@ impl Fitness for CountTrue {
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Counts true values in static binary matrix rows
+#[derive(Clone, Debug)]
+pub struct CountStaticTrue<const N: usize, const M: usize>;
+impl<const N: usize, const M: usize> CountStaticTrue<N, M> {
+    pub fn new() -> Self {
+        Self
+    }
+}
+impl<const N: usize, const M: usize> Default for CountStaticTrue<N, M> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl<const N: usize, const M: usize> Fitness for CountStaticTrue<N, M> {
+    type Genotype = StaticBinaryGenotype<N, M>;
+    fn calculate_for_population(
+        &mut self,
+        _population: &FitnessPopulation<Self>,
+        genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .iter()
+            .map(|genes| {
+                genes[..genotype.genes_size()]
+                    .iter()
+                    .filter(|&value| *value)
+                    .count() as FitnessValue
+            })
+            .map(Some)
+            .collect()
     }
 }
 

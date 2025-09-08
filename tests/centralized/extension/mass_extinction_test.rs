@@ -1,29 +1,33 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::extension::{Extension, ExtensionMassExtinction};
-use genetic_algorithm::centralized::genotype::{BinaryGenotype, Genotype};
-use genetic_algorithm::centralized::population::Population;
+use genetic_algorithm::centralized::genotype::{Genotype, StaticBinaryGenotype};
 use genetic_algorithm::centralized::strategy::evolve::{EvolveConfig, EvolveState};
 use genetic_algorithm::centralized::strategy::StrategyReporterNoop;
 
 #[test]
 fn removes_randomly() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<3, 10>::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let mut population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-    ]);
+    let mut population = static_build::population_with_fitness_scores(
+        &mut genotype,
+        vec![
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+        ],
+    );
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
@@ -49,7 +53,7 @@ fn removes_randomly() {
     );
 
     assert_eq!(
-        inspect::population_with_fitness_scores(&state.population),
+        static_inspect::population_with_fitness_scores(&genotype, &state.population),
         vec![
             // elite
             (vec![true, false, false], Some(2)),
@@ -64,22 +68,26 @@ fn removes_randomly() {
 
 #[test]
 fn never_leaves_less_than_two_no_elite() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<3, 10>::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let mut population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-    ]);
+    let mut population = static_build::population_with_fitness_scores(
+        &mut genotype,
+        vec![
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+        ],
+    );
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
@@ -105,7 +113,7 @@ fn never_leaves_less_than_two_no_elite() {
     );
 
     assert_eq!(
-        inspect::population_with_fitness_scores(&state.population),
+        static_inspect::population_with_fitness_scores(&genotype, &state.population),
         vec![
             (vec![true, true, false], Some(1)),
             (vec![true, true, false], Some(1)),
@@ -115,22 +123,26 @@ fn never_leaves_less_than_two_no_elite() {
 
 #[test]
 fn never_leaves_less_than_two_one_elite() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<3, 10>::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let mut population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-    ]);
+    let mut population = static_build::population_with_fitness_scores(
+        &mut genotype,
+        vec![
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+        ],
+    );
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
@@ -156,7 +168,7 @@ fn never_leaves_less_than_two_one_elite() {
     );
 
     assert_eq!(
-        inspect::population_with_fitness_scores(&state.population),
+        static_inspect::population_with_fitness_scores(&genotype, &state.population),
         vec![
             // elite
             (vec![true, false, false], Some(2)),

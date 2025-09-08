@@ -80,3 +80,19 @@ where
     Population::new(chromosomes)
 }
 
+#[allow(dead_code)]
+pub fn population<G, T, const N: usize>(
+    genotype: &mut G,
+    data: Vec<Vec<T>>,
+) -> Population<G::Chromosome>
+where
+    G: Genotype<Allele = T, Genes = Box<[T; N]>> + ChromosomeManager<G>,
+    G::Chromosome: GenesPointer,
+    T: Clone,
+{
+    let chromosomes = data
+        .into_iter()
+        .map(|genes| chromosome(genotype, genes))
+        .collect();
+    Population::new(chromosomes)
+}

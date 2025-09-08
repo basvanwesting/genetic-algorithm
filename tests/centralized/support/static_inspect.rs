@@ -128,4 +128,3 @@ where
         .map(|c| chromosome_with_age(genotype, c))
         .collect()
 }
-

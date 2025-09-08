@@ -4,11 +4,13 @@ use genetic_algorithm::centralized::chromosome::{
     BinaryChromosome, ChromosomeManager, ListChromosome, RangeChromosome,
 };
 use genetic_algorithm::centralized::fitness::placeholders::{
-    CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumDynamicRange, SumGenes,
-    SumStaticRange, Zero,
+    CountStaticTrue, CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumDynamicRange,
+    SumGenes, SumStaticRange, Zero,
 };
 use genetic_algorithm::centralized::fitness::Fitness;
-use genetic_algorithm::centralized::genotype::{DynamicRangeGenotype, StaticRangeGenotype};
+use genetic_algorithm::centralized::genotype::{
+    DynamicRangeGenotype, Genotype, StaticBinaryGenotype, StaticRangeGenotype,
+};
 
 #[test]
 fn binary_genotype() {
@@ -279,5 +281,31 @@ fn static_range_genotype_f32() {
     assert_eq!(
         SumStaticRange::new_with_precision(1e-3).calculate_for_population(&population, &genotype),
         vec![Some(2328), Some(2884), Some(2431), Some(1845), Some(2041)]
+    );
+}
+
+#[test]
+fn static_binary_genotype() {
+    let mut genotype = StaticBinaryGenotype::<4, 5>::builder()
+        .with_genes_size(4)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+
+    // Create a population with known true/false values
+    let population = static_build::population(
+        &mut genotype,
+        vec![
+            vec![true, true, true, true],     // 4 true values
+            vec![true, true, true, false],    // 3 true values
+            vec![true, true, false, false],   // 2 true values
+            vec![true, false, false, false],  // 1 true value
+            vec![false, false, false, false], // 0 true values
+        ],
+    );
+
+    assert_eq!(
+        CountStaticTrue::<4, 5>::new().calculate_for_population(&population, &genotype),
+        vec![Some(4), Some(3), Some(2), Some(1), Some(0)]
     );
 }

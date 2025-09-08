@@ -1,24 +1,28 @@
 #[cfg(test)]
 use crate::support::*;
+use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::crossover::{Crossover, CrossoverSingleGene};
-use genetic_algorithm::centralized::genotype::{BinaryGenotype, Genotype};
-use genetic_algorithm::centralized::population::Population;
+use genetic_algorithm::centralized::genotype::{Genotype, StaticBinaryGenotype};
 use genetic_algorithm::centralized::strategy::evolve::{EvolveConfig, EvolveState};
 use genetic_algorithm::centralized::strategy::StrategyReporterNoop;
 
 #[test]
 fn standard_crossover() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<5, 10>::builder()
         .with_genes_size(5)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let population: Population<BinaryChromosome> = build::population_with_age(vec![
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-    ]);
+    let population = static_build::population_with_age(
+        &mut genotype,
+        vec![
+            (vec![true, true, true, true, true], 1),
+            (vec![false, false, false, false, false], 1),
+            (vec![true, true, true, true, true], 1),
+            (vec![false, false, false, false, false], 1),
+        ],
+    );
     assert_eq!(population.chromosomes.capacity(), 4);
 
     let mut state = EvolveState::new(&genotype);
@@ -38,7 +42,7 @@ fn standard_crossover() {
     );
 
     assert_eq!(
-        inspect::population_with_age(&state.population),
+        static_inspect::population_with_age(&genotype, &state.population),
         vec![
             (vec![true, true, true, true, true], 1),
             (vec![false, false, false, false, false], 1),
@@ -53,17 +57,21 @@ fn standard_crossover() {
 
 #[test]
 fn zero_crossover_rate() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<5, 10>::builder()
         .with_genes_size(5)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let population: Population<BinaryChromosome> = build::population_with_age(vec![
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-    ]);
+    let population = static_build::population_with_age(
+        &mut genotype,
+        vec![
+            (vec![true, true, true, true, true], 1),
+            (vec![false, false, false, false, false], 1),
+            (vec![true, true, true, true, true], 1),
+            (vec![false, false, false, false, false], 1),
+        ],
+    );
     assert_eq!(population.chromosomes.capacity(), 4);
 
     let mut state = EvolveState::new(&genotype);
@@ -83,7 +91,7 @@ fn zero_crossover_rate() {
     );
 
     assert_eq!(
-        inspect::population_with_age(&state.population),
+        static_inspect::population_with_age(&genotype, &state.population),
         vec![
             (vec![true, true, true, true, true], 1),
             (vec![false, false, false, false, false], 1),
@@ -98,17 +106,21 @@ fn zero_crossover_rate() {
 
 #[test]
 fn odd_selection_size() {
-    let mut genotype = BinaryGenotype::builder()
+    let mut genotype = StaticBinaryGenotype::<5, 10>::builder()
         .with_genes_size(5)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
-    let population: Population<BinaryChromosome> = build::population_with_age(vec![
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-    ]);
+    let population = static_build::population_with_age(
+        &mut genotype,
+        vec![
+            (vec![true, true, true, true, true], 1),
+            (vec![false, false, false, false, false], 1),
+            (vec![true, true, true, true, true], 1),
+            (vec![false, false, false, false, false], 1),
+        ],
+    );
     assert_eq!(population.chromosomes.capacity(), 4);
 
     let mut state = EvolveState::new(&genotype);
@@ -128,7 +140,7 @@ fn odd_selection_size() {
     );
 
     assert_eq!(
-        inspect::population_with_age(&state.population),
+        static_inspect::population_with_age(&genotype, &state.population),
         vec![
             (vec![true, true, true, true, true], 1),
             (vec![false, false, false, false, false], 1),
