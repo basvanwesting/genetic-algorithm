@@ -48,38 +48,10 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///
 /// # User implementation
 ///
-/// There are two possible levels to implement. At least one level needs to be implemented:
-/// * [`calculate_for_chromosome(...) -> Option<FitnessValue>`](Fitness::calculate_for_chromosome)
-///   * The standard situation, suits all strategies. Implementable with all Genotypes.
-///   * Distributed [Genotype]s have [GenesOwner](crate::chromosome::GenesOwner) chromosomes. These
-///     chromosomes have a `genes` field, which can be read for the calculations.
-/// * [`calculate_for_population(...) -> Vec<Option<FitnessValue>>`](Fitness::calculate_for_population)
-///   * If not overwritten, results in calling
-///     [calculate_for_chromosome](Fitness::calculate_for_chromosome) for each chromosome in the
-///     population. So it doesn't have to be implemented by default, but it is a possible point to
-///     intercept with a custom implementation where the whole population data is available.
-///     and length aligned.
-///
-/// The strategies use different levels of calls in [Fitness]. So you cannot always just intercept at
-/// [calculate_for_population](Fitness::calculate_for_population) and be sure
-/// [calculate_for_chromosome](Fitness::calculate_for_chromosome) will not be called:
-///
-/// * Population level calculations (calling
-///   [calculate_for_chromosome](Fitness::calculate_for_chromosome) indirectly through
-///   [calculate_for_population](Fitness::calculate_for_population), if not overwritten)
-///   * [Evolve](crate::strategy::evolve::Evolve)
-///   * [HillClimb](crate::strategy::hill_climb::HillClimb) with [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)
-/// * Chromosome level calculations (calling
-///   [calculate_for_chromosome](Fitness::calculate_for_chromosome) directly, bypassing
-///   [calculate_for_population](Fitness::calculate_for_population) entirely)
-///   * [Permutate](crate::strategy::permutate::Permutate)
-///   * [HillClimb](crate::strategy::hill_climb::HillClimb) with [Stochastic](crate::strategy::hill_climb::HillClimbVariant::Stochastic)
-///
-///
-/// # Panics
-///
-/// [calculate_for_chromosome](Fitness::calculate_for_chromosome) has a default implementation which panics, because it doesn't need to
-/// be implemented for genotypes which implement [calculate_for_population](Fitness::calculate_for_population). Will panic if reached and not implemented.
+/// You must implement [`calculate_for_chromosome(...) -> Option<FitnessValue>`](Fitness::calculate_for_chromosome)
+/// which calculates the fitness for a single chromosome.
+/// Distributed [Genotype]s have [GenesOwner](crate::chromosome::GenesOwner) chromosomes. These
+/// chromosomes have a `genes` field, which can be read for the calculations.
 ///
 /// # Example (calculate_for_chromosome, standard GenesOwner chromosome):
 /// ```rust
@@ -136,32 +108,27 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         thread_local: Option<&ThreadLocal<RefCell<Self>>>,
         cache: Option<&FitnessCache>,
     ) {
-        let fitness_scores = self.calculate_for_population(population, genotype);
-        if fitness_scores.is_empty() {
-            if let Some(thread_local) = thread_local {
-                population
-                    .chromosomes
-                    .par_iter_mut()
-                    .filter(|c| c.fitness_score().is_none())
-                    .for_each_init(
-                        || {
-                            thread_local
-                                .get_or(|| std::cell::RefCell::new(self.clone()))
-                                .borrow_mut()
-                        },
-                        |fitness, chromosome| {
-                            fitness.call_for_chromosome(chromosome, genotype, cache);
-                        },
-                    );
-            } else {
-                population
-                    .chromosomes
-                    .iter_mut()
-                    .filter(|c| c.fitness_score().is_none())
-                    .for_each(|c| self.call_for_chromosome(c, genotype, cache));
-            }
+        if let Some(thread_local) = thread_local {
+            population
+                .chromosomes
+                .par_iter_mut()
+                .filter(|c| c.fitness_score().is_none())
+                .for_each_init(
+                    || {
+                        thread_local
+                            .get_or(|| std::cell::RefCell::new(self.clone()))
+                            .borrow_mut()
+                    },
+                    |fitness, chromosome| {
+                        fitness.call_for_chromosome(chromosome, genotype, cache);
+                    },
+                );
         } else {
-            genotype.update_population_fitness_scores(population, fitness_scores);
+            population
+                .chromosomes
+                .iter_mut()
+                .filter(|c| c.fitness_score().is_none())
+                .for_each(|c| self.call_for_chromosome(c, genotype, cache));
         }
     }
     fn call_for_chromosome(
@@ -185,23 +152,10 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         };
         chromosome.set_fitness_score(value);
     }
-    /// Optional interception point for client implementation.
-    ///
-    /// The order and length of the results need to align with the order and length of the genotype data matrix.
-    /// The order and length of the population does not matter at all and will most likely not align.
-    fn calculate_for_population(
-        &mut self,
-        _population: &FitnessPopulation<Self>,
-        _genotype: &Self::Genotype,
-    ) -> Vec<Option<FitnessValue>> {
-        Vec::new()
-    }
-    /// Optional interception point for client implementation
+    /// Must be implemented by client
     fn calculate_for_chromosome(
         &mut self,
-        _chromosome: &FitnessChromosome<Self>,
-        _genotype: &Self::Genotype,
-    ) -> Option<FitnessValue> {
-        panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticRangeGenotype)");
-    }
+        chromosome: &FitnessChromosome<Self>,
+        genotype: &Self::Genotype,
+    ) -> Option<FitnessValue>;
 }

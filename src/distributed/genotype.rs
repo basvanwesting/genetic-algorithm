@@ -23,7 +23,6 @@ pub use self::unique::Unique as UniqueGenotype;
 
 pub use crate::distributed::allele::{Allele, RangeAllele};
 use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesHash};
-use crate::distributed::fitness::FitnessValue;
 use crate::distributed::population::Population;
 use fixedbitset::FixedBitSet;
 use itertools::Itertools;
@@ -77,22 +76,6 @@ pub trait Genotype:
     // lives on Genotype for symmetry reasons with reset_chromosome_state
     fn copy_chromosome_state(&self, source: &Self::Chromosome, target: &mut Self::Chromosome) {
         target.copy_state(source)
-    }
-    fn update_population_fitness_scores(
-        &self,
-        _population: &mut Population<Self::Chromosome>,
-        _fitness_scores: Vec<Option<FitnessValue>>,
-    ) {
-        // TODO: we could default to the assumption that population and fitness_scores just align in
-        // length and order. But we don't want to encourage this usage.
-        // population
-        //     .chromosomes
-        //     .iter_mut()
-        //     .zip(fitness_scores)
-        //     .for_each(|(chromosome, fitness_score)| {
-        //         chromosome.set_fitness_score(fitness_score);
-        //     });
-        panic!("The genotype does not suppport overwriting the Fitness::calculate_for_population implementation");
     }
 
     fn mutation_type(&self) -> MutationType {
