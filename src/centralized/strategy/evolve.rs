@@ -14,7 +14,7 @@ use super::{
 use crate::centralized::chromosome::Chromosome;
 use crate::centralized::crossover::Crossover;
 use crate::centralized::extension::{Extension, ExtensionNoop};
-use crate::centralized::fitness::{Fitness, FitnessCache, FitnessOrdering, FitnessValue};
+use crate::centralized::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::centralized::genotype::{EvolveGenotype, MutationType};
 use crate::centralized::mutate::Mutate;
 use crate::centralized::population::Population;
@@ -132,7 +132,7 @@ pub enum EvolveVariant {
 /// // the search space
 /// let genotype = StaticBinaryGenotype::<100, 200>::builder() // boolean alleles
 ///     .with_genes_size(100)                // 100 genes per chromosome
-///     .with_genes_hashing(true)            // store genes_hash on chromosome (required for fitness_cache and deduplication extension, optional for better population cardinality estimation)
+///     .with_genes_hashing(true)            // store genes_hash on chromosome (required for deduplication extension, optional for better population cardinality estimation)
 ///     .build()
 ///     .unwrap();
 ///
@@ -146,7 +146,6 @@ pub enum EvolveVariant {
 ///     .with_mutate(MutateSingleGene::new(0.2))                // mutate offspring for a single gene with a 20% probability per chromosome
 ///     .with_fitness(CountStaticTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)       // aim for the least true values
-///     .with_fitness_cache(1000)                               // enable caching of fitness values (LRU size 1000), only works when genes_hash is stored in chromosome. Only useful for long stale runs, but better to increase population diversity
 ///     .with_target_population_size(100)                       // evolve with 100 chromosomes
 ///     .with_target_fitness_score(0)                           // ending condition if 0 times true in the best chromosome
 ///     .with_valid_fitness_score(10)                           // block ending conditions until at most a 10 times true in the best chromosome
@@ -198,7 +197,6 @@ pub struct EvolveConfig {
     pub max_stale_generations: Option<usize>,
     pub max_generations: Option<usize>,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub fitness_cache: Option<FitnessCache>,
 
     pub target_population_size: usize,
     pub max_chromosome_age: Option<usize>,
@@ -432,9 +430,6 @@ impl StrategyConfig for EvolveConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
     }
-    fn fitness_cache(&self) -> Option<&FitnessCache> {
-        self.fitness_cache.as_ref()
-    }
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
     }
@@ -667,7 +662,6 @@ impl<
                     target_fitness_score: builder.target_fitness_score,
                     valid_fitness_score: builder.valid_fitness_score,
                     fitness_ordering: builder.fitness_ordering,
-                    fitness_cache: builder.fitness_cache,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
                     ..Default::default()
                 },
@@ -690,7 +684,6 @@ impl Default for EvolveConfig {
             target_fitness_score: None,
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
-            fitness_cache: None,
             replace_on_equal_fitness: false,
         }
     }

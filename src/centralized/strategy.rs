@@ -46,7 +46,6 @@
 //!     .with_mutate(MutateSingleGene::new(0.2))                // (E) mutate offspring for a single gene with a 20% probability per chromosome
 //!     .with_fitness(CountStaticTrue)                          // (E,H,P) count the number of true values in the chromosomes
 //!     .with_fitness_ordering(FitnessOrdering::Minimize)       // (E,H,P) aim for the least true values
-//!     .with_fitness_cache(1000)                               // (E) enable caching of fitness values, only works when genes_hash is stored in chromosome.
 //!     .with_target_population_size(100)                       // (E) evolve with 100 chromosomes
 //!     .with_target_fitness_score(0)                           // (E,H) ending condition if 0 times true in the best chromosome
 //!     .with_valid_fitness_score(1)                            // (E,H) block ending conditions until at most a 1 times true in the best chromosome
@@ -83,7 +82,7 @@ use self::hill_climb::HillClimbVariant;
 use self::permutate::PermutateVariant;
 use crate::centralized::chromosome::Chromosome;
 use crate::centralized::extension::ExtensionEvent;
-use crate::centralized::fitness::{FitnessCache, FitnessOrdering, FitnessValue};
+use crate::centralized::fitness::{FitnessOrdering, FitnessValue};
 use crate::centralized::genotype::Genotype;
 use crate::centralized::mutate::MutateEvent;
 use crate::centralized::population::Population;
@@ -158,10 +157,6 @@ pub trait Strategy<G: Genotype> {
 pub trait StrategyConfig: Display {
     fn variant(&self) -> StrategyVariant;
     fn fitness_ordering(&self) -> FitnessOrdering;
-    // stored on config instead of state as it is a cache external to the strategy
-    fn fitness_cache(&self) -> Option<&FitnessCache> {
-        None
-    }
     fn replace_on_equal_fitness(&self) -> bool;
 }
 

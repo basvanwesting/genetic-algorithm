@@ -35,7 +35,7 @@ fn maximize() {
     state.population = population;
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CountStaticTrue::<3, 10>::new().call_for_population(&mut state.population, &genotype, None);
+    CountStaticTrue::<3, 10>::new().call_for_population(&mut state.population, &genotype);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Maximize,
         target_population_size: 6,
@@ -89,7 +89,7 @@ fn minimize() {
     state.population = population;
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    CountStaticTrue::<3, 10>::new().call_for_population(&mut state.population, &genotype, None);
+    CountStaticTrue::<3, 10>::new().call_for_population(&mut state.population, &genotype);
     let config = EvolveConfig {
         fitness_ordering: FitnessOrdering::Minimize,
         target_population_size: 6,

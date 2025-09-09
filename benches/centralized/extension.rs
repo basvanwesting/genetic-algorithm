@@ -33,11 +33,8 @@ pub fn setup_100(
         .collect();
 
     let mut population = Population::new(chromosomes);
-    CountStaticTrue::<GENES_SIZE_100, MAX_POPULATION_SIZE>::new().call_for_population(
-        &mut population,
-        &genotype,
-        None,
-    );
+    CountStaticTrue::<GENES_SIZE_100, MAX_POPULATION_SIZE>::new()
+        .call_for_population(&mut population, &genotype);
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     (genotype, state)
@@ -61,11 +58,8 @@ pub fn setup_10000(
         .collect();
 
     let mut population = Population::new(chromosomes);
-    CountStaticTrue::<GENES_SIZE_10000, MAX_POPULATION_SIZE>::new().call_for_population(
-        &mut population,
-        &genotype,
-        None,
-    );
+    CountStaticTrue::<GENES_SIZE_10000, MAX_POPULATION_SIZE>::new()
+        .call_for_population(&mut population, &genotype);
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     (genotype, state)

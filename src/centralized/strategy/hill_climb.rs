@@ -12,7 +12,7 @@ use super::{
     StrategyState, StrategyVariant,
 };
 use crate::centralized::chromosome::Chromosome;
-use crate::centralized::fitness::{Fitness, FitnessCache, FitnessOrdering, FitnessValue};
+use crate::centralized::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::centralized::genotype::{HillClimbGenotype, MutationType};
 use crate::centralized::population::Population;
 use rand::prelude::SliceRandom;
@@ -92,7 +92,7 @@ pub enum HillClimbVariant {
 /// // the search space
 /// let genotype = StaticRangeGenotype::<f32, 16, 33>::builder()     // f32 alleles
 ///     .with_genes_size(16)                    // 16 genes
-///     .with_genes_hashing(true)               // store genes_hash on chromosome (required for fitness_cache and deduplication extension)
+///     .with_genes_hashing(true)               // store genes_hash on chromosome (required for deduplication extension)
 ///     .with_allele_range(0.0..=1.0)           // allow gene values between 0.0 and 1.0
 ///     .with_allele_mutation_range(-0.1..=0.1) // neighbouring step size randomly sampled from range
 ///     .with_allele_mutation_scaled_range(vec![
@@ -109,7 +109,6 @@ pub enum HillClimbVariant {
 ///     .with_variant(HillClimbVariant::SteepestAscent)   // check all neighbours for each round
 ///     .with_fitness(SumStaticRange::new_with_precision(1e-5)) // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
-///     .with_fitness_cache(1000)                         // enable caching of fitness values (LRU size 1000), only works when genes_hash is stored in chromosome. Only useful for long stale runs
 ///     .with_target_fitness_score(0)                     // ending condition if sum of genes is <= 0.00001 in the best chromosome
 ///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations (per scaled_range)
@@ -147,7 +146,6 @@ pub struct HillClimbConfig {
     pub max_stale_generations: Option<usize>,
     pub max_generations: Option<usize>,
     pub valid_fitness_score: Option<FitnessValue>,
-    pub fitness_cache: Option<FitnessCache>,
 }
 
 /// Stores the state of the HillClimb strategy.
@@ -332,9 +330,6 @@ impl StrategyConfig for HillClimbConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
     }
-    fn fitness_cache(&self) -> Option<&FitnessCache> {
-        self.fitness_cache.as_ref()
-    }
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
     }
@@ -491,7 +486,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 config: HillClimbConfig {
                     variant: builder.variant.unwrap_or_default(),
                     fitness_ordering: builder.fitness_ordering,
-                    fitness_cache: builder.fitness_cache,
                     max_stale_generations: builder.max_stale_generations,
                     max_generations: builder.max_generations,
                     target_fitness_score: builder.target_fitness_score,
@@ -511,7 +505,6 @@ impl Default for HillClimbConfig {
         Self {
             variant: Default::default(),
             fitness_ordering: FitnessOrdering::Maximize,
-            fitness_cache: None,
             max_stale_generations: None,
             max_generations: None,
             target_fitness_score: None,

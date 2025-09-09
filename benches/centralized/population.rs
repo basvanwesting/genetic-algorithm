@@ -37,7 +37,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .collect();
         let population = &mut Population::new(chromosomes);
         CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_100>::new()
-            .call_for_population(population, &genotype, None);
+            .call_for_population(population, &genotype);
 
         group.bench_with_input(
             BenchmarkId::new(
@@ -60,7 +60,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .collect();
         let population = &mut Population::new(chromosomes);
         CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_100>::new()
-            .call_for_population(population, &genotype, None);
+            .call_for_population(population, &genotype);
 
         group.bench_with_input(
             BenchmarkId::new(
@@ -139,7 +139,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .collect();
         let population = &mut Population::new(chromosomes);
         CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_1000>::new()
-            .call_for_population(population, &genotype, None);
+            .call_for_population(population, &genotype);
 
         group.bench_with_input(
             BenchmarkId::new(
@@ -162,7 +162,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .collect();
         let population = &mut Population::new(chromosomes);
         CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_1000>::new()
-            .call_for_population(population, &genotype, None);
+            .call_for_population(population, &genotype);
 
         group.bench_with_input(
             BenchmarkId::new(

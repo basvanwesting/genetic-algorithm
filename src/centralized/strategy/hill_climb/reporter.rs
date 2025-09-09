@@ -103,19 +103,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         state: &S,
         config: &C,
     ) {
-        let fitness_report = if let Some((hits, misses, ratio)) =
-            config.fitness_cache().map(|c| c.hit_miss_stats())
-        {
-            format!(
-                "({:.0}% fitness, cache hits/misses/ratio: {}/{}/{:.2})",
-                state.fitness_duration_rate() * 100.0,
-                hits,
-                misses,
-                ratio
-            )
-        } else {
-            format!("({:.0}% fitness)", state.fitness_duration_rate() * 100.0)
-        };
+        let fitness_report = format!("({:.0}% fitness)", state.fitness_duration_rate() * 100.0);
         self.writeln(format_args!(
             "exit - {}, iteration: {}",
             config.variant(),

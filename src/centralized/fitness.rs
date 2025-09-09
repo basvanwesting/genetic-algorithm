@@ -6,11 +6,9 @@
 //! a single [Genotype] type).
 //!
 //! See [Fitness] Trait for examples and further documentation
-pub mod cache;
 pub mod placeholders;
 pub mod prelude;
 
-pub use self::cache::Cache as FitnessCache;
 
 use crate::centralized::chromosome::Chromosome;
 use crate::centralized::genotype::Genotype;
@@ -188,13 +186,12 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         &mut self,
         genotype: &Self::Genotype,
         state: &mut S,
-        config: &C,
+        _config: &C,
     ) {
         let now = Instant::now();
         self.call_for_population(
             state.population_as_mut(),
             genotype,
-            config.fitness_cache(),
         );
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
@@ -202,11 +199,11 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         &mut self,
         genotype: &Self::Genotype,
         state: &mut S,
-        config: &C,
+        _config: &C,
     ) {
         if let Some(chromosome) = state.chromosome_as_mut() {
             let now = Instant::now();
-            self.call_for_chromosome(chromosome, genotype, config.fitness_cache());
+            self.call_for_chromosome(chromosome, genotype);
             state.add_duration(StrategyAction::Fitness, now.elapsed());
         }
     }
@@ -214,7 +211,6 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         &mut self,
         population: &mut FitnessPopulation<Self>,
         genotype: &Self::Genotype,
-        _cache: Option<&FitnessCache>,
     ) {
         let fitness_scores = self.calculate_for_population(population, genotype);
         if fitness_scores.is_empty() {
@@ -227,21 +223,8 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         &mut self,
         chromosome: &mut FitnessChromosome<Self>,
         genotype: &Self::Genotype,
-        cache: Option<&FitnessCache>,
     ) {
-        let value = match (cache, chromosome.genes_hash()) {
-            (Some(cache), Some(genes_hash)) => {
-                if let Some(value) = cache.read(genes_hash) {
-                    Some(value)
-                } else if let Some(value) = self.calculate_for_chromosome(chromosome, genotype) {
-                    cache.write(genes_hash, value);
-                    Some(value)
-                } else {
-                    None
-                }
-            }
-            _ => self.calculate_for_chromosome(chromosome, genotype),
-        };
+        let value = self.calculate_for_chromosome(chromosome, genotype);
         chromosome.set_fitness_score(value);
     }
     /// Optional interception point for client implementation.

@@ -154,19 +154,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         state: &S,
         config: &C,
     ) {
-        let fitness_report = if let Some((hits, misses, ratio)) =
-            config.fitness_cache().map(|c| c.hit_miss_stats())
-        {
-            format!(
-                "({:.0}% fitness, cache hits/misses/ratio: {}/{}/{:.2})",
-                state.fitness_duration_rate() * 100.0,
-                hits,
-                misses,
-                ratio
-            )
-        } else {
-            format!("({:.0}% fitness)", state.fitness_duration_rate() * 100.0)
-        };
+        let fitness_report = format!("({:.0}% fitness)", state.fitness_duration_rate() * 100.0);
 
         self.writeln(format_args!(
             "exit - {}, iteration: {}",
@@ -190,16 +178,15 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
-        config: &C,
+        _config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
             let number_of_extension_events = self.number_of_extension_events;
-            let fitness_cache_hit_miss_ratio = config.fitness_cache().map(|c| c.hit_miss_stats().2);
             let (parents_size, offspring_size) =
                 state.population_as_ref().parents_and_offspring_size();
 
             self.writeln(format_args!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, current_population_size: {} ({}p/{}o), fitness_cache_hit_miss_ratio: {:.2?}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, current_population_size: {} ({}p/{}o), #extension_events: {}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
@@ -208,7 +195,6 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
                 state.population_as_ref().size(),
                 parents_size,
                 offspring_size,
-                fitness_cache_hit_miss_ratio,
                 number_of_extension_events,
             ));
             self.number_of_mutate_events = 0;
