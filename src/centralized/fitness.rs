@@ -51,10 +51,8 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// There are two possible levels to implement. At least one level needs to be implemented:
 /// * [`calculate_for_chromosome(...) -> Option<FitnessValue>`](Fitness::calculate_for_chromosome)
 ///   * The standard situation, suits all strategies. Implementable with all Genotypes.
-///   * Standard [Genotype]s have [GenesOwner](crate::chromosome::GenesOwner) chromosomes. These
-///     chromosomes have a `genes` field, which can be read for the calculations.
-///   * non-standard [Genotype]s with [GenesPointer](crate::chromosome::GenesPointer) chromosomes.
-///     These chromosomes have don't have a `genes` field, so you need to retrieve the genes using
+///   * Centralized [Genotype]s use [GenesPointer](crate::chromosome::GenesPointer) chromosomes.
+///     These chromosomes don't have a `genes` field, so you need to retrieve the genes using
 ///     [genotype.genes_slice(&chromosome)](crate::genotype::Genotype::genes_slice), which can then
 ///     be read for the calculations. But for these types you usually don't want to reach this call
 ///     level, see other level below

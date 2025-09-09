@@ -7,7 +7,7 @@ pub use self::row::Row as StaticBinaryChromosome;
 pub use self::row::Row as StaticRangeChromosome;
 
 use crate::centralized::fitness::FitnessValue;
-use crate::centralized::genotype::{Genes, Genotype};
+use crate::centralized::genotype::Genotype;
 use rand::prelude::*;
 
 /// The GenesHash is used for determining cardinality in the population
@@ -19,20 +19,10 @@ pub type GenesHash = u64;
 /// with each other in the [Evolve](crate::strategy::evolve::Evolve) strategy.
 /// Each [Genotype] has its own associated [Chromosome] type.
 ///
-/// Chromosomes who implement [GenesOwner] own their genes. Chromosomes who implement
-/// [GenesPointer] don't and just point to genes owned by the Genotype. Therefore the chromosome
-/// itself doesn't have a global interface regarding it's genes and use of
-/// [Evolve::best_chromosome()](crate::strategy::evolve::Evolve::best_chromosome),
-/// [HillCllimb::best_chromosome()](crate::strategy::hill_climb::HillClimb::best_chromosome) and
-/// [Permutate::best_chromosome()](crate::strategy::permutate::Permutate::best_chromosome) on the
-/// Strategy are discouraged (although they are available when using a Genotype with a [GenesOwner]
-/// chromosome). Use [Strategy::best_genes()](crate::strategy::Strategy::best_genes) or
+/// In the centralized module, chromosomes don't own their genes - they just point to genes
+/// stored in the Genotype's matrix. Use [Strategy::best_genes()](crate::strategy::Strategy::best_genes) or
 /// [Strategy::best_genes_and_fitness_score()](crate::strategy::Strategy::best_genes_and_fitness_score)
-/// instead.
-///
-/// In the [Fitness](crate::fitness::Fitness) context an associated [Genotype] type is set. And in
-/// that contest the ownership model of the genes is known, so we can use the [Chromosome] struct
-/// without ambiguity.
+/// to access gene data.
 pub trait Chromosome: Clone + Send {
     fn age(&self) -> usize;
     fn reset_age(&mut self);
@@ -45,11 +35,6 @@ pub trait Chromosome: Clone + Send {
     fn set_genes_hash(&mut self, genes_hash: Option<GenesHash>);
     fn reset_state(&mut self, genes_hash: Option<GenesHash>);
     fn copy_state(&mut self, other: &Self);
-}
-pub trait GenesOwner: Chromosome {
-    type Genes: Genes;
-    fn new(genes: Self::Genes) -> Self;
-    fn genes(&self) -> &Self::Genes;
 }
 pub trait GenesPointer: Chromosome {
     fn new(row_id: usize) -> Self;

@@ -11,7 +11,7 @@ use super::{
     Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop,
     StrategyState, StrategyVariant,
 };
-use crate::centralized::chromosome::{Chromosome, GenesOwner};
+use crate::centralized::chromosome::Chromosome;
 use crate::centralized::crossover::Crossover;
 use crate::centralized::extension::{Extension, ExtensionNoop};
 use crate::centralized::fitness::{Fitness, FitnessCache, FitnessOrdering, FitnessValue};
@@ -326,28 +326,6 @@ impl<
     }
     fn flush_reporter(&mut self, output: &mut Vec<u8>) {
         self.reporter.flush(output);
-    }
-}
-impl<
-        G: EvolveGenotype,
-        M: Mutate,
-        F: Fitness<Genotype = G>,
-        S: Crossover,
-        C: Select,
-        E: Extension,
-        SR: StrategyReporter<Genotype = G>,
-    > Evolve<G, M, F, S, C, E, SR>
-where
-    G::Chromosome: GenesOwner<Genes = G::Genes>,
-{
-    pub fn best_chromosome(&self) -> Option<G::Chromosome> {
-        if let Some(best_genes) = self.best_genes() {
-            let mut chromosome = G::Chromosome::new(best_genes);
-            chromosome.set_fitness_score(self.best_fitness_score());
-            Some(chromosome)
-        } else {
-            None
-        }
     }
 }
 

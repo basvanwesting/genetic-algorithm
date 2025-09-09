@@ -11,7 +11,7 @@ use super::{
     Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop,
     StrategyState, StrategyVariant,
 };
-use crate::centralized::chromosome::{Chromosome, GenesOwner};
+use crate::centralized::chromosome::Chromosome;
 use crate::centralized::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::centralized::genotype::{MutationType, PermutateGenotype};
 use crate::centralized::population::Population;
@@ -164,21 +164,6 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     }
     fn flush_reporter(&mut self, output: &mut Vec<u8>) {
         self.reporter.flush(output);
-    }
-}
-impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>>
-    Permutate<G, F, SR>
-where
-    G::Chromosome: GenesOwner<Genes = G::Genes>,
-{
-    pub fn best_chromosome(&self) -> Option<G::Chromosome> {
-        if let Some(best_genes) = self.best_genes() {
-            let mut chromosome = G::Chromosome::new(best_genes);
-            chromosome.set_fitness_score(self.best_fitness_score());
-            Some(chromosome)
-        } else {
-            None
-        }
     }
 }
 
