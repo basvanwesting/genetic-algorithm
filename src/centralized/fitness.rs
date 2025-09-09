@@ -9,7 +9,6 @@
 pub mod placeholders;
 pub mod prelude;
 
-
 use crate::centralized::chromosome::Chromosome;
 use crate::centralized::genotype::Genotype;
 use crate::centralized::population::Population;
@@ -159,27 +158,6 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///     }
 /// }
 /// ```
-///
-/// # Example (calculate_for_chromosome, matrix fall back, GenesPointer chromosome):
-/// *Note: For exploration purposes when switching stratgies a lot, not really used in final implementation*
-/// ```rust
-/// use genetic_algorithm::centralized::fitness::prelude::*;
-/// use genetic_algorithm::centralized::strategy::hill_climb::prelude::*;
-///
-/// #[derive(Clone, Debug)]
-/// pub struct SumStaticRangeGenes;
-/// impl Fitness for SumStaticRangeGenes {
-///     type Genotype = StaticRangeGenotype<u16, 10, 100>;
-///     fn calculate_for_chromosome(
-///         &mut self,
-///         chromosome: &FitnessChromosome<Self>,
-///         genotype: &Self::Genotype,
-///     ) -> Option<FitnessValue> {
-///         let score = genotype.genes_slice(chromosome).iter().sum::<u16>();
-///         Some(score as FitnessValue)
-///     }
-/// }
-///
 pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: Genotype;
     fn call_for_state_population<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -189,10 +167,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         _config: &C,
     ) {
         let now = Instant::now();
-        self.call_for_population(
-            state.population_as_mut(),
-            genotype,
-        );
+        self.call_for_population(state.population_as_mut(), genotype);
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
     fn call_for_state_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
@@ -213,11 +188,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         genotype: &Self::Genotype,
     ) {
         let fitness_scores = self.calculate_for_population(population, genotype);
-        if fitness_scores.is_empty() {
-            panic!("calculate_for_population must be implemented for centralized genotypes and return non-empty vector");
-        } else {
-            genotype.update_population_fitness_scores(population, fitness_scores);
-        }
+        genotype.update_population_fitness_scores(population, fitness_scores);
     }
     fn call_for_chromosome(
         &mut self,
@@ -227,7 +198,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         let value = self.calculate_for_chromosome(chromosome, genotype);
         chromosome.set_fitness_score(value);
     }
-    /// Optional interception point for client implementation.
+    /// Mandatory interception point for client implementation.
     ///
     /// The order and length of the results need to align with the order and length of the genotype data matrix.
     /// The order and length of the population does not matter at all and will most likely not align.
@@ -235,9 +206,8 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         &mut self,
         _population: &FitnessPopulation<Self>,
         _genotype: &Self::Genotype,
-    ) -> Vec<Option<FitnessValue>> {
-        Vec::new()
-    }
+    ) -> Vec<Option<FitnessValue>>;
+
     /// Optional interception point for client implementation
     fn calculate_for_chromosome(
         &mut self,
