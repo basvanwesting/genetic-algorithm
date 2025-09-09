@@ -30,7 +30,7 @@ mod population_tests {
         );
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        CountStaticTrue::<3, 20>::new().call_for_population(population, &genotype, None, None);
+        CountStaticTrue::<3, 20>::new().call_for_population(population, &genotype, None);
         assert_relative_eq!(population.fitness_score_stddev(), 0.866, epsilon = 0.001);
 
         let population = &mut static_build::population(
@@ -48,7 +48,7 @@ mod population_tests {
         );
 
         assert_eq!(population.fitness_score_stddev(), 0.0);
-        CountStaticTrue::<3, 20>::new().call_for_population(population, &genotype, None, None);
+        CountStaticTrue::<3, 20>::new().call_for_population(population, &genotype, None);
         assert_relative_eq!(population.fitness_score_stddev(), 0.331, epsilon = 0.001);
     }
 

@@ -51,7 +51,6 @@ fn main() {
         .with_target_fitness_score(1)
         .with_fitness(DistanceTo(5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
-        // .with_par_fitness(true) // 2x slower in this case
         .with_mutate(MutateMultiGene::new(2, 0.2))
         .with_crossover(CrossoverMultiPoint::new(SELECTION_RATE, 0.8, 9, false))
         .with_select(SelectTournament::new(0.5, 0.02, 4))

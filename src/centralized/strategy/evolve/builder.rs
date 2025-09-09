@@ -32,7 +32,6 @@ pub struct Builder<
     pub valid_fitness_score: Option<FitnessValue>,
     pub fitness_ordering: FitnessOrdering,
     pub fitness_cache: Option<FitnessCache>,
-    pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
@@ -57,7 +56,6 @@ impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Se
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             fitness_cache: None,
-            par_fitness: false,
             replace_on_equal_fitness: false,
             mutate: None,
             fitness: None,
@@ -166,10 +164,6 @@ impl<
         }
         self
     }
-    pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
-        self.par_fitness = par_fitness;
-        self
-    }
     pub fn with_replace_on_equal_fitness(mut self, replace_on_equal_fitness: bool) -> Self {
         self.replace_on_equal_fitness = replace_on_equal_fitness;
         self
@@ -201,7 +195,6 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             fitness_cache: self.fitness_cache,
-            par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,
@@ -226,7 +219,6 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             fitness_cache: self.fitness_cache,
-            par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,

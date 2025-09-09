@@ -15,10 +15,8 @@ use crate::centralized::chromosome::Chromosome;
 use crate::centralized::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::centralized::genotype::{MutationType, PermutateGenotype};
 use crate::centralized::population::Population;
-use rayon::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
-use std::sync::mpsc::sync_channel;
 use std::time::{Duration, Instant};
 
 pub use self::reporter::Simple as PermutateReporterSimple;
@@ -79,7 +77,6 @@ pub enum PermutateVariant {
 ///     .with_genotype(genotype)
 ///     .with_fitness(CountStaticTrue)                    // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
-///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
 ///     .with_reporter(PermutateReporterSimple::new(100)) // optional builder step, report every 100 generations
 ///     .call()
 ///     .unwrap();
@@ -104,7 +101,6 @@ pub struct Permutate<
 pub struct PermutateConfig {
     pub variant: PermutateVariant,
     pub fitness_ordering: FitnessOrdering,
-    pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
 }
 
@@ -135,11 +131,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         while !self.is_finished() {
             self.genotype
                 .load_best_genes(self.state.chromosome.as_mut().unwrap());
-            if self.config.par_fitness {
-                self.call_parallel()
-            } else {
-                self.call_sequential()
-            }
+            self.call_sequential();
             self.state.scale(&self.genotype, &self.config);
         }
         self.reporter
@@ -236,56 +228,11 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     .on_new_generation(&self.genotype, &self.state, &self.config);
             });
     }
-    fn call_parallel(&mut self) {
-        rayon::scope(|s| {
-            let thread_genotype = self.genotype.clone();
-            let thread_current_scale_index = self.state.current_scale_index;
-            let thread_chromosome = self.state.chromosome.clone();
-            let fitness = self.fitness.clone();
-            let fitness_cache = self.config.fitness_cache();
-            let (sender, receiver) = sync_channel(1000);
-
-            s.spawn(move |_| {
-                thread_genotype
-                    .chromosome_permutations_into_iter(
-                        thread_chromosome.as_ref(),
-                        thread_current_scale_index,
-                    )
-                    .par_bridge()
-                    .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
-                        let now = Instant::now();
-                        fitness.call_for_chromosome(
-                            &mut chromosome,
-                            &thread_genotype,
-                            fitness_cache,
-                        );
-                        sender.send((chromosome, now.elapsed())).unwrap();
-                    });
-            });
-
-            receiver.iter().for_each(|(chromosome, fitness_duration)| {
-                self.state.increment_generation();
-                self.state.chromosome.replace(chromosome);
-                self.state.update_best_chromosome_and_report(
-                    &mut self.genotype,
-                    &self.config,
-                    &mut self.reporter,
-                );
-                self.state
-                    .add_duration(StrategyAction::Fitness, fitness_duration);
-                self.reporter
-                    .on_new_generation(&self.genotype, &self.state, &self.config);
-            });
-        });
-    }
 }
 
 impl StrategyConfig for PermutateConfig {
     fn fitness_ordering(&self) -> FitnessOrdering {
         self.fitness_ordering
-    }
-    fn par_fitness(&self) -> bool {
-        self.par_fitness
     }
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
@@ -431,7 +378,6 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 
                 config: PermutateConfig {
                     fitness_ordering: builder.fitness_ordering,
-                    par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
                     ..Default::default()
                 },
@@ -447,7 +393,6 @@ impl Default for PermutateConfig {
         Self {
             variant: Default::default(),
             fitness_ordering: FitnessOrdering::Maximize,
-            par_fitness: false,
             replace_on_equal_fitness: false,
         }
     }
@@ -500,8 +445,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 impl fmt::Display for PermutateConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_config:")?;
-        writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  par_fitness: {:?}", self.par_fitness)
+        writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)
     }
 }
 

@@ -14,12 +14,12 @@
 //! * `call_repeatedly(usize)`, call repeatedly and take the best (or short-circuit on target fitness score)
 //!   * fallback to `call()` once for Permutate
 //! * `call_par_repeatedly(usize)`, as above, but high level parallel execution
-//!   * fallback to `call()` once for Permutate, but force `with_par_fitness(true)`
+//!   * fallback to `call()` once for Permutate
 //! * `call_speciated(usize)`, call repeatedly and then run one final round with the best chromosomes from the previous rounds as seeds
 //!   * fallback to `call()` once for Permutate
 //!   * fallback to `call_repeatedly(usize)` for HillClimb
 //! * `call_par_speciated(usize)`, as above, but high level parallel execution
-//!   * fallback to `call()` once for Permutate, but force `with_par_fitness(true)`
+//!   * fallback to `call()` once for Permutate
 //!   * fallback to `call_par_repeatedly(usize)` for HillClimb
 //!
 //! *Note: Only Genotypes which implement all strategies are eligable for the superset builder.*
@@ -47,7 +47,6 @@
 //!     .with_fitness(CountStaticTrue)                          // (E,H,P) count the number of true values in the chromosomes
 //!     .with_fitness_ordering(FitnessOrdering::Minimize)       // (E,H,P) aim for the least true values
 //!     .with_fitness_cache(1000)                               // (E) enable caching of fitness values, only works when genes_hash is stored in chromosome.
-//!     .with_par_fitness(true)                                 // (E,H,P) optional, defaults to false, use parallel fitness calculation
 //!     .with_target_population_size(100)                       // (E) evolve with 100 chromosomes
 //!     .with_target_fitness_score(0)                           // (E,H) ending condition if 0 times true in the best chromosome
 //!     .with_valid_fitness_score(1)                            // (E,H) block ending conditions until at most a 1 times true in the best chromosome
@@ -163,7 +162,6 @@ pub trait StrategyConfig: Display {
     fn fitness_cache(&self) -> Option<&FitnessCache> {
         None
     }
-    fn par_fitness(&self) -> bool;
     fn replace_on_equal_fitness(&self) -> bool;
 }
 

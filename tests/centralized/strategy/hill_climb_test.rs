@@ -219,35 +219,6 @@ fn call_range_target_fitness_score_minimize() {
 }
 
 #[test]
-fn call_range_par_fitness() {
-    let genotype = StaticRangeGenotype::<f64, 10, 100>::builder()
-        .with_genes_size(10)
-        .with_allele_range(0.0..=1.0)
-        .with_allele_mutation_range(-0.1..=0.1)
-        .build()
-        .unwrap();
-    let hill_climb = HillClimb::builder()
-        .with_genotype(genotype)
-        .with_variant(HillClimbVariant::SteepestAscent)
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_par_fitness(true)
-        .with_target_fitness_score(1000)
-        .with_fitness(SumStaticRange::new_with_precision(1e-3))
-        .with_reporter(StrategyReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(934));
-    assert!(relative_chromosome_eq(
-        hill_climb.best_genes().unwrap().to_vec(),
-        vec![0.001, 0.241, 0.039, 0.054, 0.032, 0.032, 0.039, 0.012, 0.180, 0.301],
-        0.001
-    ));
-}
-
-#[test]
 fn call_binary_steepest_ascent() {
     let mut genotype = StaticBinaryGenotype::<100, 200>::builder()
         .with_genes_size(100)

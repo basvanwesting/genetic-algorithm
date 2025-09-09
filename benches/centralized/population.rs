@@ -36,7 +36,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| genotype.chromosome_constructor_random(&mut rng))
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_100>::new().call_for_population(population, &genotype, None, None);
+        CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_100>::new()
+            .call_for_population(population, &genotype, None);
 
         group.bench_with_input(
             BenchmarkId::new(
@@ -58,7 +59,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| random_chromosome.clone())
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_100>::new().call_for_population(population, &genotype, None, None);
+        CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_100>::new()
+            .call_for_population(population, &genotype, None);
 
         group.bench_with_input(
             BenchmarkId::new(
@@ -136,7 +138,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| genotype.chromosome_constructor_random(&mut rng))
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_1000>::new().call_for_population(population, &genotype, None, None);
+        CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_1000>::new()
+            .call_for_population(population, &genotype, None);
 
         group.bench_with_input(
             BenchmarkId::new(
@@ -158,7 +161,8 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .map(|_| random_chromosome.clone())
             .collect();
         let population = &mut Population::new(chromosomes);
-        CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_1000>::new().call_for_population(population, &genotype, None, None);
+        CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_1000>::new()
+            .call_for_population(population, &genotype, None);
 
         group.bench_with_input(
             BenchmarkId::new(
@@ -224,3 +228,4 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
 criterion_group!(benches, criterion_benchmark);
 criterion_main!(benches);
+

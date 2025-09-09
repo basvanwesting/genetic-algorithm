@@ -19,7 +19,10 @@ pub fn setup_100(
     genes_size: usize,
     population_size: usize,
     rng: &mut SmallRng,
-) -> (StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>, EvolveState<StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>>) {
+) -> (
+    StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>,
+    EvolveState<StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>>,
+) {
     let mut genotype = StaticBinaryGenotype::<GENES_SIZE_100, MAX_POPULATION_SIZE>::builder()
         .with_genes_size(genes_size)
         .build()
@@ -30,7 +33,11 @@ pub fn setup_100(
         .collect();
 
     let mut population = Population::new(chromosomes);
-    CountStaticTrue::<GENES_SIZE_100, MAX_POPULATION_SIZE>::new().call_for_population(&mut population, &genotype, None, None);
+    CountStaticTrue::<GENES_SIZE_100, MAX_POPULATION_SIZE>::new().call_for_population(
+        &mut population,
+        &genotype,
+        None,
+    );
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     (genotype, state)
@@ -40,7 +47,10 @@ pub fn setup_10000(
     genes_size: usize,
     population_size: usize,
     rng: &mut SmallRng,
-) -> (StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>, EvolveState<StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>>) {
+) -> (
+    StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>,
+    EvolveState<StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>>,
+) {
     let mut genotype = StaticBinaryGenotype::<GENES_SIZE_10000, MAX_POPULATION_SIZE>::builder()
         .with_genes_size(genes_size)
         .build()
@@ -51,7 +61,11 @@ pub fn setup_10000(
         .collect();
 
     let mut population = Population::new(chromosomes);
-    CountStaticTrue::<GENES_SIZE_10000, MAX_POPULATION_SIZE>::new().call_for_population(&mut population, &genotype, None, None);
+    CountStaticTrue::<GENES_SIZE_10000, MAX_POPULATION_SIZE>::new().call_for_population(
+        &mut population,
+        &genotype,
+        None,
+    );
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     (genotype, state)
@@ -72,7 +86,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // Benchmarks for genes_size = 100
     {
         let genes_size = GENES_SIZE_100;
-        let mut reporter = StrategyReporterNoop::<StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>>::new();
+        let mut reporter = StrategyReporterNoop::<
+            StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>,
+        >::new();
         let selects: Vec<SelectWrapper> = vec![
             SelectElite::new(0.5, 0.02).into(),
             SelectTournament::new(0.5, 0.02, 4).into(),
@@ -100,7 +116,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // Benchmarks for genes_size = 10000
     {
         let genes_size = GENES_SIZE_10000;
-        let mut reporter = StrategyReporterNoop::<StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>>::new();
+        let mut reporter = StrategyReporterNoop::<
+            StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>,
+        >::new();
         let selects: Vec<SelectWrapper> = vec![
             SelectElite::new(0.5, 0.02).into(),
             SelectTournament::new(0.5, 0.02, 4).into(),
@@ -128,3 +146,4 @@ pub fn criterion_benchmark(c: &mut Criterion) {
 
 criterion_group!(benches, criterion_benchmark);
 criterion_main!(benches);
+

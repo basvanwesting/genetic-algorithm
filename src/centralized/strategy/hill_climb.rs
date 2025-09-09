@@ -17,11 +17,9 @@ use crate::centralized::genotype::{HillClimbGenotype, MutationType};
 use crate::centralized::population::Population;
 use rand::prelude::SliceRandom;
 use rand::rngs::SmallRng;
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
 use std::time::{Duration, Instant};
-use thread_local::ThreadLocal;
 
 pub use self::reporter::Simple as HillClimbReporterSimple;
 pub use crate::centralized::strategy::reporter::Duration as HillClimbReporterDuration;
@@ -80,12 +78,7 @@ pub enum HillClimbVariant {
 ///   reached)
 /// * [call_par_repeatedly](HillClimbBuilder::call_par_repeatedly): this runs multiple independent
 ///   [HillClimb] strategies in parallel and returns the best one (or short circuits when the
-///   target_fitness_score is reached). This is separate and independent from the
-///   `with_par_fitness()` flag on the builder, which determines multithreading of the fitness
-///   calculation inside the [HillClimb] strategy. Both can be combined.
-///
-/// Multithreading using the `with_par_fitness()` builder flag can speed up [HillClimbVariant::SteepestAscent]
-/// when evaluating the fitness of all neighbors in parallel.
+///   target_fitness_score is reached).
 ///
 /// All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 ///
@@ -117,7 +110,6 @@ pub enum HillClimbVariant {
 ///     .with_fitness(SumStaticRange::new_with_precision(1e-5)) // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_fitness_cache(1000)                         // enable caching of fitness values (LRU size 1000), only works when genes_hash is stored in chromosome. Only useful for long stale runs
-///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
 ///     .with_target_fitness_score(0)                     // ending condition if sum of genes is <= 0.00001 in the best chromosome
 ///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations (per scaled_range)
@@ -149,7 +141,6 @@ pub struct HillClimb<
 pub struct HillClimbConfig {
     pub variant: HillClimbVariant,
     pub fitness_ordering: FitnessOrdering,
-    pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
 
     pub target_fitness_score: Option<FitnessValue>,
@@ -180,10 +171,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         let now = Instant::now();
         self.reporter
             .on_enter(&self.genotype, &self.state, &self.config);
-        let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
-        if self.config.par_fitness {
-            fitness_thread_local = Some(ThreadLocal::new());
-        }
 
         self.setup();
         self.reporter
@@ -204,7 +191,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 &self.genotype,
                 &mut self.state,
                 &self.config,
-                fitness_thread_local.as_ref(),
             );
             self.state.update_best_chromosome_from_state_population(
                 &mut self.genotype,
@@ -218,7 +204,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         }
         self.reporter
             .on_finish(&self.genotype, &self.state, &self.config);
-        self.cleanup(fitness_thread_local.as_mut());
+        self.cleanup();
         self.state.close_duration(now.elapsed());
         self.reporter
             .on_exit(&self.genotype, &self.state, &self.config);
@@ -272,7 +258,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             &self.genotype,
             &mut self.state,
             &self.config,
-            None,
         );
         self.state.update_best_chromosome_from_state_population(
             &mut self.genotype,
@@ -281,14 +266,11 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             &mut self.rng,
         );
     }
-    pub fn cleanup(&mut self, fitness_thread_local: Option<&mut ThreadLocal<RefCell<F>>>) {
+    pub fn cleanup(&mut self) {
         let now = Instant::now();
         self.state.chromosome.take();
         std::mem::take(&mut self.state.population.chromosomes);
         self.genotype.chromosomes_cleanup();
-        if let Some(thread_local) = fitness_thread_local {
-            thread_local.clear();
-        }
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
     }
@@ -352,9 +334,6 @@ impl StrategyConfig for HillClimbConfig {
     }
     fn fitness_cache(&self) -> Option<&FitnessCache> {
         self.fitness_cache.as_ref()
-    }
-    fn par_fitness(&self) -> bool {
-        self.par_fitness
     }
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
@@ -513,7 +492,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     variant: builder.variant.unwrap_or_default(),
                     fitness_ordering: builder.fitness_ordering,
                     fitness_cache: builder.fitness_cache,
-                    par_fitness: builder.par_fitness,
                     max_stale_generations: builder.max_stale_generations,
                     max_generations: builder.max_generations,
                     target_fitness_score: builder.target_fitness_score,
@@ -534,7 +512,6 @@ impl Default for HillClimbConfig {
             variant: Default::default(),
             fitness_ordering: FitnessOrdering::Maximize,
             fitness_cache: None,
-            par_fitness: false,
             max_stale_generations: None,
             max_generations: None,
             target_fitness_score: None,
@@ -601,8 +578,7 @@ impl fmt::Display for HillClimbConfig {
         writeln!(f, "  max_generations: {:?}", self.max_generations)?;
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
-        writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  par_fitness: {:?}", self.par_fitness)
+        writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)
     }
 }
 

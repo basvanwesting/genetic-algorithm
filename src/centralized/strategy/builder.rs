@@ -37,7 +37,6 @@ pub struct Builder<
     pub max_stale_generations: Option<usize>,
     pub max_generations: Option<usize>,
     pub mutate: Option<M>,
-    pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
     pub reporter: SR,
     pub rng_seed: Option<u64>,
@@ -67,7 +66,6 @@ impl<
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             fitness_cache: None,
-            par_fitness: false,
             replace_on_equal_fitness: false,
             mutate: None,
             fitness: None,
@@ -181,10 +179,6 @@ impl<
         }
         self
     }
-    pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
-        self.par_fitness = par_fitness;
-        self
-    }
     pub fn with_replace_on_equal_fitness(mut self, replace_on_equal_fitness: bool) -> Self {
         self.replace_on_equal_fitness = replace_on_equal_fitness;
         self
@@ -217,7 +211,6 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             fitness_cache: self.fitness_cache,
-            par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,
@@ -243,7 +236,6 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             fitness_cache: self.fitness_cache,
-            par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,
@@ -294,7 +286,6 @@ impl<
         PermutateBuilder {
             genotype: self.genotype,
             fitness_ordering: self.fitness_ordering,
-            par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,
             reporter: self.reporter,
@@ -311,7 +302,6 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             fitness_cache: self.fitness_cache,
-            par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             mutate: self.mutate,
             fitness: self.fitness,
@@ -332,7 +322,6 @@ impl<
             valid_fitness_score: self.valid_fitness_score,
             fitness_ordering: self.fitness_ordering,
             fitness_cache: self.fitness_cache,
-            par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
             fitness: self.fitness,
             reporter: self.reporter,
@@ -393,7 +382,7 @@ impl<
         }
     }
 
-    /// Permutate: call (force with_par_fitness)
+    /// Permutate: call
     /// Evolve: call_par_repeatedly
     /// HillClimb: call_par_repeatedly
     pub fn call_par_repeatedly(
@@ -403,7 +392,7 @@ impl<
     {
         match self.variant {
             Some(StrategyVariant::Permutate(_)) => {
-                let run = self.to_permutate_builder().with_par_fitness(true).call()?;
+                let run = self.to_permutate_builder().call()?;
                 Ok((Box::new(run), vec![]))
             }
             Some(StrategyVariant::Evolve(_)) => {
@@ -461,7 +450,7 @@ impl<
         }
     }
 
-    /// Permutate: call (force with_par_fitness)
+    /// Permutate: call
     /// Evolve: call_par_speciated
     /// HillClimb: call_par_repeatedly
     pub fn call_par_speciated(
@@ -471,7 +460,7 @@ impl<
     {
         match self.variant {
             Some(StrategyVariant::Permutate(_)) => {
-                let run = self.to_permutate_builder().with_par_fitness(true).call()?;
+                let run = self.to_permutate_builder().call()?;
                 Ok((Box::new(run), vec![]))
             }
             Some(StrategyVariant::Evolve(_)) => {

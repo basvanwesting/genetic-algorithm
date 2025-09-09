@@ -16,10 +16,7 @@ use crate::centralized::chromosome::Chromosome;
 use crate::centralized::genotype::Genotype;
 use crate::centralized::population::Population;
 use crate::centralized::strategy::{StrategyAction, StrategyConfig, StrategyState};
-use rayon::prelude::*;
-use std::cell::RefCell;
 use std::time::Instant;
-use thread_local::ThreadLocal;
 
 /// Use isize for easy handling of scores (ordering, comparing) as floats are tricky in that regard.
 pub type FitnessValue = isize;
@@ -192,13 +189,11 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         genotype: &Self::Genotype,
         state: &mut S,
         config: &C,
-        thread_local: Option<&ThreadLocal<RefCell<Self>>>,
     ) {
         let now = Instant::now();
         self.call_for_population(
             state.population_as_mut(),
             genotype,
-            thread_local,
             config.fitness_cache(),
         );
         state.add_duration(StrategyAction::Fitness, now.elapsed());
@@ -215,38 +210,15 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             state.add_duration(StrategyAction::Fitness, now.elapsed());
         }
     }
-    /// Pass thread_local for external control of fitness state in multithreading
     fn call_for_population(
         &mut self,
         population: &mut FitnessPopulation<Self>,
         genotype: &Self::Genotype,
-        thread_local: Option<&ThreadLocal<RefCell<Self>>>,
-        cache: Option<&FitnessCache>,
+        _cache: Option<&FitnessCache>,
     ) {
         let fitness_scores = self.calculate_for_population(population, genotype);
         if fitness_scores.is_empty() {
-            if let Some(thread_local) = thread_local {
-                population
-                    .chromosomes
-                    .par_iter_mut()
-                    .filter(|c| c.fitness_score().is_none())
-                    .for_each_init(
-                        || {
-                            thread_local
-                                .get_or(|| std::cell::RefCell::new(self.clone()))
-                                .borrow_mut()
-                        },
-                        |fitness, chromosome| {
-                            fitness.call_for_chromosome(chromosome, genotype, cache);
-                        },
-                    );
-            } else {
-                population
-                    .chromosomes
-                    .iter_mut()
-                    .filter(|c| c.fitness_score().is_none())
-                    .for_each(|c| self.call_for_chromosome(c, genotype, cache));
-            }
+            panic!("calculate_for_population must be implemented for centralized genotypes and return non-empty vector");
         } else {
             genotype.update_population_fitness_scores(population, fitness_scores);
         }

@@ -20,11 +20,9 @@ use crate::centralized::mutate::Mutate;
 use crate::centralized::population::Population;
 use crate::centralized::select::Select;
 use rand::rngs::SmallRng;
-use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
 use std::time::{Duration, Instant};
-use thread_local::ThreadLocal;
 
 pub use self::reporter::Simple as EvolveReporterSimple;
 pub use crate::centralized::strategy::reporter::Duration as EvolveReporterDuration;
@@ -114,17 +112,13 @@ pub enum EvolveVariant {
 ///   reached)
 /// * [call_par_repeatedly](EvolveBuilder::call_par_repeatedly): this runs multiple independent
 ///   evolve strategies in parallel and returns the best one (or short circuits when the
-///   target_fitness_score is reached). This is separate and independent from the
-///   `with_par_fitness()` flag on the builder, which determines multithreading of the fitness
-///   calculation inside the evolve strategy. Both can be combined.
+///   target_fitness_score is reached).
 /// * [call_speciated](EvolveBuilder::call_speciated): this runs multiple independent
 ///   evolve strategies and then selects their best results against each other in one final evolve
 ///   strategy (or short circuits when the target_fitness_score is reached)
 /// * [call_par_speciated](EvolveBuilder::call_par_speciated): this runs multiple independent
 ///   evolve strategies in parallel and then selects their best results against each other in one
-///   final evolve strategy (or short circuits when the target_fitness_score is reached). This is
-///   separate and independent from the `with_par_fitness()` flag on the builder, which determines
-///   multithreading of the fitness calculation inside the evolve strategy. Both can be combined.
+///   final evolve strategy (or short circuits when the target_fitness_score is reached).
 ///
 /// All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 ///
@@ -153,7 +147,6 @@ pub enum EvolveVariant {
 ///     .with_fitness(CountStaticTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)       // aim for the least true values
 ///     .with_fitness_cache(1000)                               // enable caching of fitness values (LRU size 1000), only works when genes_hash is stored in chromosome. Only useful for long stale runs, but better to increase population diversity
-///     .with_par_fitness(true)                                 // optional, defaults to false, use parallel fitness calculation
 ///     .with_target_population_size(100)                       // evolve with 100 chromosomes
 ///     .with_target_fitness_score(0)                           // ending condition if 0 times true in the best chromosome
 ///     .with_valid_fitness_score(10)                           // block ending conditions until at most a 10 times true in the best chromosome
@@ -199,7 +192,6 @@ pub struct EvolvePlugins<M: Mutate, S: Crossover, C: Select, E: Extension> {
 pub struct EvolveConfig {
     pub variant: EvolveVariant,
     pub fitness_ordering: FitnessOrdering,
-    pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
 
     pub target_fitness_score: Option<FitnessValue>,
@@ -242,11 +234,7 @@ impl<
         let now = Instant::now();
         self.reporter
             .on_enter(&self.genotype, &self.state, &self.config);
-        let mut fitness_thread_local: Option<ThreadLocal<RefCell<F>>> = None;
-        if self.config.par_fitness {
-            fitness_thread_local = Some(ThreadLocal::new());
-        }
-        self.setup(fitness_thread_local.as_ref());
+        self.setup();
 
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
@@ -294,7 +282,6 @@ impl<
                 &self.genotype,
                 &mut self.state,
                 &self.config,
-                fitness_thread_local.as_ref(),
             );
             self.state.update_best_chromosome_and_report(
                 &mut self.genotype,
@@ -306,7 +293,7 @@ impl<
         }
         self.reporter
             .on_finish(&self.genotype, &self.state, &self.config);
-        self.cleanup(fitness_thread_local.as_mut());
+        self.cleanup();
         self.state.close_duration(now.elapsed());
         self.reporter
             .on_exit(&self.genotype, &self.state, &self.config);
@@ -347,7 +334,7 @@ impl<
         SR: StrategyReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
 {
-    pub fn setup(&mut self, fitness_thread_local: Option<&ThreadLocal<RefCell<F>>>) {
+    pub fn setup(&mut self) {
         let now = Instant::now();
         self.genotype.chromosomes_setup();
         self.state.population = self
@@ -360,7 +347,6 @@ impl<
             &self.genotype,
             &mut self.state,
             &self.config,
-            fitness_thread_local,
         );
         self.state.update_best_chromosome_and_report(
             &mut self.genotype,
@@ -379,14 +365,11 @@ impl<
         }
     }
 
-    pub fn cleanup(&mut self, fitness_thread_local: Option<&mut ThreadLocal<RefCell<F>>>) {
+    pub fn cleanup(&mut self) {
         let now = Instant::now();
         self.state.chromosome.take();
         std::mem::take(&mut self.state.population.chromosomes);
         self.genotype.chromosomes_cleanup();
-        if let Some(thread_local) = fitness_thread_local {
-            thread_local.clear();
-        }
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
     }
@@ -451,9 +434,6 @@ impl StrategyConfig for EvolveConfig {
     }
     fn fitness_cache(&self) -> Option<&FitnessCache> {
         self.fitness_cache.as_ref()
-    }
-    fn par_fitness(&self) -> bool {
-        self.par_fitness
     }
     fn replace_on_equal_fitness(&self) -> bool {
         self.replace_on_equal_fitness
@@ -688,7 +668,6 @@ impl<
                     valid_fitness_score: builder.valid_fitness_score,
                     fitness_ordering: builder.fitness_ordering,
                     fitness_cache: builder.fitness_cache,
-                    par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
                     ..Default::default()
                 },
@@ -712,7 +691,6 @@ impl Default for EvolveConfig {
             valid_fitness_score: None,
             fitness_ordering: FitnessOrdering::Maximize,
             fitness_cache: None,
-            par_fitness: false,
             replace_on_equal_fitness: false,
         }
     }
@@ -798,8 +776,7 @@ impl fmt::Display for EvolveConfig {
         writeln!(f, "  max_chromosome_age: {:?}", self.max_chromosome_age)?;
         writeln!(f, "  valid_fitness_score: {:?}", self.valid_fitness_score)?;
         writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
-        writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
-        writeln!(f, "  par_fitness: {:?}", self.par_fitness)
+        writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)
     }
 }
 

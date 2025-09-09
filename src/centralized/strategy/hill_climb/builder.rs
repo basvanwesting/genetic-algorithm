@@ -21,7 +21,6 @@ pub struct Builder<
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
     pub fitness_cache: Option<FitnessCache>,
-    pub par_fitness: bool,
     pub max_stale_generations: Option<usize>,
     pub max_generations: Option<usize>,
     pub target_fitness_score: Option<FitnessValue>,
@@ -41,7 +40,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>> Default
             fitness: None,
             fitness_ordering: FitnessOrdering::Maximize,
             fitness_cache: None,
-            par_fitness: false,
             max_stale_generations: None,
             max_generations: None,
             target_fitness_score: None,
@@ -84,10 +82,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             Ok(cache) => self.fitness_cache = Some(cache),
             Err(_error) => (),
         }
-        self
-    }
-    pub fn with_par_fitness(mut self, par_fitness: bool) -> Self {
-        self.par_fitness = par_fitness;
         self
     }
     pub fn with_fitness(mut self, fitness: F) -> Self {
@@ -149,7 +143,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             fitness: self.fitness,
             fitness_ordering: self.fitness_ordering,
             fitness_cache: self.fitness_cache,
-            par_fitness: self.par_fitness,
             max_stale_generations: self.max_stale_generations,
             max_generations: self.max_generations,
             target_fitness_score: self.target_fitness_score,

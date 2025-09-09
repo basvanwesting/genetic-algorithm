@@ -487,7 +487,7 @@ fn population_factory_binary() {
         .build()
         .unwrap();
 
-    evolve.setup(None);
+    evolve.setup();
     assert_eq!(
         static_inspect::population(&evolve.genotype, &evolve.state.population),
         vec![
