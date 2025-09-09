@@ -133,10 +133,10 @@ pub enum EvolveVariant {
 /// Example:
 /// ```
 /// use genetic_algorithm::centralized::strategy::evolve::prelude::*;
-/// use genetic_algorithm::centralized::fitness::placeholders::CountTrue;
+/// use genetic_algorithm::centralized::fitness::placeholders::CountStaticTrue;
 ///
 /// // the search space
-/// let genotype = BinaryGenotype::builder() // boolean alleles
+/// let genotype = StaticBinaryGenotype::<100, 200>::builder() // boolean alleles
 ///     .with_genes_size(100)                // 100 genes per chromosome
 ///     .with_genes_hashing(true)            // store genes_hash on chromosome (required for fitness_cache and deduplication extension, optional for better population cardinality estimation)
 ///     .build()
@@ -150,7 +150,7 @@ pub enum EvolveVariant {
 ///     .with_extension(ExtensionMassExtinction::new(10, 0.1, 0.02)) // optional builder step, simulate cambrian explosion by mass extinction, when population cardinality drops to 10 after the selection, trim to 10% of population
 ///     .with_crossover(CrossoverUniform::new(0.7, 0.8))        // crossover all individual genes between 2 chromosomes for offspring with 70% parent selection (30% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
 ///     .with_mutate(MutateSingleGene::new(0.2))                // mutate offspring for a single gene with a 20% probability per chromosome
-///     .with_fitness(CountTrue)                                // count the number of true values in the chromosomes
+///     .with_fitness(CountStaticTrue)                          // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize)       // aim for the least true values
 ///     .with_fitness_cache(1000)                               // enable caching of fitness values (LRU size 1000), only works when genes_hash is stored in chromosome. Only useful for long stale runs, but better to increase population diversity
 ///     .with_par_fitness(true)                                 // optional, defaults to false, use parallel fitness calculation
@@ -168,7 +168,7 @@ pub enum EvolveVariant {
 ///
 /// // it's all about the best genes after all
 /// let (best_genes, best_fitness_score) = evolve.best_genes_and_fitness_score().unwrap();
-/// assert_eq!(best_genes, vec![false; 100]);
+/// assert_eq!(best_genes, Box::new([false; 100]));
 /// assert_eq!(best_fitness_score, 0);
 /// ```
 pub struct Evolve<

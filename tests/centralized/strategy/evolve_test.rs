@@ -2,7 +2,7 @@
 use crate::support::*;
 use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::fitness::placeholders::{
-    CountOnes, CountStaticTrue, SumDynamicRange, SumGenes, SumStaticRange,
+    CountStaticTrue, SumDynamicRange, SumStaticRange,
 };
 use genetic_algorithm::centralized::genotype::{
     DynamicRangeGenotype, Genotype, StaticBinaryGenotype, StaticRangeGenotype,
@@ -33,59 +33,6 @@ fn build_invalid_missing_ending_condition() {
         evolve.err(),
         Some(TryFromEvolveBuilderError(
             "Evolve requires at least a max_stale_generations, max_generations or target_fitness_score ending condition"
-        ))
-    );
-}
-
-#[test]
-fn build_invalid_require_crossover_indexes() {
-    let genotype = UniqueGenotype::builder()
-        .with_allele_list((0..10).collect())
-        .build()
-        .unwrap();
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        // .with_extension(ExtensionNoop::new())
-        .with_reporter(StrategyReporterNoop::new())
-        .build();
-
-    assert!(evolve.is_err());
-    assert_eq!(
-        evolve.err(),
-        Some(TryFromEvolveBuilderError(
-            "The provided Crossover strategy requires crossover_indexes, which the provided EvolveGenotype does not provide"
-        ))
-    );
-}
-#[test]
-fn build_invalid_require_crossover_points() {
-    let genotype = UniqueGenotype::builder()
-        .with_allele_list((0..10).collect())
-        .build()
-        .unwrap();
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSinglePoint::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_extension(ExtensionNoop::new())
-        // .with_reporter(StrategyReporterNoop::new())
-        .build();
-
-    assert!(evolve.is_err());
-    assert_eq!(
-        evolve.err(),
-        Some(TryFromEvolveBuilderError(
-            "The provided Crossover strategy requires crossover_points, which the provided EvolveGenotype does not provide"
         ))
     );
 }
@@ -366,31 +313,6 @@ fn call_binary_mass_genesis() {
 }
 
 #[test]
-fn call_bit() {
-    let genotype = BitGenotype::builder().with_genes_size(20).build().unwrap();
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountOnes)
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_extension(ExtensionNoop::new())
-        .with_reporter(StrategyReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(20));
-    assert_eq!(
-        inspect::genes_to_str(&evolve.best_genes().unwrap()),
-        "11111111111111111111"
-    );
-}
-
-#[test]
 fn call_range_f32() {
     let genotype = StaticRangeGenotype::<f32, 10, 200>::builder()
         .with_genes_size(10)
@@ -480,66 +402,6 @@ fn call_range_i32() {
 }
 
 #[test]
-fn call_list() {
-    let genotype = ListGenotype::builder()
-        .with_genes_size(10)
-        .with_allele_list((0..4).collect())
-        .build()
-        .unwrap();
-
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_extension(ExtensionNoop::new())
-        // .with_reporter(StrategyReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(30));
-    assert_eq!(
-        evolve.best_genes().unwrap().to_vec(),
-        vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
-    );
-}
-
-#[test]
-fn call_multi_list() {
-    let genotype = MultiListGenotype::builder()
-        .with_allele_lists(vec![
-            vec![0, 1, 2, 3, 4],
-            vec![0, 1],
-            vec![0],
-            vec![0, 1, 2, 3],
-        ])
-        .build()
-        .unwrap();
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_extension(ExtensionNoop::new())
-        .with_reporter(StrategyReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(8));
-    assert_eq!(evolve.best_genes().unwrap(), vec![4, 1, 0, 3]);
-}
-
-#[test]
 fn call_static_range() {
     let genotype = StaticRangeGenotype::<u16, 10, 170>::builder()
         .with_genes_size(10)
@@ -601,37 +463,6 @@ fn call_dynamic_range() {
     );
     // after cleanup
     assert_eq!(evolve.genotype.data.len(), 0);
-}
-
-#[test]
-fn call_par_fitness() {
-    let genotype = ListGenotype::builder()
-        .with_genes_size(10)
-        .with_allele_list((0..4).collect())
-        .build()
-        .unwrap();
-
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new())
-        .with_par_fitness(true)
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_extension(ExtensionNoop::new())
-        // .with_reporter(StrategyReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(30));
-    assert_eq!(
-        evolve.best_genes().unwrap().to_vec(),
-        vec![3, 3, 3, 3, 3, 3, 3, 3, 3, 3]
-    );
 }
 
 #[test]

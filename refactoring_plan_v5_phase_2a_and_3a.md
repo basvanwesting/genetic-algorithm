@@ -11,9 +11,9 @@ This ensures both modules remain complete but focused on their paradigm.
 
 ### Files to DELETE from distributed/
 ```
-distributed/genotype/dynamic_matrix.rs     ✓ Keep in centralized
-distributed/genotype/static_matrix.rs      ✓ Keep in centralized  
-distributed/chromosome/row.rs              ✓ Keep in centralized
+distributed/genotype/dynamic_range.rs     ✓ Keep in centralized
+distributed/genotype/static_range.rs      ✓ Keep in centralized  
+distributed/chromosome/row.rs             ✓ Keep in centralized
 ```
 
 ### Files to DELETE from centralized/
@@ -37,10 +37,10 @@ centralized/chromosome/bit.rs              ✓ Keep in distributed
 #### Remove module declarations and re-exports:
 ```rust
 // Remove these lines:
-- mod dynamic_matrix;
-- mod static_matrix;
-- pub use self::dynamic_matrix::DynamicMatrix as DynamicMatrixGenotype;
-- pub use self::static_matrix::StaticMatrix as StaticMatrixGenotype;
+- mod dynamic_range;
+- mod static_range;
+- pub use self::dynamic_range::DynamicRange as DynamicRangeGenotype;
+- pub use self::static_range::StaticRange as StaticRangeGenotype;
 ```
 
 ### 2. centralized/genotype.rs
@@ -95,6 +95,41 @@ After deleting the files and removing module declarations, you'll need to:
 
 ## Additional Trimming Opportunities
 
+### Fitness Placeholders Trimming
+
+The fitness placeholders also need to be trimmed according to the XOR principle:
+
+#### In centralized/fitness/placeholders.rs - REMOVE:
+- `CountTrue` (uses BinaryGenotype - moving to distributed)
+- `CountOnes` (uses BitGenotype - moving to distributed)  
+- `CountTrueWithSleep` (uses BinaryGenotype - moving to distributed)
+
+#### In centralized/fitness/placeholders.rs - KEEP:
+- `Zero<G>` (generic)
+- `StaticZero<G>` (generic)
+- `CountStaticTrue<N, M>` (uses StaticBinaryGenotype)
+- `CountStaticTrueWithSleep<N, M>` (uses StaticBinaryGenotype)
+- `SumGenes<G>` (generic)
+- `SumDynamicRange<T>` (uses DynamicRangeGenotype)
+- `SumStaticRange<T, N, M>` (uses StaticRangeGenotype)
+- `Countdown<G>` (generic)
+- `CountdownNoisy<G>` (generic)
+- `StaticCountdown<G>` (generic)
+- `StaticCountdownNoisy<G>` (generic)
+
+#### In distributed/fitness/placeholders.rs - REMOVE:
+- `SumDynamicRange<T>` (uses DynamicRangeGenotype - moving to centralized)
+- `SumStaticRange<T, N, M>` (uses StaticRangeGenotype - moving to centralized)
+
+#### In distributed/fitness/placeholders.rs - KEEP:
+- `Zero<G>` (generic)
+- `CountTrue` (uses BinaryGenotype)
+- `CountOnes` (uses BitGenotype)
+- `SumGenes<G>` (generic)
+- `CountTrueWithSleep` (uses BinaryGenotype)
+- `Countdown<G>` (generic)
+- `CountdownNoisy<G>` (generic)
+
 ### Trait methods that might be paradigm-specific:
 
 #### In Genotype trait:
@@ -135,7 +170,7 @@ cargo test --lib centralized::
 cargo run --example distributed_evolve_nqueens --release
 
 # Run example with centralized genotype (if any examples use matrix genotypes)
-cargo run --example centralized_evolve_matrix --release
+cargo run --example centralized_evolve_knapsack --release
 ```
 
 ## Success Criteria

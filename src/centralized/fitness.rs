@@ -105,24 +105,6 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// [calculate_for_chromosome](Fitness::calculate_for_chromosome) has a default implementation which panics, because it doesn't need to
 /// be implemented for genotypes which implement [calculate_for_population](Fitness::calculate_for_population). Will panic if reached and not implemented.
 ///
-/// # Example (calculate_for_chromosome, standard GenesOwner chromosome):
-/// ```rust
-/// use genetic_algorithm::centralized::fitness::prelude::*;
-///
-/// #[derive(Clone, Debug)]
-/// pub struct CountTrue;
-/// impl Fitness for CountTrue {
-///     type Genotype = BinaryGenotype;
-///     fn calculate_for_chromosome(
-///         &mut self,
-///         chromosome: &FitnessChromosome<Self>,
-///         _genotype: &FitnessGenotype<Self>
-///     ) -> Option<FitnessValue> {
-///         Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
-///     }
-/// }
-/// ```
-///
 /// # Example (calculate_for_population, static matrix calculation, GenesPointer chromosome):
 /// ```rust
 /// use genetic_algorithm::centralized::fitness::prelude::*;

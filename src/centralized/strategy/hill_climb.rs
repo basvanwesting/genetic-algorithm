@@ -106,10 +106,10 @@ pub enum HillClimbVariant {
 /// Example:
 /// ```
 /// use genetic_algorithm::centralized::strategy::hill_climb::prelude::*;
-/// use genetic_algorithm::centralized::fitness::placeholders::SumGenes;
+/// use genetic_algorithm::centralized::fitness::placeholders::SumStaticRange;
 ///
 /// // the search space
-/// let genotype = RangeGenotype::builder()     // f32 alleles
+/// let genotype = StaticRangeGenotype::<f32, 16, 33>::builder()     // f32 alleles
 ///     .with_genes_size(16)                    // 16 genes
 ///     .with_genes_hashing(true)               // store genes_hash on chromosome (required for fitness_cache and deduplication extension)
 ///     .with_allele_range(0.0..=1.0)           // allow gene values between 0.0 and 1.0
@@ -126,7 +126,7 @@ pub enum HillClimbVariant {
 /// let hill_climb = HillClimb::builder()
 ///     .with_genotype(genotype)
 ///     .with_variant(HillClimbVariant::SteepestAscent)   // check all neighbours for each round
-///     .with_fitness(SumGenes::new_with_precision(1e-5)) // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
+///     .with_fitness(SumStaticRange::new_with_precision(1e-5)) // sum the gene values of the chromosomes with precision 0.00001, which means multiply fitness score (isize) by 100_000
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the lowest sum
 ///     .with_fitness_cache(1000)                         // enable caching of fitness values (LRU size 1000), only works when genes_hash is stored in chromosome. Only useful for long stale runs
 ///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation

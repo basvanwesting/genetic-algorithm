@@ -1,8 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::distributed::fitness::placeholders::{
-    CountOnes, CountTrue, SumDynamicRange, SumGenes, SumStaticRange,
-};
+use genetic_algorithm::distributed::fitness::placeholders::{CountOnes, CountTrue, SumGenes};
 use genetic_algorithm::distributed::strategy::evolve::prelude::*;
 
 #[test]
@@ -521,70 +519,6 @@ fn call_multi_list() {
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(8));
     assert_eq!(evolve.best_genes().unwrap(), vec![4, 1, 0, 3]);
-}
-
-#[test]
-fn call_static_range() {
-    let genotype = StaticRangeGenotype::<u16, 10, 170>::builder()
-        .with_genes_size(10)
-        .with_allele_range(0..=10)
-        .build()
-        .unwrap();
-
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumStaticRange::new())
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_extension(ExtensionNoop::new())
-        // .with_reporter(StrategyReporterSimple::new(1))
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(0));
-    assert_eq!(
-        evolve.best_genes().unwrap(),
-        Box::new([0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
-    );
-}
-
-#[test]
-fn call_dynamic_range() {
-    let genotype = DynamicRangeGenotype::<u16>::builder()
-        .with_genes_size(10)
-        .with_allele_range(0..=10)
-        .build()
-        .unwrap();
-
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumDynamicRange::new())
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_extension(ExtensionNoop::new())
-        // .with_reporter(StrategyReporterSimple::new(1))
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(0));
-    assert_eq!(
-        evolve.best_genes().unwrap(),
-        vec![0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-    );
-    // after cleanup
-    assert_eq!(evolve.genotype.data.len(), 0);
 }
 
 #[test]

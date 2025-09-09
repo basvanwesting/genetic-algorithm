@@ -1,5 +1,8 @@
 use genetic_algorithm::centralized::chromosome::{
-    BinaryChromosome, ListChromosome, RangeChromosome,
+    ChromosomeManager, StaticBinaryChromosome,
+};
+use genetic_algorithm::centralized::genotype::{
+    DynamicRangeGenotype, StaticBinaryGenotype, StaticRangeGenotype,
 };
 use genetic_algorithm::centralized::population::Population;
 
@@ -7,45 +10,78 @@ use genetic_algorithm::centralized::population::Population;
 use crate::support::*;
 
 #[test]
-fn chromosome_binary() {
-    let chromosome: BinaryChromosome = build::chromosome(vec![true, false, true, false]);
+fn static_binary_chromosome() {
+    let mut genotype = StaticBinaryGenotype::<4, 10>::builder()
+        .with_genes_size(4)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+    
+    let chromosome = static_build::chromosome(&mut genotype, vec![true, false, true, false]);
     println!("{:#?}", chromosome);
     assert_eq!(
-        inspect::chromosome(&chromosome),
+        static_inspect::chromosome(&genotype, &chromosome),
         vec![true, false, true, false]
     );
 }
 
 #[test]
-fn chromosome_list() {
-    let chromosome: ListChromosome<u8> = build::chromosome(vec![3, 4, 5, 6]);
+fn dynamic_range_chromosome() {
+    let mut genotype = DynamicRangeGenotype::<f32>::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+    
+    let chromosome = dynamic_build::chromosome(&mut genotype, vec![0.1, 0.2, 0.3]);
     println!("{:#?}", chromosome);
-    assert_eq!(inspect::chromosome(&chromosome), vec![3, 4, 5, 6]);
+    assert_eq!(
+        dynamic_inspect::chromosome(&genotype, &chromosome),
+        vec![0.1, 0.2, 0.3]
+    );
 }
 
 #[test]
-fn chromosome_range() {
-    let chromosome: RangeChromosome<f32> = build::chromosome(vec![0.1, 0.2, 0.3]);
+fn static_range_chromosome() {
+    let mut genotype = StaticRangeGenotype::<f32, 3, 10>::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..=1.0)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+    
+    let chromosome = static_build::chromosome(&mut genotype, vec![0.1, 0.2, 0.3]);
     println!("{:#?}", chromosome);
-    assert_eq!(inspect::chromosome(&chromosome), vec![0.1, 0.2, 0.3]);
+    assert_eq!(
+        static_inspect::chromosome(&genotype, &chromosome),
+        vec![0.1, 0.2, 0.3]
+    );
 }
 
 #[test]
-fn population_binary() {
-    let population: Population<BinaryChromosome> = build::population(vec![
-        vec![true, true, true],
-        vec![true, true, false],
-        vec![true, false, false],
-        vec![false, false, false],
-    ]);
+fn population_static_binary() {
+    let mut genotype = StaticBinaryGenotype::<3, 10>::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
+    genotype.chromosomes_setup();
+    
+    let population: Population<StaticBinaryChromosome> = static_build::population(
+        &mut genotype,
+        vec![
+            vec![true, false, true],
+            vec![false, true, false],
+            vec![true, true, true],
+        ],
+    );
     println!("{:#?}", population);
     assert_eq!(
-        inspect::population(&population),
+        static_inspect::population(&genotype, &population),
         vec![
+            vec![true, false, true],
+            vec![false, true, false],
             vec![true, true, true],
-            vec![true, true, false],
-            vec![true, false, false],
-            vec![false, false, false],
         ]
     );
 }

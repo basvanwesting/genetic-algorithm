@@ -1,8 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::distributed::fitness::placeholders::{
-    CountTrue, SumDynamicRange, SumGenes, SumStaticRange,
-};
+use genetic_algorithm::distributed::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::distributed::genotype::HillClimbGenotype;
 use genetic_algorithm::distributed::strategy::hill_climb::prelude::*;
 
@@ -279,61 +277,4 @@ fn call_binary_steepest_ascent() {
 
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(0));
-}
-
-#[test]
-fn call_static_range_steepest_ascent() {
-    let genotype = StaticRangeGenotype::<i16, 20, { 40 + 1 }>::builder()
-        .with_genes_size(20)
-        .with_allele_range(0..=10)
-        .with_allele_mutation_range(-1..=1)
-        .build()
-        .unwrap();
-    assert_eq!(
-        genotype.neighbouring_population_size(),
-        BigUint::from(40_u32)
-    );
-    let hill_climb = HillClimb::builder()
-        .with_genotype(genotype)
-        .with_variant(HillClimbVariant::SteepestAscent)
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_target_fitness_score(0)
-        .with_fitness(SumStaticRange::new())
-        .with_reporter(StrategyReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(0));
-}
-
-#[test]
-fn call_dynamic_range_steepest_ascent() {
-    let genotype = DynamicRangeGenotype::<i16>::builder()
-        .with_genes_size(20)
-        .with_allele_range(0..=10)
-        .with_allele_mutation_range(-1..=1)
-        .build()
-        .unwrap();
-    assert_eq!(
-        genotype.neighbouring_population_size(),
-        BigUint::from(40_u32)
-    );
-    let hill_climb = HillClimb::builder()
-        .with_genotype(genotype)
-        .with_variant(HillClimbVariant::SteepestAscent)
-        .with_fitness_ordering(FitnessOrdering::Minimize)
-        .with_target_fitness_score(0)
-        .with_fitness(SumDynamicRange::new())
-        .with_reporter(StrategyReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(0));
-
-    // after cleanup
-    assert_eq!(hill_climb.genotype.data.len(), 0);
 }

@@ -3,8 +3,7 @@ use crate::centralized::allele::RangeAllele;
 use crate::centralized::chromosome::GenesOwner;
 use crate::centralized::fitness::{Fitness, FitnessChromosome, FitnessPopulation, FitnessValue};
 use crate::centralized::genotype::{
-    BinaryGenotype, BitGenotype, DynamicRangeGenotype, Genotype, StaticBinaryGenotype,
-    StaticRangeGenotype,
+    DynamicRangeGenotype, Genotype, StaticBinaryGenotype, StaticRangeGenotype,
 };
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
@@ -60,20 +59,6 @@ impl<G: Genotype> Fitness for StaticZero<G> {
         _genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>> {
         vec![Some(0); population.chromosomes.len()]
-    }
-}
-
-/// placeholder for testing and bootstrapping, not really used in practice
-#[derive(Clone, Debug)]
-pub struct CountTrue;
-impl Fitness for CountTrue {
-    type Genotype = BinaryGenotype;
-    fn calculate_for_chromosome(
-        &mut self,
-        chromosome: &FitnessChromosome<Self>,
-        _genotype: &Self::Genotype,
-    ) -> Option<FitnessValue> {
-        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
     }
 }
 
@@ -160,20 +145,6 @@ impl<const N: usize, const M: usize> Clone for CountStaticTrueWithSleep<N, M> {
             micro_seconds: self.micro_seconds,
             print_on_clone: self.print_on_clone,
         }
-    }
-}
-
-/// placeholder for testing and bootstrapping, not really used in practice
-#[derive(Clone, Debug)]
-pub struct CountOnes;
-impl Fitness for CountOnes {
-    type Genotype = BitGenotype;
-    fn calculate_for_chromosome(
-        &mut self,
-        chromosome: &FitnessChromosome<Self>,
-        _genotype: &Self::Genotype,
-    ) -> Option<FitnessValue> {
-        Some(chromosome.genes.count_ones(..) as FitnessValue)
     }
 }
 
@@ -353,43 +324,6 @@ where
             })
             .map(Some)
             .collect()
-    }
-}
-
-/// placeholder for testing and benchmarking, not used in practice
-#[derive(Debug)]
-pub struct CountTrueWithSleep {
-    pub micro_seconds: u64,
-    pub print_on_clone: bool,
-}
-impl CountTrueWithSleep {
-    pub fn new(micro_seconds: u64, print_on_clone: bool) -> Self {
-        Self {
-            micro_seconds,
-            print_on_clone,
-        }
-    }
-}
-impl Fitness for CountTrueWithSleep {
-    type Genotype = BinaryGenotype;
-    fn calculate_for_chromosome(
-        &mut self,
-        chromosome: &FitnessChromosome<Self>,
-        _genotype: &Self::Genotype,
-    ) -> Option<FitnessValue> {
-        thread::sleep(time::Duration::from_micros(self.micro_seconds));
-        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
-    }
-}
-impl Clone for CountTrueWithSleep {
-    fn clone(&self) -> Self {
-        if self.print_on_clone {
-            println!("Cloned CountTrueWithSleep: {:?}", thread::current().id());
-        }
-        Self {
-            micro_seconds: self.micro_seconds,
-            print_on_clone: self.print_on_clone,
-        }
     }
 }
 

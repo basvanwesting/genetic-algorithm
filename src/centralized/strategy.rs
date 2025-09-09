@@ -28,10 +28,10 @@
 //! Example:
 //! ```
 //! use genetic_algorithm::centralized::strategy::prelude::*;
-//! use genetic_algorithm::centralized::fitness::placeholders::CountTrue;
+//! use genetic_algorithm::centralized::fitness::placeholders::CountStaticTrue;
 //!
 //! // the search space
-//! let genotype = BinaryGenotype::builder()
+//! let genotype = StaticBinaryGenotype::<10, 200>::builder()
 //!     .with_genes_size(10)
 //!     .with_genes_hashing(true) // store genes_hash on chromosome (required for fitness_cache and deduplication extension, optional for better population cardinality estimation)
 //!     .build()
@@ -44,7 +44,7 @@
 //!     .with_extension(ExtensionMassExtinction::new(10, 0.1, 0.02))  // (E) optional builder step, simulate cambrian explosion by mass extinction, when population cardinality drops to 10 after the selection, trim to 10% of population
 //!     .with_crossover(CrossoverUniform::new(0.7, 0.8))        // (E) crossover all individual genes between 2 chromosomes for offspring with 70% parent selection (30% do not produce offspring) and 80% chance of crossover (20% of parents just clone)
 //!     .with_mutate(MutateSingleGene::new(0.2))                // (E) mutate offspring for a single gene with a 20% probability per chromosome
-//!     .with_fitness(CountTrue)                                // (E,H,P) count the number of true values in the chromosomes
+//!     .with_fitness(CountStaticTrue)                          // (E,H,P) count the number of true values in the chromosomes
 //!     .with_fitness_ordering(FitnessOrdering::Minimize)       // (E,H,P) aim for the least true values
 //!     .with_fitness_cache(1000)                               // (E) enable caching of fitness values, only works when genes_hash is stored in chromosome.
 //!     .with_par_fitness(true)                                 // (E,H,P) optional, defaults to false, use parallel fitness calculation
@@ -60,8 +60,8 @@
 //!
 //! // the search strategy (specified)
 //! let (strategy, _) = builder
-//!     .with_variant(StrategyVariant::Permutate(PermutateVariant::Standard))
-//!     // .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))build str
+//!     // .with_variant(StrategyVariant::Permutate(PermutateVariant::Standard))
+//!     .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
 //!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::Stochastic))
 //!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::SteepAscent))
 //!     .call_speciated(3)
@@ -69,7 +69,7 @@
 //!
 //! // it's all about the best genes after all
 //! let (best_genes, best_fitness_score) = strategy.best_genes_and_fitness_score().unwrap();
-//! assert_eq!(best_genes, vec![false; 10]);
+//! assert_eq!(best_genes, Box::new([false; 10]));
 //! assert_eq!(best_fitness_score, 0);
 //! ````
 pub mod builder;
@@ -290,7 +290,7 @@ pub trait StrategyState<G: Genotype>: Display {
 /// #[derive(Clone)]
 /// pub struct CustomReporter { pub period: usize }
 /// impl StrategyReporter for CustomReporter {
-///     type Genotype = BinaryGenotype;
+///     type Genotype = StaticBinaryGenotype::<10, 100>;
 ///
 ///     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
 ///         &mut self,

@@ -1,23 +1,10 @@
-use fixedbitset::Block;
-use genetic_algorithm::centralized::chromosome::{BitChromosome, GenesOwner};
+use genetic_algorithm::centralized::chromosome::GenesOwner;
 use genetic_algorithm::centralized::fitness::FitnessValue;
-use genetic_algorithm::centralized::genotype::BitGenotype;
 use genetic_algorithm::centralized::population::Population;
 
 #[allow(dead_code)]
 pub fn chromosome<C: GenesOwner>(genes: C::Genes) -> C {
     C::new(genes)
-}
-#[allow(dead_code)]
-pub fn chromosome_from_str(str: &str) -> BitChromosome {
-    BitChromosome::new(BitGenotype::genes_from_str(str))
-}
-#[allow(dead_code)]
-pub fn chromosome_from_blocks<I: IntoIterator<Item = Block>>(
-    bits: usize,
-    blocks: I,
-) -> BitChromosome {
-    BitChromosome::new(BitGenotype::genes_from_blocks(bits, blocks))
 }
 
 #[allow(dead_code)]

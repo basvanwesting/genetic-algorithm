@@ -1,7 +1,6 @@
 #[doc(no_inline)]
 pub use crate::centralized::chromosome::{
-    BinaryChromosome, BitChromosome, Chromosome, GenesHash, ListChromosome, MultiListChromosome,
-    MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome, UniqueChromosome,
+    Chromosome, DynamicRangeChromosome, GenesHash, StaticBinaryChromosome, StaticRangeChromosome,
 };
 #[doc(no_inline)]
 pub use crate::centralized::fitness::{
@@ -10,7 +9,6 @@ pub use crate::centralized::fitness::{
 };
 #[doc(no_inline)]
 pub use crate::centralized::genotype::{
-    Allele, BinaryGenotype, BitGenotype, Genotype, GenotypeBuilder, ListGenotype,
-    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeAllele, RangeGenotype,
-    TryFromGenotypeBuilderError, UniqueGenotype,
+    Allele, DynamicRangeGenotype, Genotype, GenotypeBuilder, RangeAllele, StaticBinaryGenotype,
+    StaticRangeGenotype, TryFromGenotypeBuilderError,
 };

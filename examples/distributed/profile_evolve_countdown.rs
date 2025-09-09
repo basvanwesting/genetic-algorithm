@@ -13,26 +13,13 @@ const POPULATION_SIZE: usize = 225;
 const TARGET_GENERATION: usize = (500_f32 * SELECTION_RATE) as usize;
 const TOURNAMENT_SIZE: usize = 20;
 const MUTATIONS_PER_CHROMOSOME: usize = 50;
-const MATRIX_POP_SIZE: usize =
-    POPULATION_SIZE + (POPULATION_SIZE as f32 * SELECTION_RATE + 1.0) as usize;
 
 // Crossover is where the main work is taking place in the base loop
 
 fn main() {
-    // let genotype = RangeGenotype::builder()
-    //     .with_genes_size(GENES_SIZE)
-    //     .with_allele_range(ALLELE_RANGE)
-    //     .build()
-    //     .unwrap();
-    // let genotype = DynamicRangeGenotype::builder()
-    //     .with_genes_size(GENES_SIZE)
-    //     .with_allele_range(ALLELE_RANGE)
-    //     .build()
-    //     .unwrap();
-    let genotype = StaticRangeGenotype::<f32, GENES_SIZE, MATRIX_POP_SIZE>::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(ALLELE_RANGE)
-        .with_genes_hashing(true)
         .build()
         .unwrap();
     // let genotype = BinaryGenotype::builder()

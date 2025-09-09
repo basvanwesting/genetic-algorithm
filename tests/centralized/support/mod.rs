@@ -10,11 +10,11 @@ pub use approx::relative_eq;
 pub use approx::RelativeEq;
 #[allow(unused_imports)]
 pub use genetic_algorithm::centralized::chromosome::{
-    BinaryChromosome, Chromosome, ListChromosome, RangeChromosome,
+    Chromosome, DynamicRangeChromosome, StaticBinaryChromosome, StaticRangeChromosome,
 };
 #[allow(unused_imports)]
 pub use genetic_algorithm::centralized::genotype::{
-    BinaryGenotype, Genotype, ListGenotype, RangeGenotype,
+    DynamicRangeGenotype, Genotype, StaticBinaryGenotype, StaticRangeGenotype,
 };
 #[allow(unused_imports)]
 pub use genetic_algorithm::centralized::population::Population;

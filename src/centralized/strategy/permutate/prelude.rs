@@ -1,8 +1,5 @@
 #[doc(no_inline)]
-pub use crate::centralized::chromosome::{
-    BinaryChromosome, BitChromosome, Chromosome, GenesHash, ListChromosome, MultiListChromosome,
-    MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome, UniqueChromosome,
-};
+pub use crate::centralized::chromosome::{Chromosome, GenesHash};
 #[doc(no_inline)]
 pub use crate::centralized::fitness::{
     Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessPopulation,
@@ -10,9 +7,8 @@ pub use crate::centralized::fitness::{
 };
 #[doc(no_inline)]
 pub use crate::centralized::genotype::{
-    Allele, BinaryGenotype, BitGenotype, Genotype, GenotypeBuilder, ListGenotype,
-    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, PermutateGenotype, RangeAllele,
-    RangeGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
+    Allele, Genotype, GenotypeBuilder, PermutateGenotype, RangeAllele,
+    TryFromGenotypeBuilderError,
 };
 #[doc(no_inline)]
 pub use crate::centralized::strategy::permutate::{

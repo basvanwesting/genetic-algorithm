@@ -1,28 +1,10 @@
-use fixedbitset::{Block, FixedBitSet};
-use genetic_algorithm::centralized::chromosome::{BitChromosome, GenesOwner};
+use genetic_algorithm::centralized::chromosome::GenesOwner;
 use genetic_algorithm::centralized::fitness::FitnessValue;
 use genetic_algorithm::centralized::population::Population;
 
 #[allow(dead_code)]
-pub fn genes_to_str(genes: &FixedBitSet) -> String {
-    format!("{:b}", genes)
-}
-#[allow(dead_code)]
-pub fn genes_to_blocks(genes: &FixedBitSet) -> &[Block] {
-    genes.as_slice()
-}
-
-#[allow(dead_code)]
 pub fn chromosome<C: GenesOwner>(chromosome: &C) -> C::Genes {
     chromosome.genes().clone()
-}
-#[allow(dead_code)]
-pub fn chromosome_to_str(chromosome: &BitChromosome) -> String {
-    format!("{:b}", chromosome.genes)
-}
-#[allow(dead_code)]
-pub fn chromosome_to_blocks(chromosome: &BitChromosome) -> &[Block] {
-    chromosome.genes.as_slice()
 }
 
 #[allow(dead_code)]
@@ -39,14 +21,6 @@ pub fn chromosome_with_age<C: GenesOwner>(chromosome: &C) -> (C::Genes, usize) {
 #[allow(dead_code)]
 pub fn chromosomes<C: GenesOwner>(chromosomes: &[C]) -> Vec<C::Genes> {
     chromosomes.iter().map(chromosome).collect()
-}
-#[allow(dead_code)]
-pub fn chromosomes_to_str(chromosomes: &[BitChromosome]) -> Vec<String> {
-    chromosomes.iter().map(chromosome_to_str).collect()
-}
-#[allow(dead_code)]
-pub fn chromosomes_to_blocks(chromosomes: &[BitChromosome]) -> Vec<&[Block]> {
-    chromosomes.iter().map(chromosome_to_blocks).collect()
 }
 
 #[allow(dead_code)]
@@ -66,14 +40,6 @@ pub fn chromosomes_with_age<C: GenesOwner>(chromosomes: &[C]) -> Vec<(C::Genes, 
 #[allow(dead_code)]
 pub fn population<C: GenesOwner>(population: &Population<C>) -> Vec<C::Genes> {
     population.chromosomes.iter().map(chromosome).collect()
-}
-#[allow(dead_code)]
-pub fn population_to_str(population: &Population<BitChromosome>) -> Vec<String> {
-    population
-        .chromosomes
-        .iter()
-        .map(chromosome_to_str)
-        .collect()
 }
 
 #[allow(dead_code)]

@@ -1,11 +1,7 @@
 //! placeholders for testing and bootstrapping, not really used in practice
-use crate::distributed::allele::RangeAllele;
 use crate::distributed::chromosome::GenesOwner;
-use crate::distributed::fitness::{Fitness, FitnessChromosome, FitnessPopulation, FitnessValue};
-use crate::distributed::genotype::{
-    BinaryGenotype, BitGenotype, DynamicRangeGenotype, Genotype, StaticRangeGenotype,
-};
-use rand::distributions::uniform::SampleUniform;
+use crate::distributed::fitness::{Fitness, FitnessChromosome, FitnessValue};
+use crate::distributed::genotype::{BinaryGenotype, BitGenotype, Genotype};
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
@@ -112,135 +108,6 @@ where
             .into_iter()
             .fold(0.0_f64, |acc, e| acc + e.into());
         Some((sum / self.precision) as FitnessValue)
-    }
-}
-
-/// placeholder for testing and bootstrapping, not really used in practice
-/// Sums the dynamic matrix rows and converts to vector of [FitnessValue]
-/// There are 2 constructors:
-/// * new(), precision is defaulted to 1.0
-/// * new_with_precision(precision)
-#[derive(Clone, Debug)]
-pub struct SumDynamicRange<T: RangeAllele + Into<f64>>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
-    precision: f64,
-    _phantom: PhantomData<T>,
-}
-impl<T: RangeAllele + Into<f64>> SumDynamicRange<T>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
-    pub fn new() -> Self {
-        Self::default()
-    }
-    pub fn new_with_precision(precision: f64) -> Self {
-        Self {
-            precision,
-            ..Default::default()
-        }
-    }
-}
-impl<T: RangeAllele + Into<f64>> Default for SumDynamicRange<T>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
-    fn default() -> Self {
-        Self {
-            precision: 1.0_f64,
-            _phantom: PhantomData,
-        }
-    }
-}
-impl<T: RangeAllele + Into<f64>> Fitness for SumDynamicRange<T>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
-    type Genotype = DynamicRangeGenotype<T>;
-    fn calculate_for_population(
-        &mut self,
-        _population: &FitnessPopulation<Self>,
-        genotype: &Self::Genotype,
-    ) -> Vec<Option<FitnessValue>> {
-        genotype
-            .data
-            .chunks(genotype.genes_size())
-            .map(|genes| {
-                (genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision)
-                    as FitnessValue
-            })
-            .map(Some)
-            .collect()
-    }
-}
-
-/// placeholder for testing and bootstrapping, not really used in practice
-/// Sums the static matrix rows and converts to vector of [FitnessValue]
-/// There are 2 constructors:
-/// * new(), precision is defaulted to 1.0
-/// * new_with_precision(precision)
-#[derive(Clone, Debug)]
-pub struct SumStaticRange<T: RangeAllele + Into<f64>, const N: usize, const M: usize>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
-    precision: f64,
-    _phantom: PhantomData<T>,
-}
-impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> SumStaticRange<T, N, M>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
-    pub fn new() -> Self {
-        Self::default()
-    }
-    pub fn new_with_precision(precision: f64) -> Self {
-        Self {
-            precision,
-            ..Default::default()
-        }
-    }
-}
-impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Default for SumStaticRange<T, N, M>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
-    fn default() -> Self {
-        Self {
-            precision: 1.0_f64,
-            _phantom: PhantomData,
-        }
-    }
-}
-
-impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Fitness for SumStaticRange<T, N, M>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
-    type Genotype = StaticRangeGenotype<T, N, M>;
-    fn calculate_for_population(
-        &mut self,
-        _population: &FitnessPopulation<Self>,
-        genotype: &Self::Genotype,
-    ) -> Vec<Option<FitnessValue>> {
-        genotype
-            .data
-            .iter()
-            .map(|genes| {
-                (genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision)
-                    as FitnessValue
-            })
-            .map(Some)
-            .collect()
     }
 }
 

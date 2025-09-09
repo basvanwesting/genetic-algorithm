@@ -64,12 +64,12 @@ pub enum PermutateVariant {
 /// All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 ///
 /// Example:
-/// ```
+/// ```ignore
 /// use genetic_algorithm::centralized::strategy::permutate::prelude::*;
-/// use genetic_algorithm::centralized::fitness::placeholders::CountTrue;
+/// use genetic_algorithm::centralized::fitness::placeholders::CountStaticTrue;
 ///
 /// // the search space
-/// let genotype = BinaryGenotype::builder() // boolean alleles
+/// let genotype = StaticBinaryGenotype::<12, 100>::builder() // boolean alleles
 ///     .with_genes_size(12)                 // 12 genes per chromosome
 ///     .build()
 ///     .unwrap();
@@ -77,7 +77,7 @@ pub enum PermutateVariant {
 /// // the search strategy
 /// let permutate = Permutate::builder()
 ///     .with_genotype(genotype)
-///     .with_fitness(CountTrue)                          // count the number of true values in the chromosomes
+///     .with_fitness(CountStaticTrue)                    // count the number of true values in the chromosomes
 ///     .with_fitness_ordering(FitnessOrdering::Minimize) // aim for the least true values
 ///     .with_par_fitness(true)                           // optional, defaults to false, use parallel fitness calculation
 ///     .with_reporter(PermutateReporterSimple::new(100)) // optional builder step, report every 100 generations

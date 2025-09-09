@@ -133,36 +133,36 @@ mod population_tests {
 
         assert_eq!(
             population.best_chromosome_indices(2, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(1, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(0, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(10, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
 
         assert_eq!(
             population.best_chromosome_indices(2, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(1, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(0, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(10, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
     }
 
@@ -226,11 +226,11 @@ mod population_tests {
         // top 0
         assert_eq!(
             population.best_unique_chromosome_indices(0, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(0, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
 
         // top all
@@ -270,11 +270,11 @@ mod population_tests {
         // top 0
         assert_eq!(
             population.best_unique_chromosome_indices(0, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(0, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
 
         // top all
@@ -324,11 +324,11 @@ mod population_tests {
         // all empty
         assert_eq!(
             population.best_unique_chromosome_indices(2, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(2, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
     }
 
@@ -357,12 +357,12 @@ mod population_tests {
         );
 
         // uniqueness
-        assert_eq!(population.unique_chromosome_indices(), vec![]);
+        assert_eq!(population.unique_chromosome_indices(), Vec::<usize>::new());
 
         // top N
         assert_eq!(
             population.best_unique_chromosome_indices(2, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(2, FitnessOrdering::Maximize),
@@ -376,7 +376,7 @@ mod population_tests {
         // top 1
         assert_eq!(
             population.best_unique_chromosome_indices(1, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(1, FitnessOrdering::Maximize),
@@ -386,17 +386,17 @@ mod population_tests {
         // top 0
         assert_eq!(
             population.best_unique_chromosome_indices(0, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(0, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
 
         // top all
         assert_eq!(
             population.best_unique_chromosome_indices(10, FitnessOrdering::Maximize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(10, FitnessOrdering::Maximize),
@@ -406,7 +406,7 @@ mod population_tests {
         // top N
         assert_eq!(
             population.best_unique_chromosome_indices(2, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(2, FitnessOrdering::Minimize),
@@ -420,7 +420,7 @@ mod population_tests {
         // top 1
         assert_eq!(
             population.best_unique_chromosome_indices(1, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(1, FitnessOrdering::Minimize),
@@ -430,17 +430,17 @@ mod population_tests {
         // top 0
         assert_eq!(
             population.best_unique_chromosome_indices(0, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(0, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
 
         // top all
         assert_eq!(
             population.best_unique_chromosome_indices(10, FitnessOrdering::Minimize),
-            vec![]
+            Vec::<usize>::new()
         );
         assert_eq!(
             population.best_chromosome_indices(10, FitnessOrdering::Minimize),

@@ -1,14 +1,12 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::distributed::chromosome::{
-    BinaryChromosome, ChromosomeManager, ListChromosome, RangeChromosome,
+    BinaryChromosome, ListChromosome, RangeChromosome,
 };
 use genetic_algorithm::distributed::fitness::placeholders::{
-    CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumDynamicRange, SumGenes,
-    SumStaticRange, Zero,
+    CountOnes, CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes, Zero,
 };
 use genetic_algorithm::distributed::fitness::Fitness;
-use genetic_algorithm::distributed::genotype::{DynamicRangeGenotype, StaticRangeGenotype};
 
 #[test]
 fn binary_genotype() {
@@ -50,6 +48,33 @@ fn binary_genotype() {
     assert_eq!(
         CountTrueWithSleep::new(1000, false).calculate_for_chromosome(&chromosome, &genotype),
         Some(2)
+    );
+}
+
+#[test]
+fn bit_genotype() {
+    use genetic_algorithm::distributed::chromosome::BitChromosome;
+    use genetic_algorithm::distributed::chromosome::GenesOwner;
+    use genetic_algorithm::distributed::genotype::BitGenotype;
+
+    let genotype = BitGenotype::builder().with_genes_size(8).build().unwrap();
+
+    let chromosome = BitChromosome::new(BitGenotype::genes_from_str("11111111"));
+    assert_eq!(
+        CountOnes.calculate_for_chromosome(&chromosome, &genotype),
+        Some(8)
+    );
+
+    let chromosome = BitChromosome::new(BitGenotype::genes_from_str("10101010"));
+    assert_eq!(
+        CountOnes.calculate_for_chromosome(&chromosome, &genotype),
+        Some(4)
+    );
+
+    let chromosome = BitChromosome::new(BitGenotype::genes_from_str("00000000"));
+    assert_eq!(
+        CountOnes.calculate_for_chromosome(&chromosome, &genotype),
+        Some(0)
     );
 }
 
@@ -225,59 +250,5 @@ fn range_genotype_f64() {
     assert_eq!(
         SumGenes::new_with_precision(1e-3).calculate_for_chromosome(&chromosome, &genotype),
         Some(7199)
-    );
-}
-
-#[test]
-fn dynamic_range_genotype_f32() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = DynamicRangeGenotype::builder()
-        .with_genes_size(4)
-        .with_allele_range(0.0_f32..=1.0_f32)
-        .build()
-        .unwrap();
-    genotype.chromosomes_setup();
-
-    let population = Population::new(
-        [
-            genotype.chromosome_constructor_random(&mut rng),
-            genotype.chromosome_constructor_random(&mut rng),
-            genotype.chromosome_constructor_random(&mut rng),
-            genotype.chromosome_constructor_random(&mut rng),
-            genotype.chromosome_constructor_random(&mut rng),
-        ]
-        .to_vec(),
-    );
-
-    assert_eq!(
-        SumDynamicRange::new_with_precision(1e-3).calculate_for_population(&population, &genotype),
-        vec![Some(2328), Some(2884), Some(2431), Some(1845), Some(2041)]
-    );
-}
-
-#[test]
-fn static_range_genotype_f32() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = StaticRangeGenotype::<f32, 4, 5>::builder()
-        .with_genes_size(4)
-        .with_allele_range(0.0_f32..=1.0_f32)
-        .build()
-        .unwrap();
-    genotype.chromosomes_setup();
-
-    let population = Population::new(
-        [
-            genotype.chromosome_constructor_random(&mut rng),
-            genotype.chromosome_constructor_random(&mut rng),
-            genotype.chromosome_constructor_random(&mut rng),
-            genotype.chromosome_constructor_random(&mut rng),
-            genotype.chromosome_constructor_random(&mut rng),
-        ]
-        .to_vec(),
-    );
-
-    assert_eq!(
-        SumStaticRange::new_with_precision(1e-3).calculate_for_population(&population, &genotype),
-        vec![Some(2328), Some(2884), Some(2431), Some(1845), Some(2041)]
     );
 }

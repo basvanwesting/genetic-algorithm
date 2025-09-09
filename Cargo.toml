@@ -181,14 +181,6 @@ name = "distributed_evolve_scrabble"
 path = "examples/distributed/evolve_scrabble.rs"
 
 [[example]]
-name = "distributed_evolve_static_range"
-path = "examples/distributed/evolve_static_range.rs"
-
-[[example]]
-name = "distributed_evolve_static_v_dynamic_v_range"
-path = "examples/distributed/evolve_static_v_dynamic_v_range.rs"
-
-[[example]]
 name = "distributed_evolve_table_seating"
 path = "examples/distributed/evolve_table_seating.rs"
 
