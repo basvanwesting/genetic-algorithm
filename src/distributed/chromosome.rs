@@ -25,20 +25,11 @@ pub type GenesHash = u64;
 /// with each other in the [Evolve](crate::strategy::evolve::Evolve) strategy.
 /// Each [Genotype] has its own associated [Chromosome] type.
 ///
-/// Chromosomes who implement [GenesOwner] own their genes. Chromosomes who implement
-/// [GenesPointer] don't and just point to genes owned by the Genotype. Therefore the chromosome
-/// itself doesn't have a global interface regarding it's genes and use of
-/// [Evolve::best_chromosome()](crate::strategy::evolve::Evolve::best_chromosome),
-/// [HillCllimb::best_chromosome()](crate::strategy::hill_climb::HillClimb::best_chromosome) and
-/// [Permutate::best_chromosome()](crate::strategy::permutate::Permutate::best_chromosome) on the
-/// Strategy are discouraged (although they are available when using a Genotype with a [GenesOwner]
-/// chromosome). Use [Strategy::best_genes()](crate::strategy::Strategy::best_genes) or
-/// [Strategy::best_genes_and_fitness_score()](crate::strategy::Strategy::best_genes_and_fitness_score)
-/// instead.
-///
-/// In the [Fitness](crate::fitness::Fitness) context an associated [Genotype] type is set. And in
-/// that contest the ownership model of the genes is known, so we can use the [Chromosome] struct
-/// without ambiguity.
+/// In the distributed module, chromosomes implement [GenesOwner] and own their genes directly.
+/// You can use [Evolve::best_chromosome()](crate::strategy::evolve::Evolve::best_chromosome),
+/// [HillClimb::best_chromosome()](crate::strategy::hill_climb::HillClimb::best_chromosome) and
+/// [Permutate::best_chromosome()](crate::strategy::permutate::Permutate::best_chromosome)
+/// to access the best chromosome directly.
 pub trait Chromosome: Clone + Send {
     fn age(&self) -> usize;
     fn reset_age(&mut self);
@@ -56,9 +47,6 @@ pub trait GenesOwner: Chromosome {
     type Genes: Genes;
     fn new(genes: Self::Genes) -> Self;
     fn genes(&self) -> &Self::Genes;
-}
-pub trait GenesPointer: Chromosome {
-    fn new(row_id: usize) -> Self;
 }
 
 pub trait ChromosomeManager<G: Genotype> {

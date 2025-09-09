@@ -84,8 +84,7 @@ pub trait Genotype:
         _fitness_scores: Vec<Option<FitnessValue>>,
     ) {
         // TODO: we could default to the assumption that population and fitness_scores just align in
-        // length and order. But we don't want to encourage this usage. This should be used for
-        // GenesPointer chromosomes only
+        // length and order. But we don't want to encourage this usage.
         // population
         //     .chromosomes
         //     .iter_mut()

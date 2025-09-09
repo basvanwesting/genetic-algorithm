@@ -51,32 +51,13 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// There are two possible levels to implement. At least one level needs to be implemented:
 /// * [`calculate_for_chromosome(...) -> Option<FitnessValue>`](Fitness::calculate_for_chromosome)
 ///   * The standard situation, suits all strategies. Implementable with all Genotypes.
-///   * Standard [Genotype]s have [GenesOwner](crate::chromosome::GenesOwner) chromosomes. These
+///   * Distributed [Genotype]s have [GenesOwner](crate::chromosome::GenesOwner) chromosomes. These
 ///     chromosomes have a `genes` field, which can be read for the calculations.
-///   * non-standard [Genotype]s with [GenesPointer](crate::chromosome::GenesPointer) chromosomes.
-///     These chromosomes have don't have a `genes` field, so you need to retrieve the genes using
-///     [genotype.genes_slice(&chromosome)](crate::genotype::Genotype::genes_slice), which can then
-///     be read for the calculations. But for these types you usually don't want to reach this call
-///     level, see other level below
 /// * [`calculate_for_population(...) -> Vec<Option<FitnessValue>>`](Fitness::calculate_for_population)
-///   * *Only overwrite for matrix Genotypes (designed for possible GPU acceleration)*
 ///   * If not overwritten, results in calling
 ///     [calculate_for_chromosome](Fitness::calculate_for_chromosome) for each chromosome in the
 ///     population. So it doesn't have to be implemented by default, but it is a possible point to
 ///     intercept with a custom implementation where the whole population data is available.
-///   * Only for [Genotype] with [GenesPointer](crate::chromosome::GenesPointer) chromosomes. These
-///     chromosomes don't have a `genes` field to read, but a `row_id`. The matrix [Genotype] has a contiguous
-///     memory `data` field with all the data, which can be calculated in one go.
-///     * [DynamicRangeGenotype](crate::genotype::DynamicRangeGenotype)
-///     * [StaticRangeGenotype](crate::genotype::StaticRangeGenotype)
-///   * The order and length of the rows in the genotype data matrix needs to be preserved in the
-///     returned vector as it matches the row_id on the chromosome
-///   * The order and length of the population does not matter at all and will most likely not align.
-///     The population is provided, because the full genotype matrix data also contains untainted
-///     chromosomes which already have a fitness_score (and will not be updated). The results for
-///     these chromosomes will be ignored, thus these do not have to be recalculated, so knowing
-///     which ones might be relevant (or not). The order of the results still need to align, so if the
-///     calculation is skipped, a `None` value should be inserted in the results to keep the order
 ///     and length aligned.
 ///
 /// The strategies use different levels of calls in [Fitness]. So you cannot always just intercept at
@@ -94,11 +75,6 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///   * [Permutate](crate::strategy::permutate::Permutate)
 ///   * [HillClimb](crate::strategy::hill_climb::HillClimb) with [Stochastic](crate::strategy::hill_climb::HillClimbVariant::Stochastic)
 ///
-/// Therefore, additionally, you might need to implement
-/// [calculate_for_chromosome](Fitness::calculate_for_chromosome) for
-/// [GenesPointer](crate::chromosome::GenesPointer) chromosomes. This is sometimes needed when
-/// testing out different strategies with different call levels. Problably no longer needed once
-/// settled on a strategy.
 ///
 /// # Panics
 ///
