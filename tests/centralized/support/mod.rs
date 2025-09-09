@@ -1,4 +1,6 @@
 pub mod build;
+pub mod dynamic_build;
+pub mod dynamic_inspect;
 pub mod inspect;
 pub mod static_build;
 pub mod static_inspect;
