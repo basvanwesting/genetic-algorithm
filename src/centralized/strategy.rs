@@ -132,9 +132,6 @@ impl Display for StrategyVariant {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
             StrategyVariant::Evolve(EvolveVariant::Standard) => write!(f, "evolve"),
-            StrategyVariant::HillClimb(HillClimbVariant::Stochastic) => {
-                write!(f, "hill_climb/stochastic")
-            }
             StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent) => {
                 write!(f, "hill_climb/steepest_ascent")
             }

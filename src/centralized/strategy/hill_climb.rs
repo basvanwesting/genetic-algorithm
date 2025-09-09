@@ -30,29 +30,22 @@ pub use crate::centralized::strategy::reporter::Noop as HillClimbReporterNoop;
 #[derive(Copy, Clone, Debug, Default)]
 pub enum HillClimbVariant {
     #[default]
-    Stochastic,
     SteepestAscent,
 }
 
 /// The HillClimb strategy is an iterative algorithm that starts with a single arbitrary solution
 /// to a problem (unless the genotype seeds specific genes to sample a single starting point from),
-/// then attempts to find a better solution by making an incremental change to the solution
+/// then attempts to find a better solution by making an incremental change to the solution.
 ///
-/// There are 2 variants:
-/// * [HillClimbVariant::Stochastic]: does not examine all neighbors before deciding how to move.
-///   Rather, it selects a neighbor at random, and decides (based on the improvement in that
-///   neighbour) whether to move to that neighbor or to examine another
-/// * [HillClimbVariant::SteepestAscent]: all neighbours are compared and the one with the best
-///   improvement is chosen.
+/// In the centralized module, only [HillClimbVariant::SteepestAscent] is supported, where
+/// all neighbours are compared and the one with the best improvement is chosen.
 ///
 /// The ending conditions are one or more of the following:
 /// * target_fitness_score: when the ultimate goal in terms of fitness score is known and reached
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score.
-///   * set to a high value for [HillClimbVariant::Stochastic]
-///   * set to a low value for [HillClimbVariant::SteepestAscent], preferably even `1`, unless
-///   there is a replace_on_equal_fitness consideration or some remaining randomness in the neighbouring population (see RangeGenotype
-///   below)
+///   Set to a low value for [HillClimbVariant::SteepestAscent], preferably even `1`, unless
+///   there is a replace_on_equal_fitness consideration or some remaining randomness in the neighbouring population
 /// * max_generations: when the ultimate goal in terms of fitness score is unknown and there is a effort constraint
 ///
 /// There are optional mutation distance limitations for
@@ -61,23 +54,20 @@ pub enum HillClimbVariant {
 /// descending priority:
 /// * With allele_mutation_scaled_range(s) set on genotype:
 ///     * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
-///         * Pick random edge for [HillClimbVariant::Stochastic]
-///         * Take both edges per gene for [HillClimbVariant::SteepestAscent]
+///     * Take both edges per gene for [HillClimbVariant::SteepestAscent]
 ///     * Scale down after max_stale_generations is reached and reset stale_generations to zero
 ///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
 ///     * max_stale_generations could be set to 1, as there is no remaining randomness
 /// * With allele_mutation_range(s) set on genotype:
 ///     * Mutation distance taken uniformly from mutation range
-///         * Sample single random value for [HillClimbVariant::Stochastic]
-///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
+///     * Ensure to sample both a higher and lower value per gene for [HillClimbVariant::SteepestAscent]
 ///     * Standard max_stale_generations ending condition
 ///     * max_stale_generations should be set somewhat higher than 1 as there is some remaining randomness
 /// * With only allele_range(s) set on genotype (not advised for hill climbing):
 ///     * Mutate uniformly over the complete allele range
-///         * Sample single random value for [HillClimbVariant::Stochastic]
-///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
+///     * Ensure to sample both a higher and lower value per gene for [HillClimbVariant::SteepestAscent]
 ///     * Standard max_stale_generations ending condition
-///     * max_stale_generations should be set substantially higher than 1 as there is a lot remaining randomness
+///     * max_stale_generations should be set somewhat higher than 1 as there is some remaining randomness
 ///
 /// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
 /// [StrategyReporter] (e.g. [HillClimbReporterDuration], [HillClimbReporterSimple]). But you are encouraged to
@@ -94,10 +84,8 @@ pub enum HillClimbVariant {
 ///   `with_par_fitness()` flag on the builder, which determines multithreading of the fitness
 ///   calculation inside the [HillClimb] strategy. Both can be combined.
 ///
-/// Multithreading inside the [HillClimbVariant::Stochastic] using the `with_par_fitness()` builder
-/// step does nothing, due to the sequential nature of the search. But
-/// [call_par_repeatedly](HillClimbBuilder::call_par_repeatedly) still effectively multithreads for
-/// these variants as the sequential nature is only internal to the [HillClimb] strategy.
+/// Multithreading using the `with_par_fitness()` builder flag can speed up [HillClimbVariant::SteepestAscent]
+/// when evaluating the fitness of all neighbors in parallel.
 ///
 /// All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 ///
@@ -202,53 +190,28 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
             self.state.increment_generation();
-            match self.config.variant {
-                HillClimbVariant::Stochastic => {
-                    self.genotype
-                        .load_best_genes(self.state.chromosome.as_mut().unwrap());
-                    self.genotype.mutate_chromosome_genes(
-                        1,
-                        true,
-                        self.state.chromosome.as_mut().unwrap(),
-                        self.state.current_scale_index,
-                        &mut self.rng,
-                    );
-                    self.fitness.call_for_state_chromosome(
-                        &self.genotype,
-                        &mut self.state,
-                        &self.config,
-                    );
-                    self.state.update_best_chromosome_from_state_chromosome(
-                        &mut self.genotype,
-                        &self.config,
-                        &mut self.reporter,
-                    );
-                }
-                HillClimbVariant::SteepestAscent => {
-                    self.genotype
-                        .load_best_genes(self.state.chromosome.as_mut().unwrap());
-                    self.genotype
-                        .chromosome_destructor_truncate(&mut self.state.population.chromosomes, 0);
-                    self.genotype.fill_neighbouring_population(
-                        self.state.chromosome.as_ref().unwrap(),
-                        &mut self.state.population,
-                        self.state.current_scale_index,
-                        &mut self.rng,
-                    );
-                    self.fitness.call_for_state_population(
-                        &self.genotype,
-                        &mut self.state,
-                        &self.config,
-                        fitness_thread_local.as_ref(),
-                    );
-                    self.state.update_best_chromosome_from_state_population(
-                        &mut self.genotype,
-                        &self.config,
-                        &mut self.reporter,
-                        &mut self.rng,
-                    );
-                }
-            }
+            self.genotype
+                .load_best_genes(self.state.chromosome.as_mut().unwrap());
+            self.genotype
+                .chromosome_destructor_truncate(&mut self.state.population.chromosomes, 0);
+            self.genotype.fill_neighbouring_population(
+                self.state.chromosome.as_ref().unwrap(),
+                &mut self.state.population,
+                self.state.current_scale_index,
+                &mut self.rng,
+            );
+            self.fitness.call_for_state_population(
+                &self.genotype,
+                &mut self.state,
+                &self.config,
+                fitness_thread_local.as_ref(),
+            );
+            self.state.update_best_chromosome_from_state_population(
+                &mut self.genotype,
+                &self.config,
+                &mut self.reporter,
+                &mut self.rng,
+            );
             self.reporter
                 .on_new_generation(&self.genotype, &self.state, &self.config);
             self.state.scale(&self.genotype, &self.config);
@@ -298,41 +261,25 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
 
-        match self.config.variant {
-            HillClimbVariant::Stochastic => {
-                self.fitness.call_for_state_chromosome(
-                    &self.genotype,
-                    &mut self.state,
-                    &self.config,
-                );
-                self.state.update_best_chromosome_from_state_chromosome(
-                    &mut self.genotype,
-                    &self.config,
-                    &mut self.reporter,
-                );
-            }
-            HillClimbVariant::SteepestAscent => {
-                // init population with all seeds for first population if present, or just a single
-                // random chromosome
-                let population_size = self.genotype.seed_genes_list().len().max(1);
-                self.state.population = self
-                    .genotype
-                    .population_constructor(population_size, &mut self.rng);
+        // init population with all seeds for first population if present, or just a single
+        // random chromosome
+        let population_size = self.genotype.seed_genes_list().len().max(1);
+        self.state.population = self
+            .genotype
+            .population_constructor(population_size, &mut self.rng);
 
-                self.fitness.call_for_state_population(
-                    &self.genotype,
-                    &mut self.state,
-                    &self.config,
-                    None,
-                );
-                self.state.update_best_chromosome_from_state_population(
-                    &mut self.genotype,
-                    &self.config,
-                    &mut self.reporter,
-                    &mut self.rng,
-                );
-            }
-        }
+        self.fitness.call_for_state_population(
+            &self.genotype,
+            &mut self.state,
+            &self.config,
+            None,
+        );
+        self.state.update_best_chromosome_from_state_population(
+            &mut self.genotype,
+            &self.config,
+            &mut self.reporter,
+            &mut self.rng,
+        );
     }
     pub fn cleanup(&mut self, fitness_thread_local: Option<&mut ThreadLocal<RefCell<F>>>) {
         let now = Instant::now();
@@ -479,36 +426,6 @@ impl<G: HillClimbGenotype> StrategyState<G> for HillClimbState<G> {
 }
 
 impl<G: HillClimbGenotype> HillClimbState<G> {
-    fn update_best_chromosome_from_state_chromosome<SR: StrategyReporter<Genotype = G>>(
-        &mut self,
-        genotype: &mut G,
-        config: &HillClimbConfig,
-        reporter: &mut SR,
-    ) {
-        if let Some(chromosome) = self.chromosome.as_ref() {
-            let now = Instant::now();
-            match self.is_better_chromosome(
-                chromosome,
-                &config.fitness_ordering,
-                config.replace_on_equal_fitness,
-            ) {
-                (true, true) => {
-                    self.best_generation = self.current_generation;
-                    self.best_fitness_score = chromosome.fitness_score();
-                    genotype.save_best_genes(chromosome);
-                    reporter.on_new_best_chromosome(genotype, self, config);
-                    self.reset_stale_generations();
-                }
-                (true, false) => {
-                    genotype.save_best_genes(chromosome);
-                    reporter.on_new_best_chromosome_equal_fitness(genotype, self, config);
-                    self.increment_stale_generations()
-                }
-                _ => self.increment_stale_generations(),
-            }
-            self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
-        }
-    }
     fn update_best_chromosome_from_state_population<SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
