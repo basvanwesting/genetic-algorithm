@@ -20,7 +20,7 @@ pub use self::range::Range as RangeGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 pub use crate::distributed::allele::{Allele, RangeAllele};
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesHash};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesHash, GenesOwner};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -55,7 +55,7 @@ pub trait Genotype:
 {
     type Allele: Allele;
     type Genes: Genes;
-    type Chromosome: Chromosome;
+    type Chromosome: Chromosome + GenesOwner<Genes = Self::Genes>;
 
     fn genes_size(&self) -> usize;
     fn save_best_genes(&mut self, chromosome: &Self::Chromosome);
@@ -65,14 +65,6 @@ pub trait Genotype:
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
     fn genes_hashing(&self) -> bool;
     fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash>;
-    // lives on Genotype because only genotype can calculate_genes_hash
-    fn reset_chromosome_state(&self, chromosome: &mut Self::Chromosome) {
-        chromosome.reset_state(self.calculate_genes_hash(chromosome));
-    }
-    // lives on Genotype for symmetry reasons with reset_chromosome_state
-    fn copy_chromosome_state(&self, source: &Self::Chromosome, target: &mut Self::Chromosome) {
-        target.copy_state(source)
-    }
 
     fn mutation_type(&self) -> MutationType {
         MutationType::Random

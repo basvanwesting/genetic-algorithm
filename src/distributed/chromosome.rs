@@ -44,39 +44,59 @@ pub trait Chromosome: Clone + Send {
 pub trait GenesOwner: Chromosome {
     type Genes: Genes;
     fn new(genes: Self::Genes) -> Self;
+    fn with_capacity(capacity: usize) -> Self;
     fn genes(&self) -> &Self::Genes;
+    fn get_genes(&self) -> Self::Genes;
+    fn set_genes(&mut self, genes: Self::Genes);
+    fn copy_from(&mut self, source: &Self);
 }
 
 pub trait ChromosomeManager<G: Genotype> {
-    /// Mandatory, random genes unless seed genes are provided
+    /// Create random genes based on genotype configuration
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
-    /// Mandatory, also copies state
-    fn copy_genes(&mut self, source: &G::Chromosome, target: &mut G::Chromosome);
-    /// Mandatory, also resets state
-    fn set_genes(&mut self, chromosome: &mut G::Chromosome, genes: &G::Genes);
-    /// Mandatory
-    fn get_genes(&self, chromosome: &G::Chromosome) -> G::Genes;
-    /// Create a new chromosome directly (no recycling)
-    fn chromosome_create(&mut self) -> G::Chromosome;
+    /// Get the capacity hint for creating new chromosomes
+    fn genes_capacity(&self) -> usize;
+    /// Reset chromosome state - must be provided by implementer
+    fn reset_chromosome_state(&self, chromosome: &mut G::Chromosome);
+    /// Copy chromosome state - must be provided by implementer  
+    fn copy_chromosome_state(&self, source: &G::Chromosome, target: &mut G::Chromosome);
 
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R) {
+    // Helper methods using the new chromosome capabilities
+    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R) 
+    where
+        G::Chromosome: GenesOwner<Genes = G::Genes>,
+    {
         let genes = self.random_genes_factory(rng);
-        self.set_genes(chromosome, &genes);
+        chromosome.set_genes(genes);
+        self.reset_chromosome_state(chromosome);
     }
-    fn chromosome_constructor_genes(&mut self, genes: &G::Genes) -> G::Chromosome {
-        let mut chromosome = self.chromosome_create();
-        self.set_genes(&mut chromosome, genes);
+    
+    fn chromosome_constructor_genes(&mut self, genes: &G::Genes) -> G::Chromosome 
+    where
+        G::Chromosome: GenesOwner<Genes = G::Genes>,
+    {
+        let mut chromosome = G::Chromosome::new(genes.clone());
+        self.reset_chromosome_state(&mut chromosome);
         chromosome
     }
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome {
+    
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome 
+    where
+        G::Chromosome: GenesOwner<Genes = G::Genes>,
+    {
         let genes = self.random_genes_factory(rng);
-        self.chromosome_constructor_genes(&genes)
+        let mut chromosome = G::Chromosome::new(genes);
+        self.reset_chromosome_state(&mut chromosome);
+        chromosome
     }
-    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
-        let mut new_chromosome = self.chromosome_create();
-        self.copy_genes(chromosome, &mut new_chromosome);
-        new_chromosome
+    
+    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome 
+    where
+        G::Chromosome: GenesOwner<Genes = G::Genes> + Clone,
+    {
+        chromosome.clone()
     }
+    
     fn chromosome_destructor_truncate(
         &mut self,
         chromosomes: &mut Vec<G::Chromosome>,
@@ -84,11 +104,15 @@ pub trait ChromosomeManager<G: Genotype> {
     ) {
         chromosomes.truncate(target_population_size);
     }
-    fn chromosome_cloner_expand(&mut self, chromosomes: &mut Vec<G::Chromosome>, amount: usize) {
+    
+    fn chromosome_cloner_expand(&mut self, chromosomes: &mut Vec<G::Chromosome>, amount: usize) 
+    where
+        G::Chromosome: Clone,
+    {
         let modulo = chromosomes.len();
         for i in 0..amount {
             let chromosome = &chromosomes[i % modulo];
-            chromosomes.push(self.chromosome_cloner(chromosome));
+            chromosomes.push(chromosome.clone());
         }
     }
 }

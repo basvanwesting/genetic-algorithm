@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::distributed::allele::Allele;
-use crate::distributed::chromosome::{ChromosomeManager, GenesHash, GenesOwner, ListChromosome};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesHash, GenesOwner, ListChromosome};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -316,20 +316,14 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for List<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_genes(&mut self, chromosome: &mut ListChromosome<T>, genes: &Vec<T>) {
-        chromosome.genes.clone_from(genes);
-        self.reset_chromosome_state(chromosome);
+    fn genes_capacity(&self) -> usize {
+        self.genes_size
     }
-    fn get_genes(&self, chromosome: &ListChromosome<T>) -> Vec<T> {
-        chromosome.genes.clone()
+    fn reset_chromosome_state(&self, chromosome: &mut ListChromosome<T>) {
+        chromosome.reset_state(self.calculate_genes_hash(chromosome));
     }
-    fn copy_genes(&mut self, source: &ListChromosome<T>, target: &mut ListChromosome<T>) {
-        target.genes.clone_from(&source.genes);
-        self.copy_chromosome_state(source, target);
-    }
-    fn chromosome_create(&mut self) -> ListChromosome<T> {
-        let genes = Vec::with_capacity(self.genes_size);
-        ListChromosome::new(genes)
+    fn copy_chromosome_state(&self, source: &ListChromosome<T>, target: &mut ListChromosome<T>) {
+        target.copy_state(source);
     }
 }
 

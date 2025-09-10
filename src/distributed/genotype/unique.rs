@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::distributed::allele::Allele;
-use crate::distributed::chromosome::{ChromosomeManager, GenesHash, GenesOwner, UniqueChromosome};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesHash, GenesOwner, UniqueChromosome};
 use crate::distributed::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
@@ -256,20 +256,14 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for Unique<T> {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_genes(&mut self, chromosome: &mut UniqueChromosome<T>, genes: &Vec<T>) {
-        chromosome.genes.clone_from(genes);
-        self.reset_chromosome_state(chromosome);
+    fn genes_capacity(&self) -> usize {
+        self.genes_size
     }
-    fn get_genes(&self, chromosome: &UniqueChromosome<T>) -> Vec<T> {
-        chromosome.genes.clone()
+    fn reset_chromosome_state(&self, chromosome: &mut UniqueChromosome<T>) {
+        chromosome.reset_state(self.calculate_genes_hash(chromosome));
     }
-    fn copy_genes(&mut self, source: &UniqueChromosome<T>, target: &mut UniqueChromosome<T>) {
-        target.genes.clone_from(&source.genes);
-        self.copy_chromosome_state(source, target);
-    }
-    fn chromosome_create(&mut self) -> UniqueChromosome<T> {
-        let genes = Vec::with_capacity(self.genes_size);
-        UniqueChromosome::new(genes)
+    fn copy_chromosome_state(&self, source: &UniqueChromosome<T>, target: &mut UniqueChromosome<T>) {
+        target.copy_state(source);
     }
 }
 

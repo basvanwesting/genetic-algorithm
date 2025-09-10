@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
-use crate::distributed::chromosome::{BinaryChromosome, ChromosomeManager, GenesHash, GenesOwner};
+use crate::distributed::chromosome::{BinaryChromosome, Chromosome, ChromosomeManager, GenesHash, GenesOwner};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -272,20 +272,14 @@ impl ChromosomeManager<Self> for Binary {
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_genes(&mut self, chromosome: &mut BinaryChromosome, genes: &Vec<bool>) {
-        chromosome.genes.clone_from(genes);
-        self.reset_chromosome_state(chromosome);
+    fn genes_capacity(&self) -> usize {
+        self.genes_size
     }
-    fn get_genes(&self, chromosome: &BinaryChromosome) -> Vec<bool> {
-        chromosome.genes.clone()
+    fn reset_chromosome_state(&self, chromosome: &mut BinaryChromosome) {
+        chromosome.reset_state(self.calculate_genes_hash(chromosome));
     }
-    fn copy_genes(&mut self, source: &BinaryChromosome, target: &mut BinaryChromosome) {
-        target.genes.clone_from(&source.genes);
-        self.copy_chromosome_state(source, target);
-    }
-    fn chromosome_create(&mut self) -> BinaryChromosome {
-        let genes = Vec::with_capacity(self.genes_size);
-        BinaryChromosome::new(genes)
+    fn copy_chromosome_state(&self, source: &BinaryChromosome, target: &mut BinaryChromosome) {
+        target.copy_state(source);
     }
 }
 

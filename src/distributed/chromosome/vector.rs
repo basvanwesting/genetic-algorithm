@@ -1,4 +1,4 @@
-use super::GenesHash;
+use super::{Chromosome, GenesHash};
 use crate::distributed::allele::Allele;
 use crate::distributed::fitness::FitnessValue;
 
@@ -59,7 +59,26 @@ impl<T: Allele> super::GenesOwner for Vector<T> {
             age: 0,
         }
     }
+    fn with_capacity(capacity: usize) -> Self {
+        Self {
+            genes: Vec::with_capacity(capacity),
+            fitness_score: None,
+            genes_hash: None,
+            age: 0,
+        }
+    }
     fn genes(&self) -> &Vec<T> {
         &self.genes
+    }
+    fn get_genes(&self) -> Self::Genes {
+        self.genes.clone()
+    }
+    fn set_genes(&mut self, genes: Self::Genes) {
+        self.genes = genes;
+        self.reset_state(None); // Reset state when genes change
+    }
+    fn copy_from(&mut self, source: &Self) {
+        self.genes.clone_from(&source.genes);
+        self.copy_state(source);
     }
 }

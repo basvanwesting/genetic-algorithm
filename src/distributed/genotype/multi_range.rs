@@ -2,7 +2,7 @@ use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::distributed::allele::RangeAllele;
 use crate::distributed::chromosome::{
-    ChromosomeManager, GenesHash, GenesOwner, MultiRangeChromosome,
+    Chromosome, ChromosomeManager, GenesHash, GenesOwner, MultiRangeChromosome,
 };
 use crate::distributed::population::Population;
 use bytemuck::cast_slice;
@@ -762,24 +762,14 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_genes(&mut self, chromosome: &mut MultiRangeChromosome<T>, genes: &Vec<T>) {
-        chromosome.genes.clone_from(genes);
-        self.reset_chromosome_state(chromosome);
+    fn genes_capacity(&self) -> usize {
+        self.genes_size
     }
-    fn get_genes(&self, chromosome: &MultiRangeChromosome<T>) -> Vec<T> {
-        chromosome.genes.clone()
+    fn reset_chromosome_state(&self, chromosome: &mut MultiRangeChromosome<T>) {
+        chromosome.reset_state(self.calculate_genes_hash(chromosome));
     }
-    fn copy_genes(
-        &mut self,
-        source: &MultiRangeChromosome<T>,
-        target: &mut MultiRangeChromosome<T>,
-    ) {
-        target.genes.clone_from(&source.genes);
-        self.copy_chromosome_state(source, target);
-    }
-    fn chromosome_create(&mut self) -> MultiRangeChromosome<T> {
-        let genes = Vec::with_capacity(self.genes_size);
-        MultiRangeChromosome::new(genes)
+    fn copy_chromosome_state(&self, source: &MultiRangeChromosome<T>, target: &mut MultiRangeChromosome<T>) {
+        target.copy_state(source);
     }
 }
 
