@@ -4,7 +4,7 @@ use genetic_algorithm::distributed::chromosome::{
     BinaryChromosome, ListChromosome, RangeChromosome,
 };
 use genetic_algorithm::distributed::fitness::placeholders::{
-    CountOnes, CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes, Zero,
+    CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes, Zero,
 };
 use genetic_algorithm::distributed::fitness::Fitness;
 
@@ -48,33 +48,6 @@ fn binary_genotype() {
     assert_eq!(
         CountTrueWithSleep::new(1000, false).calculate_for_chromosome(&chromosome, &genotype),
         Some(2)
-    );
-}
-
-#[test]
-fn bit_genotype() {
-    use genetic_algorithm::distributed::chromosome::BitChromosome;
-    use genetic_algorithm::distributed::chromosome::GenesOwner;
-    use genetic_algorithm::distributed::genotype::BitGenotype;
-
-    let genotype = BitGenotype::builder().with_genes_size(8).build().unwrap();
-
-    let chromosome = BitChromosome::new(BitGenotype::genes_from_str("11111111"));
-    assert_eq!(
-        CountOnes.calculate_for_chromosome(&chromosome, &genotype),
-        Some(8)
-    );
-
-    let chromosome = BitChromosome::new(BitGenotype::genes_from_str("10101010"));
-    assert_eq!(
-        CountOnes.calculate_for_chromosome(&chromosome, &genotype),
-        Some(4)
-    );
-
-    let chromosome = BitChromosome::new(BitGenotype::genes_from_str("00000000"));
-    assert_eq!(
-        CountOnes.calculate_for_chromosome(&chromosome, &genotype),
-        Some(0)
     );
 }
 

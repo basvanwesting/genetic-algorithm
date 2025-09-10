@@ -145,10 +145,6 @@ name = "distributed_evolve_binary_lru_cache_fitness"
 path = "examples/distributed/evolve_binary_lru_cache_fitness.rs"
 
 [[example]]
-name = "distributed_evolve_bit_v_binary"
-path = "examples/distributed/evolve_bit_v_binary.rs"
-
-[[example]]
 name = "distributed_evolve_invalid"
 path = "examples/distributed/evolve_invalid.rs"
 

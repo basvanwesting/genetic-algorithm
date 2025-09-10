@@ -26,10 +26,6 @@ fn main() {
     //     .with_genes_size(GENES_SIZE)
     //     .build()
     //     .unwrap();
-    // let genotype = BitGenotype::builder()
-    //     .with_genes_size(GENES_SIZE)
-    //     .build()
-    //     .unwrap();
 
     println!("{}", genotype);
 

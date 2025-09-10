@@ -1,9 +1,7 @@
 //! The chromosome is a container for the genes and stores some useful values
 
-mod bit;
 mod vector;
 
-pub use self::bit::Bit as BitChromosome;
 pub use self::vector::Vector as ListChromosome;
 pub use self::vector::Vector as MultiListChromosome;
 pub use self::vector::Vector as MultiRangeChromosome;

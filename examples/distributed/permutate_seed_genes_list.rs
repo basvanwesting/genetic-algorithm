@@ -1,16 +1,16 @@
-use genetic_algorithm::distributed::fitness::placeholders::CountOnes;
+use genetic_algorithm::distributed::fitness::placeholders::CountTrue;
 use genetic_algorithm::distributed::strategy::permutate::prelude::*;
 
 fn main() {
     env_logger::init();
 
-    let genotype = BitGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(6)
         .with_seed_genes_list(vec![
-            BitGenotype::genes_from_str("111111"),
-            BitGenotype::genes_from_str("011111"),
-            BitGenotype::genes_from_str("101111"),
-            BitGenotype::genes_from_str("001111"),
+            vec![true, true, true, true, true, true],
+            vec![false, true, true, true, true, true],
+            vec![true, false, true, true, true, true],
+            vec![false, false, true, true, true, true],
         ])
         .build()
         .unwrap();
@@ -19,7 +19,7 @@ fn main() {
 
     let mut permutate = Permutate::builder()
         .with_genotype(genotype)
-        .with_fitness(CountOnes)
+        .with_fitness(CountTrue)
         .with_reporter(PermutateReporterSimple::new(usize::MAX))
         .build()
         .unwrap();

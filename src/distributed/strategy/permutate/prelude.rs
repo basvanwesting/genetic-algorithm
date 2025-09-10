@@ -1,6 +1,6 @@
 #[doc(no_inline)]
 pub use crate::distributed::chromosome::{
-    BinaryChromosome, BitChromosome, Chromosome, GenesHash, ListChromosome, MultiListChromosome,
+    BinaryChromosome, Chromosome, GenesHash, ListChromosome, MultiListChromosome,
     MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome, UniqueChromosome,
 };
 #[doc(no_inline)]
@@ -10,7 +10,7 @@ pub use crate::distributed::fitness::{
 };
 #[doc(no_inline)]
 pub use crate::distributed::genotype::{
-    Allele, BinaryGenotype, BitGenotype, Genotype, GenotypeBuilder, ListGenotype,
+    Allele, BinaryGenotype, Genotype, GenotypeBuilder, ListGenotype,
     MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, PermutateGenotype, RangeAllele,
     RangeGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
 };

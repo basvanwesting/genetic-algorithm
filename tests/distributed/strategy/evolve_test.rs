@@ -1,6 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::distributed::fitness::placeholders::{CountOnes, CountTrue, SumGenes};
+use genetic_algorithm::distributed::fitness::placeholders::{CountTrue, SumGenes};
 use genetic_algorithm::distributed::strategy::evolve::prelude::*;
 
 #[test]
@@ -345,31 +345,6 @@ fn call_binary_mass_genesis() {
 
     println!("{:#?}", evolve.best_genes());
     assert_eq!(evolve.best_fitness_score(), Some(10));
-}
-
-#[test]
-fn call_bit() {
-    let genotype = BitGenotype::builder().with_genes_size(20).build().unwrap();
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(CountOnes)
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_extension(ExtensionNoop::new())
-        .with_reporter(StrategyReporterNoop::new())
-        .with_rng_seed_from_u64(0)
-        .call()
-        .unwrap();
-
-    println!("{:#?}", evolve.best_genes());
-    assert_eq!(evolve.best_fitness_score(), Some(20));
-    assert_eq!(
-        inspect::genes_to_str(&evolve.best_genes().unwrap()),
-        "11111111111111111111"
-    );
 }
 
 #[test]

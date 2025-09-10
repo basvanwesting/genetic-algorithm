@@ -1,5 +1,4 @@
 pub mod binary_test;
-pub mod bit_test;
 pub mod list_test;
 pub mod multi_list_test;
 pub mod multi_range_test;

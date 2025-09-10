@@ -1,6 +1,5 @@
 //! The search space for the algorithm.
 mod binary;
-mod bit;
 mod builder;
 mod list;
 mod multi_list;
@@ -10,7 +9,6 @@ mod range;
 mod unique;
 
 pub use self::binary::Binary as BinaryGenotype;
-pub use self::bit::Bit as BitGenotype;
 pub use self::builder::{
     Builder as GenotypeBuilder, TryFromBuilderError as TryFromGenotypeBuilderError,
 };
@@ -24,16 +22,14 @@ pub use self::unique::Unique as UniqueGenotype;
 pub use crate::distributed::allele::{Allele, RangeAllele};
 use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesHash};
 use crate::distributed::population::Population;
-use fixedbitset::FixedBitSet;
 use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
 
-/// Standard Genes, suitable for [Genotype]. Implemented for `Vec<Allele>` and [FixedBitSet]
+/// Standard Genes, suitable for [Genotype]. Implemented for `Vec<Allele>`
 pub trait Genes: Clone + Send + Sync + std::fmt::Debug {}
 impl<T: Allele> Genes for Vec<T> {}
-impl Genes for FixedBitSet {}
 impl Genes for () {}
 impl<T: Allele, const N: usize> Genes for [T; N] {}
 impl<T: Allele, const N: usize> Genes for Box<[T; N]> {}
