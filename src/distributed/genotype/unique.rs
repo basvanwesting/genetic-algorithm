@@ -60,7 +60,6 @@ pub struct Unique<T: Allele + Hash = DefaultAllele> {
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_bin: Vec<UniqueChromosome<T>>,
     pub best_genes: Vec<T>,
     pub genes_hashing: bool,
 }
@@ -83,7 +82,6 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
                 allele_list: allele_list.clone(),
                 gene_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_bin: vec![],
                 best_genes: allele_list.clone(),
                 genes_hashing: builder.genes_hashing,
             })
@@ -269,17 +267,9 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for Unique<T> {
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);
     }
-    fn chromosome_bin_push(&mut self, chromosome: UniqueChromosome<T>) {
-        self.chromosome_bin.push(chromosome);
-    }
-    fn chromosome_bin_find_or_create(&mut self) -> UniqueChromosome<T> {
-        self.chromosome_bin.pop().unwrap_or_else(|| {
-            let genes = Vec::with_capacity(self.genes_size);
-            UniqueChromosome::new(genes)
-        })
-    }
-    fn chromosomes_cleanup(&mut self) {
-        std::mem::take(&mut self.chromosome_bin);
+    fn chromosome_create(&mut self) -> UniqueChromosome<T> {
+        let genes = Vec::with_capacity(self.genes_size);
+        UniqueChromosome::new(genes)
     }
 }
 

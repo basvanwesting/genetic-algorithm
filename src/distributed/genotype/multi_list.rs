@@ -96,7 +96,6 @@ pub struct MultiList<T: Allele + PartialEq + Hash = DefaultAllele> {
     gene_weighted_index_sampler: WeightedIndex<usize>,
     allele_index_samplers: Vec<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_bin: Vec<MultiListChromosome<T>>,
     pub best_genes: Vec<T>,
     pub genes_hashing: bool,
 }
@@ -128,7 +127,6 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
                     .collect(),
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_bin: vec![],
                 best_genes: allele_lists.iter().map(|a| a[0]).collect(),
                 genes_hashing: builder.genes_hashing,
             })
@@ -383,17 +381,9 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for MultiList<T> {
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);
     }
-    fn chromosome_bin_push(&mut self, chromosome: MultiListChromosome<T>) {
-        self.chromosome_bin.push(chromosome);
-    }
-    fn chromosome_bin_find_or_create(&mut self) -> MultiListChromosome<T> {
-        self.chromosome_bin.pop().unwrap_or_else(|| {
-            let genes = Vec::with_capacity(self.genes_size);
-            MultiListChromosome::new(genes)
-        })
-    }
-    fn chromosomes_cleanup(&mut self) {
-        std::mem::take(&mut self.chromosome_bin);
+    fn chromosome_create(&mut self) -> MultiListChromosome<T> {
+        let genes = Vec::with_capacity(self.genes_size);
+        MultiListChromosome::new(genes)
     }
 }
 

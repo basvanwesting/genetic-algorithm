@@ -56,24 +56,15 @@ pub trait ChromosomeManager<G: Genotype> {
     fn set_genes(&mut self, chromosome: &mut G::Chromosome, genes: &G::Genes);
     /// Mandatory
     fn get_genes(&self, chromosome: &G::Chromosome) -> G::Genes;
-    /// Mandatory
-    fn chromosome_bin_push(&mut self, _chromosome: G::Chromosome);
-    /// Mandatory
-    /// Take from the recycling bin or create new chromosome with capacities set.
-    /// Raise on empty bin here if fixed number of chromosomes is used
-    fn chromosome_bin_find_or_create(&mut self) -> G::Chromosome;
-
-    /// Provided, override if recycling bin needs setup
-    fn chromosomes_setup(&mut self) {}
-    /// Provided, override if recycling bin needs cleanup
-    fn chromosomes_cleanup(&mut self) {}
+    /// Create a new chromosome directly (no recycling)
+    fn chromosome_create(&mut self) -> G::Chromosome;
 
     fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R) {
         let genes = self.random_genes_factory(rng);
         self.set_genes(chromosome, &genes);
     }
     fn chromosome_constructor_genes(&mut self, genes: &G::Genes) -> G::Chromosome {
-        let mut chromosome = self.chromosome_bin_find_or_create();
+        let mut chromosome = self.chromosome_create();
         self.set_genes(&mut chromosome, genes);
         chromosome
     }
@@ -82,25 +73,18 @@ pub trait ChromosomeManager<G: Genotype> {
         self.chromosome_constructor_genes(&genes)
     }
     fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome {
-        let mut new_chromosome = self.chromosome_bin_find_or_create();
+        let mut new_chromosome = self.chromosome_create();
         self.copy_genes(chromosome, &mut new_chromosome);
         new_chromosome
-    }
-    fn chromosome_destructor(&mut self, chromosome: G::Chromosome) {
-        self.chromosome_bin_push(chromosome)
     }
     fn chromosome_destructor_truncate(
         &mut self,
         chromosomes: &mut Vec<G::Chromosome>,
         target_population_size: usize,
     ) {
-        chromosomes
-            .drain(target_population_size..)
-            .for_each(|c| self.chromosome_destructor(c));
+        chromosomes.truncate(target_population_size);
     }
     fn chromosome_cloner_expand(&mut self, chromosomes: &mut Vec<G::Chromosome>, amount: usize) {
-        // maybe use cycle here, but this is oddly elegant as the modulo ensures the newly pushed
-        // chromosomes are never in the cycled selection
         let modulo = chromosomes.len();
         for i in 0..amount {
             let chromosome = &chromosomes[i % modulo];

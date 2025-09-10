@@ -59,7 +59,6 @@ pub struct List<T: Allele + PartialEq + Hash = DefaultAllele> {
     gene_index_sampler: Uniform<usize>,
     allele_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_bin: Vec<ListChromosome<T>>,
     pub best_genes: Vec<T>,
     pub genes_hashing: bool,
 }
@@ -87,7 +86,6 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for List<T> {
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
                 allele_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_bin: vec![],
                 best_genes: vec![allele_list[0]; genes_size],
                 genes_hashing: builder.genes_hashing,
             })
@@ -329,17 +327,9 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for List<T> {
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);
     }
-    fn chromosome_bin_push(&mut self, chromosome: ListChromosome<T>) {
-        self.chromosome_bin.push(chromosome);
-    }
-    fn chromosome_bin_find_or_create(&mut self) -> ListChromosome<T> {
-        self.chromosome_bin.pop().unwrap_or_else(|| {
-            let genes = Vec::with_capacity(self.genes_size);
-            ListChromosome::new(genes)
-        })
-    }
-    fn chromosomes_cleanup(&mut self) {
-        std::mem::take(&mut self.chromosome_bin);
+    fn chromosome_create(&mut self) -> ListChromosome<T> {
+        let genes = Vec::with_capacity(self.genes_size);
+        ListChromosome::new(genes)
     }
 }
 

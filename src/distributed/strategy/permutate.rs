@@ -216,7 +216,6 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         let now = Instant::now();
         self.state.chromosome.take();
         std::mem::take(&mut self.state.population.chromosomes);
-        self.genotype.chromosomes_cleanup();
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
     }

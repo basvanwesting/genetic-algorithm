@@ -97,7 +97,6 @@ where
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_bin: Vec<MultiRangeChromosome<T>>,
     pub best_genes: Vec<T>,
     pub genes_hashing: bool,
 }
@@ -156,7 +155,6 @@ where
                     },
                 ),
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_bin: vec![],
                 best_genes: allele_ranges.iter().map(|a| *a.start()).collect(),
                 genes_hashing: builder.genes_hashing,
             })
@@ -779,17 +777,9 @@ where
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);
     }
-    fn chromosome_bin_push(&mut self, chromosome: MultiRangeChromosome<T>) {
-        self.chromosome_bin.push(chromosome);
-    }
-    fn chromosome_bin_find_or_create(&mut self) -> MultiRangeChromosome<T> {
-        self.chromosome_bin.pop().unwrap_or_else(|| {
-            let genes = Vec::with_capacity(self.genes_size);
-            MultiRangeChromosome::new(genes)
-        })
-    }
-    fn chromosomes_cleanup(&mut self) {
-        std::mem::take(&mut self.chromosome_bin);
+    fn chromosome_create(&mut self) -> MultiRangeChromosome<T> {
+        let genes = Vec::with_capacity(self.genes_size);
+        MultiRangeChromosome::new(genes)
     }
 }
 
@@ -820,7 +810,6 @@ where
                 },
             ),
             seed_genes_list: self.seed_genes_list.clone(),
-            chromosome_bin: vec![],
             best_genes: self.allele_ranges.iter().map(|a| *a.start()).collect(),
             genes_hashing: self.genes_hashing,
         }

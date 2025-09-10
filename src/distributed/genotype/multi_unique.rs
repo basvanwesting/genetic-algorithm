@@ -80,7 +80,6 @@ pub struct MultiUnique<T: Allele + Hash = DefaultAllele> {
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub chromosome_bin: Vec<MultiUniqueChromosome<T>>,
     pub best_genes: Vec<T>,
     pub genes_hashing: bool,
 }
@@ -130,7 +129,6 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
                 crossover_points,
                 crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
-                chromosome_bin: vec![],
                 best_genes: allele_lists.clone().into_iter().flatten().collect(),
                 genes_hashing: builder.genes_hashing,
             })
@@ -407,17 +405,9 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for MultiUnique<T> {
         target.genes.clone_from(&source.genes);
         self.copy_chromosome_state(source, target);
     }
-    fn chromosome_bin_push(&mut self, chromosome: MultiUniqueChromosome<T>) {
-        self.chromosome_bin.push(chromosome);
-    }
-    fn chromosome_bin_find_or_create(&mut self) -> MultiUniqueChromosome<T> {
-        self.chromosome_bin.pop().unwrap_or_else(|| {
-            let genes = Vec::with_capacity(self.genes_size);
-            MultiUniqueChromosome::new(genes)
-        })
-    }
-    fn chromosomes_cleanup(&mut self) {
-        std::mem::take(&mut self.chromosome_bin);
+    fn chromosome_create(&mut self) -> MultiUniqueChromosome<T> {
+        let genes = Vec::with_capacity(self.genes_size);
+        MultiUniqueChromosome::new(genes)
     }
 }
 

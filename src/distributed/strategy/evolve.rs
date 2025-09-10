@@ -371,7 +371,6 @@ impl<
 {
     pub fn setup(&mut self, fitness_thread_local: Option<&ThreadLocal<RefCell<F>>>) {
         let now = Instant::now();
-        self.genotype.chromosomes_setup();
         self.state.population = self
             .genotype
             .population_constructor(self.config.target_population_size, &mut self.rng);
@@ -405,7 +404,6 @@ impl<
         let now = Instant::now();
         self.state.chromosome.take();
         std::mem::take(&mut self.state.population.chromosomes);
-        self.genotype.chromosomes_cleanup();
         if let Some(thread_local) = fitness_thread_local {
             thread_local.clear();
         }
@@ -597,12 +595,12 @@ impl<G: EvolveGenotype> EvolveState<G> {
         }
     }
 
-    fn population_filter_age(&mut self, genotype: &mut G, config: &EvolveConfig) {
+    fn population_filter_age(&mut self, _genotype: &mut G, config: &EvolveConfig) {
         if let Some(max_chromosome_age) = config.max_chromosome_age {
             // TODO: use something like partition_in_place when stable
             for i in (0..self.population.chromosomes.len()).rev() {
                 if self.population.chromosomes[i].age() >= max_chromosome_age {
-                    genotype.chromosome_destructor(self.population.chromosomes.swap_remove(i));
+                    self.population.chromosomes.swap_remove(i);
                 }
             }
         }

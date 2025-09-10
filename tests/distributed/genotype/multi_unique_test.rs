@@ -12,7 +12,6 @@ fn mutate_chromosome_single() {
         .with_allele_lists(vec![vec![0, 1], vec![4, 5, 6, 7], vec![0, 1, 2]])
         .build()
         .unwrap();
-    genotype.chromosomes_setup();
 
     let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(
@@ -324,7 +323,6 @@ fn neighbouring_population_4() {
         .with_allele_lists(vec![vec![0], vec![0, 1], vec![0, 1, 2], vec![0, 1]])
         .build()
         .unwrap();
-    genotype.chromosomes_setup();
 
     let chromosome = genotype.chromosome_constructor_random(&mut rng);
     assert_eq!(

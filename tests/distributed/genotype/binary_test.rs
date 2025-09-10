@@ -361,7 +361,6 @@ fn chromosome_constructor_with_seed_genes_list() {
         ])
         .build()
         .unwrap();
-    genotype.chromosomes_setup();
     let chromosomes = vec![
         genotype.chromosome_constructor_random(&mut rng),
         genotype.chromosome_constructor_random(&mut rng),
@@ -394,7 +393,6 @@ fn population_constructor_random() {
         .with_genes_size(4)
         .build()
         .unwrap();
-    genotype.chromosomes_setup();
     let population = genotype.population_constructor(5, &mut rng);
     println!("{:#?}", population.chromosomes);
     assert_eq!(
@@ -420,7 +418,6 @@ fn population_constructor_with_seed_genes_list() {
         ])
         .build()
         .unwrap();
-    genotype.chromosomes_setup();
     let population = genotype.population_constructor(5, &mut rng);
     println!("{:#?}", population.chromosomes);
     assert_eq!(
@@ -442,7 +439,6 @@ fn chromosome_manager() {
         .with_genes_size(5)
         .build()
         .unwrap();
-    genotype.chromosomes_setup();
 
     let mut chromosomes = (0..4)
         .map(|_| genotype.chromosome_constructor_random(rng))
@@ -516,7 +512,6 @@ fn calculate_genes_hash() {
         .with_genes_hashing(true)
         .build()
         .unwrap();
-    genotype.chromosomes_setup();
 
     let chromosome_1 = build::chromosome(vec![true, true, true]);
     let chromosome_2 = build::chromosome(vec![true, true, true]);

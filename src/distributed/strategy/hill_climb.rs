@@ -303,7 +303,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 {
     pub fn setup(&mut self) {
         let now = Instant::now();
-        self.genotype.chromosomes_setup();
 
         let chromosome = self.genotype.chromosome_constructor_random(&mut self.rng);
         self.state.chromosome = Some(chromosome);
@@ -353,7 +352,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         let now = Instant::now();
         self.state.chromosome.take();
         std::mem::take(&mut self.state.population.chromosomes);
-        self.genotype.chromosomes_cleanup();
         if let Some(thread_local) = fitness_thread_local {
             thread_local.clear();
         }
