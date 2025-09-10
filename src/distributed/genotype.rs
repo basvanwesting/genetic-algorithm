@@ -20,19 +20,13 @@ pub use self::range::Range as RangeGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 pub use crate::distributed::allele::{Allele, RangeAllele};
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesHash, GenesOwner};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner};
 use crate::distributed::population::Population;
+pub use crate::impl_allele;
 use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
-
-/// Standard Genes, suitable for [Genotype]. Implemented for `Vec<Allele>`
-pub trait Genes: Clone + Send + Sync + std::fmt::Debug {}
-impl<T: Allele> Genes for Vec<T> {}
-impl Genes for () {}
-impl<T: Allele, const N: usize> Genes for [T; N] {}
-impl<T: Allele, const N: usize> Genes for Box<[T; N]> {}
 
 #[derive(Copy, Clone, Debug, Default)]
 pub enum MutationType {
@@ -54,17 +48,11 @@ pub trait Genotype:
     + TryFrom<GenotypeBuilder<Self>>
 {
     type Allele: Allele;
-    type Genes: Genes;
-    type Chromosome: Chromosome + GenesOwner<Genes = Self::Genes>;
+    type Genes: Clone + Send + Sync + std::fmt::Debug;
+    type Chromosome: Chromosome + GenesOwner<Genes = Self::Genes> + Clone;
 
     fn genes_size(&self) -> usize;
-    fn save_best_genes(&mut self, chromosome: &Self::Chromosome);
-    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome);
-    fn best_genes(&self) -> &Self::Genes;
-    fn best_genes_slice(&self) -> &[Self::Allele];
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
-    fn genes_hashing(&self) -> bool;
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash>;
 
     fn mutation_type(&self) -> MutationType {
         MutationType::Random

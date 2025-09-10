@@ -1,8 +1,6 @@
 use criterion::*;
 use genetic_algorithm::distributed::chromosome::ChromosomeManager;
-use genetic_algorithm::distributed::chromosome::{
-    BinaryChromosome, GenesOwner, ListChromosome, RangeChromosome,
-};
+use genetic_algorithm::distributed::chromosome::{GenesOwner, VecChromosome};
 use genetic_algorithm::distributed::fitness::placeholders::{
     CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes,
 };
@@ -23,7 +21,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_genes_size(1000)
             .build()
             .unwrap();
-        let chromosome = BinaryChromosome::new(vec![true; 1000]);
+        let chromosome = VecChromosome::new(vec![true; 1000]);
         let mut fitness = CountTrue;
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
@@ -34,7 +32,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_allele_range(0.0..=1.0)
             .build()
             .unwrap();
-        let chromosome = RangeChromosome::new(vec![1.0; 1000]);
+        let chromosome = VecChromosome::new(vec![1.0; 1000]);
         let mut fitness = SumGenes::new_with_precision(1e-5);
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
@@ -45,7 +43,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_allele_list((0_u32..100_u32).collect())
             .build()
             .unwrap();
-        let chromosome = ListChromosome::<u32>::new(vec![1; 1000]);
+        let chromosome = VecChromosome::<u32>::new(vec![1; 1000]);
         let mut fitness = SumGenes::new();
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
@@ -56,7 +54,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_allele_list((0_u32..100_u32).collect())
             .build()
             .unwrap();
-        let chromosome = ListChromosome::<u32>::new(vec![1; 1000]);
+        let chromosome = VecChromosome::<u32>::new(vec![1; 1000]);
         let mut fitness = Countdown::new(usize::MAX);
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });
@@ -67,7 +65,7 @@ pub fn placeholders_benchmark(c: &mut Criterion) {
             .with_allele_list((0_u32..100_u32).collect())
             .build()
             .unwrap();
-        let chromosome = ListChromosome::<u32>::new(vec![1; 1000]);
+        let chromosome = VecChromosome::<u32>::new(vec![1; 1000]);
         let mut fitness = CountdownNoisy::new(usize::MAX - 10_000, 1000, 1..10_000);
         b.iter(|| fitness.calculate_for_chromosome(black_box(&chromosome), &genotype))
     });

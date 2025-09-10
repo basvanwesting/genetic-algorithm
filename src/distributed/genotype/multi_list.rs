@@ -1,17 +1,14 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::distributed::allele::Allele;
-use crate::distributed::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, GenesOwner, MultiListChromosome,
-};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner, VecChromosome};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
-use rustc_hash::FxHasher;
 use std::fmt;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 
 pub type DefaultAllele = usize;
 
@@ -75,7 +72,7 @@ pub type DefaultAllele = usize;
 ///
 /// #[derive(Clone, Copy, PartialEq, Hash, Debug)]
 /// struct Item(pub u16, pub u16);
-/// impl Allele for Item {}
+/// genetic_algorithm::impl_allele!(Item);
 ///
 /// let genotype = MultiListGenotype::builder()
 ///     .with_allele_lists(vec![
@@ -96,8 +93,6 @@ pub struct MultiList<T: Allele + PartialEq + Hash = DefaultAllele> {
     gene_weighted_index_sampler: WeightedIndex<usize>,
     allele_index_samplers: Vec<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub best_genes: Vec<T>,
-    pub genes_hashing: bool,
 }
 
 impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
@@ -127,8 +122,6 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
                     .collect(),
                 seed_genes_list: builder.seed_genes_list,
-                best_genes: allele_lists.iter().map(|a| a[0]).collect(),
-                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -137,37 +130,13 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
 impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
-    type Chromosome = MultiListChromosome<Self::Allele>;
+    type Chromosome = VecChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
-        self.best_genes.clone_from(&chromosome.genes);
-    }
-    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
-        chromosome.genes.clone_from(&self.best_genes);
-    }
-    fn best_genes(&self) -> &Self::Genes {
-        &self.best_genes
-    }
-    fn best_genes_slice(&self) -> &[Self::Allele] {
-        self.best_genes.as_slice()
-    }
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
-    }
-    fn genes_hashing(&self) -> bool {
-        self.genes_hashing
-    }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
-        if self.genes_hashing {
-            let mut s = FxHasher::default();
-            chromosome.genes.hash(&mut s);
-            Some(s.finish())
-        } else {
-            None
-        }
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -198,7 +167,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
                     self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
             });
         }
-        self.reset_chromosome_state(chromosome);
+        chromosome.update_state();
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -238,8 +207,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        self.reset_chromosome_state(mother);
-        self.reset_chromosome_state(father);
+        mother.update_state();
+        father.update_state();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -281,8 +250,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
                 _ => (),
             });
         }
-        self.reset_chromosome_state(mother);
-        self.reset_chromosome_state(father);
+        mother.update_state();
+        father.update_state();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -305,7 +274,7 @@ impl<T: Allele + PartialEq + Hash> HillClimbGenotype for MultiList<T> {
                 if chromosome.genes[index] != allele_value {
                     let mut new_chromosome = self.chromosome_cloner(chromosome);
                     new_chromosome.genes[index] = allele_value;
-                    self.reset_chromosome_state(&mut new_chromosome);
+                    new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 }
             }
@@ -329,14 +298,14 @@ impl<T: Allele + PartialEq + Hash> PermutateGenotype for MultiList<T> {
                     .clone()
                     .into_iter()
                     .multi_cartesian_product()
-                    .map(MultiListChromosome::new),
+                    .map(VecChromosome::new),
             )
         } else {
             Box::new(
                 self.seed_genes_list
                     .clone()
                     .into_iter()
-                    .map(MultiListChromosome::new),
+                    .map(VecChromosome::new),
             )
         }
     }
@@ -372,12 +341,6 @@ impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for MultiList<T> {
     }
     fn genes_capacity(&self) -> usize {
         self.genes_size
-    }
-    fn reset_chromosome_state(&self, chromosome: &mut MultiListChromosome<T>) {
-        chromosome.reset_state(self.calculate_genes_hash(chromosome));
-    }
-    fn copy_chromosome_state(&self, source: &MultiListChromosome<T>, target: &mut MultiListChromosome<T>) {
-        target.copy_state(source);
     }
 }
 

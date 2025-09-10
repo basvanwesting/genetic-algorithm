@@ -226,6 +226,7 @@ pub struct EvolveState<G: EvolveGenotype> {
     pub population: Population<G::Chromosome>,
     pub current_scale_index: Option<usize>,
     pub population_cardinality: Option<usize>,
+    pub best_chromosome: Option<G::Chromosome>,
 }
 
 impl<
@@ -318,11 +319,10 @@ impl<
         self.state.best_fitness_score()
     }
     fn best_genes(&self) -> Option<G::Genes> {
-        if self.state.best_fitness_score().is_some() {
-            Some(self.genotype.best_genes().clone())
-        } else {
-            None
-        }
+        self.state
+            .best_chromosome
+            .as_ref()
+            .map(|c| c.genes().clone())
     }
     fn flush_reporter(&mut self, output: &mut Vec<u8>) {
         self.reporter.flush(output);
@@ -392,8 +392,7 @@ impl<
         if self.state.best_fitness_score().is_none() {
             let chromosome = &self.state.population.chromosomes[0];
             self.state.best_generation = self.state.current_generation;
-            self.state.best_fitness_score = chromosome.fitness_score();
-            self.genotype.save_best_genes(chromosome);
+            self.state.best_chromosome = Some(chromosome.clone());
             self.reporter
                 .on_new_best_chromosome(&self.genotype, &self.state, &self.config);
             self.state.reset_stale_generations();
@@ -542,6 +541,9 @@ impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
     fn total_duration(&self) -> Duration {
         self.durations.values().sum()
     }
+    fn best_genes(&self) -> Option<G::Genes> {
+        self.best_chromosome.as_ref().map(|c| c.genes().clone())
+    }
 }
 
 impl<G: EvolveGenotype> EvolveState<G> {
@@ -563,12 +565,12 @@ impl<G: EvolveGenotype> EvolveState<G> {
                 (true, true) => {
                     self.best_generation = self.current_generation;
                     self.best_fitness_score = contending_chromosome.fitness_score();
-                    genotype.save_best_genes(contending_chromosome);
+                    self.best_chromosome = Some(contending_chromosome.clone());
                     reporter.on_new_best_chromosome(genotype, self, config);
                     self.reset_stale_generations();
                 }
                 (true, false) => {
-                    genotype.save_best_genes(contending_chromosome);
+                    self.best_chromosome = Some(contending_chromosome.clone());
                     reporter.on_new_best_chromosome_equal_fitness(genotype, self, config);
                     self.increment_stale_generations();
                 }
@@ -605,12 +607,13 @@ impl<G: EvolveGenotype> EvolveState<G> {
             }
         }
     }
-    fn update_population_cardinality(&mut self, genotype: &mut G, _config: &EvolveConfig) {
-        self.population_cardinality = if genotype.genes_hashing() {
-            self.population.genes_cardinality()
-        } else {
-            self.population.fitness_score_cardinality()
-        }
+    fn update_population_cardinality(&mut self, _genotype: &mut G, _config: &EvolveConfig) {
+        // Note: genes_hashing() method not available in distributed genotype trait
+        // self.population_cardinality = if genotype.genes_hashing() {
+        //     self.population.genes_cardinality()
+        // } else {
+        self.population_cardinality = self.population.fitness_score_cardinality()
+        // }
     }
 }
 
@@ -757,6 +760,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
             population: Population::new_empty(),
             durations: HashMap::new(),
             population_cardinality: None,
+            best_chromosome: None,
         };
         match genotype.mutation_type() {
             MutationType::Scaled => Self {

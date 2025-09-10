@@ -1,16 +1,15 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::distributed::allele::Allele;
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesHash, GenesOwner, UniqueChromosome};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner, VecChromosome};
 use crate::distributed::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
-use rustc_hash::FxHasher;
 use std::fmt;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 
 pub type DefaultAllele = usize;
 
@@ -42,7 +41,7 @@ pub type DefaultAllele = usize;
 ///
 /// #[derive(Clone, Copy, PartialEq, Hash, Debug)]
 /// struct Item(pub u16, pub u16);
-/// impl Allele for Item {}
+/// genetic_algorithm::impl_allele!(Item);
 ///
 /// let genotype = UniqueGenotype::builder()
 ///     .with_allele_list(vec![
@@ -60,8 +59,6 @@ pub struct Unique<T: Allele + Hash = DefaultAllele> {
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub best_genes: Vec<T>,
-    pub genes_hashing: bool,
 }
 
 impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
@@ -82,8 +79,6 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
                 allele_list: allele_list.clone(),
                 gene_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
-                best_genes: allele_list.clone(),
-                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -92,37 +87,13 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
 impl<T: Allele + Hash> Genotype for Unique<T> {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
-    type Chromosome = UniqueChromosome<Self::Allele>;
+    type Chromosome = VecChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
-        self.best_genes.clone_from(&chromosome.genes);
-    }
-    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
-        chromosome.genes.clone_from(&self.best_genes);
-    }
-    fn best_genes(&self) -> &Self::Genes {
-        &self.best_genes
-    }
-    fn best_genes_slice(&self) -> &[Self::Allele] {
-        self.best_genes.as_slice()
-    }
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
-    }
-    fn genes_hashing(&self) -> bool {
-        self.genes_hashing
-    }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
-        if self.genes_hashing {
-            let mut s = FxHasher::default();
-            chromosome.genes.hash(&mut s);
-            Some(s.finish())
-        } else {
-            None
-        }
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -149,7 +120,7 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
             .tuples()
             .for_each(|(index1, index2)| chromosome.genes.swap(index1, index2));
         }
-        self.reset_chromosome_state(chromosome);
+        chromosome.update_state();
     }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
         self.seed_genes_list = seed_genes_list;
@@ -197,7 +168,7 @@ impl<T: Allele + Hash> HillClimbGenotype for Unique<T> {
             .for_each(|(first, second)| {
                 let mut new_chromosome = self.chromosome_cloner(chromosome);
                 new_chromosome.genes.swap(first, second);
-                self.reset_chromosome_state(&mut new_chromosome);
+                new_chromosome.update_state();
                 population.chromosomes.push(new_chromosome);
             });
     }
@@ -222,14 +193,14 @@ impl<T: Allele + Hash> PermutateGenotype for Unique<T> {
                     .clone()
                     .into_iter()
                     .permutations(self.genes_size())
-                    .map(UniqueChromosome::new),
+                    .map(VecChromosome::new),
             )
         } else {
             Box::new(
                 self.seed_genes_list
                     .clone()
                     .into_iter()
-                    .map(UniqueChromosome::new),
+                    .map(VecChromosome::new),
             )
         }
     }
@@ -258,12 +229,6 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for Unique<T> {
     }
     fn genes_capacity(&self) -> usize {
         self.genes_size
-    }
-    fn reset_chromosome_state(&self, chromosome: &mut UniqueChromosome<T>) {
-        chromosome.reset_state(self.calculate_genes_hash(chromosome));
-    }
-    fn copy_chromosome_state(&self, source: &UniqueChromosome<T>, target: &mut UniqueChromosome<T>) {
-        target.copy_state(source);
     }
 }
 

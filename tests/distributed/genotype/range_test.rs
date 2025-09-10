@@ -940,70 +940,42 @@ fn integer_chromosome_permutations_2_scaled() {
 
 #[test]
 fn float_calculate_genes_hash() {
-    let mut genotype = RangeGenotype::builder()
-        .with_genes_size(10)
-        .with_allele_range(0.0..=1.0)
-        .with_genes_hashing(true)
-        .build()
-        .unwrap();
+    let chromosome_1: VecChromosome<f32> =
+        build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let chromosome_2: VecChromosome<f32> =
+        build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let chromosome_3: VecChromosome<f32> =
+        build::chromosome(vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let chromosome_4: VecChromosome<f32> =
+        build::chromosome(vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
 
-    let chromosome_1 = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
-    let chromosome_2 = build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
-    let chromosome_3 = build::chromosome(vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
-    let chromosome_4 = build::chromosome(vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
-
-    assert!(genotype.calculate_genes_hash(&chromosome_1).is_some());
+    assert!(chromosome_1.calculate_hash() != 0);
     // assert_eq!(
-    //     genotype.calculate_genes_hash(&chromosome_1),
+    //     chromosome_1.calculate_hash(),
     //     Some(13948481349068670127)
     // );
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_1),
-        genotype.calculate_genes_hash(&chromosome_2),
-    );
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_3),
-        genotype.calculate_genes_hash(&chromosome_4),
-    );
+    assert_eq!(chromosome_1.calculate_hash(), chromosome_2.calculate_hash(),);
+    assert_eq!(chromosome_3.calculate_hash(), chromosome_4.calculate_hash(),);
 
     // the sign on zero matters
-    assert_ne!(
-        genotype.calculate_genes_hash(&chromosome_1),
-        genotype.calculate_genes_hash(&chromosome_3),
-    );
+    assert_ne!(chromosome_1.calculate_hash(), chromosome_3.calculate_hash(),);
 }
 
 #[test]
 fn integer_calculate_genes_hash() {
-    let mut genotype = RangeGenotype::builder()
-        .with_genes_size(10)
-        .with_allele_range(-10..=10)
-        .with_genes_hashing(true)
-        .build()
-        .unwrap();
+    let chromosome_1: VecChromosome<i32> = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_2: VecChromosome<i32> = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_3: VecChromosome<i32> = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_4: VecChromosome<i32> = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-    let chromosome_1 = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_2 = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_3 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_4 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-
-    assert!(genotype.calculate_genes_hash(&chromosome_1).is_some());
+    assert!(chromosome_1.calculate_hash() != 0);
     // assert_eq!(
-    //     genotype.calculate_genes_hash(&chromosome_1),
+    //     chromosome_1.calculate_hash(),
     //     Some(10064628735429642131)
     // );
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_1),
-        genotype.calculate_genes_hash(&chromosome_2),
-    );
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_3),
-        genotype.calculate_genes_hash(&chromosome_4),
-    );
+    assert_eq!(chromosome_1.calculate_hash(), chromosome_2.calculate_hash(),);
+    assert_eq!(chromosome_3.calculate_hash(), chromosome_4.calculate_hash(),);
 
     // the sign on does not matter
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_1),
-        genotype.calculate_genes_hash(&chromosome_3),
-    );
+    assert_eq!(chromosome_1.calculate_hash(), chromosome_3.calculate_hash(),);
 }

@@ -206,35 +206,20 @@ fn chromosome_permutations_genes_size_huge() {
 
 #[test]
 fn integer_calculate_genes_hash() {
-    let mut genotype = ListGenotype::builder()
-        .with_genes_size(10)
-        .with_allele_list((-10..10).collect())
-        .with_genes_hashing(true)
-        .build()
-        .unwrap();
+    let chromosome_1: VecChromosome<i32> = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_2: VecChromosome<i32> = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_3: VecChromosome<i32> = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_4: VecChromosome<i32> = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-    let chromosome_1 = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_2 = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_3 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_4 = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let hash_1 = chromosome_1.calculate_hash();
+    let hash_2 = chromosome_2.calculate_hash();
+    let hash_3 = chromosome_3.calculate_hash();
+    let hash_4 = chromosome_4.calculate_hash();
 
-    assert!(genotype.calculate_genes_hash(&chromosome_1).is_some());
-    // assert_eq!(
-    //     genotype.calculate_genes_hash(&chromosome_1),
-    //     Some(10873053262589934868)
-    // );
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_1),
-        genotype.calculate_genes_hash(&chromosome_2),
-    );
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_3),
-        genotype.calculate_genes_hash(&chromosome_4),
-    );
+    // Same genes should have same hash
+    assert_eq!(hash_1, hash_2);
+    assert_eq!(hash_3, hash_4);
 
-    // the sign on does not matter
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_1),
-        genotype.calculate_genes_hash(&chromosome_3),
-    );
+    // the sign on does not matter (-0 == 0)
+    assert_eq!(hash_1, hash_3);
 }

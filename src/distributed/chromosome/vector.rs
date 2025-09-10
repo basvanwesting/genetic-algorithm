@@ -1,6 +1,8 @@
-use super::{Chromosome, GenesHash};
+use super::{Chromosome, GenesHash, GenesOwner};
 use crate::distributed::allele::Allele;
 use crate::distributed::fitness::FitnessValue;
+use rustc_hash::FxHasher;
+use std::hash::Hasher;
 
 #[derive(Clone, Debug)]
 pub struct Vector<T: Allele> {
@@ -10,7 +12,7 @@ pub struct Vector<T: Allele> {
     pub age: usize,
 }
 
-impl<T: Allele> super::Chromosome for Vector<T> {
+impl<T: Allele> Chromosome for Vector<T> {
     fn age(&self) -> usize {
         self.age
     }
@@ -38,6 +40,11 @@ impl<T: Allele> super::Chromosome for Vector<T> {
     fn set_genes_hash(&mut self, genes_hash: Option<GenesHash>) {
         self.genes_hash = genes_hash
     }
+    fn update_state(&mut self) {
+        self.age = 0;
+        self.fitness_score = None;
+        self.genes_hash = Some(self.calculate_hash());
+    }
     fn reset_state(&mut self, genes_hash: Option<GenesHash>) {
         self.age = 0;
         self.fitness_score = None;
@@ -49,7 +56,16 @@ impl<T: Allele> super::Chromosome for Vector<T> {
         self.genes_hash = other.genes_hash;
     }
 }
-impl<T: Allele> super::GenesOwner for Vector<T> {
+impl<T: Allele> Vector<T> {
+    /// Calculate hash from genes using type-specific hashing
+    pub fn calculate_hash(&self) -> GenesHash {
+        let mut hasher = FxHasher::default();
+        T::hash_slice(&self.genes, &mut hasher);
+        hasher.finish()
+    }
+}
+
+impl<T: Allele> GenesOwner for Vector<T> {
     type Genes = Vec<T>;
     fn new(genes: Self::Genes) -> Self {
         Self {
@@ -75,7 +91,10 @@ impl<T: Allele> super::GenesOwner for Vector<T> {
     }
     fn set_genes(&mut self, genes: Self::Genes) {
         self.genes = genes;
-        self.reset_state(None); // Reset state when genes change
+        let hash = self.calculate_hash();
+        self.genes_hash = Some(hash);
+        self.fitness_score = None;
+        self.age = 0;
     }
     fn copy_from(&mut self, source: &Self) {
         self.genes.clone_from(&source.genes);

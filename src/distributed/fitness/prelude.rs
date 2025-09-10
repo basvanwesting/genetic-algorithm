@@ -1,8 +1,5 @@
 #[doc(no_inline)]
-pub use crate::distributed::chromosome::{
-    BinaryChromosome, Chromosome, GenesHash, ListChromosome, MultiListChromosome,
-    MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome, UniqueChromosome,
-};
+pub use crate::distributed::chromosome::{Chromosome, GenesHash};
 #[doc(no_inline)]
 pub use crate::distributed::fitness::{
     Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessPopulation,

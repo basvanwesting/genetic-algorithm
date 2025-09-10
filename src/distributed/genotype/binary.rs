@@ -1,14 +1,12 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
-use crate::distributed::chromosome::{BinaryChromosome, Chromosome, ChromosomeManager, GenesHash, GenesOwner};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner, VecChromosome};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Standard, Uniform};
 use rand::prelude::*;
-use rustc_hash::FxHasher;
 use std::fmt;
-use std::hash::{Hash, Hasher};
 
 /// Genes are a vector of booleans. On random initialization, each gene has a 50% probability of
 /// becoming true or false. Each gene has an equal probability of mutating. If a gene mutates, its
@@ -29,8 +27,6 @@ pub struct Binary {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<bool>>,
-    pub best_genes: Vec<bool>,
-    pub genes_hashing: bool,
 }
 
 impl TryFrom<Builder<Self>> for Binary {
@@ -47,8 +43,6 @@ impl TryFrom<Builder<Self>> for Binary {
                 genes_size,
                 gene_index_sampler: Uniform::from(0..genes_size),
                 seed_genes_list: builder.seed_genes_list,
-                best_genes: vec![false; genes_size],
-                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -57,37 +51,13 @@ impl TryFrom<Builder<Self>> for Binary {
 impl Genotype for Binary {
     type Allele = bool;
     type Genes = Vec<Self::Allele>;
-    type Chromosome = BinaryChromosome;
+    type Chromosome = VecChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
-        self.best_genes.clone_from(&chromosome.genes);
-    }
-    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
-        chromosome.genes.clone_from(&self.best_genes);
-    }
-    fn best_genes(&self) -> &Self::Genes {
-        &self.best_genes
-    }
-    fn best_genes_slice(&self) -> &[Self::Allele] {
-        self.best_genes.as_slice()
-    }
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
-    }
-    fn genes_hashing(&self) -> bool {
-        self.genes_hashing
-    }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
-        if self.genes_hashing {
-            let mut s = FxHasher::default();
-            chromosome.genes.hash(&mut s);
-            Some(s.finish())
-        } else {
-            None
-        }
     }
 
     fn mutate_chromosome_genes<R: Rng>(
@@ -115,7 +85,7 @@ impl Genotype for Binary {
                 chromosome.genes[index] = !chromosome.genes[index];
             });
         }
-        self.reset_chromosome_state(chromosome);
+        chromosome.update_state();
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -155,8 +125,8 @@ impl EvolveGenotype for Binary {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        self.reset_chromosome_state(mother);
-        self.reset_chromosome_state(father);
+        mother.update_state();
+        father.update_state();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -198,8 +168,8 @@ impl EvolveGenotype for Binary {
                 _ => (),
             });
         }
-        self.reset_chromosome_state(mother);
-        self.reset_chromosome_state(father);
+        mother.update_state();
+        father.update_state();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -220,7 +190,7 @@ impl HillClimbGenotype for Binary {
         (0..self.genes_size).for_each(|index| {
             let mut new_chromosome = self.chromosome_cloner(chromosome);
             new_chromosome.genes[index] = !new_chromosome.genes[index];
-            self.reset_chromosome_state(&mut new_chromosome);
+            new_chromosome.update_state();
             population.chromosomes.push(new_chromosome);
         });
     }
@@ -241,14 +211,14 @@ impl PermutateGenotype for Binary {
                 (0..self.genes_size())
                     .map(|_| vec![true, false])
                     .multi_cartesian_product()
-                    .map(BinaryChromosome::new),
+                    .map(VecChromosome::new),
             )
         } else {
             Box::new(
                 self.seed_genes_list
                     .clone()
                     .into_iter()
-                    .map(BinaryChromosome::new),
+                    .map(VecChromosome::new),
             )
         }
     }
@@ -274,12 +244,6 @@ impl ChromosomeManager<Self> for Binary {
     }
     fn genes_capacity(&self) -> usize {
         self.genes_size
-    }
-    fn reset_chromosome_state(&self, chromosome: &mut BinaryChromosome) {
-        chromosome.reset_state(self.calculate_genes_hash(chromosome));
-    }
-    fn copy_chromosome_state(&self, source: &BinaryChromosome, target: &mut BinaryChromosome) {
-        target.copy_state(source);
     }
 }
 

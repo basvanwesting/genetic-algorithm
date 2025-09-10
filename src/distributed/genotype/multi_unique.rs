@@ -1,19 +1,16 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::distributed::allele::Allele;
-use crate::distributed::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, GenesOwner, MultiUniqueChromosome,
-};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner, VecChromosome};
 use crate::distributed::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
-use rustc_hash::FxHasher;
 use std::collections::HashMap;
 use std::fmt;
-use std::hash::{Hash, Hasher};
+use std::hash::Hash;
 
 pub type DefaultAllele = usize;
 
@@ -57,7 +54,7 @@ pub type DefaultAllele = usize;
 ///
 /// #[derive(Clone, Copy, PartialEq, Hash, Debug)]
 /// struct Item(pub u16, pub u16);
-/// impl Allele for Item {}
+/// genetic_algorithm::impl_allele!(Item);
 ///
 /// let genotype = MultiUniqueGenotype::builder()
 ///     .with_allele_lists(vec![
@@ -80,8 +77,6 @@ pub struct MultiUnique<T: Allele + Hash = DefaultAllele> {
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub best_genes: Vec<T>,
-    pub genes_hashing: bool,
 }
 
 impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
@@ -129,8 +124,6 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
                 crossover_points,
                 crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
-                best_genes: allele_lists.clone().into_iter().flatten().collect(),
-                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -139,37 +132,13 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
 impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
-    type Chromosome = MultiUniqueChromosome<Self::Allele>;
+    type Chromosome = VecChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
-        self.best_genes.clone_from(&chromosome.genes);
-    }
-    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
-        chromosome.genes.clone_from(&self.best_genes);
-    }
-    fn best_genes(&self) -> &Self::Genes {
-        &self.best_genes
-    }
-    fn best_genes_slice(&self) -> &[Self::Allele] {
-        self.best_genes.as_slice()
-    }
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
-    }
-    fn genes_hashing(&self) -> bool {
-        self.genes_hashing
-    }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
-        if self.genes_hashing {
-            let mut s = FxHasher::default();
-            chromosome.genes.hash(&mut s);
-            Some(s.finish())
-        } else {
-            None
-        }
     }
     fn mutate_chromosome_genes<R: Rng>(
         &mut self,
@@ -212,7 +181,7 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
                         })
                 });
         }
-        self.reset_chromosome_state(chromosome);
+        chromosome.update_state();
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -281,8 +250,8 @@ impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
                 _ => (),
             });
         }
-        self.reset_chromosome_state(mother);
-        self.reset_chromosome_state(father);
+        mother.update_state();
+        father.update_state();
     }
     fn has_crossover_points(&self) -> bool {
         true
@@ -310,7 +279,7 @@ impl<T: Allele + Hash> HillClimbGenotype for MultiUnique<T> {
                         new_chromosome
                             .genes
                             .swap(index_offset + first, index_offset + second);
-                        self.reset_chromosome_state(&mut new_chromosome);
+                        new_chromosome.update_state();
                         population.chromosomes.push(new_chromosome);
                     });
             });
@@ -346,14 +315,14 @@ impl<T: Allele + Hash> PermutateGenotype for MultiUnique<T> {
                         allele_list.into_iter().permutations(size)
                     })
                     .multi_cartesian_product()
-                    .map(|gene_sets| MultiUniqueChromosome::new(gene_sets.into_iter().concat())),
+                    .map(|gene_sets| VecChromosome::new(gene_sets.into_iter().concat())),
             )
         } else {
             Box::new(
                 self.seed_genes_list
                     .clone()
                     .into_iter()
-                    .map(MultiUniqueChromosome::new),
+                    .map(VecChromosome::new),
             )
         }
     }
@@ -392,12 +361,6 @@ impl<T: Allele + Hash> ChromosomeManager<Self> for MultiUnique<T> {
     }
     fn genes_capacity(&self) -> usize {
         self.genes_size
-    }
-    fn reset_chromosome_state(&self, chromosome: &mut MultiUniqueChromosome<T>) {
-        chromosome.reset_state(self.calculate_genes_hash(chromosome));
-    }
-    fn copy_chromosome_state(&self, source: &MultiUniqueChromosome<T>, target: &mut MultiUniqueChromosome<T>) {
-        target.copy_state(source);
     }
 }
 

@@ -45,13 +45,14 @@ mod population_tests {
 
     #[test]
     fn best_chromosome() {
-        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-            (vec![false, true, true], Some(2)),
-            (vec![false, false, false], Some(0)),
-            (vec![true, true, true], Some(3)),
-            (vec![false, false, true], Some(1)),
-            (vec![true, true, false], None),
-        ]);
+        let population: Population<VecChromosome<bool>> =
+            build::population_with_fitness_scores(vec![
+                (vec![false, true, true], Some(2)),
+                (vec![false, false, false], Some(0)),
+                (vec![true, true, true], Some(3)),
+                (vec![false, false, true], Some(1)),
+                (vec![true, true, false], None),
+            ]);
 
         let best_chromosome = population.best_chromosome(FitnessOrdering::Maximize);
         assert_eq!(
@@ -67,13 +68,14 @@ mod population_tests {
 
     #[test]
     fn best_chromosome_index() {
-        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-            (vec![false, true, true], Some(2)),
-            (vec![false, false, false], Some(0)),
-            (vec![true, true, true], Some(3)),
-            (vec![false, false, true], Some(1)),
-            (vec![true, true, false], None),
-        ]);
+        let population: Population<VecChromosome<bool>> =
+            build::population_with_fitness_scores(vec![
+                (vec![false, true, true], Some(2)),
+                (vec![false, false, false], Some(0)),
+                (vec![true, true, true], Some(3)),
+                (vec![false, false, true], Some(1)),
+                (vec![true, true, false], None),
+            ]);
 
         assert_eq!(
             population.best_chromosome_index(FitnessOrdering::Maximize),
@@ -87,13 +89,14 @@ mod population_tests {
 
     #[test]
     fn best_chromosome_indices_no_fitness() {
-        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-            (vec![false, true, true], None),
-            (vec![false, false, false], None),
-            (vec![true, true, true], None),
-            (vec![false, false, true], None),
-            (vec![true, true, false], None),
-        ]);
+        let population: Population<VecChromosome<bool>> =
+            build::population_with_fitness_scores(vec![
+                (vec![false, true, true], None),
+                (vec![false, false, false], None),
+                (vec![true, true, true], None),
+                (vec![false, false, true], None),
+                (vec![true, true, false], None),
+            ]);
 
         assert_eq!(
             population.best_chromosome_indices(2, FitnessOrdering::Maximize),
@@ -132,13 +135,7 @@ mod population_tests {
 
     #[test]
     fn chromosome_indices_all_variants_with_fitness_with_genes_hash() {
-        let genotype = BinaryGenotype::builder()
-            .with_genes_size(3)
-            .with_genes_hashing(true)
-            .build()
-            .unwrap();
-
-        let mut population: Population<BinaryChromosome> =
+        let mut population: Population<VecChromosome<bool>> =
             build::population_with_fitness_scores(vec![
                 (vec![false, true, true], Some(2)),
                 (vec![false, true, true], Some(2)),
@@ -153,7 +150,7 @@ mod population_tests {
             ]);
 
         population.chromosomes.iter_mut().for_each(|chromosome| {
-            let genes_hash = genotype.calculate_genes_hash(chromosome);
+            let genes_hash = Some(chromosome.calculate_hash());
             chromosome.set_genes_hash(genes_hash);
         });
 
@@ -251,13 +248,7 @@ mod population_tests {
 
     #[test]
     fn chromosome_indices_all_variants_without_fitness_with_genes_hash() {
-        let genotype = BinaryGenotype::builder()
-            .with_genes_size(3)
-            .with_genes_hashing(true)
-            .build()
-            .unwrap();
-
-        let mut population: Population<BinaryChromosome> =
+        let mut population: Population<VecChromosome<bool>> =
             build::population_with_fitness_scores(vec![
                 (vec![false, true, true], None),
                 (vec![false, true, true], None),
@@ -272,7 +263,7 @@ mod population_tests {
             ]);
 
         population.chromosomes.iter_mut().for_each(|chromosome| {
-            let genes_hash = genotype.calculate_genes_hash(chromosome);
+            let genes_hash = Some(chromosome.calculate_hash());
             chromosome.set_genes_hash(genes_hash);
         });
 
@@ -292,18 +283,19 @@ mod population_tests {
 
     #[test]
     fn chromosome_indices_all_variants_with_fitness_without_genes_hash() {
-        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-            (vec![false, true, true], Some(2)),
-            (vec![false, true, true], Some(2)),
-            (vec![false, false, false], Some(0)),
-            (vec![true, true, true], Some(3)),
-            (vec![false, false, false], Some(0)),
-            (vec![true, true, true], Some(3)),
-            (vec![false, false, true], Some(1)),
-            (vec![false, false, true], Some(1)),
-            (vec![true, true, false], None),
-            (vec![true, true, false], None),
-        ]);
+        let population: Population<VecChromosome<bool>> =
+            build::population_with_fitness_scores(vec![
+                (vec![false, true, true], Some(2)),
+                (vec![false, true, true], Some(2)),
+                (vec![false, false, false], Some(0)),
+                (vec![true, true, true], Some(3)),
+                (vec![false, false, false], Some(0)),
+                (vec![true, true, true], Some(3)),
+                (vec![false, false, true], Some(1)),
+                (vec![false, false, true], Some(1)),
+                (vec![true, true, false], None),
+                (vec![true, true, false], None),
+            ]);
 
         // uniqueness
         assert_eq!(population.unique_chromosome_indices(), vec![]);
@@ -399,7 +391,7 @@ mod population_tests {
 
     #[test]
     fn fitness_score_cardinality() {
-        let population: Population<BinaryChromosome> = build::population(vec![
+        let population: Population<VecChromosome<bool>> = build::population(vec![
             vec![false, false, false],
             vec![false, false, true],
             vec![false, true, true],
@@ -408,26 +400,21 @@ mod population_tests {
         ]);
         assert_eq!(population.fitness_score_cardinality(), None);
 
-        let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-            (vec![false, false, false], Some(0)),
-            (vec![false, false, true], Some(2)),
-            (vec![false, true, true], Some(2)),
-            (vec![true, true, true], Some(3)),
-            (vec![true, true, false], None),
-        ]);
+        let population: Population<VecChromosome<bool>> =
+            build::population_with_fitness_scores(vec![
+                (vec![false, false, false], Some(0)),
+                (vec![false, false, true], Some(2)),
+                (vec![false, true, true], Some(2)),
+                (vec![true, true, true], Some(3)),
+                (vec![true, true, false], None),
+            ]);
 
         assert_eq!(population.fitness_score_cardinality(), Some(3));
     }
 
     #[test]
     fn genes_cardinality() {
-        let genotype = BinaryGenotype::builder()
-            .with_genes_size(3)
-            .with_genes_hashing(true)
-            .build()
-            .unwrap();
-
-        let mut population: Population<BinaryChromosome> = build::population(vec![
+        let mut population: Population<VecChromosome<bool>> = build::population(vec![
             vec![false, false, false],
             vec![false, false, true],
             vec![false, true, true],
@@ -441,7 +428,7 @@ mod population_tests {
         assert_eq!(population.genes_cardinality(), None);
 
         population.chromosomes.iter_mut().for_each(|chromosome| {
-            let genes_hash = genotype.calculate_genes_hash(chromosome);
+            let genes_hash = Some(chromosome.calculate_hash());
             chromosome.reset_state(genes_hash);
         });
 
@@ -450,7 +437,7 @@ mod population_tests {
 
     #[test]
     fn parents_and_offspring_size() {
-        let population: Population<BinaryChromosome> = build::population_with_age(vec![
+        let population: Population<VecChromosome<bool>> = build::population_with_age(vec![
             (vec![false, false, false], 1),
             (vec![false, false, true], 1),
             (vec![false, true, true], 0),

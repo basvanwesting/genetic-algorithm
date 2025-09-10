@@ -13,7 +13,7 @@ fn standard() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryChromosome> = build::population_with_age(vec![
+    let population: Population<VecChromosome<bool>> = build::population_with_age(vec![
         (vec![true; 10], 1),
         (vec![false; 10], 1),
         (vec![true; 10], 1),

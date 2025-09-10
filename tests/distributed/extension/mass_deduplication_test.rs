@@ -10,11 +10,10 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 fn standard() {
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
-        .with_genes_hashing(true)
         .build()
         .unwrap();
 
-    let mut population: Population<BinaryChromosome> = build::population(vec![
+    let mut population: Population<VecChromosome<bool>> = build::population(vec![
         vec![false, true, true],
         vec![false, true, true],
         vec![false, true, true],
@@ -27,7 +26,7 @@ fn standard() {
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
     population.chromosomes.iter_mut().for_each(|chromosome| {
-        let genes_hash = genotype.calculate_genes_hash(chromosome);
+        let genes_hash = Some(chromosome.calculate_hash());
         chromosome.reset_state(genes_hash);
     });
 
@@ -61,11 +60,10 @@ fn standard() {
 fn never_leaves_less_than_two() {
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
-        .with_genes_hashing(true)
         .build()
         .unwrap();
 
-    let mut population: Population<BinaryChromosome> = build::population(vec![
+    let mut population: Population<VecChromosome<bool>> = build::population(vec![
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],
@@ -78,7 +76,7 @@ fn never_leaves_less_than_two() {
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
     population.chromosomes.iter_mut().for_each(|chromosome| {
-        let genes_hash = genotype.calculate_genes_hash(chromosome);
+        let genes_hash = Some(chromosome.calculate_hash());
         chromosome.reset_state(genes_hash);
     });
 
@@ -99,58 +97,6 @@ fn never_leaves_less_than_two() {
     assert_eq!(
         inspect::population(&state.population),
         vec![vec![true, true, true], vec![true, true, true]]
-    );
-    assert_eq!(state.population.chromosomes.capacity(), 10);
-}
-
-#[test]
-fn skips_execution_if_no_genes_hash() {
-    let mut genotype = BinaryGenotype::builder()
-        .with_genes_size(3)
-        .build()
-        .unwrap();
-
-    let mut population: Population<BinaryChromosome> = build::population(vec![
-        vec![false, true, true],
-        vec![false, true, true],
-        vec![false, true, true],
-        vec![true, false, true],
-        vec![true, false, true],
-        vec![true, false, true],
-        vec![true, true, true],
-        vec![true, true, true],
-    ]);
-    population.chromosomes.reserve_exact(2);
-    assert_eq!(population.chromosomes.capacity(), 10);
-
-    let mut state = EvolveState::new(&genotype);
-    assert_eq!(population.genes_cardinality(), None);
-    state.population_cardinality = Some(2); // hard trigger, because no cardinality if no genes hashes
-    state.population = population;
-    let config = EvolveConfig::new();
-    let mut reporter = StrategyReporterNoop::new();
-    let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassDeduplication::new(3).call(
-        &mut genotype,
-        &mut state,
-        &config,
-        &mut reporter,
-        &mut rng,
-    );
-
-    state.population.chromosomes.sort_by_key(|c| c.genes_hash());
-    assert_eq!(
-        inspect::population(&state.population),
-        vec![
-            vec![false, true, true],
-            vec![false, true, true],
-            vec![false, true, true],
-            vec![true, false, true],
-            vec![true, false, true],
-            vec![true, false, true],
-            vec![true, true, true],
-            vec![true, true, true],
-        ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 10);
 }

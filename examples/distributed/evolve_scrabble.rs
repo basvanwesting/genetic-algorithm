@@ -1,5 +1,6 @@
 use genetic_algorithm::distributed::strategy::evolve::prelude::*;
 use std::collections::{HashMap, HashSet};
+use std::hash::{Hash, Hasher};
 
 type Row = usize;
 type Column = usize;
@@ -12,7 +13,12 @@ pub enum Orientation {
 
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Hash)]
 pub struct WordPosition(pub Row, pub Column, pub Orientation);
-impl Allele for WordPosition {}
+impl Allele for WordPosition {
+    fn hash_slice(slice: &[Self], hasher: &mut impl Hasher) {
+        slice.hash(hasher);
+    }
+}
+// or genetic_algorithm::impl_allele!(WordPosition)
 
 #[derive(Clone, Debug)]
 struct ScrabbleFitness {

@@ -1,6 +1,4 @@
-use genetic_algorithm::distributed::chromosome::{
-    BinaryChromosome, ListChromosome, RangeChromosome,
-};
+use genetic_algorithm::distributed::chromosome::VecChromosome;
 use genetic_algorithm::distributed::population::Population;
 
 #[cfg(test)]
@@ -8,7 +6,7 @@ use crate::support::*;
 
 #[test]
 fn chromosome_binary() {
-    let chromosome: BinaryChromosome = build::chromosome(vec![true, false, true, false]);
+    let chromosome: VecChromosome<bool> = build::chromosome(vec![true, false, true, false]);
     println!("{:#?}", chromosome);
     assert_eq!(
         inspect::chromosome(&chromosome),
@@ -18,21 +16,21 @@ fn chromosome_binary() {
 
 #[test]
 fn chromosome_list() {
-    let chromosome: ListChromosome<u8> = build::chromosome(vec![3, 4, 5, 6]);
+    let chromosome: VecChromosome<u8> = build::chromosome(vec![3, 4, 5, 6]);
     println!("{:#?}", chromosome);
     assert_eq!(inspect::chromosome(&chromosome), vec![3, 4, 5, 6]);
 }
 
 #[test]
 fn chromosome_range() {
-    let chromosome: RangeChromosome<f32> = build::chromosome(vec![0.1, 0.2, 0.3]);
+    let chromosome: VecChromosome<f32> = build::chromosome(vec![0.1, 0.2, 0.3]);
     println!("{:#?}", chromosome);
     assert_eq!(inspect::chromosome(&chromosome), vec![0.1, 0.2, 0.3]);
 }
 
 #[test]
 fn population_binary() {
-    let population: Population<BinaryChromosome> = build::population(vec![
+    let population: Population<VecChromosome<bool>> = build::population(vec![
         vec![true, true, true],
         vec![true, true, false],
         vec![true, false, false],

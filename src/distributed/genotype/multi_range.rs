@@ -1,19 +1,14 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::distributed::allele::RangeAllele;
-use crate::distributed::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, GenesOwner, MultiRangeChromosome,
-};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner, VecChromosome};
 use crate::distributed::population::Population;
-use bytemuck::cast_slice;
 use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
-use rustc_hash::FxHasher;
 use std::fmt;
-use std::hash::{Hash, Hasher};
 use std::ops::RangeInclusive;
 
 pub type DefaultAllele = f32;
@@ -97,8 +92,6 @@ where
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
     pub seed_genes_list: Vec<Vec<T>>,
-    pub best_genes: Vec<T>,
-    pub genes_hashing: bool,
 }
 
 impl<T: RangeAllele + Into<f64>> TryFrom<Builder<Self>> for MultiRange<T>
@@ -155,8 +148,6 @@ where
                     },
                 ),
                 seed_genes_list: builder.seed_genes_list,
-                best_genes: allele_ranges.iter().map(|a| *a.start()).collect(),
-                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -170,7 +161,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut MultiRangeChromosome<T>,
+        chromosome: &mut VecChromosome<T>,
         rng: &mut R,
     ) {
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
@@ -178,7 +169,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut MultiRangeChromosome<T>,
+        chromosome: &mut VecChromosome<T>,
         rng: &mut R,
     ) {
         let allele_range = &self.allele_ranges[index];
@@ -195,7 +186,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut MultiRangeChromosome<T>,
+        chromosome: &mut VecChromosome<T>,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -226,38 +217,13 @@ where
 {
     type Allele = T;
     type Genes = Vec<Self::Allele>;
-    type Chromosome = MultiRangeChromosome<Self::Allele>;
+    type Chromosome = VecChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
-        self.best_genes.clone_from(&chromosome.genes);
-    }
-    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
-        chromosome.genes.clone_from(&self.best_genes);
-    }
-    fn best_genes(&self) -> &Self::Genes {
-        &self.best_genes
-    }
-    fn best_genes_slice(&self) -> &[Self::Allele] {
-        self.best_genes.as_slice()
-    }
     fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
-    }
-    fn genes_hashing(&self) -> bool {
-        self.genes_hashing
-    }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
-        if self.genes_hashing {
-            let mut s = FxHasher::default();
-            let bytes: &[u8] = cast_slice(self.genes_slice(chromosome));
-            bytes.hash(&mut s);
-            Some(s.finish())
-        } else {
-            None
-        }
     }
 
     fn mutation_type(&self) -> MutationType {
@@ -313,7 +279,7 @@ where
                 };
             });
         }
-        self.reset_chromosome_state(chromosome);
+        chromosome.update_state();
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
@@ -359,8 +325,8 @@ where
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        self.reset_chromosome_state(mother);
-        self.reset_chromosome_state(father);
+        mother.update_state();
+        father.update_state();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -402,8 +368,8 @@ where
                 _ => (),
             });
         }
-        self.reset_chromosome_state(mother);
-        self.reset_chromosome_state(father);
+        mother.update_state();
+        father.update_state();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -452,8 +418,8 @@ where
 {
     fn fill_neighbouring_population_scaled(
         &mut self,
-        chromosome: &MultiRangeChromosome<T>,
-        population: &mut Population<MultiRangeChromosome<T>>,
+        chromosome: &VecChromosome<T>,
+        population: &mut Population<VecChromosome<T>>,
         scale_index: usize,
     ) {
         self.allele_ranges
@@ -483,13 +449,13 @@ where
                 if value_low < base_value {
                     let mut new_chromosome = self.chromosome_cloner(chromosome);
                     new_chromosome.genes[index] = value_low;
-                    self.reset_chromosome_state(&mut new_chromosome);
+                    new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 };
                 if value_high > base_value {
                     let mut new_chromosome = self.chromosome_cloner(chromosome);
                     new_chromosome.genes[index] = value_high;
-                    self.reset_chromosome_state(&mut new_chromosome);
+                    new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 };
             });
@@ -497,8 +463,8 @@ where
 
     fn fill_neighbouring_population_relative<R: Rng>(
         &mut self,
-        chromosome: &MultiRangeChromosome<T>,
-        population: &mut Population<MultiRangeChromosome<T>>,
+        chromosome: &VecChromosome<T>,
+        population: &mut Population<VecChromosome<T>>,
         rng: &mut R,
     ) {
         self.allele_ranges
@@ -527,7 +493,7 @@ where
                 if range_start < base_value {
                     let mut new_chromosome = self.chromosome_cloner(chromosome);
                     new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
-                    self.reset_chromosome_state(&mut new_chromosome);
+                    new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 };
                 if base_value < range_end {
@@ -535,7 +501,7 @@ where
                     let new_value =
                         rng.gen_range((base_value + T::smallest_increment())..=range_end);
                     new_chromosome.genes[index] = new_value;
-                    self.reset_chromosome_state(&mut new_chromosome);
+                    new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 };
             });
@@ -543,8 +509,8 @@ where
 
     fn fill_neighbouring_population_random<R: Rng>(
         &mut self,
-        chromosome: &MultiRangeChromosome<T>,
-        population: &mut Population<MultiRangeChromosome<T>>,
+        chromosome: &VecChromosome<T>,
+        population: &mut Population<VecChromosome<T>>,
         rng: &mut R,
     ) {
         self.allele_ranges
@@ -559,7 +525,7 @@ where
                 if allele_range_start < base_value {
                     let mut new_chromosome = self.chromosome_cloner(chromosome);
                     new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
-                    self.reset_chromosome_state(&mut new_chromosome);
+                    new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 };
                 if base_value < allele_range_end {
@@ -567,7 +533,7 @@ where
                     let new_value =
                         rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
                     new_chromosome.genes[index] = new_value;
-                    self.reset_chromosome_state(&mut new_chromosome);
+                    new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 };
             });
@@ -590,7 +556,7 @@ where
                     self.permutable_gene_values_scaled(chromosome, scale_index.unwrap())
                         .into_iter()
                         .multi_cartesian_product()
-                        .map(MultiRangeChromosome::new),
+                        .map(VecChromosome::new),
                 ),
                 MutationType::Relative => {
                     panic!("RangeGenotype is not permutable for MutationType::Relative")
@@ -604,7 +570,7 @@ where
                 self.seed_genes_list
                     .clone()
                     .into_iter()
-                    .map(MultiRangeChromosome::new),
+                    .map(VecChromosome::new),
             )
         }
     }
@@ -643,7 +609,7 @@ where
     // scales should be symmetrical, so the step is simply the scale end
     pub fn permutable_gene_values_scaled(
         &self,
-        chromosome: Option<&MultiRangeChromosome<T>>,
+        chromosome: Option<&VecChromosome<T>>,
         scale_index: usize,
     ) -> Vec<Vec<T>> {
         self.allele_ranges
@@ -765,12 +731,6 @@ where
     fn genes_capacity(&self) -> usize {
         self.genes_size
     }
-    fn reset_chromosome_state(&self, chromosome: &mut MultiRangeChromosome<T>) {
-        chromosome.reset_state(self.calculate_genes_hash(chromosome));
-    }
-    fn copy_chromosome_state(&self, source: &MultiRangeChromosome<T>, target: &mut MultiRangeChromosome<T>) {
-        target.copy_state(source);
-    }
 }
 
 impl<T: RangeAllele + Into<f64>> Clone for MultiRange<T>
@@ -800,8 +760,6 @@ where
                 },
             ),
             seed_genes_list: self.seed_genes_list.clone(),
-            best_genes: self.allele_ranges.iter().map(|a| *a.start()).collect(),
-            genes_hashing: self.genes_hashing,
         }
     }
 }

@@ -443,8 +443,6 @@ fn chromosome_manager() {
     let mut chromosomes = (0..4)
         .map(|_| genotype.chromosome_constructor_random(rng))
         .collect::<Vec<_>>();
-    genotype.save_best_genes(&chromosomes[2]);
-    dbg!("init", &chromosomes, &genotype.best_genes());
 
     assert_eq!(
         inspect::chromosomes(&chromosomes),
@@ -455,13 +453,8 @@ fn chromosome_manager() {
             vec![false, false, false, true, true],
         ]
     );
-    assert_eq!(
-        genotype.best_genes().to_vec(),
-        vec![false, true, true, false, true],
-    );
 
     genotype.chromosome_destructor_truncate(&mut chromosomes, 2);
-    dbg!("truncate", &chromosomes, &genotype.best_genes());
 
     assert_eq!(
         inspect::chromosomes(&chromosomes),
@@ -472,7 +465,6 @@ fn chromosome_manager() {
     );
 
     genotype.chromosome_cloner_expand(&mut chromosomes, 2);
-    dbg!("clone range", &chromosomes, &genotype.best_genes());
 
     assert_eq!(
         inspect::chromosomes(&chromosomes),
@@ -488,7 +480,6 @@ fn chromosome_manager() {
         .iter_mut()
         .take(2)
         .for_each(|c| genotype.mutate_chromosome_genes(3, false, c, None, rng));
-    dbg!("mutate", &chromosomes, &genotype.best_genes());
 
     assert_eq!(
         inspect::chromosomes(&chromosomes),
@@ -499,41 +490,24 @@ fn chromosome_manager() {
             vec![true, true, false, false, true],
         ]
     );
-    assert_eq!(
-        genotype.best_genes().to_vec(),
-        vec![false, true, true, false, true],
-    );
 }
 
 #[test]
 fn calculate_genes_hash() {
-    let mut genotype = BinaryGenotype::builder()
-        .with_genes_size(3)
-        .with_genes_hashing(true)
-        .build()
-        .unwrap();
+    let chromosome_1: VecChromosome<bool> = build::chromosome(vec![true, true, true]);
+    let chromosome_2: VecChromosome<bool> = build::chromosome(vec![true, true, true]);
+    let chromosome_3: VecChromosome<bool> = build::chromosome(vec![true, false, true]);
+    let chromosome_4: VecChromosome<bool> = build::chromosome(vec![true, false, true]);
 
-    let chromosome_1 = build::chromosome(vec![true, true, true]);
-    let chromosome_2 = build::chromosome(vec![true, true, true]);
-    let chromosome_3 = build::chromosome(vec![true, false, true]);
-    let chromosome_4 = build::chromosome(vec![true, false, true]);
+    let hash_1 = chromosome_1.calculate_hash();
+    let hash_2 = chromosome_2.calculate_hash();
+    let hash_3 = chromosome_3.calculate_hash();
+    let hash_4 = chromosome_4.calculate_hash();
 
-    assert!(genotype.calculate_genes_hash(&chromosome_1).is_some());
-    // assert_eq!(
-    //     genotype.calculate_genes_hash(&chromosome_1),
-    //     Some(1044924641990395411)
-    // );
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_1),
-        genotype.calculate_genes_hash(&chromosome_2),
-    );
-    assert_eq!(
-        genotype.calculate_genes_hash(&chromosome_3),
-        genotype.calculate_genes_hash(&chromosome_4),
-    );
+    // Same genes should have same hash
+    assert_eq!(hash_1, hash_2);
+    assert_eq!(hash_3, hash_4);
 
-    assert_ne!(
-        genotype.calculate_genes_hash(&chromosome_1),
-        genotype.calculate_genes_hash(&chromosome_3),
-    );
+    // Different genes should have different hash
+    assert_ne!(hash_1, hash_3);
 }

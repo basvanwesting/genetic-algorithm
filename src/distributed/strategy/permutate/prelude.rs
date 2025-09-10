@@ -1,8 +1,5 @@
 #[doc(no_inline)]
-pub use crate::distributed::chromosome::{
-    BinaryChromosome, Chromosome, GenesHash, ListChromosome, MultiListChromosome,
-    MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome, UniqueChromosome,
-};
+pub use crate::distributed::chromosome::{Chromosome, GenesHash};
 #[doc(no_inline)]
 pub use crate::distributed::fitness::{
     Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessPopulation,
@@ -10,9 +7,9 @@ pub use crate::distributed::fitness::{
 };
 #[doc(no_inline)]
 pub use crate::distributed::genotype::{
-    Allele, BinaryGenotype, Genotype, GenotypeBuilder, ListGenotype,
-    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, PermutateGenotype, RangeAllele,
-    RangeGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
+    Allele, BinaryGenotype, Genotype, GenotypeBuilder, ListGenotype, MultiListGenotype,
+    MultiRangeGenotype, MultiUniqueGenotype, PermutateGenotype, RangeAllele, RangeGenotype,
+    TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::distributed::strategy::permutate::{
@@ -25,4 +22,6 @@ pub use crate::distributed::strategy::{
     StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
     STRATEGY_ACTIONS,
 };
+#[doc(no_inline)]
+pub use crate::impl_allele;
 pub use num::BigUint;

@@ -152,7 +152,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
 
     fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        genotype: &Self::Genotype,
+        _genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
@@ -162,7 +162,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
             state.best_fitness_score(),
             state.current_scale_index(),
             if self.show_genes {
-                Some(genotype.best_genes())
+                Some(state.best_genes())
             } else {
                 None
             },
@@ -171,7 +171,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
 
     fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        genotype: &Self::Genotype,
+        _genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
@@ -182,7 +182,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
                 state.best_fitness_score(),
                 state.current_scale_index(),
                 if self.show_genes {
-                    Some(genotype.best_genes())
+                    Some(state.best_genes())
                 } else {
                     None
                 },

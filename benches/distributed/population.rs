@@ -81,9 +81,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &_population_size| {
                 b.iter_batched(
                     || population.clone(),
-                    |mut data| {
-                        data.chromosomes.iter_mut().for_each(|c| {
-                            genotype.calculate_genes_hash(c);
+                    |data| {
+                        data.chromosomes.iter().for_each(|c| {
+                            c.calculate_hash();
                         });
                         data.genes_cardinality()
                     },
@@ -104,9 +104,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             |b, &_population_size| {
                 b.iter_batched(
                     || population.clone(),
-                    |mut data| {
-                        data.chromosomes.iter_mut().for_each(|c| {
-                            genotype.calculate_genes_hash(c);
+                    |data| {
+                        data.chromosomes.iter().for_each(|c| {
+                            c.calculate_hash();
                         });
                         data.genes_cardinality()
                     },

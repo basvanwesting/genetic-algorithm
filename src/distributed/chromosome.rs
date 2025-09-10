@@ -2,16 +2,10 @@
 
 mod vector;
 
-pub use self::vector::Vector as ListChromosome;
-pub use self::vector::Vector as MultiListChromosome;
-pub use self::vector::Vector as MultiRangeChromosome;
-pub use self::vector::Vector as MultiUniqueChromosome;
-pub use self::vector::Vector as RangeChromosome;
-pub use self::vector::Vector as UniqueChromosome;
-pub type BinaryChromosome = self::vector::Vector<bool>;
+pub use self::vector::Vector as VecChromosome;
 
 use crate::distributed::fitness::FitnessValue;
-use crate::distributed::genotype::{Genes, Genotype};
+use crate::distributed::genotype::Genotype;
 use rand::prelude::*;
 
 /// The GenesHash is used for determining cardinality in the population
@@ -38,11 +32,12 @@ pub trait Chromosome: Clone + Send {
     fn set_fitness_score(&mut self, fitness_score: Option<FitnessValue>);
     fn genes_hash(&self) -> Option<GenesHash>;
     fn set_genes_hash(&mut self, genes_hash: Option<GenesHash>);
+    fn update_state(&mut self);
     fn reset_state(&mut self, genes_hash: Option<GenesHash>);
     fn copy_state(&mut self, other: &Self);
 }
 pub trait GenesOwner: Chromosome {
-    type Genes: Genes;
+    type Genes: Clone + Send + Sync + std::fmt::Debug;
     fn new(genes: Self::Genes) -> Self;
     fn with_capacity(capacity: usize) -> Self;
     fn genes(&self) -> &Self::Genes;
@@ -56,47 +51,38 @@ pub trait ChromosomeManager<G: Genotype> {
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> G::Genes;
     /// Get the capacity hint for creating new chromosomes
     fn genes_capacity(&self) -> usize;
-    /// Reset chromosome state - must be provided by implementer
-    fn reset_chromosome_state(&self, chromosome: &mut G::Chromosome);
-    /// Copy chromosome state - must be provided by implementer  
-    fn copy_chromosome_state(&self, source: &G::Chromosome, target: &mut G::Chromosome);
 
     // Helper methods using the new chromosome capabilities
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R) 
+    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut G::Chromosome, rng: &mut R)
     where
         G::Chromosome: GenesOwner<Genes = G::Genes>,
     {
         let genes = self.random_genes_factory(rng);
         chromosome.set_genes(genes);
-        self.reset_chromosome_state(chromosome);
     }
-    
-    fn chromosome_constructor_genes(&mut self, genes: &G::Genes) -> G::Chromosome 
+
+    fn chromosome_constructor_genes(&mut self, genes: &G::Genes) -> G::Chromosome
     where
         G::Chromosome: GenesOwner<Genes = G::Genes>,
     {
-        let mut chromosome = G::Chromosome::new(genes.clone());
-        self.reset_chromosome_state(&mut chromosome);
-        chromosome
+        G::Chromosome::new(genes.clone())
     }
-    
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome 
+
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> G::Chromosome
     where
         G::Chromosome: GenesOwner<Genes = G::Genes>,
     {
         let genes = self.random_genes_factory(rng);
-        let mut chromosome = G::Chromosome::new(genes);
-        self.reset_chromosome_state(&mut chromosome);
-        chromosome
+        G::Chromosome::new(genes)
     }
-    
-    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome 
+
+    fn chromosome_cloner(&mut self, chromosome: &G::Chromosome) -> G::Chromosome
     where
-        G::Chromosome: GenesOwner<Genes = G::Genes> + Clone,
+        G::Chromosome: Clone,
     {
         chromosome.clone()
     }
-    
+
     fn chromosome_destructor_truncate(
         &mut self,
         chromosomes: &mut Vec<G::Chromosome>,
@@ -104,8 +90,8 @@ pub trait ChromosomeManager<G: Genotype> {
     ) {
         chromosomes.truncate(target_population_size);
     }
-    
-    fn chromosome_cloner_expand(&mut self, chromosomes: &mut Vec<G::Chromosome>, amount: usize) 
+
+    fn chromosome_cloner_expand(&mut self, chromosomes: &mut Vec<G::Chromosome>, amount: usize)
     where
         G::Chromosome: Clone,
     {

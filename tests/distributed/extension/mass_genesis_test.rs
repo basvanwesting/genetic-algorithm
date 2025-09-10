@@ -10,25 +10,25 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 fn removes_lesser() {
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
-        .with_genes_hashing(true)
         .build()
         .unwrap();
 
-    let mut population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-        (vec![true, false, false], Some(2)),
-        (vec![true, true, true], Some(0)),
-        (vec![true, true, false], Some(1)),
-    ]);
+    let mut population: Population<VecChromosome<bool>> =
+        build::population_with_fitness_scores(vec![
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+            (vec![true, false, false], Some(2)),
+            (vec![true, true, true], Some(0)),
+            (vec![true, true, false], Some(1)),
+        ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
     population.chromosomes.iter_mut().for_each(|chromosome| {
-        let genes_hash = genotype.calculate_genes_hash(chromosome);
+        let genes_hash = Some(chromosome.calculate_hash());
         chromosome.set_genes_hash(genes_hash);
     });
 
@@ -56,25 +56,25 @@ fn removes_lesser() {
 fn removes_lesser_no_fitness() {
     let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
-        .with_genes_hashing(true)
         .build()
         .unwrap();
 
-    let mut population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
-        (vec![true, true, true], None),
-        (vec![true, true, false], None),
-        (vec![true, false, false], None),
-        (vec![true, true, true], None),
-        (vec![true, true, false], None),
-        (vec![true, false, false], None),
-        (vec![true, true, true], None),
-        (vec![true, true, false], None),
-    ]);
+    let mut population: Population<VecChromosome<bool>> =
+        build::population_with_fitness_scores(vec![
+            (vec![true, true, true], None),
+            (vec![true, true, false], None),
+            (vec![true, false, false], None),
+            (vec![true, true, true], None),
+            (vec![true, true, false], None),
+            (vec![true, false, false], None),
+            (vec![true, true, true], None),
+            (vec![true, true, false], None),
+        ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
     population.chromosomes.iter_mut().for_each(|chromosome| {
-        let genes_hash = genotype.calculate_genes_hash(chromosome);
+        let genes_hash = Some(chromosome.calculate_hash());
         chromosome.set_genes_hash(genes_hash);
     });
 

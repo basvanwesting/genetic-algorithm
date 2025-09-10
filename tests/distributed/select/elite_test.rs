@@ -14,7 +14,7 @@ fn maximize() {
         .with_genes_size(3)
         .build()
         .unwrap();
-    let population: Population<BinaryChromosome> = build::population(vec![
+    let population: Population<VecChromosome<bool>> = build::population(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
@@ -58,7 +58,7 @@ fn minimize() {
         .with_genes_size(3)
         .build()
         .unwrap();
-    let population: Population<BinaryChromosome> = build::population(vec![
+    let population: Population<VecChromosome<bool>> = build::population(vec![
         vec![false, false, false],
         vec![false, false, true],
         vec![false, true, false],
@@ -100,7 +100,7 @@ fn fitness_ordering_with_none_fitness() {
         .with_genes_size(3)
         .build()
         .unwrap();
-    let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
+    let population: Population<VecChromosome<bool>> = build::population_with_fitness_scores(vec![
         (vec![false, false, false], Some(0)),
         (vec![false, false, true], Some(1)),
         (vec![false, true, true], Some(2)),
@@ -153,7 +153,7 @@ fn extreme_elitism_rates() {
         .with_genes_size(3)
         .build()
         .unwrap();
-    let population: Population<BinaryChromosome> = build::population_with_fitness_scores(vec![
+    let population: Population<VecChromosome<bool>> = build::population_with_fitness_scores(vec![
         (vec![false, false, false], Some(0)),
         (vec![false, false, true], Some(1)),
         (vec![false, true, true], Some(2)),

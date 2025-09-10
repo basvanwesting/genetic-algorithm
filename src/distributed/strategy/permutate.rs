@@ -120,6 +120,7 @@ pub struct PermutateState<G: PermutateGenotype> {
     pub chromosome: Option<G::Chromosome>,
     pub population: Population<G::Chromosome>,
     pub current_scale_index: Option<usize>,
+    pub best_chromosome: Option<G::Chromosome>,
 }
 
 impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>> Strategy<G>
@@ -133,8 +134,6 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
-            self.genotype
-                .load_best_genes(self.state.chromosome.as_mut().unwrap());
             if self.config.par_fitness {
                 self.call_parallel()
             } else {
@@ -156,11 +155,10 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.state.best_fitness_score()
     }
     fn best_genes(&self) -> Option<G::Genes> {
-        if self.state.best_fitness_score().is_some() {
-            Some(self.genotype.best_genes().clone())
-        } else {
-            None
-        }
+        self.state
+            .best_chromosome
+            .as_ref()
+            .map(|c| c.genes().clone())
     }
     fn flush_reporter(&mut self, output: &mut Vec<u8>) {
         self.reporter.flush(output);
@@ -207,10 +205,15 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             &mut self.reporter,
         );
 
-        // in case fitness_score is None, set best by definition anyway
-        self.state.best_generation = self.state.current_generation;
-        self.genotype
-            .save_best_genes(self.state.chromosome.as_ref().unwrap());
+        if self.state.best_fitness_score().is_none() {
+            self.state.best_generation = self.state.current_generation;
+            self.state
+                .best_chromosome
+                .clone_from(&self.state.chromosome);
+            self.reporter
+                .on_new_best_chromosome(&self.genotype, &self.state, &self.config);
+            self.state.reset_stale_generations();
+        }
     }
     pub fn cleanup(&mut self) {
         let now = Instant::now();
@@ -368,6 +371,9 @@ impl<G: PermutateGenotype> StrategyState<G> for PermutateState<G> {
     fn total_duration(&self) -> Duration {
         self.durations.values().sum()
     }
+    fn best_genes(&self) -> Option<G::Genes> {
+        self.best_chromosome.as_ref().map(|c| c.genes().clone())
+    }
 }
 
 impl<G: PermutateGenotype> PermutateState<G> {
@@ -387,12 +393,12 @@ impl<G: PermutateGenotype> PermutateState<G> {
                 (true, true) => {
                     self.best_generation = self.current_generation;
                     self.best_fitness_score = chromosome.fitness_score();
-                    genotype.save_best_genes(chromosome);
+                    self.best_chromosome = Some(chromosome.clone());
                     reporter.on_new_best_chromosome(genotype, self, config);
                     self.reset_stale_generations();
                 }
                 (true, false) => {
-                    genotype.save_best_genes(chromosome);
+                    self.best_chromosome = Some(chromosome.clone());
                     reporter.on_new_best_chromosome_equal_fitness(genotype, self, config);
                     self.increment_stale_generations()
                 }
@@ -485,6 +491,7 @@ impl<G: PermutateGenotype> PermutateState<G> {
             chromosome: None,
             population: Population::new_empty(),
             durations: HashMap::new(),
+            best_chromosome: None,
         };
         match genotype.mutation_type() {
             MutationType::Scaled => Self {

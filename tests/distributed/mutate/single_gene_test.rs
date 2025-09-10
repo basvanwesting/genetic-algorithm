@@ -15,7 +15,7 @@ fn binary_genotype() {
         .build()
         .unwrap();
 
-    let population: Population<BinaryChromosome> = build::population(vec![
+    let population: Population<VecChromosome<bool>> = build::population(vec![
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],

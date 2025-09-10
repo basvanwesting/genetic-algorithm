@@ -1,8 +1,5 @@
 #[doc(no_inline)]
-pub use crate::distributed::chromosome::{
-    BinaryChromosome, Chromosome, GenesHash, ListChromosome, MultiListChromosome,
-    MultiRangeChromosome, MultiUniqueChromosome, RangeChromosome, UniqueChromosome,
-};
+pub use crate::distributed::chromosome::{Chromosome, GenesHash};
 #[doc(no_inline)]
 pub use crate::distributed::crossover::{
     CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverRejuvenate,
@@ -44,3 +41,6 @@ pub use crate::distributed::strategy::{
     StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
     STRATEGY_ACTIONS,
 };
+#[doc(no_inline)]
+pub use crate::impl_allele;
+
