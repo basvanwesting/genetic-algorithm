@@ -15,19 +15,17 @@ pub use crate::centralized::allele::{Allele, RangeAllele};
 use crate::centralized::chromosome::{Chromosome, ChromosomeManager, GenesHash};
 use crate::centralized::fitness::FitnessValue;
 use crate::centralized::population::Population;
-use fixedbitset::FixedBitSet;
 use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
 
-/// Standard Genes, suitable for [Genotype]. Implemented for `Vec<Allele>` and [FixedBitSet]
+/// Standard Genes for centralized [Genotype] storage (seed_genes_list and best_genes).
+/// Note: Centralized chromosomes use GenesPointer (row_id) rather than owning genes directly.
 pub trait Genes: Clone + Send + Sync + std::fmt::Debug {}
 impl<T: Allele> Genes for Vec<T> {}
-impl Genes for FixedBitSet {}
-impl Genes for () {}
-impl<T: Allele, const N: usize> Genes for [T; N] {}
 impl<T: Allele, const N: usize> Genes for Box<[T; N]> {}
+impl Genes for () {}
 
 #[derive(Copy, Clone, Debug, Default)]
 pub enum MutationType {
