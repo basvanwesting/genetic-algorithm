@@ -15,6 +15,7 @@ pub struct Builder<
     pub fitness: Option<F>,
     pub fitness_ordering: FitnessOrdering,
     pub replace_on_equal_fitness: bool,
+    pub population_window_size: usize,
     pub reporter: SR,
 }
 
@@ -26,6 +27,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>> Default
             genotype: None,
             fitness_ordering: FitnessOrdering::Maximize,
             replace_on_equal_fitness: false,
+            population_window_size: 0,
             fitness: None,
             reporter: StrategyReporterNoop::new(),
         }
@@ -55,6 +57,10 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.replace_on_equal_fitness = replace_on_equal_fitness;
         self
     }
+    pub fn with_population_window_size(mut self, population_window_size: usize) -> Self {
+        self.population_window_size = population_window_size;
+        self
+    }
     pub fn with_fitness(mut self, fitness: F) -> Self {
         self.fitness = Some(fitness);
         self
@@ -67,6 +73,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             genotype: self.genotype,
             fitness_ordering: self.fitness_ordering,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
+            population_window_size: self.population_window_size,
             fitness: self.fitness,
             reporter,
         }

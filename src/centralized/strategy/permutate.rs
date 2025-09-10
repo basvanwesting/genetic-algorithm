@@ -102,6 +102,7 @@ pub struct PermutateConfig {
     pub variant: PermutateVariant,
     pub fitness_ordering: FitnessOrdering,
     pub replace_on_equal_fitness: bool,
+    pub population_window_size: usize,
 }
 
 /// Stores the state of the Permutate strategy
@@ -129,9 +130,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
-            self.genotype
-                .load_best_genes(self.state.chromosome.as_mut().unwrap());
-            self.call_sequential();
+            self.call_population_based();
             self.state.scale(&self.genotype, &self.config);
         }
         self.reporter
@@ -170,24 +169,28 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 {
     pub fn setup(&mut self) {
         let now = Instant::now();
-        self.state.chromosome = self
+        // Initialize with first population window
+        let first_population = self
             .genotype
-            .chromosome_permutations_into_iter(None, self.state.current_scale_index)
+            .clone()
+            .population_permutations_into_iter(
+                self.config.population_window_size,
+                self.state.current_scale_index,
+            )
             .next();
+
+        if let Some(population) = first_population {
+            self.state.population = population;
+            self.fitness
+                .call_for_state_population(&self.genotype, &mut self.state, &self.config);
+            self.state.update_best_population_and_report(
+                &mut self.genotype,
+                &self.config,
+                &mut self.reporter,
+            );
+        }
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
-        self.fitness
-            .call_for_state_chromosome(&self.genotype, &mut self.state, &self.config);
-        self.state.update_best_chromosome_and_report(
-            &mut self.genotype,
-            &self.config,
-            &mut self.reporter,
-        );
-
-        // in case fitness_score is None, set best by definition anyway
-        self.state.best_generation = self.state.current_generation;
-        self.genotype
-            .save_best_genes(self.state.chromosome.as_ref().unwrap());
     }
     pub fn cleanup(&mut self) {
         let now = Instant::now();
@@ -204,22 +207,22 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.state.scale_generation > 0
     }
 
-    fn call_sequential(&mut self) {
+    fn call_population_based(&mut self) {
         self.genotype
             .clone()
-            .chromosome_permutations_into_iter(
-                self.state.chromosome.as_ref(),
+            .population_permutations_into_iter(
+                self.config.population_window_size,
                 self.state.current_scale_index,
             )
-            .for_each(|chromosome| {
+            .for_each(|population| {
                 self.state.increment_generation();
-                self.state.chromosome.replace(chromosome);
-                self.fitness.call_for_state_chromosome(
+                self.state.population = population;
+                self.fitness.call_for_state_population(
                     &self.genotype,
                     &mut self.state,
                     &self.config,
                 );
-                self.state.update_best_chromosome_and_report(
+                self.state.update_best_population_and_report(
                     &mut self.genotype,
                     &self.config,
                     &mut self.reporter,
@@ -304,35 +307,38 @@ impl<G: PermutateGenotype> StrategyState<G> for PermutateState<G> {
 }
 
 impl<G: PermutateGenotype> PermutateState<G> {
-    fn update_best_chromosome_and_report<SR: StrategyReporter<Genotype = G>>(
+    fn update_best_population_and_report<SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         config: &PermutateConfig,
         reporter: &mut SR,
     ) {
-        if let Some(chromosome) = self.chromosome.as_ref() {
-            let now = Instant::now();
+        let now = Instant::now();
+        // Find the best chromosome in the current population
+        if let Some(best_in_population) = self.population.best_chromosome(config.fitness_ordering) {
             match self.is_better_chromosome(
-                chromosome,
+                best_in_population,
                 &config.fitness_ordering,
                 config.replace_on_equal_fitness,
             ) {
                 (true, true) => {
                     self.best_generation = self.current_generation;
-                    self.best_fitness_score = chromosome.fitness_score();
-                    genotype.save_best_genes(chromosome);
+                    self.best_fitness_score = best_in_population.fitness_score();
+                    genotype.save_best_genes(best_in_population);
                     reporter.on_new_best_chromosome(genotype, self, config);
                     self.reset_stale_generations();
                 }
                 (true, false) => {
-                    genotype.save_best_genes(chromosome);
+                    genotype.save_best_genes(best_in_population);
                     reporter.on_new_best_chromosome_equal_fitness(genotype, self, config);
                     self.increment_stale_generations()
                 }
                 _ => self.increment_stale_generations(),
             }
-            self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
+        } else {
+            self.increment_stale_generations();
         }
+        self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
     fn scale(&mut self, genotype: &G, _config: &PermutateConfig) {
         if let Some(current_scale_index) = self.current_scale_index {
@@ -368,6 +374,10 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             Err(TryFromPermutateBuilderError(
                 "The Genotype's mutation_type does not allow permutation",
             ))
+        } else if builder.population_window_size == 0 {
+            Err(TryFromPermutateBuilderError(
+                "Permutate requires a population_window_size > 0",
+            ))
         } else {
             let genotype = builder.genotype.unwrap();
             let state = PermutateState::new(&genotype);
@@ -379,6 +389,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 config: PermutateConfig {
                     fitness_ordering: builder.fitness_ordering,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
+                    population_window_size: builder.population_window_size,
                     ..Default::default()
                 },
                 state,
@@ -394,6 +405,7 @@ impl Default for PermutateConfig {
             variant: Default::default(),
             fitness_ordering: FitnessOrdering::Maximize,
             replace_on_equal_fitness: false,
+            population_window_size: 100,
         }
     }
 }

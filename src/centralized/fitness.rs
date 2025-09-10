@@ -9,7 +9,6 @@
 pub mod placeholders;
 pub mod prelude;
 
-use crate::centralized::chromosome::Chromosome;
 use crate::centralized::genotype::Genotype;
 use crate::centralized::population::Population;
 use crate::centralized::strategy::{StrategyAction, StrategyConfig, StrategyState};
@@ -42,21 +41,10 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///
 /// # User implementation
 ///
-/// There are two possible levels to implement. At least one level needs to be implemented:
-/// * [`calculate_for_chromosome(...) -> Option<FitnessValue>`](Fitness::calculate_for_chromosome)
-///   * The standard situation, suits all strategies. Implementable with all Genotypes.
-///   * Centralized [Genotype]s use [GenesPointer](crate::chromosome::GenesPointer) chromosomes.
-///     These chromosomes don't have a `genes` field, so you need to retrieve the genes using
-///     [genotype.genes_slice(&chromosome)](crate::genotype::Genotype::genes_slice), which can then
-///     be read for the calculations. But for these types you usually don't want to reach this call
-///     level, see other level below
+/// In the centralized track, you must implement:
 /// * [`calculate_for_population(...) -> Vec<Option<FitnessValue>>`](Fitness::calculate_for_population)
-///   * *Only overwrite for matrix Genotypes (designed for possible GPU acceleration)*
-///   * If not overwritten, results in calling
-///     [calculate_for_chromosome](Fitness::calculate_for_chromosome) for each chromosome in the
-///     population. So it doesn't have to be implemented by default, but it is a possible point to
-///     intercept with a custom implementation where the whole population data is available.
-///   * Only for [Genotype] with [GenesPointer](crate::chromosome::GenesPointer) chromosomes. These
+///   * Designed for matrix Genotypes with possible GPU acceleration
+///   * Centralized [Genotype]s use [GenesPointer](crate::chromosome::GenesPointer) chromosomes. These
 ///     chromosomes don't have a `genes` field to read, but a `row_id`. The matrix [Genotype] has a contiguous
 ///     memory `data` field with all the data, which can be calculated in one go.
 ///     * [DynamicRangeGenotype](crate::genotype::DynamicRangeGenotype)
@@ -71,31 +59,10 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///     calculation is skipped, a `None` value should be inserted in the results to keep the order
 ///     and length aligned.
 ///
-/// The strategies use different levels of calls in [Fitness]. So you cannot always just intercept at
-/// [calculate_for_population](Fitness::calculate_for_population) and be sure
-/// [calculate_for_chromosome](Fitness::calculate_for_chromosome) will not be called:
-///
-/// * Population level calculations (calling
-///   [calculate_for_chromosome](Fitness::calculate_for_chromosome) indirectly through
-///   [calculate_for_population](Fitness::calculate_for_population), if not overwritten)
-///   * [Evolve](crate::strategy::evolve::Evolve)
-///   * [HillClimb](crate::strategy::hill_climb::HillClimb) with [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)
-/// * Chromosome level calculations (calling
-///   [calculate_for_chromosome](Fitness::calculate_for_chromosome) directly, bypassing
-///   [calculate_for_population](Fitness::calculate_for_population) entirely)
-///   * [Permutate](crate::strategy::permutate::Permutate)
-///   * [HillClimb](crate::strategy::hill_climb::HillClimb) with [Stochastic](crate::strategy::hill_climb::HillClimbVariant::Stochastic)
-///
-/// Therefore, additionally, you might need to implement
-/// [calculate_for_chromosome](Fitness::calculate_for_chromosome) for
-/// [GenesPointer](crate::chromosome::GenesPointer) chromosomes. This is sometimes needed when
-/// testing out different strategies with different call levels. Problably no longer needed once
-/// settled on a strategy.
-///
-/// # Panics
-///
-/// [calculate_for_chromosome](Fitness::calculate_for_chromosome) has a default implementation which panics, because it doesn't need to
-/// be implemented for genotypes which implement [calculate_for_population](Fitness::calculate_for_population). Will panic if reached and not implemented.
+/// All centralized strategies use population level calculations:
+/// * [Evolve](crate::strategy::evolve::Evolve)
+/// * [HillClimb](crate::strategy::hill_climb::HillClimb) with [SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)
+/// * [Permutate](crate::strategy::permutate::Permutate) (using population windows)
 ///
 /// # Example (calculate_for_population, static matrix calculation, GenesPointer chromosome):
 /// ```rust
@@ -170,18 +137,6 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         self.call_for_population(state.population_as_mut(), genotype);
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
-    fn call_for_state_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
-        &mut self,
-        genotype: &Self::Genotype,
-        state: &mut S,
-        _config: &C,
-    ) {
-        if let Some(chromosome) = state.chromosome_as_mut() {
-            let now = Instant::now();
-            self.call_for_chromosome(chromosome, genotype);
-            state.add_duration(StrategyAction::Fitness, now.elapsed());
-        }
-    }
     fn call_for_population(
         &mut self,
         population: &mut FitnessPopulation<Self>,
@@ -189,14 +144,6 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     ) {
         let fitness_scores = self.calculate_for_population(population, genotype);
         genotype.update_population_fitness_scores(population, fitness_scores);
-    }
-    fn call_for_chromosome(
-        &mut self,
-        chromosome: &mut FitnessChromosome<Self>,
-        genotype: &Self::Genotype,
-    ) {
-        let value = self.calculate_for_chromosome(chromosome, genotype);
-        chromosome.set_fitness_score(value);
     }
     /// Mandatory interception point for client implementation.
     ///
@@ -207,13 +154,4 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         _population: &FitnessPopulation<Self>,
         _genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>>;
-
-    /// Optional interception point for client implementation
-    fn calculate_for_chromosome(
-        &mut self,
-        _chromosome: &FitnessChromosome<Self>,
-        _genotype: &Self::Genotype,
-    ) -> Option<FitnessValue> {
-        panic!("Implement calculate_for_chromosome for your Fitness (or higher in the call stack when using StaticRangeGenotype)");
-    }
 }

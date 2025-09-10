@@ -655,14 +655,6 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn chromosome_permutations_into_iter<'a>(
-        &'a self,
-        _chromosome: Option<&Self::Chromosome>,
-        _scale_index: Option<usize>,
-    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
-        todo!("PermutateGenotype is not supported for StaticRangeGenotype. This is a placeholder implementation for testing purposes only.")
-    }
-
     fn chromosome_permutations_size(&self) -> BigUint {
         if self.seed_genes_list.is_empty() {
             match self.mutation_type {

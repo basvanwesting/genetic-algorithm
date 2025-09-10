@@ -42,6 +42,7 @@ pub struct Builder<
     pub select: Option<C>,
     pub target_fitness_score: Option<FitnessValue>,
     pub target_population_size: usize,
+    pub population_window_size: usize,
     pub valid_fitness_score: Option<FitnessValue>,
 }
 
@@ -58,6 +59,7 @@ impl<
             genotype: None,
             variant: None,
             target_population_size: 0,
+            population_window_size: 0,
             max_stale_generations: None,
             max_generations: None,
             max_chromosome_age: None,
@@ -109,6 +111,10 @@ impl<
     }
     pub fn with_target_population_size(mut self, target_population_size: usize) -> Self {
         self.target_population_size = target_population_size;
+        self
+    }
+    pub fn with_population_window_size(mut self, population_window_size: usize) -> Self {
+        self.population_window_size = population_window_size;
         self
     }
     pub fn with_max_stale_generations(mut self, max_stale_generations: usize) -> Self {
@@ -192,6 +198,7 @@ impl<
             genotype: self.genotype,
             variant: self.variant,
             target_population_size: self.target_population_size,
+            population_window_size: self.population_window_size,
             max_stale_generations: self.max_stale_generations,
             max_generations: self.max_generations,
             max_chromosome_age: self.max_chromosome_age,
@@ -216,6 +223,7 @@ impl<
             genotype: self.genotype,
             variant: self.variant,
             target_population_size: self.target_population_size,
+            population_window_size: self.population_window_size,
             max_stale_generations: self.max_stale_generations,
             max_generations: self.max_generations,
             max_chromosome_age: self.max_chromosome_age,
@@ -273,6 +281,7 @@ impl<
             genotype: self.genotype,
             fitness_ordering: self.fitness_ordering,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
+            population_window_size: self.population_window_size,
             fitness: self.fitness,
             reporter: self.reporter,
         }

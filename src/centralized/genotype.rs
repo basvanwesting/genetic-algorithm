@@ -215,15 +215,19 @@ pub trait HillClimbGenotype: Genotype {
 /// Genotype suitable for [Permutate](crate::strategy::permutate::Permutate).
 /// Not all genotypes are permutable, only countable ones (e.g. range genotypes cannot be permutated, unless scaled).
 pub trait PermutateGenotype: Genotype {
-    /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
-    fn chromosome_permutations_into_iter<'a>(
-        &'a self,
-        _chromosome: Option<&Self::Chromosome>,
-        _scale_index: Option<usize>,
-    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a>;
-
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_size(&self) -> BigUint;
+
+    /// Population-windowed permutation iterator for centralized genotypes.
+    /// Returns an iterator of populations, each containing a window of permutations.
+    /// This allows matrix-based genotypes to process permutations in batches.
+    fn population_permutations_into_iter<'a>(
+        &'a self,
+        _window_size: usize,
+        _scale_index: Option<usize>,
+    ) -> Box<dyn Iterator<Item = Population<Self::Chromosome>> + Send + 'a> {
+        todo!("Implement population_permutations_into_iter for centralized genotypes use best_genes as center for scale")
+    }
 
     /// not all mutation_types implemented for certain genotypes
     fn mutation_type_allows_permutation(&self) -> bool {
