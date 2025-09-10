@@ -1,13 +1,12 @@
-use genetic_algorithm::centralized::chromosome::{Chromosome, ChromosomeManager, GenesPointer};
+use genetic_algorithm::centralized::chromosome::{Chromosome, ChromosomeManager};
 use genetic_algorithm::centralized::fitness::FitnessValue;
 use genetic_algorithm::centralized::genotype::Genotype;
 use genetic_algorithm::centralized::population::Population;
 
 #[allow(dead_code)]
-pub fn chromosome<G, T, const N: usize>(genotype: &mut G, genes: Vec<T>) -> G::Chromosome
+pub fn chromosome<G, T, const N: usize>(genotype: &mut G, genes: Vec<T>) -> Chromosome
 where
     G: Genotype<Allele = T, Genes = Box<[T; N]>> + ChromosomeManager<G>,
-    G::Chromosome: GenesPointer,
     T: Clone,
 {
     let boxed_genes: Box<[T; N]> = genes.into_boxed_slice().try_into().ok().unwrap();
@@ -19,10 +18,9 @@ pub fn chromosome_with_fitness_score<G, T, const N: usize>(
     genotype: &mut G,
     genes: Vec<T>,
     fitness_score: Option<FitnessValue>,
-) -> G::Chromosome
+) -> Chromosome
 where
     G: Genotype<Allele = T, Genes = Box<[T; N]>> + ChromosomeManager<G>,
-    G::Chromosome: GenesPointer + Chromosome,
     T: Clone,
 {
     let mut chromosome = chromosome(genotype, genes);
@@ -35,10 +33,9 @@ pub fn chromosome_with_age<G, T, const N: usize>(
     genotype: &mut G,
     genes: Vec<T>,
     age: usize,
-) -> G::Chromosome
+) -> Chromosome
 where
     G: Genotype<Allele = T, Genes = Box<[T; N]>> + ChromosomeManager<G>,
-    G::Chromosome: GenesPointer + Chromosome,
     T: Clone,
 {
     let mut chromosome = chromosome(genotype, genes);
@@ -50,10 +47,9 @@ where
 pub fn population_with_fitness_scores<G, T, const N: usize>(
     genotype: &mut G,
     genes_and_scores: Vec<(Vec<T>, Option<FitnessValue>)>,
-) -> Population<G::Chromosome>
+) -> Population
 where
     G: Genotype<Allele = T, Genes = Box<[T; N]>> + ChromosomeManager<G>,
-    G::Chromosome: GenesPointer + Chromosome,
     T: Clone,
 {
     let chromosomes = genes_and_scores
@@ -67,10 +63,9 @@ where
 pub fn population_with_age<G, T, const N: usize>(
     genotype: &mut G,
     genes_and_ages: Vec<(Vec<T>, usize)>,
-) -> Population<G::Chromosome>
+) -> Population
 where
     G: Genotype<Allele = T, Genes = Box<[T; N]>> + ChromosomeManager<G>,
-    G::Chromosome: GenesPointer + Chromosome,
     T: Clone,
 {
     let chromosomes = genes_and_ages
@@ -84,10 +79,9 @@ where
 pub fn population<G, T, const N: usize>(
     genotype: &mut G,
     data: Vec<Vec<T>>,
-) -> Population<G::Chromosome>
+) -> Population
 where
     G: Genotype<Allele = T, Genes = Box<[T; N]>> + ChromosomeManager<G>,
-    G::Chromosome: GenesPointer,
     T: Clone,
 {
     let chromosomes = data

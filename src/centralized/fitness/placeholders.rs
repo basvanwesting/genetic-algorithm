@@ -1,6 +1,7 @@
 //! placeholders for testing and bootstrapping, not really used in practice
 use crate::centralized::allele::RangeAllele;
-use crate::centralized::fitness::{Fitness, FitnessPopulation, FitnessValue};
+use crate::centralized::fitness::{Fitness, FitnessValue};
+use crate::centralized::population::Population;
 use crate::centralized::genotype::{
     DynamicRangeGenotype, Genotype, StaticBinaryGenotype, StaticRangeGenotype,
 };
@@ -30,7 +31,7 @@ impl<G: Genotype> Fitness for StaticZero<G> {
     type Genotype = G;
     fn calculate_for_population(
         &mut self,
-        population: &FitnessPopulation<Self>,
+        population: &Population,
         _genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>> {
         vec![Some(0); population.chromosomes.len()]
@@ -55,7 +56,7 @@ impl<const N: usize, const M: usize> Fitness for CountStaticTrue<N, M> {
     type Genotype = StaticBinaryGenotype<N, M>;
     fn calculate_for_population(
         &mut self,
-        _population: &FitnessPopulation<Self>,
+        _population: &Population,
         genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>> {
         genotype
@@ -91,7 +92,7 @@ impl<const N: usize, const M: usize> Fitness for CountStaticTrueWithSleep<N, M> 
     type Genotype = StaticBinaryGenotype<N, M>;
     fn calculate_for_population(
         &mut self,
-        _population: &FitnessPopulation<Self>,
+        _population: &Population,
         genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>> {
         genotype
@@ -172,7 +173,7 @@ where
     type Genotype = DynamicRangeGenotype<T>;
     fn calculate_for_population(
         &mut self,
-        _population: &FitnessPopulation<Self>,
+        _population: &Population,
         genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>> {
         genotype
@@ -237,7 +238,7 @@ where
     type Genotype = StaticRangeGenotype<T, N, M>;
     fn calculate_for_population(
         &mut self,
-        _population: &FitnessPopulation<Self>,
+        _population: &Population,
         genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>> {
         genotype
@@ -271,7 +272,7 @@ impl<G: Genotype> Fitness for StaticCountdown<G> {
     type Genotype = G;
     fn calculate_for_population(
         &mut self,
-        population: &FitnessPopulation<Self>,
+        population: &Population,
         _genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>> {
         population
@@ -314,7 +315,7 @@ impl<G: Genotype> Fitness for StaticCountdownNoisy<G> {
     type Genotype = G;
     fn calculate_for_population(
         &mut self,
-        population: &FitnessPopulation<Self>,
+        population: &Population,
         _genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>> {
         population

@@ -14,7 +14,7 @@ impl Fitness for CountOnes {
 
     fn calculate_for_population(
         &mut self,
-        _population: &Population<StaticBinaryChromosome>,
+        _population: &Population,
         genotype: &FitnessGenotype<Self>,
     ) -> Vec<Option<FitnessValue>> {
         // pure matrix data calculation on [[T; N] M]

@@ -48,27 +48,26 @@ pub trait Genotype:
 {
     type Allele: Allele;
     type Genes: Genes;
-    type Chromosome: Chromosome;
 
     fn genes_size(&self) -> usize;
-    fn save_best_genes(&mut self, chromosome: &Self::Chromosome);
-    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome);
+    fn save_best_genes(&mut self, chromosome: &Chromosome);
+    fn load_best_genes(&mut self, chromosome: &mut Chromosome);
     fn best_genes(&self) -> &Self::Genes;
     fn best_genes_slice(&self) -> &[Self::Allele];
-    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
+    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome) -> &'a [Self::Allele];
     fn genes_hashing(&self) -> bool;
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash>;
+    fn calculate_genes_hash(&self, chromosome: &Chromosome) -> Option<GenesHash>;
     // lives on Genotype because only genotype can calculate_genes_hash
-    fn reset_chromosome_state(&self, chromosome: &mut Self::Chromosome) {
+    fn reset_chromosome_state(&self, chromosome: &mut Chromosome) {
         chromosome.reset_state(self.calculate_genes_hash(chromosome));
     }
     // lives on Genotype for symmetry reasons with reset_chromosome_state
-    fn copy_chromosome_state(&self, source: &Self::Chromosome, target: &mut Self::Chromosome) {
+    fn copy_chromosome_state(&self, source: &Chromosome, target: &mut Chromosome) {
         target.copy_state(source)
     }
     fn update_population_fitness_scores(
         &self,
-        _population: &mut Population<Self::Chromosome>,
+        _population: &mut Population,
         _fitness_scores: Vec<Option<FitnessValue>>,
     ) {
         // TODO: we could default to the assumption that population and fitness_scores just align in
@@ -91,7 +90,7 @@ pub trait Genotype:
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Self::Chromosome,
+        chromosome: &mut Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,
     );
@@ -137,7 +136,7 @@ pub trait Genotype:
         &mut self,
         population_size: usize,
         rng: &mut R,
-    ) -> Population<Self::Chromosome> {
+    ) -> Population {
         if self.seed_genes_list().is_empty() {
             Population::new(
                 (0..population_size)
@@ -167,8 +166,8 @@ pub trait EvolveGenotype: Genotype {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome,
+        mother: &mut Chromosome,
         rng: &mut R,
     );
     /// Crossover points between a pair of chromosomes.
@@ -178,8 +177,8 @@ pub trait EvolveGenotype: Genotype {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome,
+        mother: &mut Chromosome,
         rng: &mut R,
     );
     /// to guard against invalid crossover strategies which break the internal consistency
@@ -200,8 +199,8 @@ pub trait HillClimbGenotype: Genotype {
     /// used in HillClimbVariant::SteepestAscent
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
-        _chromosome: &Self::Chromosome,
-        _population: &mut Population<Self::Chromosome>,
+        _chromosome: &Chromosome,
+        _population: &mut Population,
         _scale_index: Option<usize>,
         _rng: &mut R,
     );
@@ -223,7 +222,7 @@ pub trait PermutateGenotype: Genotype {
         &'a self,
         _window_size: usize,
         _scale_index: Option<usize>,
-    ) -> Box<dyn Iterator<Item = Population<Self::Chromosome>> + Send + 'a> {
+    ) -> Box<dyn Iterator<Item = Population> + Send + 'a> {
         todo!("Implement population_permutations_into_iter for centralized genotypes use best_genes as center for scale")
     }
 

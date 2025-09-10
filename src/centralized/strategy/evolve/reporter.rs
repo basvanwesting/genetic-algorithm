@@ -126,7 +126,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
             output.append(buffer);
         }
     }
-    fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_enter<S: StrategyState, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,
@@ -148,7 +148,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
             ));
         }
     }
-    fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_exit<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
@@ -174,7 +174,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
     }
 
     /// Is triggered after selection
-    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_generation<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
@@ -202,7 +202,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         }
     }
 
-    fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_best_chromosome<S: StrategyState, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,
@@ -221,7 +221,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         ));
     }
 
-    fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_best_chromosome_equal_fitness<S: StrategyState, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,
@@ -242,7 +242,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         }
     }
 
-    fn on_extension_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_extension_event<S: StrategyState, C: StrategyConfig>(
         &mut self,
         event: ExtensionEvent,
         _genotype: &Self::Genotype,
@@ -276,7 +276,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         }
     }
 
-    fn on_mutate_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_mutate_event<S: StrategyState, C: StrategyConfig>(
         &mut self,
         event: MutateEvent,
         _genotype: &Self::Genotype,

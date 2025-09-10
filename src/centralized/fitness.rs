@@ -25,12 +25,8 @@ pub enum FitnessOrdering {
 
 /// This is just a shortcut for `Self::Genotype`
 pub type FitnessGenotype<F> = <F as Fitness>::Genotype;
-/// This is just a shortcut for `<Self::Genotype as Genotype>::Chromosome`
-pub type FitnessChromosome<F> = <<F as Fitness>::Genotype as Genotype>::Chromosome;
 /// This is just a shortcut for `<Self::Genotype as Genotype>::Genes`
 pub type FitnessGenes<F> = <<F as Fitness>::Genotype as Genotype>::Genes;
-/// This is just a shortcut for `Population<<Self::Genotype as Genotype::Chromosome>`
-pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype>::Chromosome>;
 
 /// The fitness function, is implemented as a fitness method object.
 ///
@@ -75,7 +71,7 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///     type Genotype = StaticRangeGenotype<u16, 10, 100>;
 ///     fn calculate_for_population(
 ///         &mut self,
-///         population: &Population<StaticRangeChromosome>,
+///         population: &Population,
 ///         genotype: &FitnessGenotype<Self>,
 ///     ) -> Vec<Option<FitnessValue>> {
 ///         // pure matrix data calculation on [[T; N] M]
@@ -106,7 +102,7 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///     type Genotype = DynamicRangeGenotype<u16>;
 ///     fn calculate_for_population(
 ///         &mut self,
-///         population: &Population<DynamicRangeChromosome>,
+///         population: &Population,
 ///         genotype: &FitnessGenotype<Self>,
 ///     ) -> Vec<Option<FitnessValue>> {
 ///         // pure matrix data calculation on Vec<T> with genes_size step
@@ -127,7 +123,7 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// ```
 pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: Genotype;
-    fn call_for_state_population<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn call_for_state_population<S: StrategyState, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &mut S,
@@ -137,11 +133,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         self.call_for_population(state.population_as_mut(), genotype);
         state.add_duration(StrategyAction::Fitness, now.elapsed());
     }
-    fn call_for_population(
-        &mut self,
-        population: &mut FitnessPopulation<Self>,
-        genotype: &Self::Genotype,
-    ) {
+    fn call_for_population(&mut self, population: &mut Population, genotype: &Self::Genotype) {
         let fitness_scores = self.calculate_for_population(population, genotype);
         genotype.update_population_fitness_scores(population, fitness_scores);
     }
@@ -151,7 +143,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
     /// The order and length of the population does not matter at all and will most likely not align.
     fn calculate_for_population(
         &mut self,
-        _population: &FitnessPopulation<Self>,
+        _population: &Population,
         _genotype: &Self::Genotype,
     ) -> Vec<Option<FitnessValue>>;
 }

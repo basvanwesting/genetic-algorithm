@@ -8,12 +8,12 @@ use std::cmp::Reverse;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
-pub struct Population<C: Chromosome> {
-    pub chromosomes: Vec<C>,
+pub struct Population {
+    pub chromosomes: Vec<Chromosome>,
 }
 
-impl<C: Chromosome> Population<C> {
-    pub fn new(chromosomes: Vec<C>) -> Self {
+impl Population {
+    pub fn new(chromosomes: Vec<Chromosome>) -> Self {
         Self { chromosomes }
     }
 
@@ -50,7 +50,7 @@ impl<C: Chromosome> Population<C> {
 
     /// fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out
     /// when minimizing the fitness score, otherwise None would end up as best.
-    pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&C> {
+    pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&Chromosome> {
         if let Some(index) = self.best_chromosome_index(fitness_ordering) {
             self.chromosomes.get(index)
         } else {
@@ -209,8 +209,8 @@ impl<C: Chromosome> Population<C> {
     }
 }
 
-impl<C: Chromosome> From<Vec<C>> for Population<C> {
-    fn from(chromosomes: Vec<C>) -> Self {
+impl From<Vec<Chromosome>> for Population {
+    fn from(chromosomes: Vec<Chromosome>) -> Self {
         Self::new(chromosomes)
     }
 }

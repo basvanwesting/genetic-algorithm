@@ -2,6 +2,7 @@ pub use super::elite::Elite as SelectElite;
 pub use super::tournament::Tournament as SelectTournament;
 pub use super::Select;
 
+use crate::centralized::chromosome::Chromosome;
 use crate::centralized::genotype::EvolveGenotype;
 use crate::centralized::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::centralized::strategy::StrategyReporter;
@@ -17,7 +18,7 @@ impl Select for Wrapper {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
@@ -30,14 +31,14 @@ impl Select for Wrapper {
 
     fn extract_elite_chromosomes<G: EvolveGenotype>(
         &self,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         elitism_rate: f32,
-    ) -> Vec<G::Chromosome> {
+    ) -> Vec<Chromosome> {
         match self {
-            Wrapper::Elite(select) => select.extract_elite_chromosomes(state, config, elitism_rate),
+            Wrapper::Elite(select) => select.extract_elite_chromosomes::<G>(state, config, elitism_rate),
             Wrapper::Tournament(select) => {
-                select.extract_elite_chromosomes(state, config, elitism_rate)
+                select.extract_elite_chromosomes::<G>(state, config, elitism_rate)
             }
         }
     }

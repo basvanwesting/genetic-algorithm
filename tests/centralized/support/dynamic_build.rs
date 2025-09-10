@@ -4,7 +4,7 @@ use genetic_algorithm::centralized::genotype::Genotype;
 use genetic_algorithm::centralized::population::Population;
 
 #[allow(dead_code)]
-pub fn chromosome<G, T>(genotype: &mut G, genes: Vec<T>) -> G::Chromosome
+pub fn chromosome<G, T>(genotype: &mut G, genes: Vec<T>) -> Chromosome
 where
     G: Genotype<Allele = T, Genes = Vec<T>> + ChromosomeManager<G>,
     T: Clone,
@@ -17,10 +17,9 @@ pub fn chromosome_with_fitness_score<G, T>(
     genotype: &mut G,
     genes: Vec<T>,
     fitness_score: Option<FitnessValue>,
-) -> G::Chromosome
+) -> Chromosome
 where
     G: Genotype<Allele = T, Genes = Vec<T>> + ChromosomeManager<G>,
-    G::Chromosome: Chromosome,
     T: Clone,
 {
     let mut chromosome = chromosome(genotype, genes);
@@ -29,10 +28,9 @@ where
 }
 
 #[allow(dead_code)]
-pub fn chromosome_with_age<G, T>(genotype: &mut G, genes: Vec<T>, age: usize) -> G::Chromosome
+pub fn chromosome_with_age<G, T>(genotype: &mut G, genes: Vec<T>, age: usize) -> Chromosome
 where
     G: Genotype<Allele = T, Genes = Vec<T>> + ChromosomeManager<G>,
-    G::Chromosome: Chromosome,
     T: Clone,
 {
     let mut chromosome = chromosome(genotype, genes);
@@ -44,10 +42,9 @@ where
 pub fn population_with_fitness_scores<G, T>(
     genotype: &mut G,
     genes_and_scores: Vec<(Vec<T>, Option<FitnessValue>)>,
-) -> Population<G::Chromosome>
+) -> Population
 where
     G: Genotype<Allele = T, Genes = Vec<T>> + ChromosomeManager<G>,
-    G::Chromosome: Chromosome,
     T: Clone,
 {
     let chromosomes = genes_and_scores
@@ -61,10 +58,9 @@ where
 pub fn population_with_age<G, T>(
     genotype: &mut G,
     genes_and_ages: Vec<(Vec<T>, usize)>,
-) -> Population<G::Chromosome>
+) -> Population
 where
     G: Genotype<Allele = T, Genes = Vec<T>> + ChromosomeManager<G>,
-    G::Chromosome: Chromosome,
     T: Clone,
 {
     let chromosomes = genes_and_ages
@@ -75,7 +71,7 @@ where
 }
 
 #[allow(dead_code)]
-pub fn population<G, T>(genotype: &mut G, data: Vec<Vec<T>>) -> Population<G::Chromosome>
+pub fn population<G, T>(genotype: &mut G, data: Vec<Vec<T>>) -> Population
 where
     G: Genotype<Allele = T, Genes = Vec<T>> + ChromosomeManager<G>,
     T: Clone,

@@ -165,14 +165,14 @@ pub trait StrategyConfig: Display {
 /// * current_iteration: `usize`
 /// * current_generation: `usize`
 /// * best_generation: `usize`
-/// * best_chromosome: `G::Chromosome`
-/// * chromosome: `G::Chromosome`
-/// * populatoin: `Population<G::Chromosome>` // may be empty
-pub trait StrategyState<G: Genotype>: Display {
-    fn chromosome_as_ref(&self) -> &Option<G::Chromosome>;
-    fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome>;
-    fn population_as_ref(&self) -> &Population<G::Chromosome>;
-    fn population_as_mut(&mut self) -> &mut Population<G::Chromosome>;
+/// * best_chromosome: `Chromosome`
+/// * chromosome: `Chromosome`
+/// * populatoin: `Population` // may be empty
+pub trait StrategyState: Display {
+    fn chromosome_as_ref(&self) -> &Option<Chromosome>;
+    fn chromosome_as_mut(&mut self) -> &mut Option<Chromosome>;
+    fn population_as_ref(&self) -> &Population;
+    fn population_as_mut(&mut self) -> &mut Population;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
@@ -209,7 +209,7 @@ pub trait StrategyState<G: Genotype>: Display {
     // specialized version of this function for additional reporting
     fn is_better_chromosome(
         &self,
-        contending_chromosome: &G::Chromosome,
+        contending_chromosome: &Chromosome,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {
@@ -282,7 +282,7 @@ pub trait StrategyState<G: Genotype>: Display {
 /// impl StrategyReporter for CustomReporter {
 ///     type Genotype = StaticBinaryGenotype::<10, 100>;
 ///
-///     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+///     fn on_new_generation<S: StrategyState, C: StrategyConfig>(
 ///         &mut self,
 ///         _genotype: &Self::Genotype,
 ///         state: &S,
@@ -299,7 +299,7 @@ pub trait StrategyState<G: Genotype>: Display {
 ///         }
 ///     }
 ///
-///     fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+///     fn on_new_best_chromosome<S: StrategyState, C: StrategyConfig>(
 ///         &mut self,
 ///         _genotype: &Self::Genotype,
 ///         state: &S,
@@ -313,7 +313,7 @@ pub trait StrategyState<G: Genotype>: Display {
 ///         );
 ///     }
 ///
-///     fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+///     fn on_exit<S: StrategyState, C: StrategyConfig>(
 ///         &mut self,
 ///         _genotype: &Self::Genotype,
 ///         state: &S,
@@ -337,56 +337,56 @@ pub trait StrategyReporter: Clone + Send + Sync {
     type Genotype: Genotype;
 
     fn flush(&mut self, _output: &mut Vec<u8>) {}
-    fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_enter<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,
     ) {
     }
-    fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_exit<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,
     ) {
     }
-    fn on_start<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_start<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,
     ) {
     }
-    fn on_finish<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_finish<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,
     ) {
     }
-    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_generation<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,
     ) {
     }
-    fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_best_chromosome<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,
     ) {
     }
-    fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_best_chromosome_equal_fitness<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,
     ) {
     }
-    fn on_extension_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_extension_event<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _event: ExtensionEvent,
         _genotype: &Self::Genotype,
@@ -394,7 +394,7 @@ pub trait StrategyReporter: Clone + Send + Sync {
         _config: &C,
     ) {
     }
-    fn on_mutate_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_mutate_event<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _event: MutateEvent,
         _genotype: &Self::Genotype,

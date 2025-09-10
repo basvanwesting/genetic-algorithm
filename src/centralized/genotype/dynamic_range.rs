@@ -2,7 +2,7 @@ use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
 use crate::centralized::allele::RangeAllele;
 use crate::centralized::chromosome::{
-    Chromosome, ChromosomeManager, DynamicRangeChromosome, GenesHash, GenesPointer,
+    Chromosome, ChromosomeManager, DynamicRangeChromosome, GenesHash,
 };
 use crate::centralized::fitness::FitnessValue;
 use crate::centralized::population::Population;
@@ -299,16 +299,15 @@ where
 {
     type Allele = T;
     type Genes = Vec<T>;
-    type Chromosome = DynamicRangeChromosome;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
+    fn save_best_genes(&mut self, chromosome: &Chromosome) {
         let x = &self.data[self.linear_genes_range(chromosome.row_id)];
         self.best_genes.copy_from_slice(x)
     }
-    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
+    fn load_best_genes(&mut self, chromosome: &mut Chromosome) {
         let linear_genes_range = self.linear_genes_range(chromosome.row_id);
         let x = &mut self.data[linear_genes_range];
         x.copy_from_slice(&self.best_genes)
@@ -319,13 +318,13 @@ where
     fn best_genes_slice(&self) -> &[Self::Allele] {
         self.best_genes.as_slice()
     }
-    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome) -> &'a [Self::Allele] {
         self.get_genes_by_id(chromosome.row_id)
     }
     fn genes_hashing(&self) -> bool {
         self.genes_hashing
     }
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
+    fn calculate_genes_hash(&self, chromosome: &Chromosome) -> Option<GenesHash> {
         if self.genes_hashing {
             let mut s = FxHasher::default();
             let bytes: &[u8] = cast_slice(self.genes_slice(chromosome));
@@ -338,7 +337,7 @@ where
 
     fn update_population_fitness_scores(
         &self,
-        population: &mut Population<Self::Chromosome>,
+        population: &mut Population,
         fitness_scores: Vec<Option<FitnessValue>>,
     ) {
         population
@@ -359,7 +358,7 @@ where
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Self::Chromosome,
+        chromosome: &mut Chromosome,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -430,8 +429,8 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome,
+        mother: &mut Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -458,8 +457,8 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome,
+        mother: &mut Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -510,8 +509,8 @@ where
 {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
-        chromosome: &Self::Chromosome,
-        population: &mut Population<Self::Chromosome>,
+        chromosome: &Chromosome,
+        population: &mut Population,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -543,7 +542,7 @@ where
     fn fill_neighbouring_population_scaled(
         &mut self,
         chromosome: &DynamicRangeChromosome,
-        population: &mut Population<DynamicRangeChromosome>,
+        population: &mut Population,
         scale_index: usize,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -584,7 +583,7 @@ where
     fn fill_neighbouring_population_relative<R: Rng>(
         &mut self,
         chromosome: &DynamicRangeChromosome,
-        population: &mut Population<DynamicRangeChromosome>,
+        population: &mut Population,
         rng: &mut R,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -627,7 +626,7 @@ where
     fn fill_neighbouring_population_random<R: Rng>(
         &mut self,
         chromosome: &DynamicRangeChromosome,
-        population: &mut Population<DynamicRangeChromosome>,
+        population: &mut Population,
         rng: &mut R,
     ) {
         let allele_range_start = *self.allele_range.start();

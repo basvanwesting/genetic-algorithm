@@ -43,7 +43,7 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,

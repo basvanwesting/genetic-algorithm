@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::centralized::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, GenesPointer, StaticBinaryChromosome,
+    Chromosome, ChromosomeManager, GenesHash, StaticBinaryChromosome,
 };
 use crate::centralized::fitness::FitnessValue;
 use crate::centralized::population::Population;
@@ -160,18 +160,17 @@ impl<const N: usize, const M: usize> StaticBinary<N, M> {
 impl<const N: usize, const M: usize> Genotype for StaticBinary<N, M> {
     type Allele = bool;
     type Genes = Box<[bool; N]>;
-    type Chromosome = StaticBinaryChromosome;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
 
-    fn save_best_genes(&mut self, chromosome: &Self::Chromosome) {
+    fn save_best_genes(&mut self, chromosome: &Chromosome) {
         let x = self.data[chromosome.row_id].as_slice();
         self.best_genes.copy_from_slice(x)
     }
 
-    fn load_best_genes(&mut self, chromosome: &mut Self::Chromosome) {
+    fn load_best_genes(&mut self, chromosome: &mut Chromosome) {
         let x = self.data[chromosome.row_id].as_mut_slice();
         x.copy_from_slice(self.best_genes.as_slice())
     }
@@ -184,7 +183,7 @@ impl<const N: usize, const M: usize> Genotype for StaticBinary<N, M> {
         self.best_genes.as_slice()
     }
 
-    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome) -> &'a [Self::Allele] {
         self.get_genes_by_id(chromosome.row_id)
     }
 
@@ -192,7 +191,7 @@ impl<const N: usize, const M: usize> Genotype for StaticBinary<N, M> {
         self.genes_hashing
     }
 
-    fn calculate_genes_hash(&self, chromosome: &Self::Chromosome) -> Option<GenesHash> {
+    fn calculate_genes_hash(&self, chromosome: &Chromosome) -> Option<GenesHash> {
         if self.genes_hashing {
             let mut s = FxHasher::default();
             self.genes_slice(chromosome).hash(&mut s);
@@ -204,7 +203,7 @@ impl<const N: usize, const M: usize> Genotype for StaticBinary<N, M> {
 
     fn update_population_fitness_scores(
         &self,
-        population: &mut Population<Self::Chromosome>,
+        population: &mut Population,
         fitness_scores: Vec<Option<FitnessValue>>,
     ) {
         population
@@ -222,7 +221,7 @@ impl<const N: usize, const M: usize> Genotype for StaticBinary<N, M> {
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Self::Chromosome,
+        chromosome: &mut Chromosome,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -263,8 +262,8 @@ impl<const N: usize, const M: usize> EvolveGenotype for StaticBinary<N, M> {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome,
+        mother: &mut Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -292,8 +291,8 @@ impl<const N: usize, const M: usize> EvolveGenotype for StaticBinary<N, M> {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome,
+        mother: &mut Chromosome,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -342,8 +341,8 @@ impl<const N: usize, const M: usize> EvolveGenotype for StaticBinary<N, M> {
 impl<const N: usize, const M: usize> HillClimbGenotype for StaticBinary<N, M> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
-        chromosome: &Self::Chromosome,
-        population: &mut Population<Self::Chromosome>,
+        chromosome: &Chromosome,
+        population: &mut Population,
         _scale_index: Option<usize>,
         _rng: &mut R,
     ) {

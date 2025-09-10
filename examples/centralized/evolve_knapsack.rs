@@ -29,7 +29,7 @@ impl Fitness for KnapsackFitness<'_> {
 
     fn calculate_for_population(
         &mut self,
-        _population: &FitnessPopulation<Self>,
+        _population: &Population,
         genotype: &FitnessGenotype<Self>,
     ) -> Vec<Option<FitnessValue>> {
         // pure matrix data calculation on [[T; N] M]

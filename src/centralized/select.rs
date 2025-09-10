@@ -25,6 +25,7 @@ pub use self::elite::Elite as SelectElite;
 pub use self::tournament::Tournament as SelectTournament;
 pub use self::wrapper::Wrapper as SelectWrapper;
 
+use crate::centralized::chromosome::Chromosome;
 use crate::centralized::genotype::EvolveGenotype;
 use crate::centralized::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::centralized::strategy::StrategyReporter;
@@ -34,7 +35,7 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
@@ -42,14 +43,14 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
 
     fn extract_elite_chromosomes<G: EvolveGenotype>(
         &self,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         elitism_rate: f32,
-    ) -> Vec<G::Chromosome> {
+    ) -> Vec<Chromosome> {
         let elitism_size = ((state.population.size() as f32 * elitism_rate).ceil() as usize)
             .min(state.population.size());
 
-        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
+        let mut elite_chromosomes: Vec<Chromosome> = Vec::with_capacity(elitism_size);
         for index in state
             .population
             .best_chromosome_indices(elitism_size, config.fitness_ordering)

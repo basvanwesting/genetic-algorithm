@@ -1,5 +1,4 @@
 use genetic_algorithm::centralized::fitness::placeholders::CountStaticTrue;
-use genetic_algorithm::centralized::genotype::StaticBinaryGenotype;
 use genetic_algorithm::centralized::strategy::evolve::prelude::*;
 
 fn main() {

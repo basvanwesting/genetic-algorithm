@@ -73,7 +73,7 @@ impl<G: Genotype> StrategyReporter for Duration<G> {
             output.append(buffer);
         }
     }
-    fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_enter<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
@@ -85,7 +85,7 @@ impl<G: Genotype> StrategyReporter for Duration<G> {
             state.current_iteration()
         ));
     }
-    fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_exit<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
@@ -176,7 +176,7 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
             output.append(buffer);
         }
     }
-    fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_enter<S: StrategyState, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,
@@ -198,7 +198,7 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
             ));
         }
     }
-    fn on_exit<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_exit<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
@@ -221,7 +221,7 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
         ));
     }
 
-    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_generation<S: StrategyState, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         state: &S,
@@ -238,7 +238,7 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
         }
     }
 
-    fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_best_chromosome<S: StrategyState, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,
@@ -257,7 +257,7 @@ impl<G: Genotype> StrategyReporter for Simple<G> {
         ));
     }
 
-    fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_new_best_chromosome_equal_fitness<S: StrategyState, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,

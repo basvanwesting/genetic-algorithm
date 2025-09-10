@@ -10,7 +10,7 @@ impl Fitness for DistanceTo {
     type Genotype = StaticRangeGenotype<f32, GENES_SIZE, MAX_POPULATION_SIZE>;
     fn calculate_for_population(
         &mut self,
-        _population: &FitnessPopulation<Self>,
+        _population: &Population,
         genotype: &FitnessGenotype<Self>,
     ) -> Vec<Option<FitnessValue>> {
         genotype

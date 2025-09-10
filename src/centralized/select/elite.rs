@@ -21,7 +21,7 @@ impl Select for Elite {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,
@@ -29,9 +29,9 @@ impl Select for Elite {
         let now = Instant::now();
 
         let mut elite_chromosomes =
-            self.extract_elite_chromosomes(state, config, self.elitism_rate);
+            self.extract_elite_chromosomes::<G>(state, config, self.elitism_rate);
 
-        let (mut offspring, mut parents): (Vec<G::Chromosome>, Vec<G::Chromosome>) = state
+        let (mut offspring, mut parents): (Vec<Chromosome>, Vec<Chromosome>) = state
             .population
             .chromosomes
             .drain(..)
@@ -73,7 +73,7 @@ impl Elite {
 
     pub fn selection<G: EvolveGenotype, R: Rng>(
         &self,
-        chromosomes: &mut Vec<G::Chromosome>,
+        chromosomes: &mut Vec<Chromosome>,
         selection_size: usize,
         genotype: &mut G,
         config: &EvolveConfig,

@@ -12,7 +12,7 @@ impl Fitness for DistanceTo {
     type Genotype = StaticRangeGenotype<f32, GENES_SIZE, MATRIX_POP_SIZE>;
     fn calculate_for_population(
         &mut self,
-        _population: &Population<StaticRangeChromosome>,
+        _population: &Population,
         genotype: &FitnessGenotype<Self>,
     ) -> Vec<Option<FitnessValue>> {
         // pure matrix data calculation on [[T; N] M]

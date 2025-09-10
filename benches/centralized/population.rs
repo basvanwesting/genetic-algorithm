@@ -29,6 +29,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .with_genes_hashing(true)
             .build()
             .unwrap();
+        genotype.chromosomes_setup();
 
         group.throughput(Throughput::Elements(population_size as u64));
 
@@ -131,6 +132,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .with_genes_hashing(true)
             .build()
             .unwrap();
+        genotype.chromosomes_setup();
 
         group.throughput(Throughput::Elements(population_size as u64));
 

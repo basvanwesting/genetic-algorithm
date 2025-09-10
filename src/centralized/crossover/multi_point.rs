@@ -1,5 +1,4 @@
 use super::Crossover;
-use crate::centralized::chromosome::Chromosome;
 use crate::centralized::genotype::EvolveGenotype;
 use crate::centralized::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::centralized::strategy::{StrategyAction, StrategyReporter, StrategyState};
@@ -27,7 +26,7 @@ impl Crossover for MultiPoint {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         _config: &EvolveConfig,
         _reporter: &mut SR,
         rng: &mut R,

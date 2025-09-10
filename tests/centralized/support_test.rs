@@ -1,6 +1,4 @@
-use genetic_algorithm::centralized::chromosome::{
-    ChromosomeManager, StaticBinaryChromosome,
-};
+use genetic_algorithm::centralized::chromosome::ChromosomeManager;
 use genetic_algorithm::centralized::genotype::{
     DynamicRangeGenotype, StaticBinaryGenotype, StaticRangeGenotype,
 };
@@ -16,7 +14,7 @@ fn static_binary_chromosome() {
         .build()
         .unwrap();
     genotype.chromosomes_setup();
-    
+
     let chromosome = static_build::chromosome(&mut genotype, vec![true, false, true, false]);
     println!("{:#?}", chromosome);
     assert_eq!(
@@ -33,7 +31,7 @@ fn dynamic_range_chromosome() {
         .build()
         .unwrap();
     genotype.chromosomes_setup();
-    
+
     let chromosome = dynamic_build::chromosome(&mut genotype, vec![0.1, 0.2, 0.3]);
     println!("{:#?}", chromosome);
     assert_eq!(
@@ -50,7 +48,7 @@ fn static_range_chromosome() {
         .build()
         .unwrap();
     genotype.chromosomes_setup();
-    
+
     let chromosome = static_build::chromosome(&mut genotype, vec![0.1, 0.2, 0.3]);
     println!("{:#?}", chromosome);
     assert_eq!(
@@ -66,8 +64,8 @@ fn population_static_binary() {
         .build()
         .unwrap();
     genotype.chromosomes_setup();
-    
-    let population: Population<StaticBinaryChromosome> = static_build::population(
+
+    let population: Population = static_build::population(
         &mut genotype,
         vec![
             vec![true, false, true],
@@ -85,3 +83,4 @@ fn population_static_binary() {
         ]
     );
 }
+

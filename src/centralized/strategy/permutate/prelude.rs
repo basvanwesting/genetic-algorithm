@@ -2,14 +2,14 @@
 pub use crate::centralized::chromosome::{Chromosome, GenesHash};
 #[doc(no_inline)]
 pub use crate::centralized::fitness::{
-    Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessPopulation,
-    FitnessValue,
+    Fitness, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessValue,
 };
 #[doc(no_inline)]
 pub use crate::centralized::genotype::{
-    Allele, Genotype, GenotypeBuilder, PermutateGenotype, RangeAllele,
-    TryFromGenotypeBuilderError,
+    Allele, Genotype, GenotypeBuilder, PermutateGenotype, RangeAllele, TryFromGenotypeBuilderError,
 };
+#[doc(no_inline)]
+pub use crate::centralized::population::Population;
 #[doc(no_inline)]
 pub use crate::centralized::strategy::permutate::{
     Permutate, PermutateBuilder, PermutateConfig, PermutateReporterDuration, PermutateReporterNoop,

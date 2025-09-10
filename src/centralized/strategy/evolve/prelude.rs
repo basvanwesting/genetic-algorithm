@@ -14,7 +14,7 @@ pub use crate::centralized::extension::{
 };
 #[doc(no_inline)]
 pub use crate::centralized::fitness::{
-    Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessPopulation,
+    Fitness, FitnessGenes, FitnessGenotype, FitnessOrdering,
     FitnessValue,
 };
 #[doc(no_inline)]

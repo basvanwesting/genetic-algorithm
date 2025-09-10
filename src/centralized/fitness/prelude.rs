@@ -3,8 +3,10 @@ pub use crate::centralized::chromosome::{
     Chromosome, DynamicRangeChromosome, GenesHash, StaticBinaryChromosome, StaticRangeChromosome,
 };
 #[doc(no_inline)]
+pub use crate::centralized::population::Population;
+#[doc(no_inline)]
 pub use crate::centralized::fitness::{
-    Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessPopulation,
+    Fitness, FitnessGenes, FitnessGenotype, FitnessOrdering,
     FitnessValue,
 };
 #[doc(no_inline)]

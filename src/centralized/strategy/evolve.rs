@@ -176,7 +176,7 @@ pub struct Evolve<
     pub fitness: F,
     pub plugins: EvolvePlugins<M, S, C, E>,
     pub config: EvolveConfig,
-    pub state: EvolveState<G>,
+    pub state: EvolveState,
     pub reporter: SR,
     pub rng: SmallRng,
 }
@@ -204,7 +204,7 @@ pub struct EvolveConfig {
 
 /// Stores the state of the Evolve strategy.
 #[derive(Clone)]
-pub struct EvolveState<G: EvolveGenotype> {
+pub struct EvolveState {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub stale_generations: usize,
@@ -212,8 +212,8 @@ pub struct EvolveState<G: EvolveGenotype> {
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub chromosome: Option<G::Chromosome>,
-    pub population: Population<G::Chromosome>,
+    pub chromosome: Option<Chromosome>,
+    pub population: Population,
     pub current_scale_index: Option<usize>,
     pub population_cardinality: Option<usize>,
 }
@@ -438,17 +438,17 @@ impl StrategyConfig for EvolveConfig {
     }
 }
 
-impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
-    fn chromosome_as_ref(&self) -> &Option<G::Chromosome> {
+impl StrategyState for EvolveState {
+    fn chromosome_as_ref(&self) -> &Option<Chromosome> {
         &self.chromosome
     }
-    fn population_as_ref(&self) -> &Population<G::Chromosome> {
+    fn population_as_ref(&self) -> &Population {
         &self.population
     }
-    fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome> {
+    fn chromosome_as_mut(&mut self) -> &mut Option<Chromosome> {
         &mut self.chromosome
     }
-    fn population_as_mut(&mut self) -> &mut Population<G::Chromosome> {
+    fn population_as_mut(&mut self) -> &mut Population {
         &mut self.population
     }
     fn best_generation(&self) -> usize {
@@ -499,8 +499,8 @@ impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
     }
 }
 
-impl<G: EvolveGenotype> EvolveState<G> {
-    fn update_best_chromosome_and_report<SR: StrategyReporter<Genotype = G>>(
+impl EvolveState {
+    fn update_best_chromosome_and_report<G: EvolveGenotype, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         config: &EvolveConfig,
@@ -534,7 +534,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
         }
         self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
-    fn scale(&mut self, genotype: &G, config: &EvolveConfig) {
+    fn scale<G: EvolveGenotype>(&mut self, genotype: &G, config: &EvolveConfig) {
         if let Some(current_scale_index) = self.current_scale_index {
             if let Some(max_stale_generations) = config.max_stale_generations {
                 if let Some(max_scale_index) = genotype.max_scale_index() {
@@ -550,7 +550,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
         }
     }
 
-    fn population_filter_age(&mut self, genotype: &mut G, config: &EvolveConfig) {
+    fn population_filter_age<G: EvolveGenotype>(&mut self, genotype: &mut G, config: &EvolveConfig) {
         if let Some(max_chromosome_age) = config.max_chromosome_age {
             // TODO: use something like partition_in_place when stable
             for i in (0..self.population.chromosomes.len()).rev() {
@@ -560,7 +560,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
             }
         }
     }
-    fn update_population_cardinality(&mut self, genotype: &mut G, _config: &EvolveConfig) {
+    fn update_population_cardinality<G: EvolveGenotype>(&mut self, genotype: &mut G, _config: &EvolveConfig) {
         self.population_cardinality = if genotype.genes_hashing() {
             self.population.genes_cardinality()
         } else {
@@ -694,8 +694,8 @@ impl EvolveConfig {
     }
 }
 
-impl<G: EvolveGenotype> EvolveState<G> {
-    pub fn new(genotype: &G) -> Self {
+impl EvolveState {
+    pub fn new<G: EvolveGenotype>(genotype: &G) -> Self {
         let base = Self {
             current_iteration: 0,
             current_generation: 0,
@@ -773,7 +773,7 @@ impl fmt::Display for EvolveConfig {
     }
 }
 
-impl<G: EvolveGenotype> fmt::Display for EvolveState<G> {
+impl fmt::Display for EvolveState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "evolve_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;

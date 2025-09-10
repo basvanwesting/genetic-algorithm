@@ -18,6 +18,7 @@ pub use self::mass_genesis::MassGenesis as ExtensionMassGenesis;
 pub use self::noop::Noop as ExtensionNoop;
 pub use self::wrapper::Wrapper as ExtensionWrapper;
 
+use crate::centralized::chromosome::Chromosome;
 use crate::centralized::genotype::EvolveGenotype;
 use crate::centralized::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::centralized::strategy::StrategyReporter;
@@ -27,7 +28,7 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
@@ -36,11 +37,11 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
     fn extract_elite_chromosomes<G: EvolveGenotype>(
         &self,
         _genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         elitism_size: usize,
-    ) -> Vec<G::Chromosome> {
-        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
+    ) -> Vec<Chromosome> {
+        let mut elite_chromosomes: Vec<Chromosome> = Vec::with_capacity(elitism_size);
         for index in state
             .population
             .best_chromosome_indices(elitism_size, config.fitness_ordering)
@@ -56,11 +57,11 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
     fn extract_unique_elite_chromosomes<G: EvolveGenotype>(
         &self,
         _genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         elitism_size: usize,
-    ) -> Vec<G::Chromosome> {
-        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
+    ) -> Vec<Chromosome> {
+        let mut elite_chromosomes: Vec<Chromosome> = Vec::with_capacity(elitism_size);
         for index in state
             .population
             .best_unique_chromosome_indices(elitism_size, config.fitness_ordering)
@@ -76,10 +77,10 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
     fn extract_unique_chromosomes<G: EvolveGenotype>(
         &self,
         _genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         _config: &EvolveConfig,
-    ) -> Vec<G::Chromosome> {
-        let mut unique_chromosomes: Vec<G::Chromosome> = Vec::new();
+    ) -> Vec<Chromosome> {
+        let mut unique_chromosomes: Vec<Chromosome> = Vec::new();
         for index in state
             .population
             .unique_chromosome_indices()

@@ -132,7 +132,7 @@ pub struct HillClimb<
     pub genotype: G,
     pub fitness: F,
     pub config: HillClimbConfig,
-    pub state: HillClimbState<G>,
+    pub state: HillClimbState,
     pub reporter: SR,
     pub rng: SmallRng,
 }
@@ -149,7 +149,7 @@ pub struct HillClimbConfig {
 }
 
 /// Stores the state of the HillClimb strategy.
-pub struct HillClimbState<G: HillClimbGenotype> {
+pub struct HillClimbState {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub stale_generations: usize,
@@ -157,8 +157,8 @@ pub struct HillClimbState<G: HillClimbGenotype> {
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub chromosome: Option<G::Chromosome>,
-    pub population: Population<G::Chromosome>,
+    pub chromosome: Option<Chromosome>,
+    pub population: Population,
     pub current_scale_index: Option<usize>,
 }
 
@@ -338,17 +338,17 @@ impl StrategyConfig for HillClimbConfig {
     }
 }
 
-impl<G: HillClimbGenotype> StrategyState<G> for HillClimbState<G> {
-    fn chromosome_as_ref(&self) -> &Option<G::Chromosome> {
+impl StrategyState for HillClimbState {
+    fn chromosome_as_ref(&self) -> &Option<Chromosome> {
         &self.chromosome
     }
-    fn population_as_ref(&self) -> &Population<G::Chromosome> {
+    fn population_as_ref(&self) -> &Population {
         &self.population
     }
-    fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome> {
+    fn chromosome_as_mut(&mut self) -> &mut Option<Chromosome> {
         &mut self.chromosome
     }
-    fn population_as_mut(&mut self) -> &mut Population<G::Chromosome> {
+    fn population_as_mut(&mut self) -> &mut Population {
         &mut self.population
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
@@ -399,8 +399,8 @@ impl<G: HillClimbGenotype> StrategyState<G> for HillClimbState<G> {
     }
 }
 
-impl<G: HillClimbGenotype> HillClimbState<G> {
-    fn update_best_chromosome_from_state_population<SR: StrategyReporter<Genotype = G>>(
+impl HillClimbState {
+    fn update_best_chromosome_from_state_population<G: HillClimbGenotype, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         config: &HillClimbConfig,
@@ -439,7 +439,7 @@ impl<G: HillClimbGenotype> HillClimbState<G> {
         }
         self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
-    fn scale(&mut self, genotype: &G, config: &HillClimbConfig) {
+    fn scale<G: HillClimbGenotype>(&mut self, genotype: &G, config: &HillClimbConfig) {
         if let Some(current_scale_index) = self.current_scale_index {
             if let Some(max_stale_generations) = config.max_stale_generations {
                 if let Some(max_scale_index) = genotype.max_scale_index() {
@@ -519,8 +519,8 @@ impl HillClimbConfig {
     }
 }
 
-impl<G: HillClimbGenotype> HillClimbState<G> {
-    pub fn new(genotype: &G) -> Self {
+impl HillClimbState {
+    pub fn new<G: HillClimbGenotype>(genotype: &G) -> Self {
         let base = Self {
             current_iteration: 0,
             current_generation: 0,
@@ -575,7 +575,7 @@ impl fmt::Display for HillClimbConfig {
     }
 }
 
-impl<G: HillClimbGenotype> fmt::Display for HillClimbState<G> {
+impl fmt::Display for HillClimbState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "hill_climb_state:")?;
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;

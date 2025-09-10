@@ -4,14 +4,15 @@ pub use crate::centralized::chromosome::{
 };
 #[doc(no_inline)]
 pub use crate::centralized::fitness::{
-    Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessPopulation,
-    FitnessValue,
+    Fitness, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessValue,
 };
 #[doc(no_inline)]
 pub use crate::centralized::genotype::{
     Allele, DynamicRangeGenotype, Genotype, GenotypeBuilder, HillClimbGenotype, RangeAllele,
     StaticBinaryGenotype, StaticRangeGenotype, TryFromGenotypeBuilderError,
 };
+#[doc(no_inline)]
+pub use crate::centralized::population::Population;
 #[doc(no_inline)]
 pub use crate::centralized::strategy::hill_climb::{
     HillClimb, HillClimbBuilder, HillClimbConfig, HillClimbReporterDuration, HillClimbReporterNoop,

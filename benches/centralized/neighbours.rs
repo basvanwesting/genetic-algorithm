@@ -24,6 +24,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .with_allele_mutation_range(-0.1..=0.1)
             .build()
             .unwrap();
+        genotype.chromosomes_setup();
 
         b.iter_batched(
             || {
@@ -45,6 +46,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
             .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
             .build()
             .unwrap();
+        genotype.chromosomes_setup();
 
         b.iter_batched(
             || {

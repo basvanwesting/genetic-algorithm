@@ -17,11 +17,12 @@ pub fn setup_100(
     genes_size: usize,
     population_size: usize,
     rng: &mut SmallRng,
-) -> (StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>, EvolveState<StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>>) {
+) -> (StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>, EvolveState) {
     let mut genotype = StaticBinaryGenotype::<GENES_SIZE_100, MAX_POPULATION_SIZE>::builder()
         .with_genes_size(genes_size)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
     let chromosomes = (0..population_size)
         .map(|_| genotype.chromosome_constructor_random(rng))
@@ -37,11 +38,12 @@ pub fn setup_10000(
     genes_size: usize,
     population_size: usize,
     rng: &mut SmallRng,
-) -> (StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>, EvolveState<StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>>) {
+) -> (StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>, EvolveState) {
     let mut genotype = StaticBinaryGenotype::<GENES_SIZE_10000, MAX_POPULATION_SIZE>::builder()
         .with_genes_size(genes_size)
         .build()
         .unwrap();
+    genotype.chromosomes_setup();
 
     let chromosomes = (0..population_size)
         .map(|_| genotype.chromosome_constructor_random(rng))

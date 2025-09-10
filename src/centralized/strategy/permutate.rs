@@ -94,7 +94,7 @@ pub struct Permutate<
     pub genotype: G,
     pub fitness: F,
     pub config: PermutateConfig,
-    pub state: PermutateState<G>,
+    pub state: PermutateState,
     pub reporter: SR,
 }
 
@@ -106,7 +106,7 @@ pub struct PermutateConfig {
 }
 
 /// Stores the state of the Permutate strategy
-pub struct PermutateState<G: PermutateGenotype> {
+pub struct PermutateState {
     pub current_iteration: usize,
     pub current_generation: usize,
     pub stale_generations: usize,
@@ -114,8 +114,8 @@ pub struct PermutateState<G: PermutateGenotype> {
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub chromosome: Option<G::Chromosome>,
-    pub population: Population<G::Chromosome>,
+    pub chromosome: Option<Chromosome>,
+    pub population: Population,
     pub current_scale_index: Option<usize>,
 }
 
@@ -245,17 +245,17 @@ impl StrategyConfig for PermutateConfig {
     }
 }
 
-impl<G: PermutateGenotype> StrategyState<G> for PermutateState<G> {
-    fn chromosome_as_ref(&self) -> &Option<G::Chromosome> {
+impl StrategyState for PermutateState {
+    fn chromosome_as_ref(&self) -> &Option<Chromosome> {
         &self.chromosome
     }
-    fn population_as_ref(&self) -> &Population<G::Chromosome> {
+    fn population_as_ref(&self) -> &Population {
         &self.population
     }
-    fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome> {
+    fn chromosome_as_mut(&mut self) -> &mut Option<Chromosome> {
         &mut self.chromosome
     }
-    fn population_as_mut(&mut self) -> &mut Population<G::Chromosome> {
+    fn population_as_mut(&mut self) -> &mut Population {
         &mut self.population
     }
     fn best_fitness_score(&self) -> Option<FitnessValue> {
@@ -306,8 +306,8 @@ impl<G: PermutateGenotype> StrategyState<G> for PermutateState<G> {
     }
 }
 
-impl<G: PermutateGenotype> PermutateState<G> {
-    fn update_best_population_and_report<SR: StrategyReporter<Genotype = G>>(
+impl PermutateState {
+    fn update_best_population_and_report<G: PermutateGenotype, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
         config: &PermutateConfig,
@@ -340,7 +340,7 @@ impl<G: PermutateGenotype> PermutateState<G> {
         }
         self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
-    fn scale(&mut self, genotype: &G, _config: &PermutateConfig) {
+    fn scale<G: PermutateGenotype>(&mut self, genotype: &G, _config: &PermutateConfig) {
         if let Some(current_scale_index) = self.current_scale_index {
             if let Some(max_scale_index) = genotype.max_scale_index() {
                 if current_scale_index < max_scale_index {
@@ -415,8 +415,8 @@ impl PermutateConfig {
     }
 }
 
-impl<G: PermutateGenotype> PermutateState<G> {
-    pub fn new(genotype: &G) -> Self {
+impl PermutateState {
+    pub fn new<G: PermutateGenotype>(genotype: &G) -> Self {
         let base = Self {
             current_iteration: 0,
             current_generation: 0,
@@ -461,7 +461,7 @@ impl fmt::Display for PermutateConfig {
     }
 }
 
-impl<G: PermutateGenotype> fmt::Display for PermutateState<G> {
+impl fmt::Display for PermutateState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_state:")?;
         writeln!(f, "  current iteration: -")?;

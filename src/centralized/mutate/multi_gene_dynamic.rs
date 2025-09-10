@@ -1,5 +1,4 @@
 use super::{Mutate, MutateEvent};
-use crate::centralized::chromosome::Chromosome;
 use crate::centralized::genotype::EvolveGenotype;
 use crate::centralized::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::centralized::strategy::{StrategyAction, StrategyReporter, StrategyState};
@@ -34,7 +33,7 @@ impl Mutate for MultiGeneDynamic {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
