@@ -135,7 +135,7 @@ mod population_tests {
 
     #[test]
     fn chromosome_indices_all_variants_with_fitness_with_genes_hash() {
-        let mut population: Population<VecChromosome<bool>> =
+        let population: Population<VecChromosome<bool>> =
             build::population_with_fitness_scores(vec![
                 (vec![false, true, true], Some(2)),
                 (vec![false, true, true], Some(2)),
@@ -148,11 +148,6 @@ mod population_tests {
                 (vec![true, true, false], None),
                 (vec![true, true, false], None),
             ]);
-
-        population.chromosomes.iter_mut().for_each(|chromosome| {
-            let genes_hash = Some(chromosome.calculate_hash());
-            chromosome.set_genes_hash(genes_hash);
-        });
 
         // uniqueness
         assert_eq!(population.unique_chromosome_indices(), vec![0, 2, 3, 6, 8]);
@@ -248,7 +243,7 @@ mod population_tests {
 
     #[test]
     fn chromosome_indices_all_variants_without_fitness_with_genes_hash() {
-        let mut population: Population<VecChromosome<bool>> =
+        let population: Population<VecChromosome<bool>> =
             build::population_with_fitness_scores(vec![
                 (vec![false, true, true], None),
                 (vec![false, true, true], None),
@@ -261,11 +256,6 @@ mod population_tests {
                 (vec![true, true, false], None),
                 (vec![true, true, false], None),
             ]);
-
-        population.chromosomes.iter_mut().for_each(|chromosome| {
-            let genes_hash = Some(chromosome.calculate_hash());
-            chromosome.set_genes_hash(genes_hash);
-        });
 
         // uniqueness
         assert_eq!(population.unique_chromosome_indices(), vec![0, 2, 3, 6, 8]);
@@ -284,7 +274,7 @@ mod population_tests {
     #[test]
     fn chromosome_indices_all_variants_with_fitness_without_genes_hash() {
         let population: Population<VecChromosome<bool>> =
-            build::population_with_fitness_scores(vec![
+            build::population_with_fitness_scores_without_genes_hash(vec![
                 (vec![false, true, true], Some(2)),
                 (vec![false, true, true], Some(2)),
                 (vec![false, false, false], Some(0)),
@@ -414,22 +404,22 @@ mod population_tests {
 
     #[test]
     fn genes_cardinality() {
-        let mut population: Population<VecChromosome<bool>> = build::population(vec![
-            vec![false, false, false],
-            vec![false, false, true],
-            vec![false, true, true],
-            vec![true, true, true],
-            vec![true, true, false],
-            vec![false, false, false],
-            vec![false, false, true],
-            vec![false, true, true],
-        ]);
+        let mut population: Population<VecChromosome<bool>> =
+            build::population_without_genes_hash(vec![
+                vec![false, false, false],
+                vec![false, false, true],
+                vec![false, true, true],
+                vec![true, true, true],
+                vec![true, true, false],
+                vec![false, false, false],
+                vec![false, false, true],
+                vec![false, true, true],
+            ]);
 
         assert_eq!(population.genes_cardinality(), None);
 
         population.chromosomes.iter_mut().for_each(|chromosome| {
-            let genes_hash = Some(chromosome.calculate_hash());
-            chromosome.reset_state(genes_hash);
+            chromosome.update_state();
         });
 
         assert_eq!(population.genes_cardinality(), Some(5));

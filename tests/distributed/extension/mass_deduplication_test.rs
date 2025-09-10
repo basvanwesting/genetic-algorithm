@@ -25,10 +25,6 @@ fn standard() {
     ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
-    population.chromosomes.iter_mut().for_each(|chromosome| {
-        let genes_hash = Some(chromosome.calculate_hash());
-        chromosome.reset_state(genes_hash);
-    });
 
     let mut state = EvolveState::new(&genotype);
     state.population_cardinality = population.genes_cardinality();
@@ -75,10 +71,6 @@ fn never_leaves_less_than_two() {
     ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
-    population.chromosomes.iter_mut().for_each(|chromosome| {
-        let genes_hash = Some(chromosome.calculate_hash());
-        chromosome.reset_state(genes_hash);
-    });
 
     let mut state = EvolveState::new(&genotype);
     state.population_cardinality = population.genes_cardinality();

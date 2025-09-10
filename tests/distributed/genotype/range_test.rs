@@ -940,42 +940,56 @@ fn integer_chromosome_permutations_2_scaled() {
 
 #[test]
 fn float_calculate_genes_hash() {
-    let chromosome_1: VecChromosome<f32> =
-        build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
-    let chromosome_2: VecChromosome<f32> =
-        build::chromosome(vec![0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
-    let chromosome_3: VecChromosome<f32> =
-        build::chromosome(vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
-    let chromosome_4: VecChromosome<f32> =
-        build::chromosome(vec![-0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]);
+    let chromosome_1: VecChromosome<f32> = build::chromosome_without_genes_hash(vec![
+        0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
+    ]);
+    let chromosome_2: VecChromosome<f32> = build::chromosome_without_genes_hash(vec![
+        0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
+    ]);
+    let chromosome_3: VecChromosome<f32> = build::chromosome_without_genes_hash(vec![
+        -0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
+    ]);
+    let chromosome_4: VecChromosome<f32> = build::chromosome_without_genes_hash(vec![
+        -0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9,
+    ]);
 
-    assert!(chromosome_1.calculate_hash() != 0);
-    // assert_eq!(
-    //     chromosome_1.calculate_hash(),
-    //     Some(13948481349068670127)
-    // );
-    assert_eq!(chromosome_1.calculate_hash(), chromosome_2.calculate_hash(),);
-    assert_eq!(chromosome_3.calculate_hash(), chromosome_4.calculate_hash(),);
+    let hash_1 = chromosome_1.calculate_hash();
+    let hash_2 = chromosome_2.calculate_hash();
+    let hash_3 = chromosome_3.calculate_hash();
+    let hash_4 = chromosome_4.calculate_hash();
+
+    assert_ne!(hash_1, 0);
+
+    // Same genes should have same hash
+    assert_eq!(hash_1, hash_2);
+    assert_eq!(hash_3, hash_4);
 
     // the sign on zero matters
-    assert_ne!(chromosome_1.calculate_hash(), chromosome_3.calculate_hash(),);
+    assert_ne!(hash_1, hash_3);
 }
 
 #[test]
 fn integer_calculate_genes_hash() {
-    let chromosome_1: VecChromosome<i32> = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_2: VecChromosome<i32> = build::chromosome(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_3: VecChromosome<i32> = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_4: VecChromosome<i32> = build::chromosome(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_1: VecChromosome<i32> =
+        build::chromosome_without_genes_hash(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_2: VecChromosome<i32> =
+        build::chromosome_without_genes_hash(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_3: VecChromosome<i32> =
+        build::chromosome_without_genes_hash(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
+    let chromosome_4: VecChromosome<i32> =
+        build::chromosome_without_genes_hash(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
-    assert!(chromosome_1.calculate_hash() != 0);
-    // assert_eq!(
-    //     chromosome_1.calculate_hash(),
-    //     Some(10064628735429642131)
-    // );
-    assert_eq!(chromosome_1.calculate_hash(), chromosome_2.calculate_hash(),);
-    assert_eq!(chromosome_3.calculate_hash(), chromosome_4.calculate_hash(),);
+    let hash_1 = chromosome_1.calculate_hash();
+    let hash_2 = chromosome_2.calculate_hash();
+    let hash_3 = chromosome_3.calculate_hash();
+    let hash_4 = chromosome_4.calculate_hash();
+
+    assert_ne!(hash_1, 0);
+
+    // Same genes should have same hash
+    assert_eq!(hash_1, hash_2);
+    assert_eq!(hash_3, hash_4);
 
     // the sign on does not matter
-    assert_eq!(chromosome_1.calculate_hash(), chromosome_3.calculate_hash(),);
+    assert_eq!(hash_1, hash_3);
 }

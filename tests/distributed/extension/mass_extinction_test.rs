@@ -27,11 +27,6 @@ fn removes_randomly() {
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
-    population.chromosomes.iter_mut().for_each(|chromosome| {
-        let genes_hash = Some(chromosome.calculate_hash());
-        chromosome.set_genes_hash(genes_hash);
-    });
-
     let mut state = EvolveState::new(&genotype);
     assert_eq!(population.genes_cardinality(), Some(3));
     state.population_cardinality = population.genes_cardinality();
@@ -83,11 +78,6 @@ fn never_leaves_less_than_two_no_elite() {
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
-    population.chromosomes.iter_mut().for_each(|chromosome| {
-        let genes_hash = Some(chromosome.calculate_hash());
-        chromosome.set_genes_hash(genes_hash);
-    });
-
     let mut state = EvolveState::new(&genotype);
     assert_eq!(population.genes_cardinality(), Some(3));
     state.population_cardinality = population.genes_cardinality();
@@ -133,11 +123,6 @@ fn never_leaves_less_than_two_one_elite() {
         ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
-
-    population.chromosomes.iter_mut().for_each(|chromosome| {
-        let genes_hash = Some(chromosome.calculate_hash());
-        chromosome.set_genes_hash(genes_hash);
-    });
 
     let mut state = EvolveState::new(&genotype);
     assert_eq!(population.genes_cardinality(), Some(3));
