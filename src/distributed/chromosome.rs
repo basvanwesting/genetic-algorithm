@@ -135,22 +135,15 @@ impl<T: Allele> Chromosome<T> {
 }
 
 pub trait ChromosomeManager<G: Genotype> {
-    /// Create random genes based on genotype configuration
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Genes<G::Allele>;
-    /// Get the capacity hint for creating new chromosomes
-    fn genes_capacity(&self) -> usize;
-
-    // Helper methods using the new chromosome capabilities
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut Chromosome<G::Allele>, rng: &mut R) {
-        let genes = self.random_genes_factory(rng);
-        chromosome.set_genes(genes);
-    }
-
+    // Helper methods using the chromosome capabilities
     fn chromosome_constructor_genes(&mut self, genes: &Genes<G::Allele>) -> Chromosome<G::Allele> {
         Chromosome::new(genes.clone())
     }
 
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G::Allele> {
+    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G::Allele>
+    where
+        Self: Genotype<Allele = G::Allele>,
+    {
         let genes = self.random_genes_factory(rng);
         Chromosome::new(genes)
     }

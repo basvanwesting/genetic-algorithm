@@ -95,6 +95,16 @@ impl Genotype for Binary {
     fn max_scale_index(&self) -> Option<usize> {
         None
     }
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<bool> {
+        if self.seed_genes_list.is_empty() {
+            rng.sample_iter(Standard).take(self.genes_size).collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
+    fn genes_capacity(&self) -> usize {
+        self.genes_size
+    }
 }
 
 impl EvolveGenotype for Binary {
@@ -232,18 +242,7 @@ impl PermutateGenotype for Binary {
     }
 }
 
-impl ChromosomeManager<Self> for Binary {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<bool> {
-        if self.seed_genes_list.is_empty() {
-            rng.sample_iter(Standard).take(self.genes_size).collect()
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
-    }
-    fn genes_capacity(&self) -> usize {
-        self.genes_size
-    }
-}
+impl ChromosomeManager<Self> for Binary {}
 
 impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

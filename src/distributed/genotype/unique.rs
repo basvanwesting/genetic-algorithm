@@ -129,6 +129,18 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
     fn max_scale_index(&self) -> Option<usize> {
         None
     }
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
+        if self.seed_genes_list.is_empty() {
+            let mut genes = self.allele_list.clone();
+            genes.shuffle(rng);
+            genes
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
+    fn genes_capacity(&self) -> usize {
+        self.genes_size
+    }
 }
 
 impl<T: Allele + Hash> EvolveGenotype for Unique<T> {
@@ -215,20 +227,7 @@ impl<T: Allele + Hash> PermutateGenotype for Unique<T> {
     }
 }
 
-impl<T: Allele + Hash> ChromosomeManager<Self> for Unique<T> {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
-        if self.seed_genes_list.is_empty() {
-            let mut genes = self.allele_list.clone();
-            genes.shuffle(rng);
-            genes
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
-    }
-    fn genes_capacity(&self) -> usize {
-        self.genes_size
-    }
-}
+impl<T: Allele + Hash> ChromosomeManager<Self> for Unique<T> {}
 
 impl<T: Allele + Hash> fmt::Display for Unique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

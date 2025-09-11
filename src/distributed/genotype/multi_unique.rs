@@ -191,6 +191,23 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     fn max_scale_index(&self) -> Option<usize> {
         None
     }
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
+        if self.seed_genes_list.is_empty() {
+            self.allele_lists
+                .iter()
+                .flat_map(|allele_list| {
+                    let mut genes = allele_list.clone();
+                    genes.shuffle(rng);
+                    genes
+                })
+                .collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
+    fn genes_capacity(&self) -> usize {
+        self.genes_size
+    }
 }
 
 impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
@@ -342,25 +359,7 @@ impl<T: Allele + Hash> PermutateGenotype for MultiUnique<T> {
     }
 }
 
-impl<T: Allele + Hash> ChromosomeManager<Self> for MultiUnique<T> {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
-        if self.seed_genes_list.is_empty() {
-            self.allele_lists
-                .iter()
-                .flat_map(|allele_list| {
-                    let mut genes = allele_list.clone();
-                    genes.shuffle(rng);
-                    genes
-                })
-                .collect()
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
-    }
-    fn genes_capacity(&self) -> usize {
-        self.genes_size
-    }
-}
+impl<T: Allele + Hash> ChromosomeManager<Self> for MultiUnique<T> {}
 
 impl<T: Allele + Hash> fmt::Display for MultiUnique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

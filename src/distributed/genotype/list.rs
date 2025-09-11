@@ -157,6 +157,18 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
     fn max_scale_index(&self) -> Option<usize> {
         None
     }
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
+        if self.seed_genes_list.is_empty() {
+            (0..self.genes_size)
+                .map(|_| self.allele_list[self.allele_index_sampler.sample(rng)])
+                .collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
+    fn genes_capacity(&self) -> usize {
+        self.genes_size
+    }
 }
 
 impl<T: Allele + PartialEq + Hash> EvolveGenotype for List<T> {
@@ -299,20 +311,7 @@ impl<T: Allele + PartialEq + Hash> PermutateGenotype for List<T> {
     }
 }
 
-impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for List<T> {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
-        if self.seed_genes_list.is_empty() {
-            (0..self.genes_size)
-                .map(|_| self.allele_list[self.allele_index_sampler.sample(rng)])
-                .collect()
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
-    }
-    fn genes_capacity(&self) -> usize {
-        self.genes_size
-    }
-}
+impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for List<T> {}
 
 impl<T: Allele + PartialEq + Hash> fmt::Display for List<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

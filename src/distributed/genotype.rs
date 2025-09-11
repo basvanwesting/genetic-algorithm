@@ -50,7 +50,14 @@ pub trait Genotype:
     type Allele: Allele;
 
     fn genes_size(&self) -> usize;
+    fn genes_capacity(&self) -> usize;
     fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele];
+
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Genes<Self::Allele>;
+    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut Chromosome<Self::Allele>, rng: &mut R) {
+        let genes = self.random_genes_factory(rng);
+        chromosome.set_genes(genes);
+    }
 
     fn mutation_type(&self) -> MutationType {
         MutationType::Random

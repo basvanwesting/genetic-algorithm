@@ -244,6 +244,18 @@ where
             .as_ref()
             .map(|r| r.len() - 1)
     }
+    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
+        if self.seed_genes_list.is_empty() {
+            (0..self.genes_size)
+                .map(|_| self.allele_sampler.sample(rng))
+                .collect()
+        } else {
+            self.seed_genes_list.choose(rng).unwrap().clone()
+        }
+    }
+    fn genes_capacity(&self) -> usize {
+        self.genes_size
+    }
 }
 
 impl<T: RangeAllele> EvolveGenotype for Range<T>
@@ -642,18 +654,6 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
-        if self.seed_genes_list.is_empty() {
-            (0..self.genes_size)
-                .map(|_| self.allele_sampler.sample(rng))
-                .collect()
-        } else {
-            self.seed_genes_list.choose(rng).unwrap().clone()
-        }
-    }
-    fn genes_capacity(&self) -> usize {
-        self.genes_size
-    }
 }
 
 impl<T: RangeAllele> Clone for Range<T>
