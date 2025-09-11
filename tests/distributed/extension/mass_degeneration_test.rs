@@ -13,17 +13,16 @@ fn degenerates_randomly() {
         .build()
         .unwrap();
 
-    let mut population: Population<VecChromosome<bool>> =
-        build::population_with_fitness_scores(vec![
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-            (vec![true, false, false], Some(2)),
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-            (vec![true, false, false], Some(2)),
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-        ]);
+    let mut population: Population<bool> = build::population_with_fitness_scores(vec![
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+    ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
@@ -68,17 +67,16 @@ fn degenerates_randomly_no_elite() {
         .build()
         .unwrap();
 
-    let mut population: Population<VecChromosome<bool>> =
-        build::population_with_fitness_scores(vec![
-            (vec![true, true, true], Some(2)),
-            (vec![true, true, true], Some(1)),
-            (vec![true, true, true], Some(4)),
-            (vec![true, true, true], Some(5)),
-            (vec![true, true, true], Some(7)),
-            (vec![true, true, true], Some(3)),
-            (vec![true, true, true], Some(8)),
-            (vec![true, true, true], Some(6)),
-        ]);
+    let mut population: Population<bool> = build::population_with_fitness_scores(vec![
+        (vec![true, true, true], Some(2)),
+        (vec![true, true, true], Some(1)),
+        (vec![true, true, true], Some(4)),
+        (vec![true, true, true], Some(5)),
+        (vec![true, true, true], Some(7)),
+        (vec![true, true, true], Some(3)),
+        (vec![true, true, true], Some(8)),
+        (vec![true, true, true], Some(6)),
+    ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 

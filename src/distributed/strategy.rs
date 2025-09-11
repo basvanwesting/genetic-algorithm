@@ -82,7 +82,7 @@ pub mod reporter;
 use self::evolve::EvolveVariant;
 use self::hill_climb::HillClimbVariant;
 use self::permutate::PermutateVariant;
-use crate::distributed::chromosome::Chromosome;
+use crate::distributed::chromosome::{Chromosome, Genes};
 use crate::distributed::extension::ExtensionEvent;
 use crate::distributed::fitness::{FitnessCache, FitnessOrdering, FitnessValue};
 use crate::distributed::genotype::Genotype;
@@ -147,8 +147,8 @@ pub trait Strategy<G: Genotype> {
     fn call(&mut self);
     fn best_generation(&self) -> usize;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
-    fn best_genes(&self) -> Option<G::Genes>;
-    fn best_genes_and_fitness_score(&self) -> Option<(G::Genes, FitnessValue)> {
+    fn best_genes(&self) -> Option<Genes<G::Allele>>;
+    fn best_genes_and_fitness_score(&self) -> Option<(Genes<G::Allele>, FitnessValue)> {
         if let Some(fitness_value) = self.best_fitness_score() {
             self.best_genes().map(|genes| (genes, fitness_value))
         } else {
@@ -175,14 +175,14 @@ pub trait StrategyConfig: Display {
 /// * current_iteration: `usize`
 /// * current_generation: `usize`
 /// * best_generation: `usize`
-/// * best_chromosome: `G::Chromosome`
-/// * chromosome: `G::Chromosome`
-/// * populatoin: `Population<G::Chromosome>` // may be empty
+/// * best_chromosome: `Chromosome<G::Allele>`
+/// * chromosome: `Chromosome<G::Allele>`
+/// * populatoin: `Population<G::Allele>` // may be empty
 pub trait StrategyState<G: Genotype>: Display {
-    fn chromosome_as_ref(&self) -> &Option<G::Chromosome>;
-    fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome>;
-    fn population_as_ref(&self) -> &Population<G::Chromosome>;
-    fn population_as_mut(&mut self) -> &mut Population<G::Chromosome>;
+    fn chromosome_as_ref(&self) -> &Option<Chromosome<G::Allele>>;
+    fn chromosome_as_mut(&mut self) -> &mut Option<Chromosome<G::Allele>>;
+    fn population_as_ref(&self) -> &Population<G::Allele>;
+    fn population_as_mut(&mut self) -> &mut Population<G::Allele>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
     fn current_generation(&self) -> usize;
@@ -194,7 +194,7 @@ pub trait StrategyState<G: Genotype>: Display {
     fn durations(&self) -> &HashMap<StrategyAction, Duration>;
     fn add_duration(&mut self, action: StrategyAction, duration: Duration);
     fn total_duration(&self) -> Duration;
-    fn best_genes(&self) -> Option<G::Genes>;
+    fn best_genes(&self) -> Option<Genes<G::Allele>>;
     fn close_duration(&mut self, total_duration: Duration) {
         if let Some(other_duration) = total_duration.checked_sub(self.total_duration()) {
             self.add_duration(StrategyAction::Other, other_duration);
@@ -220,7 +220,7 @@ pub trait StrategyState<G: Genotype>: Display {
     // specialized version of this function for additional reporting
     fn is_better_chromosome(
         &self,
-        contending_chromosome: &G::Chromosome,
+        contending_chromosome: &Chromosome<G::Allele>,
         fitness_ordering: &FitnessOrdering,
         replace_on_equal_fitness: bool,
     ) -> (bool, bool) {

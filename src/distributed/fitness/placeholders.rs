@@ -1,5 +1,4 @@
 //! placeholders for testing and bootstrapping, not really used in practice
-use crate::distributed::chromosome::GenesOwner;
 use crate::distributed::fitness::{Fitness, FitnessChromosome, FitnessValue};
 use crate::distributed::genotype::{BinaryGenotype, Genotype};
 use rand::distributions::{Distribution, Uniform};
@@ -79,8 +78,6 @@ impl<G: Genotype> Default for SumGenes<G> {
 impl<G: Genotype> Fitness for SumGenes<G>
 where
     G::Allele: Into<f64>,
-    G::Genes: IntoIterator<Item = G::Allele>,
-    G::Chromosome: GenesOwner<Genes = G::Genes>,
 {
     type Genotype = G;
     fn calculate_for_chromosome(
@@ -89,10 +86,9 @@ where
         _genotype: &Self::Genotype,
     ) -> Option<FitnessValue> {
         let sum: f64 = chromosome
-            .genes()
-            .clone()
-            .into_iter()
-            .fold(0.0_f64, |acc, e| acc + e.into());
+            .genes
+            .iter()
+            .fold(0.0_f64, |acc, &e| acc + e.into());
         Some((sum / self.precision) as FitnessValue)
     }
 }

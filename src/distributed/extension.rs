@@ -8,6 +8,8 @@ mod mass_deduplication;
 mod mass_degeneration;
 mod mass_extinction;
 mod mass_genesis;
+
+use crate::distributed::chromosome::Chromosome;
 mod noop;
 mod wrapper;
 
@@ -39,8 +41,8 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         elitism_size: usize,
-    ) -> Vec<G::Chromosome> {
-        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
+    ) -> Vec<Chromosome<G::Allele>> {
+        let mut elite_chromosomes: Vec<Chromosome<G::Allele>> = Vec::with_capacity(elitism_size);
         for index in state
             .population
             .best_chromosome_indices(elitism_size, config.fitness_ordering)
@@ -59,8 +61,8 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         elitism_size: usize,
-    ) -> Vec<G::Chromosome> {
-        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
+    ) -> Vec<Chromosome<G::Allele>> {
+        let mut elite_chromosomes: Vec<Chromosome<G::Allele>> = Vec::with_capacity(elitism_size);
         for index in state
             .population
             .best_unique_chromosome_indices(elitism_size, config.fitness_ordering)
@@ -78,8 +80,8 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
         _genotype: &mut G,
         state: &mut EvolveState<G>,
         _config: &EvolveConfig,
-    ) -> Vec<G::Chromosome> {
-        let mut unique_chromosomes: Vec<G::Chromosome> = Vec::new();
+    ) -> Vec<Chromosome<G::Allele>> {
+        let mut unique_chromosomes: Vec<Chromosome<G::Allele>> = Vec::new();
         for index in state
             .population
             .unique_chromosome_indices()

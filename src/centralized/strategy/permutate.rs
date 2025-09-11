@@ -307,7 +307,10 @@ impl StrategyState for PermutateState {
 }
 
 impl PermutateState {
-    fn update_best_population_and_report<G: PermutateGenotype, SR: StrategyReporter<Genotype = G>>(
+    fn update_best_population_and_report<
+        G: PermutateGenotype,
+        SR: StrategyReporter<Genotype = G>,
+    >(
         &mut self,
         genotype: &mut G,
         config: &PermutateConfig,

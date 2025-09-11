@@ -3,14 +3,13 @@ pub use crate::centralized::chromosome::{
     Chromosome, DynamicRangeChromosome, GenesHash, StaticBinaryChromosome, StaticRangeChromosome,
 };
 #[doc(no_inline)]
-pub use crate::centralized::population::Population;
-#[doc(no_inline)]
 pub use crate::centralized::fitness::{
-    Fitness, FitnessGenes, FitnessGenotype, FitnessOrdering,
-    FitnessValue,
+    Fitness, FitnessGenes, FitnessGenotype, FitnessOrdering, FitnessValue,
 };
 #[doc(no_inline)]
 pub use crate::centralized::genotype::{
     Allele, DynamicRangeGenotype, Genotype, GenotypeBuilder, RangeAllele, StaticBinaryGenotype,
     StaticRangeGenotype, TryFromGenotypeBuilderError,
 };
+#[doc(no_inline)]
+pub use crate::centralized::population::Population;

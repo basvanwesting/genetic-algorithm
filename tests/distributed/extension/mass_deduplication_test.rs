@@ -13,7 +13,7 @@ fn standard() {
         .build()
         .unwrap();
 
-    let mut population: Population<VecChromosome<bool>> = build::population(vec![
+    let mut population: Population<bool> = build::population(vec![
         vec![false, true, true],
         vec![false, true, true],
         vec![false, true, true],
@@ -59,7 +59,7 @@ fn never_leaves_less_than_two() {
         .build()
         .unwrap();
 
-    let mut population: Population<VecChromosome<bool>> = build::population(vec![
+    let mut population: Population<bool> = build::population(vec![
         vec![true, true, true],
         vec![true, true, true],
         vec![true, true, true],

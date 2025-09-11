@@ -43,4 +43,3 @@ pub use crate::distributed::strategy::{
 };
 #[doc(no_inline)]
 pub use crate::impl_allele;
-

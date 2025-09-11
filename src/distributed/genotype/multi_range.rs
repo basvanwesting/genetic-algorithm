@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::distributed::allele::RangeAllele;
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner, VecChromosome};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, Genes};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -161,7 +161,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut VecChromosome<T>,
+        chromosome: &mut Chromosome<T>,
         rng: &mut R,
     ) {
         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
@@ -169,7 +169,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut VecChromosome<T>,
+        chromosome: &mut Chromosome<T>,
         rng: &mut R,
     ) {
         let allele_range = &self.allele_ranges[index];
@@ -186,7 +186,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &self,
         index: usize,
-        chromosome: &mut VecChromosome<T>,
+        chromosome: &mut Chromosome<T>,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -216,13 +216,11 @@ where
     Uniform<T>: Send + Sync,
 {
     type Allele = T;
-    type Genes = Vec<Self::Allele>;
-    type Chromosome = VecChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
 
@@ -233,7 +231,7 @@ where
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Self::Chromosome,
+        chromosome: &mut Chromosome<Self::Allele>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -282,10 +280,10 @@ where
         chromosome.update_state();
     }
 
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
         self.seed_genes_list = seed_genes_list;
     }
-    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
+    fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
     }
     fn max_scale_index(&self) -> Option<usize> {
@@ -304,8 +302,8 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -332,8 +330,8 @@ where
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -386,8 +384,8 @@ where
 {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
-        chromosome: &Self::Chromosome,
-        population: &mut Population<Self::Chromosome>,
+        chromosome: &Chromosome<Self::Allele>,
+        population: &mut Population<Self::Allele>,
         scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -418,8 +416,8 @@ where
 {
     fn fill_neighbouring_population_scaled(
         &mut self,
-        chromosome: &VecChromosome<T>,
-        population: &mut Population<VecChromosome<T>>,
+        chromosome: &Chromosome<T>,
+        population: &mut Population<T>,
         scale_index: usize,
     ) {
         self.allele_ranges
@@ -463,8 +461,8 @@ where
 
     fn fill_neighbouring_population_relative<R: Rng>(
         &mut self,
-        chromosome: &VecChromosome<T>,
-        population: &mut Population<VecChromosome<T>>,
+        chromosome: &Chromosome<T>,
+        population: &mut Population<T>,
         rng: &mut R,
     ) {
         self.allele_ranges
@@ -509,8 +507,8 @@ where
 
     fn fill_neighbouring_population_random<R: Rng>(
         &mut self,
-        chromosome: &VecChromosome<T>,
-        population: &mut Population<VecChromosome<T>>,
+        chromosome: &Chromosome<T>,
+        population: &mut Population<T>,
         rng: &mut R,
     ) {
         self.allele_ranges
@@ -547,16 +545,16 @@ where
 {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
-        chromosome: Option<&Self::Chromosome>,
+        chromosome: Option<&Chromosome<Self::Allele>>,
         scale_index: Option<usize>,
-    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
             match self.mutation_type {
                 MutationType::Scaled => Box::new(
                     self.permutable_gene_values_scaled(chromosome, scale_index.unwrap())
                         .into_iter()
                         .multi_cartesian_product()
-                        .map(VecChromosome::new),
+                        .map(Chromosome::new),
                 ),
                 MutationType::Relative => {
                     panic!("RangeGenotype is not permutable for MutationType::Relative")
@@ -570,7 +568,7 @@ where
                 self.seed_genes_list
                     .clone()
                     .into_iter()
-                    .map(VecChromosome::new),
+                    .map(Chromosome::new),
             )
         }
     }
@@ -609,7 +607,7 @@ where
     // scales should be symmetrical, so the step is simply the scale end
     pub fn permutable_gene_values_scaled(
         &self,
-        chromosome: Option<&VecChromosome<T>>,
+        chromosome: Option<&Chromosome<T>>,
         scale_index: usize,
     ) -> Vec<Vec<T>> {
         self.allele_ranges

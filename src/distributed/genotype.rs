@@ -20,7 +20,7 @@ pub use self::range::Range as RangeGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 pub use crate::distributed::allele::{Allele, RangeAllele};
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, Genes};
 use crate::distributed::population::Population;
 pub use crate::impl_allele;
 use itertools::Itertools;
@@ -48,11 +48,9 @@ pub trait Genotype:
     + TryFrom<GenotypeBuilder<Self>>
 {
     type Allele: Allele;
-    type Genes: Clone + Send + Sync + std::fmt::Debug;
-    type Chromosome: Chromosome + GenesOwner<Genes = Self::Genes> + Clone;
 
     fn genes_size(&self) -> usize;
-    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele];
+    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele];
 
     fn mutation_type(&self) -> MutationType {
         MutationType::Random
@@ -61,7 +59,7 @@ pub trait Genotype:
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Self::Chromosome,
+        chromosome: &mut Chromosome<Self::Allele>,
         scale_index: Option<usize>,
         rng: &mut R,
     );
@@ -69,8 +67,8 @@ pub trait Genotype:
     fn builder() -> GenotypeBuilder<Self> {
         GenotypeBuilder::<Self>::default()
     }
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>);
-    fn seed_genes_list(&self) -> &Vec<Self::Genes>;
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>);
+    fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>>;
     fn max_scale_index(&self) -> Option<usize>;
 
     fn expected_number_of_sampled_index_duplicates(&self, number_of_samples: usize) -> usize {
@@ -107,7 +105,7 @@ pub trait Genotype:
         &mut self,
         population_size: usize,
         rng: &mut R,
-    ) -> Population<Self::Chromosome> {
+    ) -> Population<Self::Allele> {
         if self.seed_genes_list().is_empty() {
             Population::new(
                 (0..population_size)
@@ -137,8 +135,8 @@ pub trait EvolveGenotype: Genotype {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     );
     /// Crossover points between a pair of chromosomes.
@@ -148,8 +146,8 @@ pub trait EvolveGenotype: Genotype {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     );
     /// to guard against invalid crossover strategies which break the internal consistency
@@ -170,8 +168,8 @@ pub trait HillClimbGenotype: Genotype {
     /// used in HillClimbVariant::SteepestAscent
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
-        _chromosome: &Self::Chromosome,
-        _population: &mut Population<Self::Chromosome>,
+        _chromosome: &Chromosome<Self::Allele>,
+        _population: &mut Population<Self::Allele>,
         _scale_index: Option<usize>,
         _rng: &mut R,
     );
@@ -186,9 +184,9 @@ pub trait PermutateGenotype: Genotype {
     /// chromosome iterator for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
-        _chromosome: Option<&Self::Chromosome>,
+        _chromosome: Option<&Chromosome<Self::Allele>>,
         _scale_index: Option<usize>,
-    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a>;
+    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a>;
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_size(&self) -> BigUint;

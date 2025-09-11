@@ -1,42 +1,43 @@
-use genetic_algorithm::distributed::chromosome::{Chromosome, GenesOwner};
+use genetic_algorithm::distributed::allele::Allele;
+use genetic_algorithm::distributed::chromosome::Chromosome;
 use genetic_algorithm::distributed::fitness::FitnessValue;
 use genetic_algorithm::distributed::population::Population;
 
 #[allow(dead_code)]
-pub fn chromosome<C: GenesOwner + Chromosome>(genes: C::Genes) -> C {
-    let mut c = C::new(genes);
+pub fn chromosome<T: Allele>(genes: Vec<T>) -> Chromosome<T> {
+    let mut c = Chromosome::new(genes);
     c.update_state();
     c
 }
 #[allow(dead_code)]
-pub fn chromosome_with_fitness_score<C: GenesOwner + Chromosome>(
-    genes: C::Genes,
+pub fn chromosome_with_fitness_score<T: Allele>(
+    genes: Vec<T>,
     fitness_score: Option<FitnessValue>,
-) -> C {
-    let mut chromosome = C::new(genes);
+) -> Chromosome<T> {
+    let mut chromosome = Chromosome::new(genes);
     chromosome.update_state();
     chromosome.set_fitness_score(fitness_score);
     chromosome
 }
 
 #[allow(dead_code)]
-pub fn chromosome_with_age<C: GenesOwner + Chromosome>(genes: C::Genes, age: usize) -> C {
-    let mut chromosome = C::new(genes);
+pub fn chromosome_with_age<T: Allele>(genes: Vec<T>, age: usize) -> Chromosome<T> {
+    let mut chromosome = Chromosome::new(genes);
     chromosome.update_state();
     chromosome.set_age(age);
     chromosome
 }
 
 #[allow(dead_code)]
-pub fn population<C: GenesOwner + Chromosome>(data: Vec<C::Genes>) -> Population<C> {
+pub fn population<T: Allele>(data: Vec<Vec<T>>) -> Population<T> {
     let chromosomes = data.into_iter().map(chromosome).collect();
     Population::new(chromosomes)
 }
 
 #[allow(dead_code)]
-pub fn population_with_fitness_scores<C: GenesOwner + Chromosome>(
-    data: Vec<(C::Genes, Option<FitnessValue>)>,
-) -> Population<C> {
+pub fn population_with_fitness_scores<T: Allele>(
+    data: Vec<(Vec<T>, Option<FitnessValue>)>,
+) -> Population<T> {
     let chromosomes = data
         .into_iter()
         .map(|tuple| chromosome_with_fitness_score(tuple.0, tuple.1))
@@ -46,9 +47,7 @@ pub fn population_with_fitness_scores<C: GenesOwner + Chromosome>(
 }
 
 #[allow(dead_code)]
-pub fn population_with_age<C: GenesOwner + Chromosome>(
-    data: Vec<(C::Genes, usize)>,
-) -> Population<C> {
+pub fn population_with_age<T: Allele>(data: Vec<(Vec<T>, usize)>) -> Population<T> {
     let chromosomes = data
         .into_iter()
         .map(|tuple| chromosome_with_age(tuple.0, tuple.1))
@@ -58,22 +57,22 @@ pub fn population_with_age<C: GenesOwner + Chromosome>(
 }
 
 #[allow(dead_code)]
-pub fn chromosome_without_genes_hash<C: GenesOwner>(genes: C::Genes) -> C {
-    C::new(genes)
+pub fn chromosome_without_genes_hash<T: Allele>(genes: Vec<T>) -> Chromosome<T> {
+    Chromosome::new(genes)
 }
 
 #[allow(dead_code)]
-pub fn chromosome_with_fitness_score_without_genes_hash<C: GenesOwner + Chromosome>(
-    genes: C::Genes,
+pub fn chromosome_with_fitness_score_without_genes_hash<T: Allele>(
+    genes: Vec<T>,
     fitness_score: Option<FitnessValue>,
-) -> C {
-    let mut chromosome = C::new(genes);
+) -> Chromosome<T> {
+    let mut chromosome = Chromosome::new(genes);
     chromosome.set_fitness_score(fitness_score);
     chromosome
 }
 
 #[allow(dead_code)]
-pub fn population_without_genes_hash<C: GenesOwner>(data: Vec<C::Genes>) -> Population<C> {
+pub fn population_without_genes_hash<T: Allele>(data: Vec<Vec<T>>) -> Population<T> {
     let chromosomes = data
         .into_iter()
         .map(chromosome_without_genes_hash)
@@ -82,9 +81,9 @@ pub fn population_without_genes_hash<C: GenesOwner>(data: Vec<C::Genes>) -> Popu
 }
 
 #[allow(dead_code)]
-pub fn population_with_fitness_scores_without_genes_hash<C: GenesOwner + Chromosome>(
-    data: Vec<(C::Genes, Option<FitnessValue>)>,
-) -> Population<C> {
+pub fn population_with_fitness_scores_without_genes_hash<T: Allele>(
+    data: Vec<(Vec<T>, Option<FitnessValue>)>,
+) -> Population<T> {
     let chromosomes = data
         .into_iter()
         .map(|tuple| chromosome_with_fitness_score_without_genes_hash(tuple.0, tuple.1))

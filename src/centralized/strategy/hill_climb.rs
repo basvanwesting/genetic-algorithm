@@ -185,11 +185,8 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 self.state.current_scale_index,
                 &mut self.rng,
             );
-            self.fitness.call_for_state_population(
-                &self.genotype,
-                &mut self.state,
-                &self.config,
-            );
+            self.fitness
+                .call_for_state_population(&self.genotype, &mut self.state, &self.config);
             self.state.update_best_chromosome_from_state_population(
                 &mut self.genotype,
                 &self.config,
@@ -252,11 +249,8 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             .genotype
             .population_constructor(population_size, &mut self.rng);
 
-        self.fitness.call_for_state_population(
-            &self.genotype,
-            &mut self.state,
-            &self.config,
-        );
+        self.fitness
+            .call_for_state_population(&self.genotype, &mut self.state, &self.config);
         self.state.update_best_chromosome_from_state_population(
             &mut self.genotype,
             &self.config,
@@ -400,7 +394,10 @@ impl StrategyState for HillClimbState {
 }
 
 impl HillClimbState {
-    fn update_best_chromosome_from_state_population<G: HillClimbGenotype, SR: StrategyReporter<Genotype = G>>(
+    fn update_best_chromosome_from_state_population<
+        G: HillClimbGenotype,
+        SR: StrategyReporter<Genotype = G>,
+    >(
         &mut self,
         genotype: &mut G,
         config: &HillClimbConfig,

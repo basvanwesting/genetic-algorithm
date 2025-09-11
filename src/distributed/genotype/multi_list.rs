@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::distributed::allele::Allele;
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner, VecChromosome};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, Genes};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -129,13 +129,11 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
 
 impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
     type Allele = T;
-    type Genes = Vec<Self::Allele>;
-    type Chromosome = VecChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
 
@@ -143,7 +141,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Self::Chromosome,
+        chromosome: &mut Chromosome<Self::Allele>,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -170,10 +168,10 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
         chromosome.update_state();
     }
 
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
         self.seed_genes_list = seed_genes_list;
     }
-    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
+    fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
     }
     fn max_scale_index(&self) -> Option<usize> {
@@ -186,8 +184,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -214,8 +212,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -264,8 +262,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
 impl<T: Allele + PartialEq + Hash> HillClimbGenotype for MultiList<T> {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
-        chromosome: &Self::Chromosome,
-        population: &mut Population<Self::Chromosome>,
+        chromosome: &Chromosome<Self::Allele>,
+        population: &mut Population<Self::Allele>,
         _scale_index: Option<usize>,
         _rng: &mut R,
     ) {
@@ -289,23 +287,23 @@ impl<T: Allele + PartialEq + Hash> HillClimbGenotype for MultiList<T> {
 impl<T: Allele + PartialEq + Hash> PermutateGenotype for MultiList<T> {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
-        _chromosome: Option<&Self::Chromosome>,
+        _chromosome: Option<&Chromosome<Self::Allele>>,
         _scale_index: Option<usize>,
-    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
             Box::new(
                 self.allele_lists
                     .clone()
                     .into_iter()
                     .multi_cartesian_product()
-                    .map(VecChromosome::new),
+                    .map(Chromosome::new),
             )
         } else {
             Box::new(
                 self.seed_genes_list
                     .clone()
                     .into_iter()
-                    .map(VecChromosome::new),
+                    .map(Chromosome::new),
             )
         }
     }

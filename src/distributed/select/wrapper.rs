@@ -2,6 +2,8 @@ pub use super::elite::Elite as SelectElite;
 pub use super::tournament::Tournament as SelectTournament;
 pub use super::Select;
 
+use crate::distributed::chromosome::Chromosome;
+
 use crate::distributed::genotype::EvolveGenotype;
 use crate::distributed::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::distributed::strategy::StrategyReporter;
@@ -33,7 +35,7 @@ impl Select for Wrapper {
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         elitism_rate: f32,
-    ) -> Vec<G::Chromosome> {
+    ) -> Vec<Chromosome<G::Allele>> {
         match self {
             Wrapper::Elite(select) => select.extract_elite_chromosomes(state, config, elitism_rate),
             Wrapper::Tournament(select) => {

@@ -17,7 +17,10 @@ pub fn setup_100(
     genes_size: usize,
     population_size: usize,
     rng: &mut SmallRng,
-) -> (StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>, EvolveState) {
+) -> (
+    StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>,
+    EvolveState,
+) {
     let mut genotype = StaticBinaryGenotype::<GENES_SIZE_100, MAX_POPULATION_SIZE>::builder()
         .with_genes_size(genes_size)
         .build()
@@ -38,7 +41,10 @@ pub fn setup_10000(
     genes_size: usize,
     population_size: usize,
     rng: &mut SmallRng,
-) -> (StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>, EvolveState) {
+) -> (
+    StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>,
+    EvolveState,
+) {
     let mut genotype = StaticBinaryGenotype::<GENES_SIZE_10000, MAX_POPULATION_SIZE>::builder()
         .with_genes_size(genes_size)
         .build()
@@ -70,7 +76,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // Benchmarks for genes_size = 100
     {
         let genes_size = GENES_SIZE_100;
-        let mut reporter = StrategyReporterNoop::<StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>>::new();
+        let mut reporter = StrategyReporterNoop::<
+            StaticBinaryGenotype<GENES_SIZE_100, MAX_POPULATION_SIZE>,
+        >::new();
         let crossovers: Vec<CrossoverWrapper> = vec![
             CrossoverMultiPoint::new(0.7, 0.8, genes_size / 10, false).into(),
             CrossoverMultiPoint::new(0.7, 0.8, genes_size / 10, true).into(),
@@ -103,7 +111,9 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     // Benchmarks for genes_size = 10000
     {
         let genes_size = GENES_SIZE_10000;
-        let mut reporter = StrategyReporterNoop::<StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>>::new();
+        let mut reporter = StrategyReporterNoop::<
+            StaticBinaryGenotype<GENES_SIZE_10000, MAX_POPULATION_SIZE>,
+        >::new();
         let crossovers: Vec<CrossoverWrapper> = vec![
             CrossoverMultiPoint::new(0.7, 0.8, genes_size / 10, false).into(),
             CrossoverMultiPoint::new(0.7, 0.8, genes_size / 10, true).into(),

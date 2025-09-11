@@ -11,7 +11,7 @@ use super::{
     Strategy, StrategyAction, StrategyConfig, StrategyReporter, StrategyReporterNoop,
     StrategyState, StrategyVariant,
 };
-use crate::distributed::chromosome::{Chromosome, GenesOwner};
+use crate::distributed::chromosome::{Chromosome, Genes};
 use crate::distributed::crossover::Crossover;
 use crate::distributed::extension::{Extension, ExtensionNoop};
 use crate::distributed::fitness::{Fitness, FitnessCache, FitnessOrdering, FitnessValue};
@@ -222,11 +222,11 @@ pub struct EvolveState<G: EvolveGenotype> {
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub chromosome: Option<G::Chromosome>,
-    pub population: Population<G::Chromosome>,
+    pub chromosome: Option<Chromosome<G::Allele>>,
+    pub population: Population<G::Allele>,
     pub current_scale_index: Option<usize>,
     pub population_cardinality: Option<usize>,
-    pub best_chromosome: Option<G::Chromosome>,
+    pub best_chromosome: Option<Chromosome<G::Allele>>,
 }
 
 impl<
@@ -318,7 +318,7 @@ impl<
     fn best_fitness_score(&self) -> Option<FitnessValue> {
         self.state.best_fitness_score()
     }
-    fn best_genes(&self) -> Option<G::Genes> {
+    fn best_genes(&self) -> Option<Genes<G::Allele>> {
         self.state
             .best_chromosome
             .as_ref()
@@ -337,12 +337,10 @@ impl<
         E: Extension,
         SR: StrategyReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
-where
-    G::Chromosome: GenesOwner<Genes = G::Genes>,
 {
-    pub fn best_chromosome(&self) -> Option<G::Chromosome> {
+    pub fn best_chromosome(&self) -> Option<Chromosome<G::Allele>> {
         if let Some(best_genes) = self.best_genes() {
-            let mut chromosome = G::Chromosome::new(best_genes);
+            let mut chromosome = Chromosome::new(best_genes);
             chromosome.set_fitness_score(self.best_fitness_score());
             Some(chromosome)
         } else {
@@ -402,7 +400,7 @@ impl<
     pub fn cleanup(&mut self, fitness_thread_local: Option<&mut ThreadLocal<RefCell<F>>>) {
         let now = Instant::now();
         self.state.chromosome.take();
-        std::mem::take(&mut self.state.population.chromosomes);
+        self.state.population.chromosomes.clear();
         if let Some(thread_local) = fitness_thread_local {
             thread_local.clear();
         }
@@ -483,16 +481,16 @@ impl StrategyConfig for EvolveConfig {
 }
 
 impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
-    fn chromosome_as_ref(&self) -> &Option<G::Chromosome> {
+    fn chromosome_as_ref(&self) -> &Option<Chromosome<G::Allele>> {
         &self.chromosome
     }
-    fn population_as_ref(&self) -> &Population<G::Chromosome> {
+    fn population_as_ref(&self) -> &Population<G::Allele> {
         &self.population
     }
-    fn chromosome_as_mut(&mut self) -> &mut Option<G::Chromosome> {
+    fn chromosome_as_mut(&mut self) -> &mut Option<Chromosome<G::Allele>> {
         &mut self.chromosome
     }
-    fn population_as_mut(&mut self) -> &mut Population<G::Chromosome> {
+    fn population_as_mut(&mut self) -> &mut Population<G::Allele> {
         &mut self.population
     }
     fn best_generation(&self) -> usize {
@@ -541,7 +539,7 @@ impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
     fn total_duration(&self) -> Duration {
         self.durations.values().sum()
     }
-    fn best_genes(&self) -> Option<G::Genes> {
+    fn best_genes(&self) -> Option<Genes<G::Allele>> {
         self.best_chromosome.as_ref().map(|c| c.genes().clone())
     }
 }

@@ -25,6 +25,8 @@ pub use self::elite::Elite as SelectElite;
 pub use self::tournament::Tournament as SelectTournament;
 pub use self::wrapper::Wrapper as SelectWrapper;
 
+use crate::distributed::chromosome::Chromosome;
+
 use crate::distributed::genotype::EvolveGenotype;
 use crate::distributed::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::distributed::strategy::StrategyReporter;
@@ -45,11 +47,11 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         elitism_rate: f32,
-    ) -> Vec<G::Chromosome> {
+    ) -> Vec<Chromosome<G::Allele>> {
         let elitism_size = ((state.population.size() as f32 * elitism_rate).ceil() as usize)
             .min(state.population.size());
 
-        let mut elite_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(elitism_size);
+        let mut elite_chromosomes: Vec<Chromosome<G::Allele>> = Vec::with_capacity(elitism_size);
         for index in state
             .population
             .best_chromosome_indices(elitism_size, config.fitness_ordering)

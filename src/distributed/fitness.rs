@@ -32,12 +32,12 @@ pub enum FitnessOrdering {
 
 /// This is just a shortcut for `Self::Genotype`
 pub type FitnessGenotype<F> = <F as Fitness>::Genotype;
-/// This is just a shortcut for `<Self::Genotype as Genotype>::Chromosome`
-pub type FitnessChromosome<F> = <<F as Fitness>::Genotype as Genotype>::Chromosome;
-/// This is just a shortcut for `<Self::Genotype as Genotype>::Genes`
-pub type FitnessGenes<F> = <<F as Fitness>::Genotype as Genotype>::Genes;
-/// This is just a shortcut for `Population<<Self::Genotype as Genotype::Chromosome>`
-pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype>::Chromosome>;
+/// This is just a shortcut for `Chromosome<<Self::Genotype as Genotype>::Allele>`
+pub type FitnessChromosome<F> = Chromosome<<<F as Fitness>::Genotype as Genotype>::Allele>;
+/// This is just a shortcut for `Vec<<Self::Genotype as Genotype>::Allele>`
+pub type FitnessGenes<F> = Vec<<<F as Fitness>::Genotype as Genotype>::Allele>;
+/// This is just a shortcut for `Population<<Self::Genotype as Genotype>::Allele>`
+pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype>::Allele>;
 
 /// The fitness function, is implemented as a fitness method object.
 ///

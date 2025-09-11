@@ -13,7 +13,7 @@ fn standard_crossover() {
         .build()
         .unwrap();
 
-    let population: Population<VecChromosome<bool>> = build::population_with_age(vec![
+    let population: Population<bool> = build::population_with_age(vec![
         (vec![true, true, true, true, true], 1),
         (vec![false, false, false, false, false], 1),
         (vec![true, true, true, true, true], 1),
@@ -58,7 +58,7 @@ fn zero_crossover_rate() {
         .build()
         .unwrap();
 
-    let population: Population<VecChromosome<bool>> = build::population_with_age(vec![
+    let population: Population<bool> = build::population_with_age(vec![
         (vec![true, true, true, true, true], 1),
         (vec![false, false, false, false, false], 1),
         (vec![true, true, true, true, true], 1),
@@ -103,7 +103,7 @@ fn odd_selection_size() {
         .build()
         .unwrap();
 
-    let population: Population<VecChromosome<bool>> = build::population_with_age(vec![
+    let population: Population<bool> = build::population_with_age(vec![
         (vec![true, true, true, true, true], 1),
         (vec![false, false, false, false, false], 1),
         (vec![true, true, true, true, true], 1),

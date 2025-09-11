@@ -7,7 +7,7 @@ pub use crate::distributed::fitness::{
 };
 #[doc(no_inline)]
 pub use crate::distributed::genotype::{
-    Allele, BinaryGenotype, Genotype, GenotypeBuilder, ListGenotype,
-    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeAllele, RangeGenotype,
+    Allele, BinaryGenotype, Genotype, GenotypeBuilder, ListGenotype, MultiListGenotype,
+    MultiRangeGenotype, MultiUniqueGenotype, RangeAllele, RangeGenotype,
     TryFromGenotypeBuilderError, UniqueGenotype,
 };

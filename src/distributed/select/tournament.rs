@@ -33,11 +33,12 @@ impl Select for Tournament {
         let mut elite_chromosomes =
             self.extract_elite_chromosomes(state, config, self.elitism_rate);
 
-        let (mut offspring, mut parents): (Vec<G::Chromosome>, Vec<G::Chromosome>) = state
-            .population
-            .chromosomes
-            .drain(..)
-            .partition(|c| c.is_offspring());
+        let (mut offspring, mut parents): (Vec<Chromosome<G::Allele>>, Vec<Chromosome<G::Allele>>) =
+            state
+                .population
+                .chromosomes
+                .drain(..)
+                .partition(|c| c.is_offspring());
 
         let (new_parents_size, new_offspring_size) = self.parent_and_offspring_survival_sizes(
             parents.len(),
@@ -76,7 +77,7 @@ impl Tournament {
 
     pub fn selection<G: EvolveGenotype, R: Rng>(
         &self,
-        chromosomes: &mut Vec<G::Chromosome>,
+        chromosomes: &mut Vec<Chromosome<G::Allele>>,
         selection_size: usize,
         genotype: &mut G,
         config: &EvolveConfig,
@@ -86,7 +87,8 @@ impl Tournament {
         let tournament_size = std::cmp::min(self.tournament_size, working_population_size);
         let selection_size = std::cmp::min(selection_size, working_population_size);
 
-        let mut selected_chromosomes: Vec<G::Chromosome> = Vec::with_capacity(selection_size);
+        let mut selected_chromosomes: Vec<Chromosome<G::Allele>> =
+            Vec::with_capacity(selection_size);
         let mut sample_index: usize;
         let mut winning_index: usize;
         let mut sample_fitness_value: FitnessValue;

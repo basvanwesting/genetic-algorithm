@@ -36,7 +36,9 @@ impl Select for Wrapper {
         elitism_rate: f32,
     ) -> Vec<Chromosome> {
         match self {
-            Wrapper::Elite(select) => select.extract_elite_chromosomes::<G>(state, config, elitism_rate),
+            Wrapper::Elite(select) => {
+                select.extract_elite_chromosomes::<G>(state, config, elitism_rate)
+            }
             Wrapper::Tournament(select) => {
                 select.extract_elite_chromosomes::<G>(state, config, elitism_rate)
             }

@@ -37,7 +37,7 @@ impl Extension for MassGenesis {
                         config,
                     );
 
-                    let mut elite_chromosomes = 
+                    let mut elite_chromosomes =
                         self.extract_unique_elite_chromosomes(genotype, state, config, 2);
                     let elitism_size = elite_chromosomes.len();
                     let remaining_size = 2usize.saturating_sub(elitism_size);

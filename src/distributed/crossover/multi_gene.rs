@@ -1,5 +1,4 @@
 use super::Crossover;
-use crate::distributed::chromosome::Chromosome;
 use crate::distributed::genotype::EvolveGenotype;
 use crate::distributed::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::distributed::strategy::{StrategyAction, StrategyReporter, StrategyState};

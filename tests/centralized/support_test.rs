@@ -83,4 +83,3 @@ fn population_static_binary() {
         ]
     );
 }
-

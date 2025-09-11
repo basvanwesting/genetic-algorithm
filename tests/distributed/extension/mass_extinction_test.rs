@@ -13,17 +13,16 @@ fn removes_randomly() {
         .build()
         .unwrap();
 
-    let mut population: Population<VecChromosome<bool>> =
-        build::population_with_fitness_scores(vec![
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-            (vec![true, false, false], Some(2)),
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-            (vec![true, false, false], Some(2)),
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-        ]);
+    let mut population: Population<bool> = build::population_with_fitness_scores(vec![
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+    ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
@@ -64,17 +63,16 @@ fn never_leaves_less_than_two_no_elite() {
         .build()
         .unwrap();
 
-    let mut population: Population<VecChromosome<bool>> =
-        build::population_with_fitness_scores(vec![
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-            (vec![true, false, false], Some(2)),
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-            (vec![true, false, false], Some(2)),
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-        ]);
+    let mut population: Population<bool> = build::population_with_fitness_scores(vec![
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+    ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 
@@ -110,17 +108,16 @@ fn never_leaves_less_than_two_one_elite() {
         .build()
         .unwrap();
 
-    let mut population: Population<VecChromosome<bool>> =
-        build::population_with_fitness_scores(vec![
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-            (vec![true, false, false], Some(2)),
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-            (vec![true, false, false], Some(2)),
-            (vec![true, true, true], Some(0)),
-            (vec![true, true, false], Some(1)),
-        ]);
+    let mut population: Population<bool> = build::population_with_fitness_scores(vec![
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+        (vec![true, false, false], Some(2)),
+        (vec![true, true, true], Some(0)),
+        (vec![true, true, false], Some(1)),
+    ]);
     population.chromosomes.reserve_exact(2);
     assert_eq!(population.chromosomes.capacity(), 10);
 

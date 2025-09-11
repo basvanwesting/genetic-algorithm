@@ -5,7 +5,6 @@ use genetic_algorithm::centralized::population::Population;
 #[allow(dead_code)]
 pub fn chromosome<G>(genotype: &G, chromosome: &Chromosome) -> Vec<G::Allele>
 where
-
     G: Genotype,
     G::Allele: Clone,
 {
@@ -17,7 +16,6 @@ pub fn chromosome_with_fitness_score<G>(
     chromosome: &Chromosome,
 ) -> (Vec<G::Allele>, Option<FitnessValue>)
 where
-
     G: Genotype,
     G::Allele: Clone,
 {
@@ -29,7 +27,6 @@ where
 #[allow(dead_code)]
 pub fn chromosome_with_age<G>(genotype: &G, chromosome: &Chromosome) -> (Vec<G::Allele>, usize)
 where
-
     G: Genotype,
     G::Allele: Clone,
 {
@@ -38,7 +35,6 @@ where
 #[allow(dead_code)]
 pub fn chromosomes<G>(genotype: &G, chromosomes: &[Chromosome]) -> Vec<Vec<G::Allele>>
 where
-
     G: Genotype,
     G::Allele: Clone,
 {
@@ -53,7 +49,6 @@ pub fn chromosomes_with_fitness_score<G>(
     chromosomes: &[Chromosome],
 ) -> Vec<(Vec<G::Allele>, Option<FitnessValue>)>
 where
-
     G: Genotype,
     G::Allele: Clone,
 {
@@ -63,9 +58,11 @@ where
         .collect()
 }
 #[allow(dead_code)]
-pub fn chromosomes_with_age<G>(genotype: &G, chromosomes: &[Chromosome]) -> Vec<(Vec<G::Allele>, usize)>
+pub fn chromosomes_with_age<G>(
+    genotype: &G,
+    chromosomes: &[Chromosome],
+) -> Vec<(Vec<G::Allele>, usize)>
 where
-
     G: Genotype,
     G::Allele: Clone,
 {
@@ -77,7 +74,6 @@ where
 #[allow(dead_code)]
 pub fn population<G>(genotype: &G, population: &Population) -> Vec<Vec<G::Allele>>
 where
-
     G: Genotype,
     G::Allele: Clone,
 {
@@ -93,7 +89,6 @@ pub fn population_with_fitness_scores<G>(
     population: &Population,
 ) -> Vec<(Vec<G::Allele>, Option<FitnessValue>)>
 where
-
     G: Genotype,
     G::Allele: Clone,
 {
@@ -104,12 +99,8 @@ where
         .collect()
 }
 #[allow(dead_code)]
-pub fn population_with_age<G>(
-    genotype: &G,
-    population: &Population,
-) -> Vec<(Vec<G::Allele>, usize)>
+pub fn population_with_age<G>(genotype: &G, population: &Population) -> Vec<(Vec<G::Allele>, usize)>
 where
-
     G: Genotype,
     G::Allele: Clone,
 {

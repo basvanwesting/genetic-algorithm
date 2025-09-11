@@ -1,10 +1,10 @@
 //! placeholders for testing and bootstrapping, not really used in practice
 use crate::centralized::allele::RangeAllele;
 use crate::centralized::fitness::{Fitness, FitnessValue};
-use crate::centralized::population::Population;
 use crate::centralized::genotype::{
     DynamicRangeGenotype, Genotype, StaticBinaryGenotype, StaticRangeGenotype,
 };
+use crate::centralized::population::Population;
 use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;

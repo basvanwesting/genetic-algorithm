@@ -50,32 +50,43 @@ fn process<T: Allele>(chromosome: &Chromosome<T>)
 
 ### Implementation Steps for Distributed Track
 
-1. **Create unified Chromosome struct**
+1. **Define type alias for Genes**
+   ```rust
+   pub type Genes<T> = Vec<T>;
+   ```
+   - Provides semantic clarity without trait overhead
+   - Makes it clear when we're dealing with genes vs other vectors
+   - Consistent with distributed track's Vec-based approach
+
+2. **Create unified Chromosome struct**
    ```rust
    pub struct Chromosome<T: Allele> {
-       pub genes: Vec<T>,
+       pub genes: Genes<T>,  // Using type alias for clarity
        pub fitness_score: Option<FitnessValue>,
        pub genes_hash: Option<GenesHash>,
        pub age: usize,
    }
    ```
 
-2. **Update Genotype trait**
+3. **Update Genotype trait**
    - Remove `type Chromosome` and `type Genes`
    - Update methods to use `Chromosome<Self::Allele>` directly
+   - Use `Genes<Self::Allele>` type alias where appropriate
 
-3. **Simplify ChromosomeManager**
+4. **Simplify ChromosomeManager**
    - Work directly with `Chromosome<T>` instead of `G::Chromosome`
+   - Use `Genes<T>` type alias for gene operations
 
-4. **Update Population**
+5. **Update Population**
    - Change from `Population<C: Chromosome>` to `Population<T: Allele>`
    - Store `Vec<Chromosome<T>>` internally
 
-5. **Update all genotype implementations**
+6. **Update all genotype implementations**
    - Remove type associations
    - Use `Chromosome<Self::Allele>` directly
+   - Replace raw `Vec<Allele>` with `Genes<Allele>` for clarity
 
-6. **Clean up imports and remove old code**
+7. **Clean up imports and remove old code**
    - Delete Chromosome and GenesOwner traits
    - Delete VecChromosome
    - Update all imports

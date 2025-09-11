@@ -494,13 +494,13 @@ fn chromosome_manager() {
 
 #[test]
 fn calculate_genes_hash() {
-    let chromosome_1: VecChromosome<bool> =
+    let chromosome_1: Chromosome<bool> =
         build::chromosome_without_genes_hash(vec![true, true, true]);
-    let chromosome_2: VecChromosome<bool> =
+    let chromosome_2: Chromosome<bool> =
         build::chromosome_without_genes_hash(vec![true, true, true]);
-    let chromosome_3: VecChromosome<bool> =
+    let chromosome_3: Chromosome<bool> =
         build::chromosome_without_genes_hash(vec![true, false, true]);
-    let chromosome_4: VecChromosome<bool> =
+    let chromosome_4: Chromosome<bool> =
         build::chromosome_without_genes_hash(vec![true, false, true]);
 
     let hash_1 = chromosome_1.calculate_hash();

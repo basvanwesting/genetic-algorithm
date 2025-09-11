@@ -1,4 +1,5 @@
 //! The population is a  container for [Chromosomes](Chromosome)
+use crate::distributed::allele::Allele;
 use crate::distributed::chromosome::{Chromosome, GenesHash};
 use crate::distributed::fitness::{FitnessOrdering, FitnessValue};
 use cardinality_estimator::CardinalityEstimator;
@@ -8,12 +9,12 @@ use std::cmp::Reverse;
 use std::collections::HashMap;
 
 #[derive(Clone, Debug)]
-pub struct Population<C: Chromosome> {
-    pub chromosomes: Vec<C>,
+pub struct Population<T: Allele> {
+    pub chromosomes: Vec<Chromosome<T>>,
 }
 
-impl<C: Chromosome> Population<C> {
-    pub fn new(chromosomes: Vec<C>) -> Self {
+impl<T: Allele> Population<T> {
+    pub fn new(chromosomes: Vec<Chromosome<T>>) -> Self {
         Self { chromosomes }
     }
 
@@ -50,7 +51,7 @@ impl<C: Chromosome> Population<C> {
 
     /// fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out
     /// when minimizing the fitness score, otherwise None would end up as best.
-    pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&C> {
+    pub fn best_chromosome(&self, fitness_ordering: FitnessOrdering) -> Option<&Chromosome<T>> {
         if let Some(index) = self.best_chromosome_index(fitness_ordering) {
             self.chromosomes.get(index)
         } else {
@@ -209,8 +210,8 @@ impl<C: Chromosome> Population<C> {
     }
 }
 
-impl<C: Chromosome> From<Vec<C>> for Population<C> {
-    fn from(chromosomes: Vec<C>) -> Self {
+impl<T: Allele> From<Vec<Chromosome<T>>> for Population<T> {
+    fn from(chromosomes: Vec<Chromosome<T>>) -> Self {
         Self::new(chromosomes)
     }
 }

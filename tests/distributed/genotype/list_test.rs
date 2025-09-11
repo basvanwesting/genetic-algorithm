@@ -206,13 +206,13 @@ fn chromosome_permutations_genes_size_huge() {
 
 #[test]
 fn integer_calculate_genes_hash() {
-    let chromosome_1: VecChromosome<i32> =
+    let chromosome_1: Chromosome<i32> =
         build::chromosome_without_genes_hash(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_2: VecChromosome<i32> =
+    let chromosome_2: Chromosome<i32> =
         build::chromosome_without_genes_hash(vec![0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_3: VecChromosome<i32> =
+    let chromosome_3: Chromosome<i32> =
         build::chromosome_without_genes_hash(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    let chromosome_4: VecChromosome<i32> =
+    let chromosome_4: Chromosome<i32> =
         build::chromosome_without_genes_hash(vec![-0, 1, 2, 3, 4, 5, 6, 7, 8, 9]);
 
     let hash_1 = chromosome_1.calculate_hash();

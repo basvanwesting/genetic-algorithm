@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, GenesOwner, VecChromosome};
+use crate::distributed::chromosome::{Chromosome, ChromosomeManager, Genes};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -50,13 +50,11 @@ impl TryFrom<Builder<Self>> for Binary {
 
 impl Genotype for Binary {
     type Allele = bool;
-    type Genes = Vec<Self::Allele>;
-    type Chromosome = VecChromosome<Self::Allele>;
 
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn genes_slice<'a>(&'a self, chromosome: &'a Self::Chromosome) -> &'a [Self::Allele] {
+    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
 
@@ -64,7 +62,7 @@ impl Genotype for Binary {
         &mut self,
         number_of_mutations: usize,
         allow_duplicates: bool,
-        chromosome: &mut Self::Chromosome,
+        chromosome: &mut Chromosome<Self::Allele>,
         _scale_index: Option<usize>,
         rng: &mut R,
     ) {
@@ -88,10 +86,10 @@ impl Genotype for Binary {
         chromosome.update_state();
     }
 
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Self::Genes>) {
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
         self.seed_genes_list = seed_genes_list;
     }
-    fn seed_genes_list(&self) -> &Vec<Self::Genes> {
+    fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
     }
     fn max_scale_index(&self) -> Option<usize> {
@@ -104,8 +102,8 @@ impl EvolveGenotype for Binary {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -132,8 +130,8 @@ impl EvolveGenotype for Binary {
         &mut self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
-        father: &mut Self::Chromosome,
-        mother: &mut Self::Chromosome,
+        father: &mut Chromosome<Self::Allele>,
+        mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -182,8 +180,8 @@ impl EvolveGenotype for Binary {
 impl HillClimbGenotype for Binary {
     fn fill_neighbouring_population<R: Rng>(
         &mut self,
-        chromosome: &Self::Chromosome,
-        population: &mut Population<Self::Chromosome>,
+        chromosome: &Chromosome<Self::Allele>,
+        population: &mut Population<Self::Allele>,
         _scale_index: Option<usize>,
         _rng: &mut R,
     ) {
@@ -203,22 +201,22 @@ impl HillClimbGenotype for Binary {
 impl PermutateGenotype for Binary {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
-        _chromosome: Option<&Self::Chromosome>,
+        _chromosome: Option<&Chromosome<Self::Allele>>,
         _scale_index: Option<usize>,
-    ) -> Box<dyn Iterator<Item = Self::Chromosome> + Send + 'a> {
+    ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
             Box::new(
                 (0..self.genes_size())
                     .map(|_| vec![true, false])
                     .multi_cartesian_product()
-                    .map(VecChromosome::new),
+                    .map(Chromosome::new),
             )
         } else {
             Box::new(
                 self.seed_genes_list
                     .clone()
                     .into_iter()
-                    .map(VecChromosome::new),
+                    .map(Chromosome::new),
             )
         }
     }

@@ -5,7 +5,7 @@ pub mod inspect;
 pub use approx::relative_eq;
 pub use approx::RelativeEq;
 #[allow(unused_imports)]
-pub use genetic_algorithm::distributed::chromosome::{Chromosome, VecChromosome};
+pub use genetic_algorithm::distributed::chromosome::Chromosome;
 #[allow(unused_imports)]
 pub use genetic_algorithm::distributed::genotype::{
     BinaryGenotype, Genotype, ListGenotype, RangeGenotype,

@@ -276,11 +276,8 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
-            self.fitness.call_for_state_population(
-                &self.genotype,
-                &mut self.state,
-                &self.config,
-            );
+            self.fitness
+                .call_for_state_population(&self.genotype, &mut self.state, &self.config);
             self.state.update_best_chromosome_and_report(
                 &mut self.genotype,
                 &self.config,
@@ -341,11 +338,8 @@ impl<
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
 
-        self.fitness.call_for_state_population(
-            &self.genotype,
-            &mut self.state,
-            &self.config,
-        );
+        self.fitness
+            .call_for_state_population(&self.genotype, &mut self.state, &self.config);
         self.state.update_best_chromosome_and_report(
             &mut self.genotype,
             &self.config,
@@ -550,7 +544,11 @@ impl EvolveState {
         }
     }
 
-    fn population_filter_age<G: EvolveGenotype>(&mut self, genotype: &mut G, config: &EvolveConfig) {
+    fn population_filter_age<G: EvolveGenotype>(
+        &mut self,
+        genotype: &mut G,
+        config: &EvolveConfig,
+    ) {
         if let Some(max_chromosome_age) = config.max_chromosome_age {
             // TODO: use something like partition_in_place when stable
             for i in (0..self.population.chromosomes.len()).rev() {
@@ -560,7 +558,11 @@ impl EvolveState {
             }
         }
     }
-    fn update_population_cardinality<G: EvolveGenotype>(&mut self, genotype: &mut G, _config: &EvolveConfig) {
+    fn update_population_cardinality<G: EvolveGenotype>(
+        &mut self,
+        genotype: &mut G,
+        _config: &EvolveConfig,
+    ) {
         self.population_cardinality = if genotype.genes_hashing() {
             self.population.genes_cardinality()
         } else {
