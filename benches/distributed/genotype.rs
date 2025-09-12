@@ -1,5 +1,5 @@
 use criterion::*;
-use genetic_algorithm::distributed::chromosome::ChromosomeManager;
+use genetic_algorithm::distributed::chromosome::Chromosome;
 use genetic_algorithm::distributed::genotype::*;
 use rand::prelude::*;
 use rand::rngs::SmallRng;
@@ -22,7 +22,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_genes_size(*genes_size)
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+        let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
 
         group.bench_function(
             BenchmarkId::new("binary-random-multi-10-with-duplicates", genes_size),
@@ -61,7 +61,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_range(0.0..=1.0)
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+        let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
 
         group.bench_function(
             BenchmarkId::new("range-random-multi-10-with-duplicates", genes_size),
@@ -98,7 +98,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_mutation_range(-0.1..=0.1)
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+        let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
         group.bench_function(
             BenchmarkId::new("range-relative-multi-10-with-duplicates", genes_size),
             |b| {
@@ -134,7 +134,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
             .build()
             .unwrap();
-        let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+        let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
 
         group.bench_function(
             BenchmarkId::new("range-scaled-multi-10-with-duplicates", genes_size),

@@ -1,5 +1,5 @@
 use criterion::*;
-use genetic_algorithm::distributed::chromosome::ChromosomeManager;
+use genetic_algorithm::distributed::chromosome::Chromosome;
 use genetic_algorithm::distributed::genotype::*;
 use genetic_algorithm::distributed::population::Population;
 use rand::prelude::*;
@@ -15,7 +15,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     let mut rng2 = SmallRng::from_entropy();
 
     group.bench_function("range-neighbouring_population-relative", |b| {
-        let mut genotype = RangeGenotype::builder()
+        let genotype = RangeGenotype::builder()
             .with_genes_size(10)
             .with_allele_range(-1.0..=1.0)
             .with_allele_mutation_range(-0.1..=0.1)
@@ -25,7 +25,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter_batched(
             || {
                 (
-                    genotype.chromosome_constructor_random(&mut rng1),
+                    Chromosome::new(genotype.random_genes_factory(&mut rng1)),
                     genotype.clone(),
                     Population::new(vec![]),
                 )
@@ -36,7 +36,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     });
 
     group.bench_function("range-neighbouring_population-scaled", |b| {
-        let mut genotype = RangeGenotype::builder()
+        let genotype = RangeGenotype::builder()
             .with_genes_size(10)
             .with_allele_range(-1.0..=1.0)
             .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
@@ -46,7 +46,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         b.iter_batched(
             || {
                 (
-                    genotype.chromosome_constructor_random(&mut rng1),
+                    Chromosome::new(genotype.random_genes_factory(&mut rng1)),
                     genotype.clone(),
                     Population::new(vec![]),
                 )

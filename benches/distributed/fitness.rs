@@ -1,6 +1,5 @@
 use criterion::*;
 use genetic_algorithm::distributed::chromosome::Chromosome;
-use genetic_algorithm::distributed::chromosome::ChromosomeManager;
 use genetic_algorithm::distributed::fitness::placeholders::{
     CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes,
 };
@@ -75,13 +74,13 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
     let mut group = c.benchmark_group("fitness-multithreading");
 
     let mut rng = SmallRng::from_entropy();
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
         .unwrap();
 
     let chromosomes = (0..100)
-        .map(|_| genotype.chromosome_constructor_random(&mut rng))
+        .map(|_| Chromosome::new(genotype.random_genes_factory(&mut rng)))
         .collect();
     let population = Population::new(chromosomes);
 

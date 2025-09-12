@@ -1,5 +1,5 @@
 use criterion::*;
-use genetic_algorithm::distributed::chromosome::ChromosomeManager;
+use genetic_algorithm::distributed::chromosome::Chromosome;
 use genetic_algorithm::distributed::crossover::*;
 use genetic_algorithm::distributed::genotype::{BinaryGenotype, Genotype};
 use genetic_algorithm::distributed::population::Population;
@@ -14,13 +14,13 @@ pub fn setup(
     population_size: usize,
     rng: &mut SmallRng,
 ) -> (BinaryGenotype, EvolveState<BinaryGenotype>) {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(genes_size)
         .build()
         .unwrap();
 
     let chromosomes = (0..population_size)
-        .map(|_| genotype.chromosome_constructor_random(rng))
+        .map(|_| Chromosome::new(genotype.random_genes_factory(rng)))
         .collect();
 
     let population = Population::new(chromosomes);
