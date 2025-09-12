@@ -6,7 +6,7 @@ use genetic_algorithm::distributed::population::Population;
 #[allow(dead_code)]
 pub fn chromosome<T: Allele>(genes: Vec<T>) -> Chromosome<T> {
     let mut c = Chromosome::new(genes);
-    c.update_state();
+    c.reset_state();
     c
 }
 #[allow(dead_code)]
@@ -15,7 +15,7 @@ pub fn chromosome_with_fitness_score<T: Allele>(
     fitness_score: Option<FitnessValue>,
 ) -> Chromosome<T> {
     let mut chromosome = Chromosome::new(genes);
-    chromosome.update_state();
+    chromosome.reset_state();
     chromosome.set_fitness_score(fitness_score);
     chromosome
 }
@@ -23,7 +23,7 @@ pub fn chromosome_with_fitness_score<T: Allele>(
 #[allow(dead_code)]
 pub fn chromosome_with_age<T: Allele>(genes: Vec<T>, age: usize) -> Chromosome<T> {
     let mut chromosome = Chromosome::new(genes);
-    chromosome.update_state();
+    chromosome.reset_state();
     chromosome.set_age(age);
     chromosome
 }

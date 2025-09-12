@@ -101,16 +101,10 @@ impl<T: Allele> Chromosome<T> {
         self.age = 0;
     }
 
-    pub fn update_state(&mut self) {
+    pub fn reset_state(&mut self) {
         self.age = 0;
         self.fitness_score = None;
         self.genes_hash = Some(self.calculate_hash());
-    }
-
-    pub fn reset_state(&mut self, genes_hash: Option<GenesHash>) {
-        self.age = 0;
-        self.fitness_score = None;
-        self.genes_hash = genes_hash;
     }
 
     pub fn copy_state(&mut self, other: &Self) {
@@ -124,7 +118,6 @@ impl<T: Allele> Chromosome<T> {
         self.copy_state(source);
     }
 
-    /// Calculate hash from genes using type-specific hashing
     pub fn calculate_hash(&self) -> GenesHash {
         let mut hasher = FxHasher::default();
         T::hash_slice(&self.genes, &mut hasher);

@@ -83,7 +83,7 @@ impl Genotype for Binary {
                 chromosome.genes[index] = !chromosome.genes[index];
             });
         }
-        chromosome.update_state();
+        chromosome.reset_state();
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
@@ -133,8 +133,8 @@ impl EvolveGenotype for Binary {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.update_state();
-        father.update_state();
+        mother.reset_state();
+        father.reset_state();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -176,8 +176,8 @@ impl EvolveGenotype for Binary {
                 _ => (),
             });
         }
-        mother.update_state();
-        father.update_state();
+        mother.reset_state();
+        father.reset_state();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -198,7 +198,7 @@ impl HillClimbGenotype for Binary {
         (0..self.genes_size).for_each(|index| {
             let mut new_chromosome = chromosome.clone();
             new_chromosome.genes[index] = !new_chromosome.genes[index];
-            new_chromosome.update_state();
+            new_chromosome.reset_state();
             population.chromosomes.push(new_chromosome);
         });
     }

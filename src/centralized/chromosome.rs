@@ -15,6 +15,16 @@ pub struct Chromosome {
     pub age: usize,
 }
 
+/// The Chromosome is used as an individual in the [Population](crate::population::Population).
+/// Chromosomes [select](crate::select), [crossover](crate::crossover) and [mutate](crate::mutate)
+/// with each other in the [Evolve](crate::strategy::evolve::Evolve) strategy.
+///
+/// In the centralized module, chromosomes don't own their genes directly, but act as a pointer to
+/// the centralized data store of genes.
+/// You can use [Evolve::best_chromosome()](crate::strategy::evolve::Evolve::best_chromosome),
+/// [HillClimb::best_chromosome()](crate::strategy::hill_climb::HillClimb::best_chromosome) and
+/// [Permutate::best_chromosome()](crate::strategy::permutate::Permutate::best_chromosome)
+/// to access the best chromosome directly.
 impl Chromosome {
     pub fn new(row_id: usize) -> Self {
         Self {

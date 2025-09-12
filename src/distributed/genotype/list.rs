@@ -145,7 +145,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
                 chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
             });
         }
-        chromosome.update_state();
+        chromosome.reset_state();
     }
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
@@ -197,8 +197,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for List<T> {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.update_state();
-        father.update_state();
+        mother.reset_state();
+        father.reset_state();
     }
     fn crossover_chromosome_points<R: Rng>(
         &mut self,
@@ -240,8 +240,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for List<T> {
                 _ => (),
             });
         }
-        mother.update_state();
-        father.update_state();
+        mother.reset_state();
+        father.reset_state();
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -264,7 +264,7 @@ impl<T: Allele + PartialEq + Hash> HillClimbGenotype for List<T> {
                 if chromosome.genes[index] != allele_value {
                     let mut new_chromosome = chromosome.clone();
                     new_chromosome.genes[index] = allele_value;
-                    new_chromosome.update_state();
+                    new_chromosome.reset_state();
                     population.chromosomes.push(new_chromosome);
                 }
             }

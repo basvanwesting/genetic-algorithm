@@ -412,7 +412,7 @@ mod population_tests {
         assert_eq!(population.genes_cardinality(), None);
 
         population.chromosomes.iter_mut().for_each(|chromosome| {
-            chromosome.update_state();
+            chromosome.reset_state();
         });
 
         assert_eq!(population.genes_cardinality(), Some(5));
