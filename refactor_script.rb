@@ -10,13 +10,15 @@ roots = %w(
 exclude_dirs = []
 
 underscore_translations = {
-  /static_matrix/ => 'static_range',
-  /dynamic_matrix/ => 'dynamic_range',
+  /dynamic_range_chromosome/ => 'chromosome',
+  /static_binary_chromosome/ => 'chromosome',
+  /static_range_chromosome/ => 'chromosome',
 }
 
 other_translations = {
-  /StaticMatrix/ => 'StaticRange',
-  /DynamicMatrix/ => 'DynamicRange',
+  /DynamicRangeChromosome/ => 'Chromosome',
+  /StaticBinaryChromosome/ => 'Chromosome',
+  /StaticRangeChromosome/ => 'Chromosome',
 }
 
 #check:

@@ -1,6 +1,6 @@
 #[doc(no_inline)]
 pub use crate::centralized::chromosome::{
-    Chromosome, DynamicRangeChromosome, GenesHash, StaticBinaryChromosome, StaticRangeChromosome,
+    Chromosome, GenesHash,
 };
 #[doc(no_inline)]
 pub use crate::centralized::fitness::{

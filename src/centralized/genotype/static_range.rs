@@ -2,7 +2,7 @@ use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::centralized::allele::RangeAllele;
 use crate::centralized::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, StaticRangeChromosome,
+    Chromosome, ChromosomeManager, GenesHash,
 };
 use crate::centralized::fitness::FitnessValue;
 use crate::centralized::population::Population;
@@ -87,7 +87,7 @@ where
     Uniform<T>: Send + Sync,
 {
     pub data: Box<[[T; N]; M]>,
-    pub chromosome_bin: Vec<StaticRangeChromosome>,
+    pub chromosome_bin: Vec<Chromosome>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
@@ -155,7 +155,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut StaticRangeChromosome,
+        chromosome: &mut Chromosome,
         rng: &mut R,
     ) {
         self.set_gene_by_id(chromosome.row_id, index, self.allele_sampler.sample(rng));
@@ -163,7 +163,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut StaticRangeChromosome,
+        chromosome: &mut Chromosome,
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
@@ -179,7 +179,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut StaticRangeChromosome,
+        chromosome: &mut Chromosome,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -537,7 +537,7 @@ where
 {
     fn fill_neighbouring_population_scaled(
         &mut self,
-        chromosome: &StaticRangeChromosome,
+        chromosome: &Chromosome,
         population: &mut Population,
         scale_index: usize,
     ) {
@@ -578,7 +578,7 @@ where
 
     fn fill_neighbouring_population_relative<R: Rng>(
         &mut self,
-        chromosome: &StaticRangeChromosome,
+        chromosome: &Chromosome,
         population: &mut Population,
         rng: &mut R,
     ) {
@@ -621,7 +621,7 @@ where
 
     fn fill_neighbouring_population_random<R: Rng>(
         &mut self,
-        chromosome: &StaticRangeChromosome,
+        chromosome: &Chromosome,
         population: &mut Population,
         rng: &mut R,
     ) {
@@ -731,25 +731,25 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_genes(&mut self, chromosome: &mut StaticRangeChromosome, genes: &Box<[T; N]>) {
+    fn set_genes(&mut self, chromosome: &mut Chromosome, genes: &Box<[T; N]>) {
         let x = self.data[chromosome.row_id].as_mut_slice();
         x.copy_from_slice(genes.as_slice());
         self.reset_chromosome_state(chromosome);
     }
-    fn get_genes(&self, chromosome: &StaticRangeChromosome) -> Box<[T; N]> {
+    fn get_genes(&self, chromosome: &Chromosome) -> Box<[T; N]> {
         Box::new(self.data[chromosome.row_id])
     }
-    fn copy_genes(&mut self, source: &StaticRangeChromosome, target: &mut StaticRangeChromosome) {
+    fn copy_genes(&mut self, source: &Chromosome, target: &mut Chromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
         self.copy_chromosome_state(source, target);
     }
     fn chromosomes_setup(&mut self) {
-        self.chromosome_bin = (0..M).rev().map(StaticRangeChromosome::new).collect();
+        self.chromosome_bin = (0..M).rev().map(Chromosome::new).collect();
     }
-    fn chromosome_bin_push(&mut self, chromosome: StaticRangeChromosome) {
+    fn chromosome_bin_push(&mut self, chromosome: Chromosome) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_find_or_create(&mut self) -> StaticRangeChromosome {
+    fn chromosome_bin_find_or_create(&mut self) -> Chromosome {
         self.chromosome_bin.pop().unwrap_or_else(|| {
             panic!("genetic_algorithm error: chromosome capacity exceeded");
         })

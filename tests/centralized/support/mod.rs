@@ -8,7 +8,7 @@ pub use approx::relative_eq;
 pub use approx::RelativeEq;
 #[allow(unused_imports)]
 pub use genetic_algorithm::centralized::chromosome::{
-    Chromosome, DynamicRangeChromosome, StaticBinaryChromosome, StaticRangeChromosome,
+    Chromosome, 
 };
 #[allow(unused_imports)]
 pub use genetic_algorithm::centralized::genotype::{

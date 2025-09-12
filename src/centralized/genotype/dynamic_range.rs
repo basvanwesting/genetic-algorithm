@@ -2,7 +2,7 @@ use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
 use crate::centralized::allele::RangeAllele;
 use crate::centralized::chromosome::{
-    Chromosome, ChromosomeManager, DynamicRangeChromosome, GenesHash,
+    Chromosome, ChromosomeManager, GenesHash,
 };
 use crate::centralized::fitness::FitnessValue;
 use crate::centralized::population::Population;
@@ -79,7 +79,7 @@ where
     Uniform<T>: Send + Sync,
 {
     pub data: Vec<T>,
-    pub chromosome_bin: Vec<DynamicRangeChromosome>,
+    pub chromosome_bin: Vec<Chromosome>,
     pub genes_size: usize,
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
@@ -147,7 +147,7 @@ where
     fn mutate_chromosome_index_random<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut DynamicRangeChromosome,
+        chromosome: &mut Chromosome,
         rng: &mut R,
     ) {
         self.set_gene_by_id(chromosome.row_id, index, self.allele_sampler.sample(rng));
@@ -155,7 +155,7 @@ where
     fn mutate_chromosome_index_relative<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut DynamicRangeChromosome,
+        chromosome: &mut Chromosome,
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
@@ -171,7 +171,7 @@ where
     fn mutate_chromosome_index_scaled<R: Rng>(
         &mut self,
         index: usize,
-        chromosome: &mut DynamicRangeChromosome,
+        chromosome: &mut Chromosome,
         scale_index: usize,
         rng: &mut R,
     ) {
@@ -541,7 +541,7 @@ where
 {
     fn fill_neighbouring_population_scaled(
         &mut self,
-        chromosome: &DynamicRangeChromosome,
+        chromosome: &Chromosome,
         population: &mut Population,
         scale_index: usize,
     ) {
@@ -582,7 +582,7 @@ where
 
     fn fill_neighbouring_population_relative<R: Rng>(
         &mut self,
-        chromosome: &DynamicRangeChromosome,
+        chromosome: &Chromosome,
         population: &mut Population,
         rng: &mut R,
     ) {
@@ -625,7 +625,7 @@ where
 
     fn fill_neighbouring_population_random<R: Rng>(
         &mut self,
-        chromosome: &DynamicRangeChromosome,
+        chromosome: &Chromosome,
         population: &mut Population,
         rng: &mut R,
     ) {
@@ -667,28 +667,28 @@ where
             self.seed_genes_list.choose(rng).unwrap().clone()
         }
     }
-    fn set_genes(&mut self, chromosome: &mut DynamicRangeChromosome, genes: &Vec<T>) {
+    fn set_genes(&mut self, chromosome: &mut Chromosome, genes: &Vec<T>) {
         let linear_genes_range = self.linear_genes_range(chromosome.row_id);
         let x = &mut self.data[linear_genes_range];
         x.copy_from_slice(genes);
         self.reset_chromosome_state(chromosome);
     }
-    fn get_genes(&self, chromosome: &DynamicRangeChromosome) -> Vec<T> {
+    fn get_genes(&self, chromosome: &Chromosome) -> Vec<T> {
         self.get_genes_by_id(chromosome.row_id).to_vec()
     }
-    fn copy_genes(&mut self, source: &DynamicRangeChromosome, target: &mut DynamicRangeChromosome) {
+    fn copy_genes(&mut self, source: &Chromosome, target: &mut Chromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
         self.copy_chromosome_state(source, target);
     }
-    fn chromosome_bin_push(&mut self, chromosome: DynamicRangeChromosome) {
+    fn chromosome_bin_push(&mut self, chromosome: Chromosome) {
         self.chromosome_bin.push(chromosome);
     }
-    fn chromosome_bin_find_or_create(&mut self) -> DynamicRangeChromosome {
+    fn chromosome_bin_find_or_create(&mut self) -> Chromosome {
         self.chromosome_bin.pop().unwrap_or_else(|| {
             let row_id = self.data.len() / self.genes_size;
             self.data
                 .resize_with(self.data.len() + self.genes_size, Default::default);
-            DynamicRangeChromosome::new(row_id)
+            Chromosome::new(row_id)
         })
     }
     fn chromosomes_cleanup(&mut self) {

@@ -1,10 +1,4 @@
-//! The chromosome is a container for the genes and stores some useful values
-
-// Legacy type aliases for backwards compatibility (will be removed later)
-pub use self::Chromosome as DynamicRangeChromosome;
-pub use self::Chromosome as StaticBinaryChromosome;
-pub use self::Chromosome as StaticRangeChromosome;
-
+//! The chromosome is a pointer to the genes and stores some useful values
 use crate::centralized::fitness::FitnessValue;
 use crate::centralized::genotype::Genotype;
 use rand::prelude::*;

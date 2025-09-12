@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::centralized::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash, StaticBinaryChromosome,
+    Chromosome, ChromosomeManager, GenesHash,
 };
 use crate::centralized::fitness::FitnessValue;
 use crate::centralized::population::Population;
@@ -55,7 +55,7 @@ pub struct StaticBinary<const N: usize, const M: usize> {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Box<[bool; N]>>,
-    pub chromosome_bin: Vec<StaticBinaryChromosome>,
+    pub chromosome_bin: Vec<Chromosome>,
     pub best_genes: Box<[bool; N]>,
     pub genes_hashing: bool,
 }
@@ -381,30 +381,30 @@ impl<const N: usize, const M: usize> ChromosomeManager<Self> for StaticBinary<N,
         }
     }
 
-    fn set_genes(&mut self, chromosome: &mut StaticBinaryChromosome, genes: &Box<[bool; N]>) {
+    fn set_genes(&mut self, chromosome: &mut Chromosome, genes: &Box<[bool; N]>) {
         let x = self.data[chromosome.row_id].as_mut_slice();
         x.copy_from_slice(genes.as_slice());
         self.reset_chromosome_state(chromosome);
     }
 
-    fn get_genes(&self, chromosome: &StaticBinaryChromosome) -> Box<[bool; N]> {
+    fn get_genes(&self, chromosome: &Chromosome) -> Box<[bool; N]> {
         Box::new(self.data[chromosome.row_id])
     }
 
-    fn copy_genes(&mut self, source: &StaticBinaryChromosome, target: &mut StaticBinaryChromosome) {
+    fn copy_genes(&mut self, source: &Chromosome, target: &mut Chromosome) {
         self.copy_genes_by_id(source.row_id, target.row_id);
         self.copy_chromosome_state(source, target);
     }
 
     fn chromosomes_setup(&mut self) {
-        self.chromosome_bin = (0..M).rev().map(StaticBinaryChromosome::new).collect();
+        self.chromosome_bin = (0..M).rev().map(Chromosome::new).collect();
     }
 
-    fn chromosome_bin_push(&mut self, chromosome: StaticBinaryChromosome) {
+    fn chromosome_bin_push(&mut self, chromosome: Chromosome) {
         self.chromosome_bin.push(chromosome);
     }
 
-    fn chromosome_bin_find_or_create(&mut self) -> StaticBinaryChromosome {
+    fn chromosome_bin_find_or_create(&mut self) -> Chromosome {
         self.chromosome_bin.pop().unwrap_or_else(|| {
             panic!("genetic_algorithm error: chromosome capacity exceeded");
         })
