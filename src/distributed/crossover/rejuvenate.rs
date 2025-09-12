@@ -16,7 +16,7 @@ pub struct Rejuvenate {
 impl Crossover for Rejuvenate {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        _genotype: &mut G,
         state: &mut EvolveState<G>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
@@ -28,12 +28,14 @@ impl Crossover for Rejuvenate {
             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
         let dropped_population_size = (existing_population_size - selected_population_size).max(0);
 
-        genotype.chromosome_destructor_truncate(
+        state
+            .population
+            .chromosomes
+            .truncate(selected_population_size);
+        self.expand_chromosome_population(
             &mut state.population.chromosomes,
-            selected_population_size,
+            dropped_population_size,
         );
-        genotype
-            .chromosome_cloner_expand(&mut state.population.chromosomes, dropped_population_size);
 
         state
             .population

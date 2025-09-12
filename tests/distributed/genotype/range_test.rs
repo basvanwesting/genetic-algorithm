@@ -1,6 +1,5 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::distributed::chromosome::ChromosomeManager;
 use genetic_algorithm::distributed::genotype::{
     EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype, RangeGenotype,
 };
@@ -14,7 +13,7 @@ fn float_mutate_chromosome_single_random() {
         .build()
         .unwrap();
 
-    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
@@ -39,7 +38,7 @@ fn float_mutate_chromosome_single_relative() {
         .build()
         .unwrap();
 
-    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
@@ -71,7 +70,7 @@ fn float_mutate_chromosome_single_scaled() {
         .build()
         .unwrap();
 
-    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
@@ -182,7 +181,7 @@ fn float_neighbouring_population_1() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447],
@@ -208,7 +207,7 @@ fn float_neighbouring_population_2_random() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439],
@@ -240,7 +239,7 @@ fn float_neighbouring_population_2_relative() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439],
@@ -272,7 +271,7 @@ fn float_neighbouring_population_2_scaled() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439],
@@ -292,7 +291,7 @@ fn float_neighbouring_population_2_scaled() {
         ],
         0.001,
     ));
-    genotype.chromosome_destructor_truncate(&mut population.chromosomes, 0);
+    population.chromosomes.truncate(0);
     genotype.fill_neighbouring_population(&chromosome, &mut population, Some(1), &mut rng);
     assert!(relative_population_eq(
         inspect::population(&population),
@@ -304,7 +303,7 @@ fn float_neighbouring_population_2_scaled() {
         ],
         0.001,
     ));
-    genotype.chromosome_destructor_truncate(&mut population.chromosomes, 0);
+    population.chromosomes.truncate(0);
     genotype.fill_neighbouring_population(&chromosome, &mut population, Some(2), &mut rng);
     assert!(relative_population_eq(
         inspect::population(&population),
@@ -328,7 +327,7 @@ fn float_neighbouring_population_3() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.980],
@@ -362,7 +361,7 @@ fn float_neighbouring_population_3_one_sided() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![0.447, 0.439, 0.980],
@@ -387,14 +386,14 @@ fn float_neighbouring_population_3_one_sided() {
 #[test]
 fn float_permutable_gene_values_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=10.0)
         .with_allele_mutation_scaled_range(vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01])
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![4.473, 4.391],
@@ -444,7 +443,7 @@ fn float_permutable_gene_values_scaled() {
 #[test]
 fn float_chromosome_permutations_2_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=10.0)
         .with_allele_mutation_scaled_range(vec![-5.0..=5.0, -2.0..=2.0, -1.0..=1.0])
@@ -456,7 +455,7 @@ fn float_chromosome_permutations_2_scaled() {
         BigUint::from(70u32)
     );
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
         vec![4.473, 4.391],
@@ -588,7 +587,7 @@ fn integer_mutate_chromosome_single_random() {
         .build()
         .unwrap();
 
-    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![4, 4, 9, 4, 8, 9, 5, 4, 3, 8],
@@ -612,7 +611,7 @@ fn integer_mutate_chromosome_single_relative() {
         .build()
         .unwrap();
 
-    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![4, 4, 9, 4, 8, 9, 5, 4, 3, 8],
@@ -636,7 +635,7 @@ fn integer_neighbouring_population_1() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(inspect::chromosome(&chromosome), vec![4]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
@@ -654,7 +653,7 @@ fn integer_neighbouring_population_2_random() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4],);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
@@ -676,7 +675,7 @@ fn integer_neighbouring_population_2_relative() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4],);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
@@ -698,7 +697,7 @@ fn integer_neighbouring_population_2_scaled() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
@@ -720,7 +719,7 @@ fn integer_neighbouring_population_3() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 9]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
@@ -748,7 +747,7 @@ fn integer_neighbouring_population_3_one_sided() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 9]);
 
     // size makes error as it counts 0.0 twice, this is fine
@@ -765,14 +764,14 @@ fn integer_neighbouring_population_3_one_sided() {
 #[test]
 fn integer_permutable_gene_values_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=1000)
         .with_allele_mutation_scaled_range(vec![-100..=100, -10..=10, -1..=1])
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(inspect::chromosome(&chromosome), vec![447, 439]);
 
     assert_eq!(
@@ -813,7 +812,7 @@ fn integer_permutable_gene_values_scaled() {
 #[test]
 fn integer_chromosome_permutations_2_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=10)
         .with_allele_mutation_scaled_range(vec![-5..=5, -2..=2, -1..=1])
@@ -825,7 +824,7 @@ fn integer_chromosome_permutations_2_scaled() {
         BigUint::from(70u32)
     );
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4]);
 
     assert_eq!(

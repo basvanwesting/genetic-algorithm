@@ -20,11 +20,11 @@ pub struct Elite {
 impl Select for Elite {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        _genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         _reporter: &mut SR,
-        rng: &mut R,
+        _rng: &mut R,
     ) {
         let now = Instant::now();
 
@@ -45,19 +45,17 @@ impl Select for Elite {
             self.replacement_rate,
         );
 
-        self.selection(&mut parents, new_parents_size, genotype, config, rng);
-        self.selection(&mut offspring, new_offspring_size, genotype, config, rng);
+        self.selection::<G>(&mut parents, new_parents_size, config);
+        self.selection::<G>(&mut offspring, new_offspring_size, config);
 
         state.population.chromosomes.append(&mut elite_chromosomes);
         state.population.chromosomes.append(&mut offspring);
         state.population.chromosomes.append(&mut parents);
 
-        self.selection(
+        self.selection::<G>(
             &mut state.population.chromosomes,
             config.target_population_size,
-            genotype,
             config,
-            rng,
         );
 
         state.add_duration(StrategyAction::Select, now.elapsed());
@@ -72,13 +70,11 @@ impl Elite {
         }
     }
 
-    pub fn selection<G: EvolveGenotype, R: Rng>(
+    pub fn selection<G: EvolveGenotype>(
         &self,
         chromosomes: &mut Vec<Chromosome<G::Allele>>,
         selection_size: usize,
-        genotype: &mut G,
         config: &EvolveConfig,
-        _rng: &mut R,
     ) {
         let selection_size = std::cmp::min(selection_size, chromosomes.len());
         match config.fitness_ordering {
@@ -95,6 +91,6 @@ impl Elite {
                 });
             }
         }
-        genotype.chromosome_destructor_truncate(chromosomes, selection_size);
+        chromosomes.truncate(selection_size);
     }
 }

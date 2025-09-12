@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::distributed::allele::Allele;
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, Genes};
+use crate::distributed::chromosome::{Chromosome, Genes};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -286,7 +286,7 @@ impl<T: Allele + PartialEq + Hash> HillClimbGenotype for MultiList<T> {
         for index in 0..self.genes_size() {
             for allele_value in self.allele_lists[index].clone() {
                 if chromosome.genes[index] != allele_value {
-                    let mut new_chromosome = self.chromosome_cloner(chromosome);
+                    let mut new_chromosome = chromosome.clone();
                     new_chromosome.genes[index] = allele_value;
                     new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
@@ -338,8 +338,6 @@ impl<T: Allele + PartialEq + Hash> PermutateGenotype for MultiList<T> {
         true
     }
 }
-
-impl<T: Allele + PartialEq + Hash> ChromosomeManager<Self> for MultiList<T> {}
 
 impl<T: Allele + PartialEq + Hash> fmt::Display for MultiList<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

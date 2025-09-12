@@ -14,7 +14,7 @@ pub struct Clone {
 impl Crossover for Clone {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        _genotype: &mut G,
         state: &mut EvolveState<G>,
         _config: &EvolveConfig,
         _reporter: &mut SR,
@@ -24,8 +24,10 @@ impl Crossover for Clone {
         let existing_population_size = state.population.chromosomes.len();
         let selected_population_size =
             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
-        genotype
-            .chromosome_cloner_expand(&mut state.population.chromosomes, selected_population_size);
+        self.expand_chromosome_population(
+            &mut state.population.chromosomes,
+            selected_population_size,
+        );
         state
             .population
             .chromosomes

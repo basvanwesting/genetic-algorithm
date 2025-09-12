@@ -1,6 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, Genes};
+use crate::distributed::chromosome::{Chromosome, Genes};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -196,7 +196,7 @@ impl HillClimbGenotype for Binary {
         _rng: &mut R,
     ) {
         (0..self.genes_size).for_each(|index| {
-            let mut new_chromosome = self.chromosome_cloner(chromosome);
+            let mut new_chromosome = chromosome.clone();
             new_chromosome.genes[index] = !new_chromosome.genes[index];
             new_chromosome.update_state();
             population.chromosomes.push(new_chromosome);
@@ -241,8 +241,6 @@ impl PermutateGenotype for Binary {
         true
     }
 }
-
-impl ChromosomeManager<Self> for Binary {}
 
 impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

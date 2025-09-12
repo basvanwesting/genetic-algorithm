@@ -2,8 +2,6 @@
 
 use crate::distributed::allele::Allele;
 use crate::distributed::fitness::FitnessValue;
-use crate::distributed::genotype::Genotype;
-use rand::prelude::*;
 use rustc_hash::FxHasher;
 use std::hash::Hasher;
 
@@ -131,44 +129,5 @@ impl<T: Allele> Chromosome<T> {
         let mut hasher = FxHasher::default();
         T::hash_slice(&self.genes, &mut hasher);
         hasher.finish()
-    }
-}
-
-pub trait ChromosomeManager<G: Genotype> {
-    // Helper methods using the chromosome capabilities
-    fn chromosome_constructor_genes(&mut self, genes: &Genes<G::Allele>) -> Chromosome<G::Allele> {
-        Chromosome::new(genes.clone())
-    }
-
-    fn chromosome_constructor_random<R: Rng>(&mut self, rng: &mut R) -> Chromosome<G::Allele>
-    where
-        Self: Genotype<Allele = G::Allele>,
-    {
-        let genes = self.random_genes_factory(rng);
-        Chromosome::new(genes)
-    }
-
-    fn chromosome_cloner(&mut self, chromosome: &Chromosome<G::Allele>) -> Chromosome<G::Allele> {
-        chromosome.clone()
-    }
-
-    fn chromosome_destructor_truncate(
-        &mut self,
-        chromosomes: &mut Vec<Chromosome<G::Allele>>,
-        target_population_size: usize,
-    ) {
-        chromosomes.truncate(target_population_size);
-    }
-
-    fn chromosome_cloner_expand(
-        &mut self,
-        chromosomes: &mut Vec<Chromosome<G::Allele>>,
-        amount: usize,
-    ) {
-        let modulo = chromosomes.len();
-        for i in 0..amount {
-            let chromosome = &chromosomes[i % modulo];
-            chromosomes.push(chromosome.clone());
-        }
     }
 }

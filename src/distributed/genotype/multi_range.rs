@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::distributed::allele::RangeAllele;
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, Genes};
+use crate::distributed::chromosome::{Chromosome, Genes};
 use crate::distributed::population::Population;
 use itertools::Itertools;
 use num::BigUint;
@@ -457,13 +457,13 @@ where
                 };
 
                 if value_low < base_value {
-                    let mut new_chromosome = self.chromosome_cloner(chromosome);
+                    let mut new_chromosome = chromosome.clone();
                     new_chromosome.genes[index] = value_low;
                     new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 };
                 if value_high > base_value {
-                    let mut new_chromosome = self.chromosome_cloner(chromosome);
+                    let mut new_chromosome = chromosome.clone();
                     new_chromosome.genes[index] = value_high;
                     new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
@@ -501,13 +501,13 @@ where
                 };
 
                 if range_start < base_value {
-                    let mut new_chromosome = self.chromosome_cloner(chromosome);
+                    let mut new_chromosome = chromosome.clone();
                     new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
                     new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 };
                 if base_value < range_end {
-                    let mut new_chromosome = self.chromosome_cloner(chromosome);
+                    let mut new_chromosome = chromosome.clone();
                     let new_value =
                         rng.gen_range((base_value + T::smallest_increment())..=range_end);
                     new_chromosome.genes[index] = new_value;
@@ -533,13 +533,13 @@ where
 
                 let base_value = chromosome.genes[index];
                 if allele_range_start < base_value {
-                    let mut new_chromosome = self.chromosome_cloner(chromosome);
+                    let mut new_chromosome = chromosome.clone();
                     new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
                     new_chromosome.update_state();
                     population.chromosomes.push(new_chromosome);
                 };
                 if base_value < allele_range_end {
-                    let mut new_chromosome = self.chromosome_cloner(chromosome);
+                    let mut new_chromosome = chromosome.clone();
                     let new_value =
                         rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
                     new_chromosome.genes[index] = new_value;
@@ -722,13 +722,6 @@ where
             .map(|v| BigUint::from(*v))
             .product()
     }
-}
-
-impl<T: RangeAllele + Into<f64>> ChromosomeManager<Self> for MultiRange<T>
-where
-    T: SampleUniform,
-    Uniform<T>: Send + Sync,
-{
 }
 
 impl<T: RangeAllele + Into<f64>> Clone for MultiRange<T>

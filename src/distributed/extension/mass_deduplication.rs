@@ -41,10 +41,7 @@ impl Extension for MassDeduplication {
                     let unique_size = unique_chromosomes.len();
 
                     let remaining_size = 2usize.saturating_sub(unique_size);
-                    genotype.chromosome_destructor_truncate(
-                        &mut state.population.chromosomes,
-                        remaining_size,
-                    );
+                    state.population.chromosomes.truncate(remaining_size);
                     state.population.chromosomes.append(&mut unique_chromosomes);
                 }
             }

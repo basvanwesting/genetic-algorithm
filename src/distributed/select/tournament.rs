@@ -22,7 +22,7 @@ pub struct Tournament {
 impl Select for Tournament {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        _genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         _reporter: &mut SR,
@@ -47,17 +47,16 @@ impl Select for Tournament {
             self.replacement_rate,
         );
 
-        self.selection(&mut parents, new_parents_size, genotype, config, rng);
-        self.selection(&mut offspring, new_offspring_size, genotype, config, rng);
+        self.selection::<G, R>(&mut parents, new_parents_size, config, rng);
+        self.selection::<G, R>(&mut offspring, new_offspring_size, config, rng);
 
         state.population.chromosomes.append(&mut elite_chromosomes);
         state.population.chromosomes.append(&mut offspring);
         state.population.chromosomes.append(&mut parents);
 
-        self.selection(
+        self.selection::<G, R>(
             &mut state.population.chromosomes,
             config.target_population_size,
-            genotype,
             config,
             rng,
         );
@@ -79,7 +78,6 @@ impl Tournament {
         &self,
         chromosomes: &mut Vec<Chromosome<G::Allele>>,
         selection_size: usize,
-        genotype: &mut G,
         config: &EvolveConfig,
         rng: &mut R,
     ) {
@@ -138,7 +136,7 @@ impl Tournament {
                 }
             }
         };
-        genotype.chromosome_destructor_truncate(chromosomes, 0);
+        chromosomes.truncate(0);
         chromosomes.append(&mut selected_chromosomes);
     }
 }

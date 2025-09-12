@@ -20,7 +20,7 @@ pub use self::range::Range as RangeGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
 pub use crate::distributed::allele::{Allele, RangeAllele};
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, Genes};
+use crate::distributed::chromosome::{Chromosome, Genes};
 use crate::distributed::population::Population;
 pub use crate::impl_allele;
 use itertools::Itertools;
@@ -39,13 +39,7 @@ pub enum MutationType {
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.
 pub trait Genotype:
-    ChromosomeManager<Self>
-    + Clone
-    + Send
-    + Sync
-    + fmt::Debug
-    + fmt::Display
-    + TryFrom<GenotypeBuilder<Self>>
+    Clone + Send + Sync + fmt::Debug + fmt::Display + TryFrom<GenotypeBuilder<Self>>
 {
     type Allele: Allele;
 
@@ -116,7 +110,7 @@ pub trait Genotype:
         if self.seed_genes_list().is_empty() {
             Population::new(
                 (0..population_size)
-                    .map(|_| self.chromosome_constructor_random(rng))
+                    .map(|_| Chromosome::new(self.random_genes_factory(rng)))
                     .collect::<Vec<_>>(),
             )
         } else {
@@ -126,7 +120,7 @@ pub trait Genotype:
                     .iter()
                     .cycle()
                     .take(population_size)
-                    .map(|genes| self.chromosome_constructor_genes(genes))
+                    .map(|genes| Chromosome::new(genes.clone()))
                     .collect::<Vec<_>>(),
             )
         }

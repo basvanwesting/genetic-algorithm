@@ -1,6 +1,5 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::distributed::chromosome::ChromosomeManager;
 use genetic_algorithm::distributed::genotype::{
     BinaryGenotype, EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype,
 };
@@ -13,7 +12,7 @@ fn mutate_chromosome_single() {
         .build()
         .unwrap();
 
-    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![false, false, true, false, true, true, true, false, false, true]
@@ -196,7 +195,7 @@ fn neighbouring_population() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![false, false, true, false, true, true, true, false, false, true]
@@ -353,7 +352,7 @@ fn chromosome_permutations_with_seed_genes_list() {
 #[test]
 fn chromosome_constructor_with_seed_genes_list() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(4)
         .with_seed_genes_list(vec![
             vec![true, true, false, false],
@@ -362,10 +361,10 @@ fn chromosome_constructor_with_seed_genes_list() {
         .build()
         .unwrap();
     let chromosomes = vec![
-        genotype.chromosome_constructor_random(&mut rng),
-        genotype.chromosome_constructor_random(&mut rng),
-        genotype.chromosome_constructor_random(&mut rng),
-        genotype.chromosome_constructor_random(&mut rng),
+        Chromosome::new(genotype.random_genes_factory(&mut rng)),
+        Chromosome::new(genotype.random_genes_factory(&mut rng)),
+        Chromosome::new(genotype.random_genes_factory(&mut rng)),
+        Chromosome::new(genotype.random_genes_factory(&mut rng)),
     ];
     println!("{:#?}", chromosomes);
     assert_eq!(
@@ -441,7 +440,7 @@ fn chromosome_manager() {
         .unwrap();
 
     let mut chromosomes = (0..4)
-        .map(|_| genotype.chromosome_constructor_random(rng))
+        .map(|_| Chromosome::new(genotype.random_genes_factory(rng)))
         .collect::<Vec<_>>();
 
     assert_eq!(
@@ -454,7 +453,7 @@ fn chromosome_manager() {
         ]
     );
 
-    genotype.chromosome_destructor_truncate(&mut chromosomes, 2);
+    chromosomes.truncate(2);
 
     assert_eq!(
         inspect::chromosomes(&chromosomes),
@@ -464,7 +463,12 @@ fn chromosome_manager() {
         ]
     );
 
-    genotype.chromosome_cloner_expand(&mut chromosomes, 2);
+    // Manually expand chromosomes (formerly chromosome_cloner_expand)
+    let modulo = chromosomes.len();
+    for i in 0..2 {
+        let chromosome = chromosomes[i % modulo].clone();
+        chromosomes.push(chromosome);
+    }
 
     assert_eq!(
         inspect::chromosomes(&chromosomes),

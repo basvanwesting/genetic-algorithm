@@ -1,6 +1,5 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::distributed::chromosome::ChromosomeManager;
 use genetic_algorithm::distributed::genotype::{
     EvolveGenotype, Genotype, HillClimbGenotype, MultiUniqueGenotype, PermutateGenotype,
 };
@@ -13,7 +12,7 @@ fn mutate_chromosome_single() {
         .build()
         .unwrap();
 
-    let mut chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 1, 6, 5, 4, 7, 1, 2, 0]
@@ -212,7 +211,7 @@ fn chromosome_permutations_genes_size_1() {
 
     assert_eq!(genotype.allele_list_sizes, vec![1]);
     assert_eq!(genotype.allele_list_index_offsets, vec![0, 1]);
-    assert_eq!(genotype.crossover_points, vec![]);
+    assert_eq!(genotype.crossover_points, vec![] as Vec<usize>);
     assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(1u32));
     assert_eq!(
         inspect::chromosomes(
@@ -324,7 +323,7 @@ fn neighbouring_population_4() {
         .build()
         .unwrap();
 
-    let chromosome = genotype.chromosome_constructor_random(&mut rng);
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![0, 0, 1, 2, 0, 1, 0, 1]

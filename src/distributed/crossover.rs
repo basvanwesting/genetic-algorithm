@@ -34,6 +34,7 @@ pub use self::single_point::SinglePoint as CrossoverSinglePoint;
 pub use self::uniform::Uniform as CrossoverUniform;
 pub use self::wrapper::Wrapper as CrossoverWrapper;
 
+use crate::distributed::chromosome::Chromosome;
 use crate::distributed::genotype::EvolveGenotype;
 use crate::distributed::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::distributed::strategy::StrategyReporter;
@@ -48,6 +49,21 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
         reporter: &mut SR,
         rng: &mut R,
     );
+
+    /// Helper method to expand chromosome population by cloning existing chromosomes
+    /// in a round-robin fashion. Used by crossover implementations to prepare
+    /// the population for crossover operations.
+    fn expand_chromosome_population<T: crate::distributed::allele::Allele>(
+        &self,
+        chromosomes: &mut Vec<Chromosome<T>>,
+        amount: usize,
+    ) {
+        let modulo = chromosomes.len();
+        for i in 0..amount {
+            let chromosome = chromosomes[i % modulo].clone();
+            chromosomes.push(chromosome);
+        }
+    }
 
     /// to guard against invalid Crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues

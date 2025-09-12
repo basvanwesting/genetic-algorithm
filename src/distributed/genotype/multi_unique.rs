@@ -1,7 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
 use crate::distributed::allele::Allele;
-use crate::distributed::chromosome::{Chromosome, ChromosomeManager, Genes};
+use crate::distributed::chromosome::{Chromosome, Genes};
 use crate::distributed::population::Population;
 use factorial::Factorial;
 use itertools::Itertools;
@@ -290,7 +290,7 @@ impl<T: Allele + Hash> HillClimbGenotype for MultiUnique<T> {
                 (0..allele_value_size)
                     .tuple_combinations()
                     .for_each(|(first, second)| {
-                        let mut new_chromosome = self.chromosome_cloner(chromosome);
+                        let mut new_chromosome = chromosome.clone();
                         new_chromosome
                             .genes
                             .swap(index_offset + first, index_offset + second);
@@ -358,8 +358,6 @@ impl<T: Allele + Hash> PermutateGenotype for MultiUnique<T> {
         true
     }
 }
-
-impl<T: Allele + Hash> ChromosomeManager<Self> for MultiUnique<T> {}
 
 impl<T: Allele + Hash> fmt::Display for MultiUnique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {

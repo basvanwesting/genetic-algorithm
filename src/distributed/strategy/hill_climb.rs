@@ -230,8 +230,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     self.state
                         .chromosome
                         .clone_from(&self.state.best_chromosome);
-                    self.genotype
-                        .chromosome_destructor_truncate(&mut self.state.population.chromosomes, 0);
+                    self.state.population.chromosomes.truncate(0);
                     self.genotype.fill_neighbouring_population(
                         self.state.chromosome.as_ref().unwrap(),
                         &mut self.state.population,
@@ -304,7 +303,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     pub fn setup(&mut self) {
         let now = Instant::now();
 
-        let chromosome = self.genotype.chromosome_constructor_random(&mut self.rng);
+        let chromosome = Chromosome::new(self.genotype.random_genes_factory(&mut self.rng));
         self.state.chromosome = Some(chromosome.clone());
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());

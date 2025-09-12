@@ -34,8 +34,10 @@ impl Crossover for Uniform {
         let existing_population_size = state.population.chromosomes.len();
         let selected_population_size =
             (state.population.size() as f32 * self.selection_rate).ceil() as usize;
-        genotype
-            .chromosome_cloner_expand(&mut state.population.chromosomes, selected_population_size);
+        self.expand_chromosome_population(
+            &mut state.population.chromosomes,
+            selected_population_size,
+        );
         let iterator = state
             .population
             .chromosomes

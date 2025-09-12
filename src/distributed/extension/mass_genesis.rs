@@ -42,10 +42,7 @@ impl Extension for MassGenesis {
                     let elitism_size = elite_chromosomes.len();
                     let remaining_size = 2usize.saturating_sub(elitism_size);
 
-                    genotype.chromosome_destructor_truncate(
-                        &mut state.population.chromosomes,
-                        remaining_size,
-                    );
+                    state.population.chromosomes.truncate(remaining_size);
                     state.population.chromosomes.append(&mut elite_chromosomes);
                 }
             }
