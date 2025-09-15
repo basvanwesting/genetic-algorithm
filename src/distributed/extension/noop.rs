@@ -11,7 +11,7 @@ pub struct Noop;
 impl Extension for Noop {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        _genotype: &mut G,
+        _genotype: &G,
         _state: &mut EvolveState<G>,
         _config: &EvolveConfig,
         _reporter: &mut SR,

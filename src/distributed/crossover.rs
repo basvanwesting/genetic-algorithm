@@ -43,7 +43,7 @@ use rand::Rng;
 pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        genotype: &G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,

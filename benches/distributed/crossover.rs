@@ -56,7 +56,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         ];
         for mut crossover in crossovers {
             group.throughput(Throughput::Elements(population_size as u64));
-            let (mut genotype, state) = setup(*genes_size, population_size, &mut rng);
+            let (genotype, state) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}", crossover), genes_size),
                 genes_size,
@@ -64,13 +64,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     b.iter_batched(
                         || state.clone(),
                         |mut data| {
-                            crossover.call(
-                                &mut genotype,
-                                &mut data,
-                                &config,
-                                &mut reporter,
-                                &mut rng,
-                            )
+                            crossover.call(&genotype, &mut data, &config, &mut reporter, &mut rng)
                         },
                         BatchSize::SmallInput,
                     )

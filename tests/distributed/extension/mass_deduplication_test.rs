@@ -8,7 +8,7 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 
 #[test]
 fn standard() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -33,7 +33,7 @@ fn standard() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDeduplication::new(3).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -54,7 +54,7 @@ fn standard() {
 
 #[test]
 fn never_leaves_less_than_two() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -79,7 +79,7 @@ fn never_leaves_less_than_two() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDeduplication::new(1).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,

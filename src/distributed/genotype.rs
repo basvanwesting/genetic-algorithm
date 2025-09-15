@@ -48,7 +48,7 @@ pub trait Genotype:
     fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele];
 
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Genes<Self::Allele>;
-    fn set_random_genes<R: Rng>(&mut self, chromosome: &mut Chromosome<Self::Allele>, rng: &mut R) {
+    fn set_random_genes<R: Rng>(&self, chromosome: &mut Chromosome<Self::Allele>, rng: &mut R) {
         let genes = self.random_genes_factory(rng);
         chromosome.set_genes(genes);
     }
@@ -57,7 +57,7 @@ pub trait Genotype:
         MutationType::Random
     }
     fn mutate_chromosome_genes<R: Rng>(
-        &mut self,
+        &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self::Allele>,
@@ -68,7 +68,8 @@ pub trait Genotype:
     fn builder() -> GenotypeBuilder<Self> {
         GenotypeBuilder::<Self>::default()
     }
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>);
+    fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self;
+
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>>;
     fn max_scale_index(&self) -> Option<usize>;
 
@@ -103,7 +104,7 @@ pub trait Genotype:
     }
 
     fn population_constructor<R: Rng>(
-        &mut self,
+        &self,
         population_size: usize,
         rng: &mut R,
     ) -> Population<Self::Allele> {
@@ -133,7 +134,7 @@ pub trait EvolveGenotype: Genotype {
     /// Choose between allowing duplicates or not (~2x slower).
     /// panics if there are no valid crossover indexes
     fn crossover_chromosome_genes<R: Rng>(
-        &mut self,
+        &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self::Allele>,
@@ -144,7 +145,7 @@ pub trait EvolveGenotype: Genotype {
     /// Choose between allowing duplicates or not (not much slower)
     /// panics if there are no valid crossover points
     fn crossover_chromosome_points<R: Rng>(
-        &mut self,
+        &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self::Allele>,
@@ -168,7 +169,7 @@ pub trait HillClimbGenotype: Genotype {
     /// all neighbouring mutations of the chromosome
     /// used in HillClimbVariant::SteepestAscent
     fn fill_neighbouring_population<R: Rng>(
-        &mut self,
+        &self,
         _chromosome: &Chromosome<Self::Allele>,
         _population: &mut Population<Self::Allele>,
         _scale_index: Option<usize>,

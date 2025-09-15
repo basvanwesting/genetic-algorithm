@@ -378,8 +378,11 @@ impl<
                 .iter()
                 .filter_map(|species_run| species_run.best_genes())
                 .collect();
-            let mut final_genotype = self.genotype.clone().unwrap();
-            final_genotype.set_seed_genes_list(seed_genes_list);
+            let final_genotype = self
+                .genotype
+                .as_ref()
+                .map(|g| g.with_seed_genes_list(seed_genes_list))
+                .unwrap();
             let mut final_run: Evolve<G, M, F, S, C, E, SR> =
                 self.clone().with_genotype(final_genotype).try_into()?;
 
@@ -438,8 +441,11 @@ impl<
                 .iter()
                 .filter_map(|species_run| species_run.best_genes())
                 .collect();
-            let mut final_genotype = self.genotype.clone().unwrap();
-            final_genotype.set_seed_genes_list(seed_genes_list);
+            let final_genotype = self
+                .genotype
+                .as_ref()
+                .map(|g| g.with_seed_genes_list(seed_genes_list))
+                .unwrap();
             let mut final_run: Evolve<G, M, F, S, C, E, SR> =
                 self.clone().with_genotype(final_genotype).try_into()?;
 

@@ -254,22 +254,22 @@ impl<
         while !self.is_finished() {
             self.state.increment_generation();
             self.state
-                .population_filter_age(&mut self.genotype, &self.config);
+                .population_filter_age(&self.genotype, &self.config);
 
             self.plugins.select.call(
-                &mut self.genotype,
+                &self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
                 &mut self.rng,
             );
             self.state
-                .update_population_cardinality(&mut self.genotype, &self.config);
+                .update_population_cardinality(&self.genotype, &self.config);
             self.reporter
                 .on_new_generation(&self.genotype, &self.state, &self.config);
 
             self.plugins.extension.call(
-                &mut self.genotype,
+                &self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
@@ -278,14 +278,14 @@ impl<
 
             self.state.population.increment_age();
             self.plugins.crossover.call(
-                &mut self.genotype,
+                &self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
                 &mut self.rng,
             );
             self.plugins.mutate.call(
-                &mut self.genotype,
+                &self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
@@ -298,7 +298,7 @@ impl<
                 fitness_thread_local.as_ref(),
             );
             self.state.update_best_chromosome_and_report(
-                &mut self.genotype,
+                &self.genotype,
                 &self.config,
                 &mut self.reporter,
             );
@@ -382,7 +382,7 @@ impl<
             fitness_thread_local,
         );
         self.state.update_best_chromosome_and_report(
-            &mut self.genotype,
+            &self.genotype,
             &self.config,
             &mut self.reporter,
         );
@@ -547,7 +547,7 @@ impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
 impl<G: EvolveGenotype> EvolveState<G> {
     fn update_best_chromosome_and_report<SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        genotype: &G,
         config: &EvolveConfig,
         reporter: &mut SR,
     ) {
@@ -595,7 +595,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
         }
     }
 
-    fn population_filter_age(&mut self, _genotype: &mut G, config: &EvolveConfig) {
+    fn population_filter_age(&mut self, _genotype: &G, config: &EvolveConfig) {
         if let Some(max_chromosome_age) = config.max_chromosome_age {
             // TODO: use something like partition_in_place when stable
             for i in (0..self.population.chromosomes.len()).rev() {
@@ -605,7 +605,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
             }
         }
     }
-    fn update_population_cardinality(&mut self, _genotype: &mut G, _config: &EvolveConfig) {
+    fn update_population_cardinality(&mut self, _genotype: &G, _config: &EvolveConfig) {
         // Note: genes_hashing() method not available in distributed genotype trait
         // self.population_cardinality = if genotype.genes_hashing() {
         //     self.population.genes_cardinality()

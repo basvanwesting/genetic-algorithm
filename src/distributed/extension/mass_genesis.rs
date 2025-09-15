@@ -20,7 +20,7 @@ pub struct MassGenesis {
 impl Extension for MassGenesis {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        genotype: &G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,

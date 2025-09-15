@@ -7,7 +7,7 @@ use genetic_algorithm::distributed::genotype::{
 #[test]
 fn float_mutate_chromosome_single_random() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -31,7 +31,7 @@ fn float_mutate_chromosome_single_random() {
 #[test]
 fn float_mutate_chromosome_single_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -63,7 +63,7 @@ fn float_mutate_chromosome_single_relative() {
 #[test]
 fn float_mutate_chromosome_single_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_scaled_range(vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01])
@@ -95,7 +95,7 @@ fn float_mutate_chromosome_single_scaled() {
 #[test]
 fn mutate_chromosome_genes_random_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -112,7 +112,7 @@ fn mutate_chromosome_genes_random_with_duplicates() {
 #[test]
 fn mutate_chromosome_genes_random_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -130,7 +130,7 @@ fn mutate_chromosome_genes_random_without_duplicates() {
 #[test]
 fn crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=2.0)
         .build()
@@ -152,7 +152,7 @@ fn crossover_chromosome_pair_single_gene() {
 #[test]
 fn crossover_chromosome_pair_single_point() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -174,7 +174,7 @@ fn crossover_chromosome_pair_single_point() {
 #[test]
 fn float_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(1)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -201,7 +201,7 @@ fn float_neighbouring_population_1() {
 #[test]
 fn float_neighbouring_population_2_random() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=1.0)
         .build()
@@ -232,7 +232,7 @@ fn float_neighbouring_population_2_random() {
 #[test]
 fn float_neighbouring_population_2_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -264,7 +264,7 @@ fn float_neighbouring_population_2_relative() {
 #[test]
 fn float_neighbouring_population_2_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_scaled_range(vec![-0.5..=0.5, -0.1..=0.1, -0.01..=0.01])
@@ -320,7 +320,7 @@ fn float_neighbouring_population_2_scaled() {
 #[test]
 fn float_neighbouring_population_3() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(-0.1..=0.1)
@@ -354,7 +354,7 @@ fn float_neighbouring_population_3() {
 #[test]
 fn float_neighbouring_population_3_one_sided() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_range(0.0..=0.1)
@@ -581,7 +581,7 @@ fn float_chromosome_permutations_2_scaled() {
 #[test]
 fn integer_mutate_chromosome_single_random() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
         .build()
@@ -604,7 +604,7 @@ fn integer_mutate_chromosome_single_random() {
 #[test]
 fn integer_mutate_chromosome_single_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
         .with_allele_mutation_range(-1..=1)
@@ -628,7 +628,7 @@ fn integer_mutate_chromosome_single_relative() {
 #[test]
 fn integer_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(1)
         .with_allele_range(0..=9)
         .with_allele_mutation_range(-1..=1)
@@ -647,7 +647,7 @@ fn integer_neighbouring_population_1() {
 #[test]
 fn integer_neighbouring_population_2_random() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=9)
         .build()
@@ -668,7 +668,7 @@ fn integer_neighbouring_population_2_random() {
 #[test]
 fn integer_neighbouring_population_2_relative() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=9)
         .with_allele_mutation_range(-2..=2)
@@ -690,7 +690,7 @@ fn integer_neighbouring_population_2_relative() {
 #[test]
 fn integer_neighbouring_population_2_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=9)
         .with_allele_mutation_scaled_range(vec![-3..=3, -2..=2, -1..=1])
@@ -712,7 +712,7 @@ fn integer_neighbouring_population_2_scaled() {
 #[test]
 fn integer_neighbouring_population_3() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0..=9)
         .with_allele_mutation_range(-1..=1)
@@ -740,7 +740,7 @@ fn integer_neighbouring_population_3() {
 #[test]
 fn integer_neighbouring_population_3_one_sided() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = RangeGenotype::builder()
+    let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0..=9)
         .with_allele_mutation_range(0..=1)

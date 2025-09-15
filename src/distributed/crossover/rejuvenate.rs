@@ -16,7 +16,7 @@ pub struct Rejuvenate {
 impl Crossover for Rejuvenate {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        _genotype: &mut G,
+        _genotype: &G,
         state: &mut EvolveState<G>,
         _config: &EvolveConfig,
         _reporter: &mut SR,

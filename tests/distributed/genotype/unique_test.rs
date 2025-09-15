@@ -7,7 +7,7 @@ use genetic_algorithm::distributed::genotype::{
 #[test]
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = UniqueGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![5, 2, 3, 4])
         .build()
         .unwrap();
@@ -24,7 +24,7 @@ fn mutate_chromosome_single() {
 #[test]
 fn mutate_chromosome_genes_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = UniqueGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![1, 2, 3, 4, 5, 6, 7, 8, 9])
         .build()
         .unwrap();
@@ -39,7 +39,7 @@ fn mutate_chromosome_genes_with_duplicates() {
 #[test]
 fn mutate_chromosome_genes_without_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = UniqueGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![1, 2, 3, 4, 5, 6, 7, 8, 9])
         .build()
         .unwrap();
@@ -56,7 +56,7 @@ fn mutate_chromosome_genes_without_duplicates() {
 #[should_panic]
 fn crossover_chromosome_pair_single_gene() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = UniqueGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![5, 2, 3, 4])
         .build()
         .unwrap();
@@ -70,7 +70,7 @@ fn crossover_chromosome_pair_single_gene() {
 #[should_panic]
 fn crossover_chromosome_pair_single_point() {
     let rng = &mut SmallRng::seed_from_u64(0);
-    let mut genotype = UniqueGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![5, 2, 3, 4])
         .build()
         .unwrap();
@@ -157,7 +157,7 @@ fn chromosome_permutations_genes_size_huge() {
 #[test]
 fn neighbouring_population_2() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = UniqueGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![0, 1])
         .build()
         .unwrap();
@@ -173,7 +173,7 @@ fn neighbouring_population_2() {
 #[test]
 fn neighbouring_population_4() {
     let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = UniqueGenotype::builder()
+    let genotype = UniqueGenotype::builder()
         .with_allele_list(vec![0, 1, 2, 3])
         .build()
         .unwrap();

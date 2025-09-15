@@ -28,7 +28,7 @@ use rand::Rng;
 pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        genotype: &G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,
@@ -37,7 +37,7 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
 
     fn extract_elite_chromosomes<G: EvolveGenotype>(
         &self,
-        _genotype: &mut G,
+        _genotype: &G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         elitism_size: usize,
@@ -57,7 +57,7 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
 
     fn extract_unique_elite_chromosomes<G: EvolveGenotype>(
         &self,
-        _genotype: &mut G,
+        _genotype: &G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         elitism_size: usize,
@@ -77,7 +77,7 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
 
     fn extract_unique_chromosomes<G: EvolveGenotype>(
         &self,
-        _genotype: &mut G,
+        _genotype: &G,
         state: &mut EvolveState<G>,
         _config: &EvolveConfig,
     ) -> Vec<Chromosome<G::Allele>> {

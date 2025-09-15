@@ -8,7 +8,7 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 
 #[test]
 fn removes_randomly() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -35,7 +35,7 @@ fn removes_randomly() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassExtinction::new(3, 0.50, 0.20).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -58,7 +58,7 @@ fn removes_randomly() {
 
 #[test]
 fn never_leaves_less_than_two_no_elite() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -85,7 +85,7 @@ fn never_leaves_less_than_two_no_elite() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassExtinction::new(3, 0.01, 0.0).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -103,7 +103,7 @@ fn never_leaves_less_than_two_no_elite() {
 
 #[test]
 fn never_leaves_less_than_two_one_elite() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -130,7 +130,7 @@ fn never_leaves_less_than_two_one_elite() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassExtinction::new(3, 0.01, 0.01).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,

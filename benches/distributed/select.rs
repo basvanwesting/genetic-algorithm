@@ -54,7 +54,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         ];
         for mut select in selects {
             group.throughput(Throughput::Elements(population_size as u64));
-            let (mut genotype, state) = setup(*genes_size, population_size, &mut rng);
+            let (genotype, state) = setup(*genes_size, population_size, &mut rng);
             group.bench_with_input(
                 BenchmarkId::new(format!("{:?}", select), genes_size),
                 genes_size,
@@ -62,7 +62,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     b.iter_batched(
                         || state.clone(),
                         |mut data| {
-                            select.call(&mut genotype, &mut data, &config, &mut reporter, &mut rng)
+                            select.call(&genotype, &mut data, &config, &mut reporter, &mut rng)
                         },
                         BatchSize::SmallInput,
                     )

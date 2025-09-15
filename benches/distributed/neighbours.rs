@@ -30,7 +30,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     Population::new(vec![]),
                 )
             },
-            |(c, mut g, mut p)| g.fill_neighbouring_population(&c, &mut p, None, &mut rng2),
+            |(c, g, mut p)| g.fill_neighbouring_population(&c, &mut p, None, &mut rng2),
             BatchSize::SmallInput,
         );
     });
@@ -51,7 +51,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                     Population::new(vec![]),
                 )
             },
-            |(c, mut g, mut p)| g.fill_neighbouring_population(&c, &mut p, Some(1), &mut rng2),
+            |(c, g, mut p)| g.fill_neighbouring_population(&c, &mut p, Some(1), &mut rng2),
             BatchSize::SmallInput,
         );
     });

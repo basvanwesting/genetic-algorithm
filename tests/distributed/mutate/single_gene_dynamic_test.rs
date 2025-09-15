@@ -8,7 +8,7 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 
 #[test]
 fn binary_genotype() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -35,19 +35,19 @@ fn binary_genotype() {
     let mut mutate = MutateSingleGeneDynamic::new(0.1, 5);
     assert_eq!(mutate.mutation_probability, 0.0);
     state.population_cardinality = Some(2);
-    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.1);
     state.population_cardinality = Some(4);
-    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.2);
     state.population_cardinality = Some(5);
-    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.2);
     state.population_cardinality = Some(6);
-    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.1);
     state.population_cardinality = Some(6);
-    mutate.call(&mut genotype, &mut state, &config, &mut reporter, &mut rng);
+    mutate.call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert_eq!(mutate.mutation_probability, 0.0);
 
     assert_eq!(

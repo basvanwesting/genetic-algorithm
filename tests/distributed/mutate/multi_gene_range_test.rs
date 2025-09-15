@@ -8,7 +8,7 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 
 #[test]
 fn binary_genotype() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -26,7 +26,7 @@ fn binary_genotype() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     MutateMultiGeneRange::new(1..=2, 0.5).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -46,7 +46,7 @@ fn binary_genotype() {
 
 #[test]
 fn list_genotype() {
-    let mut genotype = ListGenotype::builder()
+    let genotype = ListGenotype::builder()
         .with_genes_size(3)
         .with_allele_list(vec![0, 1, 2, 3])
         .build()
@@ -65,7 +65,7 @@ fn list_genotype() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     MutateMultiGeneRange::new(1..=3, 0.5).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,

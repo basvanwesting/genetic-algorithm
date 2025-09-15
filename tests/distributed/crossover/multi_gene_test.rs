@@ -7,7 +7,7 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 
 #[test]
 fn standard() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(10)
         .build()
         .unwrap();
@@ -28,7 +28,7 @@ fn standard() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverMultiGene::new(0.5, 1.0, 4, true).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,

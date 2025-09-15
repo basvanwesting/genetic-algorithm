@@ -139,7 +139,7 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
         chromosome.genes.as_slice()
     }
     fn mutate_chromosome_genes<R: Rng>(
-        &mut self,
+        &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self::Allele>,
@@ -181,9 +181,10 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
         }
         chromosome.reset_state();
     }
-
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
-        self.seed_genes_list = seed_genes_list;
+    fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
+        let mut new = self.clone();
+        new.seed_genes_list = seed_genes_list;
+        new
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
@@ -212,7 +213,7 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
 
 impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
     fn crossover_chromosome_genes<R: Rng>(
-        &mut self,
+        &self,
         _number_of_crossovers: usize,
         _allow_duplicates: bool,
         _father: &mut Chromosome<Self::Allele>,
@@ -222,7 +223,7 @@ impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
         panic!("MultiUniqueGenotype does not support gene crossover")
     }
     fn crossover_chromosome_points<R: Rng>(
-        &mut self,
+        &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self::Allele>,
@@ -274,7 +275,7 @@ impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
 }
 impl<T: Allele + Hash> HillClimbGenotype for MultiUnique<T> {
     fn fill_neighbouring_population<R: Rng>(
-        &mut self,
+        &self,
         chromosome: &Chromosome<Self::Allele>,
         population: &mut Population<Self::Allele>,
         _scale_index: Option<usize>,

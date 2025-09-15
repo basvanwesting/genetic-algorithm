@@ -221,7 +221,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                         &self.config,
                     );
                     self.state.update_best_chromosome_from_state_chromosome(
-                        &mut self.genotype,
+                        &self.genotype,
                         &self.config,
                         &mut self.reporter,
                     );
@@ -244,7 +244,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                         fitness_thread_local.as_ref(),
                     );
                     self.state.update_best_chromosome_from_state_population(
-                        &mut self.genotype,
+                        &self.genotype,
                         &self.config,
                         &mut self.reporter,
                         &mut self.rng,
@@ -316,7 +316,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     &self.config,
                 );
                 self.state.update_best_chromosome_from_state_chromosome(
-                    &mut self.genotype,
+                    &self.genotype,
                     &self.config,
                     &mut self.reporter,
                 );
@@ -336,7 +336,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     None,
                 );
                 self.state.update_best_chromosome_from_state_population(
-                    &mut self.genotype,
+                    &self.genotype,
                     &self.config,
                     &mut self.reporter,
                     &mut self.rng,
@@ -503,7 +503,7 @@ impl<G: HillClimbGenotype> StrategyState<G> for HillClimbState<G> {
 impl<G: HillClimbGenotype> HillClimbState<G> {
     fn update_best_chromosome_from_state_chromosome<SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        genotype: &G,
         config: &HillClimbConfig,
         reporter: &mut SR,
     ) {
@@ -533,7 +533,7 @@ impl<G: HillClimbGenotype> HillClimbState<G> {
     }
     fn update_best_chromosome_from_state_population<SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        genotype: &G,
         config: &HillClimbConfig,
         reporter: &mut SR,
         rng: &mut SmallRng,

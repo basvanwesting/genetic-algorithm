@@ -198,7 +198,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.fitness
             .call_for_state_chromosome(&self.genotype, &mut self.state, &self.config);
         self.state.update_best_chromosome_and_report(
-            &mut self.genotype,
+            &self.genotype,
             &self.config,
             &mut self.reporter,
         );
@@ -243,7 +243,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     &self.config,
                 );
                 self.state.update_best_chromosome_and_report(
-                    &mut self.genotype,
+                    &self.genotype,
                     &self.config,
                     &mut self.reporter,
                 );
@@ -282,7 +282,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 self.state.increment_generation();
                 self.state.chromosome.replace(chromosome);
                 self.state.update_best_chromosome_and_report(
-                    &mut self.genotype,
+                    &self.genotype,
                     &self.config,
                     &mut self.reporter,
                 );
@@ -377,7 +377,7 @@ impl<G: PermutateGenotype> StrategyState<G> for PermutateState<G> {
 impl<G: PermutateGenotype> PermutateState<G> {
     fn update_best_chromosome_and_report<SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &mut G,
+        genotype: &G,
         config: &PermutateConfig,
         reporter: &mut SR,
     ) {

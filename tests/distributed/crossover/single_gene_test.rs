@@ -8,7 +8,7 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 
 #[test]
 fn standard_crossover() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(5)
         .build()
         .unwrap();
@@ -30,7 +30,7 @@ fn standard_crossover() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSingleGene::new(0.5, 1.0).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -53,7 +53,7 @@ fn standard_crossover() {
 
 #[test]
 fn zero_crossover_rate() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(5)
         .build()
         .unwrap();
@@ -75,7 +75,7 @@ fn zero_crossover_rate() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSingleGene::new(0.5, 0.0).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -98,7 +98,7 @@ fn zero_crossover_rate() {
 
 #[test]
 fn odd_selection_size() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(5)
         .build()
         .unwrap();
@@ -120,7 +120,7 @@ fn odd_selection_size() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     CrossoverSingleGene::new(0.6, 0.8).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,

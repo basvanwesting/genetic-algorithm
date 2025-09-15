@@ -181,7 +181,7 @@ where
         self.mutation_type
     }
     fn mutate_chromosome_genes<R: Rng>(
-        &mut self,
+        &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self::Allele>,
@@ -232,9 +232,10 @@ where
         }
         chromosome.reset_state();
     }
-
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
-        self.seed_genes_list = seed_genes_list;
+    fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
+        let mut new = self.clone();
+        new.seed_genes_list = seed_genes_list;
+        new
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
@@ -264,7 +265,7 @@ where
     Uniform<T>: Send + Sync,
 {
     fn crossover_chromosome_genes<R: Rng>(
-        &mut self,
+        &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self::Allele>,
@@ -292,7 +293,7 @@ where
         father.reset_state();
     }
     fn crossover_chromosome_points<R: Rng>(
-        &mut self,
+        &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self::Allele>,
@@ -348,7 +349,7 @@ where
     Uniform<T>: Send + Sync,
 {
     fn fill_neighbouring_population<R: Rng>(
-        &mut self,
+        &self,
         chromosome: &Chromosome<Self::Allele>,
         population: &mut Population<Self::Allele>,
         scale_index: Option<usize>,
@@ -380,7 +381,7 @@ where
     Uniform<T>: Send + Sync,
 {
     fn fill_neighbouring_population_scaled(
-        &mut self,
+        &self,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
         scale_index: usize,
@@ -421,7 +422,7 @@ where
     }
 
     fn fill_neighbouring_population_relative<R: Rng>(
-        &mut self,
+        &self,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
         rng: &mut R,
@@ -463,7 +464,7 @@ where
     }
 
     fn fill_neighbouring_population_random<R: Rng>(
-        &mut self,
+        &self,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
         rng: &mut R,

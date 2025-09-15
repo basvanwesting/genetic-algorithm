@@ -8,7 +8,7 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 
 #[test]
 fn degenerates_randomly() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -35,7 +35,7 @@ fn degenerates_randomly() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDegeneration::new(3, 2, 0.33).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -62,7 +62,7 @@ fn degenerates_randomly() {
 
 #[test]
 fn degenerates_randomly_no_elite() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -87,7 +87,7 @@ fn degenerates_randomly_no_elite() {
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDegeneration::new(7, 2, 0.0).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,

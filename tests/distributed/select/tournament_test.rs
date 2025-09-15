@@ -10,7 +10,7 @@ use genetic_algorithm::distributed::strategy::StrategyReporterNoop;
 
 #[test]
 fn maximize() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -38,7 +38,7 @@ fn maximize() {
         ..Default::default()
     };
     SelectTournament::new(0.5, 0.02, 4).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -61,7 +61,7 @@ fn maximize() {
 
 #[test]
 fn minimize() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -87,7 +87,7 @@ fn minimize() {
         ..Default::default()
     };
     SelectTournament::new(0.5, 0.02, 4).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -109,7 +109,7 @@ fn minimize() {
 
 #[test]
 fn fitness_ordering_with_none_fitness() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -134,7 +134,7 @@ fn fitness_ordering_with_none_fitness() {
         ..Default::default()
     };
     SelectTournament::new(0.5, 0.02, 4).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -160,7 +160,7 @@ fn fitness_ordering_with_none_fitness() {
         ..Default::default()
     };
     SelectTournament::new(0.5, 0.02, 4).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -183,7 +183,7 @@ fn fitness_ordering_with_none_fitness() {
 
 #[test]
 fn extreme_elitism_rates() {
-    let mut genotype = BinaryGenotype::builder()
+    let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -208,7 +208,7 @@ fn extreme_elitism_rates() {
         ..Default::default()
     };
     SelectTournament::new(0.5, 0.0, 4).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -234,7 +234,7 @@ fn extreme_elitism_rates() {
         ..Default::default()
     };
     SelectTournament::new(0.5, 1.0, 4).call(
-        &mut genotype,
+        &genotype,
         &mut state,
         &config,
         &mut reporter,

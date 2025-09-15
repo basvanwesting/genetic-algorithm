@@ -59,7 +59,7 @@ impl Genotype for Binary {
     }
 
     fn mutate_chromosome_genes<R: Rng>(
-        &mut self,
+        &self,
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self::Allele>,
@@ -85,9 +85,10 @@ impl Genotype for Binary {
         }
         chromosome.reset_state();
     }
-
-    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
-        self.seed_genes_list = seed_genes_list;
+    fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
+        let mut new = self.clone();
+        new.seed_genes_list = seed_genes_list;
+        new
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
@@ -109,7 +110,7 @@ impl Genotype for Binary {
 
 impl EvolveGenotype for Binary {
     fn crossover_chromosome_genes<R: Rng>(
-        &mut self,
+        &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self::Allele>,
@@ -137,7 +138,7 @@ impl EvolveGenotype for Binary {
         father.reset_state();
     }
     fn crossover_chromosome_points<R: Rng>(
-        &mut self,
+        &self,
         number_of_crossovers: usize,
         allow_duplicates: bool,
         father: &mut Chromosome<Self::Allele>,
@@ -189,7 +190,7 @@ impl EvolveGenotype for Binary {
 }
 impl HillClimbGenotype for Binary {
     fn fill_neighbouring_population<R: Rng>(
-        &mut self,
+        &self,
         chromosome: &Chromosome<Self::Allele>,
         population: &mut Population<Self::Allele>,
         _scale_index: Option<usize>,

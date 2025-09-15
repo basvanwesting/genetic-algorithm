@@ -22,7 +22,7 @@ pub struct Tournament {
 impl Select for Tournament {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        _genotype: &mut G,
+        _genotype: &G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         _reporter: &mut SR,
