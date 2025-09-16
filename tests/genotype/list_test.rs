@@ -5,6 +5,24 @@ use genetic_algorithm::genotype::{
 };
 
 #[test]
+fn sample_gene_indices() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = ListGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_list(vec![5, 2, 3, 4])
+        .build()
+        .unwrap();
+
+    assert_eq!(
+        genotype.sample_gene_indices(10, false, &mut rng),
+        vec![5, 0, 8, 9, 7, 2, 4, 1, 3, 6]
+    );
+    assert_eq!(
+        genotype.sample_gene_indices(10, true, &mut rng),
+        vec![5, 1, 2, 8, 3, 9, 9, 0, 8, 4]
+    );
+}
+#[test]
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = ListGenotype::builder()

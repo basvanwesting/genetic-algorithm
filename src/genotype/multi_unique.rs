@@ -138,6 +138,57 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
     }
+
+    fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize {
+        let allele_list_index = self.allele_list_index_sampler.sample(rng);
+        let allele_list_index_offset = self.allele_list_index_offsets[allele_list_index];
+        allele_list_index_offset + self.allele_list_index_samplers[allele_list_index].sample(rng)
+    }
+    /// Returns indices but ensures pairing within each unique subset. This also means when
+    /// allow_duplicates == false, it can return less than the requested count (subset can be
+    /// overbooked). Whan allow_duplicates == true, it could lead to many duplicates.
+    fn sample_gene_indices<R: Rng>(
+        &self,
+        count: usize,
+        allow_duplicates: bool,
+        rng: &mut R,
+    ) -> Vec<usize> {
+        let pairs = (count + 1) / 2;
+        if allow_duplicates {
+            (0..pairs)
+                .flat_map(|_| {
+                    let allele_list_index = self.allele_list_index_sampler.sample(rng);
+                    let allele_list_index_offset =
+                        self.allele_list_index_offsets[allele_list_index];
+                    let index1 = allele_list_index_offset
+                        + self.allele_list_index_samplers[allele_list_index].sample(rng);
+                    let index2 = allele_list_index_offset
+                        + self.allele_list_index_samplers[allele_list_index].sample(rng);
+                    [index1, index2]
+                })
+                .take(count)
+                .collect()
+        } else {
+            rng.sample_iter(&self.allele_list_index_sampler)
+                .take(pairs)
+                .fold(HashMap::<usize, usize>::new(), |mut m, x| {
+                    *m.entry(x).or_default() += 1;
+                    m
+                })
+                .into_iter()
+                .flat_map(|(allele_list_index, pairs)| {
+                    let allele_list_size = self.allele_list_sizes[allele_list_index];
+                    let allele_list_index_offset =
+                        self.allele_list_index_offsets[allele_list_index];
+                    rand::seq::index::sample(rng, allele_list_size, allele_list_size.min(pairs * 2))
+                        .into_iter()
+                        .map(move |i| allele_list_index_offset + i)
+                })
+                .take(count)
+                .collect()
+        }
+    }
+
     fn mutate_chromosome_genes<R: Rng>(
         &self,
         number_of_mutations: usize,

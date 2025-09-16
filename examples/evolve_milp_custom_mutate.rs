@@ -108,7 +108,7 @@ impl Mutate for ScaledOptionalDiagonalMutate {
                         self.call_for_gene_index(1, chromosome, genotype, scale_index, rng);
                     }
                 }
-                chromosome.reset_state();
+                genotype.reset_chromosome_state(chromosome);
             }
         }
         state.add_duration(StrategyAction::Mutate, now.elapsed());
@@ -221,4 +221,3 @@ fn print_result(
         );
     }
 }
-

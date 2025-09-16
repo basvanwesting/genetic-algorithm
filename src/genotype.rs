@@ -21,8 +21,8 @@ pub use self::unique::Unique as UniqueGenotype;
 
 pub use crate::allele::{Allele, RangeAllele};
 use crate::chromosome::{Chromosome, Genes};
-use crate::population::Population;
 pub use crate::impl_allele;
+use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
@@ -72,6 +72,19 @@ pub trait Genotype:
 
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>>;
     fn max_scale_index(&self) -> Option<usize>;
+
+    fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize;
+    fn sample_gene_indices<R: Rng>(
+        &self,
+        count: usize,
+        allow_duplicates: bool,
+        rng: &mut R,
+    ) -> Vec<usize>;
+
+    /// Reset chromosome state after modification
+    fn reset_chromosome_state(&self, chromosome: &mut Chromosome<Self::Allele>) {
+        chromosome.reset_state();
+    }
 
     fn expected_number_of_sampled_index_duplicates(&self, number_of_samples: usize) -> usize {
         if number_of_samples > 1 {

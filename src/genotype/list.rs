@@ -121,6 +121,24 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
         chromosome.genes.as_slice()
     }
 
+    fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize {
+        self.gene_index_sampler.sample(rng)
+    }
+    fn sample_gene_indices<R: Rng>(
+        &self,
+        count: usize,
+        allow_duplicates: bool,
+        rng: &mut R,
+    ) -> Vec<usize> {
+        if allow_duplicates {
+            rng.sample_iter(self.gene_index_sampler)
+                .take(count)
+                .collect()
+        } else {
+            rand::seq::index::sample(rng, self.genes_size, count.min(self.genes_size)).into_vec()
+        }
+    }
+
     fn mutate_chromosome_genes<R: Rng>(
         &self,
         number_of_mutations: usize,

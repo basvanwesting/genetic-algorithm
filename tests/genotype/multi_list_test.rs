@@ -5,6 +5,34 @@ use genetic_algorithm::genotype::{
 };
 
 #[test]
+fn sample_gene_indices() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiListGenotype::builder()
+        .with_allele_lists(vec![
+            vec![0, 1, 2, 3, 4],
+            vec![0, 1],
+            vec![0, 1, 2],
+            vec![4, 5, 6, 7],
+            vec![0, 1, 2, 3, 4],
+            vec![0, 1],
+            vec![0, 1, 2],
+            vec![4, 5, 6, 7],
+            vec![0, 1, 2, 3, 4],
+            vec![0, 1],
+        ])
+        .build()
+        .unwrap();
+
+    assert_eq!(
+        genotype.sample_gene_indices(10, false, &mut rng),
+        vec![2, 4, 5, 9, 0, 6, 8, 3, 7, 1]
+    );
+    assert_eq!(
+        genotype.sample_gene_indices(10, true, &mut rng),
+        vec![2, 9, 6, 0, 8, 2, 2, 3, 7, 7]
+    );
+}
+#[test]
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiListGenotype::builder()

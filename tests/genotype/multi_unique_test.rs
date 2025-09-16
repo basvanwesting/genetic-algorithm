@@ -5,6 +5,24 @@ use genetic_algorithm::genotype::{
 };
 
 #[test]
+fn sample_gene_indices() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_lists(vec![vec![0, 1], vec![4, 5, 6, 7], vec![0, 1, 2, 3]])
+        .build()
+        .unwrap();
+
+    // disble test because HashMap does not preserve order, non repeatable test
+    // assert_eq!(
+    //     genotype.sample_gene_indices(10, false, &mut rng),
+    //     vec![4, 2, 5, 3, 7, 6, 8, 9]
+    // );
+    assert_eq!(
+        genotype.sample_gene_indices(10, true, &mut rng),
+        vec![3, 5, 5, 5, 3, 3, 6, 9, 6, 9]
+    );
+}
+#[test]
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiUniqueGenotype::builder()

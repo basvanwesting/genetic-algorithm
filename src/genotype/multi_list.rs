@@ -137,6 +137,31 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
         chromosome.genes.as_slice()
     }
 
+    fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize {
+        self.gene_weighted_index_sampler.sample(rng)
+    }
+    fn sample_gene_indices<R: Rng>(
+        &self,
+        count: usize,
+        allow_duplicates: bool,
+        rng: &mut R,
+    ) -> Vec<usize> {
+        if allow_duplicates {
+            (0..count)
+                .map(|_| self.gene_weighted_index_sampler.sample(rng))
+                .collect()
+        } else {
+            rand::seq::index::sample_weighted(
+                rng,
+                self.genes_size,
+                |i| self.allele_list_sizes[i] as f64,
+                count.min(self.genes_size),
+            )
+            .unwrap()
+            .into_vec()
+        }
+    }
+
     fn mutate_chromosome_genes<R: Rng>(
         &self,
         number_of_mutations: usize,
