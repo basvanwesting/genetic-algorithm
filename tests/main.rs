@@ -7,7 +7,6 @@ mod extension;
 mod fitness;
 mod genotype;
 mod mutate;
-mod population_test;
+mod population;
 mod select;
 mod strategy;
-mod support_test;
