@@ -3,6 +3,7 @@ use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Drop non-selected parents, then clone top parents to repopulate up to target_population_size,
@@ -10,11 +11,14 @@ use std::time::Instant;
 /// the offspring itself, only for repopulating the dropped non-selected parents (smaller fraction)
 /// Allowed for unique genotypes.
 #[derive(Clone, Debug)]
-pub struct Rejuvenate {
+pub struct Rejuvenate<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub selection_rate: f32,
 }
-impl Crossover for Rejuvenate {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Crossover for Rejuvenate<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
         state: &mut EvolveState<G>,
@@ -47,8 +51,11 @@ impl Crossover for Rejuvenate {
     }
 }
 
-impl Rejuvenate {
+impl<G: EvolveGenotype> Rejuvenate<G> {
     pub fn new(selection_rate: f32) -> Self {
-        Self { selection_rate }
+        Self {
+            _phantom: PhantomData,
+            selection_rate,
+        }
     }
 }

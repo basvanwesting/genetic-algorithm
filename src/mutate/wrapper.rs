@@ -11,16 +11,18 @@ use crate::strategy::StrategyReporter;
 use rand::Rng;
 
 #[derive(Clone, Debug)]
-pub enum Wrapper {
-    MultiGene(MutateMultiGene),
-    MultiGeneDynamic(MutateMultiGeneDynamic),
-    MultiGeneRange(MutateMultiGeneRange),
-    SingleGene(MutateSingleGene),
-    SingleGeneDynamic(MutateSingleGeneDynamic),
+pub enum Wrapper<G: EvolveGenotype> {
+    MultiGene(MutateMultiGene<G>),
+    MultiGeneDynamic(MutateMultiGeneDynamic<G>),
+    MultiGeneRange(MutateMultiGeneRange<G>),
+    SingleGene(MutateSingleGene<G>),
+    SingleGeneDynamic(MutateSingleGeneDynamic<G>),
 }
 
-impl Mutate for Wrapper {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Mutate for Wrapper<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -42,28 +44,28 @@ impl Mutate for Wrapper {
     }
 }
 
-impl From<MutateSingleGene> for Wrapper {
-    fn from(mutate: MutateSingleGene) -> Self {
+impl<G: EvolveGenotype> From<MutateSingleGene<G>> for Wrapper<G> {
+    fn from(mutate: MutateSingleGene<G>) -> Self {
         Wrapper::SingleGene(mutate)
     }
 }
-impl From<MutateMultiGene> for Wrapper {
-    fn from(mutate: MutateMultiGene) -> Self {
+impl<G: EvolveGenotype> From<MutateMultiGene<G>> for Wrapper<G> {
+    fn from(mutate: MutateMultiGene<G>) -> Self {
         Wrapper::MultiGene(mutate)
     }
 }
-impl From<MutateSingleGeneDynamic> for Wrapper {
-    fn from(mutate: MutateSingleGeneDynamic) -> Self {
+impl<G: EvolveGenotype> From<MutateSingleGeneDynamic<G>> for Wrapper<G> {
+    fn from(mutate: MutateSingleGeneDynamic<G>) -> Self {
         Wrapper::SingleGeneDynamic(mutate)
     }
 }
-impl From<MutateMultiGeneDynamic> for Wrapper {
-    fn from(mutate: MutateMultiGeneDynamic) -> Self {
+impl<G: EvolveGenotype> From<MutateMultiGeneDynamic<G>> for Wrapper<G> {
+    fn from(mutate: MutateMultiGeneDynamic<G>) -> Self {
         Wrapper::MultiGeneDynamic(mutate)
     }
 }
-impl From<MutateMultiGeneRange> for Wrapper {
-    fn from(mutate: MutateMultiGeneRange) -> Self {
+impl<G: EvolveGenotype> From<MutateMultiGeneRange<G>> for Wrapper<G> {
+    fn from(mutate: MutateMultiGeneRange<G>) -> Self {
         Wrapper::MultiGeneRange(mutate)
     }
 }

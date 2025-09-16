@@ -1,6 +1,7 @@
 use super::Crossover;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use std::marker::PhantomData;
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use itertools::Itertools;
 use rand::distributions::{Bernoulli, Distribution};
@@ -14,14 +15,17 @@ use std::time::Instant;
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
 /// uniqueness in the children.
 #[derive(Clone, Debug)]
-pub struct Uniform {
+pub struct Uniform<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub selection_rate: f32,
     pub crossover_rate: f32,
     pub crossover_sampler: Bernoulli,
 }
 
-impl Crossover for Uniform {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Crossover for Uniform<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -70,10 +74,11 @@ impl Crossover for Uniform {
     }
 }
 
-impl Uniform {
+impl<G: EvolveGenotype> Uniform<G> {
     pub fn new(selection_rate: f32, crossover_rate: f32) -> Self {
         let crossover_sampler = Bernoulli::new(crossover_rate as f64).unwrap();
         Self {
+            _phantom: PhantomData,
             selection_rate,
             crossover_rate,
             crossover_sampler,

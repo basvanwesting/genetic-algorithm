@@ -1,6 +1,7 @@
 use super::Crossover;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use std::marker::PhantomData;
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
 use std::time::Instant;
@@ -8,11 +9,14 @@ use std::time::Instant;
 /// Children are clones of the parents.
 /// Allowed for unique genotypes.
 #[derive(Clone, Debug)]
-pub struct Clone {
+pub struct Clone<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub selection_rate: f32,
 }
-impl Crossover for Clone {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Crossover for Clone<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
         state: &mut EvolveState<G>,
@@ -38,8 +42,11 @@ impl Crossover for Clone {
     }
 }
 
-impl Clone {
+impl<G: EvolveGenotype> Clone<G> {
     pub fn new(selection_rate: f32) -> Self {
-        Self { selection_rate }
+        Self {
+            _phantom: PhantomData,
+            selection_rate,
+        }
     }
 }

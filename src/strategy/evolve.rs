@@ -173,9 +173,9 @@ pub enum EvolveVariant {
 /// ```
 pub struct Evolve<
     G: EvolveGenotype,
-    M: Mutate,
+    M: Mutate<Genotype = G>,
     F: Fitness<Genotype = G>,
-    S: Crossover,
+    S: Crossover<Genotype = G>,
     C: Select,
     E: Extension,
     SR: StrategyReporter<Genotype = G>,
@@ -231,9 +231,9 @@ pub struct EvolveState<G: EvolveGenotype> {
 
 impl<
         G: EvolveGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
         E: Extension,
         SR: StrategyReporter<Genotype = G>,
@@ -330,9 +330,9 @@ impl<
 }
 impl<
         G: EvolveGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
         E: Extension,
         SR: StrategyReporter<Genotype = G>,
@@ -349,7 +349,7 @@ impl<
     }
 }
 
-impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
+impl<G: EvolveGenotype, M: Mutate<Genotype = G>, F: Fitness<Genotype = G>, S: Crossover<Genotype = G>, C: Select>
     Evolve<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>> {
@@ -359,9 +359,9 @@ impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Se
 
 impl<
         G: EvolveGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
         E: Extension,
         SR: StrategyReporter<Genotype = G>,
@@ -617,9 +617,9 @@ impl<G: EvolveGenotype> EvolveState<G> {
 
 impl<
         G: EvolveGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
         E: Extension,
         SR: StrategyReporter<Genotype = G>,
@@ -773,9 +773,9 @@ impl<G: EvolveGenotype> EvolveState<G> {
 
 impl<
         G: EvolveGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
         E: Extension,
         SR: StrategyReporter<Genotype = G>,

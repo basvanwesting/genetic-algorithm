@@ -1,6 +1,7 @@
 use super::Mutate;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use std::marker::PhantomData;
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
@@ -16,15 +17,18 @@ use std::time::Instant;
 /// Duplicate mutations of the same gene are allowed, as disallowing duplicates is relatively expensive
 /// and mutations should be quite small, so there is little chance for conflict.
 #[derive(Debug, Clone)]
-pub struct MultiGeneRange {
+pub struct MultiGeneRange<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub number_of_mutations_range: RangeInclusive<usize>,
     pub mutation_probability: f32,
     pub number_of_mutations_sampler: Uniform<usize>,
     pub mutation_probability_sampler: Bernoulli,
 }
 
-impl Mutate for MultiGeneRange {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Mutate for MultiGeneRange<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -53,7 +57,7 @@ impl Mutate for MultiGeneRange {
     }
 }
 
-impl MultiGeneRange {
+impl<G: EvolveGenotype> MultiGeneRange<G> {
     pub fn new(
         number_of_mutations_range: RangeInclusive<usize>,
         mutation_probability: f32,
@@ -61,6 +65,7 @@ impl MultiGeneRange {
         let number_of_mutations_sampler = Uniform::from(number_of_mutations_range.clone());
         let mutation_probability_sampler = Bernoulli::new(mutation_probability as f64).unwrap();
         Self {
+            _phantom: PhantomData,
             number_of_mutations_range,
             mutation_probability,
             number_of_mutations_sampler,

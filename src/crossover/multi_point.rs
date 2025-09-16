@@ -5,6 +5,7 @@ use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use itertools::Itertools;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Crossover multiple gene positions from which on the rest of the genes are taken from the other
@@ -15,15 +16,18 @@ use std::time::Instant;
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) as it would not preserve the gene uniqueness in the children.
 /// Allowed for [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as there are valid crossover points between each new set
 #[derive(Clone, Debug)]
-pub struct MultiPoint {
+pub struct MultiPoint<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub selection_rate: f32,
     pub crossover_rate: f32,
     pub crossover_sampler: Bernoulli,
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
 }
-impl Crossover for MultiPoint {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Crossover for MultiPoint<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -70,7 +74,7 @@ impl Crossover for MultiPoint {
     }
 }
 
-impl MultiPoint {
+impl<G: EvolveGenotype> MultiPoint<G> {
     pub fn new(
         selection_rate: f32,
         crossover_rate: f32,
@@ -79,6 +83,7 @@ impl MultiPoint {
     ) -> Self {
         let crossover_sampler = Bernoulli::new(crossover_rate as f64).unwrap();
         Self {
+            _phantom: PhantomData,
             selection_rate,
             crossover_rate,
             crossover_sampler,

@@ -1,6 +1,7 @@
 use super::{Mutate, MutateEvent};
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use std::marker::PhantomData;
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
@@ -21,7 +22,8 @@ use std::time::Instant;
 /// swapped (but the UniqueGenotype doesn't map to the problem space well). Set number_of_mutations
 /// to two in that situation.
 #[derive(Debug, Clone)]
-pub struct MultiGeneDynamic {
+pub struct MultiGeneDynamic<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub number_of_mutations: usize,
     pub mutation_probability: f32,
     pub mutation_probability_step: f32,
@@ -29,8 +31,10 @@ pub struct MultiGeneDynamic {
     pub number_of_mutations_sampler: Uniform<usize>,
 }
 
-impl Mutate for MultiGeneDynamic {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Mutate for MultiGeneDynamic<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -89,7 +93,7 @@ impl Mutate for MultiGeneDynamic {
     }
 }
 
-impl MultiGeneDynamic {
+impl<G: EvolveGenotype> MultiGeneDynamic<G> {
     pub fn new(
         number_of_mutations: usize,
         mutation_probability_step: f32,
@@ -97,6 +101,7 @@ impl MultiGeneDynamic {
     ) -> Self {
         let number_of_mutations_sampler = Uniform::from(1..=number_of_mutations);
         Self {
+            _phantom: PhantomData,
             number_of_mutations,
             mutation_probability: 0.0,
             mutation_probability_step,

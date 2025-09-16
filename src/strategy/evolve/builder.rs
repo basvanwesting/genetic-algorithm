@@ -16,9 +16,9 @@ use std::sync::mpsc::channel;
 #[derive(Clone, Debug)]
 pub struct Builder<
     G: EvolveGenotype,
-    M: Mutate,
+    M: Mutate<Genotype = G>,
     F: Fitness<Genotype = G>,
-    S: Crossover,
+    S: Crossover<Genotype = G>,
     C: Select,
     E: Extension,
     SR: StrategyReporter<Genotype = G>,
@@ -43,7 +43,7 @@ pub struct Builder<
     pub rng_seed: Option<u64>,
 }
 
-impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select> Default
+impl<G: EvolveGenotype, M: Mutate<Genotype = G>, F: Fitness<Genotype = G>, S: Crossover<Genotype = G>, C: Select> Default
     for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
@@ -69,7 +69,7 @@ impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Se
         }
     }
 }
-impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Select>
+impl<G: EvolveGenotype, M: Mutate<Genotype = G>, F: Fitness<Genotype = G>, S: Crossover<Genotype = G>, C: Select>
     Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     pub fn new() -> Self {
@@ -80,9 +80,9 @@ impl<G: EvolveGenotype, M: Mutate, F: Fitness<Genotype = G>, S: Crossover, C: Se
 #[allow(clippy::type_complexity)]
 impl<
         G: EvolveGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
         E: Extension,
         SR: StrategyReporter<Genotype = G>,
@@ -250,9 +250,9 @@ impl<
 #[allow(clippy::type_complexity)]
 impl<
         G: EvolveGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
         E: Extension,
         SR: StrategyReporter<Genotype = G>,

@@ -1,6 +1,7 @@
 use super::{Mutate, MutateEvent};
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use std::marker::PhantomData;
 use crate::strategy::StrategyReporter;
 use crate::strategy::{StrategyAction, StrategyState};
 use rand::distributions::{Bernoulli, Distribution};
@@ -13,15 +14,18 @@ use std::time::Instant;
 /// Then mutates the selected chromosomes once, where the [Genotype](crate::genotype::Genotype)
 /// determines whether this is random, relative or scaled. The mutation probability is dynamically
 /// increased or decreased to achieve a target population cardinality
-#[derive(Debug, Clone, Default)]
-pub struct SingleGeneDynamic {
+#[derive(Debug, Clone)]
+pub struct SingleGeneDynamic<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub mutation_probability: f32,
     pub mutation_probability_step: f32,
     pub target_cardinality: usize,
 }
 
-impl Mutate for SingleGeneDynamic {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Mutate for SingleGeneDynamic<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -80,12 +84,13 @@ impl Mutate for SingleGeneDynamic {
     }
 }
 
-impl SingleGeneDynamic {
+impl<G: EvolveGenotype> SingleGeneDynamic<G> {
     pub fn new(mutation_probability_step: f32, target_cardinality: usize) -> Self {
         Self {
+            _phantom: PhantomData,
+            mutation_probability: 0.0,
             mutation_probability_step,
             target_cardinality,
-            ..Default::default()
         }
     }
 }

@@ -41,10 +41,12 @@ use crate::strategy::StrategyReporter;
 use rand::Rng;
 
 pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    type Genotype: EvolveGenotype;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
         &mut self,
-        genotype: &G,
-        state: &mut EvolveState<G>,
+        genotype: &Self::Genotype,
+        state: &mut EvolveState<Self::Genotype>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,

@@ -13,18 +13,20 @@ use crate::strategy::StrategyReporter;
 use rand::Rng;
 
 #[derive(Clone, Debug)]
-pub enum Wrapper {
-    Clone(CrossoverClone),
-    MultiGene(CrossoverMultiGene),
-    MultiPoint(CrossoverMultiPoint),
-    Rejuvenate(CrossoverRejuvenate),
-    SingleGene(CrossoverSingleGene),
-    SinglePoint(CrossoverSinglePoint),
-    Uniform(CrossoverUniform),
+pub enum Wrapper<G: EvolveGenotype> {
+    Clone(CrossoverClone<G>),
+    MultiGene(CrossoverMultiGene<G>),
+    MultiPoint(CrossoverMultiPoint<G>),
+    Rejuvenate(CrossoverRejuvenate<G>),
+    SingleGene(CrossoverSingleGene<G>),
+    SinglePoint(CrossoverSinglePoint<G>),
+    Uniform(CrossoverUniform<G>),
 }
 
-impl Crossover for Wrapper {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Crossover for Wrapper<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -79,38 +81,38 @@ impl Crossover for Wrapper {
     }
 }
 
-impl From<CrossoverClone> for Wrapper {
-    fn from(crossover: CrossoverClone) -> Self {
+impl<G: EvolveGenotype> From<CrossoverClone<G>> for Wrapper<G> {
+    fn from(crossover: CrossoverClone<G>) -> Self {
         Wrapper::Clone(crossover)
     }
 }
-impl From<CrossoverMultiGene> for Wrapper {
-    fn from(crossover: CrossoverMultiGene) -> Self {
+impl<G: EvolveGenotype> From<CrossoverMultiGene<G>> for Wrapper<G> {
+    fn from(crossover: CrossoverMultiGene<G>) -> Self {
         Wrapper::MultiGene(crossover)
     }
 }
-impl From<CrossoverMultiPoint> for Wrapper {
-    fn from(crossover: CrossoverMultiPoint) -> Self {
+impl<G: EvolveGenotype> From<CrossoverMultiPoint<G>> for Wrapper<G> {
+    fn from(crossover: CrossoverMultiPoint<G>) -> Self {
         Wrapper::MultiPoint(crossover)
     }
 }
-impl From<CrossoverRejuvenate> for Wrapper {
-    fn from(crossover: CrossoverRejuvenate) -> Self {
+impl<G: EvolveGenotype> From<CrossoverRejuvenate<G>> for Wrapper<G> {
+    fn from(crossover: CrossoverRejuvenate<G>) -> Self {
         Wrapper::Rejuvenate(crossover)
     }
 }
-impl From<CrossoverSingleGene> for Wrapper {
-    fn from(crossover: CrossoverSingleGene) -> Self {
+impl<G: EvolveGenotype> From<CrossoverSingleGene<G>> for Wrapper<G> {
+    fn from(crossover: CrossoverSingleGene<G>) -> Self {
         Wrapper::SingleGene(crossover)
     }
 }
-impl From<CrossoverSinglePoint> for Wrapper {
-    fn from(crossover: CrossoverSinglePoint) -> Self {
+impl<G: EvolveGenotype> From<CrossoverSinglePoint<G>> for Wrapper<G> {
+    fn from(crossover: CrossoverSinglePoint<G>) -> Self {
         Wrapper::SinglePoint(crossover)
     }
 }
-impl From<CrossoverUniform> for Wrapper {
-    fn from(crossover: CrossoverUniform) -> Self {
+impl<G: EvolveGenotype> From<CrossoverUniform<G>> for Wrapper<G> {
+    fn from(crossover: CrossoverUniform<G>) -> Self {
         Wrapper::Uniform(crossover)
     }
 }

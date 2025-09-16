@@ -1,6 +1,7 @@
 use super::Mutate;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use std::marker::PhantomData;
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
@@ -18,15 +19,18 @@ use std::time::Instant;
 /// swapped (but the UniqueGenotype doesn't map to the problem space well). Set number_of_mutations
 /// to two in that situation.
 #[derive(Debug, Clone)]
-pub struct MultiGene {
+pub struct MultiGene<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub number_of_mutations: usize,
     pub mutation_probability: f32,
     pub number_of_mutations_sampler: Uniform<usize>,
     pub mutation_probability_sampler: Bernoulli,
 }
 
-impl Mutate for MultiGene {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Mutate for MultiGene<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -55,11 +59,12 @@ impl Mutate for MultiGene {
     }
 }
 
-impl MultiGene {
+impl<G: EvolveGenotype> MultiGene<G> {
     pub fn new(number_of_mutations: usize, mutation_probability: f32) -> Self {
         let number_of_mutations_sampler = Uniform::from(1..=number_of_mutations);
         let mutation_probability_sampler = Bernoulli::new(mutation_probability as f64).unwrap();
         Self {
+            _phantom: PhantomData,
             number_of_mutations,
             mutation_probability,
             number_of_mutations_sampler,

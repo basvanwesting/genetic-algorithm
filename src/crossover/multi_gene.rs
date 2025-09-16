@@ -5,6 +5,7 @@ use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use itertools::Itertools;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Crossover multiple genes between the parents. The gene positions are chosen with uniform
@@ -15,15 +16,18 @@ use std::time::Instant;
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
 /// uniqueness in the children.
 #[derive(Clone, Debug)]
-pub struct MultiGene {
+pub struct MultiGene<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub selection_rate: f32,
     pub crossover_rate: f32,
     pub crossover_sampler: Bernoulli,
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
 }
-impl Crossover for MultiGene {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Crossover for MultiGene<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -70,7 +74,7 @@ impl Crossover for MultiGene {
     }
 }
 
-impl MultiGene {
+impl<G: EvolveGenotype> MultiGene<G> {
     pub fn new(
         selection_rate: f32,
         crossover_rate: f32,
@@ -79,6 +83,7 @@ impl MultiGene {
     ) -> Self {
         let crossover_sampler = Bernoulli::new(crossover_rate as f64).unwrap();
         Self {
+            _phantom: PhantomData,
             selection_rate,
             crossover_rate,
             crossover_sampler,

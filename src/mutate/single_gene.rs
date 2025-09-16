@@ -1,6 +1,7 @@
 use super::Mutate;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
+use std::marker::PhantomData;
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
@@ -11,13 +12,16 @@ use std::time::Instant;
 /// mutates the selected chromosomes once, where the [Genotype](crate::genotype::Genotype)
 /// determines whether this is random, relative or scaled.
 #[derive(Debug, Clone)]
-pub struct SingleGene {
+pub struct SingleGene<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub mutation_probability: f32,
     pub mutation_probability_sampler: Bernoulli,
 }
 
-impl Mutate for SingleGene {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Mutate for SingleGene<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -46,10 +50,11 @@ impl Mutate for SingleGene {
     }
 }
 
-impl SingleGene {
+impl<G: EvolveGenotype> SingleGene<G> {
     pub fn new(mutation_probability: f32) -> Self {
         let mutation_probability_sampler = Bernoulli::new(mutation_probability as f64).unwrap();
         Self {
+            _phantom: PhantomData,
             mutation_probability,
             mutation_probability_sampler,
         }

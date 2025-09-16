@@ -49,9 +49,9 @@ pub struct Builder<
 
 impl<
         G: EvolveGenotype + HillClimbGenotype + PermutateGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
     > Default for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
@@ -81,9 +81,9 @@ impl<
 }
 impl<
         G: EvolveGenotype + HillClimbGenotype + PermutateGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
     > Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
@@ -95,9 +95,9 @@ impl<
 #[allow(clippy::type_complexity)]
 impl<
         G: EvolveGenotype + HillClimbGenotype + PermutateGenotype,
-        M: Mutate,
+        M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
-        S: Crossover,
+        S: Crossover<Genotype = G>,
         C: Select,
         E: Extension,
         SR: StrategyReporter<Genotype = G>,
@@ -268,9 +268,9 @@ impl<
 impl<
         'a,
         G: EvolveGenotype + HillClimbGenotype + PermutateGenotype + 'a,
-        M: Mutate + 'a,
+        M: Mutate<Genotype = G> + 'a,
         F: Fitness<Genotype = G> + 'a,
-        S: Crossover + 'a,
+        S: Crossover<Genotype = G> + 'a,
         C: Select + 'a,
         E: Extension + 'a,
         SR: StrategyReporter<Genotype = G> + 'a,
@@ -345,9 +345,9 @@ impl<
 impl<
         'a,
         G: EvolveGenotype + HillClimbGenotype + PermutateGenotype + 'a,
-        M: Mutate + 'a,
+        M: Mutate<Genotype = G> + 'a,
         F: Fitness<Genotype = G> + 'a,
-        S: Crossover + 'a,
+        S: Crossover<Genotype = G> + 'a,
         C: Select + 'a,
         E: Extension + 'a,
         SR: StrategyReporter<Genotype = G> + 'a,
