@@ -215,7 +215,7 @@ impl HillClimbGenotype for Binary {
         _rng: &mut R,
     ) {
         (0..self.genes_size).for_each(|index| {
-            let mut new_chromosome = chromosome.clone();
+            let mut new_chromosome = population.get_or_create_chromosome(chromosome);
             new_chromosome.genes[index] = !new_chromosome.genes[index];
             new_chromosome.reset_state();
             population.chromosomes.push(new_chromosome);

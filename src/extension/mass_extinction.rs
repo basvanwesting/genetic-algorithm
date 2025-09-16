@@ -55,7 +55,7 @@ impl Extension for MassExtinction {
                     let remaining_size = remaining_size.saturating_sub(elitism_size);
 
                     state.population.shuffle(rng);
-                    state.population.chromosomes.truncate(remaining_size);
+                    state.population.truncate_with_recycling(remaining_size);
 
                     state.population.chromosomes.append(&mut elite_chromosomes);
                     let population_size = state.population.size();

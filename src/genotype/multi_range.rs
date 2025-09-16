@@ -454,13 +454,13 @@ where
                 };
 
                 if value_low < base_value {
-                    let mut new_chromosome = chromosome.clone();
+                    let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     new_chromosome.genes[index] = value_low;
                     new_chromosome.reset_state();
                     population.chromosomes.push(new_chromosome);
                 };
                 if value_high > base_value {
-                    let mut new_chromosome = chromosome.clone();
+                    let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     new_chromosome.genes[index] = value_high;
                     new_chromosome.reset_state();
                     population.chromosomes.push(new_chromosome);
@@ -498,13 +498,13 @@ where
                 };
 
                 if range_start < base_value {
-                    let mut new_chromosome = chromosome.clone();
+                    let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
                     new_chromosome.reset_state();
                     population.chromosomes.push(new_chromosome);
                 };
                 if base_value < range_end {
-                    let mut new_chromosome = chromosome.clone();
+                    let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     let new_value =
                         rng.gen_range((base_value + T::smallest_increment())..=range_end);
                     new_chromosome.genes[index] = new_value;
@@ -530,13 +530,13 @@ where
 
                 let base_value = chromosome.genes[index];
                 if allele_range_start < base_value {
-                    let mut new_chromosome = chromosome.clone();
+                    let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
                     new_chromosome.reset_state();
                     population.chromosomes.push(new_chromosome);
                 };
                 if base_value < allele_range_end {
-                    let mut new_chromosome = chromosome.clone();
+                    let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     let new_value =
                         rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
                     new_chromosome.genes[index] = new_value;

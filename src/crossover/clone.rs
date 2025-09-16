@@ -28,10 +28,7 @@ impl<G: EvolveGenotype> Crossover for Clone<G> {
         let existing_population_size = state.population.chromosomes.len();
         let selected_population_size =
             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
-        self.expand_chromosome_population(
-            &mut state.population.chromosomes,
-            selected_population_size,
-        );
+        state.population.expand_with_recycling(selected_population_size);
         state
             .population
             .chromosomes

@@ -34,12 +34,8 @@ impl<G: EvolveGenotype> Crossover for Rejuvenate<G> {
 
         state
             .population
-            .chromosomes
-            .truncate(selected_population_size);
-        self.expand_chromosome_population(
-            &mut state.population.chromosomes,
-            dropped_population_size,
-        );
+            .truncate_with_recycling(selected_population_size);
+        state.population.expand_with_recycling(dropped_population_size);
 
         state
             .population

@@ -45,18 +45,30 @@ impl Select for Elite {
             self.replacement_rate,
         );
 
-        self.selection::<G>(&mut parents, new_parents_size, config);
-        self.selection::<G>(&mut offspring, new_offspring_size, config);
+        self.selection::<G>(&mut parents, new_parents_size, &mut state.population, config);
+        self.selection::<G>(&mut offspring, new_offspring_size, &mut state.population, config);
 
         state.population.chromosomes.append(&mut elite_chromosomes);
         state.population.chromosomes.append(&mut offspring);
         state.population.chromosomes.append(&mut parents);
 
-        self.selection::<G>(
-            &mut state.population.chromosomes,
-            config.target_population_size,
-            config,
-        );
+        // Final selection uses truncate_with_recycling directly
+        let selection_size = std::cmp::min(config.target_population_size, state.population.chromosomes.len());
+        match config.fitness_ordering {
+            FitnessOrdering::Maximize => {
+                state.population.chromosomes.sort_unstable_by_key(|c| match c.fitness_score() {
+                    Some(fitness_score) => Reverse(fitness_score),
+                    None => Reverse(FitnessValue::MIN),
+                });
+            }
+            FitnessOrdering::Minimize => {
+                state.population.chromosomes.sort_unstable_by_key(|c| match c.fitness_score() {
+                    Some(fitness_score) => fitness_score,
+                    None => FitnessValue::MAX,
+                });
+            }
+        }
+        state.population.truncate_with_recycling(selection_size);
 
         state.add_duration(StrategyAction::Select, now.elapsed());
     }
@@ -74,6 +86,7 @@ impl Elite {
         &self,
         chromosomes: &mut Vec<Chromosome<G::Allele>>,
         selection_size: usize,
+        population: &mut crate::population::Population<G::Allele>,
         config: &EvolveConfig,
     ) {
         let selection_size = std::cmp::min(selection_size, chromosomes.len());
@@ -91,6 +104,6 @@ impl Elite {
                 });
             }
         }
-        chromosomes.truncate(selection_size);
+        population.recycle_from_vec(chromosomes, selection_size);
     }
 }

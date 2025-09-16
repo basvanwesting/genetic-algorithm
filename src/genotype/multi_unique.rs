@@ -342,7 +342,7 @@ impl<T: Allele + Hash> HillClimbGenotype for MultiUnique<T> {
                 (0..allele_value_size)
                     .tuple_combinations()
                     .for_each(|(first, second)| {
-                        let mut new_chromosome = chromosome.clone();
+                        let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                         new_chromosome
                             .genes
                             .swap(index_offset + first, index_offset + second);
