@@ -8,9 +8,7 @@ use crate::select::Select;
 use crate::strategy::evolve::EvolveBuilder;
 use crate::strategy::hill_climb::HillClimbBuilder;
 use crate::strategy::permutate::PermutateBuilder;
-use crate::strategy::{
-    Strategy, StrategyReporter, StrategyReporterNoop, StrategyVariant,
-};
+use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop, StrategyVariant};
 
 /// The superset builder for all strategies.
 ///

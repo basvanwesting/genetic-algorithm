@@ -43,8 +43,13 @@ pub struct Builder<
     pub rng_seed: Option<u64>,
 }
 
-impl<G: EvolveGenotype, M: Mutate<Genotype = G>, F: Fitness<Genotype = G>, S: Crossover<Genotype = G>, C: Select> Default
-    for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
+impl<
+        G: EvolveGenotype,
+        M: Mutate<Genotype = G>,
+        F: Fitness<Genotype = G>,
+        S: Crossover<Genotype = G>,
+        C: Select,
+    > Default for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -69,8 +74,13 @@ impl<G: EvolveGenotype, M: Mutate<Genotype = G>, F: Fitness<Genotype = G>, S: Cr
         }
     }
 }
-impl<G: EvolveGenotype, M: Mutate<Genotype = G>, F: Fitness<Genotype = G>, S: Crossover<Genotype = G>, C: Select>
-    Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
+impl<
+        G: EvolveGenotype,
+        M: Mutate<Genotype = G>,
+        F: Fitness<Genotype = G>,
+        S: Crossover<Genotype = G>,
+        C: Select,
+    > Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     pub fn new() -> Self {
         Self::default()

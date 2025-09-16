@@ -7,9 +7,7 @@ pub use approx::RelativeEq;
 #[allow(unused_imports)]
 pub use genetic_algorithm::chromosome::Chromosome;
 #[allow(unused_imports)]
-pub use genetic_algorithm::genotype::{
-    BinaryGenotype, Genotype, ListGenotype, RangeGenotype,
-};
+pub use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, RangeGenotype};
 #[allow(unused_imports)]
 pub use genetic_algorithm::population::Population;
 #[allow(unused_imports)]

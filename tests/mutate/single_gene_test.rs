@@ -1,8 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{
-    BinaryGenotype, Genotype, ListGenotype, RangeGenotype,
-};
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, RangeGenotype};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGene};
 use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};

@@ -1,8 +1,6 @@
 //! Reporters directed at Permutate process specific data
 use crate::genotype::PermutateGenotype;
-use crate::strategy::{
-    StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS,
-};
+use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use num::{BigUint, ToPrimitive};
 use std::fmt::Arguments;
 use std::io::Write;

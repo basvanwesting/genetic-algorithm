@@ -12,6 +12,8 @@ pub use crate::genotype::{
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
+pub use crate::impl_allele;
+#[doc(no_inline)]
 pub use crate::strategy::permutate::{
     Permutate, PermutateBuilder, PermutateConfig, PermutateReporterDuration, PermutateReporterNoop,
     PermutateReporterSimple, PermutateState, PermutateVariant, TryFromPermutateBuilderError,
@@ -22,6 +24,4 @@ pub use crate::strategy::{
     StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
     STRATEGY_ACTIONS,
 };
-#[doc(no_inline)]
-pub use crate::impl_allele;
 pub use num::BigUint;

@@ -1,9 +1,7 @@
 use crate::extension::ExtensionEvent;
 use crate::genotype::EvolveGenotype;
 use crate::mutate::MutateEvent;
-use crate::strategy::{
-    StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS,
-};
+use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use std::fmt::Arguments;
 use std::io::Write;
 use std::marker::PhantomData;

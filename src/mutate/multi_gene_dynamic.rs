@@ -1,11 +1,11 @@
 use super::{Mutate, MutateEvent};
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
-use std::marker::PhantomData;
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::distributions::{Bernoulli, Distribution, Uniform};
 use rand::Rng;
 use std::cmp::Ordering;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Selects [Chromosomes](crate::chromosome::Chromosome) in the

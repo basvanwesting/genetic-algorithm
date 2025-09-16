@@ -7,9 +7,7 @@
 //!     * [HillClimbReporterSimple](crate::strategy::hill_climb::HillClimbReporterSimple)
 //!
 use crate::genotype::Genotype;
-use crate::strategy::{
-    StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS,
-};
+use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use std::fmt::Arguments;
 use std::io::Write;
 use std::marker::PhantomData;

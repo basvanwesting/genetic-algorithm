@@ -22,6 +22,8 @@ pub use crate::genotype::{
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
+pub use crate::impl_allele;
+#[doc(no_inline)]
 pub use crate::mutate::{
     MutateEvent, MutateMultiGene, MutateMultiGeneDynamic, MutateMultiGeneRange, MutateSingleGene,
     MutateSingleGeneDynamic, MutateWrapper,
@@ -41,5 +43,3 @@ pub use crate::strategy::{
     StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
     STRATEGY_ACTIONS,
 };
-#[doc(no_inline)]
-pub use crate::impl_allele;

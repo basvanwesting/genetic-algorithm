@@ -1,11 +1,11 @@
 use super::Crossover;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
-use std::marker::PhantomData;
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use itertools::Itertools;
 use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Crossover with 50% probability for each gene to come from one of the two parents.

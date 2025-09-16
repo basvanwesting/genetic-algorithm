@@ -4,9 +4,7 @@ use genetic_algorithm::fitness::placeholders::{
     CountTrue, CountTrueWithSleep, Countdown, CountdownNoisy, SumGenes,
 };
 use genetic_algorithm::fitness::Fitness;
-use genetic_algorithm::genotype::{
-    BinaryGenotype, Genotype, ListGenotype, RangeGenotype,
-};
+use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, RangeGenotype};
 use genetic_algorithm::population::Population;
 use rand::prelude::*;
 use rand::rngs::SmallRng;

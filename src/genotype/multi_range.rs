@@ -246,7 +246,7 @@ where
                 let index = self.gene_index_sampler.sample(rng);
                 match self.mutation_type {
                     MutationType::Random => {
-                        chromosome.genes[index] = self.allele_samplers[index].sample(rng);
+                        chromosome.genes[index] = self.sample_allele(index, rng);
                     }
                     _ => {
                         let delta = self.sample_gene_delta(index, scale_index, rng);
@@ -264,7 +264,7 @@ where
             .for_each(|index| {
                 match self.mutation_type {
                     MutationType::Random => {
-                        chromosome.genes[index] = self.allele_samplers[index].sample(rng);
+                        chromosome.genes[index] = self.sample_allele(index, rng);
                     }
                     _ => {
                         let delta = self.sample_gene_delta(index, scale_index, rng);

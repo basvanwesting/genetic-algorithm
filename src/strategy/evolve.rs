@@ -349,8 +349,13 @@ impl<
     }
 }
 
-impl<G: EvolveGenotype, M: Mutate<Genotype = G>, F: Fitness<Genotype = G>, S: Crossover<Genotype = G>, C: Select>
-    Evolve<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
+impl<
+        G: EvolveGenotype,
+        M: Mutate<Genotype = G>,
+        F: Fitness<Genotype = G>,
+        S: Crossover<Genotype = G>,
+        C: Select,
+    > Evolve<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
 {
     pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>> {
         EvolveBuilder::new()

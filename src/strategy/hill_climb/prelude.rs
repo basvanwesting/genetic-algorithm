@@ -12,6 +12,8 @@ pub use crate::genotype::{
     TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
+pub use crate::impl_allele;
+#[doc(no_inline)]
 pub use crate::strategy::hill_climb::{
     HillClimb, HillClimbBuilder, HillClimbConfig, HillClimbReporterDuration, HillClimbReporterNoop,
     HillClimbReporterSimple, HillClimbState, HillClimbVariant, TryFromHillClimbBuilderError,
@@ -22,5 +24,3 @@ pub use crate::strategy::{
     StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
     STRATEGY_ACTIONS,
 };
-#[doc(no_inline)]
-pub use crate::impl_allele;
