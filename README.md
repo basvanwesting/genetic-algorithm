@@ -114,8 +114,6 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
     * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
     * See [examples/hill_climb_table_seating](../main/examples/hill_climb_table_seating.rs)
-* Explore vector genes (BinaryGenotype) versus other storage (BitGenotype)
-    * See [examples/evolve_bit_v_binary](../main/examples/evolve_bit_v_binary.rs)
 * Explore internal and external multithreading options
     * See [examples/explore_multithreading](../main/examples/explore_multithreading.rs)
 * Use superset StrategyBuilder for easier switching in implementation
@@ -125,6 +123,8 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * _Note: doesn't help performance much in this case... or any case, better fix your population diversity_
 * Custom Reporting implementation
     * See [examples/permutate_scrabble](../main/examples/permutate_scrabble.rs)
+* Custom Mutate implementation
+    * See [examples/evolve_milp_custom_mutate](../main/examples/evolve_milp_custom_mutate.rs)
 
 ## Performance considerations
 

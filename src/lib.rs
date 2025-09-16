@@ -95,8 +95,6 @@
 //! * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
 //!     * See [examples/hill_climb_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_nqueens.rs)
 //!     * See [examples/hill_climb_table_seating](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_table_seating.rs)
-//! * Explore vector genes [BinaryGenotype](genotype::BinaryGenotype) versus other storage [BitGenotype](genotype::BitGenotype)
-//!     * See [examples/evolve_bit_v_binary](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_bit_v_binary.rs)
 //! * Explore internal and external multithreading options
 //!     * See [examples/explore_multithreading](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_multithreading.rs)
 //! * Use superset StrategyBuilder for easier switching in implementation
@@ -106,6 +104,8 @@
 //!     * _Note: doesn't help performance much in this case... or any case, better fix your population diversity_
 //! * Custom Reporting implementation
 //!     * See [examples/permutate_scrabble](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_scrabble.rs)
+//! * Custom Mutate implementation
+//!     * See [examples/evolve_milp_custom_mutate](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_milp_custom_mutate.rs)
 //!
 //! ## Performance considerations
 //!
