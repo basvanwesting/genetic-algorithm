@@ -145,39 +145,6 @@ where
             chromosome.genes[index] = new_value;
         }
     }
-
-    fn mutate_chromosome_index_random<R: Rng>(
-        &self,
-        index: usize,
-        chromosome: &mut Chromosome<T>,
-        rng: &mut R,
-    ) {
-        chromosome.genes[index] = self.allele_sampler.sample(rng);
-    }
-    fn mutate_chromosome_index_relative<R: Rng>(
-        &self,
-        index: usize,
-        chromosome: &mut Chromosome<T>,
-        rng: &mut R,
-    ) {
-        let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-        self.apply_gene_delta(chromosome, index, value_diff);
-    }
-    fn mutate_chromosome_index_scaled<R: Rng>(
-        &self,
-        index: usize,
-        chromosome: &mut Chromosome<T>,
-        scale_index: usize,
-        rng: &mut R,
-    ) {
-        let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
-        let value_diff = if rng.gen() {
-            *working_range.start()
-        } else {
-            *working_range.end()
-        };
-        self.apply_gene_delta(chromosome, index, value_diff);
-    }
 }
 
 impl<T: RangeAllele> Genotype for Range<T>
@@ -227,17 +194,12 @@ where
             for _ in 0..number_of_mutations {
                 let index = self.gene_index_sampler.sample(rng);
                 match self.mutation_type {
-                    MutationType::Scaled => self.mutate_chromosome_index_scaled(
-                        index,
-                        chromosome,
-                        scale_index.unwrap(),
-                        rng,
-                    ),
-                    MutationType::Relative => {
-                        self.mutate_chromosome_index_relative(index, chromosome, rng)
-                    }
                     MutationType::Random => {
-                        self.mutate_chromosome_index_random(index, chromosome, rng)
+                        chromosome.genes[index] = self.allele_sampler.sample(rng);
+                    }
+                    _ => {
+                        let delta = self.sample_gene_delta(scale_index, rng);
+                        self.apply_gene_delta(chromosome, index, delta);
                     }
                 };
             }
@@ -250,17 +212,12 @@ where
             .iter()
             .for_each(|index| {
                 match self.mutation_type {
-                    MutationType::Scaled => self.mutate_chromosome_index_scaled(
-                        index,
-                        chromosome,
-                        scale_index.unwrap(),
-                        rng,
-                    ),
-                    MutationType::Relative => {
-                        self.mutate_chromosome_index_relative(index, chromosome, rng)
-                    }
                     MutationType::Random => {
-                        self.mutate_chromosome_index_random(index, chromosome, rng)
+                        chromosome.genes[index] = self.allele_sampler.sample(rng);
+                    }
+                    _ => {
+                        let delta = self.sample_gene_delta(scale_index, rng);
+                        self.apply_gene_delta(chromosome, index, delta);
                     }
                 };
             });
