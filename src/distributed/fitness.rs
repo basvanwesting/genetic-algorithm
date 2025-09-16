@@ -53,6 +53,10 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 /// Distributed [Genotype]s have [GenesOwner](crate::chromosome::GenesOwner) chromosomes. These
 /// chromosomes have a `genes` field, which can be read for the calculations.
 ///
+/// Fitness uses &mut self for performance because it dominates the runtime. Preparing memory
+/// allocations on initialization and reusing them for each chromosome can really impact
+/// performance. For parallel evaluation, each thread gets its own clone via ThreadLocal.
+///
 /// # Example (calculate_for_chromosome, standard GenesOwner chromosome):
 /// ```rust
 /// use genetic_algorithm::distributed::fitness::prelude::*;

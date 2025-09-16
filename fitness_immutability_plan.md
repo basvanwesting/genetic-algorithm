@@ -1,6 +1,57 @@
 # Plan: Make Fitness Trait Immutable in Distributed Track
 
-## Current State
+## ⚠️ PERFORMANCE UPDATE: Plan Cancelled
+
+After empirical testing with real-world examples, **keeping Fitness mutable provides significant performance benefits**. This plan is kept for documentation purposes to explain why Fitness remains mutable while other traits are immutable.
+
+## Performance Test Results
+
+### Test Case: evolve_scrabble example
+- Complex fitness function with multiple data structures
+- Baseline (mutable): **2.22 seconds**
+- Immutable (optimized): **3.35 seconds** (1.5x slower)
+- Immutable (naive): **5.26 seconds** (2.4x slower)
+
+### Why Mutability Matters for Fitness
+
+1. **Fitness dominates runtime** - Often 75%+ of total execution time
+2. **Buffer reuse is critical** - Pre-allocated buffers avoid repeated allocations
+3. **ThreadLocal overhead is minimal** - The RefCell cost is negligible compared to allocation savings
+4. **Real-world fitness is complex** - Often needs HashMaps, Vecs, and other data structures
+
+### Example: ScrabbleFitness Performance Impact
+
+```rust
+// MUTABLE VERSION (Fast - 2.22s)
+pub struct ScrabbleFitness {
+    // Pre-allocated buffers, reused across evaluations
+    position_map: HashMap<(Row, Column), Vec<(usize, char)>>,
+    related_word_ids: Vec<HashSet<usize>>,
+    letter_board: Vec<Vec<char>>,
+}
+
+impl Fitness for ScrabbleFitness {
+    fn calculate_for_chromosome(&mut self, ...) {
+        // Clear and reuse existing allocations
+        self.position_map.clear();
+        self.related_word_ids.clear();
+        // ... computation using pre-allocated buffers
+    }
+}
+
+// IMMUTABLE VERSION (Slow - 3.35s optimized, 5.26s naive)  
+impl Fitness for ScrabbleFitness {
+    fn calculate_for_chromosome(&self, ...) {
+        // Must allocate new buffers for every evaluation
+        let mut position_map = HashMap::new();  // Allocation!
+        let mut related_word_ids = Vec::new();  // Allocation!
+        let mut letter_board = vec![vec![' '; cols]; rows];  // Allocation!
+        // ... computation with new allocations
+    }
+}
+```
+
+## Current State (Keeping Mutable)
 
 The Fitness trait currently requires `&mut self` in all its methods:
 - `calculate_for_chromosome(&mut self, ...)`
@@ -9,17 +60,35 @@ The Fitness trait currently requires `&mut self` in all its methods:
 - `call_for_state_population(&mut self, ...)`
 - `call_for_state_chromosome(&mut self, ...)`
 
-This causes complexity in parallel evaluation, requiring `ThreadLocal<RefCell<Self>>` gymnastics.
+This requires `ThreadLocal<RefCell<Self>>` for parallel evaluation, but the performance benefit justifies the complexity.
 
-## Why Fitness Should Be Immutable
+## Why Fitness Should Stay Mutable (Revised Understanding)
 
-1. **Fitness calculation is pure** - Same genes → same fitness score
-2. **Thread safety** - No need for ThreadLocal/RefCell complexity
-3. **Consistency** - Matches other immutable traits (Genotype, Crossover, Mutate, Select, Extension)
-4. **Simpler parallelization** - Direct parallel iteration without cloning
-5. **No valid use case** - Fitness functions shouldn't maintain state between evaluations
+1. **Performance critical** - Fitness often consumes 75%+ of runtime
+2. **Buffer reuse essential** - 1.5-2.4x performance improvement from reusing allocations
+3. **ThreadLocal cost minimal** - RefCell overhead negligible vs allocation costs
+4. **Pragmatic over pure** - Real performance > theoretical purity
+5. **Documented pattern** - Clear documentation explains the trade-off
 
-## Implementation Plan
+## Comparison with Other Traits
+
+| Trait | Mutable? | Rationale |
+|-------|----------|-----------|
+| **Fitness** | ✅ Yes | Performance critical (75% runtime), 1.5x speedup from buffer reuse |
+| **Genotype** | ❌ No | Defines search space, no performance benefit from mutability |
+| **Crossover** | ❌ No | Simple operations, no complex state needed |
+| **Mutate** | ❌ No | Simple operations, no complex state needed |
+| **Select** | ❌ No | Simple operations, no complex state needed |
+| **Extension** | ❌ No | Infrequent calls, no performance impact |
+
+## Lessons Learned
+
+1. **Measure, don't assume** - Theoretical benefits don't always translate to real performance
+2. **Profile-driven decisions** - The 75% runtime dominance of Fitness justifies special treatment
+3. **Document trade-offs** - Be explicit about why Fitness is different
+4. **Pragmatism wins** - 1.5x performance improvement outweighs architectural purity
+
+## Original Implementation Plan (Cancelled)
 
 ### Phase 1: Update Fitness Trait
 **File:** `src/distributed/fitness.rs`
