@@ -126,14 +126,11 @@ To support custom mutate and crossover implementations with the new associated t
 Start with the most commonly needed methods that apply to all genotypes:
 - `sample_gene_index`
 - `sample_gene_indices`
-- `reset_chromosome_state`
 
 ### Phase 2: Type-Specific Methods
 Add methods specific to each genotype type:
-- Binary: `flip_gene`
 - (Multi)Range: `mutate_gene_relative`
 - (Multi)List: `sample_random_allele`
-- (Multi)Unique: `swap_genes`
 
 ### Phase 3: Advanced Utilities
 Add more sophisticated operations:

@@ -81,11 +81,6 @@ pub trait Genotype:
         rng: &mut R,
     ) -> Vec<usize>;
 
-    /// Reset chromosome state after modification
-    fn reset_chromosome_state(&self, chromosome: &mut Chromosome<Self::Allele>) {
-        chromosome.reset_state();
-    }
-
     fn expected_number_of_sampled_index_duplicates(&self, number_of_samples: usize) -> usize {
         if number_of_samples > 1 {
             number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
