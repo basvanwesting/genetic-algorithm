@@ -18,9 +18,7 @@ Therefore, Mutate/Crossover/Select with associated types would work the same way
 
 ## The Change
 
-### Distributed Track
-
-#### Current
+### Current
 ```rust
 pub trait Mutate {
     fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
@@ -32,7 +30,7 @@ pub trait Mutate {
 }
 ```
 
-#### Proposed
+### Proposed
 ```rust
 pub trait Mutate {
     type Genotype: EvolveGenotype;
@@ -45,36 +43,6 @@ pub trait Mutate {
     );
 }
 ```
-
-### Centralized Track
-
-#### Current
-```rust
-pub trait Mutate {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
-        &mut self,
-        genotype: &mut G,  // Note: mutable in centralized
-        state: &mut EvolveState,
-        ...
-    );
-}
-```
-
-#### Proposed
-```rust
-pub trait Mutate {
-    type Genotype: EvolveGenotype;
-    
-    fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
-        &mut self,
-        genotype: &mut Self::Genotype,  // Still mutable, but concrete!
-        state: &mut EvolveState,
-        ...
-    );
-}
-```
-
-**Key difference:** Centralized has `&mut genotype` because it mutates the chromosome matrix directly. This doesn't affect the associated type pattern.
 
 ## Implementation Pattern
 
@@ -159,7 +127,6 @@ The builder's type constraint `M: Mutate<Genotype = G>` combined with `G` being 
 
 ## Builder Updates
 
-### Distributed
 ```rust
 pub struct Builder<
     G: EvolveGenotype,
@@ -168,19 +135,6 @@ pub struct Builder<
     S: Crossover<Genotype = G>,   // Add constraint
     C: Select<Genotype = G>,      // Add constraint
     E: Extension,                  // No genotype needed
-    SR: StrategyReporter<Genotype = G>,
->
-```
-
-### Centralized (Same Pattern)
-```rust
-pub struct Builder<
-    G: EvolveGenotype,
-    M: Mutate<Genotype = G>,
-    F: Fitness<Genotype = G>,
-    S: Crossover<Genotype = G>,
-    C: Select<Genotype = G>,
-    E: Extension,
     SR: StrategyReporter<Genotype = G>,
 >
 ```
@@ -245,18 +199,18 @@ impl Mutate for MyCustomMutate {
 
 ## Which Traits Should Change?
 
-| Trait | Change? | Rationale |
-|-------|---------|-----------|
-| **Mutate** | ✅ Yes | Needs genotype methods for mutations |
-| **Crossover** | ✅ Yes | Needs genotype methods for crossover |
-| **Select** | ❌ No | Only works with populations, not genotype-specific |
-| **Extension** | ❌ No | High-level operations, not genotype-specific |
-| **Fitness** | Already done | Already uses associated types |
-| **StrategyReporter** | Already done | Already uses associated types |
+| Trait                | Change?      | Rationale                                          |
+| -------              | ---------    | -----------                                        |
+| **Mutate**           | ✅ Yes       | Needs genotype methods for mutations               |
+| **Crossover**        | ✅ Yes       | Needs genotype methods for crossover               |
+| **Select**           | ❌ No        | Only works with populations, not genotype-specific |
+| **Extension**        | ❌ No        | High-level operations, not genotype-specific       |
+| **Fitness**          | Already done | Already uses associated types                      |
+| **StrategyReporter** | Already done | Already uses associated types                      |
 
 ## Implementation Order
 
-### Phase 1: Distributed Track
+### Phase 1: Changes
 1. Update Mutate trait
 2. Update all library mutations (7 files)
 3. Update Crossover trait
@@ -264,23 +218,10 @@ impl Mutate for MyCustomMutate {
 5. Update builder constraints
 6. Update tests and examples
 
-### Phase 2: Centralized Track
-- Same changes, noting that genotype is `&mut` in centralized
-- ChromosomeManager operations still work the same
-
-### Phase 3: Documentation
+### Phase 2: Documentation
 - Migration guide for users
 - Update all examples
 - Update trait documentation
-
-## Special Considerations for Centralized Track
-
-The centralized track has some unique aspects:
-1. **Mutable genotype** - `&mut Self::Genotype` instead of `&Self::Genotype`
-2. **ChromosomeManager** - Genotype manages chromosome recycling
-3. **Matrix operations** - Direct manipulation of gene matrix
-
-**None of these affect the associated type pattern!** The change works identically for both tracks.
 
 ## Example: Custom Mutate After Change
 
@@ -311,8 +252,6 @@ impl Mutate for MutateEvenIndicesOnly {
 ```
 
 ## Final Recommendation
-
-**DO implement associated types for Mutate and Crossover in both tracks.**
 
 ### Why:
 1. **No performance penalty** - Builder doesn't require boxing

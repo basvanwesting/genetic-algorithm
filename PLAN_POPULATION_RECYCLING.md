@@ -1,14 +1,7 @@
 # Population-Based Chromosome Recycling Implementation Plan
 
-## Analysis: Centralized vs Distributed Recycling Approaches
+## Analysis: Recycling Approaches
 
-### Centralized Track (Current)
-- **Where**: ChromosomeManager trait on Genotype
-- **Storage**: Genotype owns both data (flat Vec) and recycling bin
-- **Chromosome**: Just a pointer (row_id) to genes location
-- **Lifecycle**: Genotype manages entire chromosome lifecycle
-
-### Distributed Track (Target)
 - **Where**: Population struct manages recycling
 - **Storage**: Chromosomes own their genes directly
 - **Chromosome**: Self-contained with Vec<Allele>
@@ -263,16 +256,6 @@ impl<G: EvolveGenotype, M: Mutate, C: Crossover, S: Select, E: Extension, SR: St
 - Document in examples
 - Add to performance guide
 
-## Key Differences from Centralized Approach
-
-| Aspect | Centralized | Distributed (Proposed) |
-|--------|------------|----------------------|
-| Owner | Genotype (ChromosomeManager) | Population |
-| Storage | Flat Vec with row_id | Direct chromosome ownership |
-| Complexity | High (trait implementation) | Low (simple methods) |
-| Flexibility | Per-genotype control | Per-population control |
-| Memory | Always allocated | Can be freed via clear_recycling_pool |
-
 ## Memory Contiguity Benefits
 
 When chromosomes are allocated upfront (either initially or from recycling pool), there's an additional performance benefit from **memory contiguity**:
@@ -340,7 +323,7 @@ Based on the Fitness mutability analysis (1.5x improvement) plus memory contigui
 
 ## Conclusion
 
-This implementation plan brings the memory efficiency benefits of centralized recycling to the distributed track while:
+This implementation plan brings the memory efficiency benefits of recycling while:
 - Maintaining the simpler distributed architecture
 - Keeping Genotype immutable
 - Providing opt-in adoption
