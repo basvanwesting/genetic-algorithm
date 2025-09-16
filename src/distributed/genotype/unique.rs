@@ -84,6 +84,12 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
     }
 }
 
+impl<T: Allele + Hash> Unique<T> {
+    pub fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize {
+        self.gene_index_sampler.sample(rng)
+    }
+}
+
 impl<T: Allele + Hash> Genotype for Unique<T> {
     type Allele = T;
 
