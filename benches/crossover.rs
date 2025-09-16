@@ -44,7 +44,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.plot_config(plot_config);
 
     for genes_size in &genes_sizes {
-        let crossovers: Vec<CrossoverWrapper> = vec![
+        let crossovers: Vec<CrossoverWrapper<BinaryGenotype>> = vec![
             // CrossoverClone::new(0.7).into(), //clones
             // CrossoverRejuvenate::new(0.7).into(), //noop
             // CrossoverSingleGene::new(0.7, 0.8).into(),

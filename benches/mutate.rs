@@ -47,7 +47,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.plot_config(plot_config);
 
     for genes_size in &genes_sizes {
-        let mutates: Vec<MutateWrapper> = vec![
+        let mutates: Vec<MutateWrapper<BinaryGenotype>> = vec![
             MutateSingleGene::new(0.2).into(),
             MutateMultiGene::new(10, 0.2).into(),
             MutateMultiGeneRange::new(1..=10, 0.2).into(),
