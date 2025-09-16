@@ -51,33 +51,6 @@ impl ScaledOptionalDiagonalMutate {
             axis_probability_sampler,
         }
     }
-
-    fn call_for_gene_index<R: Rng>(
-        &self,
-        index: usize,
-        chromosome: &mut Chromosome<f32>,
-        genotype: &MultiRangeGenotype<f32>,
-        scale_index: usize,
-        rng: &mut R,
-    ) {
-        let allele_range = &genotype.allele_ranges[index];
-        let working_range =
-            &genotype.allele_mutation_scaled_ranges.as_ref().unwrap()[scale_index][index];
-        let value_diff = if rng.gen() {
-            *working_range.start()
-        } else {
-            *working_range.end()
-        };
-
-        let new_value = chromosome.genes[index] + value_diff;
-        if new_value < *allele_range.start() {
-            chromosome.genes[index] = *allele_range.start();
-        } else if new_value > *allele_range.end() {
-            chromosome.genes[index] = *allele_range.end();
-        } else {
-            chromosome.genes[index] = new_value;
-        }
-    }
 }
 
 impl Mutate for ScaledOptionalDiagonalMutate {
@@ -92,7 +65,7 @@ impl Mutate for ScaledOptionalDiagonalMutate {
         rng: &mut R,
     ) {
         let now = Instant::now();
-        let scale_index = state.current_scale_index.unwrap();
+        let scale_index = state.current_scale_index;
         for chromosome in state
             .population
             .chromosomes
@@ -101,11 +74,19 @@ impl Mutate for ScaledOptionalDiagonalMutate {
         {
             if self.mutation_probability_sampler.sample(rng) {
                 match self.axis_probability_sampler.sample(rng) {
-                    0 => self.call_for_gene_index(0, chromosome, genotype, scale_index, rng),
-                    1 => self.call_for_gene_index(1, chromosome, genotype, scale_index, rng),
+                    0 => {
+                        let delta = genotype.sample_gene_delta(0, scale_index, rng);
+                        genotype.apply_gene_delta(chromosome, 0, delta);
+                    }
+                    1 => {
+                        let delta = genotype.sample_gene_delta(1, scale_index, rng);
+                        genotype.apply_gene_delta(chromosome, 1, delta);
+                    }
                     _ => {
-                        self.call_for_gene_index(0, chromosome, genotype, scale_index, rng);
-                        self.call_for_gene_index(1, chromosome, genotype, scale_index, rng);
+                        let delta = genotype.sample_gene_delta(0, scale_index, rng);
+                        genotype.apply_gene_delta(chromosome, 0, delta);
+                        let delta = genotype.sample_gene_delta(1, scale_index, rng);
+                        genotype.apply_gene_delta(chromosome, 1, delta);
                     }
                 }
                 // remember to reset the chromosome metadata after manipulation

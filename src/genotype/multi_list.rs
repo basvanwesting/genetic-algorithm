@@ -127,6 +127,12 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
     }
 }
 
+impl<T: Allele + PartialEq + Hash> MultiList<T> {
+    pub fn sample_allele<R: Rng>(&self, index: usize, rng: &mut R) -> T {
+        self.allele_lists[index][self.allele_index_samplers[index].sample(rng)]
+    }
+}
+
 impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
     type Allele = T;
 

@@ -115,6 +115,37 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
+    pub fn sample_allele<R: Rng>(&self, rng: &mut R) -> T {
+        self.allele_sampler.sample(rng)
+    }
+    pub fn sample_gene_delta<R: Rng>(&self, scale_index: Option<usize>, rng: &mut R) -> T {
+        match self.mutation_type {
+            MutationType::Scaled => {
+                let working_range =
+                    &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index.unwrap()];
+                if rng.gen() {
+                    *working_range.start()
+                } else {
+                    *working_range.end()
+                }
+            }
+            MutationType::Relative => self.allele_relative_sampler.as_ref().unwrap().sample(rng),
+            MutationType::Random => {
+                panic!("MultiRangeGenotype has no concept of gene delta for MutationType::Random")
+            }
+        }
+    }
+    pub fn apply_gene_delta(&self, chromosome: &mut Chromosome<T>, index: usize, delta: T) {
+        let new_value = chromosome.genes[index] + delta;
+        if new_value < *self.allele_range.start() {
+            chromosome.genes[index] = *self.allele_range.start();
+        } else if new_value > *self.allele_range.end() {
+            chromosome.genes[index] = *self.allele_range.end();
+        } else {
+            chromosome.genes[index] = new_value;
+        }
+    }
+
     fn mutate_chromosome_index_random<R: Rng>(
         &self,
         index: usize,
@@ -130,14 +161,7 @@ where
         rng: &mut R,
     ) {
         let value_diff = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-        let new_value = chromosome.genes[index] + value_diff;
-        if new_value < *self.allele_range.start() {
-            chromosome.genes[index] = *self.allele_range.start();
-        } else if new_value > *self.allele_range.end() {
-            chromosome.genes[index] = *self.allele_range.end();
-        } else {
-            chromosome.genes[index] = new_value;
-        }
+        self.apply_gene_delta(chromosome, index, value_diff);
     }
     fn mutate_chromosome_index_scaled<R: Rng>(
         &self,
@@ -152,14 +176,7 @@ where
         } else {
             *working_range.end()
         };
-        let new_value = chromosome.genes[index] + value_diff;
-        if new_value < *self.allele_range.start() {
-            chromosome.genes[index] = *self.allele_range.start();
-        } else if new_value > *self.allele_range.end() {
-            chromosome.genes[index] = *self.allele_range.end();
-        } else {
-            chromosome.genes[index] = new_value;
-        }
+        self.apply_gene_delta(chromosome, index, value_diff);
     }
 }
 
