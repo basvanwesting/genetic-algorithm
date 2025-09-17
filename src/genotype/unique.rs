@@ -136,7 +136,7 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
             .tuples()
             .for_each(|(index1, index2)| chromosome.genes.swap(index1, index2));
         }
-        chromosome.reset_state();
+        chromosome.reset_metadata();
     }
     fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
         let mut new = self.clone();
@@ -198,7 +198,7 @@ impl<T: Allele + Hash> HillClimbGenotype for Unique<T> {
             .for_each(|(first, second)| {
                 let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                 new_chromosome.genes.swap(first, second);
-                new_chromosome.reset_state();
+                new_chromosome.reset_metadata();
                 population.chromosomes.push(new_chromosome);
             });
     }

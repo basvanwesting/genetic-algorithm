@@ -101,13 +101,13 @@ impl<T: Allele> Chromosome<T> {
         self.age = 0;
     }
 
-    pub fn reset_state(&mut self) {
+    pub fn reset_metadata(&mut self) {
         self.age = 0;
         self.fitness_score = None;
         self.genes_hash = Some(self.calculate_hash());
     }
 
-    pub fn copy_state(&mut self, other: &Self) {
+    pub fn copy_metadata(&mut self, other: &Self) {
         self.age = other.age;
         self.fitness_score = other.fitness_score;
         self.genes_hash = other.genes_hash;
@@ -116,7 +116,7 @@ impl<T: Allele> Chromosome<T> {
     pub fn copy_from(&mut self, source: &Self) {
         // For recycled chromosomes, this is just memcpy with known size
         self.genes.clone_from(&source.genes);
-        self.copy_state(source);
+        self.copy_metadata(source);
     }
 
     pub fn calculate_hash(&self) -> GenesHash {

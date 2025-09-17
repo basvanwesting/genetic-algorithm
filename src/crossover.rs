@@ -95,8 +95,8 @@ pub type CrossoverEvolveState<C> = EvolveState<<C as Crossover>::Genotype>;
 ///                 // MultiRangeGenotype specific methods are available if needed
 ///             }
 ///             // Important!!! Remember to reset the chromosome metadata after manipulation
-///             offspring1.reset_state();
-///             offspring2.reset_state();
+///             offspring1.reset_metadata();
+///             offspring2.reset_metadata();
 ///         }
 ///         // Optionally, keep track of duration for reporting
 ///         state.add_duration(StrategyAction::Crossover, now.elapsed());

@@ -230,7 +230,7 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
                         })
                 });
         }
-        chromosome.reset_state();
+        chromosome.reset_metadata();
     }
     fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
         let mut new = self.clone();
@@ -317,8 +317,8 @@ impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
                 _ => (),
             });
         }
-        mother.reset_state();
-        father.reset_state();
+        mother.reset_metadata();
+        father.reset_metadata();
     }
     fn has_crossover_points(&self) -> bool {
         true
@@ -346,7 +346,7 @@ impl<T: Allele + Hash> HillClimbGenotype for MultiUnique<T> {
                         new_chromosome
                             .genes
                             .swap(index_offset + first, index_offset + second);
-                        new_chromosome.reset_state();
+                        new_chromosome.reset_metadata();
                         population.chromosomes.push(new_chromosome);
                     });
             });
