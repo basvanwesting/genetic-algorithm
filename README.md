@@ -31,7 +31,7 @@ Terminology:
 * Chromosome: a chromosome has `genes_size` number of genes
 * Allele: alleles are the possible values of the genes
 * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
-* Genes: storage trait of the genes for a chromosome, mostly `Vec<Allele>`, but alternatives possible
+* Genes: storage trait of the genes for a chromosome, always `Vec<Allele>`
 * Genotype: Knows how to generate, mutate and crossover chromosomes efficiently
 * Fitness: knows how to determine the fitness of a chromosome
 
@@ -138,30 +138,13 @@ For the Evolve strategy:
   operations.
 * Crossover: the workhorse of internal parts. Crossover touches most genes each
   generation and clones up to the whole population to produce offspring
-  (depending on selection-rate). It also calculates
-  new genes hashes if enabled on the Genotype, which has a relatively high
-  overhead on the main Evolve loop.
+  (depending on selection-rate). It also calculates new genes hashes if
+  enabled, which has a relatively high overhead on the main Evolve loop.
 * Mutate: no considerations. It touches genes like crossover does, but should
   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
 * Fitness: can be anything. This fully depends on the user domain. Parallelize
   it using `with_par_fitness()` in the Builder. But beware that parallelization
   has it's own overhead and is not always faster.
-
-**GPU acceleration**
-
-There are two genotypes where Genes (N) and Population (M) are a stored in single contiguous
-memory range of Alleles (T) with length N*M on the heap. A pointer to this data can be taken to
-calculate the whole population at once. These are:
-* DynamicRangeGenotype
-* StaticRangeGenotype
-
-Useful in the following strategies where a whole population is calculated:
-* Evolve
-* HillClimb-SteepestAscent
-
-Possibly a GPU compatible memory layout still needs to be added. The current implementation
-just provides all the basic building blocks to implement this. Please open a github issue for
-further support.
 
 ## Tests
 Run tests with `cargo test`
@@ -185,10 +168,6 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
 
 ## TODO
-* One cannot permutate centralized static binary, yet. Need a window approach setting the matrix for each iteration. To calculate that matrix as a whole repeatedly
-* Remove FixedBit from distributed? It is the only non-Vec implementation. And distributed is about flexibility not performance, centralized is for performance (it could implement Binary as FixedBit because the internals private in centralized)
-* remove hillclimb/stochastic from centralized as it make no sense
-* remove calculate_for_chromosome in centralized, remove calculate_for_population in distributed
 
 ## MAYBE
 * Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)
@@ -202,18 +181,9 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
   * Edge Crossover (EX): Preserves adjacency relationships, suitable for Traveling Salesman Problem or similar.
 * Add WholeArithmetic crossover for RangeGenotype?
 * Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
-* Explore more non-Vec genes: PackedSimd?
-* Maybe use TinyVec for Population? (it us usually less than 1000 anyway),
-  maybe useful paired with MatrixGenotype, where the chromosomes are lightweight
-  (and Copyable)
 * StrategyBuilder, with_par_fitness_threshold, with_permutate_threshold?
 * Add target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
 * Add negative selection-rate to encode in-place crossover? But do keep the old
   extend with best-parents with the pre v0.20 selection-rate behaviour which was crucial for evolve_nqueens
 
 ## ISSUES
-* hill_climb SteepestAscent actually has a population size requirement of
-  neighbouring_population_size + 1, because of the working chromosome. This could
-  overflow StaticRangeGenotype<T, N, M>, use StaticRangeGenotype<T, N, { M + 1 }>
-  as workaround
-

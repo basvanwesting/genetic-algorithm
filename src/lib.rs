@@ -14,7 +14,7 @@
 //! * [Chromosome](crate::chromosome): a chromosome has `genes_size` number of genes
 //! * [Allele](crate::genotype::Allele): alleles are the possible values of the genes
 //! * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
-//! * [Genes](crate::genotype::Genes): storage trait of the genes for a chromosome, mostly `Vec<Allele>` but alternatives possible
+//! * [Genes](crate::genotype::Genes): storage trait of the genes for a chromosome, always `Vec<Allele>`
 //! * [Genotype](crate::genotype): Knows how to generate, mutate and crossover chromosomes efficiently
 //! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
 //!
@@ -119,29 +119,13 @@
 //!   operations.
 //! * [Crossover](crossover): the workhorse of internal parts. Crossover touches most genes each
 //!   generation and clones up to the whole population to produce offspring (depending on
-//!   selection-rate). It also calculates new genes hashes if enabled on the [Genotype](genotype),
-//!   which has a relatively high overhead on the main Evolve loop.
+//!   selection-rate). It also calculates new genes hashes if enabled, which has a relatively high
+//!   overhead on the main Evolve loop.
 //! * [Mutate](mutate): no considerations. It touches genes like crossover does, but should
 //!   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
 //! * [Fitness](fitness): can be anything. This fully depends on the user domain. Parallelize
 //!   it using `with_par_fitness()` in the Builder. But beware that parallelization
 //!   has it's own overhead and is not always faster.
-//!
-//! **GPU acceleration**
-//!
-//! There are two genotypes where Genes (N) and Population (M) are a stored in single contiguous
-//! memory range of Alleles (T) with length N*M on the heap. A pointer to this data can be taken to
-//! calculate the whole population at once. These are:
-//! * [DynamicMatrixGenotype](genotype::DynamicMatrixGenotype)
-//! * [StaticMatrixGenotype](genotype::StaticMatrixGenotype)
-//!
-//! Useful in the following strategies where a whole population is calculated:
-//! * [Evolve](crate::strategy::evolve::Evolve)
-//! * [HillClimb](crate::strategy::hill_climb::HillClimb)-[SteepestAscent](crate::strategy::hill_climb::HillClimbVariant::SteepestAscent)
-//!
-//! Possibly a GPU compatible memory layout still needs to be added. The current implementation
-//! just provides all the basic building blocks to implement this. Please open a
-//! [github](https://github.com/basvanwesting/genetic-algorithm) issue for further support.
 pub mod allele;
 pub mod chromosome;
 pub mod crossover;

@@ -35,7 +35,9 @@ impl<G: EvolveGenotype> Crossover for Rejuvenate<G> {
         state
             .population
             .truncate_with_recycling(selected_population_size);
-        state.population.expand_with_recycling(dropped_population_size);
+        state
+            .population
+            .expand_with_recycling(dropped_population_size);
 
         state
             .population
