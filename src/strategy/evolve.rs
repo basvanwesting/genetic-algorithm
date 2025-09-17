@@ -221,12 +221,12 @@ pub struct EvolveState<G: EvolveGenotype> {
     pub scale_generation: usize,
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
-    pub durations: HashMap<StrategyAction, Duration>,
+    pub best_chromosome: Option<Chromosome<G::Allele>>,
     pub chromosome: Option<Chromosome<G::Allele>>,
     pub population: Population<G::Allele>,
+    pub durations: HashMap<StrategyAction, Duration>,
     pub current_scale_index: Option<usize>,
     pub population_cardinality: Option<usize>,
-    pub best_chromosome: Option<Chromosome<G::Allele>>,
 }
 
 impl<
@@ -759,11 +759,11 @@ impl<G: EvolveGenotype> EvolveState<G> {
             current_scale_index: None,
             best_generation: 0,
             best_fitness_score: None,
+            best_chromosome: None,
             chromosome: None,
             population: Population::new_empty(),
-            durations: HashMap::new(),
             population_cardinality: None,
-            best_chromosome: None,
+            durations: HashMap::new(),
         };
         match genotype.mutation_type() {
             MutationType::Scaled => Self {

@@ -116,11 +116,11 @@ pub struct PermutateState<G: PermutateGenotype> {
     pub scale_generation: usize,
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
-    pub durations: HashMap<StrategyAction, Duration>,
+    pub best_chromosome: Option<Chromosome<G::Allele>>,
     pub chromosome: Option<Chromosome<G::Allele>>,
     pub population: Population<G::Allele>,
+    pub durations: HashMap<StrategyAction, Duration>,
     pub current_scale_index: Option<usize>,
-    pub best_chromosome: Option<Chromosome<G::Allele>>,
 }
 
 impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>> Strategy<G>

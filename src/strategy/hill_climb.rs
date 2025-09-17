@@ -179,11 +179,11 @@ pub struct HillClimbState<G: HillClimbGenotype> {
     pub scale_generation: usize,
     pub best_generation: usize,
     pub best_fitness_score: Option<FitnessValue>,
-    pub durations: HashMap<StrategyAction, Duration>,
+    pub best_chromosome: Option<Chromosome<G::Allele>>,
     pub chromosome: Option<Chromosome<G::Allele>>,
     pub population: Population<G::Allele>,
+    pub durations: HashMap<StrategyAction, Duration>,
     pub current_scale_index: Option<usize>,
-    pub best_chromosome: Option<Chromosome<G::Allele>>,
 }
 
 impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>> Strategy<G>
@@ -303,8 +303,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     pub fn setup(&mut self) {
         let now = Instant::now();
 
-        let chromosome = Chromosome::new(self.genotype.random_genes_factory(&mut self.rng));
-        self.state.chromosome = Some(chromosome.clone());
+        self.state.chromosome = Some(self.genotype.chromosome_constructor_random(&mut self.rng));
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
 

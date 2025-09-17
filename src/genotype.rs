@@ -107,6 +107,19 @@ pub trait Genotype:
         .join(", ")
     }
 
+    fn chromosome_constructor_random<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
+        let mut chromosome = Chromosome::new(self.random_genes_factory(rng));
+        chromosome.reset_metadata(self.genes_hashing());
+        chromosome
+    }
+    fn chromosome_constructor_genes(
+        &self,
+        genes: &Genes<Self::Allele>,
+    ) -> Chromosome<Self::Allele> {
+        let mut chromosome = Chromosome::new(genes.clone());
+        chromosome.reset_metadata(self.genes_hashing());
+        chromosome
+    }
     fn population_constructor<R: Rng>(
         &self,
         population_size: usize,
@@ -115,7 +128,7 @@ pub trait Genotype:
         if self.seed_genes_list().is_empty() {
             Population::new(
                 (0..population_size)
-                    .map(|_| Chromosome::new(self.random_genes_factory(rng)))
+                    .map(|_| self.chromosome_constructor_random(rng))
                     .collect::<Vec<_>>(),
             )
         } else {
@@ -125,7 +138,7 @@ pub trait Genotype:
                     .iter()
                     .cycle()
                     .take(population_size)
-                    .map(|genes| Chromosome::new(genes.clone()))
+                    .map(|genes| self.chromosome_constructor_genes(genes))
                     .collect::<Vec<_>>(),
             )
         }

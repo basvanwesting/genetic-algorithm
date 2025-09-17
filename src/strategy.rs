@@ -185,6 +185,7 @@ pub trait StrategyState<G: Genotype>: Display {
     fn population_as_mut(&mut self) -> &mut Population<G::Allele>;
     fn best_fitness_score(&self) -> Option<FitnessValue>;
     fn best_generation(&self) -> usize;
+    fn best_genes(&self) -> Option<Genes<G::Allele>>;
     fn current_generation(&self) -> usize;
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
@@ -194,7 +195,6 @@ pub trait StrategyState<G: Genotype>: Display {
     fn durations(&self) -> &HashMap<StrategyAction, Duration>;
     fn add_duration(&mut self, action: StrategyAction, duration: Duration);
     fn total_duration(&self) -> Duration;
-    fn best_genes(&self) -> Option<Genes<G::Allele>>;
     fn close_duration(&mut self, total_duration: Duration) {
         if let Some(other_duration) = total_duration.checked_sub(self.total_duration()) {
             self.add_duration(StrategyAction::Other, other_duration);
