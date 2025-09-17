@@ -141,11 +141,13 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
     ) {
         if state.current_generation() % self.period == 0 {
             self.writeln(format_args!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, current_population_size: {} ({}r)",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
                 state.current_scale_index(),
+                state.population_as_ref().size(),
+                state.population_as_ref().recycled_size(),
             ));
         }
     }

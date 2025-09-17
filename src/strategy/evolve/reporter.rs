@@ -197,7 +197,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
                 state.population_as_ref().parents_and_offspring_size();
 
             self.writeln(format_args!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, current_population_size: {} ({}p/{}o), fitness_cache_hit_miss_ratio: {:.2?}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, current_population_size: {} ({}p/{}o,{}r), fitness_cache_hit_miss_ratio: {:.2?}, #extension_events: {}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
@@ -206,6 +206,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
                 state.population_as_ref().size(),
                 parents_size,
                 offspring_size,
+                state.population_as_ref().recycled_size(),
                 fitness_cache_hit_miss_ratio,
                 number_of_extension_events,
             ));

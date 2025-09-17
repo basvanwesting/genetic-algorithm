@@ -286,7 +286,7 @@ fn main() {
             column_scores.clone(),
             false,
         ))
-        .with_reporter(HillClimbReporterSimple::new(100));
+        .with_reporter(HillClimbReporterSimple::new(1));
 
     let (hill_climb, _) = hill_climb_builder.call_repeatedly(100).unwrap();
     //println!("{}", hill_climb);

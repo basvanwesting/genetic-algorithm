@@ -47,20 +47,35 @@ impl Select for Tournament {
             self.replacement_rate,
         );
 
-        self.selection::<G, R>(&mut parents, new_parents_size, &mut state.population, config, rng);
-        self.selection::<G, R>(&mut offspring, new_offspring_size, &mut state.population, config, rng);
+        self.selection::<G, R>(
+            &mut parents,
+            new_parents_size,
+            &mut state.population,
+            config,
+            rng,
+        );
+        self.selection::<G, R>(
+            &mut offspring,
+            new_offspring_size,
+            &mut state.population,
+            config,
+            rng,
+        );
 
         state.population.chromosomes.append(&mut elite_chromosomes);
         state.population.chromosomes.append(&mut offspring);
         state.population.chromosomes.append(&mut parents);
 
-        // For final selection on reassembled population, use internal method
-        self.selection_final::<G, R>(
-            &mut state.population,
+        // detach and attach chromosomes for general reuse of selection method
+        let mut chromosomes = std::mem::take(&mut state.population.chromosomes);
+        self.selection::<G, R>(
+            &mut chromosomes,
             config.target_population_size,
+            &mut state.population,
             config,
             rng,
         );
+        state.population.chromosomes = chromosomes;
 
         state.add_duration(StrategyAction::Select, now.elapsed());
     }
@@ -141,73 +156,5 @@ impl Tournament {
         // Recycle all losing chromosomes to population's recycling bin
         population.recycle_from_vec(chromosomes, 0);
         chromosomes.append(&mut selected_chromosomes);
-    }
-
-    // Internal method for final selection on reassembled population
-    fn selection_final<G: EvolveGenotype, R: Rng>(
-        &self,
-        population: &mut crate::population::Population<G::Allele>,
-        selection_size: usize,
-        config: &EvolveConfig,
-        rng: &mut R,
-    ) {
-        let mut working_population_size = population.chromosomes.len();
-        let tournament_size = std::cmp::min(self.tournament_size, working_population_size);
-        let selection_size = std::cmp::min(selection_size, working_population_size);
-
-        let mut selected_chromosomes: Vec<Chromosome<G::Allele>> =
-            Vec::with_capacity(selection_size);
-        let mut sample_index: usize;
-        let mut winning_index: usize;
-        let mut sample_fitness_value: FitnessValue;
-        let mut winning_fitness_value: FitnessValue;
-
-        match config.fitness_ordering {
-            FitnessOrdering::Maximize => {
-                for _ in 0..selection_size {
-                    winning_index = 0;
-                    winning_fitness_value = FitnessValue::MIN;
-
-                    for _ in 0..tournament_size {
-                        sample_index = rng.gen_range(0..working_population_size);
-                        sample_fitness_value = population.chromosomes[sample_index]
-                            .fitness_score()
-                            .unwrap_or(FitnessValue::MIN);
-
-                        if sample_fitness_value >= winning_fitness_value {
-                            winning_index = sample_index;
-                            winning_fitness_value = sample_fitness_value;
-                        }
-                    }
-                    let chromosome = population.chromosomes.swap_remove(winning_index);
-                    selected_chromosomes.push(chromosome);
-                    working_population_size -= 1;
-                }
-            }
-            FitnessOrdering::Minimize => {
-                for _ in 0..selection_size {
-                    winning_index = 0;
-                    winning_fitness_value = FitnessValue::MAX;
-
-                    for _ in 0..tournament_size {
-                        sample_index = rng.gen_range(0..working_population_size);
-                        sample_fitness_value = population.chromosomes[sample_index]
-                            .fitness_score()
-                            .unwrap_or(FitnessValue::MAX);
-
-                        if sample_fitness_value <= winning_fitness_value {
-                            winning_index = sample_index;
-                            winning_fitness_value = sample_fitness_value;
-                        }
-                    }
-                    let chromosome = population.chromosomes.swap_remove(winning_index);
-                    selected_chromosomes.push(chromosome);
-                    working_population_size -= 1;
-                }
-            }
-        };
-        // Use truncate_with_recycling for final cleanup
-        population.truncate_with_recycling(0);
-        population.chromosomes.append(&mut selected_chromosomes);
     }
 }

@@ -54,46 +54,28 @@ impl<T: Allele> Population<T> {
         self.chromosomes.iter_mut().for_each(|c| c.increment_age())
     }
 
-    /// Truncate chromosomes to keep_size, moving excess to recycling pool
-    pub fn truncate_with_recycling(&mut self, keep_size: usize) {
-        while self.chromosomes.len() > keep_size {
-            if let Some(mut chromosome) = self.chromosomes.pop() {
-                chromosome.reset_state();
-                self.recycled.push(chromosome);
-            }
-        }
+    pub fn recycled_size(&self) -> usize {
+        self.recycled.len()
     }
 
-    /// Expand population by amount, reusing recycled chromosomes when available
-    pub fn expand_with_recycling(&mut self, amount: usize) {
-        let modulo = self.chromosomes.len();
-        for i in 0..amount {
-            let source = &self.chromosomes[i % modulo];
-            let chromosome = if let Some(mut recycled) = self.recycled.pop() {
-                recycled.copy_from(source);
-                recycled
-            } else {
-                source.clone()
-            };
-            self.chromosomes.push(chromosome);
-        }
+    /// Recycle a single chromosome
+    pub fn recycle_chromosome(&mut self, chromosome: Chromosome<T>) {
+        self.recycled.push(chromosome);
+    }
+
+    /// Truncate a population and add excess chromosomes to recycling bin
+    pub fn truncate_with_recycling(&mut self, keep_size: usize) {
+        self.chromosomes
+            .drain(keep_size..)
+            .for_each(|c| self.recycled.push(c));
     }
 
     /// Truncate a detached vector and add excess to recycling bin
     /// Used when chromosomes are temporarily outside the population (e.g., in selection)
-    pub fn recycle_from_vec(&mut self, vec: &mut Vec<Chromosome<T>>, keep_size: usize) {
-        while vec.len() > keep_size {
-            if let Some(mut chromosome) = vec.pop() {
-                chromosome.reset_state();
-                self.recycled.push(chromosome);
-            }
-        }
-    }
-    
-    /// Recycle a single chromosome
-    pub fn recycle_chromosome(&mut self, mut chromosome: Chromosome<T>) {
-        chromosome.reset_state();
-        self.recycled.push(chromosome);
+    pub fn recycle_from_vec(&mut self, chromosomes: &mut Vec<Chromosome<T>>, keep_size: usize) {
+        chromosomes
+            .drain(keep_size..)
+            .for_each(|c| self.recycled.push(c));
     }
 
     /// Get a recycled chromosome or create new one by cloning source
@@ -106,10 +88,20 @@ impl<T: Allele> Population<T> {
         }
     }
 
-    /// Get count of recycled chromosomes (for debugging)
-    #[cfg(debug_assertions)]
-    pub fn recycled_count(&self) -> usize {
-        self.recycled.len()
+    /// Expand population by amount, cycle cloning through the existing population while reusing
+    /// recycled chromosomes when available
+    pub fn expand_with_recycling(&mut self, amount: usize) {
+        let modulo = self.chromosomes.len();
+        for i in 0..amount {
+            let source = &self.chromosomes[i % modulo];
+            let chromosome = if let Some(mut recycled) = self.recycled.pop() {
+                recycled.copy_from(source);
+                recycled
+            } else {
+                source.clone()
+            };
+            self.chromosomes.push(chromosome);
+        }
     }
 
     /// fitness_score is Option and None is least, but invalid as best_chromosome, so filter it out
