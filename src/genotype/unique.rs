@@ -59,6 +59,7 @@ pub struct Unique<T: Allele + Hash = DefaultAllele> {
     pub allele_list: Vec<T>,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
+    pub genes_hashing: bool,
 }
 
 impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
@@ -79,6 +80,7 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
                 allele_list: allele_list.clone(),
                 gene_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -136,7 +138,7 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
             .tuples()
             .for_each(|(index1, index2)| chromosome.genes.swap(index1, index2));
         }
-        chromosome.reset_metadata();
+        chromosome.reset_metadata(self.genes_hashing);
     }
     fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
         let mut new = self.clone();
@@ -160,6 +162,9 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
     }
     fn genes_capacity(&self) -> usize {
         self.genes_size
+    }
+    fn genes_hashing(&self) -> bool {
+        self.genes_hashing
     }
 }
 
@@ -198,7 +203,7 @@ impl<T: Allele + Hash> HillClimbGenotype for Unique<T> {
             .for_each(|(first, second)| {
                 let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                 new_chromosome.genes.swap(first, second);
-                new_chromosome.reset_metadata();
+                new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             });
     }

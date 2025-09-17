@@ -65,7 +65,7 @@ pub type MutateEvolveState<M> = EvolveState<<M as Mutate>::Genotype>;
 ///                 genotype.apply_gene_delta(chromosome, even_index, delta);
 ///             }
 ///             // Important!!! Remember to reset the chromosome metadata after manipulation
-///             chromosome.reset_metadata();
+///             chromosome.reset_metadata(genotype.genes_hashing);
 ///         }
 ///         // Optionally, keep track of duration for reporting
 ///         state.add_duration(StrategyAction::Mutate, now.elapsed());

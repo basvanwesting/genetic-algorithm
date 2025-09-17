@@ -77,6 +77,7 @@ pub struct MultiUnique<T: Allele + Hash = DefaultAllele> {
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
+    pub genes_hashing: bool,
 }
 
 impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
@@ -124,6 +125,7 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
                 crossover_points,
                 crossover_point_index_sampler,
                 seed_genes_list: builder.seed_genes_list,
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -230,7 +232,7 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
                         })
                 });
         }
-        chromosome.reset_metadata();
+        chromosome.reset_metadata(self.genes_hashing);
     }
     fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
         let mut new = self.clone();
@@ -259,6 +261,9 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     }
     fn genes_capacity(&self) -> usize {
         self.genes_size
+    }
+    fn genes_hashing(&self) -> bool {
+        self.genes_hashing
     }
 }
 
@@ -317,8 +322,8 @@ impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
                 _ => (),
             });
         }
-        mother.reset_metadata();
-        father.reset_metadata();
+        mother.reset_metadata(self.genes_hashing);
+        father.reset_metadata(self.genes_hashing);
     }
     fn has_crossover_points(&self) -> bool {
         true
@@ -346,7 +351,7 @@ impl<T: Allele + Hash> HillClimbGenotype for MultiUnique<T> {
                         new_chromosome
                             .genes
                             .swap(index_offset + first, index_offset + second);
-                        new_chromosome.reset_metadata();
+                        new_chromosome.reset_metadata(self.genes_hashing);
                         population.chromosomes.push(new_chromosome);
                     });
             });

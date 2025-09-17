@@ -10,6 +10,7 @@ use genetic_algorithm::strategy::StrategyReporterNoop;
 fn removes_lesser() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
+        .with_genes_hashing(true)
         .build()
         .unwrap();
 
@@ -50,6 +51,7 @@ fn removes_lesser() {
 fn removes_lesser_no_fitness() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
+        .with_genes_hashing(true)
         .build()
         .unwrap();
 

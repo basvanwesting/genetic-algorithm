@@ -83,6 +83,7 @@ pub struct List<T: Allele + PartialEq + Hash = DefaultAllele> {
     gene_index_sampler: Uniform<usize>,
     allele_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
+    pub genes_hashing: bool,
 }
 
 impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for List<T> {
@@ -107,6 +108,7 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for List<T> {
                 gene_index_sampler: Uniform::from(0..builder.genes_size.unwrap()),
                 allele_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -170,7 +172,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
                 chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
             });
         }
-        chromosome.reset_metadata();
+        chromosome.reset_metadata(self.genes_hashing);
     }
     fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
         let mut new = self.clone();
@@ -194,6 +196,9 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
     }
     fn genes_capacity(&self) -> usize {
         self.genes_size
+    }
+    fn genes_hashing(&self) -> bool {
+        self.genes_hashing
     }
 }
 
@@ -223,8 +228,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for List<T> {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.reset_metadata();
-        father.reset_metadata();
+        mother.reset_metadata(self.genes_hashing);
+        father.reset_metadata(self.genes_hashing);
     }
     fn crossover_chromosome_points<R: Rng>(
         &self,
@@ -266,8 +271,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for List<T> {
                 _ => (),
             });
         }
-        mother.reset_metadata();
-        father.reset_metadata();
+        mother.reset_metadata(self.genes_hashing);
+        father.reset_metadata(self.genes_hashing);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -290,7 +295,7 @@ impl<T: Allele + PartialEq + Hash> HillClimbGenotype for List<T> {
                 if chromosome.genes[index] != allele_value {
                     let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     new_chromosome.genes[index] = allele_value;
-                    new_chromosome.reset_metadata();
+                    new_chromosome.reset_metadata(self.genes_hashing);
                     population.chromosomes.push(new_chromosome);
                 }
             }

@@ -611,13 +611,12 @@ impl<G: EvolveGenotype> EvolveState<G> {
             }
         }
     }
-    fn update_population_cardinality(&mut self, _genotype: &G, _config: &EvolveConfig) {
-        // Note: genes_hashing() method not available in distributed genotype trait
-        // self.population_cardinality = if genotype.genes_hashing() {
-        //     self.population.genes_cardinality()
-        // } else {
-        self.population_cardinality = self.population.fitness_score_cardinality()
-        // }
+    fn update_population_cardinality(&mut self, genotype: &G, _config: &EvolveConfig) {
+        self.population_cardinality = if genotype.genes_hashing() {
+            self.population.genes_cardinality()
+        } else {
+            self.population.fitness_score_cardinality()
+        }
     }
 }
 

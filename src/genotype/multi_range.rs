@@ -92,6 +92,7 @@ where
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
     pub seed_genes_list: Vec<Vec<T>>,
+    pub genes_hashing: bool,
 }
 
 impl<T: RangeAllele + Into<f64>> TryFrom<Builder<Self>> for MultiRange<T>
@@ -148,6 +149,7 @@ where
                     },
                 ),
                 seed_genes_list: builder.seed_genes_list,
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -272,7 +274,7 @@ where
                 };
             });
         }
-        chromosome.reset_metadata();
+        chromosome.reset_metadata(self.genes_hashing);
     }
     fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
         let mut new = self.clone();
@@ -298,6 +300,9 @@ where
     }
     fn genes_capacity(&self) -> usize {
         self.genes_size
+    }
+    fn genes_hashing(&self) -> bool {
+        self.genes_hashing
     }
 }
 
@@ -331,8 +336,8 @@ where
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.reset_metadata();
-        father.reset_metadata();
+        mother.reset_metadata(self.genes_hashing);
+        father.reset_metadata(self.genes_hashing);
     }
     fn crossover_chromosome_points<R: Rng>(
         &self,
@@ -374,8 +379,8 @@ where
                 _ => (),
             });
         }
-        mother.reset_metadata();
-        father.reset_metadata();
+        mother.reset_metadata(self.genes_hashing);
+        father.reset_metadata(self.genes_hashing);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -455,13 +460,13 @@ where
                 if value_low < base_value {
                     let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     new_chromosome.genes[index] = value_low;
-                    new_chromosome.reset_metadata();
+                    new_chromosome.reset_metadata(self.genes_hashing);
                     population.chromosomes.push(new_chromosome);
                 };
                 if value_high > base_value {
                     let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     new_chromosome.genes[index] = value_high;
-                    new_chromosome.reset_metadata();
+                    new_chromosome.reset_metadata(self.genes_hashing);
                     population.chromosomes.push(new_chromosome);
                 };
             });
@@ -499,7 +504,7 @@ where
                 if range_start < base_value {
                     let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
-                    new_chromosome.reset_metadata();
+                    new_chromosome.reset_metadata(self.genes_hashing);
                     population.chromosomes.push(new_chromosome);
                 };
                 if base_value < range_end {
@@ -507,7 +512,7 @@ where
                     let new_value =
                         rng.gen_range((base_value + T::smallest_increment())..=range_end);
                     new_chromosome.genes[index] = new_value;
-                    new_chromosome.reset_metadata();
+                    new_chromosome.reset_metadata(self.genes_hashing);
                     population.chromosomes.push(new_chromosome);
                 };
             });
@@ -531,7 +536,7 @@ where
                 if allele_range_start < base_value {
                     let mut new_chromosome = population.get_or_create_chromosome(chromosome);
                     new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
-                    new_chromosome.reset_metadata();
+                    new_chromosome.reset_metadata(self.genes_hashing);
                     population.chromosomes.push(new_chromosome);
                 };
                 if base_value < allele_range_end {
@@ -539,7 +544,7 @@ where
                     let new_value =
                         rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
                     new_chromosome.genes[index] = new_value;
-                    new_chromosome.reset_metadata();
+                    new_chromosome.reset_metadata(self.genes_hashing);
                     population.chromosomes.push(new_chromosome);
                 };
             });
@@ -747,6 +752,7 @@ where
                 },
             ),
             seed_genes_list: self.seed_genes_list.clone(),
+            genes_hashing: self.genes_hashing,
         }
     }
 }

@@ -20,6 +20,7 @@ fn main() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(ALLELE_RANGE)
+        // .with_genes_hashing(true)
         .build()
         .unwrap();
     // let genotype = BinaryGenotype::builder()

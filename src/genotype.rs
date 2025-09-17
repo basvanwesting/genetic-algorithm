@@ -45,13 +45,9 @@ pub trait Genotype:
 
     fn genes_size(&self) -> usize;
     fn genes_capacity(&self) -> usize;
+    fn genes_hashing(&self) -> bool;
     fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele];
-
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Genes<Self::Allele>;
-    fn set_random_genes<R: Rng>(&self, chromosome: &mut Chromosome<Self::Allele>, rng: &mut R) {
-        let genes = self.random_genes_factory(rng);
-        chromosome.set_genes(genes);
-    }
 
     fn mutation_type(&self) -> MutationType {
         MutationType::Random

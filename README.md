@@ -138,8 +138,9 @@ For the Evolve strategy:
   operations.
 * Crossover: the workhorse of internal parts. Crossover touches most genes each
   generation and clones up to the whole population to produce offspring
-  (depending on selection-rate). It also calculates new genes hashes if
-  enabled, which has a relatively high overhead on the main Evolve loop.
+  (depending on selection-rate). It also calculates new genes hashes if enabled
+  on the Genotype, which has a relatively high overhead on the main Evolve
+  loop.
 * Mutate: no considerations. It touches genes like crossover does, but should
   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
 * Fitness: can be anything. This fully depends on the user domain. Parallelize

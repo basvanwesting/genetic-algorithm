@@ -90,7 +90,7 @@ impl Mutate for ScaledOptionalDiagonalMutate {
                     }
                 }
                 // remember to reset the chromosome metadata after manipulation
-                chromosome.reset_metadata();
+                chromosome.reset_metadata(genotype.genes_hashing);
             }
         }
         state.add_duration(StrategyAction::Mutate, now.elapsed());

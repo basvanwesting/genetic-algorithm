@@ -27,6 +27,7 @@ pub struct Binary {
     pub genes_size: usize,
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<bool>>,
+    pub genes_hashing: bool,
 }
 
 impl TryFrom<Builder<Self>> for Binary {
@@ -43,6 +44,7 @@ impl TryFrom<Builder<Self>> for Binary {
                 genes_size,
                 gene_index_sampler: Uniform::from(0..genes_size),
                 seed_genes_list: builder.seed_genes_list,
+                genes_hashing: builder.genes_hashing,
             })
         }
     }
@@ -101,7 +103,7 @@ impl Genotype for Binary {
                 chromosome.genes[index] = !chromosome.genes[index];
             });
         }
-        chromosome.reset_metadata();
+        chromosome.reset_metadata(self.genes_hashing);
     }
     fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
         let mut new = self.clone();
@@ -123,6 +125,9 @@ impl Genotype for Binary {
     }
     fn genes_capacity(&self) -> usize {
         self.genes_size
+    }
+    fn genes_hashing(&self) -> bool {
+        self.genes_hashing
     }
 }
 
@@ -152,8 +157,8 @@ impl EvolveGenotype for Binary {
                 std::mem::swap(&mut father.genes[index], &mut mother.genes[index]);
             });
         }
-        mother.reset_metadata();
-        father.reset_metadata();
+        mother.reset_metadata(self.genes_hashing);
+        father.reset_metadata(self.genes_hashing);
     }
     fn crossover_chromosome_points<R: Rng>(
         &self,
@@ -195,8 +200,8 @@ impl EvolveGenotype for Binary {
                 _ => (),
             });
         }
-        mother.reset_metadata();
-        father.reset_metadata();
+        mother.reset_metadata(self.genes_hashing);
+        father.reset_metadata(self.genes_hashing);
     }
 
     fn has_crossover_indexes(&self) -> bool {
@@ -217,7 +222,7 @@ impl HillClimbGenotype for Binary {
         (0..self.genes_size).for_each(|index| {
             let mut new_chromosome = population.get_or_create_chromosome(chromosome);
             new_chromosome.genes[index] = !new_chromosome.genes[index];
-            new_chromosome.reset_metadata();
+            new_chromosome.reset_metadata(self.genes_hashing);
             population.chromosomes.push(new_chromosome);
         });
     }

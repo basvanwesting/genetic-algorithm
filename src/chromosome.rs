@@ -89,22 +89,12 @@ impl<T: Allele> Chromosome<T> {
         &self.genes
     }
 
-    pub fn get_genes(&self) -> Genes<T> {
-        self.genes.clone()
-    }
-
-    pub fn set_genes(&mut self, genes: Genes<T>) {
-        self.genes = genes;
-        let hash = self.calculate_hash();
-        self.genes_hash = Some(hash);
-        self.fitness_score = None;
-        self.age = 0;
-    }
-
-    pub fn reset_metadata(&mut self) {
+    pub fn reset_metadata(&mut self, genes_hashing: bool) {
         self.age = 0;
         self.fitness_score = None;
-        self.genes_hash = Some(self.calculate_hash());
+        if genes_hashing {
+            self.genes_hash = Some(self.calculate_hash())
+        }
     }
 
     pub fn copy_metadata(&mut self, other: &Self) {
