@@ -20,6 +20,58 @@ use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::Rng;
 
+/// This is just a shortcut for `Self::Genotype`
+pub type MutateGenotype<M> = <M as Mutate>::Genotype;
+/// This is just a shortcut for `EvolveState<Self::Genotype>,`
+pub type MutateEvolveState<M> = EvolveState<<M as Mutate>::Genotype>;
+
+/// # Optional Custom User implementation (rarely needed)
+///
+/// For the user API, the Mutate Trait has an associated Genotype. This way the user can implement
+/// a specialized Mutate alterative with access to the user's Genotype specific methods at hand.
+///
+/// # Example
+/// ```rust
+/// use genetic_algorithm::strategy::evolve::prelude::*;
+/// use std::time::Instant;
+/// use rand::Rng;
+///
+/// #[derive(Clone, Debug)]
+/// struct CustomMutate; // or with fields
+/// impl Mutate for CustomMutate {
+///     type Genotype = MultiRangeGenotype<f32>;
+///
+///     fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+///         &mut self,
+///         genotype: &Self::Genotype,
+///         state: &mut EvolveState<Self::Genotype>,
+///         _config: &EvolveConfig,
+///         _reporter: &mut SR,
+///         rng: &mut R,
+///     ) {
+///         let now = Instant::now();
+///
+///         // Skip the parents, iterate over the freshly crossovered offspring
+///         for chromosome in state
+///             .population
+///             .chromosomes
+///             .iter_mut()
+///             .filter(|c| c.is_offspring())
+///         {
+///             // Custom logic, for instance mutate all genes with even index be a relative change
+///             for even_index in (0..genotype.genes_size()).filter(|x| x % 2 == 0) {
+///                 let delta = rng.gen_range(-1.0..=1.0);
+///                 // MultiRangeGenotype specific methods are available (this one does allele bounds checking)
+///                 genotype.apply_gene_delta(chromosome, even_index, delta);
+///             }
+///             // Important!!! Remember to reset the chromosome metadata after manipulation
+///             chromosome.reset_state();
+///         }
+///         // Optionally, keep track of duration for reporting
+///         state.add_duration(StrategyAction::Mutate, now.elapsed());
+///     }
+/// }
+/// ```
 pub trait Mutate: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: EvolveGenotype;
 

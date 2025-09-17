@@ -39,6 +39,70 @@ use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::Rng;
 
+/// This is just a shortcut for `Self::Genotype`
+pub type CrossoverGenotype<C> = <C as Crossover>::Genotype;
+/// This is just a shortcut for `EvolveState<Self::Genotype>,`
+pub type CrossoverEvolveState<C> = EvolveState<<C as Crossover>::Genotype>;
+
+/// # Optional Custom User implementation (rarely needed)
+///
+/// For the user API, the Crossover Trait has an associated Genotype. This way the user can
+/// implement a specialized Crossover alterative with access to the user's Genotype specific
+/// methods at hand.
+///
+/// # Example
+/// ```rust
+/// use genetic_algorithm::strategy::evolve::prelude::*;
+/// use std::time::Instant;
+/// use itertools::Itertools;
+/// use rand::Rng;
+///
+/// #[derive(Clone, Debug)]
+/// struct CustomCrossover {
+///     pub selection_rate: f32,
+/// };
+/// impl Crossover for CustomCrossover {
+///     type Genotype = MultiRangeGenotype<f32>;
+///
+///     fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+///         &mut self,
+///         genotype: &Self::Genotype,
+///         state: &mut EvolveState<Self::Genotype>,
+///         _config: &EvolveConfig,
+///         _reporter: &mut SR,
+///         _rng: &mut R,
+///     ) {
+///         let now = Instant::now();
+///         let existing_population_size = state.population.chromosomes.len();
+///         let selected_population_size =
+///             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
+///
+///         // Important!!! Append offspring as recycled clones from parents (will crossover later)
+///         state.population.expand_with_recycling(selected_population_size);
+///
+///         // Skip the parents, iterate over the freshly appended offspring
+///         let iterator = state
+///             .population
+///             .chromosomes
+///             .iter_mut()
+///             .skip(existing_population_size);
+///
+///         // Crossover the offspring clones
+///         for (offspring1, offspring2) in iterator.tuples() {
+///             // Custom logic, for instance, swap all genes with even index
+///             for even_index in (0..genotype.genes_size()).filter(|x| x % 2 == 0) {
+///                 std::mem::swap(&mut offspring1.genes[even_index], &mut offspring2.genes[even_index]);
+///                 // MultiRangeGenotype specific methods are available if needed
+///             }
+///             // Important!!! Remember to reset the chromosome metadata after manipulation
+///             offspring1.reset_state();
+///             offspring2.reset_state();
+///         }
+///         // Optionally, keep track of duration for reporting
+///         state.add_duration(StrategyAction::Crossover, now.elapsed());
+///     }
+/// }
+/// ```
 pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: EvolveGenotype;
 

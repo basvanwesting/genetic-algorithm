@@ -2,7 +2,7 @@
 pub use crate::chromosome::{Chromosome, GenesHash};
 #[doc(no_inline)]
 pub use crate::crossover::{
-    CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverRejuvenate,
+    Crossover, CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverRejuvenate,
     CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform, CrossoverWrapper,
 };
 #[doc(no_inline)]
@@ -25,8 +25,8 @@ pub use crate::genotype::{
 pub use crate::impl_allele;
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateEvent, MutateMultiGene, MutateMultiGeneDynamic, MutateMultiGeneRange, MutateSingleGene,
-    MutateSingleGeneDynamic, MutateWrapper,
+    Mutate, MutateEvent, MutateMultiGene, MutateMultiGeneDynamic, MutateMultiGeneRange,
+    MutateSingleGene, MutateSingleGeneDynamic, MutateWrapper,
 };
 #[doc(no_inline)]
 pub use crate::population::Population;
@@ -39,7 +39,7 @@ pub use crate::strategy::evolve::{
 };
 #[doc(no_inline)]
 pub use crate::strategy::{
-    Strategy, StrategyBuilder, StrategyConfig, StrategyReporter, StrategyReporterDuration,
-    StrategyReporterNoop, StrategyReporterSimple, StrategyState, TryFromStrategyBuilderError,
-    STRATEGY_ACTIONS,
+    Strategy, StrategyAction, StrategyBuilder, StrategyConfig, StrategyReporter,
+    StrategyReporterDuration, StrategyReporterNoop, StrategyReporterSimple, StrategyState,
+    TryFromStrategyBuilderError, STRATEGY_ACTIONS,
 };
