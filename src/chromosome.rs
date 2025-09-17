@@ -114,6 +114,7 @@ impl<T: Allele> Chromosome<T> {
     }
 
     pub fn copy_from(&mut self, source: &Self) {
+        // For recycled chromosomes, this is just memcpy with known size
         self.genes.clone_from(&source.genes);
         self.copy_state(source);
     }

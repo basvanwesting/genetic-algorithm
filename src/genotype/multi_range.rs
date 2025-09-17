@@ -229,7 +229,6 @@ where
             rand::seq::index::sample(rng, self.genes_size, count.min(self.genes_size)).into_vec()
         }
     }
-
     fn mutation_type(&self) -> MutationType {
         self.mutation_type
     }
