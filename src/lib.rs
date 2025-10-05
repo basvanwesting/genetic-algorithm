@@ -4,11 +4,11 @@
 //! Experimental branch with Centralized genetic algorithms with population-wide gene storage
 //!
 //! Use this module for:
-//! - DynamicRange and StaticRange genotypes
-//! - GPU/SIMD-ready operations
-//! - Maximum performance with large populations
+//! * DynamicRange, StaticRange, StaticBinary genotypes
+//! * GPU/SIMD-ready operations
+//! * Maximum performance with large populations
 //!
-//! Branch is archived for now, due impractical to zero-copy genes to GPU in practice
+//! Branch is archived for now, as zero-copy transfer of genes to GPU proved impractical in practice
 //!
 //! There are three main elements to this approach:
 //! * The [Genotype](crate::genotype) (the search space)
@@ -23,7 +23,7 @@
 //! * [Chromosome](crate::chromosome): a chromosome has `genes_size` number of genes
 //! * [Allele](crate::genotype::Allele): alleles are the possible values of the genes
 //! * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
-//! * [Genes](crate::genotype::Genes): storage trait of the genes for a chromosome, always `Vec<Allele>`
+//! * [Genes](crate::genotype::Genes): storage trait of the genes for a chromosome
 //! * [Genotype](crate::genotype): Knows how to generate, mutate and crossover chromosomes efficiently
 //! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
 //!
@@ -39,7 +39,7 @@
 //!
 //! // the search space
 //! let genotype = StaticBinaryGenotype::<GENES_SIZE, POPULATION_SIZE>::builder() // boolean alleles (100 genes, 100 pop)
-//!     .with_genes_size(GENES_SIZE)                                                     // 100 genes per chromosome
+//!     .with_genes_size(GENES_SIZE)                                              // 100 genes per chromosome
 //!     .build()
 //!     .unwrap();
 //!
@@ -94,37 +94,12 @@
 //!
 //! ## Examples
 //!
-//! * N-Queens puzzle <https://en.wikipedia.org/wiki/Eight_queens_puzzle>
-//!     * See [examples/evolve_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_nqueens.rs)
-//!     * See [examples/hill_climb_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_nqueens.rs)
-//!     * `UniqueGenotype<u8>` with a 64x64 chess board setup
-//!     * custom `NQueensFitness` fitness
 //! * Knapsack problem: <https://en.wikipedia.org/wiki/Knapsack_problem>
 //!     * See [examples/evolve_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_knapsack.rs)
-//!     * See [examples/permutate_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_knapsack.rs)
-//!     * `BinaryGenotype<Item(weight, value)>` each gene encodes presence in the knapsack
+//!     * `StaticBinaryGenotype<Item(weight, value)>` each gene encodes presence in the knapsack
 //!     * custom `KnapsackFitness(&items, weight_limit)` fitness
-//! * Infinite Monkey theorem: <https://en.wikipedia.org/wiki/Infinite_monkey_theorem>
-//!     * See [examples/evolve_monkeys](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_monkeys.rs)
-//!     * `ListGenotype<char>` 100 monkeys randomly typing characters in a loop
-//!     * custom fitness using hamming distance
-//! * Permutation strategy instead of Evolve strategy for small search spaces, with a 100% guarantee
-//!     * See [examples/permutate_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_knapsack.rs)
-//!     * See [examples/permutate_scrabble](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_scrabble.rs)
 //! * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
-//!     * See [examples/hill_climb_nqueens](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_nqueens.rs)
-//!     * See [examples/hill_climb_table_seating](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_table_seating.rs)
-//! * Explore internal and external multithreading options
-//!     * See [examples/explore_multithreading](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_multithreading.rs)
-//! * Use superset StrategyBuilder for easier switching in implementation
-//!     * See [examples/explore_strategies](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_strategies.rs)
-//! * Use fitness LRU cache
-//!     * See [examples/evolve_binary_cache_fitness](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_binary_cache_fitness.rs)
-//!     * _Note: doesn't help performance much in this case... or any case, better fix your population diversity_
-//! * Custom Reporting implementation
-//!     * See [examples/permutate_scrabble](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_scrabble.rs)
-//! * Custom Mutate implementation
-//!     * See [examples/evolve_milp_custom_mutate](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_milp_custom_mutate.rs)
+//!     * See [examples/hill_climb_range](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_range.rs)
 //!
 //! ## Performance considerations
 //!
@@ -145,6 +120,20 @@
 //! * [Fitness](fitness): can be anything. This fully depends on the user domain. Parallelize
 //!   it using `with_par_fitness()` in the Builder. But beware that parallelization
 //!   has it's own overhead and is not always faster.
+//!
+//! **GPU acceleration**
+//!
+//! Genes (N) and Population (M) are a stored in single contiguous memory range of
+//! Alleles (T) with length N*M on the heap. A pointer to this data can be taken to
+//! calculate the whole population at once.
+//!
+//! Useful in the following strategies where a whole population is calculated:
+//! * Evolve
+//! * HillClimb-SteepestAscent
+//!
+//! Possibly a GPU compatible memory layout still needs to be added. The current implementation
+//! just provides all the basic building blocks to implement this. Please open a github issue for
+//! further support.
 pub mod allele;
 pub mod chromosome;
 pub mod crossover;

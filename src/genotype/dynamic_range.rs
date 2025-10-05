@@ -1,9 +1,7 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType};
 use crate::allele::RangeAllele;
-use crate::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash,
-};
+use crate::chromosome::{Chromosome, ChromosomeManager, GenesHash};
 use crate::fitness::FitnessValue;
 use crate::population::Population;
 use bytemuck::cast_slice;
@@ -27,8 +25,7 @@ pub type DefaultAllele = f32;
 /// if the matrix). This opens the possibility for linear algebra fitness calculations on the whole
 /// population at once, possibly using the GPU in the future (if the data is stored and mutated at
 /// a GPU readable memory location). The fitness would then implement
-/// [calculate_for_population](crate::fitness::Fitness::calculate_for_population) instead of
-/// [calculate_for_chromosome](crate::fitness::Fitness::calculate_for_chromosome).
+/// [calculate_for_population](crate::fitness::Fitness::calculate_for_population).
 ///
 /// This is a simple heap based example implementation. The size doesn't need to be known up front,
 /// as de storage extend if needed.

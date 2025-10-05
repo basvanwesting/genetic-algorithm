@@ -1,8 +1,6 @@
 use super::builder::{Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
-use crate::chromosome::{
-    Chromosome, ChromosomeManager, GenesHash,
-};
+use crate::chromosome::{Chromosome, ChromosomeManager, GenesHash};
 use crate::fitness::FitnessValue;
 use crate::population::Population;
 use itertools::Itertools;
@@ -23,8 +21,7 @@ use std::ops::{Bound, Range, RangeBounds};
 /// the matrix unused at false. This opens the possibility for linear algebra fitness
 /// calculations on the whole population at once, possibly using the GPU in the future (if the data
 /// is stored and mutated at a GPU readable memory location). The fitness would then implement
-/// [calculate_for_population](crate::fitness::Fitness::calculate_for_population) instead of
-/// [calculate_for_chromosome](crate::fitness::Fitness::calculate_for_chromosome).
+/// [calculate_for_population](crate::fitness::Fitness::calculate_for_population).
 ///
 /// The rest is like [BinaryGenotype](super::BinaryGenotype).
 ///

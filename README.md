@@ -18,6 +18,15 @@
 A genetic algorithm implementation for Rust.
 Inspired by the book [Genetic Algorithms in Elixir](https://pragprog.com/titles/smgaelixir/genetic-algorithms-in-elixir/)
 
+Experimental branch with Centralized genetic algorithms with population-wide gene storage
+
+Use this module for:
+* DynamicRange, StaticRange, StaticBinary genotypes
+* GPU/SIMD-ready operations
+* Maximum performance with large populations
+
+Branch is archived for now, as zero-copy transfer of genes to GPU proved impractical in practice
+
 There are three main elements to this approach:
 * The Genotype (the search space)
 * The Fitness function (the search goal)
@@ -31,8 +40,8 @@ Terminology:
 * Chromosome: a chromosome has `genes_size` number of genes
 * Allele: alleles are the possible values of the genes
 * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
-* Genes: storage trait of the genes for a chromosome, mostly `Vec<Allele>`, but alternatives possible
-* Genotype: Knows how to generate, mutate and crossover chromosomes efficiently
+* Genes: storage trait of the genes for a chromosome
+* Genotype: Knows how to generate, mutate and crossover chromosomes efficiently and holds all the genes in a centralized manner
 * Fitness: knows how to determine the fitness of a chromosome
 
 All multithreading mechanisms are implemented using
@@ -48,9 +57,12 @@ See [docs.rs](https://docs.rs/genetic_algorithm/latest/genetic_algorithm)
 ```rust
 use genetic_algorithm::strategy::evolve::prelude::*;
 
+const GENES_SIZE: usize = 100;
+const POPULATION_SIZE: usize = 200;
+
 // the search space
-let genotype = BinaryGenotype::builder() // boolean alleles
-    .with_genes_size(100)                // 100 genes per chromosome
+let genotype = StaticBinaryGenotype::<GENES_SIZE, POPULATION_SIZE>::builder() // boolean alleles (100 genes, 100 pop)
+    .with_genes_size(GENES_SIZE)                                              // 100 genes per chromosome
     .build()
     .unwrap();
 
@@ -60,13 +72,20 @@ println!("{}", genotype);
 #[derive(Clone, Debug)]
 pub struct CountTrue;
 impl Fitness for CountTrue {
-    type Genotype = BinaryGenotype; // Genes = Vec<bool>
-    fn calculate_for_chromosome(
-        &mut self, 
-        chromosome: &FitnessChromosome<Self>, 
-        _genotype: &FitnessGenotype<Self>
-    ) -> Option<FitnessValue> {
-        Some(chromosome.genes.iter().filter(|&value| *value).count() as FitnessValue)
+    type Genotype = StaticBinaryGenotype::<GENES_SIZE, POPULATION_SIZE>; // Genes = Vec<bool>
+    fn calculate_for_population(
+        &mut self,
+        _population: &Population,
+        genotype: &FitnessGenotype<Self>,
+    ) -> Vec<Option<FitnessValue>> {
+        // pure matrix data calculation on [[T; N] M]
+        // the order of the rows needs to be preserved as it matches the row_id on the chromosome
+        genotype
+            .data
+            .iter()
+            .map(|genes| genes.iter().filter(|&value| *value).count() as FitnessValue)
+            .map(Some)
+            .collect()
     }
 }
 
@@ -81,50 +100,26 @@ let evolve = Evolve::builder()
     .with_target_population_size(100)                 // evolve with 100 chromosomes
     .with_target_fitness_score(100)                   // goal is 100 times true in the best chromosome
     .with_reporter(EvolveReporterSimple::new(100))    // optional builder step, report every 100 generations
-    .call();
-    .unwrap()
+    .call()
+    .unwrap();
 
 println!("{}", evolve);
 
 // it's all about the best genes after all
 let (best_genes, best_fitness_score) = evolve.best_genes_and_fitness_score().unwrap();
-assert_eq!(best_genes, vec![true; 100]);
+assert_eq!(best_genes, Box::new([true; 100]));
 assert_eq!(best_fitness_score, 100);
 ```
 
 ## Examples
 Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 
-* N-Queens puzzle https://en.wikipedia.org/wiki/Eight_queens_puzzle.
-    * See [examples/evolve_nqueens](../main/examples/evolve_nqueens.rs)
-    * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
-    * `UniqueGenotype<u8>` with a 64x64 chess board setup
-    * custom `NQueensFitness` fitness
 * Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
     * See [examples/evolve_knapsack](../main/examples/evolve_knapsack.rs)
-    * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
-    * `BinaryGenotype<Item(weight, value)>` each gene encodes presence in the knapsack
+    * `StaticBinaryGenotype<Item(weight, value)>` each gene encodes presence in the knapsack
     * custom `KnapsackFitness(&items, weight_limit)` fitness
-* Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
-    * See [examples/evolve_monkeys](../main/examples/evolve_monkeys.rs)
-    * `ListGenotype<char>` 100 monkeys randomly typing characters in a loop
-    * custom fitness using hamming distance
-* Permutation strategy instead of Evolve strategy for small search spaces, with a 100% guarantee
-    * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
 * HillClimb strategy instead of Evolve strategy, when crossover is impossible or inefficient
-    * See [examples/hill_climb_nqueens](../main/examples/hill_climb_nqueens.rs)
-    * See [examples/hill_climb_table_seating](../main/examples/hill_climb_table_seating.rs)
-* Explore vector genes (BinaryGenotype) versus other storage (BitGenotype)
-    * See [examples/evolve_bit_v_binary](../main/examples/evolve_bit_v_binary.rs)
-* Explore internal and external multithreading options
-    * See [examples/explore_multithreading](../main/examples/explore_multithreading.rs)
-* Use superset StrategyBuilder for easier switching in implementation
-    * See [examples/explore_strategies](../main/examples/explore_strategies.rs)
-* Use fitness LRU cache
-    * See [examples/evolve_binary_cache_fitness](../main/examples/evolve_binary_cache_fitness.rs)
-    * _Note: doesn't help performance much in this case... or any case, better fix your population diversity_
-* Custom Reporting implementation
-    * See [examples/permutate_scrabble](../main/examples/permutate_scrabble.rs)
+    * See [examples/hill_climb_range](../main/examples/hill_climb_range.rs)
 
 ## Performance considerations
 
@@ -143,17 +138,13 @@ For the Evolve strategy:
   overhead on the main Evolve loop.
 * Mutate: no considerations. It touches genes like crossover does, but should
   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
-* Fitness: can be anything. This fully depends on the user domain. Parallelize
-  it using `with_par_fitness()` in the Builder. But beware that parallelization
-  has it's own overhead and is not always faster.
+* Fitness: can be anything. This fully depends on the user domain.
 
 **GPU acceleration**
 
-There are two genotypes where Genes (N) and Population (M) are a stored in single contiguous
-memory range of Alleles (T) with length N*M on the heap. A pointer to this data can be taken to
-calculate the whole population at once. These are:
-* DynamicRangeGenotype
-* StaticRangeGenotype
+Genes (N) and Population (M) are a stored in single contiguous memory range of
+Alleles (T) with length N*M on the heap. A pointer to this data can be taken to
+calculate the whole population at once.
 
 Useful in the following strategies where a whole population is calculated:
 * Evolve
@@ -186,30 +177,8 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 
 ## TODO
 * One cannot permutate centralized static binary, yet. Need a window approach setting the matrix for each iteration. To calculate that matrix as a whole repeatedly
-* Remove FixedBit from distributed? It is the only non-Vec implementation. And distributed is about flexibility not performance, centralized is for performance (it could implement Binary as FixedBit because the internals private in centralized)
-* remove hillclimb/stochastic from centralized as it make no sense
-* remove calculate_for_chromosome in centralized, remove calculate_for_population in distributed
 
 ## MAYBE
-* Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)
-* Add scaling helper function
-* Add simulated annealing strategy
-* Add Roulette selection with and without duplicates (with fitness ordering)
-* Add OrderOne crossover for UniqueGenotype?
-  * Order Crossover (OX): Simple and works well for many permutation problems.
-  * Partially Mapped Crossover (PMX): Preserves more of the parent's structure but is slightly more complex.
-  * Cycle Crossover (CX): Ensures all genes come from one parent, useful for strict preservation of order.
-  * Edge Crossover (EX): Preserves adjacency relationships, suitable for Traveling Salesman Problem or similar.
-* Add WholeArithmetic crossover for RangeGenotype?
-* Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
-* Explore more non-Vec genes: PackedSimd?
-* Maybe use TinyVec for Population? (it us usually less than 1000 anyway),
-  maybe useful paired with MatrixGenotype, where the chromosomes are lightweight
-  (and Copyable)
-* StrategyBuilder, with_par_fitness_threshold, with_permutate_threshold?
-* Add target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
-* Add negative selection-rate to encode in-place crossover? But do keep the old
-  extend with best-parents with the pre v0.20 selection-rate behaviour which was crucial for evolve_nqueens
 
 ## ISSUES
 * hill_climb SteepestAscent actually has a population size requirement of
