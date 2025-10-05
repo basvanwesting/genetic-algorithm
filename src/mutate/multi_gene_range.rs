@@ -48,7 +48,6 @@ impl<G: EvolveGenotype> Mutate for MultiGeneRange<G> {
                     self.number_of_mutations_sampler.sample(rng),
                     true,
                     chromosome,
-                    state.current_scale_index,
                     rng,
                 );
             }

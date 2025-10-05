@@ -118,7 +118,7 @@ fn range_float_genotype_unscaled() {
 
 #[test]
 fn range_float_genotype_scaled() {
-    let genotype = RangeGenotype::builder()
+    let mut genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
@@ -161,7 +161,8 @@ fn range_float_genotype_scaled() {
         0.001,
     ));
 
-    state.current_scale_index = Some(1);
+    assert!(genotype.increment_scale_index());
+    assert_eq!(genotype.current_scale_index, 1);
     MutateSingleGene::new(0.5).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&state.population),

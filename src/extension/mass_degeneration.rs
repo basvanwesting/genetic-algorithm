@@ -53,7 +53,6 @@ impl Extension for MassDegeneration {
                             self.number_of_mutations,
                             true,
                             chromosome,
-                            state.current_scale_index,
                             rng,
                         );
                     }

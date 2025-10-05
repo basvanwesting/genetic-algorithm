@@ -32,10 +32,10 @@ fn mutate_chromosome_single() {
     let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 2, 3]);
 
-    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 3, 2]);
 
-    genotype.mutate_chromosome_genes(1, true, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
     assert_eq!(inspect::chromosome(&chromosome), vec![2, 5, 3, 4]);
 }
 #[test]
@@ -47,7 +47,7 @@ fn mutate_chromosome_genes_with_duplicates() {
         .unwrap();
 
     let mut chromosome = build::chromosome(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    genotype.mutate_chromosome_genes(3, true, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(3, true, &mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![1, 2, 3, 5, 9, 6, 7, 8, 4]
@@ -62,7 +62,7 @@ fn mutate_chromosome_genes_without_duplicates() {
         .unwrap();
 
     let mut chromosome = build::chromosome(vec![1, 2, 3, 4, 5, 6, 7, 8, 9]);
-    genotype.mutate_chromosome_genes(3, false, &mut chromosome, None, &mut rng);
+    genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
         vec![3, 2, 1, 4, 7, 8, 5, 6, 9]
@@ -111,7 +111,7 @@ fn chromosome_permutations() {
     assert_eq!(
         inspect::chromosomes(
             genotype
-                .chromosome_permutations_into_iter(None, None)
+                .chromosome_permutations_into_iter(None)
                 .collect::<Vec<_>>()
                 .as_slice()
         ),
@@ -159,7 +159,7 @@ fn chromosome_permutations_genes_size_huge() {
     assert_eq!(
         inspect::chromosomes(
             genotype
-                .chromosome_permutations_into_iter(None, None)
+                .chromosome_permutations_into_iter(None)
                 .take(1)
                 .collect::<Vec<_>>()
                 .as_slice()
@@ -184,7 +184,7 @@ fn neighbouring_population_2() {
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(1u32));
     let mut population = Population::new(vec![]);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert_eq!(inspect::population(&population), vec![vec![1, 0]]);
 }
 #[test]
@@ -201,7 +201,7 @@ fn neighbouring_population_4() {
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
 
     let mut population = Population::new(vec![]);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, None, &mut rng);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert_eq!(
         inspect::population(&population),
         vec![

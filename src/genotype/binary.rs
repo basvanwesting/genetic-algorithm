@@ -83,7 +83,6 @@ impl Genotype for Binary {
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self::Allele>,
-        _scale_index: Option<usize>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -112,9 +111,6 @@ impl Genotype for Binary {
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
-    }
-    fn max_scale_index(&self) -> Option<usize> {
-        None
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<bool> {
         if self.seed_genes_list.is_empty() {
@@ -216,7 +212,6 @@ impl HillClimbGenotype for Binary {
         &self,
         chromosome: &Chromosome<Self::Allele>,
         population: &mut Population<Self::Allele>,
-        _scale_index: Option<usize>,
         _rng: &mut R,
     ) {
         (0..self.genes_size).for_each(|index| {
@@ -236,7 +231,6 @@ impl PermutateGenotype for Binary {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
         _chromosome: Option<&Chromosome<Self::Allele>>,
-        _scale_index: Option<usize>,
     ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
             Box::new(

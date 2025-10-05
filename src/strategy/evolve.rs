@@ -15,7 +15,7 @@ use crate::chromosome::{Chromosome, Genes};
 use crate::crossover::Crossover;
 use crate::extension::{Extension, ExtensionNoop};
 use crate::fitness::{Fitness, FitnessCache, FitnessOrdering, FitnessValue};
-use crate::genotype::{EvolveGenotype, MutationType};
+use crate::genotype::EvolveGenotype;
 use crate::mutate::Mutate;
 use crate::population::Population;
 use crate::select::Select;
@@ -225,7 +225,6 @@ pub struct EvolveState<G: EvolveGenotype> {
     pub chromosome: Option<Chromosome<G::Allele>>,
     pub population: Population<G::Allele>,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub current_scale_index: Option<usize>,
     pub population_cardinality: Option<usize>,
 }
 
@@ -303,7 +302,7 @@ impl<
                 &mut self.reporter,
             );
 
-            self.state.scale(&self.genotype, &self.config);
+            self.state.scale(&mut self.genotype, &self.config);
         }
         self.reporter
             .on_finish(&self.genotype, &self.state, &self.config);
@@ -529,9 +528,6 @@ impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
     fn reset_scale_generation(&mut self) {
         self.scale_generation = 0;
     }
-    fn current_scale_index(&self) -> Option<usize> {
-        self.current_scale_index
-    }
     fn population_cardinality(&self) -> Option<usize> {
         self.population_cardinality
     }
@@ -584,18 +580,11 @@ impl<G: EvolveGenotype> EvolveState<G> {
         }
         self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
-    fn scale(&mut self, genotype: &G, config: &EvolveConfig) {
-        if let Some(current_scale_index) = self.current_scale_index {
-            if let Some(max_stale_generations) = config.max_stale_generations {
-                if let Some(max_scale_index) = genotype.max_scale_index() {
-                    if self.stale_generations >= max_stale_generations
-                        && current_scale_index < max_scale_index
-                    {
-                        self.current_scale_index = Some(current_scale_index + 1);
-                        self.reset_scale_generation();
-                        self.reset_stale_generations();
-                    }
-                }
+    fn scale(&mut self, genotype: &mut G, config: &EvolveConfig) {
+        if let Some(max_stale_generations) = config.max_stale_generations {
+            if self.stale_generations >= max_stale_generations && genotype.increment_scale_index() {
+                self.reset_scale_generation();
+                self.reset_stale_generations();
             }
         }
     }
@@ -750,13 +739,12 @@ impl EvolveConfig {
 }
 
 impl<G: EvolveGenotype> EvolveState<G> {
-    pub fn new(genotype: &G) -> Self {
-        let base = Self {
+    pub fn new(_genotype: &G) -> Self {
+        Self {
             current_iteration: 0,
             current_generation: 0,
             stale_generations: 0,
             scale_generation: 0,
-            current_scale_index: None,
             best_generation: 0,
             best_fitness_score: None,
             best_chromosome: None,
@@ -764,14 +752,6 @@ impl<G: EvolveGenotype> EvolveState<G> {
             population: Population::new_empty(),
             population_cardinality: None,
             durations: HashMap::new(),
-        };
-        match genotype.mutation_type() {
-            MutationType::Scaled => Self {
-                current_scale_index: Some(0),
-                ..base
-            },
-            MutationType::Relative => base,
-            MutationType::Random => base,
         }
     }
 }
@@ -836,7 +816,6 @@ impl<G: EvolveGenotype> fmt::Display for EvolveState<G> {
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  stale generations: {:?}", self.stale_generations)?;
-        writeln!(f, "  current scale index: {:?}", self.current_scale_index)?;
         writeln!(
             f,
             "  population cardinality: {:?}",

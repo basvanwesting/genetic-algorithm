@@ -13,7 +13,7 @@ use super::{
 };
 use crate::chromosome::{Chromosome, Genes};
 use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
-use crate::genotype::{MutationType, PermutateGenotype};
+use crate::genotype::PermutateGenotype;
 use crate::population::Population;
 use rayon::prelude::*;
 use std::collections::HashMap;
@@ -120,7 +120,6 @@ pub struct PermutateState<G: PermutateGenotype> {
     pub chromosome: Option<Chromosome<G::Allele>>,
     pub population: Population<G::Allele>,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub current_scale_index: Option<usize>,
 }
 
 impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>> Strategy<G>
@@ -139,7 +138,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             } else {
                 self.call_sequential()
             }
-            self.state.scale(&self.genotype, &self.config);
+            self.state.scale(&mut self.genotype, &self.config);
         }
         self.reporter
             .on_finish(&self.genotype, &self.state, &self.config);
@@ -189,10 +188,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 {
     pub fn setup(&mut self) {
         let now = Instant::now();
-        self.state.chromosome = self
-            .genotype
-            .chromosome_permutations_into_iter(None, self.state.current_scale_index)
-            .next();
+        self.state.chromosome = self.genotype.chromosome_permutations_into_iter(None).next();
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
         self.fitness
@@ -230,10 +226,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     fn call_sequential(&mut self) {
         self.genotype
             .clone()
-            .chromosome_permutations_into_iter(
-                self.state.chromosome.as_ref(),
-                self.state.current_scale_index,
-            )
+            .chromosome_permutations_into_iter(self.state.chromosome.as_ref())
             .for_each(|chromosome| {
                 self.state.increment_generation();
                 self.state.chromosome.replace(chromosome);
@@ -254,7 +247,6 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     fn call_parallel(&mut self) {
         rayon::scope(|s| {
             let thread_genotype = self.genotype.clone();
-            let thread_current_scale_index = self.state.current_scale_index;
             let thread_chromosome = self.state.chromosome.clone();
             let fitness = self.fitness.clone();
             let fitness_cache = self.config.fitness_cache();
@@ -262,10 +254,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
 
             s.spawn(move |_| {
                 thread_genotype
-                    .chromosome_permutations_into_iter(
-                        thread_chromosome.as_ref(),
-                        thread_current_scale_index,
-                    )
+                    .chromosome_permutations_into_iter(thread_chromosome.as_ref())
                     .par_bridge()
                     .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
                         let now = Instant::now();
@@ -354,9 +343,6 @@ impl<G: PermutateGenotype> StrategyState<G> for PermutateState<G> {
     fn reset_scale_generation(&mut self) {
         self.scale_generation = 0;
     }
-    fn current_scale_index(&self) -> Option<usize> {
-        self.current_scale_index
-    }
     fn population_cardinality(&self) -> Option<usize> {
         None
     }
@@ -405,15 +391,10 @@ impl<G: PermutateGenotype> PermutateState<G> {
             self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
         }
     }
-    fn scale(&mut self, genotype: &G, _config: &PermutateConfig) {
-        if let Some(current_scale_index) = self.current_scale_index {
-            if let Some(max_scale_index) = genotype.max_scale_index() {
-                if current_scale_index < max_scale_index {
-                    self.current_scale_index = Some(current_scale_index + 1);
-                    self.reset_scale_generation();
-                    self.reset_stale_generations();
-                }
-            }
+    fn scale(&mut self, genotype: &mut G, _config: &PermutateConfig) {
+        if genotype.increment_scale_index() {
+            self.reset_scale_generation();
+            self.reset_stale_generations();
         }
     }
 }
@@ -477,27 +458,18 @@ impl PermutateConfig {
 }
 
 impl<G: PermutateGenotype> PermutateState<G> {
-    pub fn new(genotype: &G) -> Self {
-        let base = Self {
+    pub fn new(_genotype: &G) -> Self {
+        Self {
             current_iteration: 0,
             current_generation: 0,
             stale_generations: 0,
             scale_generation: 0,
-            current_scale_index: None,
             best_generation: 0,
             best_fitness_score: None,
             chromosome: None,
             population: Population::new_empty(),
             durations: HashMap::new(),
             best_chromosome: None,
-        };
-        match genotype.mutation_type() {
-            MutationType::Scaled => Self {
-                current_scale_index: Some(0),
-                ..base
-            },
-            MutationType::Relative => base,
-            MutationType::Random => base,
         }
     }
 }
@@ -529,7 +501,6 @@ impl<G: PermutateGenotype> fmt::Display for PermutateState<G> {
         writeln!(f, "permutate_state:")?;
         writeln!(f, "  current iteration: -")?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
-        writeln!(f, "  current scale index: {:?}", self.current_scale_index)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())
     }
 }

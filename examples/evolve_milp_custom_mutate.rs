@@ -65,7 +65,6 @@ impl Mutate for ScaledOptionalDiagonalMutate {
         rng: &mut R,
     ) {
         let now = Instant::now();
-        let scale_index = state.current_scale_index;
         for chromosome in state
             .population
             .chromosomes
@@ -75,17 +74,17 @@ impl Mutate for ScaledOptionalDiagonalMutate {
             if self.mutation_probability_sampler.sample(rng) {
                 match self.axis_probability_sampler.sample(rng) {
                     0 => {
-                        let delta = genotype.sample_gene_delta(0, scale_index, rng);
+                        let delta = genotype.sample_gene_delta(0, rng);
                         genotype.apply_gene_delta(chromosome, 0, delta);
                     }
                     1 => {
-                        let delta = genotype.sample_gene_delta(1, scale_index, rng);
+                        let delta = genotype.sample_gene_delta(1, rng);
                         genotype.apply_gene_delta(chromosome, 1, delta);
                     }
                     _ => {
-                        let delta = genotype.sample_gene_delta(0, scale_index, rng);
+                        let delta = genotype.sample_gene_delta(0, rng);
                         genotype.apply_gene_delta(chromosome, 0, delta);
-                        let delta = genotype.sample_gene_delta(1, scale_index, rng);
+                        let delta = genotype.sample_gene_delta(1, rng);
                         genotype.apply_gene_delta(chromosome, 1, delta);
                     }
                 }

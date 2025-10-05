@@ -13,7 +13,7 @@ use super::{
 };
 use crate::chromosome::{Chromosome, Genes};
 use crate::fitness::{Fitness, FitnessCache, FitnessOrdering, FitnessValue};
-use crate::genotype::{HillClimbGenotype, MutationType};
+use crate::genotype::HillClimbGenotype;
 use crate::population::Population;
 use rand::prelude::SliceRandom;
 use rand::rngs::SmallRng;
@@ -183,7 +183,6 @@ pub struct HillClimbState<G: HillClimbGenotype> {
     pub chromosome: Option<Chromosome<G::Allele>>,
     pub population: Population<G::Allele>,
     pub durations: HashMap<StrategyAction, Duration>,
-    pub current_scale_index: Option<usize>,
 }
 
 impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genotype = G>> Strategy<G>
@@ -212,7 +211,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                         1,
                         true,
                         self.state.chromosome.as_mut().unwrap(),
-                        self.state.current_scale_index,
                         &mut self.rng,
                     );
                     self.fitness.call_for_state_chromosome(
@@ -234,7 +232,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     self.genotype.fill_neighbouring_population(
                         self.state.chromosome.as_ref().unwrap(),
                         &mut self.state.population,
-                        self.state.current_scale_index,
                         &mut self.rng,
                     );
                     self.fitness.call_for_state_population(
@@ -253,7 +250,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             }
             self.reporter
                 .on_new_generation(&self.genotype, &self.state, &self.config);
-            self.state.scale(&self.genotype, &self.config);
+            self.state.scale(&mut self.genotype, &self.config);
         }
         self.reporter
             .on_finish(&self.genotype, &self.state, &self.config);
@@ -479,9 +476,6 @@ impl<G: HillClimbGenotype> StrategyState<G> for HillClimbState<G> {
     fn reset_scale_generation(&mut self) {
         self.scale_generation = 0;
     }
-    fn current_scale_index(&self) -> Option<usize> {
-        self.current_scale_index
-    }
     fn population_cardinality(&self) -> Option<usize> {
         None
     }
@@ -569,18 +563,11 @@ impl<G: HillClimbGenotype> HillClimbState<G> {
         }
         self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
-    fn scale(&mut self, genotype: &G, config: &HillClimbConfig) {
-        if let Some(current_scale_index) = self.current_scale_index {
-            if let Some(max_stale_generations) = config.max_stale_generations {
-                if let Some(max_scale_index) = genotype.max_scale_index() {
-                    if self.stale_generations >= max_stale_generations
-                        && current_scale_index < max_scale_index
-                    {
-                        self.current_scale_index = Some(current_scale_index + 1);
-                        self.reset_scale_generation();
-                        self.reset_stale_generations();
-                    }
-                }
+    fn scale(&mut self, genotype: &mut G, config: &HillClimbConfig) {
+        if let Some(max_stale_generations) = config.max_stale_generations {
+            if self.stale_generations >= max_stale_generations && genotype.increment_scale_index() {
+                self.reset_scale_generation();
+                self.reset_stale_generations();
             }
         }
     }
@@ -654,27 +641,18 @@ impl HillClimbConfig {
 }
 
 impl<G: HillClimbGenotype> HillClimbState<G> {
-    pub fn new(genotype: &G) -> Self {
-        let base = Self {
+    pub fn new(_genotype: &G) -> Self {
+        Self {
             current_iteration: 0,
             current_generation: 0,
             stale_generations: 0,
             scale_generation: 0,
-            current_scale_index: None,
             best_generation: 0,
             best_fitness_score: None,
             chromosome: None,
             population: Population::new_empty(),
             durations: HashMap::new(),
             best_chromosome: None,
-        };
-        match genotype.mutation_type() {
-            MutationType::Scaled => Self {
-                current_scale_index: Some(0),
-                ..base
-            },
-            MutationType::Relative => base,
-            MutationType::Random => base,
         }
     }
 }
@@ -717,7 +695,6 @@ impl<G: HillClimbGenotype> fmt::Display for HillClimbState<G> {
         writeln!(f, "  current iteration: {:?}", self.current_iteration)?;
         writeln!(f, "  current generation: {:?}", self.current_generation)?;
         writeln!(f, "  stale generations: {:?}", self.stale_generations)?;
-        writeln!(f, "  current scale index: {:?}", self.current_scale_index)?;
         writeln!(f, "  best fitness score: {:?}", self.best_fitness_score())
     }
 }

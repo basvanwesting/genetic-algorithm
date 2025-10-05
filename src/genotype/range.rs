@@ -65,6 +65,7 @@ where
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
+    pub current_scale_index: usize,
     pub seed_genes_list: Vec<Vec<T>>,
     pub genes_hashing: bool,
 }
@@ -105,6 +106,7 @@ where
                 allele_relative_sampler: builder
                     .allele_mutation_range
                     .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
+                current_scale_index: 0,
                 seed_genes_list: builder.seed_genes_list,
                 genes_hashing: builder.genes_hashing,
             })
@@ -120,11 +122,11 @@ where
     pub fn sample_allele<R: Rng>(&self, rng: &mut R) -> T {
         self.allele_sampler.sample(rng)
     }
-    pub fn sample_gene_delta<R: Rng>(&self, scale_index: Option<usize>, rng: &mut R) -> T {
+    pub fn sample_gene_delta<R: Rng>(&self, rng: &mut R) -> T {
         match self.mutation_type {
             MutationType::Scaled => {
                 let working_range =
-                    &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index.unwrap()];
+                    &self.allele_mutation_scaled_range.as_ref().unwrap()[self.current_scale_index];
                 if rng.gen() {
                     *working_range.start()
                 } else {
@@ -189,7 +191,6 @@ where
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self::Allele>,
-        scale_index: Option<usize>,
         rng: &mut R,
     ) {
         if allow_duplicates {
@@ -200,7 +201,7 @@ where
                         chromosome.genes[index] = self.sample_allele(rng);
                     }
                     _ => {
-                        let delta = self.sample_gene_delta(scale_index, rng);
+                        let delta = self.sample_gene_delta(rng);
                         self.apply_gene_delta(chromosome, index, delta);
                     }
                 };
@@ -218,7 +219,7 @@ where
                         chromosome.genes[index] = self.sample_allele(rng);
                     }
                     _ => {
-                        let delta = self.sample_gene_delta(scale_index, rng);
+                        let delta = self.sample_gene_delta(rng);
                         self.apply_gene_delta(chromosome, index, delta);
                     }
                 };
@@ -238,6 +239,25 @@ where
         self.allele_mutation_scaled_range
             .as_ref()
             .map(|r| r.len() - 1)
+    }
+    fn current_scale_index(&self) -> Option<usize> {
+        if self.mutation_type == MutationType::Scaled {
+            Some(self.current_scale_index)
+        } else {
+            None
+        }
+    }
+    fn increment_scale_index(&mut self) -> bool {
+        if let Some(max_scale_index) = self.max_scale_index() {
+            if self.current_scale_index < max_scale_index {
+                self.current_scale_index += 1;
+                true
+            } else {
+                false
+            }
+        } else {
+            false
+        }
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
@@ -349,15 +369,12 @@ where
         &self,
         chromosome: &Chromosome<Self::Allele>,
         population: &mut Population<Self::Allele>,
-        scale_index: Option<usize>,
         rng: &mut R,
     ) {
         match self.mutation_type {
-            MutationType::Scaled => self.fill_neighbouring_population_scaled(
-                chromosome,
-                population,
-                scale_index.unwrap(),
-            ),
+            MutationType::Scaled => {
+                self.fill_neighbouring_population_scaled(chromosome, population)
+            }
             MutationType::Relative => {
                 self.fill_neighbouring_population_relative(chromosome, population, rng)
             }
@@ -381,12 +398,12 @@ where
         &self,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
-        scale_index: usize,
     ) {
         let allele_range_start = *self.allele_range.start();
         let allele_range_end = *self.allele_range.end();
 
-        let working_range = &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
+        let working_range =
+            &self.allele_mutation_scaled_range.as_ref().unwrap()[self.current_scale_index];
         let working_range_start = *working_range.start();
         let working_range_end = *working_range.end();
 
@@ -497,12 +514,11 @@ where
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
         chromosome: Option<&Chromosome<Self::Allele>>,
-        scale_index: Option<usize>,
     ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
             match self.mutation_type {
                 MutationType::Scaled => Box::new(
-                    self.permutable_gene_values_scaled(chromosome, scale_index.unwrap())
+                    self.permutable_gene_values_scaled(chromosome)
                         .into_iter()
                         .multi_cartesian_product()
                         .map(Chromosome::new),
@@ -556,15 +572,11 @@ where
     Uniform<T>: Send + Sync,
 {
     // scales should be symmetrical, so the step is simply the scale end
-    pub fn permutable_gene_values_scaled(
-        &self,
-        chromosome: Option<&Chromosome<T>>,
-        scale_index: usize,
-    ) -> Vec<Vec<T>> {
+    pub fn permutable_gene_values_scaled(&self, chromosome: Option<&Chromosome<T>>) -> Vec<Vec<T>> {
         (0..self.genes_size())
             .map(|index| {
                 let (allele_value_start, allele_value_end) = if let Some(chromosome) = chromosome {
-                    if let Some(previous_scale_index) = scale_index.checked_sub(1) {
+                    if let Some(previous_scale_index) = self.current_scale_index.checked_sub(1) {
                         let allele_range_start = *self.allele_range.start();
                         let allele_range_end = *self.allele_range.end();
 
@@ -594,7 +606,7 @@ where
                 };
 
                 let working_range =
-                    &self.allele_mutation_scaled_range.as_ref().unwrap()[scale_index];
+                    &self.allele_mutation_scaled_range.as_ref().unwrap()[self.current_scale_index];
                 let working_range_step = *working_range.end();
 
                 std::iter::successors(Some(allele_value_start), |value| {
@@ -665,6 +677,7 @@ where
                 .allele_mutation_range
                 .clone()
                 .map(|allele_mutation_range| Uniform::from(allele_mutation_range.clone())),
+            current_scale_index: self.current_scale_index,
             seed_genes_list: self.seed_genes_list.clone(),
             genes_hashing: self.genes_hashing,
         }
@@ -725,6 +738,7 @@ where
             "  expected_number_of_sampled_index_duplicates: {}",
             self.expected_number_of_sampled_index_duplicates_report()
         )?;
+        writeln!(f, "  current scale index: {:?}", self.current_scale_index)?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes_list.len())
     }
 }

@@ -37,13 +37,7 @@ impl<G: EvolveGenotype> Mutate for SingleGene<G> {
             .filter(|c| c.is_offspring())
         {
             if self.mutation_probability_sampler.sample(rng) {
-                genotype.mutate_chromosome_genes(
-                    1,
-                    true,
-                    chromosome,
-                    state.current_scale_index,
-                    rng,
-                );
+                genotype.mutate_chromosome_genes(1, true, chromosome, rng);
             }
         }
         state.add_duration(StrategyAction::Mutate, now.elapsed());

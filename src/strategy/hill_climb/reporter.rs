@@ -135,7 +135,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
 
     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        _genotype: &Self::Genotype,
+        genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
@@ -145,7 +145,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
-                state.current_scale_index(),
+                genotype.current_scale_index(),
                 state.population_as_ref().size(),
                 state.population_as_ref().recycled_size(),
             ));
@@ -154,7 +154,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
 
     fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        _genotype: &Self::Genotype,
+        genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
@@ -162,7 +162,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
             state.current_generation(),
             state.best_fitness_score(),
-            state.current_scale_index(),
+            genotype.current_scale_index(),
             if self.show_genes {
                 Some(state.best_genes())
             } else {
@@ -173,7 +173,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
 
     fn on_new_best_chromosome_equal_fitness<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
-        _genotype: &Self::Genotype,
+        genotype: &Self::Genotype,
         state: &S,
         _config: &C,
     ) {
@@ -182,7 +182,7 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
                 "equal best - generation: {}, fitness_score: {:?}, scale_index: {:?}, genes: {:?}",
                 state.current_generation(),
                 state.best_fitness_score(),
-                state.current_scale_index(),
+                genotype.current_scale_index(),
                 if self.show_genes {
                     Some(state.best_genes())
                 } else {

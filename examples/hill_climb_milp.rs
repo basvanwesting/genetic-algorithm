@@ -80,7 +80,7 @@ fn main() {
 
             println!(
                 "x1: {:.5}, x2: {} => {:.5} (fitness score: {:>3}, best_iteration: {:>3}, best_generation: {:>5}, duration: {:?}, scale_index: {:?})",
-                x1, x2 as u8, result, fitness_score, hill_climb.state.current_iteration, hill_climb.best_generation(), duration, hill_climb.state.current_scale_index
+                x1, x2 as u8, result, fitness_score, hill_climb.state.current_iteration, hill_climb.best_generation(), duration, hill_climb.genotype.current_scale_index()
             );
         } else {
             println!(

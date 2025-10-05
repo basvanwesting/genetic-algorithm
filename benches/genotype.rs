@@ -28,13 +28,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("binary-random-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_genes(
-                        10,
-                        true,
-                        black_box(&mut chromosome),
-                        None,
-                        &mut rng,
-                    )
+                    genotype.mutate_chromosome_genes(10, true, black_box(&mut chromosome), &mut rng)
                 })
             },
         );
@@ -46,7 +40,6 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                         10,
                         false,
                         black_box(&mut chromosome),
-                        None,
                         &mut rng,
                     )
                 })
@@ -67,13 +60,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("range-random-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_genes(
-                        10,
-                        true,
-                        black_box(&mut chromosome),
-                        None,
-                        &mut rng,
-                    )
+                    genotype.mutate_chromosome_genes(10, true, black_box(&mut chromosome), &mut rng)
                 })
             },
         );
@@ -85,7 +72,6 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                         10,
                         false,
                         black_box(&mut chromosome),
-                        None,
                         &mut rng,
                     )
                 })
@@ -103,13 +89,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
             BenchmarkId::new("range-relative-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_genes(
-                        10,
-                        true,
-                        black_box(&mut chromosome),
-                        None,
-                        &mut rng,
-                    )
+                    genotype.mutate_chromosome_genes(10, true, black_box(&mut chromosome), &mut rng)
                 })
             },
         );
@@ -121,32 +101,26 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                         10,
                         false,
                         black_box(&mut chromosome),
-                        None,
                         &mut rng,
                     )
                 })
             },
         );
 
-        let genotype = RangeGenotype::builder()
+        let mut genotype = RangeGenotype::builder()
             .with_genes_size(*genes_size)
             .with_allele_range(0.0..=1.0)
             .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
             .build()
             .unwrap();
         let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+        genotype.increment_scale_index();
 
         group.bench_function(
             BenchmarkId::new("range-scaled-multi-10-with-duplicates", genes_size),
             |b| {
                 b.iter(|| {
-                    genotype.mutate_chromosome_genes(
-                        10,
-                        true,
-                        black_box(&mut chromosome),
-                        Some(1),
-                        &mut rng,
-                    )
+                    genotype.mutate_chromosome_genes(10, true, black_box(&mut chromosome), &mut rng)
                 })
             },
         );
@@ -158,7 +132,6 @@ pub fn mutation_benchmark(c: &mut Criterion) {
                         10,
                         false,
                         black_box(&mut chromosome),
-                        Some(1),
                         &mut rng,
                     )
                 })

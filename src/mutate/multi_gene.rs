@@ -46,13 +46,7 @@ impl<G: EvolveGenotype> Mutate for MultiGene<G> {
             .filter(|c| c.is_offspring())
         {
             if self.mutation_probability_sampler.sample(rng) {
-                genotype.mutate_chromosome_genes(
-                    self.number_of_mutations,
-                    false,
-                    chromosome,
-                    state.current_scale_index,
-                    rng,
-                );
+                genotype.mutate_chromosome_genes(self.number_of_mutations, false, chromosome, rng);
             }
         }
         state.add_duration(StrategyAction::Mutate, now.elapsed());

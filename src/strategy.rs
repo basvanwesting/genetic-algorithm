@@ -190,7 +190,6 @@ pub trait StrategyState<G: Genotype>: Display {
     fn current_iteration(&self) -> usize;
     fn stale_generations(&self) -> usize;
     fn scale_generation(&self) -> usize;
-    fn current_scale_index(&self) -> Option<usize>;
     fn population_cardinality(&self) -> Option<usize>;
     fn durations(&self) -> &HashMap<StrategyAction, Duration>;
     fn add_duration(&mut self, action: StrategyAction, duration: Duration);
@@ -295,7 +294,7 @@ pub trait StrategyState<G: Genotype>: Display {
 ///
 ///     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
 ///         &mut self,
-///         _genotype: &Self::Genotype,
+///         genotype: &Self::Genotype,
 ///         state: &S,
 ///         _config: &C,
 ///     ) {
@@ -305,14 +304,14 @@ pub trait StrategyState<G: Genotype>: Display {
 ///                 state.current_generation(),
 ///                 state.stale_generations(),
 ///                 state.best_generation(),
-///                 state.current_scale_index(),
+///                 genotype.current_scale_index(),
 ///             );
 ///         }
 ///     }
 ///
 ///     fn on_new_best_chromosome<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
 ///         &mut self,
-///         _genotype: &Self::Genotype,
+///         genotype: &Self::Genotype,
 ///         state: &S,
 ///         _config: &C,
 ///     ) {
@@ -320,7 +319,7 @@ pub trait StrategyState<G: Genotype>: Display {
 ///             "new best - generation: {}, fitness_score: {:?}, scale_index: {:?}",
 ///             state.current_generation(),
 ///             state.best_fitness_score(),
-///             state.current_scale_index(),
+///             genotype.current_scale_index(),
 ///         );
 ///     }
 ///

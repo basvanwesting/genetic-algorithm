@@ -28,7 +28,7 @@ use num::BigUint;
 use rand::Rng;
 use std::fmt;
 
-#[derive(Copy, Clone, Debug, Default)]
+#[derive(Copy, Clone, PartialEq, Debug, Default)]
 pub enum MutationType {
     #[default]
     Random,
@@ -57,7 +57,6 @@ pub trait Genotype:
         number_of_mutations: usize,
         allow_duplicates: bool,
         chromosome: &mut Chromosome<Self::Allele>,
-        scale_index: Option<usize>,
         rng: &mut R,
     );
 
@@ -65,9 +64,17 @@ pub trait Genotype:
         GenotypeBuilder::<Self>::default()
     }
     fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self;
-
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>>;
-    fn max_scale_index(&self) -> Option<usize>;
+
+    fn max_scale_index(&self) -> Option<usize> {
+        None
+    }
+    fn current_scale_index(&self) -> Option<usize> {
+        None
+    }
+    fn increment_scale_index(&mut self) -> bool {
+        false
+    }
 
     fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize;
     fn sample_gene_indices<R: Rng>(
@@ -189,7 +196,6 @@ pub trait HillClimbGenotype: Genotype {
         &self,
         _chromosome: &Chromosome<Self::Allele>,
         _population: &mut Population<Self::Allele>,
-        _scale_index: Option<usize>,
         _rng: &mut R,
     );
 
@@ -204,7 +210,6 @@ pub trait PermutateGenotype: Genotype {
     fn chromosome_permutations_into_iter<'a>(
         &'a self,
         _chromosome: Option<&Chromosome<Self::Allele>>,
-        _scale_index: Option<usize>,
     ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a>;
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
