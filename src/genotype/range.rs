@@ -557,6 +557,23 @@ where
             self.seed_genes_list.len().into()
         }
     }
+
+    fn chromosome_permutations_size_report(&self) -> String {
+        if self.mutation_type_allows_permutation() {
+            let size_per_scale: Vec<String> = (0..=self.max_scale_index().unwrap())
+                .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
+                .map(|scale_size| self.format_biguint_scientific(&scale_size))
+                .collect();
+            format!(
+                "{}, per scale {:?}",
+                self.format_biguint_scientific(&self.chromosome_permutations_size()),
+                size_per_scale
+            )
+        } else {
+            "uncountable".to_string()
+        }
+    }
+
     fn mutation_type_allows_permutation(&self) -> bool {
         match self.mutation_type {
             MutationType::Scaled => true,
@@ -714,24 +731,15 @@ where
         writeln!(f, "  genes_size: {}", self.genes_size)?;
         writeln!(f, "  mutation_type: {:?}", self.mutation_type)?;
 
-        if self.mutation_type_allows_permutation() {
-            let size_per_scale: Vec<BigUint> = (0..=self.max_scale_index().unwrap())
-                .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
-                .collect();
-            writeln!(
-                f,
-                "  chromosome_permutations_size: {}, per scale {:?}",
-                self.chromosome_permutations_size(),
-                size_per_scale
-            )?;
-        } else {
-            writeln!(f, "  chromosome_permutations_size: uncountable")?;
-        }
-
+        writeln!(
+            f,
+            "  chromosome_permutations_size: {}",
+            self.chromosome_permutations_size_report()
+        )?;
         writeln!(
             f,
             "  neighbouring_population_size: {}",
-            self.neighbouring_population_size()
+            self.neighbouring_population_size_report()
         )?;
         writeln!(
             f,

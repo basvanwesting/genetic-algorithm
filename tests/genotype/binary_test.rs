@@ -310,6 +310,28 @@ fn chromosome_permutations_genes_size_huge() {
 }
 
 #[test]
+fn format_biguint_scientific() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(100)
+        .build()
+        .unwrap();
+
+    let n = BigUint::parse_bytes(b"123", 10).unwrap();
+    assert_eq!(genotype.format_biguint_scientific(&n), "123");
+    let n = BigUint::parse_bytes(b"1234", 10).unwrap();
+    assert_eq!(genotype.format_biguint_scientific(&n), "1234");
+    let n = BigUint::parse_bytes(b"12345", 10).unwrap();
+    assert_eq!(genotype.format_biguint_scientific(&n), "12345");
+    let n = BigUint::parse_bytes(b"123456", 10).unwrap();
+    assert_eq!(genotype.format_biguint_scientific(&n), "123456");
+    let n = BigUint::parse_bytes(b"1234567", 10).unwrap();
+    assert_eq!(genotype.format_biguint_scientific(&n), "1.234567e6");
+
+    let n = BigUint::parse_bytes(b"1267650600228229401496703205376", 10).unwrap();
+    assert_eq!(genotype.format_biguint_scientific(&n), "1.267650e30");
+}
+
+#[test]
 fn chromosome_permutations_genes_size_3() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(3)

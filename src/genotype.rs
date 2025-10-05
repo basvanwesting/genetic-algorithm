@@ -84,13 +84,6 @@ pub trait Genotype:
         rng: &mut R,
     ) -> Vec<usize>;
 
-    fn expected_number_of_sampled_index_duplicates(&self, number_of_samples: usize) -> usize {
-        if number_of_samples > 1 {
-            number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
-        } else {
-            0
-        }
-    }
     fn expected_number_of_sampled_index_duplicates_report(&self) -> String {
         [
             self.genes_size() / 256,
@@ -106,12 +99,27 @@ pub trait Genotype:
         .map(|number_of_samples| {
             (
                 number_of_samples,
-                self.expected_number_of_sampled_index_duplicates(*number_of_samples),
+                if *number_of_samples > 1 {
+                    number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
+                } else {
+                    0
+                },
             )
         })
         .filter(|(_, c)| *c > 0)
         .map(|(n, e)| format!("{} => {}", n, e))
         .join(", ")
+    }
+    fn format_biguint_scientific(&self, n: &BigUint) -> String {
+        let s = n.to_string();
+        let len = s.len();
+
+        if len <= 6 {
+            s
+        } else {
+            let mantissa = format!("{}.{}", &s[0..1], &s[1..7]);
+            format!("{}e{}", mantissa, len - 1)
+        }
     }
 
     fn chromosome_constructor_random<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
@@ -201,6 +209,10 @@ pub trait HillClimbGenotype: Genotype {
 
     /// chromosome neighbours size for the all possible neighbouring mutation combinations
     fn neighbouring_population_size(&self) -> BigUint;
+
+    fn neighbouring_population_size_report(&self) -> String {
+        self.format_biguint_scientific(&self.neighbouring_population_size())
+    }
 }
 
 /// Genotype suitable for [Permutate](crate::strategy::permutate::Permutate).
@@ -214,6 +226,10 @@ pub trait PermutateGenotype: Genotype {
 
     /// chromosome iterator size for the all possible gene combinations for [Permutate](crate::strategy::permutate::Permutate)
     fn chromosome_permutations_size(&self) -> BigUint;
+
+    fn chromosome_permutations_size_report(&self) -> String {
+        self.format_biguint_scientific(&self.chromosome_permutations_size())
+    }
 
     /// not all mutation_types implemented for certain genotypes
     fn mutation_type_allows_permutation(&self) -> bool {

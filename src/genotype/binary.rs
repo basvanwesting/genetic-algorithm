@@ -268,12 +268,12 @@ impl fmt::Display for Binary {
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
-            self.chromosome_permutations_size()
+            self.chromosome_permutations_size_report()
         )?;
         writeln!(
             f,
             "  neighbouring_population_size: {}",
-            self.neighbouring_population_size()
+            self.neighbouring_population_size_report()
         )?;
         writeln!(
             f,
