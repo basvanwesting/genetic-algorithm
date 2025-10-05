@@ -226,7 +226,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     fn call_sequential(&mut self) {
         self.genotype
             .clone()
-            .chromosome_permutations_into_iter(self.state.chromosome.as_ref())
+            .chromosome_permutations_into_iter(self.state.best_chromosome.as_ref())
             .for_each(|chromosome| {
                 self.state.increment_generation();
                 self.state.chromosome.replace(chromosome);
@@ -247,14 +247,14 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     fn call_parallel(&mut self) {
         rayon::scope(|s| {
             let thread_genotype = self.genotype.clone();
-            let thread_chromosome = self.state.chromosome.clone();
+            let thread_best_chromosome = self.state.best_chromosome.clone();
             let fitness = self.fitness.clone();
             let fitness_cache = self.config.fitness_cache();
             let (sender, receiver) = sync_channel(1000);
 
             s.spawn(move |_| {
                 thread_genotype
-                    .chromosome_permutations_into_iter(thread_chromosome.as_ref())
+                    .chromosome_permutations_into_iter(thread_best_chromosome.as_ref())
                     .par_bridge()
                     .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
                         let now = Instant::now();

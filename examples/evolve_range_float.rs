@@ -47,7 +47,7 @@ fn main() {
         .with_target_population_size(POPULATION_SIZE)
         .with_max_stale_generations(100)
         .with_target_fitness_score(POPULATION_SIZE as isize * 100)
-        .with_fitness(DistanceTo(0.5, 1e-5))
+        .with_fitness(DistanceTo(0.55555, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_mutate(MutateMultiGene::new(2, 0.2))
         .with_crossover(CrossoverMultiPoint::new(0.7, 0.8, 9, false))
