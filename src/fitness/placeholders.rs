@@ -1,0 +1,336 @@
+//! placeholders for testing and bootstrapping, not really used in practice
+use crate::allele::RangeAllele;
+use crate::fitness::{Fitness, FitnessValue};
+use crate::genotype::{
+    DynamicRangeGenotype, Genotype, StaticBinaryGenotype, StaticRangeGenotype,
+};
+use crate::population::Population;
+use rand::distributions::uniform::SampleUniform;
+use rand::distributions::{Distribution, Uniform};
+use rand::rngs::SmallRng;
+use rand::SeedableRng;
+use std::marker::PhantomData;
+use std::ops::Range;
+use std::{thread, time};
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Static version of Zero that works with population-based calculation
+#[derive(Clone, Debug)]
+pub struct StaticZero<G: Genotype>(PhantomData<G>);
+impl<G: Genotype> StaticZero<G> {
+    pub fn new() -> Self {
+        Self(PhantomData)
+    }
+}
+impl<G: Genotype> Default for StaticZero<G> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl<G: Genotype> Fitness for StaticZero<G> {
+    type Genotype = G;
+    fn calculate_for_population(
+        &mut self,
+        population: &Population,
+        _genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        vec![Some(0); population.chromosomes.len()]
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Counts true values in static binary matrix rows
+#[derive(Clone, Debug)]
+pub struct CountStaticTrue<const N: usize, const M: usize>;
+impl<const N: usize, const M: usize> CountStaticTrue<N, M> {
+    pub fn new() -> Self {
+        Self
+    }
+}
+impl<const N: usize, const M: usize> Default for CountStaticTrue<N, M> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+impl<const N: usize, const M: usize> Fitness for CountStaticTrue<N, M> {
+    type Genotype = StaticBinaryGenotype<N, M>;
+    fn calculate_for_population(
+        &mut self,
+        _population: &Population,
+        genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .iter()
+            .map(|genes| {
+                genes[..genotype.genes_size()]
+                    .iter()
+                    .filter(|&value| *value)
+                    .count() as FitnessValue
+            })
+            .map(Some)
+            .collect()
+    }
+}
+
+/// placeholder for testing and benchmarking, not used in practice
+/// Counts true values in static binary matrix rows with simulated work via sleep
+#[derive(Debug)]
+pub struct CountStaticTrueWithSleep<const N: usize, const M: usize> {
+    pub micro_seconds: u64,
+    pub print_on_clone: bool,
+}
+impl<const N: usize, const M: usize> CountStaticTrueWithSleep<N, M> {
+    pub fn new(micro_seconds: u64, print_on_clone: bool) -> Self {
+        Self {
+            micro_seconds,
+            print_on_clone,
+        }
+    }
+}
+impl<const N: usize, const M: usize> Fitness for CountStaticTrueWithSleep<N, M> {
+    type Genotype = StaticBinaryGenotype<N, M>;
+    fn calculate_for_population(
+        &mut self,
+        _population: &Population,
+        genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .iter()
+            .map(|genes| {
+                thread::sleep(time::Duration::from_micros(self.micro_seconds));
+                genes[..genotype.genes_size()]
+                    .iter()
+                    .filter(|&value| *value)
+                    .count() as FitnessValue
+            })
+            .map(Some)
+            .collect()
+    }
+}
+impl<const N: usize, const M: usize> Clone for CountStaticTrueWithSleep<N, M> {
+    fn clone(&self) -> Self {
+        if self.print_on_clone {
+            println!(
+                "Cloned CountStaticTrueWithSleep: {:?}",
+                thread::current().id()
+            );
+        }
+        Self {
+            micro_seconds: self.micro_seconds,
+            print_on_clone: self.print_on_clone,
+        }
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Sums the dynamic matrix rows and converts to vector of [FitnessValue]
+/// There are 2 constructors:
+/// * new(), precision is defaulted to 1.0
+/// * new_with_precision(precision)
+#[derive(Clone, Debug)]
+pub struct SumDynamicRange<T: RangeAllele + Into<f64>>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    precision: f64,
+    _phantom: PhantomData<T>,
+}
+impl<T: RangeAllele + Into<f64>> SumDynamicRange<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn new_with_precision(precision: f64) -> Self {
+        Self {
+            precision,
+            ..Default::default()
+        }
+    }
+}
+impl<T: RangeAllele + Into<f64>> Default for SumDynamicRange<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn default() -> Self {
+        Self {
+            precision: 1.0_f64,
+            _phantom: PhantomData,
+        }
+    }
+}
+impl<T: RangeAllele + Into<f64>> Fitness for SumDynamicRange<T>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    type Genotype = DynamicRangeGenotype<T>;
+    fn calculate_for_population(
+        &mut self,
+        _population: &Population,
+        genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .chunks(genotype.genes_size())
+            .map(|genes| {
+                (genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision)
+                    as FitnessValue
+            })
+            .map(Some)
+            .collect()
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Sums the static matrix rows and converts to vector of [FitnessValue]
+/// There are 2 constructors:
+/// * new(), precision is defaulted to 1.0
+/// * new_with_precision(precision)
+#[derive(Clone, Debug)]
+pub struct SumStaticRange<T: RangeAllele + Into<f64>, const N: usize, const M: usize>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    precision: f64,
+    _phantom: PhantomData<T>,
+}
+impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> SumStaticRange<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    pub fn new() -> Self {
+        Self::default()
+    }
+    pub fn new_with_precision(precision: f64) -> Self {
+        Self {
+            precision,
+            ..Default::default()
+        }
+    }
+}
+impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Default for SumStaticRange<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    fn default() -> Self {
+        Self {
+            precision: 1.0_f64,
+            _phantom: PhantomData,
+        }
+    }
+}
+
+impl<T: RangeAllele + Into<f64>, const N: usize, const M: usize> Fitness for SumStaticRange<T, N, M>
+where
+    T: SampleUniform,
+    Uniform<T>: Send + Sync,
+{
+    type Genotype = StaticRangeGenotype<T, N, M>;
+    fn calculate_for_population(
+        &mut self,
+        _population: &Population,
+        genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        genotype
+            .data
+            .iter()
+            .map(|genes| {
+                (genes.iter().copied().fold(0.0_f64, |acc, e| acc + e.into()) / self.precision)
+                    as FitnessValue
+            })
+            .map(Some)
+            .collect()
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Static version of Countdown that works with population-based calculation
+#[derive(Clone, Debug)]
+pub struct StaticCountdown<G: Genotype> {
+    start: usize,
+    _phantom: PhantomData<G>,
+}
+impl<G: Genotype> StaticCountdown<G> {
+    pub fn new(start: usize) -> Self {
+        Self {
+            start,
+            _phantom: PhantomData,
+        }
+    }
+}
+impl<G: Genotype> Fitness for StaticCountdown<G> {
+    type Genotype = G;
+    fn calculate_for_population(
+        &mut self,
+        population: &Population,
+        _genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        population
+            .chromosomes
+            .iter()
+            .map(|_| {
+                if self.start == 0 {
+                    Some(0)
+                } else {
+                    self.start -= 1;
+                    Some(self.start as FitnessValue)
+                }
+            })
+            .collect()
+    }
+}
+
+/// placeholder for testing and bootstrapping, not really used in practice
+/// Static version of CountdownNoisy that works with population-based calculation
+#[derive(Clone, Debug)]
+pub struct StaticCountdownNoisy<G: Genotype> {
+    start: usize,
+    step: usize,
+    noise_sampler: Uniform<usize>,
+    rng: SmallRng,
+    _phantom: PhantomData<G>,
+}
+impl<G: Genotype> StaticCountdownNoisy<G> {
+    pub fn new(start: usize, step: usize, noise_range: Range<usize>) -> Self {
+        Self {
+            start,
+            step,
+            noise_sampler: Uniform::from(noise_range),
+            rng: SmallRng::seed_from_u64(0),
+            _phantom: PhantomData,
+        }
+    }
+}
+impl<G: Genotype> Fitness for StaticCountdownNoisy<G> {
+    type Genotype = G;
+    fn calculate_for_population(
+        &mut self,
+        population: &Population,
+        _genotype: &Self::Genotype,
+    ) -> Vec<Option<FitnessValue>> {
+        population
+            .chromosomes
+            .iter()
+            .map(|_| {
+                if self.start == 0 {
+                    Some(0)
+                } else {
+                    self.start -= 1;
+                    let base = (self.start / self.step + 1) * self.step;
+                    let result = base + self.noise_sampler.sample(&mut self.rng);
+                    Some(result as FitnessValue)
+                }
+            })
+            .collect()
+    }
+}
