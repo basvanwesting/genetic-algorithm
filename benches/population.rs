@@ -56,9 +56,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
 
         let random_chromosome = population.chromosomes.choose(&mut rng).unwrap();
-        let chromosomes = (0..population_size)
-            .map(|_| random_chromosome.clone())
-            .collect();
+        let chromosomes = (0..population_size).map(|_| *random_chromosome).collect();
         let population = &mut Population::new(chromosomes);
         CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_100>::new()
             .call_for_population(population, &genotype);
@@ -101,9 +99,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
 
         let random_chromosome = population.chromosomes.choose(&mut rng).unwrap();
-        let chromosomes = (0..population_size)
-            .map(|_| random_chromosome.clone())
-            .collect();
+        let chromosomes = (0..population_size).map(|_| *random_chromosome).collect();
         let population = &mut Population::new(chromosomes);
 
         group.bench_with_input(
@@ -159,9 +155,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
 
         let random_chromosome = population.chromosomes.choose(&mut rng).unwrap();
-        let chromosomes = (0..population_size)
-            .map(|_| random_chromosome.clone())
-            .collect();
+        let chromosomes = (0..population_size).map(|_| *random_chromosome).collect();
         let population = &mut Population::new(chromosomes);
         CountStaticTrue::<GENES_SIZE, MAX_POPULATION_SIZE_1000>::new()
             .call_for_population(population, &genotype);
@@ -204,9 +198,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         );
 
         let random_chromosome = population.chromosomes.choose(&mut rng).unwrap();
-        let chromosomes = (0..population_size)
-            .map(|_| random_chromosome.clone())
-            .collect();
+        let chromosomes = (0..population_size).map(|_| *random_chromosome).collect();
         let population = &mut Population::new(chromosomes);
 
         group.bench_with_input(
