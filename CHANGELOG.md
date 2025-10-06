@@ -48,6 +48,11 @@ these mainly work with the chromosome metadata and are not genotype specific.
 
 General usage by client has little impact, most is internal.
 
+### API Impact
+* Replace `BinaryChromosome` with `Chromosome<bool>`
+* Remove all other `Chromosome` struct genotype specific prefixes (e.g. `ListChromosome<..>` -> `Chromosome<..>`)
+* Use `genetic_algorithm::impl_allele!(CustomAllele);` to implement `Allele` for your CustomAllele
+
 ### Changed
 * Add associated type `Genotype` to `Mutate` and `Crossover` traits (following
   existing `Fitness` pattern).
