@@ -4,6 +4,54 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.21.0] - 2025-10-06
+
+### Design choices and internal impact (API changes listed separately below)
+The primary goal was easier custom `Mutate` and `Crossover` implementations,
+which would require a high level of Genotype unification and simplification.
+This was mostly blocked by the GPU optimization premise provided by the
+centralized `DynamicMatrixGenotype` and `StaticMatrixGenotype` with all their
+added centralized complexity (`ChromosomeManager` and `GenesPointer` v. `GenesOwner`
+etc...). 
+
+The first attempt was to split the library in two: centralized v.
+distributed, where the distributed track could become less `Genotype`-heavy and more
+flexible. But it also happens the GPU optimization premise was flawed as memory
+transfers are required regardless of pre-transfer layout. So on the end we just
+dropped the whole centralized approach and archived it in
+[archive/centralized-gpu-experiment branch](https://github.com/basvanwesting/genetic-algorithm/tree/archive/centralized-gpu-experiment).
+
+Now the library is restructured to a simpler form, moving a lot of
+responsibilities away from `Genotype` which was becoming too heavy and
+centralized: All genes are now `Vec<Allele>` and stored on the `Chromosome`.
+Chromosome recycling has been moved from the `Genotype` (`ChromosomeManager`) to the
+`Population`.
+
+Still `Genotype` unification proved impossible - each type has fundamentally
+different requirements. So the best route to allow for easier custom `Mutate`
+and `Crossover` implementations, was to make them user-genotype specific using
+an associated type `Genotype` on `Mutate` and `Crossover` traits (following
+existing `Fitness` pattern).
+
+General usage by client is hardly impacted, most is internal.
+
+### Changed
+* Add associated type `Genotype` to `Mutate` and `Crossover` traits (following
+  existing `Fitness` pattern). Skip the associated type `Genotype` on `Select`
+  and `Extension` for now, as mainly work with the chromosome-meta data and are
+  not Genotype specific.
+* Move chromosome recycling from `ChromosomeManager` to `Population`
+* Move genes hashing from the `Genotype` to `Chromosome` making the `Allele`
+  trait responsible for the hashing implementation
+* Moved `current_scale_index` from `StrategyState` to `Genotype`
+
+### Removed
+* Remove matrix genotypes (`DynamicMatrixGenotype`, `StaticMatrixGenotype`)
+* Remove `ChromosomeManager` trait
+* Remove `BitGenotype` - use `BinaryGenotype` with `Vec<bool>` instead
+* Remove population-level fitness calculation (`calculate_for_population()`),
+  all is now `calculate_for_chromosome()`
+
 ## [0.20.5] - 2025-05-21
 ### Added
 * Add `PermutableGenotype` support for scaled `RangeGenotype` and scaled
