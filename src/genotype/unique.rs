@@ -60,6 +60,7 @@ pub struct Unique<T: Allele + Hash = DefaultAllele> {
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<T>>,
     pub genes_hashing: bool,
+    pub chromosome_recycling: bool,
 }
 
 impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
@@ -81,6 +82,7 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
                 gene_index_sampler: Uniform::from(0..allele_list.len()),
                 seed_genes_list: builder.seed_genes_list,
                 genes_hashing: builder.genes_hashing,
+                chromosome_recycling: builder.chromosome_recycling,
             })
         }
     }
@@ -161,6 +163,9 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
     }
     fn genes_hashing(&self) -> bool {
         self.genes_hashing
+    }
+    fn chromosome_recycling(&self) -> bool {
+        self.chromosome_recycling
     }
 }
 

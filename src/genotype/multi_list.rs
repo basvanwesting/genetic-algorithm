@@ -94,6 +94,7 @@ pub struct MultiList<T: Allele + PartialEq + Hash = DefaultAllele> {
     allele_index_samplers: Vec<Uniform<usize>>,
     pub seed_genes_list: Vec<Vec<T>>,
     pub genes_hashing: bool,
+    pub chromosome_recycling: bool,
 }
 
 impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
@@ -124,6 +125,7 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
                     .collect(),
                 seed_genes_list: builder.seed_genes_list,
                 genes_hashing: builder.genes_hashing,
+                chromosome_recycling: builder.chromosome_recycling,
             })
         }
     }
@@ -225,6 +227,9 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
     }
     fn genes_hashing(&self) -> bool {
         self.genes_hashing
+    }
+    fn chromosome_recycling(&self) -> bool {
+        self.chromosome_recycling
     }
 }
 

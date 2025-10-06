@@ -39,7 +39,9 @@ impl<G: EvolveGenotype> Crossover for MultiPoint<G> {
         let existing_population_size = state.population.chromosomes.len();
         let selected_population_size =
             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
-        state.population.cycle_expand(selected_population_size);
+        state
+            .population
+            .expand_from_within(selected_population_size);
         let iterator = state
             .population
             .chromosomes

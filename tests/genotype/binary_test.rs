@@ -223,7 +223,7 @@ fn neighbouring_population() {
         genotype.neighbouring_population_size(),
         BigUint::from(10u32)
     );
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert_eq!(
         inspect::population(&population),

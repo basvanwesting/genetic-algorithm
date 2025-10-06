@@ -23,7 +23,7 @@ pub fn setup(
         .map(|_| Chromosome::new(genotype.random_genes_factory(rng)))
         .collect();
 
-    let population = Population::new(chromosomes);
+    let population = Population::new(chromosomes, true);
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     (genotype, state)

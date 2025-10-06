@@ -28,6 +28,7 @@ pub struct Binary {
     gene_index_sampler: Uniform<usize>,
     pub seed_genes_list: Vec<Vec<bool>>,
     pub genes_hashing: bool,
+    pub chromosome_recycling: bool,
 }
 
 impl TryFrom<Builder<Self>> for Binary {
@@ -45,6 +46,7 @@ impl TryFrom<Builder<Self>> for Binary {
                 gene_index_sampler: Uniform::from(0..genes_size),
                 seed_genes_list: builder.seed_genes_list,
                 genes_hashing: builder.genes_hashing,
+                chromosome_recycling: builder.chromosome_recycling,
             })
         }
     }
@@ -124,6 +126,9 @@ impl Genotype for Binary {
     }
     fn genes_hashing(&self) -> bool {
         self.genes_hashing
+    }
+    fn chromosome_recycling(&self) -> bool {
+        self.chromosome_recycling
     }
 }
 

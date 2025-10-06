@@ -739,7 +739,7 @@ impl EvolveConfig {
 }
 
 impl<G: EvolveGenotype> EvolveState<G> {
-    pub fn new(_genotype: &G) -> Self {
+    pub fn new(genotype: &G) -> Self {
         Self {
             current_iteration: 0,
             current_generation: 0,
@@ -749,7 +749,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
             best_fitness_score: None,
             best_chromosome: None,
             chromosome: None,
-            population: Population::new_empty(),
+            population: Population::new_empty(genotype.chromosome_recycling()),
             population_cardinality: None,
             durations: HashMap::new(),
         }

@@ -25,7 +25,7 @@ pub fn setup(
         .map(|_| Chromosome::new(genotype.random_genes_factory(rng)))
         .collect();
 
-    let mut population = Population::new(chromosomes);
+    let mut population = Population::new(chromosomes, true);
     CountTrue.call_for_population(&mut population, &genotype, None, None);
     let mut state = EvolveState::new(&genotype);
     state.population = population;

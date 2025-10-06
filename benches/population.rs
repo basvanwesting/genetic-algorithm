@@ -30,7 +30,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let chromosomes = (0..*population_size)
             .map(|_| Chromosome::new(genotype.random_genes_factory(&mut rng)))
             .collect();
-        let population = &mut Population::new(chromosomes);
+        let population = &mut Population::new(chromosomes, true);
         CountTrue.call_for_population(population, &genotype, None, None);
 
         group.bench_with_input(
@@ -52,7 +52,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let chromosomes = (0..*population_size)
             .map(|_| random_chromosome.clone())
             .collect();
-        let population = &mut Population::new(chromosomes);
+        let population = &mut Population::new(chromosomes, true);
         CountTrue.call_for_population(population, &genotype, None, None);
 
         group.bench_with_input(
@@ -73,7 +73,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let chromosomes = (0..*population_size)
             .map(|_| Chromosome::new(genotype.random_genes_factory(&mut rng)))
             .collect();
-        let population = &mut Population::new(chromosomes);
+        let population = &mut Population::new(chromosomes, true);
 
         group.bench_with_input(
             BenchmarkId::new("genes_cardinality (unknown hash), low", population_size),
@@ -96,7 +96,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let chromosomes = (0..*population_size)
             .map(|_| random_chromosome.clone())
             .collect();
-        let population = &mut Population::new(chromosomes);
+        let population = &mut Population::new(chromosomes, true);
 
         group.bench_with_input(
             BenchmarkId::new("genes_cardinality (unknown hash), high", population_size),

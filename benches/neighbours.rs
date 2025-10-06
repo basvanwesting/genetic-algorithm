@@ -27,7 +27,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 (
                     Chromosome::new(genotype.random_genes_factory(&mut rng1)),
                     genotype.clone(),
-                    Population::new(vec![]),
+                    Population::new(vec![], true),
                 )
             },
             |(c, g, mut p)| g.fill_neighbouring_population(&c, &mut p, &mut rng2),
@@ -49,7 +49,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
                 (
                     Chromosome::new(genotype.random_genes_factory(&mut rng1)),
                     genotype.clone(),
-                    Population::new(vec![]),
+                    Population::new(vec![], true),
                 )
             },
             |(c, g, mut p)| g.fill_neighbouring_population(&c, &mut p, &mut rng2),

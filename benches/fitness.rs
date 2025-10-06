@@ -80,7 +80,7 @@ pub fn multithreading_benchmark(c: &mut Criterion) {
     let chromosomes = (0..100)
         .map(|_| Chromosome::new(genotype.random_genes_factory(&mut rng)))
         .collect();
-    let population = Population::new(chromosomes);
+    let population = Population::new(chromosomes, true);
 
     group.sample_size(30);
     group.bench_function("fitness-CountTrueWithSleep-single-threaded", |b| {

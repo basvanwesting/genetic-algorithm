@@ -46,6 +46,7 @@ pub trait Genotype:
     fn genes_size(&self) -> usize;
     fn genes_capacity(&self) -> usize;
     fn genes_hashing(&self) -> bool;
+    fn chromosome_recycling(&self) -> bool;
     fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele];
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Genes<Self::Allele>;
 
@@ -145,6 +146,7 @@ pub trait Genotype:
                 (0..population_size)
                     .map(|_| self.chromosome_constructor_random(rng))
                     .collect::<Vec<_>>(),
+                self.chromosome_recycling(),
             )
         } else {
             Population::new(
@@ -155,6 +157,7 @@ pub trait Genotype:
                     .take(population_size)
                     .map(|genes| self.chromosome_constructor_genes(genes))
                     .collect::<Vec<_>>(),
+                self.chromosome_recycling(),
             )
         }
     }

@@ -11,21 +11,24 @@ use std::collections::HashMap;
 #[derive(Clone, Debug)]
 pub struct Population<T: Allele> {
     pub chromosomes: Vec<Chromosome<T>>,
-    recycled: Vec<Chromosome<T>>,
+    pub recycling: bool,
+    recycling_bin: Vec<Chromosome<T>>,
 }
 
 impl<T: Allele> Population<T> {
-    pub fn new(chromosomes: Vec<Chromosome<T>>) -> Self {
+    pub fn new(chromosomes: Vec<Chromosome<T>>, recycling: bool) -> Self {
         Self {
             chromosomes,
-            recycled: Vec::new(),
+            recycling,
+            recycling_bin: Vec::new(),
         }
     }
 
-    pub fn new_empty() -> Self {
+    pub fn new_empty(recycling: bool) -> Self {
         Self {
             chromosomes: vec![],
-            recycled: Vec::new(),
+            recycling,
+            recycling_bin: Vec::new(),
         }
     }
 
@@ -55,34 +58,50 @@ impl<T: Allele> Population<T> {
     }
 
     pub fn recycled_size(&self) -> usize {
-        self.recycled.len()
+        self.recycling_bin.len()
     }
 
     /// Recycle a single chromosome
     pub fn drop_chromosome(&mut self, chromosome: Chromosome<T>) {
-        self.recycled.push(chromosome);
+        if self.recycling {
+            self.recycling_bin.push(chromosome)
+        } else {
+            // just let go out of scope
+        }
     }
 
     /// Truncate a population and add excess chromosomes to recycling bin
     pub fn truncate(&mut self, keep_size: usize) {
-        self.chromosomes
-            .drain(keep_size..)
-            .for_each(|c| self.recycled.push(c));
+        if self.recycling {
+            self.chromosomes
+                .drain(keep_size..)
+                .for_each(|c| self.recycling_bin.push(c));
+        } else {
+            self.chromosomes.truncate(keep_size);
+        }
     }
 
     /// Truncate a detached vector and add excess to recycling bin
     /// Used when chromosomes are temporarily outside the population (e.g., in selection)
-    pub fn drop_external_vec(&mut self, chromosomes: &mut Vec<Chromosome<T>>, keep_size: usize) {
-        chromosomes
-            .drain(keep_size..)
-            .for_each(|c| self.recycled.push(c));
+    pub fn truncate_external(&mut self, chromosomes: &mut Vec<Chromosome<T>>, keep_size: usize) {
+        if self.recycling {
+            chromosomes
+                .drain(keep_size..)
+                .for_each(|c| self.recycling_bin.push(c));
+        } else {
+            chromosomes.truncate(keep_size);
+        }
     }
 
     /// Get a recycled chromosome or create new one by cloning source
     pub fn new_chromosome(&mut self, source: &Chromosome<T>) -> Chromosome<T> {
-        if let Some(mut recycled) = self.recycled.pop() {
-            recycled.copy_from(source);
-            recycled
+        if self.recycling {
+            if let Some(mut recycled) = self.recycling_bin.pop() {
+                recycled.copy_from(source);
+                recycled
+            } else {
+                source.clone()
+            }
         } else {
             source.clone()
         }
@@ -90,17 +109,20 @@ impl<T: Allele> Population<T> {
 
     /// Expand population by amount, cycle cloning through the existing population while reusing
     /// recycled chromosomes when available
-    pub fn cycle_expand(&mut self, amount: usize) {
-        let modulo = self.chromosomes.len();
-        for i in 0..amount {
-            let source = &self.chromosomes[i % modulo];
-            let chromosome = if let Some(mut recycled) = self.recycled.pop() {
-                recycled.copy_from(source);
-                recycled
-            } else {
-                source.clone()
-            };
-            self.chromosomes.push(chromosome);
+    pub fn expand_from_within(&mut self, amount: usize) {
+        if self.recycling {
+            for i in 0..amount {
+                let source = &self.chromosomes[i];
+                let chromosome = if let Some(mut recycled) = self.recycling_bin.pop() {
+                    recycled.copy_from(source);
+                    recycled
+                } else {
+                    source.clone()
+                };
+                self.chromosomes.push(chromosome);
+            }
+        } else {
+            self.chromosomes.extend_from_within(0..amount);
         }
     }
 
@@ -265,8 +287,9 @@ impl<T: Allele> Population<T> {
     }
 }
 
+// FIXME: still used?
 impl<T: Allele> From<Vec<Chromosome<T>>> for Population<T> {
     fn from(chromosomes: Vec<Chromosome<T>>) -> Self {
-        Self::new(chromosomes)
+        Self::new(chromosomes, false)
     }
 }

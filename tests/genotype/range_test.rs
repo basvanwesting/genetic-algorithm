@@ -211,7 +211,7 @@ fn float_neighbouring_population_1() {
     ));
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&population),
@@ -237,7 +237,7 @@ fn float_neighbouring_population_2_random() {
     ));
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&population),
@@ -269,7 +269,7 @@ fn float_neighbouring_population_2_relative() {
     ));
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&population),
@@ -301,7 +301,7 @@ fn float_neighbouring_population_2_scaled() {
     ));
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&population),
@@ -361,7 +361,7 @@ fn float_neighbouring_population_3() {
     ));
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&population),
@@ -396,7 +396,7 @@ fn float_neighbouring_population_3_one_sided() {
 
     // size makes error as it counts 0.0 twice, this is fine
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&population),
@@ -675,7 +675,7 @@ fn integer_neighbouring_population_1() {
     assert_eq!(inspect::chromosome(&chromosome), vec![4]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(2u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert_eq!(inspect::population(&population), vec![vec![3], vec![5]],);
 }
@@ -693,7 +693,7 @@ fn integer_neighbouring_population_2_random() {
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4],);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert_eq!(
         inspect::population(&population),
@@ -715,7 +715,7 @@ fn integer_neighbouring_population_2_relative() {
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4],);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert_eq!(
         inspect::population(&population),
@@ -737,7 +737,7 @@ fn integer_neighbouring_population_2_scaled() {
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
@@ -761,7 +761,7 @@ fn integer_neighbouring_population_3() {
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 9]);
 
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert_eq!(
         inspect::population(&population),
@@ -791,7 +791,7 @@ fn integer_neighbouring_population_3_one_sided() {
     // size makes error as it counts 0.0 twice, this is fine
     assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
 
-    let mut population = Population::new(vec![]);
+    let mut population = Population::new(vec![], true);
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert_eq!(
         inspect::population(&population),

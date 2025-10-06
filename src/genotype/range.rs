@@ -68,6 +68,7 @@ where
     pub current_scale_index: usize,
     pub seed_genes_list: Vec<Vec<T>>,
     pub genes_hashing: bool,
+    pub chromosome_recycling: bool,
 }
 
 impl<T: RangeAllele> TryFrom<Builder<Self>> for Range<T>
@@ -109,6 +110,7 @@ where
                 current_scale_index: 0,
                 seed_genes_list: builder.seed_genes_list,
                 genes_hashing: builder.genes_hashing,
+                chromosome_recycling: builder.chromosome_recycling,
             })
         }
     }
@@ -273,6 +275,9 @@ where
     }
     fn genes_hashing(&self) -> bool {
         self.genes_hashing
+    }
+    fn chromosome_recycling(&self) -> bool {
+        self.chromosome_recycling
     }
 }
 
@@ -697,6 +702,7 @@ where
             current_scale_index: self.current_scale_index,
             seed_genes_list: self.seed_genes_list.clone(),
             genes_hashing: self.genes_hashing,
+            chromosome_recycling: self.chromosome_recycling,
         }
     }
 }

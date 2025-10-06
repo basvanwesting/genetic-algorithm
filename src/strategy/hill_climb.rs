@@ -641,7 +641,7 @@ impl HillClimbConfig {
 }
 
 impl<G: HillClimbGenotype> HillClimbState<G> {
-    pub fn new(_genotype: &G) -> Self {
+    pub fn new(genotype: &G) -> Self {
         Self {
             current_iteration: 0,
             current_generation: 0,
@@ -650,7 +650,7 @@ impl<G: HillClimbGenotype> HillClimbState<G> {
             best_generation: 0,
             best_fitness_score: None,
             chromosome: None,
-            population: Population::new_empty(),
+            population: Population::new_empty(genotype.chromosome_recycling()),
             durations: HashMap::new(),
             best_chromosome: None,
         }

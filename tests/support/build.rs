@@ -31,7 +31,7 @@ pub fn chromosome_with_age<T: Allele>(genes: Vec<T>, age: usize) -> Chromosome<T
 #[allow(dead_code)]
 pub fn population<T: Allele>(data: Vec<Vec<T>>) -> Population<T> {
     let chromosomes = data.into_iter().map(chromosome).collect();
-    Population::new(chromosomes)
+    Population::new(chromosomes, true)
 }
 
 #[allow(dead_code)]
@@ -43,7 +43,7 @@ pub fn population_with_fitness_scores<T: Allele>(
         .map(|tuple| chromosome_with_fitness_score(tuple.0, tuple.1))
         .collect();
 
-    Population::new(chromosomes)
+    Population::new(chromosomes, true)
 }
 
 #[allow(dead_code)]
@@ -53,7 +53,7 @@ pub fn population_with_age<T: Allele>(data: Vec<(Vec<T>, usize)>) -> Population<
         .map(|tuple| chromosome_with_age(tuple.0, tuple.1))
         .collect();
 
-    Population::new(chromosomes)
+    Population::new(chromosomes, true)
 }
 
 #[allow(dead_code)]
@@ -77,7 +77,7 @@ pub fn population_without_genes_hash<T: Allele>(data: Vec<Vec<T>>) -> Population
         .into_iter()
         .map(chromosome_without_genes_hash)
         .collect();
-    Population::new(chromosomes)
+    Population::new(chromosomes, true)
 }
 
 #[allow(dead_code)]
@@ -89,5 +89,5 @@ pub fn population_with_fitness_scores_without_genes_hash<T: Allele>(
         .map(|tuple| chromosome_with_fitness_score_without_genes_hash(tuple.0, tuple.1))
         .collect();
 
-    Population::new(chromosomes)
+    Population::new(chromosomes, true)
 }

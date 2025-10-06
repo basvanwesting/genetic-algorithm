@@ -19,6 +19,10 @@ use std::ops::RangeInclusive;
 ///   useful for better population cardinality estimation (falls back to fitness score cardinality
 ///   otherwise).
 ///
+/// * Builder `with_chromosome_recycling(true)`, optional, recycle chromosome population instead of
+///   reallocating repeatedly. Can be beneficiary for large genes_size. But does make the custom
+///   implementations of Crossover require to handle this, otherwise a memory leak would occur
+///
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {
     pub genes_size: Option<usize>,
@@ -32,6 +36,7 @@ pub struct Builder<G: Genotype> {
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<G::Allele>>>>,
     pub seed_genes_list: Vec<Genes<G::Allele>>,
     pub genes_hashing: bool,
+    pub chromosome_recycling: bool,
 }
 
 impl<G: Genotype> Builder<G> {
@@ -106,6 +111,11 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    pub fn with_chromosome_recycling(mut self, chromosome_recycling: bool) -> Self {
+        self.chromosome_recycling = chromosome_recycling;
+        self
+    }
+
     pub fn build(self) -> Result<G, <G as TryFrom<Builder<G>>>::Error> {
         self.try_into()
     }
@@ -125,6 +135,7 @@ impl<G: Genotype> Default for Builder<G> {
             allele_mutation_scaled_ranges: None,
             seed_genes_list: vec![],
             genes_hashing: false,
+            chromosome_recycling: false,
         }
     }
 }
