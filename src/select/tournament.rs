@@ -154,7 +154,7 @@ impl Tournament {
             }
         };
         // Recycle all losing chromosomes to population's recycling bin
-        population.recycle_from_vec(chromosomes, 0);
+        population.drop_external_vec(chromosomes, 0);
         chromosomes.append(&mut selected_chromosomes);
     }
 }

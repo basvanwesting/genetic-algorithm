@@ -78,7 +78,7 @@ pub type CrossoverEvolveState<C> = EvolveState<<C as Crossover>::Genotype>;
 ///             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
 ///
 ///         // Important!!! Append offspring as recycled clones from parents (will crossover later)
-///         state.population.expand_with_recycling(selected_population_size);
+///         state.population.cycle_expand(selected_population_size);
 ///
 ///         // Skip the parents, iterate over the freshly appended offspring
 ///         let iterator = state

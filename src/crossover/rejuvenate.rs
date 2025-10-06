@@ -32,12 +32,8 @@ impl<G: EvolveGenotype> Crossover for Rejuvenate<G> {
             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
         let dropped_population_size = (existing_population_size - selected_population_size).max(0);
 
-        state
-            .population
-            .truncate_with_recycling(selected_population_size);
-        state
-            .population
-            .expand_with_recycling(dropped_population_size);
+        state.population.truncate(selected_population_size);
+        state.population.cycle_expand(dropped_population_size);
 
         state
             .population

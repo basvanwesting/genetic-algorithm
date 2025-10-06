@@ -36,9 +36,7 @@ impl<G: EvolveGenotype> Crossover for SingleGene<G> {
         let existing_population_size = state.population.chromosomes.len();
         let selected_population_size =
             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
-        state
-            .population
-            .expand_with_recycling(selected_population_size);
+        state.population.cycle_expand(selected_population_size);
         let iterator = state
             .population
             .chromosomes

@@ -196,7 +196,7 @@ impl<T: Allele + Hash> HillClimbGenotype for Unique<T> {
         (0..self.genes_size())
             .tuple_combinations()
             .for_each(|(first, second)| {
-                let mut new_chromosome = population.get_or_create_chromosome(chromosome);
+                let mut new_chromosome = population.new_chromosome(chromosome);
                 new_chromosome.genes.swap(first, second);
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);

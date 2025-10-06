@@ -288,7 +288,7 @@ impl<T: Allele + PartialEq + Hash> HillClimbGenotype for List<T> {
         for index in 0..self.genes_size() {
             for allele_value in self.allele_list.clone() {
                 if chromosome.genes[index] != allele_value {
-                    let mut new_chromosome = population.get_or_create_chromosome(chromosome);
+                    let mut new_chromosome = population.new_chromosome(chromosome);
                     new_chromosome.genes[index] = allele_value;
                     new_chromosome.reset_metadata(self.genes_hashing);
                     population.chromosomes.push(new_chromosome);

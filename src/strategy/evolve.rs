@@ -595,7 +595,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
             for i in (0..self.population.chromosomes.len()).rev() {
                 if self.population.chromosomes[i].age() >= max_chromosome_age {
                     let chromosome = self.population.chromosomes.swap_remove(i);
-                    self.population.recycle_chromosome(chromosome);
+                    self.population.drop_chromosome(chromosome);
                 }
             }
         }

@@ -228,7 +228,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     self.state
                         .chromosome
                         .clone_from(&self.state.best_chromosome);
-                    self.state.population.truncate_with_recycling(0);
+                    self.state.population.truncate(0);
                     self.genotype.fill_neighbouring_population(
                         self.state.chromosome.as_ref().unwrap(),
                         &mut self.state.population,

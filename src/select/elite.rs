@@ -107,6 +107,6 @@ impl Elite {
                 });
             }
         }
-        population.recycle_from_vec(chromosomes, selection_size);
+        population.drop_external_vec(chromosomes, selection_size);
     }
 }
