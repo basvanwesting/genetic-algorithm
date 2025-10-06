@@ -15,12 +15,24 @@ const TOURNAMENT_SIZE: usize = 20;
 const MUTATIONS_PER_CHROMOSOME: usize = 50;
 
 // Crossover is where the main work is taking place in the base loop
+//
+// | Genes Hashing | Chromosome Recycling | Genes Size | Select (ms) | Crossover (ms) | Mutate (ms) |
+// |---------------|----------------------|------------|-------------|----------------|-------------|
+// | false         | false                | 40695      | 101.216     | 491.237        | 15.988      |
+// | true          | false                | 40695      | 194.109     | 1,008.000      | 117.058     |
+// | false         | true                 | 40695      | 29.646      | 365.227        | 15.888      |
+// | true          | true                 | 40695      | 30.539      | 788.115        | 116.259     |
+// | false         | false                | 100        | 36.437      | 9.634          | 1.153       |
+// | true          | false                | 100        | 31.486      | 8.977          | 1.180       |
+// | false         | true                 | 100        | 38.661      | 9.749          | 1.318       |
+// | true          | true                 | 100        | 35.119      | 9.579          | 1.360       |
 
 fn main() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(ALLELE_RANGE)
-        // .with_genes_hashing(true)
+        .with_genes_hashing(true)
+        .with_chromosome_recycling(true)
         .build()
         .unwrap();
     // let genotype = BinaryGenotype::builder()

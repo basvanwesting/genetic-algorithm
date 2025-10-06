@@ -18,7 +18,8 @@ use std::fmt;
 ///
 /// let genotype = BinaryGenotype::builder()
 ///     .with_genes_size(100)
-///     .with_genes_hashing(false) // optional, defaults to false
+///     .with_genes_hashing(true) // optional, defaults to true
+///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
 /// ```

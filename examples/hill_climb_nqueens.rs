@@ -35,6 +35,7 @@ fn main() {
 
     let genotype = UniqueGenotype::builder()
         .with_allele_list((0..BOARD_SIZE).collect())
+        .with_genes_hashing(false) // not useful for HillClimb
         .build()
         .unwrap();
 

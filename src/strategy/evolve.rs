@@ -139,6 +139,7 @@ pub enum EvolveVariant {
 /// let genotype = BinaryGenotype::builder() // boolean alleles
 ///     .with_genes_size(100)                // 100 genes per chromosome
 ///     .with_genes_hashing(true)            // store genes_hash on chromosome (required for fitness_cache and deduplication extension, optional for better population cardinality estimation)
+///     .with_chromosome_recycling(true)     // recycle genes memory allocations
 ///     .build()
 ///     .unwrap();
 ///

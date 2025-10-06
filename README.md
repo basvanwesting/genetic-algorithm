@@ -137,15 +137,27 @@ For the Evolve strategy:
   sorting of some kind. This is relatively fast compared to the rest of the
   operations.
 * Crossover: the workhorse of internal parts. Crossover touches most genes each
-  generation and clones up to the whole population to produce offspring
-  (depending on selection-rate). It also calculates new genes hashes if enabled
-  on the Genotype, which has a relatively high overhead on the main Evolve
-  loop.
+  generation, calculates genes hashes and clones up to the whole population to
+  produce offspring (depending on selection-rate).
 * Mutate: no considerations. It touches genes like crossover does, but should
   be used sparingly anyway; with low gene counts (<10%) and low probability (5-20%)
-* Fitness: can be anything. This fully depends on the user domain. Parallelize
-  it using `with_par_fitness()` in the Builder. But beware that parallelization
-  has it's own overhead and is not always faster.
+* Fitness: can be anything, but usually very dominant (>80% total time). This
+  fully depends on the user domain. Parallelize it using `with_par_fitness()`
+  in the Builder. But beware that parallelization has it's own overhead and is
+  not always faster.
+
+So framework overhead is mostly Crossover. Practical overhead is mostly Fitness.
+
+Regarding the optionality of genes hashing and chromosomes recycling: For large
+chromosomes, disabling chromosome recycling and enabling genes hashing leads to
+a 3x factor in framework overhead. For small chromosomes, neither feature has
+overhead effects. But do keep in mind that for large chromosomes the Fitness
+calculation will be even more dominant with regards to the framework overhead
+as it already is.
+
+Default configuration for correctness AND performance
+.with_genes_hashing(true)        // Required for proper GA dynamics
+.with_chromosome_recycling(true) // Still worth it for large chromosomes
 
 ## Tests
 Run tests with `cargo test`
@@ -171,6 +183,12 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 ## TODO
 
 ## MAYBE
+* Consider dropping .with_genes_hashing() and always set to true, because it is
+  needed for proper GA functionality regardless the overhead
+* Consider dropping .with_chromosome_recycling() and always set to false
+  (stripping the recycling completely), because it is complicated and risky for
+  custom Crossover implementations and maybe framework overhead simply doesn't
+  matter as much with regards to Fitness overhead
 * Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)
 * Add scaling helper function
 * Add simulated annealing strategy

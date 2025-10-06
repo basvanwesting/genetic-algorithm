@@ -40,7 +40,8 @@ pub type DefaultAllele = usize;
 ///        (7..=9).collect(),
 ///        (0..=2).collect(),
 ///     ])
-///     .with_genes_hashing(false) // optional, defaults to false
+///     .with_genes_hashing(true) // optional, defaults to true
+///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
 ///
@@ -62,7 +63,8 @@ pub type DefaultAllele = usize;
 ///       vec![Item(4, 505), Item(5, 352)],
 ///       vec![Item(6, 352), Item(7, 458), Item(8, 123)],
 ///     ])
-///     .with_genes_hashing(true) // optional, defaults to false
+///     .with_genes_hashing(true) // optional, defaults to true
+///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
 /// ```

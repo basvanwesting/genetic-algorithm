@@ -26,8 +26,11 @@ Now the library is restructured to a simpler form, moving a lot of
 responsibilities away from `Genotype` which was becoming too heavy and
 centralized: All genes are now `Vec<Allele>` and stored on the `Chromosome`
 (which now only has one implementation, no genotype specific variants anymore).
+
 Chromosome recycling has been moved from the `Genotype` (`ChromosomeManager`)
-to the `Population`. 
+to the `Population`, the enabling flag is on `Genotype`. So when making custom
+implementations remember to use the population's new/drop/truncate methods for
+the chromosomes.
 
 However, `Genotype` unification proved impossible - each type has fundamentally
 different requirements. So the best route to allow for easier custom `Mutate`

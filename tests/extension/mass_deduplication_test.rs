@@ -99,6 +99,7 @@ fn never_leaves_less_than_two() {
 fn skips_execution_if_no_genes_hash() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(3)
+        .with_genes_hashing(false)
         .build()
         .unwrap();
 

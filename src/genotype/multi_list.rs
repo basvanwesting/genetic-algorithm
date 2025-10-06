@@ -36,7 +36,8 @@ pub type DefaultAllele = usize;
 ///        (0..=5).collect(),
 ///        (0..=30).collect(),
 ///     ])
-///     .with_genes_hashing(false) // optional, defaults to false
+///     .with_genes_hashing(true) // optional, defaults to true
+///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -57,7 +58,8 @@ pub type DefaultAllele = usize;
 ///        (0..number_of_laps.len()).collect(),
 ///        (0..rain_probabilities.len()).collect(),
 ///     ])
-///     .with_genes_hashing(true) // optional, defaults to false
+///     .with_genes_hashing(true) // optional, defaults to true
+///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
 ///
@@ -80,7 +82,8 @@ pub type DefaultAllele = usize;
 ///       vec![Item(23, 505), Item(26, 352)],
 ///       vec![Item(26, 352), Item(20, 458), Item(13, 123)],
 ///     ])
-///     .with_genes_hashing(false) // optional, defaults to false
+///     .with_genes_hashing(true) // optional, defaults to true
+///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
 /// ```

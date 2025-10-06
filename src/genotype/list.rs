@@ -27,7 +27,8 @@ pub type DefaultAllele = usize;
 /// let genotype = ListGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_list((0..10).collect())
-///     .with_genes_hashing(false) // optional, defaults to false
+///     .with_genes_hashing(true) // optional, defaults to true
+///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -53,6 +54,7 @@ pub type DefaultAllele = usize;
 ///         Item(20, 458),
 ///     ])
 ///     .with_genes_hashing(true) // optional, defaults to false
+///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
 /// ```
@@ -73,6 +75,7 @@ pub type DefaultAllele = usize;
 ///         Item(20, 458),
 ///     ])
 ///     .with_genes_hashing(true) // optional, defaults to false
+///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
 /// ```

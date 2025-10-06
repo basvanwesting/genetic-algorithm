@@ -34,6 +34,7 @@ fn main() {
             -0.0001..=0.0001,
             -0.00001..=0.00001,
         ])
+        .with_genes_hashing(false) // not useful for HillClimb
         .build()
         .unwrap();
 

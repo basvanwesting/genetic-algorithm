@@ -53,6 +53,7 @@ fn main() {
             vec![-0.00001..=0.00001, -0.00001..=0.00001],
             vec![-0.000001..=0.000001, -0.000001..=0.000001],
         ])
+        .with_genes_hashing(false) // not useful for HillClimb
         .build()
         .unwrap();
 

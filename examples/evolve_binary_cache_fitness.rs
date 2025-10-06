@@ -29,7 +29,6 @@ fn main() {
 
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
-        .with_genes_hashing(true)
         .build()
         .unwrap();
 

@@ -13,15 +13,16 @@ use std::ops::RangeInclusive;
 ///   population in the Evolve strategy. For the HillClimb strategy a single random seed genes is
 ///   taken as the starting point for each run (not cycling through them in repeated runs).
 ///
-/// * Builder `with_genes_hashing(true)`, optional, store a genes_hash on the chromomose (in Evolve
-///   or HillClimb). This is needed when using `with_fitness_cache` on the strategy as key for the
-///   cache. Hashing the genes has relatively high overhead for to the main Evolve loop, but might be
-///   useful for better population cardinality estimation (falls back to fitness score cardinality
-///   otherwise).
+/// * Builder `with_genes_hashing(true)`, optional, default true, store a genes_hash on the
+///   chromomose (in Evolve or HillClimb). This is needed when using `with_fitness_cache` on the
+///   strategy as key for the cache. Hashing the genes has relatively high overhead for to the main
+///   Evolve loop, but might be useful for better population cardinality estimation (falls back to
+///   fitness score cardinality otherwise).
 ///
-/// * Builder `with_chromosome_recycling(true)`, optional, recycle chromosome population instead of
-///   reallocating repeatedly. Can be beneficiary for large genes_size. But does make the custom
-///   implementations of Crossover require to handle this, otherwise a memory leak would occur
+/// * Builder `with_chromosome_recycling(true)`, optional, default true, recycle chromosome
+///   population instead of reallocating repeatedly. Can be beneficiary for large genes_size. But
+///   does make the custom implementations of Crossover require to handle this, otherwise a memory
+///   leak would occur
 ///
 #[derive(Clone, Debug)]
 pub struct Builder<G: Genotype> {
@@ -134,8 +135,8 @@ impl<G: Genotype> Default for Builder<G> {
             allele_mutation_scaled_range: None,
             allele_mutation_scaled_ranges: None,
             seed_genes_list: vec![],
-            genes_hashing: false,
-            chromosome_recycling: false,
+            genes_hashing: true,
+            chromosome_recycling: true,
         }
     }
 }

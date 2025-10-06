@@ -372,6 +372,7 @@ fn main() {
                 .flat_map(|(index, adult)| vec![index; adult.number_of_assigns])
                 .collect(),
         )
+        .with_genes_hashing(false) // not useful for HillClimb
         .build()
         .unwrap();
 
