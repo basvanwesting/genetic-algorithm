@@ -190,5 +190,5 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 ## ISSUES
 
 ## ARCHIVE
-* [archive/centralized-gpu-experiment branch](../../tree/archive/centralized-gpu-experiment) is archived for now,
-  as zero-copy transfer of genes to GPU proved impractical in practice
+* [archive/centralized-gpu-experiment branch](https://github.com/basvanwesting/genetic-algorithm/tree/archive/centralized-gpu-experiment) 
+  is archived for now, as zero-copy transfer of genes to GPU proved impractical in practice
