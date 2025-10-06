@@ -153,7 +153,8 @@ chromosomes, disabling chromosome recycling and enabling genes hashing leads to
 a 3x factor in framework overhead. For small chromosomes, neither feature has
 overhead effects. But do keep in mind that for large chromosomes the Fitness
 calculation will be even more dominant with regards to the framework overhead
-as it already is.
+as it already is. 
+See [examples/evolve_large_genotype](../main/examples/evolve_large_genotype.rs)
 
 Default configuration for correctness AND performance
 .with_genes_hashing(true)        // Required for proper GA dynamics

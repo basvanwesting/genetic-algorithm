@@ -134,6 +134,7 @@
 //! overhead effects. But do keep in mind that for large chromosomes the Fitness
 //! calculation will be even more dominant with regards to the framework overhead
 //! as it already is.
+//! See [examples/evolve_large_genotype](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_large_genotype.rs)
 //!
 //! Default configuration for correctness AND performance
 //! .with_genes_hashing(true)        // Required for proper GA dynamics

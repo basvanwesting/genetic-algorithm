@@ -30,7 +30,7 @@ impl<G: EvolveGenotype> Crossover for Clone<G> {
             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
         state
             .population
-            .expand_from_within(selected_population_size);
+            .extend_from_within(selected_population_size);
         state
             .population
             .chromosomes

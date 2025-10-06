@@ -61,38 +61,6 @@ impl<T: Allele> Population<T> {
         self.recycling_bin.len()
     }
 
-    /// Recycle a single chromosome
-    pub fn drop_chromosome(&mut self, chromosome: Chromosome<T>) {
-        if self.recycling {
-            self.recycling_bin.push(chromosome)
-        } else {
-            // just let go out of scope
-        }
-    }
-
-    /// Truncate a population and add excess chromosomes to recycling bin
-    pub fn truncate(&mut self, keep_size: usize) {
-        if self.recycling {
-            self.chromosomes
-                .drain(keep_size..)
-                .for_each(|c| self.recycling_bin.push(c));
-        } else {
-            self.chromosomes.truncate(keep_size);
-        }
-    }
-
-    /// Truncate a detached vector and add excess to recycling bin
-    /// Used when chromosomes are temporarily outside the population (e.g., in selection)
-    pub fn truncate_external(&mut self, chromosomes: &mut Vec<Chromosome<T>>, keep_size: usize) {
-        if self.recycling {
-            chromosomes
-                .drain(keep_size..)
-                .for_each(|c| self.recycling_bin.push(c));
-        } else {
-            chromosomes.truncate(keep_size);
-        }
-    }
-
     /// Get a recycled chromosome or create new one by cloning source
     pub fn new_chromosome(&mut self, source: &Chromosome<T>) -> Chromosome<T> {
         if self.recycling {
@@ -107,9 +75,40 @@ impl<T: Allele> Population<T> {
         }
     }
 
-    /// Expand population by amount, cycle cloning through the existing population while reusing
-    /// recycled chromosomes when available
-    pub fn expand_from_within(&mut self, amount: usize) {
+    /// Recycle the chromosome or just drop it
+    pub fn drop_chromosome(&mut self, chromosome: Chromosome<T>) {
+        if self.recycling {
+            self.recycling_bin.push(chromosome)
+        } else {
+            // just let go out of scope
+        }
+    }
+
+    /// Truncate a population and add truncated chromosomes to recycling bin
+    pub fn truncate(&mut self, keep_size: usize) {
+        if self.recycling {
+            self.chromosomes
+                .drain(keep_size..)
+                .for_each(|c| self.recycling_bin.push(c));
+        } else {
+            self.chromosomes.truncate(keep_size);
+        }
+    }
+
+    /// Truncate a detached vector and add truncated chromosomes to recycling bin
+    /// Used when chromosomes are temporarily outside the population (e.g. during selection)
+    pub fn truncate_external(&mut self, chromosomes: &mut Vec<Chromosome<T>>, keep_size: usize) {
+        if self.recycling {
+            chromosomes
+                .drain(keep_size..)
+                .for_each(|c| self.recycling_bin.push(c));
+        } else {
+            chromosomes.truncate(keep_size);
+        }
+    }
+
+    /// Extend population by amount, reusing recycled chromosomes if available
+    pub fn extend_from_within(&mut self, amount: usize) {
         if self.recycling {
             for i in 0..amount {
                 let source = &self.chromosomes[i];
