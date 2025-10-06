@@ -188,3 +188,7 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
   extend with best-parents with the pre v0.20 selection-rate behaviour which was crucial for evolve_nqueens
 
 ## ISSUES
+
+## ARCHIVE
+* [archive/centralized-gpu-experiment branch](../../tree/archive/centralized-gpu-experiment) is archived for now,
+  as zero-copy transfer of genes to GPU proved impractical in practice
