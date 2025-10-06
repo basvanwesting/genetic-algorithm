@@ -134,8 +134,8 @@ For the Evolve strategy:
   * fitness v. framework overhead
   * staleness and population characteristics (cardinality etc.)
 * Select: no considerations. All selects are basically some form of in-place
-  sorting of some kind. This is relatively fast compared to the rest of the
-  operations.
+  sorting of some kind based on chromosome metadata. This is relatively fast
+  compared to the rest of the operations.
 * Crossover: the workhorse of internal parts. Crossover touches most genes each
   generation, calculates genes hashes and clones up to the whole population to
   produce offspring (depending on selection-rate).
@@ -157,8 +157,8 @@ as it already is.
 See [examples/evolve_large_genotype](../main/examples/evolve_large_genotype.rs)
 
 Default configuration for correctness AND performance
-.with_genes_hashing(true)        // Required for proper GA dynamics
-.with_chromosome_recycling(true) // Still worth it for large chromosomes
+* .with_genes_hashing(true)        // Required for proper GA dynamics
+* .with_chromosome_recycling(true) // Still worth it for large chromosomes
 
 ## Tests
 Run tests with `cargo test`

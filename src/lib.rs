@@ -114,8 +114,8 @@
 //! * [Reporting](strategy::reporter): start with [EvolveReporterSimple](strategy::evolve::EvolveReporterSimple) for basic understanding of:
 //!   * fitness v. framework overhead
 //!   * staleness and population characteristics (cardinality etc.)
-//! * [Select](select): no considerations. All selects are basically some form of in-place
-//!   sorting of some kind. This is relatively fast compared to the rest of the
+//! * [Select](select): no considerations. All selects are basically some form of in-place sorting
+//!   of some kind based on chromosome metadata. This is relatively fast compared to the rest of the
 //!   operations.
 //! * [Crossover](crossover): the workhorse of internal parts. Crossover touches most genes each
 //!   generation, calculates genes hashes and clones up to the whole population to produce offspring
@@ -137,8 +137,8 @@
 //! See [examples/evolve_large_genotype](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_large_genotype.rs)
 //!
 //! Default configuration for correctness AND performance
-//! .with_genes_hashing(true)        // Required for proper GA dynamics
-//! .with_chromosome_recycling(true) // Still worth it for large chromosomes
+//! * .with_genes_hashing(true)        // Required for proper GA dynamics
+//! * .with_chromosome_recycling(true) // Still worth it for large chromosomes
 //!
 pub mod allele;
 pub mod chromosome;
