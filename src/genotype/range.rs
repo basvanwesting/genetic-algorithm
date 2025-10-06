@@ -231,10 +231,8 @@ where
         }
         chromosome.reset_metadata(self.genes_hashing);
     }
-    fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
-        let mut new = self.clone();
-        new.seed_genes_list = seed_genes_list;
-        new
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
+        self.seed_genes_list = seed_genes_list;
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
@@ -250,6 +248,9 @@ where
         } else {
             None
         }
+    }
+    fn reset_scale_index(&mut self) {
+        self.current_scale_index = 0;
     }
     fn increment_scale_index(&mut self) -> bool {
         if let Some(max_scale_index) = self.max_scale_index() {

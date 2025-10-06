@@ -204,10 +204,8 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
         }
         chromosome.reset_metadata(self.genes_hashing);
     }
-    fn with_seed_genes_list(&self, seed_genes_list: Vec<Genes<Self::Allele>>) -> Self {
-        let mut new = self.clone();
-        new.seed_genes_list = seed_genes_list;
-        new
+    fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>) {
+        self.seed_genes_list = seed_genes_list;
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list

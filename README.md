@@ -158,7 +158,7 @@ See [examples/evolve_large_genotype](../main/examples/evolve_large_genotype.rs)
 
 Default configuration for correctness AND performance
 * .with_genes_hashing(true)        // Required for proper GA dynamics
-* .with_chromosome_recycling(true) // Still worth it for large chromosomes
+* .with_chromosome_recycling(true) // Still worth it for large chromosomes, maybe disable for easier custom implementations
 
 ## Tests
 Run tests with `cargo test`

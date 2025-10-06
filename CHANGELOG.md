@@ -24,20 +24,21 @@ for later use, when zero-copy actually becomes viable.
 
 Now the library is restructured to a simpler form, moving a lot of
 responsibilities away from `Genotype` which was becoming too heavy and
-centralized: All genes are now `Vec<Allele>` and stored on the `Chromosome`
+centralized: All genes are now `Vec<Allele>` and owned by the `Chromosome`
 (which now only has one implementation, no genotype specific variants anymore).
 
 Chromosome recycling has been moved from the `Genotype` (`ChromosomeManager`)
 to the `Population`, the enabling flag is on `Genotype`. So when making custom
 implementations remember to use the population's `new_chromosome()`,
 `drop_chromomsome()`, `truncate()`, `truncate_external()` &
-`extend_from_within()` methods for the chromosomes.
+`extend_from_within()` methods for the chromosomes. Or just disable the
+recycling (no risk of errors).
 
-However, `Genotype` unification proved impossible - each type has fundamentally
-different requirements. So the best route to allow for easier custom `Mutate`
-and `Crossover` implementations, was to make them user-genotype specific using
-an associated type `Genotype` on `Mutate` and `Crossover` traits (following
-existing `Fitness` pattern). The Genotypes now also have some
+However, `Genotype` unification still proved impossible - each type has
+fundamentally different requirements. So the best route to allow for easier
+custom `Mutate` and `Crossover` implementations, was to make them user-genotype
+specific using an associated type `Genotype` on `Mutate` and `Crossover` traits
+(following existing `Fitness` pattern). The Genotypes now also have some
 implementation-specific helper methods to support custom implementations:
 `sample_allele()`, `sample_gene_delta()`, `sample_gene_index()`,
 `sample_gene_indices()`.
@@ -45,7 +46,7 @@ implementation-specific helper methods to support custom implementations:
 Skip the associated type `Genotype` on `Select` and `Extension` for now, as
 these mainly work with the chromosome metadata and are not genotype specific.
 
-General usage by client is hardly impacted, most is internal.
+General usage by client has little impact, most is internal.
 
 ### Changed
 * Add associated type `Genotype` to `Mutate` and `Crossover` traits (following
@@ -55,16 +56,17 @@ General usage by client is hardly impacted, most is internal.
   trait responsible for the hashing implementation (with `impl_allele!` macro
   for default implementation)
 * Moved `current_scale_index` from `StrategyState` to `Genotype`. This is the
-  only change towards `Genotype`. The scaling is only implemented by
+  only change adding `Genotype` logic. The scaling is only implemented by
   `RangeGenotype` and `MultiRangeGenotype`, so it felt more genotype specific.
   It does make the `Genotype` mutable again, which is an accepted tradeoff.
 
 ### Removed
 * Remove matrix genotypes (`DynamicMatrixGenotype`, `StaticMatrixGenotype`)
 * Remove `ChromosomeManager` trait
+* Remove `GenesOwner` and `GenesPointer` traits
 * Remove `BitGenotype` - use `BinaryGenotype` with `Vec<bool>` instead
 * Remove `calculate_for_population()` as the population-level fitness calculation user
-  hook. All is now `calculate_for_chromosome()`
+  hook. All is now `calculate_for_chromosome()` which can now be compile time guarded
 
 ## [0.20.5] - 2025-05-21
 ### Added
