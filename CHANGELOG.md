@@ -14,43 +14,53 @@ centralized `DynamicMatrixGenotype` and `StaticMatrixGenotype` with all their
 added centralized complexity (`ChromosomeManager` and `GenesPointer` v. `GenesOwner`
 etc...). 
 
-The first attempt was to split the library in two: centralized v.
-distributed, where the distributed track could become less `Genotype`-heavy and more
-flexible. But it also happens the GPU optimization premise was flawed as memory
-transfers are required regardless of pre-transfer layout. So on the end we just
-dropped the whole centralized approach and archived it in
-[archive/centralized-gpu-experiment branch](https://github.com/basvanwesting/genetic-algorithm/tree/archive/centralized-gpu-experiment).
+The first attempt was to split the library in two: centralized v. distributed,
+where the distributed track could become less genotype-heavy and more
+flexible. But it also happens the GPU zero-copy optimization premise was flawed
+as memory transfers are required regardless of pre-transfer layout. So on the
+end we just dropped the whole centralized approach and archived it in
+[archive/centralized-gpu-experiment branch](https://github.com/basvanwesting/genetic-algorithm/tree/archive/centralized-gpu-experiment) 
+for later use, when zero-copy actually becomes viable.
 
 Now the library is restructured to a simpler form, moving a lot of
 responsibilities away from `Genotype` which was becoming too heavy and
-centralized: All genes are now `Vec<Allele>` and stored on the `Chromosome`.
-Chromosome recycling has been moved from the `Genotype` (`ChromosomeManager`) to the
-`Population`.
+centralized: All genes are now `Vec<Allele>` and stored on the `Chromosome`
+(which now only has one implementation, no genotype specific variants anymore).
+Chromosome recycling has been moved from the `Genotype` (`ChromosomeManager`)
+to the `Population`. 
 
-Still `Genotype` unification proved impossible - each type has fundamentally
+However, `Genotype` unification proved impossible - each type has fundamentally
 different requirements. So the best route to allow for easier custom `Mutate`
 and `Crossover` implementations, was to make them user-genotype specific using
 an associated type `Genotype` on `Mutate` and `Crossover` traits (following
-existing `Fitness` pattern).
+existing `Fitness` pattern). The Genotypes now also have some
+implementation-specific helper methods to support custom implementations:
+`sample_allele()`, `sample_gene_delta()`, `sample_gene_index()`,
+`sample_gene_indices()`.
+
+Skip the associated type `Genotype` on `Select` and `Extension` for now, as
+these mainly work with the chromosome metadata and are not genotype specific.
 
 General usage by client is hardly impacted, most is internal.
 
 ### Changed
 * Add associated type `Genotype` to `Mutate` and `Crossover` traits (following
-  existing `Fitness` pattern). Skip the associated type `Genotype` on `Select`
-  and `Extension` for now, as mainly work with the chromosome-meta data and are
-  not Genotype specific.
+  existing `Fitness` pattern).
 * Move chromosome recycling from `ChromosomeManager` to `Population`
 * Move genes hashing from the `Genotype` to `Chromosome` making the `Allele`
-  trait responsible for the hashing implementation
-* Moved `current_scale_index` from `StrategyState` to `Genotype`
+  trait responsible for the hashing implementation (with `impl_allele!` macro
+  for default implementation)
+* Moved `current_scale_index` from `StrategyState` to `Genotype`. This is the
+  only change towards `Genotype`. The scaling is only implemented by
+  `RangeGenotype` and `MultiRangeGenotype`, so it felt more genotype specific.
+  It does make the `Genotype` mutable again, which is an accepted tradeoff.
 
 ### Removed
 * Remove matrix genotypes (`DynamicMatrixGenotype`, `StaticMatrixGenotype`)
 * Remove `ChromosomeManager` trait
 * Remove `BitGenotype` - use `BinaryGenotype` with `Vec<bool>` instead
-* Remove population-level fitness calculation (`calculate_for_population()`),
-  all is now `calculate_for_chromosome()`
+* Remove `calculate_for_population()` as the population-level fitness calculation user
+  hook. All is now `calculate_for_chromosome()`
 
 ## [0.20.5] - 2025-05-21
 ### Added
