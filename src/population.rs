@@ -1,4 +1,4 @@
-//! The population is a  container for [Chromosomes](Chromosome)
+//! The population is a  container for [Chromosomes](Chromosome) and handles optional chromsome recycling
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, GenesHash};
 use crate::fitness::{FitnessOrdering, FitnessValue};
