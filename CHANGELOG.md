@@ -67,7 +67,7 @@ General usage by client has little impact, most is internal.
 > [!CAUTION]
 > Remember to `.reset_scale_index()` when reusing your genotype with a custom
 > implementation of multiple runs! (the library's implementation for multiple
-> runs (e.g. `call_repeatedly()`) clones the builder and then casts it to the
+> runs, e.g. `call_repeatedly()`, clones the builder and then casts it to the
 > specific strategy, so each run starts with a cloned unused genotype)
 
 ### Removed
