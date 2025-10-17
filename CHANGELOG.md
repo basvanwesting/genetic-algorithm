@@ -64,6 +64,11 @@ General usage by client has little impact, most is internal.
   only change adding `Genotype` logic. The scaling is only implemented by
   `RangeGenotype` and `MultiRangeGenotype`, so it felt more genotype specific.
   It does make the `Genotype` mutable again, which is an accepted tradeoff.
+> [!CAUTION]
+> Remember to `.reset_scale_index()` when reusing your genotype with a custom
+> implementation of multiple runs! (the library's implementation for multiple
+> runs (e.g. `call_repeatedly()`) clones the builder and then casts it to the
+> specific strategy, so each run starts with a cloned unused genotype)
 
 ### Removed
 * Remove matrix genotypes (`DynamicMatrixGenotype`, `StaticMatrixGenotype`)
