@@ -14,6 +14,7 @@ This document explores the feasibility, design considerations, and implementatio
 6. [Recommendations](#recommendations)
 7. [Code Examples](#code-examples)
 8. [Future Roadmap](#future-roadmap)
+9. [Revised Implementation Plan](#revised-implementation-plan)
 
 ## Current Architecture
 
@@ -718,25 +719,156 @@ Based on adoption and performance data:
 - **Option B**: Redesign core traits for native support
 - **Option C**: Maintain status quo with better tooling
 
+## Revised Implementation Plan
+
+### Critical Insight: Discrete vs Continuous Neighbor Semantics
+
+After deeper analysis, a fundamental issue with Approach 4 (optional per-gene scaling) has been identified:
+
+**Discrete genes have NO distance metric** - all alternatives are equally valid neighbors, similar to `ListGenotype`. This means:
+- A discrete choice between algorithms (A*, Dijkstra, RRT) has no "adjacent" values
+- All alternatives should be potential neighbors (not just ±1)
+- This creates vastly different neighbor counts for discrete vs continuous genes
+
+### Per-Gene MutationType: A Cleaner Architecture
+
+Instead of overloading `None` in scaled ranges, a cleaner approach is to use explicit per-gene mutation types:
+
+```rust
+// Add new variant to MutationType enum
+pub enum MutationType {
+    Random,    // Full range random mutation
+    Relative,  // Constrained by relative ranges
+    Scaled,    // Progressive refinement with scales
+    Discrete,  // NEW: All alternatives are neighbors
+}
+
+// MultiRangeGenotype gets per-gene mutation types
+pub struct MultiRangeGenotype<T> {
+    pub allele_ranges: Vec<RangeInclusive<T>>,
+    pub gene_mutation_types: Vec<MutationType>,  // NEW: Per-gene types
+    pub allele_mutation_ranges: Option<Vec<RangeInclusive<T>>>,  // For Relative
+    pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<T>>>>,  // For Scaled
+    // ... other fields
+}
+```
+
+### Benefits of Per-Gene MutationType
+
+1. **Explicit Semantics**: Each gene clearly declares its mutation behavior
+2. **Type Safety**: Compiler enforces exhaustive matching on mutation types
+3. **Flexibility**: Can mix Random/Relative/Scaled/Discrete in one chromosome
+4. **Clean Architecture**: No implicit behaviors from `None` values
+5. **Extensibility**: Easy to add new mutation types in future
+
+### Neighbor Generation for Mixed Types
+
+```rust
+fn fill_neighbouring_population<R: Rng>(
+    &self,
+    chromosome: &Chromosome<T>,
+    population: &mut Population<T>,
+    rng: &mut R,
+) {
+    for (index, gene_type) in self.gene_mutation_types.iter().enumerate() {
+        match gene_type {
+            MutationType::Discrete => {
+                // Generate ALL alternative values as neighbors (exhaustive)
+                let range = &self.allele_ranges[index];
+                let current = chromosome.genes[index].round();
+
+                for value in all_discrete_values_in_range(range) {
+                    if value != current {
+                        // Create neighbor with this alternative
+                    }
+                }
+            }
+            MutationType::Scaled | MutationType::Relative | MutationType::Random => {
+                // Generate 2 neighbors using appropriate ranges
+                // ... existing logic
+            }
+        }
+    }
+}
+```
+
+### Neighbor Count Implications
+
+For a chromosome with mixed types `[Discrete(5 values), Discrete(100 values), Scaled, Scaled, Discrete(3 values)]`:
+- Gene 0: 4 neighbors (all alternatives except current)
+- Gene 1: 99 neighbors (large discrete range!)
+- Gene 2: 2 neighbors (scaled continuous)
+- Gene 3: 2 neighbors (scaled continuous)
+- Gene 4: 2 neighbors (discrete with 3 choices)
+- **Total: 109 neighbors** (highly variable based on composition)
+
+### Design Decisions
+
+Based on user guidance:
+1. **Exhaustive for discrete**: Generate ALL alternatives, even for large ranges (100+ values)
+2. **Variable neighbor counts**: Accept that mixed chromosomes have varying neighbor populations
+3. **Auto-rounding**: Genotype ensures discrete genes maintain integer values (not left to fitness function)
+
+### Migration Path
+
+1. **Phase 1**: Add `MutationType::Discrete` variant (non-breaking)
+2. **Phase 2**: Add per-gene mutation types with backward compatibility
+3. **Phase 3**: Deprecate genotype-level `mutation_type()` in favor of per-gene
+4. **Phase 4**: Full heterogeneous support with mixed types
+
+### Example Usage with Per-Gene Types
+
+```rust
+let genotype = MultiRangeGenotype::<f32>::builder()
+    .with_allele_ranges(vec![
+        0.0..=1.0,      // Gene 0: Boolean flag
+        0.0..=4.0,      // Gene 1: Algorithm choice (5 options)
+        0.0..=100.0,    // Gene 2: Percentage (continuous)
+        -10.0..=10.0,   // Gene 3: Parameter (continuous)
+        0.0..=99.0,     // Gene 4: Large discrete range
+    ])
+    .with_gene_mutation_types(vec![
+        MutationType::Discrete,  // Boolean: exhaustive (0 or 1)
+        MutationType::Discrete,  // Algorithm: exhaustive (all 5)
+        MutationType::Scaled,    // Percentage: progressive refinement
+        MutationType::Scaled,    // Parameter: progressive refinement
+        MutationType::Discrete,  // Large discrete: exhaustive (all 100!)
+    ])
+    .with_allele_mutation_scaled_ranges(vec![
+        // Only need ranges for Scaled genes (indices 2 and 3)
+        vec![-10.0..=10.0, -1.0..=1.0],  // Gene 2 scales
+        vec![-2.0..=2.0, -0.1..=0.1],    // Gene 3 scales
+    ])
+    .build()?;
+```
+
+### Performance Considerations
+
+The per-gene MutationType approach has:
+- **Memory overhead**: `Vec<MutationType>` (typically 1 byte per gene)
+- **Runtime dispatch**: Per-gene match statement (minimal impact)
+- **Neighbor explosion**: Large discrete ranges can generate hundreds of neighbors
+- **Cache efficiency**: Still excellent for homogeneous regions
+
+### Recommendations
+
+1. **Use per-gene MutationType** instead of overloading None in scaled ranges
+2. **Accept variable neighbor counts** as natural consequence of mixed types
+3. **Implement auto-rounding** for discrete genes to maintain integer values
+4. **Document performance implications** of large discrete ranges
+5. **Consider sampling fallback** for discrete ranges >1000 values (future enhancement)
+
 ## Conclusion
 
 While the current architecture doesn't directly support mixed-type genotypes, it provides sufficient flexibility through:
 1. Multi* genotype variants for position-specific behavior
 2. Tuple and struct alleles for compound genes
 3. Semantic encoding patterns
-4. **Optional per-gene scaling (Approach 4) - a particularly elegant solution for mixed continuous/discrete problems**
+4. **Per-gene MutationType - the cleanest solution for mixed discrete/continuous problems**
 
-The optional per-gene scaling approach stands out as the most promising near-term solution, requiring minimal changes to the existing architecture while providing clean semantics for differentiating between discrete (None) and continuous (Some) genes. This approach maintains excellent performance characteristics while solving the exact problem of mixing gene types that need different mutation strategies.
+The per-gene MutationType approach is architecturally superior to overloading None values, providing explicit semantics and better extensibility. While it requires more significant changes than the None-scaling approach, it results in cleaner, more maintainable code that better reflects the fundamental differences between discrete and continuous optimization spaces.
 
-True heterogeneous support would require architectural changes with performance
-trade-offs. For most use cases, the existing patterns with proper encoding
-strategies offer a pragmatic solution that maintains the library's performance
-characteristics.
-
-The key insight is that **genetic algorithms operate on the search space**, not
-the problem space. As long as we can map between them efficiently, type
-homogeneity in the search space doesn't limit the heterogeneity of the problems
-we can solve.
+The key insight is that **genetic algorithms operate on the search space**, not the problem space. As long as we can map between them efficiently, type homogeneity in the search space doesn't limit the heterogeneity of the problems we can solve.
 
 ## References
 
