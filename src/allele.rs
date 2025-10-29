@@ -64,8 +64,8 @@ pub trait RangeAllele:
     /// Returns value 1 for iteration/counting
     fn one() -> Self;
 
-    /// Rounds to nearest integer (identity for integer types)
-    fn round(&self) -> Self;
+    /// Floors to nearest integer (identity for integer types)
+    fn floor(&self) -> Self;
 }
 
 impl RangeAllele for f32 {
@@ -75,8 +75,8 @@ impl RangeAllele for f32 {
     fn one() -> Self {
         1.0
     }
-    fn round(&self) -> Self {
-        f32::round(*self)
+    fn floor(&self) -> Self {
+        f32::floor(*self)
     }
 }
 impl RangeAllele for f64 {
@@ -86,8 +86,8 @@ impl RangeAllele for f64 {
     fn one() -> Self {
         1.0
     }
-    fn round(&self) -> Self {
-        f64::round(*self)
+    fn floor(&self) -> Self {
+        f64::floor(*self)
     }
 }
 impl RangeAllele for i128 {
@@ -97,7 +97,7 @@ impl RangeAllele for i128 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -108,7 +108,7 @@ impl RangeAllele for i16 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -119,7 +119,7 @@ impl RangeAllele for i32 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -130,7 +130,7 @@ impl RangeAllele for i64 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -141,7 +141,7 @@ impl RangeAllele for i8 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -152,7 +152,7 @@ impl RangeAllele for isize {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -163,7 +163,7 @@ impl RangeAllele for u128 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -174,7 +174,7 @@ impl RangeAllele for u16 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -185,7 +185,7 @@ impl RangeAllele for u32 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -196,7 +196,7 @@ impl RangeAllele for u64 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -207,7 +207,7 @@ impl RangeAllele for u8 {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }
@@ -218,7 +218,7 @@ impl RangeAllele for usize {
     fn one() -> Self {
         1
     }
-    fn round(&self) -> Self {
+    fn floor(&self) -> Self {
         *self
     }
 }

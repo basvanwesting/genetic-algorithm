@@ -89,7 +89,7 @@ where
     pub allele_ranges: Vec<RangeInclusive<T>>,
     pub allele_mutation_ranges: Option<Vec<RangeInclusive<T>>>,
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<T>>>>,
-    pub mutation_type: MutationType,
+    pub mutation_types: Vec<MutationType>,
     gene_index_sampler: Uniform<usize>,
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
@@ -123,12 +123,12 @@ where
         } else {
             let allele_ranges = builder.allele_ranges.unwrap();
             let genes_size = allele_ranges.len();
-            let mutation_type = if builder.allele_mutation_scaled_ranges.is_some() {
-                MutationType::Scaled
+            let mutation_types = if builder.allele_mutation_scaled_ranges.is_some() {
+                vec![MutationType::Scaled; genes_size]
             } else if builder.allele_mutation_ranges.is_some() {
-                MutationType::Relative
+                vec![MutationType::Relative; genes_size]
             } else {
-                MutationType::Random
+                vec![MutationType::Random; genes_size]
             };
 
             Ok(Self {
@@ -136,11 +136,23 @@ where
                 allele_ranges: allele_ranges.clone(),
                 allele_mutation_ranges: builder.allele_mutation_ranges.clone(),
                 allele_mutation_scaled_ranges: builder.allele_mutation_scaled_ranges.clone(),
-                mutation_type,
+                mutation_types: mutation_types.clone(),
                 gene_index_sampler: Uniform::from(0..genes_size),
                 allele_samplers: allele_ranges
                     .iter()
-                    .map(|allele_range| Uniform::from(allele_range.clone()))
+                    .zip(&mutation_types)
+                    .map(|(allele_range, mutation_type)| {
+                        match mutation_type {
+                            MutationType::Discrete => {
+                                // [start, end+1) for uniform floor() sampling
+                                Uniform::new(*allele_range.start(), *allele_range.end() + T::one())
+                            }
+                            _ => {
+                                // [start, end] for uniform sampling
+                                Uniform::from(allele_range.clone())
+                            }
+                        }
+                    })
                     .collect(),
                 allele_relative_samplers: builder.allele_mutation_ranges.map(
                     |allele_mutation_ranges| {
@@ -166,14 +178,17 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn mutation_type(&self) -> MutationType {
-        self.mutation_type
+    fn mutation_types(&self) -> &[MutationType] {
+        &self.mutation_types
     }
     pub fn sample_allele<R: Rng>(&self, index: usize, rng: &mut R) -> T {
-        self.allele_samplers[index].sample(rng)
+        match self.mutation_types[index] {
+            MutationType::Discrete => self.allele_samplers[index].sample(rng).floor(),
+            _ => self.allele_samplers[index].sample(rng),
+        }
     }
     pub fn sample_gene_delta<R: Rng>(&self, index: usize, rng: &mut R) -> T {
-        match self.mutation_type {
+        match self.mutation_types[index] {
             MutationType::Scaled => {
                 let working_range = &self.allele_mutation_scaled_ranges.as_ref().unwrap()
                     [self.current_scale_index][index];
@@ -248,12 +263,9 @@ where
         if allow_duplicates {
             for _ in 0..number_of_mutations {
                 let index = self.gene_index_sampler.sample(rng);
-                match self.mutation_type {
-                    MutationType::Random => {
+                match self.mutation_types[index] {
+                    MutationType::Random | MutationType::Discrete => {
                         chromosome.genes[index] = self.sample_allele(index, rng);
-                    }
-                    MutationType::Discrete => {
-                        todo!()
                     }
                     _ => {
                         let delta = self.sample_gene_delta(index, rng);
@@ -269,12 +281,9 @@ where
             )
             .iter()
             .for_each(|index| {
-                match self.mutation_type {
-                    MutationType::Random => {
+                match self.mutation_types[index] {
+                    MutationType::Random | MutationType::Discrete => {
                         chromosome.genes[index] = self.sample_allele(index, rng);
-                    }
-                    MutationType::Discrete => {
-                        todo!()
                     }
                     _ => {
                         let delta = self.sample_gene_delta(index, rng);
@@ -297,7 +306,7 @@ where
             .map(|r| r.len() - 1)
     }
     fn current_scale_index(&self) -> Option<usize> {
-        if self.mutation_type == MutationType::Scaled {
+        if self.allele_mutation_scaled_ranges.is_some() {
             Some(self.current_scale_index)
         } else {
             None
@@ -434,7 +443,8 @@ where
         population: &mut Population<Self::Allele>,
         rng: &mut R,
     ) {
-        match self.mutation_type {
+        // FIXME: hack
+        match self.mutation_types[0] {
             MutationType::Scaled => {
                 self.fill_neighbouring_population_scaled(chromosome, population)
             }
@@ -593,7 +603,8 @@ where
         chromosome: Option<&Chromosome<Self::Allele>>,
     ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
-            match self.mutation_type {
+            // FIXME: hack
+            match self.mutation_types[0] {
                 MutationType::Scaled => Box::new(
                     self.permutable_gene_values_scaled(chromosome)
                         .into_iter()
@@ -622,7 +633,8 @@ where
 
     fn chromosome_permutations_size(&self) -> BigUint {
         if self.seed_genes_list.is_empty() {
-            match self.mutation_type {
+            // FIXME: hack
+            match self.mutation_types[0] {
                 MutationType::Scaled => (0..=self.max_scale_index().unwrap())
                     .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
                     .sum(),
@@ -656,7 +668,8 @@ where
         }
     }
     fn mutation_type_allows_permutation(&self) -> bool {
-        match self.mutation_type {
+        // FIXME: hack
+        match self.mutation_types[0] {
             MutationType::Scaled => true,
             MutationType::Relative => false,
             MutationType::Random => false,
@@ -785,7 +798,7 @@ where
             allele_ranges: self.allele_ranges.clone(),
             allele_mutation_ranges: self.allele_mutation_ranges.clone(),
             allele_mutation_scaled_ranges: self.allele_mutation_scaled_ranges.clone(),
-            mutation_type: self.mutation_type,
+            mutation_types: self.mutation_types.clone(),
             gene_index_sampler: self.gene_index_sampler,
             allele_samplers: self
                 .allele_ranges
@@ -822,7 +835,7 @@ where
                 "allele_mutation_scaled_ranges",
                 &self.allele_mutation_scaled_ranges,
             )
-            .field("mutation_type", &self.mutation_type)
+            .field("mutation_types", &self.mutation_types)
             .field("seed_genes_list", &self.seed_genes_list)
             .finish()
     }
@@ -836,7 +849,7 @@ where
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  mutation_type: {:?}", self.mutation_type())?;
+        writeln!(f, "  mutation_types: {:?}", self.mutation_types())?;
 
         writeln!(
             f,
