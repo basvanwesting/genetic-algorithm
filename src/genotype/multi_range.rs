@@ -443,21 +443,22 @@ where
         population: &mut Population<Self::Allele>,
         rng: &mut R,
     ) {
-        // FIXME: hack
-        match self.mutation_types[0] {
-            MutationType::Scaled => {
-                self.fill_neighbouring_population_scaled(chromosome, population)
-            }
-            MutationType::Relative => {
-                self.fill_neighbouring_population_relative(chromosome, population, rng)
-            }
-            MutationType::Random => {
-                self.fill_neighbouring_population_random(chromosome, population, rng)
-            }
-            MutationType::Discrete => {
-                todo!()
-            }
-        }
+        self.mutation_types.iter().enumerate().for_each(
+            |(index, mutation_type)| match mutation_type {
+                MutationType::Scaled => {
+                    self.fill_neighbouring_population_scaled(index, chromosome, population)
+                }
+                MutationType::Relative => {
+                    self.fill_neighbouring_population_relative(index, chromosome, population, rng)
+                }
+                MutationType::Random => {
+                    self.fill_neighbouring_population_random(index, chromosome, population, rng)
+                }
+                MutationType::Discrete => {
+                    todo!()
+                }
+            },
+        );
     }
 
     fn neighbouring_population_size(&self) -> BigUint {
@@ -472,124 +473,108 @@ where
 {
     fn fill_neighbouring_population_scaled(
         &self,
+        index: usize,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
     ) {
-        self.allele_ranges
-            .clone()
-            .into_iter()
-            .enumerate()
-            .for_each(|(index, allele_range)| {
-                let allele_range_start = *allele_range.start();
-                let allele_range_end = *allele_range.end();
-                let working_range = &self.allele_mutation_scaled_ranges.as_ref().unwrap()
-                    [self.current_scale_index][index];
-                let working_range_start = *working_range.start();
-                let working_range_end = *working_range.end();
+        let allele_range_start = *self.allele_ranges[index].start();
+        let allele_range_end = *self.allele_ranges[index].end();
+        let working_range =
+            &self.allele_mutation_scaled_ranges.as_ref().unwrap()[self.current_scale_index][index];
+        let working_range_start = *working_range.start();
+        let working_range_end = *working_range.end();
 
-                let base_value = chromosome.genes[index];
-                let value_low = if base_value + working_range_start < allele_range_start {
-                    allele_range_start
-                } else {
-                    base_value + working_range_start
-                };
-                let value_high = if base_value + working_range_end > allele_range_end {
-                    allele_range_end
-                } else {
-                    base_value + working_range_end
-                };
+        let base_value = chromosome.genes[index];
+        let value_low = if base_value + working_range_start < allele_range_start {
+            allele_range_start
+        } else {
+            base_value + working_range_start
+        };
+        let value_high = if base_value + working_range_end > allele_range_end {
+            allele_range_end
+        } else {
+            base_value + working_range_end
+        };
 
-                if value_low < base_value {
-                    let mut new_chromosome = population.new_chromosome(chromosome);
-                    new_chromosome.genes[index] = value_low;
-                    new_chromosome.reset_metadata(self.genes_hashing);
-                    population.chromosomes.push(new_chromosome);
-                };
-                if value_high > base_value {
-                    let mut new_chromosome = population.new_chromosome(chromosome);
-                    new_chromosome.genes[index] = value_high;
-                    new_chromosome.reset_metadata(self.genes_hashing);
-                    population.chromosomes.push(new_chromosome);
-                };
-            });
+        if value_low < base_value {
+            let mut new_chromosome = population.new_chromosome(chromosome);
+            new_chromosome.genes[index] = value_low;
+            new_chromosome.reset_metadata(self.genes_hashing);
+            population.chromosomes.push(new_chromosome);
+        };
+        if value_high > base_value {
+            let mut new_chromosome = population.new_chromosome(chromosome);
+            new_chromosome.genes[index] = value_high;
+            new_chromosome.reset_metadata(self.genes_hashing);
+            population.chromosomes.push(new_chromosome);
+        };
     }
 
     fn fill_neighbouring_population_relative<R: Rng>(
         &self,
+        index: usize,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
         rng: &mut R,
     ) {
-        self.allele_ranges
-            .clone()
-            .into_iter()
-            .enumerate()
-            .for_each(|(index, allele_range)| {
-                let allele_range_start = *allele_range.start();
-                let allele_range_end = *allele_range.end();
-                let working_range = &self.allele_mutation_ranges.as_ref().unwrap()[index];
-                let working_range_start = *working_range.start();
-                let working_range_end = *working_range.end();
+        let allele_range_start = *self.allele_ranges[index].start();
+        let allele_range_end = *self.allele_ranges[index].end();
+        let working_range = &self.allele_mutation_ranges.as_ref().unwrap()[index];
+        let working_range_start = *working_range.start();
+        let working_range_end = *working_range.end();
 
-                let base_value = chromosome.genes[index];
-                let range_start = if base_value + working_range_start < allele_range_start {
-                    allele_range_start
-                } else {
-                    base_value + working_range_start
-                };
-                let range_end = if base_value + working_range_end > allele_range_end {
-                    allele_range_end
-                } else {
-                    base_value + working_range_end
-                };
+        let base_value = chromosome.genes[index];
+        let range_start = if base_value + working_range_start < allele_range_start {
+            allele_range_start
+        } else {
+            base_value + working_range_start
+        };
+        let range_end = if base_value + working_range_end > allele_range_end {
+            allele_range_end
+        } else {
+            base_value + working_range_end
+        };
 
-                if range_start < base_value {
-                    let mut new_chromosome = population.new_chromosome(chromosome);
-                    new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
-                    new_chromosome.reset_metadata(self.genes_hashing);
-                    population.chromosomes.push(new_chromosome);
-                };
-                if base_value < range_end {
-                    let mut new_chromosome = population.new_chromosome(chromosome);
-                    let new_value =
-                        rng.gen_range((base_value + T::smallest_increment())..=range_end);
-                    new_chromosome.genes[index] = new_value;
-                    new_chromosome.reset_metadata(self.genes_hashing);
-                    population.chromosomes.push(new_chromosome);
-                };
-            });
+        if range_start < base_value {
+            let mut new_chromosome = population.new_chromosome(chromosome);
+            new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
+            new_chromosome.reset_metadata(self.genes_hashing);
+            population.chromosomes.push(new_chromosome);
+        };
+        if base_value < range_end {
+            let mut new_chromosome = population.new_chromosome(chromosome);
+            let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
+            new_chromosome.genes[index] = new_value;
+            new_chromosome.reset_metadata(self.genes_hashing);
+            population.chromosomes.push(new_chromosome);
+        };
     }
 
     fn fill_neighbouring_population_random<R: Rng>(
         &self,
+        index: usize,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
         rng: &mut R,
     ) {
-        self.allele_ranges
-            .clone()
-            .into_iter()
-            .enumerate()
-            .for_each(|(index, allele_range)| {
-                let allele_range_start = *allele_range.start();
-                let allele_range_end = *allele_range.end();
+        let allele_range_start = *self.allele_ranges[index].start();
+        let allele_range_end = *self.allele_ranges[index].end();
 
-                let base_value = chromosome.genes[index];
-                if allele_range_start < base_value {
-                    let mut new_chromosome = population.new_chromosome(chromosome);
-                    new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
-                    new_chromosome.reset_metadata(self.genes_hashing);
-                    population.chromosomes.push(new_chromosome);
-                };
-                if base_value < allele_range_end {
-                    let mut new_chromosome = population.new_chromosome(chromosome);
-                    let new_value =
-                        rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
-                    new_chromosome.genes[index] = new_value;
-                    new_chromosome.reset_metadata(self.genes_hashing);
-                    population.chromosomes.push(new_chromosome);
-                };
-            });
+        let base_value = chromosome.genes[index];
+        if allele_range_start < base_value {
+            let mut new_chromosome = population.new_chromosome(chromosome);
+            new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
+            new_chromosome.reset_metadata(self.genes_hashing);
+            population.chromosomes.push(new_chromosome);
+        };
+        if base_value < allele_range_end {
+            let mut new_chromosome = population.new_chromosome(chromosome);
+            let new_value =
+                rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
+            new_chromosome.genes[index] = new_value;
+            new_chromosome.reset_metadata(self.genes_hashing);
+            population.chromosomes.push(new_chromosome);
+        };
     }
 }
 
@@ -603,24 +588,27 @@ where
         chromosome: Option<&Chromosome<Self::Allele>>,
     ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
-            // FIXME: hack
-            match self.mutation_types[0] {
-                MutationType::Scaled => Box::new(
-                    self.permutable_gene_values_scaled(chromosome)
-                        .into_iter()
-                        .multi_cartesian_product()
-                        .map(Chromosome::new),
-                ),
-                MutationType::Relative => {
-                    panic!("RangeGenotype is not permutable for MutationType::Relative")
-                }
-                MutationType::Random => {
-                    panic!("RangeGenotype is not permutable for MutationType::Random")
-                }
-                MutationType::Discrete => {
-                    todo!()
-                }
-            }
+            Box::new(
+                self.mutation_types
+                    .iter()
+                    .enumerate()
+                    .map(|(index, mutation_type)| match mutation_type {
+                        MutationType::Scaled => {
+                            self.permutable_gene_values_scaled(index, chromosome)
+                        }
+                        MutationType::Relative => {
+                            panic!("RangeGenotype is not permutable for MutationType::Relative")
+                        }
+                        MutationType::Random => {
+                            panic!("RangeGenotype is not permutable for MutationType::Random")
+                        }
+                        MutationType::Discrete => {
+                            todo!()
+                        }
+                    })
+                    .multi_cartesian_product()
+                    .map(Chromosome::new),
+            )
         } else {
             Box::new(
                 self.seed_genes_list
@@ -684,62 +672,59 @@ where
     Uniform<T>: Send + Sync,
 {
     // scales should be symmetrical, so the step is simply the scale end
-    pub fn permutable_gene_values_scaled(&self, chromosome: Option<&Chromosome<T>>) -> Vec<Vec<T>> {
-        self.allele_ranges
-            .clone()
-            .into_iter()
-            .enumerate()
-            .map(|(index, allele_range)| {
-                let allele_range_start = *allele_range.start();
-                let allele_range_end = *allele_range.end();
+    pub fn permutable_gene_values_scaled(
+        &self,
+        index: usize,
+        chromosome: Option<&Chromosome<T>>,
+    ) -> Vec<T> {
+        let allele_range_start = *self.allele_ranges[index].start();
+        let allele_range_end = *self.allele_ranges[index].end();
 
-                let (allele_value_start, allele_value_end) = if let Some(chromosome) = chromosome {
-                    if let Some(previous_scale_index) = self.current_scale_index.checked_sub(1) {
-                        let working_range = &self.allele_mutation_scaled_ranges.as_ref().unwrap()
-                            [previous_scale_index][index];
+        let (allele_value_start, allele_value_end) = if let Some(chromosome) = chromosome {
+            if let Some(previous_scale_index) = self.current_scale_index.checked_sub(1) {
+                let working_range = &self.allele_mutation_scaled_ranges.as_ref().unwrap()
+                    [previous_scale_index][index];
 
-                        let working_range_start = *working_range.start();
-                        let working_range_end = *working_range.end();
+                let working_range_start = *working_range.start();
+                let working_range_end = *working_range.end();
 
-                        let base_value = chromosome.genes[index];
-                        let value_start = if base_value + working_range_start < allele_range_start {
-                            allele_range_start
-                        } else {
-                            base_value + working_range_start
-                        };
-                        let value_end = if base_value + working_range_end > allele_range_end {
-                            allele_range_end
-                        } else {
-                            base_value + working_range_end
-                        };
-
-                        (value_start, value_end)
-                    } else {
-                        (allele_range_start, allele_range_end)
-                    }
+                let base_value = chromosome.genes[index];
+                let value_start = if base_value + working_range_start < allele_range_start {
+                    allele_range_start
                 } else {
-                    (allele_range_start, allele_range_end)
+                    base_value + working_range_start
+                };
+                let value_end = if base_value + working_range_end > allele_range_end {
+                    allele_range_end
+                } else {
+                    base_value + working_range_end
                 };
 
-                let working_range = &self.allele_mutation_scaled_ranges.as_ref().unwrap()
-                    [self.current_scale_index][index];
-                let working_range_step = *working_range.end();
+                (value_start, value_end)
+            } else {
+                (allele_range_start, allele_range_end)
+            }
+        } else {
+            (allele_range_start, allele_range_end)
+        };
 
-                std::iter::successors(Some(allele_value_start), |value| {
-                    if *value < allele_value_end {
-                        let next_value = *value + working_range_step;
-                        if next_value > allele_value_end {
-                            Some(allele_value_end)
-                        } else {
-                            Some(next_value)
-                        }
-                    } else {
-                        None
-                    }
-                })
-                .collect()
-            })
-            .collect()
+        let working_range =
+            &self.allele_mutation_scaled_ranges.as_ref().unwrap()[self.current_scale_index][index];
+        let working_range_step = *working_range.end();
+
+        std::iter::successors(Some(allele_value_start), |value| {
+            if *value < allele_value_end {
+                let next_value = *value + working_range_step;
+                if next_value > allele_value_end {
+                    Some(allele_value_end)
+                } else {
+                    Some(next_value)
+                }
+            } else {
+                None
+            }
+        })
+        .collect()
     }
 
     pub fn permutable_allele_sizes_scaled(&self, scale_index: usize) -> Vec<usize> {
