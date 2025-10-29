@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::chromosome::{Chromosome, Genes};
 use crate::population::Population;
 use itertools::Itertools;
@@ -50,6 +50,12 @@ impl TryFrom<Builder<Self>> for Binary {
                 chromosome_recycling: builder.chromosome_recycling,
             })
         }
+    }
+}
+
+impl Binary {
+    fn mutation_type(&self) -> MutationType {
+        MutationType::Random
     }
 }
 

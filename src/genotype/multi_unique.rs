@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, Genes};
 use crate::population::Population;
@@ -132,6 +132,12 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
                 chromosome_recycling: builder.chromosome_recycling,
             })
         }
+    }
+}
+
+impl<T: Allele + Hash> MultiUnique<T> {
+    fn mutation_type(&self) -> MutationType {
+        MutationType::Random
     }
 }
 

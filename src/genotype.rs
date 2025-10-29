@@ -50,10 +50,6 @@ pub trait Genotype:
     fn chromosome_recycling(&self) -> bool;
     fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele];
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Genes<Self::Allele>;
-
-    fn mutation_type(&self) -> MutationType {
-        MutationType::Random
-    }
     fn mutate_chromosome_genes<R: Rng>(
         &self,
         number_of_mutations: usize,

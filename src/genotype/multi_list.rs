@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, Genes};
 use crate::population::Population;
@@ -135,6 +135,9 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
 }
 
 impl<T: Allele + PartialEq + Hash> MultiList<T> {
+    fn mutation_type(&self) -> MutationType {
+        MutationType::Random
+    }
     pub fn sample_allele<R: Rng>(&self, index: usize, rng: &mut R) -> T {
         self.allele_lists[index][self.allele_index_samplers[index].sample(rng)]
     }

@@ -166,6 +166,9 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
+    fn mutation_type(&self) -> MutationType {
+        self.mutation_type
+    }
     pub fn sample_allele<R: Rng>(&self, index: usize, rng: &mut R) -> T {
         self.allele_samplers[index].sample(rng)
     }
@@ -234,9 +237,6 @@ where
         } else {
             rand::seq::index::sample(rng, self.genes_size, count.min(self.genes_size)).into_vec()
         }
-    }
-    fn mutation_type(&self) -> MutationType {
-        self.mutation_type
     }
     fn mutate_chromosome_genes<R: Rng>(
         &self,
@@ -836,7 +836,7 @@ where
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  mutation_type: {:?}", self.mutation_type)?;
+        writeln!(f, "  mutation_type: {:?}", self.mutation_type())?;
 
         writeln!(
             f,

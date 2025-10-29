@@ -1,5 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype};
+use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, Genes};
 use crate::population::Population;
@@ -90,6 +90,11 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
     }
 }
 
+impl<T: Allele + Hash> Unique<T> {
+    fn mutation_type(&self) -> MutationType {
+        MutationType::Random
+    }
+}
 impl<T: Allele + Hash> Genotype for Unique<T> {
     type Allele = T;
 
