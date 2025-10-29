@@ -455,7 +455,7 @@ where
                     self.fill_neighbouring_population_random(index, chromosome, population, rng)
                 }
                 MutationType::Discrete => {
-                    todo!()
+                    self.fill_neighbouring_population_discrete(index, chromosome, population)
                 }
             },
         );
@@ -576,6 +576,27 @@ where
             population.chromosomes.push(new_chromosome);
         };
     }
+
+    fn fill_neighbouring_population_discrete(
+        &self,
+        index: usize,
+        chromosome: &Chromosome<T>,
+        population: &mut Population<T>,
+    ) {
+        let mut working_value = self.allele_ranges[index].start().floor();
+        let ending_value = self.allele_ranges[index].end().floor();
+        let current_value = chromosome.genes[index].floor();
+
+        while working_value <= ending_value {
+            if working_value != current_value {
+                let mut new_chromosome = population.new_chromosome(chromosome);
+                new_chromosome.genes[index] = working_value;
+                new_chromosome.reset_metadata(self.genes_hashing);
+                population.chromosomes.push(new_chromosome);
+            }
+            working_value = working_value + T::one();
+        }
+    }
 }
 
 impl<T: RangeAllele + Into<f64>> PermutateGenotype for MultiRange<T>
@@ -603,7 +624,7 @@ where
                             panic!("RangeGenotype is not permutable for MutationType::Random")
                         }
                         MutationType::Discrete => {
-                            todo!()
+                            self.permutable_gene_values_discrete(index, chromosome)
                         }
                     })
                     .multi_cartesian_product()
@@ -621,29 +642,23 @@ where
 
     fn chromosome_permutations_size(&self) -> BigUint {
         if self.seed_genes_list.is_empty() {
-            // FIXME: hack
-            match self.mutation_types[0] {
-                MutationType::Scaled => (0..=self.max_scale_index().unwrap())
-                    .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
-                    .sum(),
-                MutationType::Relative => {
-                    panic!("RangeGenotype is not permutable for MutationType::Relative")
-                }
-                MutationType::Random => {
-                    panic!("RangeGenotype is not permutable for MutationType::Random")
-                }
-                MutationType::Discrete => {
-                    todo!()
-                }
+            if self.allele_mutation_scaled_ranges.is_some() {
+                (0..=self.max_scale_index().unwrap())
+                    .map(|scale_index| {
+                        self.chromosome_permutations_size_for_scale_index(scale_index)
+                    })
+                    .sum()
+            } else {
+                panic!("MultiRangeGenotype is only permutable for MutationType::Scaled")
             }
         } else {
             self.seed_genes_list.len().into()
         }
     }
     fn chromosome_permutations_size_report(&self) -> String {
-        if self.mutation_type_allows_permutation() {
+        if self.allows_permutation() {
             let size_per_scale: Vec<String> = (0..=self.max_scale_index().unwrap())
-                .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
+                .map(|scale_index| self.chromosome_permutations_size_for_scale_index(scale_index))
                 .map(|scale_size| self.format_biguint_scientific(&scale_size))
                 .collect();
             format!(
@@ -655,13 +670,13 @@ where
             "uncountable".to_string()
         }
     }
-    fn mutation_type_allows_permutation(&self) -> bool {
+    fn allows_permutation(&self) -> bool {
         // FIXME: hack
         match self.mutation_types[0] {
             MutationType::Scaled => true,
             MutationType::Relative => false,
             MutationType::Random => false,
-            MutationType::Discrete => true,
+            MutationType::Discrete => todo!(),
         }
     }
 }
@@ -727,45 +742,82 @@ where
         .collect()
     }
 
-    pub fn permutable_allele_sizes_scaled(&self, scale_index: usize) -> Vec<usize> {
-        self.allele_ranges
-            .clone()
-            .into_iter()
+    pub fn permutable_gene_values_discrete(
+        &self,
+        index: usize,
+        _chromosome: Option<&Chromosome<T>>,
+    ) -> Vec<T> {
+        let allele_value_start = self.allele_ranges[index].start().floor();
+        let allele_value_end = self.allele_ranges[index].end().floor();
+
+        std::iter::successors(Some(allele_value_start), |value| {
+            if *value < allele_value_end {
+                let next_value = *value + T::one();
+                // FIXME: remove bounds check?
+                if next_value > allele_value_end {
+                    Some(allele_value_end)
+                } else {
+                    Some(next_value)
+                }
+            } else {
+                None
+            }
+        })
+        .collect()
+    }
+
+    pub fn permutable_allele_sizes_for_scale_index(&self, scale_index: usize) -> Vec<usize> {
+        self.mutation_types
+            .iter()
             .enumerate()
-            .map(|(index, allele_range)| {
-                let (allele_value_start, allele_value_end) =
-                    if let Some(previous_scale_index) = scale_index.checked_sub(1) {
+            .map(|(index, mutation_type)| match mutation_type {
+                MutationType::Scaled => {
+                    let (allele_value_start, allele_value_end) = if let Some(previous_scale_index) =
+                        scale_index.checked_sub(1)
+                    {
                         let working_range = &self.allele_mutation_scaled_ranges.as_ref().unwrap()
                             [previous_scale_index][index];
 
                         (*working_range.start(), *working_range.end())
                     } else {
-                        (*allele_range.start(), *allele_range.end())
+                        (
+                            *self.allele_ranges[index].start(),
+                            *self.allele_ranges[index].end(),
+                        )
                     };
 
-                let working_range =
-                    &self.allele_mutation_scaled_ranges.as_ref().unwrap()[scale_index][index];
-                let working_range_step = *working_range.end();
+                    let working_range =
+                        &self.allele_mutation_scaled_ranges.as_ref().unwrap()[scale_index][index];
+                    let working_range_step = *working_range.end();
 
-                std::iter::successors(Some(allele_value_start), |value| {
-                    if *value < allele_value_end {
-                        let next_value = *value + working_range_step;
-                        if next_value > allele_value_end {
-                            Some(allele_value_end)
+                    std::iter::successors(Some(allele_value_start), |value| {
+                        if *value < allele_value_end {
+                            let next_value = *value + working_range_step;
+                            if next_value > allele_value_end {
+                                Some(allele_value_end)
+                            } else {
+                                Some(next_value)
+                            }
                         } else {
-                            Some(next_value)
+                            None
                         }
-                    } else {
-                        None
-                    }
-                })
-                .count()
+                    })
+                    .count()
+                }
+                MutationType::Discrete => {
+                  let start_f64: f64 = (*self.allele_ranges[index].start()).into();
+                  let end_f64: f64 = (*self.allele_ranges[index].end() + T::one()).into();
+                  (end_f64.floor() - start_f64.floor()) as usize
+                }
+                _ => {
+                    panic!("MultiRangeGenotype is only permutable for MutationType::Scaled and MutationType::Discrete")
+                }
             })
             .collect()
     }
 
-    pub fn chromosome_permutations_size_scaled(&self, scale_index: usize) -> BigUint {
-        self.permutable_allele_sizes_scaled(scale_index)
+    pub fn chromosome_permutations_size_for_scale_index(&self, scale_index: usize) -> BigUint {
+        self.permutable_allele_sizes_for_scale_index(scale_index)
             .iter()
             .map(|v| BigUint::from(*v))
             .product()

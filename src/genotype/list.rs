@@ -340,7 +340,7 @@ impl<T: Allele + PartialEq + Hash> PermutateGenotype for List<T> {
             self.seed_genes_list.len().into()
         }
     }
-    fn mutation_type_allows_permutation(&self) -> bool {
+    fn allows_permutation(&self) -> bool {
         true
     }
 }

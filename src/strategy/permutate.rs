@@ -414,7 +414,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         } else if builder
             .genotype
             .as_ref()
-            .map(|o| !o.mutation_type_allows_permutation())
+            .map(|o| !o.allows_permutation())
             .unwrap()
         {
             Err(TryFromPermutateBuilderError(

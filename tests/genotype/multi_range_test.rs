@@ -439,7 +439,7 @@ fn float_chromosome_permutations_2_scaled() {
 
     assert_eq!(genotype.current_scale_index, 0);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(0),
+        genotype.chromosome_permutations_size_for_scale_index(0),
         BigUint::from(9u32)
     );
     let chromosomes = genotype
@@ -465,7 +465,7 @@ fn float_chromosome_permutations_2_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(1),
+        genotype.chromosome_permutations_size_for_scale_index(1),
         BigUint::from(25u32)
     );
     let chromosomes = genotype
@@ -507,7 +507,7 @@ fn float_chromosome_permutations_2_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(2),
+        genotype.chromosome_permutations_size_for_scale_index(2),
         BigUint::from(24u32)
     );
     let chromosomes = genotype

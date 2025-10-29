@@ -585,7 +585,7 @@ where
     }
 
     fn chromosome_permutations_size_report(&self) -> String {
-        if self.mutation_type_allows_permutation() {
+        if self.allows_permutation() {
             let size_per_scale: Vec<String> = (0..=self.max_scale_index().unwrap())
                 .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
                 .map(|scale_size| self.format_biguint_scientific(&scale_size))
@@ -600,7 +600,7 @@ where
         }
     }
 
-    fn mutation_type_allows_permutation(&self) -> bool {
+    fn allows_permutation(&self) -> bool {
         match self.mutation_type {
             MutationType::Scaled => true,
             MutationType::Relative => false,

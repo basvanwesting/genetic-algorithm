@@ -233,7 +233,7 @@ pub trait PermutateGenotype: Genotype {
     }
 
     /// not all mutation_types implemented for certain genotypes
-    fn mutation_type_allows_permutation(&self) -> bool {
+    fn allows_permutation(&self) -> bool {
         false
     }
 }

@@ -265,7 +265,7 @@ impl PermutateGenotype for Binary {
             self.seed_genes_list.len().into()
         }
     }
-    fn mutation_type_allows_permutation(&self) -> bool {
+    fn allows_permutation(&self) -> bool {
         true
     }
 }
