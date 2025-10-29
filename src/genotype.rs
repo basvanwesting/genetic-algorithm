@@ -34,6 +34,7 @@ pub enum MutationType {
     Random,
     Relative,
     Scaled,
+    Discrete, // Range acting as List encoding
 }
 
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).

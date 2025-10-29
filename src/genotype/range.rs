@@ -139,7 +139,10 @@ where
             }
             MutationType::Relative => self.allele_relative_sampler.as_ref().unwrap().sample(rng),
             MutationType::Random => {
-                panic!("MultiRangeGenotype has no concept of gene delta for MutationType::Random")
+                panic!("RangeGenotype has no concept of gene delta for MutationType::Random")
+            }
+            MutationType::Discrete => {
+                panic!("RangeGenotype has no implementation for MutationType::Discrete")
             }
         }
     }
@@ -204,6 +207,9 @@ where
                     MutationType::Random => {
                         chromosome.genes[index] = self.sample_allele(rng);
                     }
+                    MutationType::Discrete => {
+                        panic!("RangeGenotype has no implementation for MutationType::Discrete")
+                    }
                     _ => {
                         let delta = self.sample_gene_delta(rng);
                         self.apply_gene_delta(chromosome, index, delta);
@@ -221,6 +227,9 @@ where
                 match self.mutation_type {
                     MutationType::Random => {
                         chromosome.genes[index] = self.sample_allele(rng);
+                    }
+                    MutationType::Discrete => {
+                        panic!("RangeGenotype has no implementation for MutationType::Discrete")
                     }
                     _ => {
                         let delta = self.sample_gene_delta(rng);
@@ -389,6 +398,9 @@ where
             MutationType::Random => {
                 self.fill_neighbouring_population_random(chromosome, population, rng)
             }
+            MutationType::Discrete => {
+                panic!("RangeGenotype has no implementation for MutationType::Discrete")
+            }
         }
     }
 
@@ -537,6 +549,9 @@ where
                 MutationType::Random => {
                     panic!("RangeGenotype is not permutable for MutationType::Random")
                 }
+                MutationType::Discrete => {
+                    panic!("RangeGenotype has no implementation for MutationType::Discrete")
+                }
             }
         } else {
             Box::new(
@@ -559,6 +574,9 @@ where
                 }
                 MutationType::Random => {
                     panic!("RangeGenotype is not permutable for MutationType::Random")
+                }
+                MutationType::Discrete => {
+                    panic!("RangeGenotype has no implementation for MutationType::Discrete")
                 }
             }
         } else {
@@ -587,6 +605,7 @@ where
             MutationType::Scaled => true,
             MutationType::Relative => false,
             MutationType::Random => false,
+            MutationType::Discrete => false,
         }
     }
 }

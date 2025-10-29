@@ -60,75 +60,165 @@ pub trait RangeAllele:
 {
     /// used to build a start exclusive range, by adding the increment to the start
     fn smallest_increment() -> Self;
+
+    /// Returns value 1 for iteration/counting
+    fn one() -> Self;
+
+    /// Rounds to nearest integer (identity for integer types)
+    fn round(&self) -> Self;
 }
 
 impl RangeAllele for f32 {
     fn smallest_increment() -> Self {
         f32::EPSILON
     }
+    fn one() -> Self {
+        1.0
+    }
+    fn round(&self) -> Self {
+        f32::round(*self)
+    }
 }
 impl RangeAllele for f64 {
     fn smallest_increment() -> Self {
         f64::EPSILON
+    }
+    fn one() -> Self {
+        1.0
+    }
+    fn round(&self) -> Self {
+        f64::round(*self)
     }
 }
 impl RangeAllele for i128 {
     fn smallest_increment() -> Self {
         1
     }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
+    }
 }
 impl RangeAllele for i16 {
     fn smallest_increment() -> Self {
         1
+    }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
     }
 }
 impl RangeAllele for i32 {
     fn smallest_increment() -> Self {
         1
     }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
+    }
 }
 impl RangeAllele for i64 {
     fn smallest_increment() -> Self {
         1
+    }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
     }
 }
 impl RangeAllele for i8 {
     fn smallest_increment() -> Self {
         1
     }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
+    }
 }
 impl RangeAllele for isize {
     fn smallest_increment() -> Self {
         1
+    }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
     }
 }
 impl RangeAllele for u128 {
     fn smallest_increment() -> Self {
         1
     }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
+    }
 }
 impl RangeAllele for u16 {
     fn smallest_increment() -> Self {
         1
+    }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
     }
 }
 impl RangeAllele for u32 {
     fn smallest_increment() -> Self {
         1
     }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
+    }
 }
 impl RangeAllele for u64 {
     fn smallest_increment() -> Self {
         1
+    }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
     }
 }
 impl RangeAllele for u8 {
     fn smallest_increment() -> Self {
         1
     }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
+    }
 }
 impl RangeAllele for usize {
     fn smallest_increment() -> Self {
         1
+    }
+    fn one() -> Self {
+        1
+    }
+    fn round(&self) -> Self {
+        *self
     }
 }

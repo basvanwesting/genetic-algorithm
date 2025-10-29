@@ -186,6 +186,9 @@ where
             MutationType::Random => {
                 panic!("RangeGenotype has no concept of gene delta for MutationType::Random")
             }
+            MutationType::Discrete => {
+                panic!("RangeGenotype has no concept of gene delta for MutationType::Discrete")
+            }
         }
     }
     pub fn apply_gene_delta(&self, chromosome: &mut Chromosome<T>, index: usize, delta: T) {
@@ -249,6 +252,9 @@ where
                     MutationType::Random => {
                         chromosome.genes[index] = self.sample_allele(index, rng);
                     }
+                    MutationType::Discrete => {
+                        todo!()
+                    }
                     _ => {
                         let delta = self.sample_gene_delta(index, rng);
                         self.apply_gene_delta(chromosome, index, delta);
@@ -266,6 +272,9 @@ where
                 match self.mutation_type {
                     MutationType::Random => {
                         chromosome.genes[index] = self.sample_allele(index, rng);
+                    }
+                    MutationType::Discrete => {
+                        todo!()
                     }
                     _ => {
                         let delta = self.sample_gene_delta(index, rng);
@@ -435,6 +444,9 @@ where
             MutationType::Random => {
                 self.fill_neighbouring_population_random(chromosome, population, rng)
             }
+            MutationType::Discrete => {
+                todo!()
+            }
         }
     }
 
@@ -594,6 +606,9 @@ where
                 MutationType::Random => {
                     panic!("RangeGenotype is not permutable for MutationType::Random")
                 }
+                MutationType::Discrete => {
+                    todo!()
+                }
             }
         } else {
             Box::new(
@@ -616,6 +631,9 @@ where
                 }
                 MutationType::Random => {
                     panic!("RangeGenotype is not permutable for MutationType::Random")
+                }
+                MutationType::Discrete => {
+                    todo!()
                 }
             }
         } else {
@@ -642,6 +660,7 @@ where
             MutationType::Scaled => true,
             MutationType::Relative => false,
             MutationType::Random => false,
+            MutationType::Discrete => true,
         }
     }
 }
