@@ -63,7 +63,7 @@ pub type DefaultAllele = f32;
 ///   * Mutations ignore current value - all rounded-to-integer in range equally likely
 ///   * Range `0.0..=4.0` yields values: 0.0, 1.0, 2.0, 3.0, 4.0 (with equal probability)
 ///   * Useful for encoding: enums (0.0..=4.0), booleans (0.0..=1.0), or discrete choices
-///   * Neighbours and permutations include ALL other integer values in range
+///   * Neighbours and permutations include all integer values in the allele range
 ///
 /// Explicit `.with_mutation_types()` overrides any auto-detected mutation range settings.
 ///

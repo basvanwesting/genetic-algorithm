@@ -24,7 +24,7 @@ Use `.with_mutation_types(vec![...])` to specify behavior for each gene individu
   * Mutations ignore current value - all rounded-to-integer in range equally likely
   * Range `0.0..=4.0` yields values: 0.0, 1.0, 2.0, 3.0, 4.0 (with equal probability)
   * Useful for encoding: enums (0.0..=4.0), booleans (0.0..=1.0), or discrete choices
-  * Neighbours and permutations include ALL other integer values in range
+  * Neighbours and permutations include all integer values in the allele range
 
 For backward compatibility, mutation type per gene is auto-detected from
 provided ranges in the following order (as it was before, implicitly):
@@ -36,6 +36,10 @@ Explicit `.with_mutation_types()` overrides any auto-detected mutation range set
 
 ### Added
 * Add optional `.with_mutation_types()` to MultiRangeGenotype builder
+
+### Changed
+* Move `.mutation_type()` from `Genotype` Trait to individual genotype
+  implementations, as it is no longer a single uniform value for all genotypes.
 
 ## [0.21.0] - 2025-10-06
 
