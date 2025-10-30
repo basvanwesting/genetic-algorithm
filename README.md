@@ -126,6 +126,12 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * Custom Mutate implementation
     * See [examples/evolve_milp_custom_mutate](../main/examples/evolve_milp_custom_mutate.rs)
 
+## Heterogeneous Genotype Support
+
+MultiRangeGenotype supports heterogeneous chromosomes that mix different gene
+semantics (continuous values, discrete choices, booleans) within a single
+numeric type `T`.
+
 ## Performance considerations
 
 For the Evolve strategy:

@@ -15,10 +15,11 @@ pub type DefaultAllele = f32;
 
 /// Genes are a vector of numberic values, each individually taken from its own allele_range. The
 /// genes_size is derived to be the allele_ranges length. On random initialization, each gene gets
-/// a value from its own allele_range with a uniform probability. Each gene has a equal
-/// probability of mutating, regardless of its allele_range size. If a gene mutates, a new values is
-/// taken from its own allele_range with a uniform probability. Duplicate allele values are
-/// allowed.
+/// a value from its own allele_range with a uniform probability. Each gene has a equal probability
+/// of mutating, regardless of its allele_range size. If a gene mutates, a new values is taken from
+/// its own allele_range with a uniform probability. Duplicate allele values are allowed. Supports
+/// heterogeneous chromosomes that mix different gene semantics (continuous values, discrete
+/// choices, booleans) within a single numeric type `T`.
 ///
 /// Optionally the mutation range can be bound by relative allele_mutation_ranges or
 /// allele_mutation_scaled_ranges. When allele_mutation_ranges are provided the mutation is
@@ -27,7 +28,30 @@ pub type DefaultAllele = f32;
 /// restricted to modify the existing value by a difference taken from start and end of the scaled
 /// range (depending on current scale)
 ///
-/// # Example (f32, default):
+/// Mutation type is auto-detected from provided ranges in the followin order:
+/// * Has allele_mutation_scaled_ranges → scaled for all genes
+/// * Has allele_mutation_ranges → relative for all genes
+/// * Else → random for all genes
+///
+/// # Heterogeneous Genotype Support
+///
+/// MultiRangeGenotype supports heterogeneous chromosomes that mix different gene semantics
+/// (continuous values, discrete choices, booleans) within a single numeric type `T`.
+///
+/// Use `.with_mutation_types(vec![...])` to specify behavior for each gene individually:
+///
+/// * `MutationType::Random` - Samples uniformly from the full allele range
+/// * `MutationType::Relative` - Mutates within a relative range around the current value
+/// * `MutationType::Scaled` - Progressive refinement through multiple scale levels around the current value
+/// * `MutationType::Discrete` - Rounded-to-integer values with uniform selection (like `ListGenotype`).
+///   * Mutations ignore current value - all rounded-to-integer in range equally likely
+///   * Range `0.0..=4.0` yields values: 0.0, 1.0, 2.0, 3.0, 4.0 (with equal probability)
+///   * Useful for encoding: enums (0.0..=4.0), booleans (0.0..=1.0), or discrete choices
+///   * Neighbours and permutations include ALL other integer values in range
+///
+/// Explicit `.with_mutation_types()` overrides any auto-detected mutation range settings.
+///
+/// # Example (f32, default, random mutation):
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype};
 ///
@@ -38,12 +62,46 @@ pub type DefaultAllele = f32;
 ///        0.0..=5.0,
 ///        10.0..=30.0
 ///     ]) // also default mutation range
+///     .with_genes_hashing(true) // optional, defaults to true
+///     .with_chromosome_recycling(true) // optional, defaults to true
+///     .build()
+///     .unwrap();
+/// ```
+///
+/// # Example (isize, relative mutation):
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype};
+///
+/// let genotype = MultiRangeGenotype::builder()
+///     .with_allele_ranges(vec![
+///        0..=10,
+///        5..=20,
+///        -5..=5,
+///        10..=30,
+///     ])
 ///     .with_allele_mutation_ranges(vec![
-///        -1.0..=1.0,
-///        -2.0..=2.0,
-///        -0.5..=0.5,
-///        -3.0..=3.0
+///        -1..=1,
+///        -2..=2,
+///        -1..=1,
+///        -3..=3,
 ///     ]) // optional, restricts mutations to a smaller relative range
+///     .with_genes_hashing(true) // optional, defaults to true
+///     .with_chromosome_recycling(true) // optional, defaults to true
+///     .build()
+///     .unwrap();
+/// ```
+///
+/// # Example (f32, scaled mutation):
+/// ```
+/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype};
+///
+/// let genotype = MultiRangeGenotype::builder()
+///     .with_allele_ranges(vec![
+///        0.0..=10.0,
+///        5.0..=20.0,
+///        0.0..=5.0,
+///        10.0..=30.0
+///     ])
 ///     .with_allele_mutation_scaled_ranges(vec![
 ///        vec![-1.0..=1.0, -2.0..=2.0, -0.5..=0.5, -3.0..=3.0],
 ///        vec![-0.1..=0.1, -0.2..=0.2, -0.05..=0.05, -0.3..=0.3],
@@ -54,31 +112,29 @@ pub type DefaultAllele = f32;
 ///     .unwrap();
 /// ```
 ///
-/// # Example (isize):
+/// # Example (f32, heterogeneous mutation):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype};
+/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype, MutationType};
 ///
 /// let genotype = MultiRangeGenotype::builder()
 ///     .with_allele_ranges(vec![
-///        0..=10,
-///        5..=20,
-///        -5..=5,
-///        10..=30,
-///     ]) // also default mutation range
-///     .with_allele_mutation_ranges(vec![
-///        -1..=1,
-///        -1..=1,
-///        -1..=1,
-///        -2..=2,
-///     ]) // optional, restricts mutations to a smaller relative range
+///         0.0..=1.0,    // Gene 0: Boolean flag
+///         0.0..=4.0,    // Gene 1: Algorithm choice (5 options)
+///         0.0..=100.0,  // Gene 2: Speed percentage
+///     ])
+///     .with_mutation_types(vec![
+///         MutationType::Discrete,  // Boolean as 0 or 1
+///         MutationType::Discrete,  // One of 5 algorithms
+///         MutationType::Scaled,    // Continuous refinement
+///     ])
 ///     .with_allele_mutation_scaled_ranges(vec![
-///        vec![-1..=1, -2..=2, -1..=1, -5..=5],
-///        vec![-1..=1, -1..=1, -1..=1, -1..=1],
-///     ]) // optional, restricts mutations to relative start/end of each scale
+///        vec![0.0..=0.0, 0.0..=0.0, -10.0..=10.0],
+///        vec![0.0..=0.0, 0.0..=0.0, -1.0..=1.0],
+///        vec![0.0..=0.0, 0.0..=0.0, -0.1..=0.1],
+///     ]) // restricts mutations to relative start/end of each scale, the values for discrete genes are ignored
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
-///     .build()
-///     .unwrap();
+///     .build();
 /// ```
 pub struct MultiRange<T: RangeAllele + Into<f64> = DefaultAllele>
 where
