@@ -123,7 +123,9 @@ where
         } else {
             let allele_ranges = builder.allele_ranges.unwrap();
             let genes_size = allele_ranges.len();
-            let mutation_types = if builder.allele_mutation_scaled_ranges.is_some() {
+            let mutation_types = if builder.mutation_types.is_some() {
+                builder.mutation_types.unwrap()
+            } else if builder.allele_mutation_scaled_ranges.is_some() {
                 vec![MutationType::Scaled; genes_size]
             } else if builder.allele_mutation_ranges.is_some() {
                 vec![MutationType::Relative; genes_size]
@@ -671,13 +673,13 @@ where
         }
     }
     fn allows_permutation(&self) -> bool {
-        // FIXME: hack
-        match self.mutation_types[0] {
-            MutationType::Scaled => true,
-            MutationType::Relative => false,
-            MutationType::Random => false,
-            MutationType::Discrete => todo!(),
-        }
+        !self
+            .mutation_types
+            .iter()
+            .any(|mutation_type| match mutation_type {
+                MutationType::Relative | MutationType::Random => true,
+                MutationType::Scaled | MutationType::Discrete => false,
+            })
     }
 }
 

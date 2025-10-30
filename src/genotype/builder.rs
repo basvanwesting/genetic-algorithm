@@ -1,4 +1,4 @@
-use super::Genotype;
+use super::{Genotype, MutationType};
 use crate::chromosome::Genes;
 pub use crate::errors::TryFromGenotypeBuilderError as TryFromBuilderError;
 use std::ops::RangeInclusive;
@@ -31,6 +31,7 @@ pub struct Builder<G: Genotype> {
     pub allele_lists: Option<Vec<Vec<G::Allele>>>,
     pub allele_range: Option<RangeInclusive<G::Allele>>,
     pub allele_ranges: Option<Vec<RangeInclusive<G::Allele>>>,
+    pub mutation_types: Option<Vec<MutationType>>,
     pub allele_mutation_range: Option<RangeInclusive<G::Allele>>,
     pub allele_mutation_ranges: Option<Vec<RangeInclusive<G::Allele>>>,
     pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<G::Allele>>>,
@@ -67,6 +68,11 @@ impl<G: Genotype> Builder<G> {
 
     pub fn with_allele_ranges(mut self, allele_ranges: Vec<RangeInclusive<G::Allele>>) -> Self {
         self.allele_ranges = Some(allele_ranges);
+        self
+    }
+
+    pub fn with_mutation_types(mut self, mutation_types: Vec<MutationType>) -> Self {
+        self.mutation_types = Some(mutation_types);
         self
     }
 
@@ -130,6 +136,7 @@ impl<G: Genotype> Default for Builder<G> {
             allele_lists: None,
             allele_range: None,
             allele_ranges: None,
+            mutation_types: None,
             allele_mutation_range: None,
             allele_mutation_ranges: None,
             allele_mutation_scaled_range: None,
