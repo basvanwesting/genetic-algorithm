@@ -188,8 +188,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
         if allow_duplicates {
             for _ in 0..number_of_mutations {
                 let index = self.gene_weighted_index_sampler.sample(rng);
-                chromosome.genes[index] =
-                    self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
+                chromosome.genes[index] = self.sample_allele(index, rng);
             }
         } else {
             rand::seq::index::sample_weighted(
@@ -201,8 +200,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
             .unwrap()
             .iter()
             .for_each(|index| {
-                chromosome.genes[index] =
-                    self.allele_lists[index][self.allele_index_samplers[index].sample(rng)];
+                chromosome.genes[index] = self.sample_allele(index, rng);
             });
         }
         chromosome.reset_metadata(self.genes_hashing);
@@ -215,12 +213,8 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
-            self.allele_lists
-                .iter()
-                .enumerate()
-                .map(|(index, allele_list)| {
-                    allele_list[self.allele_index_samplers[index].sample(rng)]
-                })
+            (0..self.genes_size)
+                .map(|index| self.sample_allele(index, rng))
                 .collect()
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()

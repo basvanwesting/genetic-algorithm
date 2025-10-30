@@ -331,7 +331,7 @@ where
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
-                .map(|index| self.allele_samplers[index].sample(rng))
+                .map(|index| self.sample_allele(index, rng))
                 .collect()
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()

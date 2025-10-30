@@ -166,7 +166,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
         if allow_duplicates {
             for _ in 0..number_of_mutations {
                 let index = self.gene_index_sampler.sample(rng);
-                chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
+                chromosome.genes[index] = self.sample_allele(rng);
             }
         } else {
             rand::seq::index::sample(
@@ -176,7 +176,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
             )
             .iter()
             .for_each(|index| {
-                chromosome.genes[index] = self.allele_list[self.allele_index_sampler.sample(rng)];
+                chromosome.genes[index] = self.sample_allele(rng);
             });
         }
         chromosome.reset_metadata(self.genes_hashing);
@@ -190,7 +190,7 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
-                .map(|_| self.allele_list[self.allele_index_sampler.sample(rng)])
+                .map(|_| self.sample_allele(rng))
                 .collect()
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()
