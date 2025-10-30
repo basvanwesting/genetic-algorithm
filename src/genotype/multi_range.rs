@@ -21,17 +21,33 @@ pub type DefaultAllele = f32;
 /// heterogeneous chromosomes that mix different gene semantics (continuous values, discrete
 /// choices, booleans) within a single numeric type `T`.
 ///
-/// Optionally the mutation range can be bound by relative allele_mutation_ranges or
-/// allele_mutation_scaled_ranges. When allele_mutation_ranges are provided the mutation is
-/// restricted to modify the existing value by a difference taken from allele_mutation_ranges with
-/// a uniform probability. When allele_mutation_scaled_ranges are provided the mutation is
+/// # Mutation types
+///
+/// Optionally the mutation range can be bound by relative `allele_mutation_ranges` or
+/// `allele_mutation_scaled_ranges`. When `allele_mutation_ranges` are provided the mutation is
+/// restricted to modify the existing value by a difference taken from `allele_mutation_ranges` with
+/// a uniform probability. When `allele_mutation_scaled_ranges` are provided the mutation is
 /// restricted to modify the existing value by a difference taken from start and end of the scaled
 /// range (depending on current scale)
 ///
-/// Mutation type is auto-detected from provided ranges in the followin order:
-/// * Has allele_mutation_scaled_ranges → scaled for all genes
-/// * Has allele_mutation_ranges → relative for all genes
+/// Mutation type is auto-detected from provided ranges in the following order:
+/// * Has `allele_mutation_scaled_ranges` → scaled for all genes
+/// * Has `allele_mutation_ranges` → relative for all genes
 /// * Else → random for all genes
+///
+/// # Permutation
+///
+/// Supports Permutation for scaled and discrete mutations only. This approach implements a
+/// increasingly localized grid search with increasing precision using the
+/// `allele_mutation_scaled_ranges` to define the search scope and grid steps
+/// * First scale (index = 0) traverses the whole `allele_ranges` with the
+///   upper bound of the first scale as step size.
+/// * Other scales (index > 0) center around the best chromosome of the previous
+///   scale, traversing the previous scale bounds around the best chromosome with
+///   the upper bound of the current scale as step size.
+/// * Scale down and repeat after grid is fully traversed
+///
+/// The discrete mutations traverse all allowed values for every scale (see below)
 ///
 /// # Heterogeneous Genotype Support
 ///

@@ -4,6 +4,39 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.22.0] - 2025-10-30
+
+### Heterogeneous Genotype Support
+`MultiRangeGenotype` now supports heterogeneous chromosomes that mix different
+gene semantics (continuous values, discrete choices, booleans) within a single
+numeric type `T`. See `MultiRangeGenotype` documentation for example.
+
+Use `.with_mutation_types(vec![...])` to specify behavior for each gene individually:
+
+* `MutationType::Random` - Samples uniformly from the full allele range
+* `MutationType::Relative` - Mutates within a relative range around the current
+  value (set for gene through `allele_mutation_ranges`)
+* `MutationType::Scaled` - Progressive refinement through multiple scale levels
+  around the current value (set for gene through `allele_mutation_scaled_ranges`)
+* `MutationType::Discrete` - Rounded-to-integer values with uniform selection
+  (like `ListGenotype`).
+  * Mutations ignore current value - all rounded-to-integer in range equally likely
+  * Range `0.0..=4.0` yields values: 0.0, 1.0, 2.0, 3.0, 4.0 (with equal probability)
+  * Useful for encoding: enums (0.0..=4.0), booleans (0.0..=1.0), or discrete choices
+  * Neighbours and permutations include ALL other integer values in range
+
+For backward compatibility, mutation type per gene is auto-detected from
+provided ranges in the following order (as it was before, implicitly):
+* Has `allele_mutation_scaled_ranges` → scaled for all genes
+* Has `allele_mutation_ranges` → relative for all genes
+* Else → random for all genes
+
+Explicit `.with_mutation_types()` overrides any auto-detected mutation range settings.
+
+### Added
+* Add optional `.with_mutation_types()` to MultiRangeGenotype builder
+
 ## [0.21.0] - 2025-10-06
 
 ### Design choices and internal impact (API changes listed separately below)

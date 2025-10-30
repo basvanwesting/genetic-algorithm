@@ -18,12 +18,31 @@ pub type DefaultAllele = f32;
 /// probability of mutating. If a gene mutates, a new value is taken from allele_range with a
 /// uniform probability.
 ///
-/// Optionally the mutation range can be bound by relative allele_mutation_range or
-/// allele_mutation_scaled_range. When allele_mutation_range is provided the mutation is restricted
-/// to modify the existing value by a difference taken from allele_mutation_range with a uniform
-/// probability. When allele_mutation_scaled_range is provided the mutation is restricted to modify
+/// # Mutation types
+///
+/// Optionally the mutation range can be bound by relative `allele_mutation_range` or
+/// `allele_mutation_scaled_range`. When `allele_mutation_range` is provided the mutation is restricted
+/// to modify the existing value by a difference taken from `allele_mutation_range` with a uniform
+/// probability. When `allele_mutation_scaled_range` is provided the mutation is restricted to modify
 /// the existing value by a difference taken from start and end of the scaled range (depending on
 /// current scale)
+///
+/// Mutation type is auto-detected from provided ranges in the following order:
+/// * Has `allele_mutation_scaled_range` → scaled for all genes
+/// * Has `allele_mutation_range` → relative for all genes
+/// * Else → random for all genes
+///
+/// # Permutation
+///
+/// Supports Permutation for scaled mutations only. This approach implements a increasingly localized
+/// grid search with increasing precision using the `allele_mutation_scaled_range` to define the
+/// search scope and grid steps
+/// * First scale (index = 0) traverses the whole `allele_range` with the
+///   upper bound of the first scale as step size.
+/// * Other scales (index > 0) center around the best chromosome of the previous
+///   scale, traversing the previous scale bounds around the best chromosome with
+///   the upper bound of the current scale as step size.
+/// * Scale down and repeat after grid is fully traversed
 ///
 /// # Example (f32, default):
 /// ```
