@@ -120,9 +120,6 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for List<T> {
 }
 
 impl<T: Allele + PartialEq + Hash> List<T> {
-    fn mutation_type(&self) -> MutationType {
-        MutationType::Random
-    }
     pub fn sample_allele<R: Rng>(&self, rng: &mut R) -> T {
         self.allele_list[self.allele_index_sampler.sample(rng)]
     }
@@ -349,7 +346,7 @@ impl<T: Allele + PartialEq + Hash> fmt::Display for List<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  mutation_type: {:?}", self.mutation_type())?;
+        writeln!(f, "  mutation_types: {}", self.mutation_types_report())?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",

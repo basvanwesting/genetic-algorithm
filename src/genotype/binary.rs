@@ -53,12 +53,6 @@ impl TryFrom<Builder<Self>> for Binary {
     }
 }
 
-impl Binary {
-    fn mutation_type(&self) -> MutationType {
-        MutationType::Random
-    }
-}
-
 impl Genotype for Binary {
     type Allele = bool;
 
@@ -274,7 +268,7 @@ impl fmt::Display for Binary {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  mutation_type: {:?}", self.mutation_type())?;
+        writeln!(f, "  mutation_types: {}", self.mutation_types_report())?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
