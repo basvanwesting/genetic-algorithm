@@ -26,10 +26,9 @@ use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
-use std::collections::HashMap;
 use std::fmt;
 
-#[derive(Copy, Clone, PartialEq, Eq, Hash, Debug, Default)]
+#[derive(Copy, Clone, PartialEq, Debug, Default)]
 pub enum MutationType {
     #[default]
     Random,
@@ -83,23 +82,6 @@ pub trait Genotype:
         allow_duplicates: bool,
         rng: &mut R,
     ) -> Vec<usize>;
-
-    fn mutation_types(&self) -> Vec<&MutationType> {
-        vec![&MutationType::Random; self.genes_size()]
-    }
-    fn mutation_types_report(&self) -> String {
-        let mut counts: HashMap<&MutationType, usize> = HashMap::new();
-
-        for mutation_type in self.mutation_types() {
-            *counts.entry(mutation_type).or_insert(0) += 1;
-        }
-
-        counts
-            .iter()
-            .map(|(mutation_type, count)| format!("{:?}: {}", mutation_type, count))
-            .collect::<Vec<_>>()
-            .join(", ")
-    }
 
     fn expected_number_of_sampled_index_duplicates_report(&self) -> String {
         [

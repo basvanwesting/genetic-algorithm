@@ -135,6 +135,9 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
 }
 
 impl<T: Allele + PartialEq + Hash> MultiList<T> {
+    fn mutation_type(&self) -> MutationType {
+        MutationType::Random
+    }
     pub fn sample_allele<R: Rng>(&self, index: usize, rng: &mut R) -> T {
         self.allele_lists[index][self.allele_index_samplers[index].sample(rng)]
     }
@@ -374,7 +377,7 @@ impl<T: Allele + PartialEq + Hash> fmt::Display for MultiList<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  mutation_types: {}", self.mutation_types_report())?;
+        writeln!(f, "  mutation_type: {:?}", self.mutation_type())?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",

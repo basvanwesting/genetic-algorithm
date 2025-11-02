@@ -252,6 +252,9 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
+    fn mutation_types(&self) -> &[MutationType] {
+        &self.mutation_types
+    }
     pub fn sample_allele<R: Rng>(&self, index: usize, rng: &mut R) -> T {
         match self.mutation_types[index] {
             MutationType::Discrete => self.allele_samplers[index].sample(rng).floor(),
@@ -305,9 +308,6 @@ where
     }
     fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele] {
         chromosome.genes.as_slice()
-    }
-    fn mutation_types(&self) -> Vec<&MutationType> {
-        self.mutation_types.iter().collect()
     }
 
     fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize {
@@ -960,7 +960,7 @@ where
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  mutation_types: {}", self.mutation_types_report())?;
+        writeln!(f, "  mutation_types: {:?}", self.mutation_types())?;
 
         writeln!(
             f,

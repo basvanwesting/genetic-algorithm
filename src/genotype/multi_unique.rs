@@ -135,6 +135,12 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
     }
 }
 
+impl<T: Allele + Hash> MultiUnique<T> {
+    fn mutation_type(&self) -> MutationType {
+        MutationType::Random
+    }
+}
+
 impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     type Allele = T;
 
@@ -419,7 +425,7 @@ impl<T: Allele + Hash> fmt::Display for MultiUnique<T> {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "genotype:")?;
         writeln!(f, "  genes_size: {}", self.genes_size)?;
-        writeln!(f, "  mutation_types: {}", self.mutation_types_report())?;
+        writeln!(f, "  mutation_type: {:?}", self.mutation_type())?;
         writeln!(
             f,
             "  chromosome_permutations_size: {}",
