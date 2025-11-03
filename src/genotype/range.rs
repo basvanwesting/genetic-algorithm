@@ -179,8 +179,9 @@ where
                 let transition_progress = self
                     .mutation_type
                     .transition_progress(self.current_generation);
-                let min_delta_down = *relative_range.start();
-                let min_delta_up = *relative_range.end();
+                let min_delta_down =
+                    T::clamp(*relative_range.start(), max_delta_down, max_delta_up);
+                let min_delta_up = T::clamp(*relative_range.end(), max_delta_down, max_delta_up);
                 let working_delta_down = min_delta_down
                     + (max_delta_down - min_delta_down)
                         .scale_by_fraction(1.0 - transition_progress);
@@ -574,8 +575,8 @@ where
             let current_value = chromosome.genes[index];
             let max_delta_down = *self.allele_range.start() - current_value;
             let max_delta_up = *self.allele_range.end() - current_value;
-            let min_delta_down = *relative_range.start();
-            let min_delta_up = *relative_range.end();
+            let min_delta_down = T::clamp(*relative_range.start(), max_delta_down, max_delta_up);
+            let min_delta_up = T::clamp(*relative_range.end(), max_delta_down, max_delta_up);
             let working_delta_down = min_delta_down
                 + (max_delta_down - min_delta_down).scale_by_fraction(1.0 - transition_progress);
             let working_delta_up = min_delta_up
