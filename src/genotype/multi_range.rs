@@ -615,7 +615,7 @@ where
         index: usize,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
-        scaled_ranges: &Vec<RangeInclusive<T>>,
+        scaled_ranges: &[RangeInclusive<T>],
     ) {
         let allele_range_start = *self.allele_ranges[index].start();
         let allele_range_end = *self.allele_ranges[index].end();
@@ -767,7 +767,7 @@ where
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             }
-            working_value = working_value + T::one();
+            working_value += T::one();
         }
     }
 }
