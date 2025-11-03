@@ -30,9 +30,10 @@ pub type DefaultAllele = f32;
 /// restricted to modify the existing value by a difference taken from start and end of the scaled
 /// range (depending on current scale)
 ///
-/// Mutation type is auto-detected from provided ranges in the following order:
-/// * Has `allele_mutation_scaled_ranges` → scaled for all genes
-/// * Has `allele_mutation_ranges` → relative for all genes
+/// Mutation type is defined by the most recent builder setting, so these can overwrite:
+/// * 'with_mutation_types' → set directly (all types)
+/// * 'with_allele_mutation_scaled_ranges` → legacy setting, scaled for all genes
+/// * 'with_allele_mutation_ranges` → legacy setting, relative for all genes
 /// * Else → random for all genes
 ///
 /// # Permutation

@@ -31,10 +31,9 @@ pub struct Builder<G: Genotype> {
     pub allele_lists: Option<Vec<Vec<G::Allele>>>,
     pub allele_range: Option<RangeInclusive<G::Allele>>,
     pub allele_ranges: Option<Vec<RangeInclusive<G::Allele>>>,
+    pub mutation_type: Option<MutationType<G::Allele>>,
     pub mutation_types: Option<Vec<MutationType<G::Allele>>>,
-    pub allele_mutation_range: Option<RangeInclusive<G::Allele>>,
     pub allele_mutation_ranges: Option<Vec<RangeInclusive<G::Allele>>>,
-    pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<G::Allele>>>,
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<G::Allele>>>>,
     pub seed_genes_list: Vec<Genes<G::Allele>>,
     pub genes_hashing: bool,
@@ -71,6 +70,11 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    pub fn with_mutation_type(mut self, mutation_type: MutationType<G::Allele>) -> Self {
+        self.mutation_type = Some(mutation_type);
+        self
+    }
+
     pub fn with_mutation_types(mut self, mutation_types: Vec<MutationType<G::Allele>>) -> Self {
         self.mutation_types = Some(mutation_types);
         self
@@ -80,7 +84,7 @@ impl<G: Genotype> Builder<G> {
         mut self,
         allele_mutation_range: RangeInclusive<G::Allele>,
     ) -> Self {
-        self.allele_mutation_range = Some(allele_mutation_range);
+        self.mutation_type = Some(MutationType::Relative(allele_mutation_range));
         self
     }
 
@@ -96,7 +100,7 @@ impl<G: Genotype> Builder<G> {
         mut self,
         allele_mutation_scaled_range: Vec<RangeInclusive<G::Allele>>,
     ) -> Self {
-        self.allele_mutation_scaled_range = Some(allele_mutation_scaled_range);
+        self.mutation_type = Some(MutationType::Scaled(allele_mutation_scaled_range));
         self
     }
 
@@ -136,10 +140,9 @@ impl<G: Genotype> Default for Builder<G> {
             allele_lists: None,
             allele_range: None,
             allele_ranges: None,
+            mutation_type: None,
             mutation_types: None,
-            allele_mutation_range: None,
             allele_mutation_ranges: None,
-            allele_mutation_scaled_range: None,
             allele_mutation_scaled_ranges: None,
             seed_genes_list: vec![],
             genes_hashing: true,

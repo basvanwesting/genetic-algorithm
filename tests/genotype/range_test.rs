@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{
-    EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype, RangeGenotype,
+    EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype, RangeGenotype,
 };
 
 #[test]
@@ -411,11 +411,12 @@ fn float_neighbouring_population_3_one_sided() {
 
 #[test]
 fn float_permutable_gene_values_scaled() {
+    let scaled_ranges = &vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01];
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=10.0)
-        .with_allele_mutation_scaled_range(vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01])
+        .with_mutation_type(MutationType::Scaled(scaled_ranges.clone()))
         .build()
         .unwrap();
 
@@ -427,7 +428,7 @@ fn float_permutable_gene_values_scaled() {
     ));
 
     assert!(relative_population_eq(
-        genotype.permutable_gene_values_scaled(Some(&chromosome)),
+        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_ranges),
         vec![
             vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
             vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -438,7 +439,7 @@ fn float_permutable_gene_values_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert!(relative_population_eq(
-        genotype.permutable_gene_values_scaled(Some(&chromosome)),
+        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_ranges),
         vec![
             vec![
                 3.473, 3.573, 3.673, 3.773, 3.873, 3.973, 4.073, 4.173, 4.273, 4.373, 4.473, 4.573,
@@ -455,7 +456,7 @@ fn float_permutable_gene_values_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert!(relative_population_eq(
-        genotype.permutable_gene_values_scaled(Some(&chromosome)),
+        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_ranges),
         vec![
             vec![
                 4.373, 4.383, 4.393, 4.403, 4.413, 4.423, 4.433, 4.443, 4.453, 4.463, 4.473, 4.483,
@@ -472,11 +473,12 @@ fn float_permutable_gene_values_scaled() {
 
 #[test]
 fn float_chromosome_permutations_2_scaled() {
+    let scaled_ranges = &vec![-5.0..=5.0, -2.0..=2.0, -1.0..=1.0];
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=10.0)
-        .with_allele_mutation_scaled_range(vec![-5.0..=5.0, -2.0..=2.0, -1.0..=1.0])
+        .with_allele_mutation_scaled_range(scaled_ranges.clone())
         .build()
         .unwrap();
 
@@ -494,7 +496,7 @@ fn float_chromosome_permutations_2_scaled() {
 
     assert_eq!(genotype.current_scale_index, 0);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(0),
+        genotype.chromosome_permutations_size_scaled(0, scaled_ranges),
         BigUint::from(9u32)
     );
 
@@ -521,7 +523,7 @@ fn float_chromosome_permutations_2_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(1),
+        genotype.chromosome_permutations_size_scaled(1, scaled_ranges),
         BigUint::from(36u32)
     );
     let chromosomes = genotype
@@ -574,7 +576,7 @@ fn float_chromosome_permutations_2_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(2),
+        genotype.chromosome_permutations_size_scaled(2, scaled_ranges),
         BigUint::from(25u32)
     );
     let chromosomes = genotype
@@ -801,11 +803,12 @@ fn integer_neighbouring_population_3_one_sided() {
 
 #[test]
 fn integer_permutable_gene_values_scaled() {
+    let scaled_ranges = &vec![-100..=100, -10..=10, -1..=1];
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=1000)
-        .with_allele_mutation_scaled_range(vec![-100..=100, -10..=10, -1..=1])
+        .with_allele_mutation_scaled_range(scaled_ranges.clone())
         .build()
         .unwrap();
 
@@ -814,7 +817,7 @@ fn integer_permutable_gene_values_scaled() {
 
     assert_eq!(genotype.current_scale_index, 0);
     assert_eq!(
-        genotype.permutable_gene_values_scaled(Some(&chromosome)),
+        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_ranges),
         vec![
             vec![0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
             vec![0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
@@ -823,7 +826,7 @@ fn integer_permutable_gene_values_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert_eq!(
-        genotype.permutable_gene_values_scaled(Some(&chromosome)),
+        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_ranges),
         vec![
             vec![
                 347, 357, 367, 377, 387, 397, 407, 417, 427, 437, 447, 457, 467, 477, 487, 497,
@@ -838,7 +841,7 @@ fn integer_permutable_gene_values_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert_eq!(
-        genotype.permutable_gene_values_scaled(Some(&chromosome)),
+        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_ranges),
         vec![
             vec![
                 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452,
@@ -854,11 +857,12 @@ fn integer_permutable_gene_values_scaled() {
 
 #[test]
 fn integer_chromosome_permutations_2_scaled() {
+    let scaled_ranges = &vec![-5..=5, -2..=2, -1..=1];
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=10)
-        .with_allele_mutation_scaled_range(vec![-5..=5, -2..=2, -1..=1])
+        .with_allele_mutation_scaled_range(scaled_ranges.clone())
         .build()
         .unwrap();
 
@@ -872,7 +876,7 @@ fn integer_chromosome_permutations_2_scaled() {
 
     assert_eq!(genotype.current_scale_index, 0);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(0),
+        genotype.chromosome_permutations_size_scaled(0, scaled_ranges),
         BigUint::from(9u32)
     );
     let chromosomes = genotype
@@ -896,7 +900,7 @@ fn integer_chromosome_permutations_2_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(1),
+        genotype.chromosome_permutations_size_scaled(1, scaled_ranges),
         BigUint::from(36u32)
     );
     let chromosomes = genotype
@@ -947,7 +951,7 @@ fn integer_chromosome_permutations_2_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(2),
+        genotype.chromosome_permutations_size_scaled(2, scaled_ranges),
         BigUint::from(25u32)
     );
     let chromosomes = genotype
