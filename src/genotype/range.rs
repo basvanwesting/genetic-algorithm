@@ -109,14 +109,12 @@ where
             let genes_size = builder.genes_size.unwrap();
             let allele_range = builder.allele_range.unwrap();
             let mutation_type = builder.mutation_type.unwrap_or(MutationType::Random);
-            let mut allele_relative_sampler = None;
-
-            match &mutation_type {
-                MutationType::Random | MutationType::Discrete | MutationType::Scaled(_) => {}
+            let allele_relative_sampler = match &mutation_type {
                 MutationType::Relative(relative_range) => {
-                    allele_relative_sampler = Some(Uniform::from(relative_range.clone()));
+                    Some(Uniform::from(relative_range.clone()))
                 }
-            }
+                _ => None,
+            };
 
             Ok(Self {
                 genes_size,
@@ -147,8 +145,8 @@ where
     }
     pub fn sample_gene_delta<R: Rng>(&self, rng: &mut R) -> T {
         match &self.mutation_type {
-            MutationType::Scaled(scaled_range) => {
-                let working_range = &scaled_range[self.current_scale_index];
+            MutationType::Scaled(scaled_ranges) => {
+                let working_range = &scaled_ranges[self.current_scale_index];
                 if rng.gen() {
                     *working_range.start()
                 } else {

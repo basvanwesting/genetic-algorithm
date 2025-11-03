@@ -33,8 +33,6 @@ pub struct Builder<G: Genotype> {
     pub allele_ranges: Option<Vec<RangeInclusive<G::Allele>>>,
     pub mutation_type: Option<MutationType<G::Allele>>,
     pub mutation_types: Option<Vec<MutationType<G::Allele>>>,
-    pub allele_mutation_ranges: Option<Vec<RangeInclusive<G::Allele>>>,
-    pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<G::Allele>>>>,
     pub seed_genes_list: Vec<Genes<G::Allele>>,
     pub genes_hashing: bool,
     pub chromosome_recycling: bool,
@@ -56,6 +54,7 @@ impl<G: Genotype> Builder<G> {
     }
 
     pub fn with_allele_lists(mut self, allele_lists: Vec<Vec<G::Allele>>) -> Self {
+        self.genes_size = Some(allele_lists.len());
         self.allele_lists = Some(allele_lists);
         self
     }
@@ -66,6 +65,7 @@ impl<G: Genotype> Builder<G> {
     }
 
     pub fn with_allele_ranges(mut self, allele_ranges: Vec<RangeInclusive<G::Allele>>) -> Self {
+        self.genes_size = Some(allele_ranges.len());
         self.allele_ranges = Some(allele_ranges);
         self
     }
@@ -92,7 +92,12 @@ impl<G: Genotype> Builder<G> {
         mut self,
         allele_mutation_ranges: Vec<RangeInclusive<G::Allele>>,
     ) -> Self {
-        self.allele_mutation_ranges = Some(allele_mutation_ranges);
+        self.mutation_types = Some(
+            allele_mutation_ranges
+                .into_iter()
+                .map(MutationType::Relative)
+                .collect(),
+        );
         self
     }
 
@@ -108,7 +113,25 @@ impl<G: Genotype> Builder<G> {
         mut self,
         allele_mutation_scaled_ranges: Vec<Vec<RangeInclusive<G::Allele>>>,
     ) -> Self {
-        self.allele_mutation_scaled_ranges = Some(allele_mutation_scaled_ranges);
+        if let Some(genes_size) = &self.genes_size {
+            self.mutation_types = Some(
+                (0..*genes_size)
+                    .map(|gene_index| {
+                        MutationType::Scaled(
+                            allele_mutation_scaled_ranges
+                                .iter()
+                                .map(|gene_ranges_per_scale| {
+                                    gene_ranges_per_scale[gene_index].clone()
+                                })
+                                .collect(),
+                        )
+                    })
+                    .collect(),
+            )
+        } else {
+            panic!("need genes_size or allele_ranges before setting allele_mutation_scaled_ranges")
+        }
+
         self
     }
 
@@ -142,8 +165,6 @@ impl<G: Genotype> Default for Builder<G> {
             allele_ranges: None,
             mutation_type: None,
             mutation_types: None,
-            allele_mutation_ranges: None,
-            allele_mutation_scaled_ranges: None,
             seed_genes_list: vec![],
             genes_hashing: true,
             chromosome_recycling: true,
