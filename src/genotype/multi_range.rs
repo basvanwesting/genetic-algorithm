@@ -153,7 +153,7 @@ pub type DefaultAllele = f32;
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build();
 /// ```
-pub struct MultiRange<T: RangeAllele + Into<f64> = DefaultAllele>
+pub struct MultiRange<T: RangeAllele = DefaultAllele>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -170,7 +170,7 @@ where
     pub chromosome_recycling: bool,
 }
 
-impl<T: RangeAllele + Into<f64>> TryFrom<Builder<Self>> for MultiRange<T>
+impl<T: RangeAllele> TryFrom<Builder<Self>> for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -242,7 +242,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>> MultiRange<T>
+impl<T: RangeAllele> MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -295,7 +295,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>> Genotype for MultiRange<T>
+impl<T: RangeAllele> Genotype for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -431,7 +431,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>> EvolveGenotype for MultiRange<T>
+impl<T: RangeAllele> EvolveGenotype for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -515,7 +515,7 @@ where
         true
     }
 }
-impl<T: RangeAllele + Into<f64>> HillClimbGenotype for MultiRange<T>
+impl<T: RangeAllele> HillClimbGenotype for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -560,7 +560,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>> MultiRange<T>
+impl<T: RangeAllele> MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -693,7 +693,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>> PermutateGenotype for MultiRange<T>
+impl<T: RangeAllele> PermutateGenotype for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -781,7 +781,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>> MultiRange<T>
+impl<T: RangeAllele> MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -919,7 +919,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>> Clone for MultiRange<T>
+impl<T: RangeAllele> Clone for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -958,7 +958,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>> fmt::Debug for MultiRange<T>
+impl<T: RangeAllele> fmt::Debug for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
@@ -973,7 +973,7 @@ where
     }
 }
 
-impl<T: RangeAllele + Into<f64>> fmt::Display for MultiRange<T>
+impl<T: RangeAllele> fmt::Display for MultiRange<T>
 where
     T: SampleUniform,
     Uniform<T>: Send + Sync,

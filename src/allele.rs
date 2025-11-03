@@ -1,7 +1,7 @@
 //! The possible values for a single gene
 use impl_trait_for_tuples::impl_for_tuples;
 use std::hash::{Hash, Hasher};
-use std::ops::Add;
+use std::ops::{Add, Sub};
 
 /// Standard Allele, suitable for [crate::genotype::Genotype]. Implemented for a set of primitives by default
 pub trait Allele: Clone + Copy + Send + Sync + std::fmt::Debug {
@@ -56,7 +56,14 @@ impl Allele for Tuple {
 /// [crate::genotype::MultiRangeGenotype], [crate::genotype::DynamicRangeGenotype] and
 /// [crate::genotype::StaticRangeGenotype]
 pub trait RangeAllele:
-    Allele + Add<Output = Self> + std::cmp::PartialOrd + Default + bytemuck::NoUninit
+    Allele
+    + Add<Output = Self>
+    + Sub<Output = Self>
+    // + Mul<Output = Self>
+    + Into<f64>
+    + std::cmp::PartialOrd
+    + Default
+    + bytemuck::NoUninit
 {
     /// used to build a start exclusive range, by adding the increment to the start
     fn smallest_increment() -> Self;
@@ -66,6 +73,9 @@ pub trait RangeAllele:
 
     /// Floors to nearest integer (identity for integer types)
     fn floor(&self) -> Self;
+
+    /// Scale by fraction (always between 0.0.and 1.0)
+    fn scale_by_fraction(&self, fraction: f64) -> Self;
 }
 
 impl RangeAllele for f32 {
@@ -78,6 +88,9 @@ impl RangeAllele for f32 {
     fn floor(&self) -> Self {
         f32::floor(*self)
     }
+    fn scale_by_fraction(&self, fraction: f64) -> Self {
+        self * fraction as f32
+    }
 }
 impl RangeAllele for f64 {
     fn smallest_increment() -> Self {
@@ -89,49 +102,8 @@ impl RangeAllele for f64 {
     fn floor(&self) -> Self {
         f64::floor(*self)
     }
-}
-impl RangeAllele for i128 {
-    fn smallest_increment() -> Self {
-        1
-    }
-    fn one() -> Self {
-        1
-    }
-    fn floor(&self) -> Self {
-        *self
-    }
-}
-impl RangeAllele for i16 {
-    fn smallest_increment() -> Self {
-        1
-    }
-    fn one() -> Self {
-        1
-    }
-    fn floor(&self) -> Self {
-        *self
-    }
-}
-impl RangeAllele for i32 {
-    fn smallest_increment() -> Self {
-        1
-    }
-    fn one() -> Self {
-        1
-    }
-    fn floor(&self) -> Self {
-        *self
-    }
-}
-impl RangeAllele for i64 {
-    fn smallest_increment() -> Self {
-        1
-    }
-    fn one() -> Self {
-        1
-    }
-    fn floor(&self) -> Self {
-        *self
+    fn scale_by_fraction(&self, fraction: f64) -> Self {
+        self * fraction
     }
 }
 impl RangeAllele for i8 {
@@ -144,8 +116,11 @@ impl RangeAllele for i8 {
     fn floor(&self) -> Self {
         *self
     }
+    fn scale_by_fraction(&self, fraction: f64) -> Self {
+        (*self as f64 * fraction).round() as i8
+    }
 }
-impl RangeAllele for isize {
+impl RangeAllele for i16 {
     fn smallest_increment() -> Self {
         1
     }
@@ -155,8 +130,11 @@ impl RangeAllele for isize {
     fn floor(&self) -> Self {
         *self
     }
+    fn scale_by_fraction(&self, fraction: f64) -> Self {
+        (*self as f64 * fraction).round() as i16
+    }
 }
-impl RangeAllele for u128 {
+impl RangeAllele for i32 {
     fn smallest_increment() -> Self {
         1
     }
@@ -166,38 +144,8 @@ impl RangeAllele for u128 {
     fn floor(&self) -> Self {
         *self
     }
-}
-impl RangeAllele for u16 {
-    fn smallest_increment() -> Self {
-        1
-    }
-    fn one() -> Self {
-        1
-    }
-    fn floor(&self) -> Self {
-        *self
-    }
-}
-impl RangeAllele for u32 {
-    fn smallest_increment() -> Self {
-        1
-    }
-    fn one() -> Self {
-        1
-    }
-    fn floor(&self) -> Self {
-        *self
-    }
-}
-impl RangeAllele for u64 {
-    fn smallest_increment() -> Self {
-        1
-    }
-    fn one() -> Self {
-        1
-    }
-    fn floor(&self) -> Self {
-        *self
+    fn scale_by_fraction(&self, fraction: f64) -> Self {
+        (*self as f64 * fraction).round() as i32
     }
 }
 impl RangeAllele for u8 {
@@ -210,8 +158,11 @@ impl RangeAllele for u8 {
     fn floor(&self) -> Self {
         *self
     }
+    fn scale_by_fraction(&self, fraction: f64) -> Self {
+        (*self as f64 * fraction).round() as u8
+    }
 }
-impl RangeAllele for usize {
+impl RangeAllele for u16 {
     fn smallest_increment() -> Self {
         1
     }
@@ -220,5 +171,22 @@ impl RangeAllele for usize {
     }
     fn floor(&self) -> Self {
         *self
+    }
+    fn scale_by_fraction(&self, fraction: f64) -> Self {
+        (*self as f64 * fraction).round() as u16
+    }
+}
+impl RangeAllele for u32 {
+    fn smallest_increment() -> Self {
+        1
+    }
+    fn one() -> Self {
+        1
+    }
+    fn floor(&self) -> Self {
+        *self
+    }
+    fn scale_by_fraction(&self, fraction: f64) -> Self {
+        (*self as f64 * fraction).round() as u32
     }
 }

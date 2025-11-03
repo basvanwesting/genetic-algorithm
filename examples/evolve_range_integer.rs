@@ -4,9 +4,9 @@ const GENES_SIZE: usize = 100;
 const POPULATION_SIZE: usize = 100;
 
 #[derive(Clone, Debug)]
-pub struct DistanceTo(pub isize); // target
+pub struct DistanceTo(pub i32); // target
 impl Fitness for DistanceTo {
-    type Genotype = RangeGenotype<isize>;
+    type Genotype = RangeGenotype<i32>;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &FitnessChromosome<Self>,
@@ -16,8 +16,8 @@ impl Fitness for DistanceTo {
             chromosome
                 .genes
                 .iter()
-                .map(|v| (v - self.0).abs())
-                .sum::<isize>() as FitnessValue,
+                .map(|v| (v - self.0).abs() as FitnessValue)
+                .sum(),
         )
     }
 }

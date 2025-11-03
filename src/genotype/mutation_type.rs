@@ -149,6 +149,37 @@ pub enum MutationType<T: Allele> {
     Random,
     Relative(RangeInclusive<T>),
     Scaled(Vec<RangeInclusive<T>>),
-    Discrete, // Range acting as List encoding
+    Discrete,                                    // Range acting as List encoding
     Transition(usize, usize, RangeInclusive<T>), // (random_until_generation, relative_from_generation, relative_mutation_range)
+}
+
+impl<T: Allele> MutationType<T> {
+    pub fn transition_progress(&self, current_generation: usize) -> f64 {
+        match self {
+            Self::Transition(random_until, relative_from, _) => {
+                if current_generation <= *random_until {
+                    0.0
+                } else if current_generation >= *relative_from {
+                    1.0
+                } else {
+                    (current_generation - random_until) as f64
+                        / (relative_from - random_until) as f64
+                }
+            }
+            _ => 0.0,
+        }
+    }
+    // pub fn relative_range(&self) -> Option<&RangeInclusive<T>> {
+    //     match self {
+    //         Self::Relative(range) => Some(range),
+    //         Self::Transition(_, _, range) => Some(range),
+    //         _ => None,
+    //     }
+    // }
+    // pub fn scaled_ranges(&self) -> Option<&Vec<RangeInclusive<T>>> {
+    //     match self {
+    //         Self::Scaled(ranges) => Some(ranges),
+    //         _ => None,
+    //     }
+    // }
 }
