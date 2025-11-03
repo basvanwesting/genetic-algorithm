@@ -18,8 +18,8 @@ pub use crate::fitness::{
 #[doc(no_inline)]
 pub use crate::genotype::{
     Allele, BinaryGenotype, EvolveGenotype, Genotype, GenotypeBuilder, ListGenotype,
-    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeAllele, RangeGenotype,
-    TryFromGenotypeBuilderError, UniqueGenotype,
+    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, MutationType, RangeAllele,
+    RangeGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::impl_allele;

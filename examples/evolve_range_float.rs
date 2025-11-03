@@ -28,15 +28,15 @@ fn main() {
     let genotype = RangeGenotype::<f32>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
-        // .with_allele_mutation_range(-0.1..=0.1) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
-        // .with_allele_mutation_range(-0.001..=0.001) // slow converge
-        .with_allele_mutation_scaled_range(vec![
-            -0.1..=0.1,
-            -0.01..=0.01,
-            -0.001..=0.001,
-            -0.0001..=0.0001,
-            -0.00001..=0.00001,
-        ])
+        // .with_mutation_type(MutationType::Relative(-0.1..=0.1)) // converges slowly
+        .with_mutation_type(MutationType::Transition(1000, 2000, -0.1..=0.1)) // converges slowly
+        // .with_mutation_type(MutationType::Scaled(vec![
+        //     -0.1..=0.1,
+        //     -0.01..=0.01,
+        //     -0.001..=0.001,
+        //     -0.0001..=0.0001,
+        //     -0.00001..=0.00001,
+        // ])) // converges fast, but needs low max_stale_generations to trigger next scale
         .build()
         .unwrap();
 
@@ -45,7 +45,8 @@ fn main() {
     let evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(POPULATION_SIZE)
-        .with_max_stale_generations(100)
+        // .with_max_stale_generations(100)
+        .with_max_stale_generations(100_000)
         .with_target_fitness_score(POPULATION_SIZE as isize * 100)
         .with_fitness(DistanceTo(0.55555, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)

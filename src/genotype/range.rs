@@ -716,10 +716,8 @@ where
     fn allows_permutation(&self) -> bool {
         match self.mutation_type {
             MutationType::Scaled(_) => true,
-            MutationType::Relative(_) => false,
-            MutationType::Random => false,
             MutationType::Discrete => false, // can implement, but acts as inefficient ListGenotype
-            MutationType::Transition(_, _, _) => false,
+            _ => false,
         }
     }
 }
@@ -831,16 +829,21 @@ where
     Uniform<T>: Send + Sync,
 {
     fn clone(&self) -> Self {
+        let allele_sampler = Uniform::from(self.allele_range.clone());
         let allele_relative_sampler = match &self.mutation_type {
             MutationType::Relative(relative_range) => Some(Uniform::from(relative_range.clone())),
+            MutationType::Transition(_, _, relative_range) => {
+                Some(Uniform::from(relative_range.clone()))
+            }
             _ => None,
         };
+
         Self {
             genes_size: self.genes_size,
             allele_range: self.allele_range.clone(),
             mutation_type: self.mutation_type.clone(),
             gene_index_sampler: self.gene_index_sampler,
-            allele_sampler: Uniform::from(self.allele_range.clone()),
+            allele_sampler,
             allele_relative_sampler,
             current_scale_index: self.current_scale_index,
             seed_genes_list: self.seed_genes_list.clone(),

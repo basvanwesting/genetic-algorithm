@@ -60,9 +60,14 @@ pub type MutateEvolveState<M> = EvolveState<<M as Mutate>::Genotype>;
 ///         {
 ///             // Custom logic, for instance mutate all genes with even index be a relative change
 ///             for even_index in (0..genotype.genes_size()).filter(|x| x % 2 == 0) {
-///                 let delta = rng.gen_range(-1.0..=1.0);
-///                 // MultiRangeGenotype specific methods are available (this one does allele bounds checking)
-///                 genotype.apply_gene_delta(chromosome, even_index, delta);
+///                 // MultiRangeGenotype specific methods are available (this one does allele bounds checking as well)
+///                 let delta = genotype.sample_gene_delta(chromosome, even_index, rng);
+///                 chromosome.genes[even_index] += delta;
+///             }
+///             for odd_index in (0..genotype.genes_size()).filter(|x| x % 2 == 1) {
+///                 // MultiRangeGenotype specific methods are available (pure random sample)
+///                 let new_value = genotype.sample_allele(odd_index, rng);
+///                 chromosome.genes[odd_index] = new_value;
 ///             }
 ///             // Important!!! Remember to reset the chromosome metadata after manipulation
 ///             chromosome.reset_metadata(genotype.genes_hashing);

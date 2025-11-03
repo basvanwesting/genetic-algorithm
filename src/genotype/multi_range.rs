@@ -166,6 +166,7 @@ where
     pub seed_genes_list: Vec<Vec<T>>,
     pub genes_hashing: bool,
     pub chromosome_recycling: bool,
+    pub current_generation: usize,
 }
 
 impl<T: RangeAllele> TryFrom<Builder<Self>> for MultiRange<T>
@@ -194,15 +195,14 @@ where
             let mutation_types = builder
                 .mutation_types
                 .unwrap_or(vec![MutationType::Random; genes_size]);
-
             let allele_relative_samplers = mutation_types
                 .iter()
                 .map(|mutation_type| match &mutation_type {
-                    MutationType::Random
-                    | MutationType::Discrete
-                    | MutationType::Scaled(_)
-                    | MutationType::Transition(_, _, _) => None,
+                    MutationType::Random | MutationType::Discrete | MutationType::Scaled(_) => None,
                     MutationType::Relative(relative_range) => {
+                        Some(Uniform::from(relative_range.clone()))
+                    }
+                    MutationType::Transition(_, _, relative_range) => {
                         Some(Uniform::from(relative_range.clone()))
                     }
                 })
@@ -234,6 +234,7 @@ where
                 seed_genes_list: builder.seed_genes_list,
                 genes_hashing: builder.genes_hashing,
                 chromosome_recycling: builder.chromosome_recycling,
+                current_generation: 0,
             })
         }
     }
@@ -252,41 +253,83 @@ where
             _ => self.allele_samplers[index].sample(rng),
         }
     }
-    pub fn sample_gene_delta<R: Rng>(&self, index: usize, rng: &mut R) -> T {
+    pub fn sample_gene_delta<R: Rng>(
+        &self,
+        chromosome: &Chromosome<T>,
+        index: usize,
+        rng: &mut R,
+    ) -> T {
+        let current_value = chromosome.genes[index];
+        let max_delta_down = *self.allele_ranges[index].start() - current_value;
+        let max_delta_up = *self.allele_ranges[index].end() - current_value;
+
         match &self.mutation_types[index] {
             MutationType::Scaled(scaled_ranges) => {
                 let working_range = &scaled_ranges[self.current_scale_index];
-                if rng.gen() {
+                let delta = if rng.gen() {
                     *working_range.start()
                 } else {
                     *working_range.end()
-                }
+                };
+                T::clamp(delta, max_delta_down, max_delta_up)
             }
-            MutationType::Relative(_) => self.allele_relative_samplers[index]
-                .as_ref()
-                .unwrap()
-                .sample(rng),
-            MutationType::Transition(_, _, _) => {
-                todo!()
+            MutationType::Relative(_) => {
+                let delta = self.allele_relative_samplers[index]
+                    .as_ref()
+                    .unwrap()
+                    .sample(rng);
+                T::clamp(delta, max_delta_down, max_delta_up)
             }
 
-            MutationType::Random => {
-                panic!("RangeGenotype has no concept of gene delta for MutationType::Random")
+            MutationType::Transition(_, relative_from, _)
+                if self.current_generation >= *relative_from =>
+            {
+                let delta = self.allele_relative_samplers[index]
+                    .as_ref()
+                    .unwrap()
+                    .sample(rng);
+                T::clamp(delta, max_delta_down, max_delta_up)
             }
+            MutationType::Transition(_, _, relative_range) => {
+                let transition_progress =
+                    self.mutation_types[index].transition_progress(self.current_generation);
+                let min_delta_down = *relative_range.start();
+                let min_delta_up = *relative_range.end();
+                let working_delta_down = min_delta_down
+                    + (max_delta_down - min_delta_down)
+                        .scale_by_fraction(1.0 - transition_progress);
+                let working_delta_up = min_delta_up
+                    + (max_delta_up - min_delta_up).scale_by_fraction(1.0 - transition_progress);
+
+                rng.gen_range(working_delta_down..=working_delta_up)
+            }
+            MutationType::Random => rng.gen_range(max_delta_down..=max_delta_up),
             MutationType::Discrete => {
-                panic!("RangeGenotype has no concept of gene delta for MutationType::Discrete")
+                panic!("MultiRangeGenotype has no concept of gene delta for MutationType::Discrete")
             }
         }
     }
-    pub fn apply_gene_delta(&self, chromosome: &mut Chromosome<T>, index: usize, delta: T) {
-        let allele_range = &self.allele_ranges[index];
-        let new_value = chromosome.genes[index] + delta;
-        if new_value < *allele_range.start() {
-            chromosome.genes[index] = *allele_range.start();
-        } else if new_value > *allele_range.end() {
-            chromosome.genes[index] = *allele_range.end();
-        } else {
-            chromosome.genes[index] = new_value;
+    pub fn mutate_gene<R: Rng>(&self, chromosome: &mut Chromosome<T>, index: usize, rng: &mut R) {
+        match &self.mutation_types[index] {
+            MutationType::Random => {
+                chromosome.genes[index] = self.sample_allele(index, rng);
+            }
+            MutationType::Scaled(_) | MutationType::Relative(_) => {
+                let delta = self.sample_gene_delta(chromosome, index, rng);
+                chromosome.genes[index] += delta;
+            }
+            MutationType::Transition(random_until, _, _)
+                if self.current_generation <= *random_until =>
+            {
+                chromosome.genes[index] = self.sample_allele(index, rng);
+            }
+            MutationType::Transition(_, _, _) => {
+                let delta = self.sample_gene_delta(chromosome, index, rng);
+                chromosome.genes[index] += delta;
+            }
+            MutationType::Discrete => {
+                chromosome.genes[index] = self.sample_allele(index, rng);
+            }
         }
     }
 }
@@ -331,18 +374,7 @@ where
         if allow_duplicates {
             for _ in 0..number_of_mutations {
                 let index = self.gene_index_sampler.sample(rng);
-                match self.mutation_types[index] {
-                    MutationType::Random | MutationType::Discrete => {
-                        chromosome.genes[index] = self.sample_allele(index, rng);
-                    }
-                    MutationType::Transition(_, _, _) => {
-                        todo!()
-                    }
-                    _ => {
-                        let delta = self.sample_gene_delta(index, rng);
-                        self.apply_gene_delta(chromosome, index, delta);
-                    }
-                };
+                self.mutate_gene(chromosome, index, rng);
             }
         } else {
             rand::seq::index::sample(
@@ -352,18 +384,7 @@ where
             )
             .iter()
             .for_each(|index| {
-                match self.mutation_types[index] {
-                    MutationType::Random | MutationType::Discrete => {
-                        chromosome.genes[index] = self.sample_allele(index, rng);
-                    }
-                    MutationType::Transition(_, _, _) => {
-                        todo!()
-                    }
-                    _ => {
-                        let delta = self.sample_gene_delta(index, rng);
-                        self.apply_gene_delta(chromosome, index, delta);
-                    }
-                };
+                self.mutate_gene(chromosome, index, rng);
             });
         }
         chromosome.reset_metadata(self.genes_hashing);
@@ -406,6 +427,12 @@ where
         }
     }
 
+    fn reset_generation(&mut self) {
+        self.current_generation = 0;
+    }
+    fn increment_generation(&mut self) {
+        self.current_generation += 1;
+    }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
@@ -521,6 +548,9 @@ where
     ) {
         self.mutation_types.iter().enumerate().for_each(
             |(index, mutation_type)| match mutation_type {
+                MutationType::Random => {
+                    self.fill_neighbouring_population_random(index, chromosome, population, rng)
+                }
                 MutationType::Scaled(scaled_ranges) => self.fill_neighbouring_population_scaled(
                     index,
                     chromosome,
@@ -535,11 +565,33 @@ where
                         relative_range,
                         rng,
                     ),
-                MutationType::Transition(_, _, _) => {
-                    todo!()
-                }
-                MutationType::Random => {
+                MutationType::Transition(random_until, _, _)
+                    if self.current_generation <= *random_until =>
+                {
                     self.fill_neighbouring_population_random(index, chromosome, population, rng)
+                }
+                MutationType::Transition(_, relative_from, relative_range)
+                    if self.current_generation >= *relative_from =>
+                {
+                    self.fill_neighbouring_population_relative(
+                        index,
+                        chromosome,
+                        population,
+                        relative_range,
+                        rng,
+                    )
+                }
+                MutationType::Transition(_, _, relative_range) => {
+                    let transition_progress =
+                        mutation_type.transition_progress(self.current_generation);
+                    self.fill_neighbouring_population_transition(
+                        index,
+                        chromosome,
+                        population,
+                        relative_range,
+                        transition_progress,
+                        rng,
+                    )
                 }
                 MutationType::Discrete => {
                     self.fill_neighbouring_population_discrete(index, chromosome, population)
@@ -570,25 +622,24 @@ where
         let working_range_start = *working_range.start();
         let working_range_end = *working_range.end();
 
-        let base_value = chromosome.genes[index];
-        let value_low = if base_value + working_range_start < allele_range_start {
-            allele_range_start
-        } else {
-            base_value + working_range_start
-        };
-        let value_high = if base_value + working_range_end > allele_range_end {
-            allele_range_end
-        } else {
-            base_value + working_range_end
-        };
-
-        if value_low < base_value {
+        let current_value = chromosome.genes[index];
+        let value_low = T::clamp(
+            current_value + working_range_start,
+            allele_range_start,
+            allele_range_end,
+        );
+        let value_high = T::clamp(
+            current_value + working_range_end,
+            allele_range_start,
+            allele_range_end,
+        );
+        if value_low < current_value {
             let mut new_chromosome = population.new_chromosome(chromosome);
             new_chromosome.genes[index] = value_low;
             new_chromosome.reset_metadata(self.genes_hashing);
             population.chromosomes.push(new_chromosome);
         };
-        if value_high > base_value {
+        if value_high > current_value {
             let mut new_chromosome = population.new_chromosome(chromosome);
             new_chromosome.genes[index] = value_high;
             new_chromosome.reset_metadata(self.genes_hashing);
@@ -609,27 +660,62 @@ where
         let working_range_start = *relative_range.start();
         let working_range_end = *relative_range.end();
 
-        let base_value = chromosome.genes[index];
-        let range_start = if base_value + working_range_start < allele_range_start {
-            allele_range_start
-        } else {
-            base_value + working_range_start
-        };
-        let range_end = if base_value + working_range_end > allele_range_end {
-            allele_range_end
-        } else {
-            base_value + working_range_end
-        };
-
-        if range_start < base_value {
+        let current_value = chromosome.genes[index];
+        let range_start = T::clamp(
+            current_value + working_range_start,
+            allele_range_start,
+            allele_range_end,
+        );
+        let range_end = T::clamp(
+            current_value + working_range_end,
+            allele_range_start,
+            allele_range_end,
+        );
+        if range_start < current_value {
             let mut new_chromosome = population.new_chromosome(chromosome);
-            new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
+            new_chromosome.genes[index] = rng.gen_range(range_start..current_value);
             new_chromosome.reset_metadata(self.genes_hashing);
             population.chromosomes.push(new_chromosome);
         };
-        if base_value < range_end {
+        if current_value < range_end {
             let mut new_chromosome = population.new_chromosome(chromosome);
-            let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
+            let new_value = rng.gen_range((current_value + T::smallest_increment())..=range_end);
+            new_chromosome.genes[index] = new_value;
+            new_chromosome.reset_metadata(self.genes_hashing);
+            population.chromosomes.push(new_chromosome);
+        };
+    }
+
+    fn fill_neighbouring_population_transition<R: Rng>(
+        &self,
+        index: usize,
+        chromosome: &Chromosome<T>,
+        population: &mut Population<T>,
+        relative_range: &RangeInclusive<T>,
+        transition_progress: f64,
+        rng: &mut R,
+    ) {
+        let current_value = chromosome.genes[index];
+        let max_delta_down = *self.allele_ranges[index].start() - current_value;
+        let max_delta_up = *self.allele_ranges[index].end() - current_value;
+        let min_delta_down = *relative_range.start();
+        let min_delta_up = *relative_range.end();
+        let working_delta_down = min_delta_down
+            + (max_delta_down - min_delta_down).scale_by_fraction(1.0 - transition_progress);
+        let working_delta_up = min_delta_up
+            + (max_delta_up - min_delta_up).scale_by_fraction(1.0 - transition_progress);
+        let range_start = current_value + working_delta_down;
+        let range_end = current_value + working_delta_up;
+
+        if range_start < current_value {
+            let mut new_chromosome = population.new_chromosome(chromosome);
+            new_chromosome.genes[index] = rng.gen_range(range_start..current_value);
+            new_chromosome.reset_metadata(self.genes_hashing);
+            population.chromosomes.push(new_chromosome);
+        };
+        if current_value < range_end {
+            let mut new_chromosome = population.new_chromosome(chromosome);
+            let new_value = rng.gen_range((current_value + T::smallest_increment())..=range_end);
             new_chromosome.genes[index] = new_value;
             new_chromosome.reset_metadata(self.genes_hashing);
             population.chromosomes.push(new_chromosome);
@@ -646,17 +732,17 @@ where
         let allele_range_start = *self.allele_ranges[index].start();
         let allele_range_end = *self.allele_ranges[index].end();
 
-        let base_value = chromosome.genes[index];
-        if allele_range_start < base_value {
+        let current_value = chromosome.genes[index];
+        if allele_range_start < current_value {
             let mut new_chromosome = population.new_chromosome(chromosome);
-            new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
+            new_chromosome.genes[index] = rng.gen_range(allele_range_start..current_value);
             new_chromosome.reset_metadata(self.genes_hashing);
             population.chromosomes.push(new_chromosome);
         };
-        if base_value < allele_range_end {
+        if current_value < allele_range_end {
             let mut new_chromosome = population.new_chromosome(chromosome);
             let new_value =
-                rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
+                rng.gen_range((current_value + T::smallest_increment())..=allele_range_end);
             new_chromosome.genes[index] = new_value;
             new_chromosome.reset_metadata(self.genes_hashing);
             population.chromosomes.push(new_chromosome);
@@ -702,17 +788,21 @@ where
                         MutationType::Scaled(scaled_ranges) => {
                             self.permutable_gene_values_scaled(index, chromosome, scaled_ranges)
                         }
-                        MutationType::Relative(_) => {
-                            panic!("RangeGenotype is not permutable for MutationType::Relative")
-                        }
-                        MutationType::Transition(_, _, _) => {
-                            todo!()
-                        }
-                        MutationType::Random => {
-                            panic!("RangeGenotype is not permutable for MutationType::Random")
-                        }
                         MutationType::Discrete => {
                             self.permutable_gene_values_discrete(index, chromosome)
+                        }
+                        MutationType::Random => {
+                            panic!("MultiRangeGenotype is not permutable for MutationType::Random")
+                        }
+                        MutationType::Relative(_) => {
+                            panic!(
+                                "MultiRangeGenotype is not permutable for MutationType::Relative"
+                            )
+                        }
+                        MutationType::Transition(_, _, _) => {
+                            panic!(
+                                "MultiRangeGenotype is not permutable for MutationType::Transition"
+                            )
                         }
                     })
                     .multi_cartesian_product()
@@ -759,16 +849,12 @@ where
         }
     }
     fn allows_permutation(&self) -> bool {
-        !self
-            .mutation_types
-            .iter()
-            .any(|mutation_type| match mutation_type {
-                MutationType::Relative(_) | MutationType::Random => true,
-                MutationType::Scaled(_) | MutationType::Discrete => false,
-                MutationType::Transition(_, _, _) => {
-                    todo!()
-                }
-            })
+        self.mutation_types.iter().all(|mutation_type| {
+            matches!(
+                mutation_type,
+                MutationType::Scaled(_) | MutationType::Discrete
+            )
+        })
     }
 }
 
@@ -781,7 +867,7 @@ where
         &self,
         index: usize,
         chromosome: Option<&Chromosome<T>>,
-        scaled_ranges: &Vec<RangeInclusive<T>>,
+        scaled_ranges: &[RangeInclusive<T>],
     ) -> Vec<T> {
         let allele_range_start = *self.allele_ranges[index].start();
         let allele_range_end = *self.allele_ranges[index].end();
@@ -792,17 +878,17 @@ where
                 let working_range_start = *working_range.start();
                 let working_range_end = *working_range.end();
 
-                let base_value = chromosome.genes[index];
-                let value_start = if base_value + working_range_start < allele_range_start {
-                    allele_range_start
-                } else {
-                    base_value + working_range_start
-                };
-                let value_end = if base_value + working_range_end > allele_range_end {
-                    allele_range_end
-                } else {
-                    base_value + working_range_end
-                };
+                let current_value = chromosome.genes[index];
+                let value_start = T::clamp(
+                    current_value + working_range_start,
+                    allele_range_start,
+                    allele_range_end,
+                );
+                let value_end = T::clamp(
+                    current_value + working_range_end,
+                    allele_range_start,
+                    allele_range_end,
+                );
 
                 (value_start, value_end)
             } else {
@@ -914,15 +1000,20 @@ where
     Uniform<T>: Send + Sync,
 {
     fn clone(&self) -> Self {
+        let allele_samplers = self
+            .allele_ranges
+            .iter()
+            .map(|allele_range| Uniform::from(allele_range.clone()))
+            .collect();
         let allele_relative_samplers = self
             .mutation_types
             .iter()
             .map(|mutation_type| match &mutation_type {
                 MutationType::Random | MutationType::Discrete | MutationType::Scaled(_) => None,
-                MutationType::Transition(_, _, _) => {
-                    todo!()
-                }
                 MutationType::Relative(relative_range) => {
+                    Some(Uniform::from(relative_range.clone()))
+                }
+                MutationType::Transition(_, _, relative_range) => {
                     Some(Uniform::from(relative_range.clone()))
                 }
             })
@@ -933,16 +1024,13 @@ where
             allele_ranges: self.allele_ranges.clone(),
             mutation_types: self.mutation_types.clone(),
             gene_index_sampler: self.gene_index_sampler,
-            allele_samplers: self
-                .allele_ranges
-                .iter()
-                .map(|allele_range| Uniform::from(allele_range.clone()))
-                .collect(),
+            allele_samplers,
             allele_relative_samplers,
             current_scale_index: self.current_scale_index,
             seed_genes_list: self.seed_genes_list.clone(),
             genes_hashing: self.genes_hashing,
             chromosome_recycling: self.chromosome_recycling,
+            current_generation: self.current_generation,
         }
     }
 }

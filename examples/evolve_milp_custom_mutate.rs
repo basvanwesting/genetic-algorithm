@@ -45,7 +45,7 @@ struct ScaledOptionalDiagonalMutate {
 impl ScaledOptionalDiagonalMutate {
     pub fn new(mutation_probability: f32) -> Self {
         let mutation_probability_sampler = Bernoulli::new(mutation_probability as f64).unwrap();
-        let axis_probability_sampler = Uniform::from(0..=2);
+        let axis_probability_sampler = Uniform::from(0..=3);
         Self {
             mutation_probability_sampler,
             axis_probability_sampler,
@@ -74,18 +74,21 @@ impl Mutate for ScaledOptionalDiagonalMutate {
             if self.mutation_probability_sampler.sample(rng) {
                 match self.axis_probability_sampler.sample(rng) {
                     0 => {
-                        let delta = genotype.sample_gene_delta(0, rng);
-                        genotype.apply_gene_delta(chromosome, 0, delta);
+                        //25%
+                        let delta = genotype.sample_gene_delta(chromosome, 0, rng);
+                        chromosome.genes[0] += delta;
                     }
                     1 => {
-                        let delta = genotype.sample_gene_delta(1, rng);
-                        genotype.apply_gene_delta(chromosome, 1, delta);
+                        //25%
+                        let delta = genotype.sample_gene_delta(chromosome, 1, rng);
+                        chromosome.genes[1] += delta;
                     }
                     _ => {
-                        let delta = genotype.sample_gene_delta(0, rng);
-                        genotype.apply_gene_delta(chromosome, 0, delta);
-                        let delta = genotype.sample_gene_delta(1, rng);
-                        genotype.apply_gene_delta(chromosome, 1, delta);
+                        //50%
+                        let delta = genotype.sample_gene_delta(chromosome, 0, rng);
+                        chromosome.genes[0] += delta;
+                        let delta = genotype.sample_gene_delta(chromosome, 1, rng);
+                        chromosome.genes[1] += delta;
                     }
                 }
                 // remember to reset the chromosome metadata after manipulation

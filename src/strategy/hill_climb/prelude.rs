@@ -8,8 +8,8 @@ pub use crate::fitness::{
 #[doc(no_inline)]
 pub use crate::genotype::{
     Allele, BinaryGenotype, Genotype, GenotypeBuilder, HillClimbGenotype, ListGenotype,
-    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, RangeAllele, RangeGenotype,
-    TryFromGenotypeBuilderError, UniqueGenotype,
+    MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, MutationType, RangeAllele,
+    RangeGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::impl_allele;
