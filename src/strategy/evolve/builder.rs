@@ -389,7 +389,7 @@ impl<
                 .filter_map(|species_run| species_run.best_genes())
                 .collect();
             let mut final_genotype = self.genotype.clone().unwrap();
-            final_genotype.reset_scale_index(); // not needed, clone is unused
+            final_genotype.reset(); // not needed, clone is unused
             final_genotype.set_seed_genes_list(seed_genes_list);
             let mut final_run: Evolve<G, M, F, S, C, E, SR> =
                 self.clone().with_genotype(final_genotype).try_into()?;
@@ -450,7 +450,7 @@ impl<
                 .filter_map(|species_run| species_run.best_genes())
                 .collect();
             let mut final_genotype = self.genotype.clone().unwrap();
-            final_genotype.reset_scale_index(); // not needed, clone is unused
+            final_genotype.reset(); // not needed, clone is unused
             final_genotype.set_seed_genes_list(seed_genes_list);
             let mut final_run: Evolve<G, M, F, S, C, E, SR> =
                 self.clone().with_genotype(final_genotype).try_into()?;

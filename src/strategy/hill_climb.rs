@@ -202,6 +202,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
+            self.genotype.increment_generation();
             self.state.increment_generation();
             match self.config.variant {
                 HillClimbVariant::Stochastic => {

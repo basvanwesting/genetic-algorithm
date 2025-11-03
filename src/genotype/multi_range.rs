@@ -201,7 +201,10 @@ where
             let allele_relative_samplers = mutation_types
                 .iter()
                 .map(|mutation_type| match &mutation_type {
-                    MutationType::Random | MutationType::Discrete | MutationType::Scaled(_) => None,
+                    MutationType::Random
+                    | MutationType::Discrete
+                    | MutationType::Scaled(_)
+                    | MutationType::Transition(_, _, _) => None,
                     MutationType::Relative(relative_range) => {
                         Some(Uniform::from(relative_range.clone()))
                     }
@@ -267,6 +270,10 @@ where
                 .as_ref()
                 .unwrap()
                 .sample(rng),
+            MutationType::Transition(_, _, _) => {
+                todo!()
+            }
+
             MutationType::Random => {
                 panic!("RangeGenotype has no concept of gene delta for MutationType::Random")
             }
@@ -333,6 +340,9 @@ where
                     MutationType::Random | MutationType::Discrete => {
                         chromosome.genes[index] = self.sample_allele(index, rng);
                     }
+                    MutationType::Transition(_, _, _) => {
+                        todo!()
+                    }
                     _ => {
                         let delta = self.sample_gene_delta(index, rng);
                         self.apply_gene_delta(chromosome, index, delta);
@@ -350,6 +360,9 @@ where
                 match self.mutation_types[index] {
                     MutationType::Random | MutationType::Discrete => {
                         chromosome.genes[index] = self.sample_allele(index, rng);
+                    }
+                    MutationType::Transition(_, _, _) => {
+                        todo!()
                     }
                     _ => {
                         let delta = self.sample_gene_delta(index, rng);
@@ -529,6 +542,9 @@ where
                         relative_range,
                         rng,
                     ),
+                MutationType::Transition(_, _, _) => {
+                    todo!()
+                }
                 MutationType::Random => {
                     self.fill_neighbouring_population_random(index, chromosome, population, rng)
                 }
@@ -698,6 +714,9 @@ where
                         MutationType::Relative(_) => {
                             panic!("RangeGenotype is not permutable for MutationType::Relative")
                         }
+                        MutationType::Transition(_, _, _) => {
+                            todo!()
+                        }
                         MutationType::Random => {
                             panic!("RangeGenotype is not permutable for MutationType::Random")
                         }
@@ -755,6 +774,9 @@ where
             .any(|mutation_type| match mutation_type {
                 MutationType::Relative(_) | MutationType::Random => true,
                 MutationType::Scaled(_) | MutationType::Discrete => false,
+                MutationType::Transition(_, _, _) => {
+                    todo!()
+                }
             })
     }
 }
@@ -908,6 +930,9 @@ where
             .iter()
             .map(|mutation_type| match &mutation_type {
                 MutationType::Random | MutationType::Discrete | MutationType::Scaled(_) => None,
+                MutationType::Transition(_, _, _) => {
+                    todo!()
+                }
                 MutationType::Relative(relative_range) => {
                     Some(Uniform::from(relative_range.clone()))
                 }

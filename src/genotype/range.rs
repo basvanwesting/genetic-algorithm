@@ -154,6 +154,9 @@ where
                 }
             }
             MutationType::Relative(_) => self.allele_relative_sampler.as_ref().unwrap().sample(rng),
+            MutationType::Transition(_, _, _) => {
+                todo!()
+            }
             MutationType::Random => {
                 panic!("RangeGenotype has no concept of gene delta for MutationType::Random")
             }
@@ -223,6 +226,9 @@ where
                     MutationType::Discrete => {
                         panic!("RangeGenotype has no implementation for MutationType::Discrete")
                     }
+                    MutationType::Transition(_, _, _) => {
+                        todo!()
+                    }
                     _ => {
                         let delta = self.sample_gene_delta(rng);
                         self.apply_gene_delta(chromosome, index, delta);
@@ -243,6 +249,9 @@ where
                     }
                     MutationType::Discrete => {
                         panic!("RangeGenotype has no implementation for MutationType::Discrete")
+                    }
+                    MutationType::Transition(_, _, _) => {
+                        todo!()
                     }
                     _ => {
                         let delta = self.sample_gene_delta(rng);
@@ -411,6 +420,9 @@ where
                 relative_range,
                 rng,
             ),
+            MutationType::Transition(_, _, _) => {
+                todo!()
+            }
             MutationType::Random => {
                 self.fill_neighbouring_population_random(chromosome, population, rng)
             }
@@ -561,6 +573,9 @@ where
                 MutationType::Relative(_) => {
                     panic!("RangeGenotype is not permutable for MutationType::Relative")
                 }
+                MutationType::Transition(_, _, _) => {
+                    todo!()
+                }
                 MutationType::Random => {
                     panic!("RangeGenotype is not permutable for MutationType::Random")
                 }
@@ -588,6 +603,9 @@ where
                     .sum(),
                 MutationType::Relative(_) => {
                     panic!("RangeGenotype is not permutable for MutationType::Relative")
+                }
+                MutationType::Transition(_, _, _) => {
+                    todo!()
                 }
                 MutationType::Random => {
                     panic!("RangeGenotype is not permutable for MutationType::Random")
@@ -626,6 +644,9 @@ where
             MutationType::Relative(_) => false,
             MutationType::Random => false,
             MutationType::Discrete => false, // can implement, but acts as inefficient ListGenotype
+            MutationType::Transition(_, _, _) => {
+                todo!()
+            }
         }
     }
 }

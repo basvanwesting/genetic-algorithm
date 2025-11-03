@@ -58,10 +58,48 @@ use std::ops::RangeInclusive;
 /// **Use case:** Heterogeneous chromosomes mixing categorical choices with
 /// continuous parameters, encoding finite state machines, or discrete optimization.
 ///
+/// ## `Transition(random_until_generation, relative_from_generation, relative_mutation_range)`
+/// Smoothly transitions from Random to Relative mutation over a specified generation range.
+/// Provides a natural exploration-to-exploitation schedule without abrupt behavioral changes.
+///
+/// **Parameters:**
+/// - `random_until_generation`: Use pure Random mutation until this generation (exclusive)
+/// - `relative_from_generation`: Use pure Relative mutation from this generation (inclusive)
+/// - `relative_mutation_range`: The final relative range to use after transition
+///
+/// **Example:** `Transition(100, 500, -5.0..=5.0)` means:
+/// - Generations 0-99: Pure Random mutation (full exploration)
+/// - Generations 100-499: Gradual transition with decreasing mutation range
+/// - Generations 500+: Pure Relative mutation with ±5.0 range (exploitation)
+///
+/// ### Boundary Sampling Behavior
+///
+/// Different mutation types handle allele range boundaries differently:
+///
+/// - **Random**: Undersamples boundaries (infinitesimal probability of sampling exact boundary)
+/// - **Relative**: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
+/// - **Transition**: Uses pre-clamped sampling ranges, consistently undersampling boundaries
+///   throughout the transition phase
+///
+/// The transition phase uses centered sampling with a progressively shrinking range. The range
+/// is pre-clamped before sampling to avoid boundary oversampling that would occur with large
+/// ranges. This provides consistent undersampling behavior across the entire transition spectrum,
+/// which is acceptable since Random mutation already undersamples boundaries.
+///
+/// **Implementation note:** Progress through transition is calculated as:
+/// ```text
+/// progress = (current_generation - random_until) / (relative_from - random_until)
+/// mutation_range = lerp(full_allele_range, relative_range, progress)
+/// ```
+///
+/// **Use case:** Problems requiring initial exploration followed by convergence,
+/// evolutionary algorithms with scheduled exploration decay, parameter optimization
+/// where good regions are unknown initially.
+///
 /// # Compatibility
 ///
-/// - **RangeGenotype**: Supports Random, Relative, and Scaled
-/// - **MultiRangeGenotype**: Supports all variants including Discrete
+/// - **RangeGenotype**: Supports Random, Relative, Scaled, and Transition
+/// - **MultiRangeGenotype**: Supports all variants including Discrete and Transition
 /// - Other genotypes (Binary, List, Unique) use fixed random mutation strategies
 ///
 /// # Preference
@@ -112,4 +150,5 @@ pub enum MutationType<T: Allele> {
     Relative(RangeInclusive<T>),
     Scaled(Vec<RangeInclusive<T>>),
     Discrete, // Range acting as List encoding
+    Transition(usize, usize, RangeInclusive<T>), // (random_until_generation, relative_from_generation, relative_mutation_range)
 }

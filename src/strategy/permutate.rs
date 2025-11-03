@@ -228,6 +228,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             .clone()
             .chromosome_permutations_into_iter(self.state.best_chromosome.as_ref())
             .for_each(|chromosome| {
+                self.genotype.increment_generation();
                 self.state.increment_generation();
                 self.state.chromosome.replace(chromosome);
                 self.fitness.call_for_state_chromosome(
@@ -268,6 +269,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             });
 
             receiver.iter().for_each(|(chromosome, fitness_duration)| {
+                self.genotype.increment_generation();
                 self.state.increment_generation();
                 self.state.chromosome.replace(chromosome);
                 self.state.update_best_chromosome_and_report(
