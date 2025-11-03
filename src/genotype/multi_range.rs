@@ -141,7 +141,7 @@ pub type DefaultAllele = f32;
 ///     .with_mutation_types(vec![
 ///         MutationType::Discrete,  // Boolean as 0 or 1
 ///         MutationType::Discrete,  // One of 5 algorithms
-///         MutationType::Scaled,    // Continuous refinement
+///         MutationType::Scaled(vec![-10.0..=10.0, -1.0..=1.0, -0.1..=0.1]),    // Continuous refinement
 ///     ])
 ///     .with_allele_mutation_scaled_ranges(vec![
 ///        vec![0.0..=0.0, 0.0..=0.0, -10.0..=10.0],
@@ -161,7 +161,7 @@ where
     pub allele_ranges: Vec<RangeInclusive<T>>,
     pub allele_mutation_ranges: Option<Vec<RangeInclusive<T>>>,
     pub allele_mutation_scaled_ranges: Option<Vec<Vec<RangeInclusive<T>>>>,
-    pub mutation_types: Vec<MutationType>,
+    pub mutation_types: Vec<MutationType<T>>,
     gene_index_sampler: Uniform<usize>,
     allele_samplers: Vec<Uniform<T>>,
     allele_relative_samplers: Option<Vec<Uniform<T>>>,
@@ -195,12 +195,24 @@ where
         } else {
             let allele_ranges = builder.allele_ranges.unwrap();
             let genes_size = allele_ranges.len();
-            let mutation_types = if builder.mutation_types.is_some() {
-                builder.mutation_types.unwrap()
-            } else if builder.allele_mutation_scaled_ranges.is_some() {
-                vec![MutationType::Scaled; genes_size]
-            } else if builder.allele_mutation_ranges.is_some() {
-                vec![MutationType::Relative; genes_size]
+            let mutation_types = if let Some(mutation_types) = builder.mutation_types.as_ref() {
+                mutation_types.clone()
+            } else if let Some(scaled_ranges) = builder.allele_mutation_scaled_ranges.as_ref() {
+                (0..genes_size)
+                    .map(|gene_idx| {
+                        MutationType::Scaled(
+                            scaled_ranges
+                                .iter()
+                                .map(|scale| scale[gene_idx].clone())
+                                .collect(),
+                        )
+                    })
+                    .collect()
+            } else if let Some(relative_ranges) = builder.allele_mutation_ranges.as_ref() {
+                relative_ranges
+                    .iter()
+                    .map(|r| MutationType::Relative(r.clone()))
+                    .collect()
             } else {
                 vec![MutationType::Random; genes_size]
             };
@@ -252,7 +264,7 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn mutation_types(&self) -> &[MutationType] {
+    fn mutation_types(&self) -> &[MutationType<T>] {
         &self.mutation_types
     }
     pub fn sample_allele<R: Rng>(&self, index: usize, rng: &mut R) -> T {
@@ -263,7 +275,7 @@ where
     }
     pub fn sample_gene_delta<R: Rng>(&self, index: usize, rng: &mut R) -> T {
         match self.mutation_types[index] {
-            MutationType::Scaled => {
+            MutationType::Scaled(_) => {
                 let working_range = &self.allele_mutation_scaled_ranges.as_ref().unwrap()
                     [self.current_scale_index][index];
                 if rng.gen() {
@@ -272,7 +284,7 @@ where
                     *working_range.end()
                 }
             }
-            MutationType::Relative => {
+            MutationType::Relative(_) => {
                 self.allele_relative_samplers.as_ref().unwrap()[index].sample(rng)
             }
             MutationType::Random => {
@@ -519,10 +531,10 @@ where
     ) {
         self.mutation_types.iter().enumerate().for_each(
             |(index, mutation_type)| match mutation_type {
-                MutationType::Scaled => {
+                MutationType::Scaled(_) => {
                     self.fill_neighbouring_population_scaled(index, chromosome, population)
                 }
-                MutationType::Relative => {
+                MutationType::Relative(_) => {
                     self.fill_neighbouring_population_relative(index, chromosome, population, rng)
                 }
                 MutationType::Random => {
@@ -688,10 +700,10 @@ where
                     .iter()
                     .enumerate()
                     .map(|(index, mutation_type)| match mutation_type {
-                        MutationType::Scaled => {
+                        MutationType::Scaled(_) => {
                             self.permutable_gene_values_scaled(index, chromosome)
                         }
-                        MutationType::Relative => {
+                        MutationType::Relative(_) => {
                             panic!("RangeGenotype is not permutable for MutationType::Relative")
                         }
                         MutationType::Random => {
@@ -749,8 +761,8 @@ where
             .mutation_types
             .iter()
             .any(|mutation_type| match mutation_type {
-                MutationType::Relative | MutationType::Random => true,
-                MutationType::Scaled | MutationType::Discrete => false,
+                MutationType::Relative(_) | MutationType::Random => true,
+                MutationType::Scaled(_) | MutationType::Discrete => false,
             })
     }
 }
@@ -845,7 +857,7 @@ where
             .iter()
             .enumerate()
             .map(|(index, mutation_type)| match mutation_type {
-                MutationType::Scaled => {
+                MutationType::Scaled(_) => {
                     let (allele_value_start, allele_value_end) = if let Some(previous_scale_index) =
                         scale_index.checked_sub(1)
                     {

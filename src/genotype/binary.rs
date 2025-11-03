@@ -54,8 +54,8 @@ impl TryFrom<Builder<Self>> for Binary {
 }
 
 impl Binary {
-    fn mutation_type(&self) -> MutationType {
-        MutationType::Random
+    fn mutation_type(&self) -> &MutationType<bool> {
+        &MutationType::Random
     }
 }
 

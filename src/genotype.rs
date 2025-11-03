@@ -27,13 +27,14 @@ use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
+use std::ops::RangeInclusive;
 
-#[derive(Copy, Clone, PartialEq, Debug, Default)]
-pub enum MutationType {
+#[derive(Clone, PartialEq, Debug, Default)]
+pub enum MutationType<T: Allele> {
     #[default]
     Random,
-    Relative,
-    Scaled,
+    Relative(RangeInclusive<T>),
+    Scaled(Vec<RangeInclusive<T>>),
     Discrete, // Range acting as List encoding
 }
 

@@ -82,7 +82,7 @@ where
     pub allele_range: RangeInclusive<T>,
     pub allele_mutation_range: Option<RangeInclusive<T>>,
     pub allele_mutation_scaled_range: Option<Vec<RangeInclusive<T>>>,
-    pub mutation_type: MutationType,
+    pub mutation_type: MutationType<T>,
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
     allele_relative_sampler: Option<Uniform<T>>,
@@ -109,13 +109,14 @@ where
         } else {
             let genes_size = builder.genes_size.unwrap();
             let allele_range = builder.allele_range.unwrap();
-            let mutation_type = if builder.allele_mutation_scaled_range.is_some() {
-                MutationType::Scaled
-            } else if builder.allele_mutation_range.is_some() {
-                MutationType::Relative
-            } else {
-                MutationType::Random
-            };
+            let mutation_type =
+                if let Some(scaled_range) = builder.allele_mutation_scaled_range.as_ref() {
+                    MutationType::Scaled(scaled_range.clone())
+                } else if let Some(relative_range) = builder.allele_mutation_range.as_ref() {
+                    MutationType::Relative(relative_range.clone())
+                } else {
+                    MutationType::Random
+                };
 
             Ok(Self {
                 genes_size,
@@ -142,15 +143,15 @@ where
     T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
-    fn mutation_type(&self) -> MutationType {
-        self.mutation_type
+    fn mutation_type(&self) -> &MutationType<T> {
+        &self.mutation_type
     }
     pub fn sample_allele<R: Rng>(&self, rng: &mut R) -> T {
         self.allele_sampler.sample(rng)
     }
     pub fn sample_gene_delta<R: Rng>(&self, rng: &mut R) -> T {
         match self.mutation_type {
-            MutationType::Scaled => {
+            MutationType::Scaled(_) => {
                 let working_range =
                     &self.allele_mutation_scaled_range.as_ref().unwrap()[self.current_scale_index];
                 if rng.gen() {
@@ -159,7 +160,7 @@ where
                     *working_range.end()
                 }
             }
-            MutationType::Relative => self.allele_relative_sampler.as_ref().unwrap().sample(rng),
+            MutationType::Relative(_) => self.allele_relative_sampler.as_ref().unwrap().sample(rng),
             MutationType::Random => {
                 panic!("RangeGenotype has no concept of gene delta for MutationType::Random")
             }
@@ -271,10 +272,9 @@ where
             .map(|r| r.len() - 1)
     }
     fn current_scale_index(&self) -> Option<usize> {
-        if self.mutation_type == MutationType::Scaled {
-            Some(self.current_scale_index)
-        } else {
-            None
+        match self.mutation_type {
+            MutationType::Scaled(_) => Some(self.current_scale_index),
+            _ => None,
         }
     }
     fn reset_scale_index(&mut self) {
@@ -408,10 +408,10 @@ where
         rng: &mut R,
     ) {
         match self.mutation_type {
-            MutationType::Scaled => {
+            MutationType::Scaled(_) => {
                 self.fill_neighbouring_population_scaled(chromosome, population)
             }
-            MutationType::Relative => {
+            MutationType::Relative(_) => {
                 self.fill_neighbouring_population_relative(chromosome, population, rng)
             }
             MutationType::Random => {
@@ -556,13 +556,13 @@ where
     ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
             match self.mutation_type {
-                MutationType::Scaled => Box::new(
+                MutationType::Scaled(_) => Box::new(
                     self.permutable_gene_values_scaled(chromosome)
                         .into_iter()
                         .multi_cartesian_product()
                         .map(Chromosome::new),
                 ),
-                MutationType::Relative => {
+                MutationType::Relative(_) => {
                     panic!("RangeGenotype is not permutable for MutationType::Relative")
                 }
                 MutationType::Random => {
@@ -585,10 +585,10 @@ where
     fn chromosome_permutations_size(&self) -> BigUint {
         if self.seed_genes_list.is_empty() {
             match self.mutation_type {
-                MutationType::Scaled => (0..=self.max_scale_index().unwrap())
+                MutationType::Scaled(_) => (0..=self.max_scale_index().unwrap())
                     .map(|scale_index| self.chromosome_permutations_size_scaled(scale_index))
                     .sum(),
-                MutationType::Relative => {
+                MutationType::Relative(_) => {
                     panic!("RangeGenotype is not permutable for MutationType::Relative")
                 }
                 MutationType::Random => {
@@ -621,8 +621,8 @@ where
 
     fn allows_permutation(&self) -> bool {
         match self.mutation_type {
-            MutationType::Scaled => true,
-            MutationType::Relative => false,
+            MutationType::Scaled(_) => true,
+            MutationType::Relative(_) => false,
             MutationType::Random => false,
             MutationType::Discrete => false,
         }
@@ -733,7 +733,7 @@ where
             allele_range: self.allele_range.clone(),
             allele_mutation_range: self.allele_mutation_range.clone(),
             allele_mutation_scaled_range: self.allele_mutation_scaled_range.clone(),
-            mutation_type: self.mutation_type,
+            mutation_type: self.mutation_type.clone(),
             gene_index_sampler: self.gene_index_sampler,
             allele_sampler: Uniform::from(self.allele_range.clone()),
             allele_relative_sampler: self

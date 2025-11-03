@@ -133,7 +133,7 @@ fn float_mutate_chromosome_single_discrete() {
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
         .with_mutation_types(vec![
             MutationType::Discrete,
-            MutationType::Scaled,
+            MutationType::Scaled(vec![-1.0..=1.0, -0.5..=0.5, -0.05..=0.05]),
             MutationType::Discrete,
         ])
         .with_allele_mutation_scaled_ranges(vec![
@@ -399,7 +399,7 @@ fn float_neighbouring_population_3_discrete() {
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=12.0])
         .with_mutation_types(vec![
             MutationType::Discrete,
-            MutationType::Scaled,
+            MutationType::Scaled(vec![-1.0..=1.0, -0.5..=0.5, -0.05..=0.05]),
             MutationType::Discrete,
         ])
         .with_allele_mutation_scaled_ranges(vec![
@@ -725,7 +725,10 @@ fn float_chromosome_permutations_2_discrete() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=10.0, 0.0..=3.0])
-        .with_mutation_types(vec![MutationType::Scaled, MutationType::Discrete])
+        .with_mutation_types(vec![
+            MutationType::Scaled(vec![-5.0..=5.0, -2.5..=2.5, -1.0..=1.0]),
+            MutationType::Discrete,
+        ])
         .with_allele_mutation_scaled_ranges(vec![
             vec![-5.0..=5.0, -3.0..=3.0],
             vec![-2.5..=2.5, -1.5..=1.5],
@@ -890,7 +893,7 @@ fn integer_mutate_chromosome_single_discrete() {
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
         .with_mutation_types(vec![
-            MutationType::Relative,
+            MutationType::Relative(0..=9),
             MutationType::Discrete,
             MutationType::Discrete,
         ])
@@ -956,7 +959,7 @@ fn integer_neighbouring_population_3_discrete() {
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=12])
         .with_mutation_types(vec![
-            MutationType::Relative,
+            MutationType::Relative(0..=9),
             MutationType::Discrete,
             MutationType::Discrete,
         ])

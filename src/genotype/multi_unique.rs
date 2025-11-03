@@ -136,8 +136,8 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
 }
 
 impl<T: Allele + Hash> MultiUnique<T> {
-    fn mutation_type(&self) -> MutationType {
-        MutationType::Random
+    fn mutation_type(&self) -> &MutationType<T> {
+        &MutationType::Random
     }
 }
 
