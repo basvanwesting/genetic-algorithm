@@ -5,6 +5,7 @@ mod list;
 mod multi_list;
 mod multi_range;
 mod multi_unique;
+mod mutation_type;
 mod range;
 mod unique;
 
@@ -16,6 +17,7 @@ pub use self::list::List as ListGenotype;
 pub use self::multi_list::MultiList as MultiListGenotype;
 pub use self::multi_range::MultiRange as MultiRangeGenotype;
 pub use self::multi_unique::MultiUnique as MultiUniqueGenotype;
+pub use self::mutation_type::MutationType;
 pub use self::range::Range as RangeGenotype;
 pub use self::unique::Unique as UniqueGenotype;
 
@@ -27,16 +29,6 @@ use itertools::Itertools;
 use num::BigUint;
 use rand::Rng;
 use std::fmt;
-use std::ops::RangeInclusive;
-
-#[derive(Clone, PartialEq, Debug, Default)]
-pub enum MutationType<T: Allele> {
-    #[default]
-    Random,
-    Relative(RangeInclusive<T>),
-    Scaled(Vec<RangeInclusive<T>>),
-    Discrete, // Range acting as List encoding
-}
 
 /// Standard genotype, suitable for [Evolve](crate::strategy::evolve::Evolve).
 /// Each implemented genotype handles its own random genes initialization and mutation.

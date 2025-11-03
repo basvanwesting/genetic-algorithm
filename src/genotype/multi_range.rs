@@ -31,10 +31,10 @@ pub type DefaultAllele = f32;
 /// range (depending on current scale)
 ///
 /// Mutation type is defined by the most recent builder setting, so these can overwrite:
-/// * 'with_mutation_types' → set directly (all types)
-/// * 'with_allele_mutation_scaled_ranges` → legacy setting, scaled for all genes
-/// * 'with_allele_mutation_ranges` → legacy setting, relative for all genes
-/// * Else → random for all genes
+/// * `with_mutation_types` → set directly (all types, mixed)
+/// * `with_allele_mutation_scaled_ranges` → legacy setting, scaled for all genes
+/// * `with_allele_mutation_ranges` → legacy setting, relative for all genes
+/// * no setting → default, random for all genes
 ///
 /// # Permutation
 ///
