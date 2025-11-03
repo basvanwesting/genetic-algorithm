@@ -1,5 +1,6 @@
 //! The possible values for a single gene
 use impl_trait_for_tuples::impl_for_tuples;
+use rand::distributions::uniform::SampleUniform;
 use std::hash::{Hash, Hasher};
 use std::ops::{Add, AddAssign, Sub};
 
@@ -65,6 +66,7 @@ pub trait RangeAllele:
     + std::cmp::PartialOrd
     + Default
     + bytemuck::NoUninit
+    + SampleUniform
 {
     /// used to build a start exclusive range, by adding the increment to the start
     fn smallest_increment() -> Self;

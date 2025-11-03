@@ -5,7 +5,6 @@ use crate::chromosome::{Chromosome, Genes};
 use crate::population::Population;
 use itertools::Itertools;
 use num::BigUint;
-use rand::distributions::uniform::SampleUniform;
 use rand::distributions::{Distribution, Uniform};
 use rand::prelude::*;
 use std::fmt;
@@ -76,7 +75,6 @@ pub type DefaultAllele = f32;
 /// ```
 pub struct Range<T: RangeAllele = DefaultAllele>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     pub genes_size: usize,
@@ -94,7 +92,6 @@ where
 
 impl<T: RangeAllele> TryFrom<Builder<Self>> for Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     type Error = TryFromBuilderError;
@@ -139,7 +136,6 @@ where
 
 impl<T: RangeAllele> Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn mutation_type(&self) -> &MutationType<T> {
@@ -226,7 +222,6 @@ where
 
 impl<T: RangeAllele> Genotype for Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     type Allele = T;
@@ -340,7 +335,6 @@ where
 
 impl<T: RangeAllele> EvolveGenotype for Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn crossover_chromosome_genes<R: Rng>(
@@ -424,7 +418,6 @@ where
 }
 impl<T: RangeAllele> HillClimbGenotype for Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn fill_neighbouring_population<R: Rng>(
@@ -486,7 +479,6 @@ where
 
 impl<T: RangeAllele> Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn fill_neighbouring_population_scaled(
@@ -639,7 +631,6 @@ where
 
 impl<T: RangeAllele> PermutateGenotype for Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn chromosome_permutations_into_iter<'a>(
@@ -735,7 +726,6 @@ where
 
 impl<T: RangeAllele> Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     // scales should be symmetrical, so the step is simply the scale end
@@ -838,7 +828,6 @@ where
 
 impl<T: RangeAllele> Clone for Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn clone(&self) -> Self {
@@ -864,7 +853,6 @@ where
 
 impl<T: RangeAllele> fmt::Debug for Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
@@ -879,7 +867,6 @@ where
 
 impl<T: RangeAllele> fmt::Display for Range<T>
 where
-    T: SampleUniform,
     Uniform<T>: Send + Sync,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
