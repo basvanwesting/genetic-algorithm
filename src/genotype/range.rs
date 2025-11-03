@@ -148,37 +148,73 @@ where
     pub fn sample_allele<R: Rng>(&self, rng: &mut R) -> T {
         self.allele_sampler.sample(rng)
     }
-    pub fn sample_gene_delta<R: Rng>(&self, rng: &mut R) -> T {
+    pub fn sample_gene_delta<R: Rng>(
+        &self,
+        chromosome: &Chromosome<T>,
+        index: usize,
+        rng: &mut R,
+    ) -> T {
+        let current_value = chromosome.genes[index];
+        let max_delta_down = *self.allele_range.start() - current_value;
+        let max_delta_up = *self.allele_range.end() - current_value;
+
         match &self.mutation_type {
             MutationType::Scaled(scaled_ranges) => {
                 let working_range = &scaled_ranges[self.current_scale_index];
-                if rng.gen() {
+                let delta = if rng.gen() {
                     *working_range.start()
                 } else {
                     *working_range.end()
+                };
+                if delta < max_delta_down {
+                    max_delta_down
+                } else if delta > max_delta_up {
+                    max_delta_up
+                } else {
+                    delta
                 }
             }
-            MutationType::Relative(_) => self.allele_relative_sampler.as_ref().unwrap().sample(rng),
-            MutationType::Transition(_, _, _) => {
-                // only called when full Relative
-                self.allele_relative_sampler.as_ref().unwrap().sample(rng)
+            MutationType::Relative(_) => {
+                let delta = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
+                if delta < max_delta_down {
+                    max_delta_down
+                } else if delta > max_delta_up {
+                    max_delta_up
+                } else {
+                    delta
+                }
             }
-            MutationType::Random => {
-                panic!("RangeGenotype has no concept of gene delta for MutationType::Random")
+
+            MutationType::Transition(_, relative_from, _)
+                if self.current_generation >= *relative_from =>
+            {
+                let delta = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
+                if delta < max_delta_down {
+                    max_delta_down
+                } else if delta > max_delta_up {
+                    max_delta_up
+                } else {
+                    delta
+                }
             }
+            MutationType::Transition(_, _, relative_range) => {
+                let transition_progress = self
+                    .mutation_type
+                    .transition_progress(self.current_generation);
+                let min_delta_down = *relative_range.start();
+                let min_delta_up = *relative_range.end();
+                let working_delta_down = min_delta_down
+                    + (max_delta_down - min_delta_down)
+                        .scale_by_fraction(1.0 - transition_progress);
+                let working_delta_up = min_delta_up
+                    + (max_delta_up - min_delta_up).scale_by_fraction(1.0 - transition_progress);
+
+                rng.gen_range(working_delta_down..=working_delta_up)
+            }
+            MutationType::Random => rng.gen_range(max_delta_down..=max_delta_up),
             MutationType::Discrete => {
                 panic!("RangeGenotype has no implementation for MutationType::Discrete")
             }
-        }
-    }
-    pub fn apply_gene_delta(&self, chromosome: &mut Chromosome<T>, index: usize, delta: T) {
-        let new_value = chromosome.genes[index] + delta;
-        if new_value < *self.allele_range.start() {
-            chromosome.genes[index] = *self.allele_range.start();
-        } else if new_value > *self.allele_range.end() {
-            chromosome.genes[index] = *self.allele_range.end();
-        } else {
-            chromosome.genes[index] = new_value;
         }
     }
     pub fn mutate_gene<R: Rng>(&self, chromosome: &mut Chromosome<T>, index: usize, rng: &mut R) {
@@ -187,37 +223,17 @@ where
                 chromosome.genes[index] = self.sample_allele(rng);
             }
             MutationType::Scaled(_) | MutationType::Relative(_) => {
-                let delta = self.sample_gene_delta(rng);
-                self.apply_gene_delta(chromosome, index, delta);
+                let delta = self.sample_gene_delta(chromosome, index, rng);
+                chromosome.genes[index] += delta;
             }
-            MutationType::Transition(_, _, relative_range) => {
-                let transition_progress = self
-                    .mutation_type
-                    .transition_progress(self.current_generation);
-                if transition_progress <= 0.0 {
-                    // Full Random
-                    chromosome.genes[index] = self.sample_allele(rng);
-                } else if transition_progress >= 1.0 {
-                    // Full Relative
-                    let delta = self.sample_gene_delta(rng);
-                    self.apply_gene_delta(chromosome, index, delta);
-                } else {
-                    // Transition between allele range and relative range, clamped
-                    let base_value = chromosome.genes[index];
-                    let max_delta_down = *self.allele_range.start() - base_value;
-                    let max_delta_up = *self.allele_range.end() - base_value;
-                    let min_delta_down = *relative_range.start();
-                    let min_delta_up = *relative_range.end();
-                    let working_delta_down = min_delta_down
-                        + (max_delta_down - min_delta_down)
-                            .scale_by_fraction(1.0 - transition_progress);
-                    let working_delta_up = min_delta_up
-                        + (max_delta_up - min_delta_up)
-                            .scale_by_fraction(1.0 - transition_progress);
-
-                    chromosome.genes[index] =
-                        base_value + rng.gen_range(working_delta_down..=working_delta_up);
-                }
+            MutationType::Transition(random_until, _, _)
+                if self.current_generation <= *random_until =>
+            {
+                chromosome.genes[index] = self.sample_allele(rng);
+            }
+            MutationType::Transition(_, _, _) => {
+                let delta = self.sample_gene_delta(chromosome, index, rng);
+                chromosome.genes[index] += delta;
             }
             MutationType::Discrete => {
                 panic!("RangeGenotype has no implementation for MutationType::Discrete")
@@ -436,6 +452,9 @@ where
         rng: &mut R,
     ) {
         match &self.mutation_type {
+            MutationType::Random => {
+                self.fill_neighbouring_population_random(chromosome, population, rng)
+            }
             MutationType::Scaled(scaled_ranges) => {
                 self.fill_neighbouring_population_scaled(chromosome, population, scaled_ranges)
             }
@@ -445,31 +464,32 @@ where
                 relative_range,
                 rng,
             ),
+            MutationType::Transition(random_until, _, _)
+                if self.current_generation <= *random_until =>
+            {
+                self.fill_neighbouring_population_random(chromosome, population, rng)
+            }
+            MutationType::Transition(_, relative_from, relative_range)
+                if self.current_generation >= *relative_from =>
+            {
+                self.fill_neighbouring_population_relative(
+                    chromosome,
+                    population,
+                    relative_range,
+                    rng,
+                )
+            }
             MutationType::Transition(_, _, relative_range) => {
                 let transition_progress = self
                     .mutation_type
                     .transition_progress(self.current_generation);
-                if transition_progress <= 0.0 {
-                    self.fill_neighbouring_population_random(chromosome, population, rng)
-                } else if transition_progress >= 1.0 {
-                    self.fill_neighbouring_population_relative(
-                        chromosome,
-                        population,
-                        relative_range,
-                        rng,
-                    )
-                } else {
-                    self.fill_neighbouring_population_transition(
-                        chromosome,
-                        population,
-                        relative_range,
-                        transition_progress,
-                        rng,
-                    )
-                }
-            }
-            MutationType::Random => {
-                self.fill_neighbouring_population_random(chromosome, population, rng)
+                self.fill_neighbouring_population_transition(
+                    chromosome,
+                    population,
+                    relative_range,
+                    transition_progress,
+                    rng,
+                )
             }
             MutationType::Discrete => {
                 panic!("RangeGenotype has no implementation for MutationType::Discrete")

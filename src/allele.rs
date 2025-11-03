@@ -1,7 +1,7 @@
 //! The possible values for a single gene
 use impl_trait_for_tuples::impl_for_tuples;
 use std::hash::{Hash, Hasher};
-use std::ops::{Add, Sub};
+use std::ops::{Add, AddAssign, Sub};
 
 /// Standard Allele, suitable for [crate::genotype::Genotype]. Implemented for a set of primitives by default
 pub trait Allele: Clone + Copy + Send + Sync + std::fmt::Debug {
@@ -59,6 +59,7 @@ pub trait RangeAllele:
     Allele
     + Add<Output = Self>
     + Sub<Output = Self>
+    + AddAssign
     // + Mul<Output = Self>
     + Into<f64>
     + std::cmp::PartialOrd
