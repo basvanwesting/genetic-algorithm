@@ -11,16 +11,18 @@ use crate::strategy::StrategyReporter;
 use rand::Rng;
 
 #[derive(Clone, Debug)]
-pub enum Wrapper {
-    MassDeduplication(ExtensionMassDeduplication),
-    MassDegeneration(ExtensionMassDegeneration),
-    MassExtinction(ExtensionMassExtinction),
-    MassGenesis(ExtensionMassGenesis),
-    Noop(ExtensionNoop),
+pub enum Wrapper<G: EvolveGenotype> {
+    MassDeduplication(ExtensionMassDeduplication<G>),
+    MassDegeneration(ExtensionMassDegeneration<G>),
+    MassExtinction(ExtensionMassExtinction<G>),
+    MassGenesis(ExtensionMassGenesis<G>),
+    Noop(ExtensionNoop<G>),
 }
 
-impl Extension for Wrapper {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Extension for Wrapper<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -46,28 +48,28 @@ impl Extension for Wrapper {
     }
 }
 
-impl From<ExtensionMassDeduplication> for Wrapper {
-    fn from(extension: ExtensionMassDeduplication) -> Self {
+impl<G: EvolveGenotype> From<ExtensionMassDeduplication<G>> for Wrapper<G> {
+    fn from(extension: ExtensionMassDeduplication<G>) -> Self {
         Wrapper::MassDeduplication(extension)
     }
 }
-impl From<ExtensionMassDegeneration> for Wrapper {
-    fn from(extension: ExtensionMassDegeneration) -> Self {
+impl<G: EvolveGenotype> From<ExtensionMassDegeneration<G>> for Wrapper<G> {
+    fn from(extension: ExtensionMassDegeneration<G>) -> Self {
         Wrapper::MassDegeneration(extension)
     }
 }
-impl From<ExtensionMassExtinction> for Wrapper {
-    fn from(extension: ExtensionMassExtinction) -> Self {
+impl<G: EvolveGenotype> From<ExtensionMassExtinction<G>> for Wrapper<G> {
+    fn from(extension: ExtensionMassExtinction<G>) -> Self {
         Wrapper::MassExtinction(extension)
     }
 }
-impl From<ExtensionMassGenesis> for Wrapper {
-    fn from(extension: ExtensionMassGenesis) -> Self {
+impl<G: EvolveGenotype> From<ExtensionMassGenesis<G>> for Wrapper<G> {
+    fn from(extension: ExtensionMassGenesis<G>) -> Self {
         Wrapper::MassGenesis(extension)
     }
 }
-impl From<ExtensionNoop> for Wrapper {
-    fn from(extension: ExtensionNoop) -> Self {
+impl<G: EvolveGenotype> From<ExtensionNoop<G>> for Wrapper<G> {
+    fn from(extension: ExtensionNoop<G>) -> Self {
         Wrapper::Noop(extension)
     }
 }

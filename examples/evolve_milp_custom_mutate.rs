@@ -174,7 +174,7 @@ fn print_result(
         MILPFitness,
         impl Crossover<Genotype = MultiRangeGenotype<f32>>,
         impl Select,
-        impl Extension,
+        impl Extension<Genotype = MultiRangeGenotype<f32>>,
         impl StrategyReporter<Genotype = MultiRangeGenotype<f32>>,
     >,
     name: &str,

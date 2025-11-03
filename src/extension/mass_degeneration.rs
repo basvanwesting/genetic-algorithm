@@ -3,6 +3,7 @@ use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Simulates a cambrian explosion. The controlling metric is population cardinality in the
@@ -14,14 +15,17 @@ use std::time::Instant;
 ///
 /// Duplicate mutations of the same gene are allowed. There is no change in population size.
 #[derive(Debug, Clone)]
-pub struct MassDegeneration {
+pub struct MassDegeneration<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub cardinality_threshold: usize,
     pub number_of_mutations: usize,
     pub elitism_rate: f32,
 }
 
-impl Extension for MassDegeneration {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Extension for MassDegeneration<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -72,9 +76,10 @@ impl Extension for MassDegeneration {
     }
 }
 
-impl MassDegeneration {
+impl<G: EvolveGenotype> MassDegeneration<G> {
     pub fn new(cardinality_threshold: usize, number_of_rounds: usize, elitism_rate: f32) -> Self {
         Self {
+            _phantom: PhantomData,
             cardinality_threshold,
             number_of_mutations: number_of_rounds,
             elitism_rate,

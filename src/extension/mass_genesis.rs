@@ -4,6 +4,7 @@ use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use crate::strategy::{StrategyAction, StrategyState};
 use rand::Rng;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// A version of [MassExtinction](crate::extension::ExtensionMassExtinction), where only an Adam
@@ -13,12 +14,15 @@ use std::time::Instant;
 ///
 /// Population will recover in the following generations
 #[derive(Debug, Clone)]
-pub struct MassGenesis {
+pub struct MassGenesis<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub cardinality_threshold: usize,
 }
 
-impl Extension for MassGenesis {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Extension for MassGenesis<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -54,9 +58,10 @@ impl Extension for MassGenesis {
     }
 }
 
-impl MassGenesis {
+impl<G: EvolveGenotype> MassGenesis<G> {
     pub fn new(cardinality_threshold: usize) -> Self {
         Self {
+            _phantom: PhantomData,
             cardinality_threshold,
         }
     }

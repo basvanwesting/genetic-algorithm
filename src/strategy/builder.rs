@@ -51,7 +51,7 @@ impl<
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
         C: Select,
-    > Default for Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
+    > Default for Builder<G, M, F, S, C, ExtensionNoop<G>, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
         Self {
@@ -83,7 +83,7 @@ impl<
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
         C: Select,
-    > Builder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
+    > Builder<G, M, F, S, C, ExtensionNoop<G>, StrategyReporterNoop<G>>
 {
     pub fn new() -> Self {
         Self::default()
@@ -97,7 +97,7 @@ impl<
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
         C: Select,
-        E: Extension,
+        E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
 {
@@ -203,7 +203,10 @@ impl<
         self.select = Some(select);
         self
     }
-    pub fn with_extension<E2: Extension>(self, extension: E2) -> Builder<G, M, F, S, C, E2, SR> {
+    pub fn with_extension<E2: Extension<Genotype = G>>(
+        self,
+        extension: E2,
+    ) -> Builder<G, M, F, S, C, E2, SR> {
         Builder {
             genotype: self.genotype,
             variant: self.variant,
@@ -270,7 +273,7 @@ impl<
         F: Fitness<Genotype = G> + 'a,
         S: Crossover<Genotype = G> + 'a,
         C: Select + 'a,
-        E: Extension + 'a,
+        E: Extension<Genotype = G> + 'a,
         SR: StrategyReporter<Genotype = G> + 'a,
     > Builder<G, M, F, S, C, E, SR>
 {
@@ -347,7 +350,7 @@ impl<
         F: Fitness<Genotype = G> + 'a,
         S: Crossover<Genotype = G> + 'a,
         C: Select + 'a,
-        E: Extension + 'a,
+        E: Extension<Genotype = G> + 'a,
         SR: StrategyReporter<Genotype = G> + 'a,
     > Builder<G, M, F, S, C, E, SR>
 {

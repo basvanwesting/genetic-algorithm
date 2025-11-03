@@ -3,6 +3,7 @@ use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::Rng;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Simulates a cambrian explosion. The controlling metric is population cardinality in the
@@ -13,14 +14,17 @@ use std::time::Instant;
 ///
 /// Population will recover in the following generations
 #[derive(Debug, Clone)]
-pub struct MassExtinction {
+pub struct MassExtinction<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub cardinality_threshold: usize,
     pub survival_rate: f32,
     pub elitism_rate: f32,
 }
 
-impl Extension for MassExtinction {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Extension for MassExtinction<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -73,9 +77,10 @@ impl Extension for MassExtinction {
     }
 }
 
-impl MassExtinction {
+impl<G: EvolveGenotype> MassExtinction<G> {
     pub fn new(cardinality_threshold: usize, survival_rate: f32, elitism_rate: f32) -> Self {
         Self {
+            _phantom: PhantomData,
             cardinality_threshold,
             survival_rate,
             elitism_rate,

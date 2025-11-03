@@ -178,7 +178,7 @@ pub struct Evolve<
     F: Fitness<Genotype = G>,
     S: Crossover<Genotype = G>,
     C: Select,
-    E: Extension,
+    E: Extension<Genotype = G>,
     SR: StrategyReporter<Genotype = G>,
 > {
     pub genotype: G,
@@ -235,7 +235,7 @@ impl<
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
         C: Select,
-        E: Extension,
+        E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
 {
@@ -335,7 +335,7 @@ impl<
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
         C: Select,
-        E: Extension,
+        E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
 {
@@ -356,9 +356,9 @@ impl<
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
         C: Select,
-    > Evolve<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>>
+    > Evolve<G, M, F, S, C, ExtensionNoop<G>, StrategyReporterNoop<G>>
 {
-    pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop, StrategyReporterNoop<G>> {
+    pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop<G>, StrategyReporterNoop<G>> {
         EvolveBuilder::new()
     }
 }
@@ -369,7 +369,7 @@ impl<
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
         C: Select,
-        E: Extension,
+        E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
 {
@@ -617,7 +617,7 @@ impl<
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
         C: Select,
-        E: Extension,
+        E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > TryFrom<EvolveBuilder<G, M, F, S, C, E, SR>> for Evolve<G, M, F, S, C, E, SR>
 {
@@ -764,7 +764,7 @@ impl<
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
         C: Select,
-        E: Extension,
+        E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > fmt::Display for Evolve<G, M, F, S, C, E, SR>
 {

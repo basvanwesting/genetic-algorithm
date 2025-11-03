@@ -1,15 +1,18 @@
 use super::Extension;
-use crate::genotype::EvolveGenotype;
+use crate::genotype::{EvolveGenotype, Genotype};
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::Rng;
+use std::marker::PhantomData;
 
 /// The placeholder for when no extension present
 #[derive(Debug, Clone)]
-pub struct Noop;
+pub struct Noop<G: Genotype>(PhantomData<G>);
 
-impl Extension for Noop {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Extension for Noop<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
         _state: &mut EvolveState<G>,
@@ -20,12 +23,12 @@ impl Extension for Noop {
     }
 }
 
-impl Noop {
+impl<G: Genotype> Noop<G> {
     pub fn new() -> Self {
-        Self
+        Self(PhantomData)
     }
 }
-impl Default for Noop {
+impl<G: Genotype> Default for Noop<G> {
     fn default() -> Self {
         Self::new()
     }

@@ -47,7 +47,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.plot_config(plot_config);
 
     for genes_size in &genes_sizes {
-        let extensions: Vec<ExtensionWrapper> = vec![
+        let extensions: Vec<ExtensionWrapper<BinaryGenotype>> = vec![
             ExtensionMassGenesis::new(population_size).into(),
             ExtensionMassExtinction::new(population_size, 0.10, 0.02).into(),
             ExtensionMassDeduplication::new(population_size).into(),

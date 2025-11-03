@@ -2,13 +2,13 @@
 pub use crate::chromosome::{Chromosome, GenesHash};
 #[doc(no_inline)]
 pub use crate::crossover::{
-    CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverRejuvenate,
+    Crossover, CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverRejuvenate,
     CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform, CrossoverWrapper,
 };
 #[doc(no_inline)]
 pub use crate::extension::{
-    ExtensionEvent, ExtensionMassDeduplication, ExtensionMassDegeneration, ExtensionMassExtinction,
-    ExtensionMassGenesis, ExtensionNoop, ExtensionWrapper,
+    Extension, ExtensionEvent, ExtensionMassDeduplication, ExtensionMassDegeneration,
+    ExtensionMassExtinction, ExtensionMassGenesis, ExtensionNoop, ExtensionWrapper,
 };
 #[doc(no_inline)]
 pub use crate::fitness::{
@@ -23,8 +23,8 @@ pub use crate::genotype::{
 };
 #[doc(no_inline)]
 pub use crate::mutate::{
-    MutateEvent, MutateMultiGene, MutateMultiGeneDynamic, MutateMultiGeneRange, MutateSingleGene,
-    MutateSingleGeneDynamic, MutateWrapper,
+    Mutate, MutateEvent, MutateMultiGene, MutateMultiGeneDynamic, MutateMultiGeneRange,
+    MutateSingleGene, MutateSingleGeneDynamic, MutateWrapper,
 };
 #[doc(no_inline)]
 pub use crate::population::Population;
