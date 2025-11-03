@@ -166,36 +166,18 @@ where
                 } else {
                     *working_range.end()
                 };
-                if delta < max_delta_down {
-                    max_delta_down
-                } else if delta > max_delta_up {
-                    max_delta_up
-                } else {
-                    delta
-                }
+                T::clamp(delta, max_delta_down, max_delta_up)
             }
             MutationType::Relative(_) => {
                 let delta = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-                if delta < max_delta_down {
-                    max_delta_down
-                } else if delta > max_delta_up {
-                    max_delta_up
-                } else {
-                    delta
-                }
+                T::clamp(delta, max_delta_down, max_delta_up)
             }
 
             MutationType::Transition(_, relative_from, _)
                 if self.current_generation >= *relative_from =>
             {
                 let delta = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-                if delta < max_delta_down {
-                    max_delta_down
-                } else if delta > max_delta_up {
-                    max_delta_up
-                } else {
-                    delta
-                }
+                T::clamp(delta, max_delta_down, max_delta_up)
             }
             MutationType::Transition(_, _, relative_range) => {
                 let transition_progress = self
@@ -521,25 +503,24 @@ where
         let working_range_end = *working_range.end();
 
         (0..self.genes_size).for_each(|index| {
-            let base_value = chromosome.genes[index];
-            let value_low = if base_value + working_range_start < allele_range_start {
-                allele_range_start
-            } else {
-                base_value + working_range_start
-            };
-            let value_high = if base_value + working_range_end > allele_range_end {
-                allele_range_end
-            } else {
-                base_value + working_range_end
-            };
-
-            if value_low < base_value {
+            let current_value = chromosome.genes[index];
+            let value_low = T::clamp(
+                current_value + working_range_start,
+                allele_range_start,
+                allele_range_end,
+            );
+            let value_high = T::clamp(
+                current_value + working_range_end,
+                allele_range_start,
+                allele_range_end,
+            );
+            if value_low < current_value {
                 let mut new_chromosome = population.new_chromosome(chromosome);
                 new_chromosome.genes[index] = value_low;
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             };
-            if value_high > base_value {
+            if value_high > current_value {
                 let mut new_chromosome = population.new_chromosome(chromosome);
                 new_chromosome.genes[index] = value_high;
                 new_chromosome.reset_metadata(self.genes_hashing);
@@ -561,27 +542,27 @@ where
         let working_range_end = *relative_range.end();
 
         (0..self.genes_size).for_each(|index| {
-            let base_value = chromosome.genes[index];
-            let range_start = if base_value + working_range_start < allele_range_start {
-                allele_range_start
-            } else {
-                base_value + working_range_start
-            };
-            let range_end = if base_value + working_range_end > allele_range_end {
-                allele_range_end
-            } else {
-                base_value + working_range_end
-            };
-
-            if range_start < base_value {
+            let current_value = chromosome.genes[index];
+            let range_start = T::clamp(
+                current_value + working_range_start,
+                allele_range_start,
+                allele_range_end,
+            );
+            let range_end = T::clamp(
+                current_value + working_range_end,
+                allele_range_start,
+                allele_range_end,
+            );
+            if range_start < current_value {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
+                new_chromosome.genes[index] = rng.gen_range(range_start..current_value);
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             };
-            if base_value < range_end {
+            if current_value < range_end {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
+                let new_value =
+                    rng.gen_range((current_value + T::smallest_increment())..=range_end);
                 new_chromosome.genes[index] = new_value;
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
@@ -598,27 +579,28 @@ where
         rng: &mut R,
     ) {
         (0..self.genes_size).for_each(|index| {
-            let base_value = chromosome.genes[index];
-            let max_delta_down = *self.allele_range.start() - base_value;
-            let max_delta_up = *self.allele_range.end() - base_value;
+            let current_value = chromosome.genes[index];
+            let max_delta_down = *self.allele_range.start() - current_value;
+            let max_delta_up = *self.allele_range.end() - current_value;
             let min_delta_down = *relative_range.start();
             let min_delta_up = *relative_range.end();
             let working_delta_down = min_delta_down
                 + (max_delta_down - min_delta_down).scale_by_fraction(1.0 - transition_progress);
             let working_delta_up = min_delta_up
                 + (max_delta_up - min_delta_up).scale_by_fraction(1.0 - transition_progress);
-            let range_start = base_value + working_delta_down;
-            let range_end = base_value + working_delta_up;
+            let range_start = current_value + working_delta_down;
+            let range_end = current_value + working_delta_up;
 
-            if range_start < base_value {
+            if range_start < current_value {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                new_chromosome.genes[index] = rng.gen_range(range_start..base_value);
+                new_chromosome.genes[index] = rng.gen_range(range_start..current_value);
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             };
-            if base_value < range_end {
+            if current_value < range_end {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                let new_value = rng.gen_range((base_value + T::smallest_increment())..=range_end);
+                let new_value =
+                    rng.gen_range((current_value + T::smallest_increment())..=range_end);
                 new_chromosome.genes[index] = new_value;
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
@@ -636,17 +618,17 @@ where
         let allele_range_end = *self.allele_range.end();
 
         (0..self.genes_size).for_each(|index| {
-            let base_value = chromosome.genes[index];
-            if allele_range_start < base_value {
+            let current_value = chromosome.genes[index];
+            if allele_range_start < current_value {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                new_chromosome.genes[index] = rng.gen_range(allele_range_start..base_value);
+                new_chromosome.genes[index] = rng.gen_range(allele_range_start..current_value);
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             };
-            if base_value < allele_range_end {
+            if current_value < allele_range_end {
                 let mut new_chromosome = population.new_chromosome(chromosome);
                 let new_value =
-                    rng.gen_range((base_value + T::smallest_increment())..=allele_range_end);
+                    rng.gen_range((current_value + T::smallest_increment())..=allele_range_end);
                 new_chromosome.genes[index] = new_value;
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
@@ -773,17 +755,17 @@ where
                         let working_range_start = *working_range.start();
                         let working_range_end = *working_range.end();
 
-                        let base_value = chromosome.genes[index];
-                        let value_start = if base_value + working_range_start < allele_range_start {
-                            allele_range_start
-                        } else {
-                            base_value + working_range_start
-                        };
-                        let value_end = if base_value + working_range_end > allele_range_end {
-                            allele_range_end
-                        } else {
-                            base_value + working_range_end
-                        };
+                        let current_value = chromosome.genes[index];
+                        let value_start = T::clamp(
+                            current_value + working_range_start,
+                            allele_range_start,
+                            allele_range_end,
+                        );
+                        let value_end = T::clamp(
+                            current_value + working_range_end,
+                            allele_range_start,
+                            allele_range_end,
+                        );
 
                         (value_start, value_end)
                     } else {

@@ -77,6 +77,17 @@ pub trait RangeAllele:
 
     /// Scale by fraction (always between 0.0.and 1.0)
     fn scale_by_fraction(&self, fraction: f64) -> Self;
+
+    /// useful as f32 and f64 can't implement Ord, which lead to repeated sections as below
+    fn clamp(test_value: Self, min_value: Self, max_value: Self) -> Self {
+        if test_value < min_value {
+            min_value
+        } else if test_value > max_value {
+            max_value
+        } else {
+            test_value
+        }
+    }
 }
 
 impl RangeAllele for f32 {
