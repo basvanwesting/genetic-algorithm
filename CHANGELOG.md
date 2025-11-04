@@ -5,6 +5,58 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.23.0] - 2025-11-04
+
+### New MutationType::Transition
+`Transition(random_until_generation, relative_from_generation, relative_mutation_range)`
+Smoothly transitions from Random to Relative mutation over a specified generation range.
+Provides a natural exploration-to-exploitation schedule without abrupt behavioral changes.
+
+**Parameters:**
+- `random_until_generation`: Use pure Random mutation until this generation
+- `relative_from_generation`: Use pure Relative mutation from this generation on
+- `relative_mutation_range`: The final relative range to use after transition
+
+**Example:** `Transition(100, 500, -5.0..=5.0)` means:
+- Generations 0-99: Pure Random mutation (full exploration)
+- Generations 100-499: Gradual transition with decreasing mutation range
+- Generations 500+: Pure Relative mutation with ±5.0 range (exploitation)
+
+**Use case:** Problems requiring initial exploration followed by convergence,
+evolutionary algorithms with scheduled exploration decay, parameter optimization
+where good regions are unknown initially.
+
+### Added
+* Implement `MutationType::Transition` for `RangeGenotype` and `MultiRangeGenotype`
+* Add associated type `Genotype` to `Extension` as well for better custom implementations (just like `Mutate` & `Crossover`)
+* Add associated type `Genotype` to `Select` as well for symmetry reasons (it was the only one without associated type left)
+* Add `increment_generation()` and `reset_generation()` to `Genotype` and hook up in Strategies (for keeping track of `MutationType::Transition` progess inside the genotype)
+* Add `SelectEvent(String)` and `CrossoverEvent(String)` tuple struct and `on_*` handlers to reporting
+
+### Changed
+* Add mutation details to `MutationType` enum as tuple structs:
+  * Relative now holds the mutation range for a gene: `MutationType::Relative(RangeInclusive<T>`
+  * Scaled now holds the mutation scales for a gene: `MutationType::Scaled(Vec<RangeInclusive<T>>)`
+  * Random and Discrete don't have details
+* Remove `MutateEvent` and `ExtensionEvent` enums, all events are just plain texts wrapped in a single `MutateEvent(String)` or `ExtensionEvent(String)` tuple struct
+* Rename `Genotype` custom method `sample_allele` to `sample_gene_random` for symmetry reasons with `sample_gene_delta,` even though technically it is not always a gene (no index)
+* Drop `u64`, `usize`, `i64` & `isize` support for `RangeAllele` and add more numeric Traits (`Add`,`Sub`,`AddAssign`,`Into<f64>`,`SampleUniform`)
+* Rename `on_new_generation` reporting event in `Evolve` to `on_selection_complete`
+  to clearly state intent. Rename other `on_new_generation` reporting events to
+  `on_generation_complete` (`HillClimb`, `Permutate` and new for `Evolve`). For `Evolve`
+  the `on_selection_complete` hook, is a more interesting point in the loop, as
+  the population and cardinality are refreshed after selection. The
+  `on_generation_complete` hook contains all the new mutations, most of which
+  will be immediately selected out. This gives the false impression of good
+  cardinality while there is actually little.
+
+### Removed
+* Drop `Genotype` `gene_slice` method as all genes are owned anyway
+
+### Deprecated
+* `with_allele_mutation_range` & `with_allele_mutation_scaled_range` now have deprecation warnings, as they are replaces by `with_mutation_type`
+* `with_allele_mutation_ranges` & `with_allele_mutation_scaled_ranges` now have deprecation warnings, as they are replaces by `with_mutation_types`
+
 ## [0.22.0] - 2025-10-30
 
 ### Heterogeneous Genotype Support
