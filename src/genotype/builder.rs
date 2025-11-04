@@ -80,6 +80,7 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    #[deprecated(since = "0.23.0", note = "use `with_mutation_type` instead")]
     pub fn with_allele_mutation_range(
         mut self,
         allele_mutation_range: RangeInclusive<G::Allele>,
@@ -88,6 +89,7 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    #[deprecated(since = "0.23.0", note = "use `with_mutation_types` instead")]
     pub fn with_allele_mutation_ranges(
         mut self,
         allele_mutation_ranges: Vec<RangeInclusive<G::Allele>>,
@@ -101,6 +103,7 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    #[deprecated(since = "0.23.0", note = "use `with_mutation_type` instead")]
     pub fn with_allele_mutation_scaled_range(
         mut self,
         allele_mutation_scaled_range: Vec<RangeInclusive<G::Allele>>,
@@ -109,6 +112,7 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    #[deprecated(since = "0.23.0", note = "use `with_mutation_types` instead")]
     pub fn with_allele_mutation_scaled_ranges(
         mut self,
         allele_mutation_scaled_ranges: Vec<Vec<RangeInclusive<G::Allele>>>,

@@ -21,25 +21,13 @@ pub type DefaultAllele = f32;
 /// choices, booleans) within a single numeric type `T`.
 ///
 /// # Mutation types
-///
-/// Optionally the mutation range can be bound by relative `allele_mutation_ranges` or
-/// `allele_mutation_scaled_ranges`. When `allele_mutation_ranges` are provided the mutation is
-/// restricted to modify the existing value by a difference taken from `allele_mutation_ranges` with
-/// a uniform probability. When `allele_mutation_scaled_ranges` are provided the mutation is
-/// restricted to modify the existing value by a difference taken from start and end of the scaled
-/// range (depending on current scale)
-///
-/// Mutation type is defined by the most recent builder setting, so these can overwrite:
-/// * `with_mutation_types` → set directly (all types, mixed)
-/// * `with_allele_mutation_scaled_ranges` → legacy setting, scaled for all genes
-/// * `with_allele_mutation_ranges` → legacy setting, relative for all genes
-/// * no setting → default, random for all genes
+/// See [MutationType]
 ///
 /// # Permutation
 ///
 /// Supports Permutation for scaled and discrete mutations only. This approach implements a
-/// increasingly localized grid search with increasing precision using the
-/// `allele_mutation_scaled_ranges` to define the search scope and grid steps
+/// increasingly localized grid search with increasing precision using the [MutationType::Scaled]
+/// to define the search scope and grid steps
 /// * First scale (index = 0) traverses the whole `allele_ranges` with the
 ///   upper bound of the first scale as step size.
 /// * Other scales (index > 0) center around the best chromosome of the previous
@@ -47,7 +35,8 @@ pub type DefaultAllele = f32;
 ///   the upper bound of the current scale as step size.
 /// * Scale down and repeat after grid is fully traversed
 ///
-/// The discrete mutations traverse all allowed values for every scale (see below)
+/// The discrete mutations traverse all allowed values for every scale (see
+/// [MutationType::Discrete])
 ///
 /// # Heterogeneous Genotype Support
 ///
@@ -86,7 +75,7 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (isize, relative mutation):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype};
+/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype, MutationType};
 ///
 /// let genotype = MultiRangeGenotype::builder()
 ///     .with_allele_ranges(vec![
@@ -95,11 +84,11 @@ pub type DefaultAllele = f32;
 ///        -5..=5,
 ///        10..=30,
 ///     ])
-///     .with_allele_mutation_ranges(vec![
-///        -1..=1,
-///        -2..=2,
-///        -1..=1,
-///        -3..=3,
+///     .with_mutation_types(vec![
+///        MutationType::Relative(-1..=1),
+///        MutationType::Relative(-2..=2),
+///        MutationType::Relative(-1..=1),
+///        MutationType::Relative(-3..=3),
 ///     ]) // optional, restricts mutations to a smaller relative range
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
@@ -109,7 +98,7 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (f32, scaled mutation):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype};
+/// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype, MutationType};
 ///
 /// let genotype = MultiRangeGenotype::builder()
 ///     .with_allele_ranges(vec![
@@ -118,9 +107,11 @@ pub type DefaultAllele = f32;
 ///        0.0..=5.0,
 ///        10.0..=30.0
 ///     ])
-///     .with_allele_mutation_scaled_ranges(vec![
-///        vec![-1.0..=1.0, -2.0..=2.0, -0.5..=0.5, -3.0..=3.0],
-///        vec![-0.1..=0.1, -0.2..=0.2, -0.05..=0.05, -0.3..=0.3],
+///     .with_mutation_types(vec![
+///        MutationType::Scaled(vec![-1.0..=1.0,-0.1..=0.1]),
+///        MutationType::Scaled(vec![-2.0..=2.0,-0.2..=0.2]),
+///        MutationType::Scaled(vec![-0.5..=0.5,-0.05..=0.05]),
+///        MutationType::Scaled(vec![-3.0..=3.0,-0.3..=0.3]),
 ///     ]) // optional, restricts mutations to relative start/end of each scale
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
@@ -143,11 +134,6 @@ pub type DefaultAllele = f32;
 ///         MutationType::Discrete,  // One of 5 algorithms
 ///         MutationType::Scaled(vec![-10.0..=10.0, -1.0..=1.0, -0.1..=0.1]),    // Continuous refinement
 ///     ])
-///     .with_allele_mutation_scaled_ranges(vec![
-///        vec![0.0..=0.0, 0.0..=0.0, -10.0..=10.0],
-///        vec![0.0..=0.0, 0.0..=0.0, -1.0..=1.0],
-///        vec![0.0..=0.0, 0.0..=0.0, -0.1..=0.1],
-///     ]) // restricts mutations to relative start/end of each scale, the values for discrete genes are ignored
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build();

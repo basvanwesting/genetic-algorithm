@@ -44,14 +44,27 @@ fn main() {
 
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![(-10.0..=10.0), (0.0..=10.0)])
-        // .with_allele_mutation_ranges(vec![(-1.0..=1.0), (-1.0..=1.0)])
-        .with_allele_mutation_scaled_ranges(vec![
-            vec![-0.1..=0.1, -0.1..=0.1],
-            vec![-0.01..=0.01, -0.01..=0.01],
-            vec![-0.001..=0.001, -0.001..=0.001],
-            vec![-0.0001..=0.0001, -0.0001..=0.0001],
-            vec![-0.00001..=0.00001, -0.00001..=0.00001],
-            vec![-0.000001..=0.000001, -0.000001..=0.000001],
+        // .with_mutation_types(vec![
+        //   MutationType::Relative(-1.0..=1.0),
+        //   MutationType::Relative(-1.0..=1.0)
+        // ])
+        .with_mutation_types(vec![
+            MutationType::Scaled(vec![
+                -0.1..=0.1,
+                -0.01..=0.01,
+                -0.001..=0.001,
+                -0.0001..=0.0001,
+                -0.00001..=0.00001,
+                -0.000001..=0.000001,
+            ]),
+            MutationType::Scaled(vec![
+                -0.1..=0.1,
+                -0.01..=0.01,
+                -0.001..=0.001,
+                -0.0001..=0.0001,
+                -0.00001..=0.00001,
+                -0.000001..=0.000001,
+            ]),
         ])
         .with_genes_hashing(false) // not useful for HillClimb
         .build()

@@ -1,6 +1,8 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{BinaryGenotype, Genotype, ListGenotype, RangeGenotype};
+use genetic_algorithm::genotype::{
+    BinaryGenotype, Genotype, ListGenotype, MutationType, RangeGenotype,
+};
 use genetic_algorithm::mutate::{Mutate, MutateSingleGene};
 use genetic_algorithm::population::Population;
 use genetic_algorithm::strategy::evolve::{EvolveConfig, EvolveState};
@@ -71,7 +73,7 @@ fn range_float_genotype_unscaled() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
-        .with_allele_mutation_range(-0.1..=0.1)
+        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
         .build()
         .unwrap();
 
@@ -121,7 +123,11 @@ fn range_float_genotype_scaled() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
-        .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])
+        .with_mutation_type(MutationType::Scaled(vec![
+            -0.1..=0.1,
+            -0.01..=0.01,
+            -0.001..=0.001,
+        ]))
         .build()
         .unwrap();
 
@@ -181,7 +187,7 @@ fn range_integer_genotype() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(-9..=9)
-        .with_allele_mutation_range(-1..=1)
+        .with_mutation_type(MutationType::Relative(-1..=1))
         .build()
         .unwrap();
 

@@ -38,7 +38,7 @@ use std::ops::RangeInclusive;
 /// step up or down is applied in a mutation.
 ///
 /// The scale is transitioned to the next level, when the algorithm reaches its
-/// max_stale_generations.
+/// max_stale_generations, resetting the max_stale_generations to zero again.
 ///
 /// **Example:** Scales `vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01]` provide
 /// three levels of precision. At scale 0, mutations use ±1.0; at scale 2, ±0.01.
@@ -46,17 +46,6 @@ use std::ops::RangeInclusive;
 /// **Use case:** Optimization requiring both exploration and exploitation,
 /// systematic parameter sweeps, problems benefiting from coarse-to-fine search.
 /// Also provides permutability for RangeGenotype and MultiRangeGenotype.
-///
-/// ## `Discrete`
-/// Treats the numeric range as discrete integer values, useful for encoding
-/// categorical data or enum variants as numbers. Values are floored to integers
-/// during mutation. Only supported by MultiRangeGenotype.
-///
-/// **Example:** Range `0.0..=4.0` represents 5 discrete choices: `{0, 1, 2, 3, 4}`,
-/// which could map to enum variants or categorical options.
-///
-/// **Use case:** Heterogeneous chromosomes mixing categorical choices with
-/// continuous parameters, encoding finite state machines, or discrete optimization.
 ///
 /// ## `Transition(random_until_generation, relative_from_generation, relative_mutation_range)`
 /// Smoothly transitions from Random to Relative mutation over a specified generation range.
@@ -72,29 +61,34 @@ use std::ops::RangeInclusive;
 /// - Generations 100-499: Gradual transition with decreasing mutation range
 /// - Generations 500+: Pure Relative mutation with ±5.0 range (exploitation)
 ///
+/// **Use case:** Problems requiring initial exploration followed by convergence,
+/// evolutionary algorithms with scheduled exploration decay, parameter optimization
+/// where good regions are unknown initially.
+///
+/// ## `Discrete`
+/// Treats the numeric range as discrete integer values, useful for encoding
+/// categorical data or enum variants as numbers. Values are floored to integers
+/// during mutation. Only supported by MultiRangeGenotype.
+///
+/// **Example:** Range `0.0..=4.0` represents 5 discrete choices: `{0, 1, 2, 3, 4}`,
+/// which could map to enum variants or categorical options.
+///
+/// **Use case:** Heterogeneous chromosomes mixing categorical choices with
+/// continuous parameters, encoding finite state machines, or discrete optimization.
+///
 /// ### Boundary Sampling Behavior
 ///
 /// Different mutation types handle allele range boundaries differently:
 ///
 /// - **Random**: Undersamples boundaries (infinitesimal probability of sampling exact boundary)
-/// - **Relative**: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
-/// - **Transition**: Uses pre-clamped sampling ranges, consistently undersampling boundaries
-///   throughout the transition phase
+/// - **Relative** & **Scaled**: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
+/// - **Transition**: Uses pre-clamped sampling ranges, undersampling boundaries during transition phase
+/// - **Discrete**: Uniform sampling, no over- or undersampling of boundaries
 ///
 /// The transition phase uses centered sampling with a progressively shrinking range. The range
 /// is pre-clamped before sampling to avoid boundary oversampling that would occur with large
 /// ranges. This provides consistent undersampling behavior across the entire transition spectrum,
 /// which is acceptable since Random mutation already undersamples boundaries.
-///
-/// **Implementation note:** Progress through transition is calculated as:
-/// ```text
-/// progress = (current_generation - random_until) / (relative_from - random_until)
-/// mutation_range = lerp(full_allele_range, relative_range, progress)
-/// ```
-///
-/// **Use case:** Problems requiring initial exploration followed by convergence,
-/// evolutionary algorithms with scheduled exploration decay, parameter optimization
-/// where good regions are unknown initially.
 ///
 /// # Compatibility
 ///
@@ -105,27 +99,27 @@ use std::ops::RangeInclusive;
 /// # Preference
 ///
 /// Mutation type is defined by the most recent builder setting, so these can overwrite:
-/// * `with_mutation_type(s)` → set directly (all mixed types, gene specific)
-/// * `with_allele_mutation_scaled_range(s)` → legacy setting, scaled for all genes
-/// * `with_allele_mutation_ranges(s)` → legacy setting, relative for all genes
+/// * `with_mutation_type(s)` → set directly (single or mixed type per gene)
+/// * `with_allele_mutation_scaled_range(s)` → deprecated setting, scaled for all genes
+/// * `with_allele_mutation_ranges(s)` → deprecated setting, relative for all genes
 /// * no setting → default, random for all genes
 ///
 /// # Examples
 ///
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, MutationType, RangeGenotype};
+/// use genetic_algorithm::genotype::{Genotype, MutationType, RangeGenotype, MultiRangeGenotype};
 ///
 /// // Random mutation (default) - maximum exploration
 /// let genotype = RangeGenotype::builder()
-///     .with_mutation_type(MutationType::Random) // optional, default
 ///     .with_allele_range(0.0..=100.0)
+///     .with_mutation_type(MutationType::Random) // optional, default
 ///     .build();
 ///
 /// // Relative mutation - local search with fixed neighborhood
 /// let genotype = RangeGenotype::builder()
 ///     .with_allele_range(0.0..=100.0)
 ///     .with_mutation_type(MutationType::Relative(-5.0..=5.0))
-///     .with_allele_mutation_range(-5.0..=5.0)  // legacy setting of the same
+///     .with_allele_mutation_range(-5.0..=5.0)  // legacy setting of the same, to be deprecated
 ///     .build();
 ///
 /// // Scaled mutation - progressive refinement
@@ -140,7 +134,32 @@ use std::ops::RangeInclusive;
 ///         -10.0..=10.0,  // Coarse scale
 ///         -1.0..=1.0,    // Medium scale
 ///         -0.1..=0.1,    // Fine scale
-///     ]) // legacy setting of the same
+///     ]) // legacy setting of the same, to be deprecated
+///     .build();
+///
+/// // Transition mutation - exploration-to-exploitation (Random to Relative)
+/// let genotype = RangeGenotype::builder()
+///     .with_allele_range(0.0..=100.0)
+///     .with_mutation_type(MutationType::Transition(
+///         1000,  // first 1000 generations pure random mutations
+///         5000,  // after 5000 generations pure relative mutations
+///         -5.0..=5.0 // target relative mutation range, linearly transitions towards this from 1000th to 5000th generation
+///     ))
+///     .build();
+///
+/// // Mixed mutation types (incl. Discrete)
+/// let genotype = MultiRangeGenotype::builder()
+///     .with_allele_ranges(vec![
+///         0.0..=1.0,    // Gene 0: Boolean flag
+///         0.0..=4.0,    // Gene 1: Algorithm choice (5 options)
+///         0.0..=100.0,  // Gene 2: Speed percentage
+///     ])
+///     .with_mutation_types(vec![
+///         MutationType::Discrete,  // Boolean as 0 or 1
+///         MutationType::Discrete,  // One of 5 algorithms
+///         MutationType::Scaled(vec![-10.0..=10.0, -1.0..=1.0, -0.1..=0.1]), // Continuous refinement
+///     ])
+///     // no legacy alternative
 ///     .build();
 /// ```
 #[derive(Clone, PartialEq, Debug, Default)]

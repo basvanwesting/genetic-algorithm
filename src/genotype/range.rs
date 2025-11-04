@@ -18,25 +18,13 @@ pub type DefaultAllele = f32;
 /// uniform probability.
 ///
 /// # Mutation types
-///
-/// Optionally the mutation range can be bound by relative `allele_mutation_range` or
-/// `allele_mutation_scaled_range`. When `allele_mutation_range` is provided the mutation is restricted
-/// to modify the existing value by a difference taken from `allele_mutation_range` with a uniform
-/// probability. When `allele_mutation_scaled_range` is provided the mutation is restricted to modify
-/// the existing value by a difference taken from start and end of the scaled range (depending on
-/// current scale)
-///
-/// Mutation type is defined by the most recent builder setting, so these can overwrite:
-/// * `with_mutation_type` → set directly (any type)
-/// * `with_allele_mutation_scaled_range` → legacy setting, scaled for all genes
-/// * `with_allele_mutation_range` → legacy setting, relative for all genes
-/// * no setting → default, random for all genes
+/// See [MutationType]
 ///
 /// # Permutation
 ///
-/// Supports Permutation for scaled mutations only. This approach implements a increasingly localized
-/// grid search with increasing precision using the `allele_mutation_scaled_range` to define the
-/// search scope and grid steps
+/// Supports Permutation for scaled mutations only. This approach implements a
+/// increasingly localized grid search with increasing precision using the [MutationType::Scaled]
+/// to define the search scope and grid steps
 /// * First scale (index = 0) traverses the whole `allele_range` with the
 ///   upper bound of the first scale as step size.
 /// * Other scales (index > 0) center around the best chromosome of the previous
@@ -46,13 +34,15 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (f32, default):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, RangeGenotype};
+/// use genetic_algorithm::genotype::{Genotype, RangeGenotype, MutationType};
 ///
 /// let genotype = RangeGenotype::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
-///     .with_allele_mutation_range(-0.1..=0.1) // optional, restricts mutations to a smaller relative range
-///     .with_allele_mutation_scaled_range(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001]) // optional, restricts mutations to relative start/end of each scale
+///     .with_mutation_type(MutationType::Random) // default
+///     .with_mutation_type(MutationType::Relative(-0.1..=0.1)) // optional, restricts mutations to a smaller relative range
+///     .with_mutation_type(MutationType::Scaled(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])) // optional, restricts mutations to relative start/end of each scale
+///     .with_mutation_type(MutationType::Transition(100, 500, -0.1..=0.1)) // optional, see [MutationType::Transition]
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
@@ -61,13 +51,15 @@ pub type DefaultAllele = f32;
 ///
 /// # Example (i32):
 /// ```
-/// use genetic_algorithm::genotype::{Genotype, RangeGenotype};
+/// use genetic_algorithm::genotype::{Genotype, RangeGenotype, MutationType};
 ///
 /// let genotype = RangeGenotype::<i32>::builder()
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=100) // also default mutation range
-///     .with_allele_mutation_range(-1..=1) // optional, restricts mutations to a smaller relative range
-///     .with_allele_mutation_scaled_range(vec![-10..=10, -3..=3, -1..=1]) // optional, restricts mutations to relative start/end of each scale
+///     .with_mutation_type(MutationType::Random) // default
+///     .with_mutation_type(MutationType::Relative(-1..=1)) // optional, restricts mutations to a smaller relative range
+///     .with_mutation_type(MutationType::Scaled(vec![-10..=10, -3..=3, -1..=1])) // optional, restricts mutations to relative start/end of each scale
+///     .with_mutation_type(MutationType::Transition(100, 500, -1..=1)) // optional, see [MutationType::Transition]
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()

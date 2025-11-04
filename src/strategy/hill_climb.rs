@@ -57,27 +57,30 @@ pub enum HillClimbVariant {
 ///
 /// There are optional mutation distance limitations for
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
-/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring chromosomes. Listed in
-/// descending priority:
-/// * With allele_mutation_scaled_range(s) set on genotype:
+/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring chromosomes, see [MutationType].
+/// * With MutationType::Scaled
 ///     * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
 ///         * Pick random edge for [HillClimbVariant::Stochastic]
 ///         * Take both edges per gene for [HillClimbVariant::SteepestAscent]
 ///     * Scale down after max_stale_generations is reached and reset stale_generations to zero
 ///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
 ///     * max_stale_generations could be set to 1, as there is no remaining randomness
-/// * With allele_mutation_range(s) set on genotype:
+/// * With MutationType::Relative
 ///     * Mutation distance taken uniformly from mutation range
 ///         * Sample single random value for [HillClimbVariant::Stochastic]
 ///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
 ///     * Standard max_stale_generations ending condition
 ///     * max_stale_generations should be set somewhat higher than 1 as there is some remaining randomness
-/// * With only allele_range(s) set on genotype (not advised for hill climbing):
+/// * With MutationType::Random (not advised for hill climbing):
 ///     * Mutate uniformly over the complete allele range
 ///         * Sample single random value for [HillClimbVariant::Stochastic]
 ///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
 ///     * Standard max_stale_generations ending condition
 ///     * max_stale_generations should be set substantially higher than 1 as there is a lot remaining randomness
+/// * With MutationType::Discrete
+///     * All values are neighbours, just like ListGenotype
+/// * With MutationType::Transition
+///     * Behaves like Random and then slowly transitions to Relative
 ///
 /// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
 /// [StrategyReporter] (e.g. [HillClimbReporterDuration], [HillClimbReporterSimple]). But you are encouraged to
@@ -114,12 +117,12 @@ pub enum HillClimbVariant {
 ///     .with_genes_hashing(false)              // store genes_hash on chromosome (required for fitness_cache and deduplication extension, both not useful here)
 ///     .with_chromosome_recycling(true)        // recycle genes memory allocations, maybe useful
 ///     .with_allele_range(0.0..=1.0)           // allow gene values between 0.0 and 1.0
-///     .with_allele_mutation_range(-0.1..=0.1) // neighbouring step size randomly sampled from range
-///     .with_allele_mutation_scaled_range(vec![
+///     .with_mutation_type(MutationType::Relative(-0.1..=0.1)) // optional, neighbouring step size randomly sampled from range
+///     .with_mutation_type(MutationType::Scaled(vec![
 ///       -0.1..=0.1,
 ///       -0.01..=0.01,
 ///       -0.001..=0.001
-///      ]) // neighbouring step size equal to start/end of each scaled range
+///      ])) // optional, neighbouring step size equal to start/end of each scaled range
 ///     .build()
 ///     .unwrap();
 ///

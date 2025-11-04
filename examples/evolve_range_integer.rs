@@ -28,7 +28,7 @@ fn main() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0..=10)
-        .with_allele_mutation_range(-1..=1)
+        .with_mutation_type(MutationType::Relative(-1..=1))
         .build()
         .unwrap();
 
