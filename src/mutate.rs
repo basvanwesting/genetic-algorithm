@@ -93,7 +93,4 @@ pub trait Mutate: Clone + Send + Sync + std::fmt::Debug {
 }
 
 #[derive(Clone, Debug)]
-pub enum MutateEvent {
-    ChangeMutationProbability(String),
-    Custom(String),
-}
+pub struct MutateEvent(pub String);

@@ -34,7 +34,7 @@ impl<G: EvolveGenotype> Extension for MassDeduplication<G> {
             if let Some(cardinality) = state.population_cardinality() {
                 if cardinality <= self.cardinality_threshold {
                     reporter.on_extension_event(
-                        ExtensionEvent::MassDeduplication("".to_string()),
+                        ExtensionEvent("MassDeduplication".to_string()),
                         genotype,
                         state,
                         config,

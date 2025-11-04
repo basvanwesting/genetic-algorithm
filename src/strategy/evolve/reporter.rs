@@ -264,33 +264,11 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
     ) {
         self.number_of_extension_events += 1;
         if self.show_extension_event {
-            match event {
-                ExtensionEvent::MassDeduplication(message) => self.writeln(format_args!(
-                    "extension event - mass deduplication - generation {} - {}",
-                    state.current_generation(),
-                    message
-                )),
-                ExtensionEvent::MassDegeneration(message) => self.writeln(format_args!(
-                    "extension event - mass degeneration - generation {} - {}",
-                    state.current_generation(),
-                    message
-                )),
-                ExtensionEvent::MassExtinction(message) => self.writeln(format_args!(
-                    "extension event - mass extinction - generation {} - {}",
-                    state.current_generation(),
-                    message
-                )),
-                ExtensionEvent::MassGenesis(message) => self.writeln(format_args!(
-                    "extension event - mass genesis - generation {} - {}",
-                    state.current_generation(),
-                    message
-                )),
-                ExtensionEvent::Custom(message) => self.writeln(format_args!(
-                    "extension event - custom - generation {} - {}",
-                    state.current_generation(),
-                    message
-                )),
-            }
+            self.writeln(format_args!(
+                "extension event - generation {} - {}",
+                state.current_generation(),
+                event.0,
+            ));
         }
     }
 
@@ -303,18 +281,11 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
     ) {
         self.number_of_mutate_events += 1;
         if self.show_mutate_event {
-            match event {
-                MutateEvent::ChangeMutationProbability(message) => self.writeln(format_args!(
-                    "mutate event - change mutation probability - generation {} - {}",
-                    state.current_generation(),
-                    message
-                )),
-                MutateEvent::Custom(message) => self.writeln(format_args!(
-                    "mutate event - custom - generation {} - {}",
-                    state.current_generation(),
-                    message
-                )),
-            }
+            self.writeln(format_args!(
+                "mutate event - generation {} - {}",
+                state.current_generation(),
+                event.0,
+            ));
         }
     }
 }

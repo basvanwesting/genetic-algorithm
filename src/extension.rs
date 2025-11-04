@@ -66,7 +66,7 @@ pub type ExtensionAllele<E> = <<E as Extension>::Genotype as Genotype>::Allele;
 ///             if let Some(cardinality) = state.population_cardinality() {
 ///                 if cardinality <= self.cardinality_threshold {
 ///                     reporter.on_extension_event(
-///                         ExtensionEvent::Custom("make unique".to_string()),
+///                         ExtensionEvent("DeduplicatePopulation".to_string()),
 ///                         genotype,
 ///                         state,
 ///                         config,
@@ -76,6 +76,7 @@ pub type ExtensionAllele<E> = <<E as Extension>::Genotype as Genotype>::Allele;
 ///                         self.extract_unique_chromosomes(genotype, state, config);
 ///                     let unique_size = unique_chromosomes.len();
 ///
+///                     // Ensure there are always 2 chromosomes after appending, remove the rest
 ///                     let remaining_size = 2usize.saturating_sub(unique_size);
 ///                     state.population.truncate(remaining_size);
 ///                     state.population.chromosomes.append(&mut unique_chromosomes);
@@ -161,10 +162,4 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
 }
 
 #[derive(Clone, Debug)]
-pub enum ExtensionEvent {
-    MassDeduplication(String),
-    MassDegeneration(String),
-    MassExtinction(String),
-    MassGenesis(String),
-    Custom(String),
-}
+pub struct ExtensionEvent(pub String);

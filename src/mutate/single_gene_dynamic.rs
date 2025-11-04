@@ -52,8 +52,8 @@ impl<G: EvolveGenotype> Mutate for SingleGeneDynamic<G> {
 
             if changed {
                 reporter.on_mutate_event(
-                    MutateEvent::ChangeMutationProbability(format!(
-                        "set to {:0.3}",
+                    MutateEvent(format!(
+                        "ChangeMutationProbability, set to {:0.3}",
                         self.mutation_probability
                     )),
                     genotype,

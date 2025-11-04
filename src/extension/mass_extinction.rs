@@ -37,7 +37,7 @@ impl<G: EvolveGenotype> Extension for MassExtinction<G> {
             if let Some(cardinality) = state.population_cardinality() {
                 if cardinality <= self.cardinality_threshold {
                     reporter.on_extension_event(
-                        ExtensionEvent::MassExtinction("".to_string()),
+                        ExtensionEvent("MassExtinction".to_string()),
                         genotype,
                         state,
                         config,
