@@ -31,7 +31,7 @@ pub use crate::mutate::{
 #[doc(no_inline)]
 pub use crate::population::Population;
 #[doc(no_inline)]
-pub use crate::select::{SelectElite, SelectTournament, SelectWrapper};
+pub use crate::select::{Select, SelectElite, SelectTournament, SelectWrapper};
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{
     Evolve, EvolveBuilder, EvolveConfig, EvolveReporterDuration, EvolveReporterNoop,

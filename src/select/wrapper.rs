@@ -10,13 +10,15 @@ use crate::strategy::StrategyReporter;
 use rand::prelude::*;
 
 #[derive(Clone, Debug)]
-pub enum Wrapper {
-    Elite(SelectElite),
-    Tournament(SelectTournament),
+pub enum Wrapper<G: EvolveGenotype> {
+    Elite(SelectElite<G>),
+    Tournament(SelectTournament<G>),
 }
 
-impl Select for Wrapper {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Select for Wrapper<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
         state: &mut EvolveState<G>,
@@ -30,7 +32,7 @@ impl Select for Wrapper {
         }
     }
 
-    fn extract_elite_chromosomes<G: EvolveGenotype>(
+    fn extract_elite_chromosomes(
         &self,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
@@ -67,13 +69,13 @@ impl Select for Wrapper {
         }
     }
 }
-impl From<SelectElite> for Wrapper {
-    fn from(select: SelectElite) -> Self {
+impl<G: EvolveGenotype> From<SelectElite<G>> for Wrapper<G> {
+    fn from(select: SelectElite<G>) -> Self {
         Wrapper::Elite(select)
     }
 }
-impl From<SelectTournament> for Wrapper {
-    fn from(select: SelectTournament) -> Self {
+impl<G: EvolveGenotype> From<SelectTournament<G>> for Wrapper<G> {
+    fn from(select: SelectTournament<G>) -> Self {
         Wrapper::Tournament(select)
     }
 }

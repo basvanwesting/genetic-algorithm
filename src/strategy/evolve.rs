@@ -177,7 +177,7 @@ pub struct Evolve<
     M: Mutate<Genotype = G>,
     F: Fitness<Genotype = G>,
     S: Crossover<Genotype = G>,
-    C: Select,
+    C: Select<Genotype = G>,
     E: Extension<Genotype = G>,
     SR: StrategyReporter<Genotype = G>,
 > {
@@ -234,7 +234,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
         E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Strategy<G> for Evolve<G, M, F, S, C, E, SR>
@@ -334,7 +334,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
         E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
@@ -355,7 +355,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
     > Evolve<G, M, F, S, C, ExtensionNoop<G>, StrategyReporterNoop<G>>
 {
     pub fn builder() -> EvolveBuilder<G, M, F, S, C, ExtensionNoop<G>, StrategyReporterNoop<G>> {
@@ -368,7 +368,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
         E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Evolve<G, M, F, S, C, E, SR>
@@ -616,7 +616,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
         E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > TryFrom<EvolveBuilder<G, M, F, S, C, E, SR>> for Evolve<G, M, F, S, C, E, SR>
@@ -763,7 +763,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
         E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > fmt::Display for Evolve<G, M, F, S, C, E, SR>

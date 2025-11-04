@@ -7,19 +7,23 @@ use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::prelude::*;
 use std::cmp::Reverse;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Simply sort the chromosomes with fittest first. Then take the target_population_size (or full
 /// population when in shortage) of the populations best and drop excess chromosomes. This approach
 /// has the risk of locking in to a local optimum.
 #[derive(Clone, Debug)]
-pub struct Elite {
+pub struct Elite<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub replacement_rate: f32,
     pub elitism_rate: f32,
 }
 
-impl Select for Elite {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Select for Elite<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
         state: &mut EvolveState<G>,
@@ -46,13 +50,13 @@ impl Select for Elite {
             self.replacement_rate,
         );
 
-        self.selection::<G>(
+        self.selection(
             &mut parents,
             new_parents_size,
             &mut state.population,
             config,
         );
-        self.selection::<G>(
+        self.selection(
             &mut offspring,
             new_offspring_size,
             &mut state.population,
@@ -65,7 +69,7 @@ impl Select for Elite {
 
         // detach and attach chromosomes for general reuse of selection method
         let mut chromosomes = std::mem::take(&mut state.population.chromosomes);
-        self.selection::<G>(
+        self.selection(
             &mut chromosomes,
             config.target_population_size,
             &mut state.population,
@@ -77,15 +81,16 @@ impl Select for Elite {
     }
 }
 
-impl Elite {
+impl<G: EvolveGenotype> Elite<G> {
     pub fn new(replacement_rate: f32, elitism_rate: f32) -> Self {
         Self {
+            _phantom: PhantomData,
             replacement_rate,
             elitism_rate,
         }
     }
 
-    pub fn selection<G: EvolveGenotype>(
+    pub fn selection(
         &self,
         chromosomes: &mut Vec<Chromosome<G::Allele>>,
         selection_size: usize,

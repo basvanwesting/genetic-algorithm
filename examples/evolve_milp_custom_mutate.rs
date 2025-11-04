@@ -173,7 +173,7 @@ fn print_result(
         impl Mutate<Genotype = MultiRangeGenotype<f32>>,
         MILPFitness,
         impl Crossover<Genotype = MultiRangeGenotype<f32>>,
-        impl Select,
+        impl Select<Genotype = MultiRangeGenotype<f32>>,
         impl Extension<Genotype = MultiRangeGenotype<f32>>,
         impl StrategyReporter<Genotype = MultiRangeGenotype<f32>>,
     >,

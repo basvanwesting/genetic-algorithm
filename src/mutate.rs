@@ -15,7 +15,7 @@ pub use self::single_gene::SingleGene as MutateSingleGene;
 pub use self::single_gene_dynamic::SingleGeneDynamic as MutateSingleGeneDynamic;
 pub use self::wrapper::Wrapper as MutateWrapper;
 
-use crate::genotype::EvolveGenotype;
+use crate::genotype::{EvolveGenotype, Genotype};
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::Rng;
@@ -24,6 +24,8 @@ use rand::Rng;
 pub type MutateGenotype<M> = <M as Mutate>::Genotype;
 /// This is just a shortcut for `EvolveState<Self::Genotype>,`
 pub type MutateEvolveState<M> = EvolveState<<M as Mutate>::Genotype>;
+/// This is just a shortcut
+pub type MutateAllele<M> = <<M as Mutate>::Genotype as Genotype>::Allele;
 
 /// # Optional Custom User implementation (rarely needed)
 ///

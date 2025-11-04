@@ -3,11 +3,12 @@ pub mod tournament_test;
 
 mod select_test {
     #[cfg(test)]
+    use genetic_algorithm::genotype::ListGenotype;
     use genetic_algorithm::select::{Select, SelectElite};
 
     #[test]
     fn survival_sizes_normal_replacement() {
-        let select = SelectElite::new(0.0, 0.0); //placeholder
+        let select = SelectElite::<ListGenotype<usize>>::new(0.0, 0.0); //placeholder
         assert_eq!(
             select.parent_and_offspring_survival_sizes(100, 30, 100, 0.5),
             (70, 30)
@@ -36,7 +37,7 @@ mod select_test {
 
     #[test]
     fn survival_sizes_high_replacement() {
-        let select = SelectElite::new(0.0, 0.0); //placeholder
+        let select = SelectElite::<ListGenotype<usize>>::new(0.0, 0.0); //placeholder
         assert_eq!(
             select.parent_and_offspring_survival_sizes(100, 30, 100, 1.0),
             (70, 30)
@@ -65,7 +66,7 @@ mod select_test {
 
     #[test]
     fn survival_sizes_low_replacement() {
-        let select = SelectElite::new(0.0, 0.0); //placeholder
+        let select = SelectElite::<ListGenotype<usize>>::new(0.0, 0.0); //placeholder
         assert_eq!(
             select.parent_and_offspring_survival_sizes(100, 30, 100, 0.0),
             (100, 0)
@@ -94,7 +95,7 @@ mod select_test {
 
     #[test]
     fn survival_sizes_overflow() {
-        let select = SelectElite::new(0.0, 0.0); //placeholder
+        let select = SelectElite::<ListGenotype<usize>>::new(0.0, 0.0); //placeholder
         assert_eq!(
             select.parent_and_offspring_survival_sizes(100, 30, 10, 0.5),
             (5, 5)

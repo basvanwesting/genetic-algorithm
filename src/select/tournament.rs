@@ -6,6 +6,7 @@ use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use rand::prelude::*;
+use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Run tournaments with randomly chosen chromosomes and pick a single winner. Do this untill the
@@ -13,14 +14,17 @@ use std::time::Instant;
 /// drop excess chromosomes. This approach kind of sorts the fitness first, but not very strictly.
 /// This preserves a level of diversity, which avoids local optimum lock-in.
 #[derive(Clone, Debug)]
-pub struct Tournament {
+pub struct Tournament<G: EvolveGenotype> {
+    _phantom: PhantomData<G>,
     pub replacement_rate: f32,
     pub elitism_rate: f32,
     pub tournament_size: usize,
 }
 
-impl Select for Tournament {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+impl<G: EvolveGenotype> Select for Tournament<G> {
+    type Genotype = G;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         _genotype: &G,
         state: &mut EvolveState<G>,
@@ -47,14 +51,14 @@ impl Select for Tournament {
             self.replacement_rate,
         );
 
-        self.selection::<G, R>(
+        self.selection::<R>(
             &mut parents,
             new_parents_size,
             &mut state.population,
             config,
             rng,
         );
-        self.selection::<G, R>(
+        self.selection::<R>(
             &mut offspring,
             new_offspring_size,
             &mut state.population,
@@ -68,7 +72,7 @@ impl Select for Tournament {
 
         // detach and attach chromosomes for general reuse of selection method
         let mut chromosomes = std::mem::take(&mut state.population.chromosomes);
-        self.selection::<G, R>(
+        self.selection::<R>(
             &mut chromosomes,
             config.target_population_size,
             &mut state.population,
@@ -81,16 +85,17 @@ impl Select for Tournament {
     }
 }
 
-impl Tournament {
+impl<G: EvolveGenotype> Tournament<G> {
     pub fn new(replacement_rate: f32, elitism_rate: f32, tournament_size: usize) -> Self {
         Self {
+            _phantom: PhantomData,
             replacement_rate,
             elitism_rate,
             tournament_size,
         }
     }
 
-    pub fn selection<G: EvolveGenotype, R: Rng>(
+    pub fn selection<R: Rng>(
         &self,
         chromosomes: &mut Vec<Chromosome<G::Allele>>,
         selection_size: usize,

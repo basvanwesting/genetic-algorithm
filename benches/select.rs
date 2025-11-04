@@ -47,7 +47,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     group.plot_config(plot_config);
 
     for genes_size in &genes_sizes {
-        let selects: Vec<SelectWrapper> = vec![
+        let selects: Vec<SelectWrapper<BinaryGenotype>> = vec![
             SelectElite::new(0.5, 0.02).into(),
             SelectTournament::new(0.5, 0.02, 4).into(),
             SelectTournament::new(0.5, 0.02, 8).into(),

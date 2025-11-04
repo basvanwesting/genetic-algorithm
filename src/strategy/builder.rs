@@ -96,7 +96,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
         E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
@@ -272,7 +272,7 @@ impl<
         M: Mutate<Genotype = G> + 'a,
         F: Fitness<Genotype = G> + 'a,
         S: Crossover<Genotype = G> + 'a,
-        C: Select + 'a,
+        C: Select<Genotype = G> + 'a,
         E: Extension<Genotype = G> + 'a,
         SR: StrategyReporter<Genotype = G> + 'a,
     > Builder<G, M, F, S, C, E, SR>
@@ -349,7 +349,7 @@ impl<
         M: Mutate<Genotype = G> + 'a,
         F: Fitness<Genotype = G> + 'a,
         S: Crossover<Genotype = G> + 'a,
-        C: Select + 'a,
+        C: Select<Genotype = G> + 'a,
         E: Extension<Genotype = G> + 'a,
         SR: StrategyReporter<Genotype = G> + 'a,
     > Builder<G, M, F, S, C, E, SR>

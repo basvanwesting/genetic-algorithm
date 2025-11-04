@@ -27,31 +27,89 @@ pub use self::wrapper::Wrapper as SelectWrapper;
 
 use crate::chromosome::Chromosome;
 
-use crate::genotype::EvolveGenotype;
+use crate::genotype::{EvolveGenotype, Genotype};
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::prelude::*;
 
+/// This is just a shortcut for `Self::Genotype`
+pub type SelectGenotype<S> = <S as Select>::Genotype;
+/// This is just a shortcut for `EvolveState<Self::Genotype>,`
+pub type SelectEvolveState<S> = EvolveState<<S as Select>::Genotype>;
+/// This is just a shortcut
+pub type SelectAllele<S> = <<S as Select>::Genotype as Genotype>::Allele;
+
+/// # Optional Custom User implementation (rarely needed)
+///
+/// For the user API, the Select Trait has an associated Genotype. This way the user can implement
+/// a specialized Select alterative with access to the user's Genotype specific methods at hand.
+///
+/// # Example
+/// ```rust
+/// use genetic_algorithm::strategy::evolve::prelude::*;
+/// use std::time::Instant;
+/// use std::cmp::Reverse;
+/// use rand::Rng;
+///
+/// #[derive(Clone, Debug)]
+/// struct CustomSelect; // or with fields
+/// impl Select for CustomSelect {
+///     type Genotype = MultiRangeGenotype<f32>;
+///
+///     fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+///         &mut self,
+///         _genotype: &Self::Genotype,
+///         state: &mut EvolveState<Self::Genotype>,
+///         config: &EvolveConfig,
+///         _reporter: &mut SR,
+///         rng: &mut R,
+///     ) {
+///         let now = Instant::now();
+///
+///         // super simple sort, no further considerations
+///         match config.fitness_ordering {
+///             FitnessOrdering::Maximize => {
+///                 state.population.chromosomes.sort_unstable_by_key(|c| match c.fitness_score() {
+///                     Some(fitness_score) => Reverse(fitness_score),
+///                     None => Reverse(FitnessValue::MIN),
+///                 });
+///             }
+///             FitnessOrdering::Minimize => {
+///                 state.population.chromosomes.sort_unstable_by_key(|c| match c.fitness_score() {
+///                     Some(fitness_score) => fitness_score,
+///                     None => FitnessValue::MAX,
+///                 });
+///             }
+///         }
+///
+///         // Optionally, keep track of duration for reporting
+///         state.add_duration(StrategyAction::Select, now.elapsed());
+///     }
+/// }
+/// ```
 pub trait Select: Clone + Send + Sync + std::fmt::Debug {
-    fn call<G: EvolveGenotype, R: Rng, SR: StrategyReporter<Genotype = G>>(
+    type Genotype: EvolveGenotype;
+
+    fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
         &mut self,
-        genotype: &G,
-        state: &mut EvolveState<G>,
+        genotype: &Self::Genotype,
+        state: &mut EvolveState<Self::Genotype>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
     );
 
-    fn extract_elite_chromosomes<G: EvolveGenotype>(
+    fn extract_elite_chromosomes(
         &self,
-        state: &mut EvolveState<G>,
+        state: &mut EvolveState<Self::Genotype>,
         config: &EvolveConfig,
         elitism_rate: f32,
-    ) -> Vec<Chromosome<G::Allele>> {
+    ) -> Vec<Chromosome<SelectAllele<Self>>> {
         let elitism_size = ((state.population.size() as f32 * elitism_rate).ceil() as usize)
             .min(state.population.size());
 
-        let mut elite_chromosomes: Vec<Chromosome<G::Allele>> = Vec::with_capacity(elitism_size);
+        let mut elite_chromosomes: Vec<Chromosome<SelectAllele<Self>>> =
+            Vec::with_capacity(elitism_size);
         for index in state
             .population
             .best_chromosome_indices(elitism_size, config.fitness_ordering)

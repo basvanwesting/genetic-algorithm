@@ -19,7 +19,7 @@ pub struct Builder<
     M: Mutate<Genotype = G>,
     F: Fitness<Genotype = G>,
     S: Crossover<Genotype = G>,
-    C: Select,
+    C: Select<Genotype = G>,
     E: Extension<Genotype = G>,
     SR: StrategyReporter<Genotype = G>,
 > {
@@ -48,7 +48,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
     > Default for Builder<G, M, F, S, C, ExtensionNoop<G>, StrategyReporterNoop<G>>
 {
     fn default() -> Self {
@@ -79,7 +79,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
     > Builder<G, M, F, S, C, ExtensionNoop<G>, StrategyReporterNoop<G>>
 {
     pub fn new() -> Self {
@@ -93,7 +93,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
         E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>
@@ -266,7 +266,7 @@ impl<
         M: Mutate<Genotype = G>,
         F: Fitness<Genotype = G>,
         S: Crossover<Genotype = G>,
-        C: Select,
+        C: Select<Genotype = G>,
         E: Extension<Genotype = G>,
         SR: StrategyReporter<Genotype = G>,
     > Builder<G, M, F, S, C, E, SR>

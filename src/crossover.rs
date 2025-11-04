@@ -34,7 +34,7 @@ pub use self::single_point::SinglePoint as CrossoverSinglePoint;
 pub use self::uniform::Uniform as CrossoverUniform;
 pub use self::wrapper::Wrapper as CrossoverWrapper;
 
-use crate::genotype::EvolveGenotype;
+use crate::genotype::{EvolveGenotype, Genotype};
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::StrategyReporter;
 use rand::Rng;
@@ -43,6 +43,8 @@ use rand::Rng;
 pub type CrossoverGenotype<C> = <C as Crossover>::Genotype;
 /// This is just a shortcut for `EvolveState<Self::Genotype>,`
 pub type CrossoverEvolveState<C> = EvolveState<<C as Crossover>::Genotype>;
+/// This is just a shortcut
+pub type CrossoverAllele<C> = <<C as Crossover>::Genotype as Genotype>::Allele;
 
 /// # Optional Custom User implementation (rarely needed)
 ///
