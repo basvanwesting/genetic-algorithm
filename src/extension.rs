@@ -34,8 +34,8 @@ pub type ExtensionAllele<E> = <<E as Extension>::Genotype as Genotype>::Allele;
 
 /// # Optional Custom User implementation (rarely needed)
 ///
-/// For the user API, the Crossover Trait has an associated Genotype. This way the user can
-/// implement a specialized Crossover alterative with access to the user's Genotype specific
+/// For the user API, the Extension Trait has an associated Genotype. This way the user can
+/// implement a specialized Extension alterative with access to the user's Genotype specific
 /// methods at hand.
 ///
 /// # Example

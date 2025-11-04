@@ -66,7 +66,7 @@ pub type MutateEvolveState<M> = EvolveState<<M as Mutate>::Genotype>;
 ///             }
 ///             for odd_index in (0..genotype.genes_size()).filter(|x| x % 2 == 1) {
 ///                 // MultiRangeGenotype specific methods are available (pure random sample)
-///                 let new_value = genotype.sample_allele(odd_index, rng);
+///                 let new_value = genotype.sample_gene_random(odd_index, rng);
 ///                 chromosome.genes[odd_index] = new_value;
 ///             }
 ///             // Important!!! Remember to reset the chromosome metadata after manipulation

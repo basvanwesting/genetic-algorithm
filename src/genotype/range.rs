@@ -141,7 +141,7 @@ where
     fn mutation_type(&self) -> &MutationType<T> {
         &self.mutation_type
     }
-    pub fn sample_allele<R: Rng>(&self, rng: &mut R) -> T {
+    pub fn sample_gene_random<R: Rng>(&self, rng: &mut R) -> T {
         self.allele_sampler.sample(rng)
     }
     pub fn sample_gene_delta<R: Rng>(
@@ -199,7 +199,7 @@ where
     pub fn mutate_gene<R: Rng>(&self, chromosome: &mut Chromosome<T>, index: usize, rng: &mut R) {
         match &self.mutation_type {
             MutationType::Random => {
-                chromosome.genes[index] = self.sample_allele(rng);
+                chromosome.genes[index] = self.sample_gene_random(rng);
             }
             MutationType::Scaled(_) | MutationType::Relative(_) => {
                 let delta = self.sample_gene_delta(chromosome, index, rng);
@@ -208,7 +208,7 @@ where
             MutationType::Transition(random_until, _, _)
                 if self.current_generation <= *random_until =>
             {
-                chromosome.genes[index] = self.sample_allele(rng);
+                chromosome.genes[index] = self.sample_gene_random(rng);
             }
             MutationType::Transition(_, _, _) => {
                 let delta = self.sample_gene_delta(chromosome, index, rng);
@@ -317,7 +317,7 @@ where
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
-                .map(|_| self.sample_allele(rng))
+                .map(|_| self.sample_gene_random(rng))
                 .collect()
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()

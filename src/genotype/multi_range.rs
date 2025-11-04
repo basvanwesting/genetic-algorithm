@@ -247,7 +247,7 @@ where
     fn mutation_types(&self) -> &[MutationType<T>] {
         &self.mutation_types
     }
-    pub fn sample_allele<R: Rng>(&self, index: usize, rng: &mut R) -> T {
+    pub fn sample_gene_random<R: Rng>(&self, index: usize, rng: &mut R) -> T {
         match self.mutation_types[index] {
             MutationType::Discrete => self.allele_samplers[index].sample(rng).floor(),
             _ => self.allele_samplers[index].sample(rng),
@@ -313,7 +313,7 @@ where
     pub fn mutate_gene<R: Rng>(&self, chromosome: &mut Chromosome<T>, index: usize, rng: &mut R) {
         match &self.mutation_types[index] {
             MutationType::Random => {
-                chromosome.genes[index] = self.sample_allele(index, rng);
+                chromosome.genes[index] = self.sample_gene_random(index, rng);
             }
             MutationType::Scaled(_) | MutationType::Relative(_) => {
                 let delta = self.sample_gene_delta(chromosome, index, rng);
@@ -322,14 +322,14 @@ where
             MutationType::Transition(random_until, _, _)
                 if self.current_generation <= *random_until =>
             {
-                chromosome.genes[index] = self.sample_allele(index, rng);
+                chromosome.genes[index] = self.sample_gene_random(index, rng);
             }
             MutationType::Transition(_, _, _) => {
                 let delta = self.sample_gene_delta(chromosome, index, rng);
                 chromosome.genes[index] += delta;
             }
             MutationType::Discrete => {
-                chromosome.genes[index] = self.sample_allele(index, rng);
+                chromosome.genes[index] = self.sample_gene_random(index, rng);
             }
         }
     }
@@ -437,7 +437,7 @@ where
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
             (0..self.genes_size)
-                .map(|index| self.sample_allele(index, rng))
+                .map(|index| self.sample_gene_random(index, rng))
                 .collect()
         } else {
             self.seed_genes_list.choose(rng).unwrap().clone()
