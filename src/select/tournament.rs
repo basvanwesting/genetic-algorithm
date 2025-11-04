@@ -37,12 +37,15 @@ impl<G: EvolveGenotype> Select for Tournament<G> {
         let mut elite_chromosomes =
             self.extract_elite_chromosomes(state, config, self.elitism_rate);
 
-        let (mut offspring, mut parents): (Vec<Chromosome<G::Allele>>, Vec<Chromosome<G::Allele>>) =
-            state
-                .population
-                .chromosomes
-                .drain(..)
-                .partition(|c| c.is_offspring());
+        #[allow(clippy::type_complexity)]
+        let (mut offspring, mut parents): (
+            Vec<Chromosome<G::Allele>>,
+            Vec<Chromosome<G::Allele>>,
+        ) = state
+            .population
+            .chromosomes
+            .drain(..)
+            .partition(|c| c.is_offspring());
 
         let (new_parents_size, new_offspring_size) = self.parent_and_offspring_survival_sizes(
             parents.len(),

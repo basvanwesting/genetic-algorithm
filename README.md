@@ -190,6 +190,7 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 ## TODO
 
 ## MAYBE
+* Consider only requiring bandwidth instread of RangeInclusive when the range needs to be symmetrical (e.g. MutationType)
 * Consider dropping .with_genes_hashing() and always set to true, because it is
   needed for proper GA functionality regardless the overhead
 * Consider dropping .with_chromosome_recycling() and always set to false

@@ -98,6 +98,7 @@ impl<G: EvolveGenotype> Simple<G> {
             ..Default::default()
         }
     }
+    #[allow(clippy::too_many_arguments)]
     pub fn new_with_flags(
         period: usize,
         buffered: bool,
