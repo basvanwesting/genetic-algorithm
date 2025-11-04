@@ -147,10 +147,6 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele] {
-        chromosome.genes.as_slice()
-    }
-
     fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize {
         let allele_list_index = self.allele_list_index_sampler.sample(rng);
         let allele_list_index_offset = self.allele_list_index_offsets[allele_list_index];

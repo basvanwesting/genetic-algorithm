@@ -37,12 +37,21 @@ pub trait Genotype:
 {
     type Allele: Allele;
 
+    fn builder() -> GenotypeBuilder<Self> {
+        GenotypeBuilder::<Self>::default()
+    }
     fn genes_size(&self) -> usize;
     fn genes_capacity(&self) -> usize;
     fn genes_hashing(&self) -> bool;
     fn chromosome_recycling(&self) -> bool;
-    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele];
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Genes<Self::Allele>;
+    fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize;
+    fn sample_gene_indices<R: Rng>(
+        &self,
+        count: usize,
+        allow_duplicates: bool,
+        rng: &mut R,
+    ) -> Vec<usize>;
     fn mutate_chromosome_genes<R: Rng>(
         &self,
         number_of_mutations: usize,
@@ -51,12 +60,8 @@ pub trait Genotype:
         rng: &mut R,
     );
 
-    fn builder() -> GenotypeBuilder<Self> {
-        GenotypeBuilder::<Self>::default()
-    }
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>);
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>>;
-
     fn max_scale_index(&self) -> Option<usize> {
         None
     }
@@ -69,56 +74,9 @@ pub trait Genotype:
     }
     fn reset_generation(&mut self) {}
     fn increment_generation(&mut self) {}
-
     fn reset(&mut self) {
         self.reset_generation();
         self.reset_scale_index();
-    }
-
-    fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize;
-    fn sample_gene_indices<R: Rng>(
-        &self,
-        count: usize,
-        allow_duplicates: bool,
-        rng: &mut R,
-    ) -> Vec<usize>;
-
-    fn expected_number_of_sampled_index_duplicates_report(&self) -> String {
-        [
-            self.genes_size() / 256,
-            self.genes_size() / 128,
-            self.genes_size() / 64,
-            self.genes_size() / 32,
-            self.genes_size() / 16,
-            self.genes_size() / 8,
-            self.genes_size() / 4,
-            self.genes_size() / 2,
-        ]
-        .iter()
-        .map(|number_of_samples| {
-            (
-                number_of_samples,
-                if *number_of_samples > 1 {
-                    number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
-                } else {
-                    0
-                },
-            )
-        })
-        .filter(|(_, c)| *c > 0)
-        .map(|(n, e)| format!("{} => {}", n, e))
-        .join(", ")
-    }
-    fn format_biguint_scientific(&self, n: &BigUint) -> String {
-        let s = n.to_string();
-        let len = s.len();
-
-        if len <= 6 {
-            s
-        } else {
-            let mantissa = format!("{}.{}", &s[0..1], &s[1..7]);
-            format!("{}e{}", mantissa, len - 1)
-        }
     }
 
     fn chromosome_constructor_random<R: Rng>(&self, rng: &mut R) -> Chromosome<Self::Allele> {
@@ -157,6 +115,44 @@ pub trait Genotype:
                     .collect::<Vec<_>>(),
                 self.chromosome_recycling(),
             )
+        }
+    }
+
+    fn expected_number_of_sampled_index_duplicates_report(&self) -> String {
+        [
+            self.genes_size() / 256,
+            self.genes_size() / 128,
+            self.genes_size() / 64,
+            self.genes_size() / 32,
+            self.genes_size() / 16,
+            self.genes_size() / 8,
+            self.genes_size() / 4,
+            self.genes_size() / 2,
+        ]
+        .iter()
+        .map(|number_of_samples| {
+            (
+                number_of_samples,
+                if *number_of_samples > 1 {
+                    number_of_samples * (number_of_samples - 1) / (2 * self.genes_size())
+                } else {
+                    0
+                },
+            )
+        })
+        .filter(|(_, c)| *c > 0)
+        .map(|(n, e)| format!("{} => {}", n, e))
+        .join(", ")
+    }
+    fn format_biguint_scientific(&self, n: &BigUint) -> String {
+        let s = n.to_string();
+        let len = s.len();
+
+        if len <= 6 {
+            s
+        } else {
+            let mantissa = format!("{}.{}", &s[0..1], &s[1..7]);
+            format!("{}e{}", mantissa, len - 1)
         }
     }
 }

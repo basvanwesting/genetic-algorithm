@@ -134,10 +134,6 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
     fn genes_size(&self) -> usize {
         self.genes_size
     }
-    fn genes_slice<'a>(&'a self, chromosome: &'a Chromosome<Self::Allele>) -> &'a [Self::Allele] {
-        chromosome.genes.as_slice()
-    }
-
     fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize {
         self.gene_index_sampler.sample(rng)
     }
