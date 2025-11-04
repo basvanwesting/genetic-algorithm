@@ -269,7 +269,8 @@ pub trait StrategyState<G: Genotype>: Display {
 /// * `on_enter` (before setup)
 /// * `on_start` (of run loop)
 /// * *in run loop:*
-///     * `on_new_generation`
+///     * `on_generation_complete`
+///     * `on_selection_complete` (for Evolve only, as it is a more interesting point in the loop)
 ///     * `on_new_best_chromosome`
 ///     * `on_new_best_chromosome_equal_fitness`
 ///     * `on_select_event`
@@ -297,7 +298,7 @@ pub trait StrategyState<G: Genotype>: Display {
 /// impl StrategyReporter for CustomReporter {
 ///     type Genotype = BinaryGenotype;
 ///
-///     fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+///     fn on_generation_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
 ///         &mut self,
 ///         genotype: &Self::Genotype,
 ///         state: &S,
@@ -380,7 +381,14 @@ pub trait StrategyReporter: Clone + Send + Sync {
         _config: &C,
     ) {
     }
-    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_generation_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_selection_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,

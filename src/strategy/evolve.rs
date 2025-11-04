@@ -93,8 +93,11 @@ pub enum EvolveVariant {
 /// [StrategyReporter] (e.g. [EvolveReporterDuration], [EvolveReporterSimple]). But you are encouraged to
 /// roll your own, see [StrategyReporter].
 ///
-/// For [Evolve] the reporting `on_new_generation` hook is called just after selection, because
-/// that is a more interesting point in the loop.
+/// For [Evolve] the reporting has an additional `on_selection_complete` hook, because
+/// that is a more interesting point in the loop. As the population and cardinality are refreshed
+/// after selection.
+/// The `on_generation_complete` contains all the new mutations, most of which will be immediately
+/// selected out. This gives the false impression of good cardinality while there is actually little.
 ///
 /// From the [EvolveBuilder] level, there are several calling mechanisms:
 /// * [call](EvolveBuilder::call): this runs a single evolve strategy
@@ -256,7 +259,7 @@ impl<
             self.state
                 .update_population_cardinality(&self.genotype, &self.config);
             self.reporter
-                .on_new_generation(&self.genotype, &self.state, &self.config);
+                .on_selection_complete(&self.genotype, &self.state, &self.config);
 
             self.plugins.extension.call(
                 &self.genotype,
@@ -293,6 +296,8 @@ impl<
                 &mut self.reporter,
             );
 
+            self.reporter
+                .on_generation_complete(&self.genotype, &self.state, &self.config);
             self.state.scale(&mut self.genotype, &self.config);
         }
         self.reporter

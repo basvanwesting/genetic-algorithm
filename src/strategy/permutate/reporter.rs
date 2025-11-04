@@ -119,7 +119,7 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         ));
     }
 
-    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_generation_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,

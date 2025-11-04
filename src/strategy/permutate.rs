@@ -244,7 +244,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     &mut self.reporter,
                 );
                 self.reporter
-                    .on_new_generation(&self.genotype, &self.state, &self.config);
+                    .on_generation_complete(&self.genotype, &self.state, &self.config);
             });
     }
     fn call_parallel(&mut self) {
@@ -282,7 +282,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 self.state
                     .add_duration(StrategyAction::Fitness, fitness_duration);
                 self.reporter
-                    .on_new_generation(&self.genotype, &self.state, &self.config);
+                    .on_generation_complete(&self.genotype, &self.state, &self.config);
             });
         });
     }

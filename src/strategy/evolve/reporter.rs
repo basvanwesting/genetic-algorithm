@@ -198,8 +198,7 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         ));
     }
 
-    /// Is triggered after selection
-    fn on_new_generation<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_selection_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
         state: &S,

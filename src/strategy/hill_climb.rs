@@ -254,7 +254,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                 }
             }
             self.reporter
-                .on_new_generation(&self.genotype, &self.state, &self.config);
+                .on_generation_complete(&self.genotype, &self.state, &self.config);
             self.state.scale(&mut self.genotype, &self.config);
         }
         self.reporter
