@@ -66,7 +66,7 @@ pub type ExtensionAllele<E> = <<E as Extension>::Genotype as Genotype>::Allele;
 ///             if let Some(cardinality) = state.population_cardinality() {
 ///                 if cardinality <= self.cardinality_threshold {
 ///                     reporter.on_extension_event(
-///                         ExtensionEvent::MassDeduplication("".to_string()),
+///                         ExtensionEvent::Custom("make unique".to_string()),
 ///                         genotype,
 ///                         state,
 ///                         config,
@@ -166,4 +166,5 @@ pub enum ExtensionEvent {
     MassDegeneration(String),
     MassExtinction(String),
     MassGenesis(String),
+    Custom(String),
 }

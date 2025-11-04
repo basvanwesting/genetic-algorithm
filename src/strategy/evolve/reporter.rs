@@ -285,6 +285,11 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
                     state.current_generation(),
                     message
                 )),
+                ExtensionEvent::Custom(message) => self.writeln(format_args!(
+                    "extension event - custom - generation {} - {}",
+                    state.current_generation(),
+                    message
+                )),
             }
         }
     }
@@ -301,6 +306,11 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
             match event {
                 MutateEvent::ChangeMutationProbability(message) => self.writeln(format_args!(
                     "mutate event - change mutation probability - generation {} - {}",
+                    state.current_generation(),
+                    message
+                )),
+                MutateEvent::Custom(message) => self.writeln(format_args!(
+                    "mutate event - custom - generation {} - {}",
                     state.current_generation(),
                     message
                 )),
