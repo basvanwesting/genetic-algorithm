@@ -54,8 +54,7 @@ impl Allele for Tuple {
 }
 
 /// Special Allele subtrait, used for [crate::genotype::RangeGenotype],
-/// [crate::genotype::MultiRangeGenotype], [crate::genotype::DynamicRangeGenotype] and
-/// [crate::genotype::StaticRangeGenotype]
+/// [crate::genotype::MultiRangeGenotype]
 pub trait RangeAllele:
     Allele
     + Add<Output = Self>

@@ -48,10 +48,9 @@ pub type FitnessPopulation<F> = Population<<<F as Fitness>::Genotype as Genotype
 ///
 /// # User implementation
 ///
-/// You must implement [`calculate_for_chromosome(...) -> Option<FitnessValue>`](Fitness::calculate_for_chromosome)
-/// which calculates the fitness for a single chromosome.
-/// Distributed [Genotype]s have [GenesOwner](crate::chromosome::GenesOwner) chromosomes. These
-/// chromosomes have a `genes` field, which can be read for the calculations.
+/// You must implement [`calculate_for_chromosome(...) ->
+/// Option<FitnessValue>`](Fitness::calculate_for_chromosome) which calculates the fitness for a
+/// single chromosome. Chromosomes have a `genes` field, which can be read for the calculations.
 ///
 /// Fitness uses &mut self for performance because it dominates the runtime. Preparing memory
 /// allocations on initialization and reusing them for each chromosome can really impact

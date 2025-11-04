@@ -57,7 +57,7 @@ pub enum HillClimbVariant {
 ///
 /// There are optional mutation distance limitations for
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
-/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring chromosomes, see [MutationType].
+/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring chromosomes, see [crate::genotype::MutationType].
 /// * With MutationType::Scaled
 ///     * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
 ///         * Pick random edge for [HillClimbVariant::Stochastic]

@@ -14,7 +14,7 @@
 //! * [Chromosome](crate::chromosome): a chromosome has `genes_size` number of genes
 //! * [Allele](crate::genotype::Allele): alleles are the possible values of the genes
 //! * Gene: a gene is a combination of position in the chromosome and value of the gene (allele)
-//! * [Genes](crate::genotype::Genes): storage trait of the genes for a chromosome, always `Vec<Allele>`
+//! * [Genes](crate::chromosome::Genes): storage trait of the genes for a chromosome, always `Vec<Allele>`
 //! * [Genotype](crate::genotype): Knows how to generate, mutate and crossover chromosomes efficiently
 //! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
 //!

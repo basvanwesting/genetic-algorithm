@@ -87,14 +87,14 @@ pub enum EvolveVariant {
 ///
 /// There are optional mutation distance limitations for
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
-/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) chromosomes, see [MutationType].
+/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) chromosomes, see [crate::genotype::MutationType].
 ///
 /// There are reporting hooks in the loop receiving the [EvolveState], which can by handled by an
 /// [StrategyReporter] (e.g. [EvolveReporterDuration], [EvolveReporterSimple]). But you are encouraged to
 /// roll your own, see [StrategyReporter].
 ///
 /// For [Evolve] the reporting has an additional `on_selection_complete` hook, because
-/// that is a more interesting point in the loop. As the population and cardinality are refreshed
+/// that is a more interesting point in the loop, as the population and cardinality are refreshed
 /// after selection.
 /// The `on_generation_complete` contains all the new mutations, most of which will be immediately
 /// selected out. This gives the false impression of good cardinality while there is actually little.

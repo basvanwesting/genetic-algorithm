@@ -43,7 +43,7 @@ pub enum PermutateVariant {
 ///
 /// There is a method to permutate
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
-/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) chromosomes, see [MutationType].
+/// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) chromosomes, see [crate::genotype::MutationType].
 /// * With MutationType::Scaled
 ///     * First scale (index = 0) traverses the whole allele_range(s) with the upper bound of the
 ///     first scale as step size.
