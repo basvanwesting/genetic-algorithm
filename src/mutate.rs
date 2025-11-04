@@ -47,8 +47,8 @@ pub type MutateAllele<M> = <<M as Mutate>::Genotype as Genotype>::Allele;
 ///         &mut self,
 ///         genotype: &Self::Genotype,
 ///         state: &mut EvolveState<Self::Genotype>,
-///         _config: &EvolveConfig,
-///         _reporter: &mut SR,
+///         config: &EvolveConfig,
+///         reporter: &mut SR,
 ///         rng: &mut R,
 ///     ) {
 ///         let now = Instant::now();
@@ -74,6 +74,14 @@ pub type MutateAllele<M> = <<M as Mutate>::Genotype as Genotype>::Allele;
 ///             // Important!!! Remember to reset the chromosome metadata after manipulation
 ///             chromosome.reset_metadata(genotype.genes_hashing);
 ///         }
+///         // Optionally, log one ore more events
+///         reporter.on_mutate_event(
+///             MutateEvent("MyEvent".to_string()),
+///             genotype,
+///             state,
+///             config,
+///         );
+///
 ///         // Optionally, keep track of duration for reporting
 ///         state.add_duration(StrategyAction::Mutate, now.elapsed());
 ///     }

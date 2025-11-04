@@ -58,10 +58,10 @@ pub type SelectAllele<S> = <<S as Select>::Genotype as Genotype>::Allele;
 ///
 ///     fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
 ///         &mut self,
-///         _genotype: &Self::Genotype,
+///         genotype: &Self::Genotype,
 ///         state: &mut EvolveState<Self::Genotype>,
 ///         config: &EvolveConfig,
-///         _reporter: &mut SR,
+///         reporter: &mut SR,
 ///         rng: &mut R,
 ///     ) {
 ///         let now = Instant::now();
@@ -81,6 +81,14 @@ pub type SelectAllele<S> = <<S as Select>::Genotype as Genotype>::Allele;
 ///                 });
 ///             }
 ///         }
+///
+///         // Optionally, log one ore more events
+///         reporter.on_select_event(
+///             SelectEvent("MyEvent".to_string()),
+///             genotype,
+///             state,
+///             config,
+///         );
 ///
 ///         // Optionally, keep track of duration for reporting
 ///         state.add_duration(StrategyAction::Select, now.elapsed());
@@ -149,3 +157,6 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         (new_parents_size, new_offspring_size)
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct SelectEvent(pub String);

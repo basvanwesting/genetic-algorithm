@@ -70,8 +70,8 @@ pub type CrossoverAllele<C> = <<C as Crossover>::Genotype as Genotype>::Allele;
 ///         &mut self,
 ///         genotype: &Self::Genotype,
 ///         state: &mut EvolveState<Self::Genotype>,
-///         _config: &EvolveConfig,
-///         _reporter: &mut SR,
+///         config: &EvolveConfig,
+///         reporter: &mut SR,
 ///         _rng: &mut R,
 ///     ) {
 ///         let now = Instant::now();
@@ -101,6 +101,15 @@ pub type CrossoverAllele<C> = <<C as Crossover>::Genotype as Genotype>::Allele;
 ///             offspring1.reset_metadata(genotype.genes_hashing);
 ///             offspring2.reset_metadata(genotype.genes_hashing);
 ///         }
+///
+///         // Optionally, log one ore more events
+///         reporter.on_crossover_event(
+///             CrossoverEvent("MyEvent".to_string()),
+///             genotype,
+///             state,
+///             config,
+///         );
+///
 ///         // Optionally, keep track of duration for reporting
 ///         state.add_duration(StrategyAction::Crossover, now.elapsed());
 ///     }
@@ -129,3 +138,6 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
         false
     }
 }
+
+#[derive(Clone, Debug)]
+pub struct CrossoverEvent(pub String);

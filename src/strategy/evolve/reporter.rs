@@ -1,6 +1,8 @@
+use crate::crossover::CrossoverEvent;
 use crate::extension::ExtensionEvent;
 use crate::genotype::EvolveGenotype;
 use crate::mutate::MutateEvent;
+use crate::select::SelectEvent;
 use crate::strategy::{StrategyConfig, StrategyReporter, StrategyState, STRATEGY_ACTIONS};
 use std::fmt::Arguments;
 use std::io::Write;
@@ -12,39 +14,39 @@ use std::marker::PhantomData;
 /// Example output:
 ///
 /// ```"not rust",ignore
-/// enter - evolve, iteration: 0
-/// new best - generation: 0,  fitness_score: Some(-3112), scale_index: None, genes: None
-/// new best - generation: 6,  fitness_score: Some(-2012), scale_index: None, genes: None
-/// new best - generation: 38, fitness_score: Some(-1440), scale_index: None, genes: None
-/// new best - generation: 47, fitness_score: Some(-1439), scale_index: None, genes: None
-/// periodic - current_generation: 50, stale_generations: 2, best_generation: 47, scale_index: None, population_cardinality: Some(6), current_population_size: 800, #extension_events: 0
-/// new best - generation: 51, fitness_score: Some(-1437), scale_index: None, genes: None
-/// new best - generation: 60, fitness_score: Some(-1435), scale_index: None, genes: None
-/// new best - generation: 77, fitness_score: Some(-1120), scale_index: None, genes: None
-/// new best - generation: 99, fitness_score: Some(-639),  scale_index: None, genes: None
-/// periodic - current_generation: 100, stale_generations: 0, best_generation: 99, scale_index: None, population_cardinality: Some(11), current_population_size: 800, #extension_events: 1
-/// new best - generation: 146, fitness_score: Some(-125), scale_index: None, genes: None
-/// periodic - current_generation: 150, stale_generations: 3,   best_generation: 146, scale_index: None, population_cardinality: Some(59),  current_population_size: 800, #extension_events: 1
-/// periodic - current_generation: 200, stale_generations: 53,  best_generation: 146, scale_index: None, population_cardinality: Some(592), current_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 250, stale_generations: 103, best_generation: 146, scale_index: None, population_cardinality: Some(4),   current_population_size: 800, #extension_events: 2
-/// periodic - current_generation: 300, stale_generations: 153, best_generation: 146, scale_index: None, population_cardinality: Some(335), current_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 350, stale_generations: 203, best_generation: 146, scale_index: None, population_cardinality: Some(1),   current_population_size: 800, #extension_events: 2
-/// new best - generation: 379, fitness_score: Some(66), scale_index: None, genes: None
-/// periodic - current_generation: 400, stale_generations: 20,  best_generation: 379, scale_index: None, population_cardinality: Some(570), current_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 450, stale_generations: 70,  best_generation: 379, scale_index: None, population_cardinality: Some(5),   current_population_size: 800, #extension_events: 2
-/// periodic - current_generation: 500, stale_generations: 120, best_generation: 379, scale_index: None, population_cardinality: Some(368), current_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 550, stale_generations: 170, best_generation: 379, scale_index: None, population_cardinality: Some(692), current_population_size: 800, #extension_events: 3
-/// periodic - current_generation: 600, stale_generations: 220, best_generation: 379, scale_index: None, population_cardinality: Some(75),  current_population_size: 800, #extension_events: 2
-/// exit - evolve, iteration: 0
-///   SetupAndCleanup: 141.833µs
-///   Extension: 2.139ms
-///   Select: 11.807ms
-///   Crossover: 16.921ms
-///   Mutate: 4.337ms
-///   Fitness: 231.512ms
-///   UpdateBestChromosome: 1.497ms
-///   Other: 6.050ms
-///   Total: 274.404ms (84% fitness)
+/// enter - evolve, iteration: 8
+/// new best - generation: 0, fitness_score: Some(-2403), scale_index: None, genes: None
+/// new best - generation: 2, fitness_score: Some(-2204), scale_index: None, genes: None
+/// new best - generation: 6, fitness_score: Some(-2007), scale_index: None, genes: None
+/// new best - generation: 9, fitness_score: Some(-1607), scale_index: None, genes: None
+/// new best - generation: 11, fitness_score: Some(-1589), scale_index: None, genes: None
+/// new best - generation: 14, fitness_score: Some(-1400), scale_index: None, genes: None
+/// new best - generation: 17, fitness_score: Some(-994), scale_index: None, genes: None
+/// new best - generation: 25, fitness_score: Some(-576), scale_index: None, genes: None
+/// new best - generation: 27, fitness_score: Some(-561), scale_index: None, genes: None
+/// new best - generation: 37, fitness_score: Some(-559), scale_index: None, genes: None
+/// new best - generation: 40, fitness_score: Some(-553), scale_index: None, genes: None
+/// periodic - current_generation: 50, stale_generations: 9, best_generation: 40, scale_index: None, population_cardinality: Some(13), current_population_size: 1000 (517p/483o,700r), fitness_cache_hit_miss_ratio: None, #events(S/E/C/M): 0/0/0/0
+/// new best - generation: 53, fitness_score: Some(-549), scale_index: None, genes: None
+/// new best - generation: 91, fitness_score: Some(-548), scale_index: None, genes: None
+/// new best - generation: 92, fitness_score: Some(-141), scale_index: None, genes: None
+/// periodic - current_generation: 100, stale_generations: 7, best_generation: 92, scale_index: None, population_cardinality: Some(3), current_population_size: 1000 (517p/483o,700r), fitness_cache_hit_miss_ratio: None, #events(S/E/C/M): 0/4/0/0
+/// new best - generation: 142, fitness_score: Some(-130), scale_index: None, genes: None
+/// periodic - current_generation: 150, stale_generations: 7, best_generation: 142, scale_index: None, population_cardinality: Some(3), current_population_size: 1000 (517p/483o,700r), fitness_cache_hit_miss_ratio: None, #events(S/E/C/M): 0/5/0/0
+/// periodic - current_generation: 200, stale_generations: 57, best_generation: 142, scale_index: None, population_cardinality: Some(702), current_population_size: 1000 (516p/484o,700r), fitness_cache_hit_miss_ratio: None, #events(S/E/C/M): 0/7/0/0
+/// periodic - current_generation: 250, stale_generations: 107, best_generation: 142, scale_index: None, population_cardinality: Some(549), current_population_size: 1000 (515p/485o,700r), fitness_cache_hit_miss_ratio: None, #events(S/E/C/M): 0/7/0/0
+/// periodic - current_generation: 300, stale_generations: 157, best_generation: 142, scale_index: None, population_cardinality: Some(347), current_population_size: 1000 (517p/483o,700r), fitness_cache_hit_miss_ratio: None, #events(S/E/C/M): 0/7/0/0
+/// periodic - current_generation: 350, stale_generations: 207, best_generation: 142, scale_index: None, population_cardinality: Some(147), current_population_size: 1000 (516p/484o,700r), fitness_cache_hit_miss_ratio: None, #events(S/E/C/M): 0/7/0/0
+/// exit - evolve, iteration: 8
+///   SetupAndCleanup: 145.999µs
+///   Extension: 4.771ms
+///   Select: 17.371ms
+///   Crossover: 11.509ms
+///   Mutate: 3.090ms
+///   Fitness: 138.344ms
+///   UpdateBestChromosome: 1.416ms
+///   Other: 3.359ms
+///   Total: 180.007ms (77% fitness)
 /// ```
 ///
 #[derive(Clone)]
@@ -53,10 +55,14 @@ pub struct Simple<G: EvolveGenotype> {
     pub period: usize,
     pub show_genes: bool,
     pub show_equal_fitness: bool,
-    pub show_mutate_event: bool,
+    pub show_select_event: bool,
     pub show_extension_event: bool,
-    number_of_mutate_events: usize,
+    pub show_crossover_event: bool,
+    pub show_mutate_event: bool,
+    number_of_select_events: usize,
     number_of_extension_events: usize,
+    number_of_crossover_events: usize,
+    number_of_mutate_events: usize,
     _phantom: PhantomData<G>,
 }
 impl<G: EvolveGenotype> Default for Simple<G> {
@@ -66,10 +72,14 @@ impl<G: EvolveGenotype> Default for Simple<G> {
             period: 1,
             show_genes: false,
             show_equal_fitness: false,
-            show_mutate_event: false,
+            show_select_event: false,
             show_extension_event: false,
-            number_of_mutate_events: 0,
+            show_crossover_event: false,
+            show_mutate_event: false,
+            number_of_select_events: 0,
             number_of_extension_events: 0,
+            number_of_crossover_events: 0,
+            number_of_mutate_events: 0,
             _phantom: PhantomData,
         }
     }
@@ -93,16 +103,20 @@ impl<G: EvolveGenotype> Simple<G> {
         buffered: bool,
         show_genes: bool,
         show_equal_fitness: bool,
-        show_mutate_event: bool,
+        show_select_event: bool,
         show_extension_event: bool,
+        show_crossover_event: bool,
+        show_mutate_event: bool,
     ) -> Self {
         Self {
             buffer: if buffered { Some(Vec::new()) } else { None },
             period,
             show_genes,
             show_equal_fitness,
-            show_mutate_event,
+            show_select_event,
             show_extension_event,
+            show_crossover_event,
+            show_mutate_event,
             ..Default::default()
         }
     }
@@ -191,13 +205,17 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         config: &C,
     ) {
         if state.current_generation() % self.period == 0 {
+            let number_of_select_events = self.number_of_select_events;
             let number_of_extension_events = self.number_of_extension_events;
+            let number_of_crossover_events = self.number_of_crossover_events;
+            let number_of_mutate_events = self.number_of_mutate_events;
+
             let fitness_cache_hit_miss_ratio = config.fitness_cache().map(|c| c.hit_miss_stats().2);
             let (parents_size, offspring_size) =
                 state.population_as_ref().parents_and_offspring_size();
 
             self.writeln(format_args!(
-                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, current_population_size: {} ({}p/{}o,{}r), fitness_cache_hit_miss_ratio: {:.2?}, #extension_events: {}",
+                "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, population_cardinality: {:?}, current_population_size: {} ({}p/{}o,{}r), fitness_cache_hit_miss_ratio: {:.2?}, #events(S/E/C/M): {}/{}/{}/{}",
                 state.current_generation(),
                 state.stale_generations(),
                 state.best_generation(),
@@ -208,10 +226,17 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
                 offspring_size,
                 state.population_as_ref().recycled_size(),
                 fitness_cache_hit_miss_ratio,
+                number_of_select_events,
                 number_of_extension_events,
+                number_of_crossover_events,
+                number_of_mutate_events,
             ));
-            self.number_of_mutate_events = 0;
+
+            // reset event counters
+            self.number_of_select_events = 0;
             self.number_of_extension_events = 0;
+            self.number_of_crossover_events = 0;
+            self.number_of_mutate_events = 0;
         }
     }
 
@@ -255,6 +280,23 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         }
     }
 
+    fn on_select_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        event: SelectEvent,
+        _genotype: &Self::Genotype,
+        state: &S,
+        _config: &C,
+    ) {
+        self.number_of_select_events += 1;
+        if self.show_select_event {
+            self.writeln(format_args!(
+                "select event - generation {} - {}",
+                state.current_generation(),
+                event.0,
+            ));
+        }
+    }
+
     fn on_extension_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         event: ExtensionEvent,
@@ -266,6 +308,23 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         if self.show_extension_event {
             self.writeln(format_args!(
                 "extension event - generation {} - {}",
+                state.current_generation(),
+                event.0,
+            ));
+        }
+    }
+
+    fn on_crossover_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        event: CrossoverEvent,
+        _genotype: &Self::Genotype,
+        state: &S,
+        _config: &C,
+    ) {
+        self.number_of_crossover_events += 1;
+        if self.show_crossover_event {
+            self.writeln(format_args!(
+                "crossover event - generation {} - {}",
                 state.current_generation(),
                 event.0,
             ));

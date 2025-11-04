@@ -2,8 +2,9 @@
 pub use crate::chromosome::{Chromosome, GenesHash};
 #[doc(no_inline)]
 pub use crate::crossover::{
-    Crossover, CrossoverClone, CrossoverMultiGene, CrossoverMultiPoint, CrossoverRejuvenate,
-    CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform, CrossoverWrapper,
+    Crossover, CrossoverClone, CrossoverEvent, CrossoverMultiGene, CrossoverMultiPoint,
+    CrossoverRejuvenate, CrossoverSingleGene, CrossoverSinglePoint, CrossoverUniform,
+    CrossoverWrapper,
 };
 #[doc(no_inline)]
 pub use crate::extension::{
@@ -31,7 +32,7 @@ pub use crate::mutate::{
 #[doc(no_inline)]
 pub use crate::population::Population;
 #[doc(no_inline)]
-pub use crate::select::{Select, SelectElite, SelectTournament, SelectWrapper};
+pub use crate::select::{Select, SelectElite, SelectEvent, SelectTournament, SelectWrapper};
 #[doc(no_inline)]
 pub use crate::strategy::evolve::{
     Evolve, EvolveBuilder, EvolveConfig, EvolveReporterDuration, EvolveReporterNoop,

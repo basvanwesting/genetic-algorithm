@@ -84,11 +84,13 @@ use self::evolve::EvolveVariant;
 use self::hill_climb::HillClimbVariant;
 use self::permutate::PermutateVariant;
 use crate::chromosome::{Chromosome, Genes};
+use crate::crossover::CrossoverEvent;
 use crate::extension::ExtensionEvent;
 use crate::fitness::{FitnessCache, FitnessOrdering, FitnessValue};
 use crate::genotype::Genotype;
 use crate::mutate::MutateEvent;
 use crate::population::Population;
+use crate::select::SelectEvent;
 use std::collections::HashMap;
 use std::fmt::Display;
 use std::time::Duration;
@@ -270,7 +272,9 @@ pub trait StrategyState<G: Genotype>: Display {
 ///     * `on_new_generation`
 ///     * `on_new_best_chromosome`
 ///     * `on_new_best_chromosome_equal_fitness`
+///     * `on_select_event`
 ///     * `on_extension_event`
+///     * `on_crossover_event`
 ///     * `on_mutate_event`
 /// * `on_finish` (of run loop)
 /// * `on_exit` (after cleanup)
@@ -397,9 +401,25 @@ pub trait StrategyReporter: Clone + Send + Sync {
         _config: &C,
     ) {
     }
+    fn on_select_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _event: SelectEvent,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
     fn on_extension_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _event: ExtensionEvent,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_crossover_event<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _event: CrossoverEvent,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,
