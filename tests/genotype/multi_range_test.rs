@@ -62,9 +62,9 @@ fn float_mutate_chromosome_single_relative() {
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
         .with_mutation_types(vec![
-            MutationType::Relative(-0.1..=0.1),
-            MutationType::Relative(-0.5..=0.5),
-            MutationType::Relative(-1.0..=1.0),
+            MutationType::RelativeRange(0.1),
+            MutationType::RelativeRange(0.5),
+            MutationType::RelativeRange(1.0),
         ])
         .build()
         .unwrap();
@@ -97,9 +97,9 @@ fn float_mutate_chromosome_single_transition() {
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
         .with_mutation_types(vec![
-            MutationType::Transition(10, 100, -0.1..=0.1),
-            MutationType::Transition(10, 100, -0.5..=0.5),
-            MutationType::Transition(10, 100, -1.0..=1.0),
+            MutationType::Transition(10, 100, 0.1),
+            MutationType::Transition(10, 100, 0.5),
+            MutationType::Transition(10, 100, 1.0),
         ])
         .build()
         .unwrap();
@@ -301,7 +301,7 @@ fn float_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0])
-        .with_mutation_types(vec![MutationType::Relative(-0.1..=0.1)])
+        .with_mutation_types(vec![MutationType::RelativeRange(0.1)])
         .build()
         .unwrap();
 
@@ -360,9 +360,9 @@ fn float_neighbouring_population_3_relative() {
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
         .with_mutation_types(vec![
-            MutationType::Relative(-0.1..=0.1),
-            MutationType::Relative(-0.5..=0.5),
-            MutationType::Relative(-1.0..=1.0),
+            MutationType::RelativeRange(0.1),
+            MutationType::RelativeRange(0.5),
+            MutationType::RelativeRange(1.0),
         ])
         .build()
         .unwrap();
@@ -397,9 +397,9 @@ fn float_neighbouring_population_3_transition() {
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
         .with_mutation_types(vec![
-            MutationType::Transition(10, 100, -0.1..=0.1),
-            MutationType::Transition(10, 100, -0.5..=0.5),
-            MutationType::Transition(10, 100, -1.0..=1.0),
+            MutationType::Transition(10, 100, 0.1),
+            MutationType::Transition(10, 100, 0.5),
+            MutationType::Transition(10, 100, 1.0),
         ])
         .build()
         .unwrap();
@@ -980,9 +980,9 @@ fn integer_mutate_chromosome_single_relative() {
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
         .with_mutation_types(vec![
-            MutationType::Relative(-1..=1),
-            MutationType::Relative(-2..=2),
-            MutationType::Relative(-3..=3),
+            MutationType::RelativeRange(1),
+            MutationType::RelativeRange(2),
+            MutationType::RelativeRange(3),
         ])
         .build()
         .unwrap();
@@ -1000,7 +1000,7 @@ fn integer_mutate_chromosome_single_discrete() {
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
         .with_mutation_types(vec![
-            MutationType::Relative(-1..=1),
+            MutationType::RelativeRange(1),
             MutationType::Discrete,
             MutationType::Discrete,
         ])
@@ -1019,7 +1019,7 @@ fn integer_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9])
-        .with_mutation_types(vec![MutationType::Relative(-1..=1)])
+        .with_mutation_types(vec![MutationType::RelativeRange(1)])
         .build()
         .unwrap();
 
@@ -1038,9 +1038,9 @@ fn integer_neighbouring_population_3_relative() {
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
         .with_mutation_types(vec![
-            MutationType::Relative(-1..=1),
-            MutationType::Relative(-2..=2),
-            MutationType::Relative(-3..=3),
+            MutationType::RelativeRange(1),
+            MutationType::RelativeRange(2),
+            MutationType::RelativeRange(3),
         ])
         .build()
         .unwrap();
@@ -1069,9 +1069,9 @@ fn integer_neighbouring_population_3_transition() {
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=90, 0..=50, 100..=200])
         .with_mutation_types(vec![
-            MutationType::Transition(10, 100, -1..=1),
-            MutationType::Transition(10, 100, -1..=1),
-            MutationType::Transition(10, 100, -2..=2),
+            MutationType::Transition(10, 100, 1),
+            MutationType::Transition(10, 100, 1),
+            MutationType::Transition(10, 100, 2),
         ])
         .build()
         .unwrap();
@@ -1136,7 +1136,7 @@ fn integer_neighbouring_population_3_discrete() {
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=12])
         .with_mutation_types(vec![
-            MutationType::Relative(-4..=4),
+            MutationType::RelativeRange(4),
             MutationType::Discrete,
             MutationType::Discrete,
         ])

@@ -18,7 +18,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let genotype = RangeGenotype::builder()
             .with_genes_size(10)
             .with_allele_range(-1.0..=1.0)
-            .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+            .with_mutation_type(MutationType::RelativeRange(0.1))
             .build()
             .unwrap();
 

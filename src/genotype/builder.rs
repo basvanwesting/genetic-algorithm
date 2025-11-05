@@ -85,7 +85,7 @@ impl<G: Genotype> Builder<G> {
         mut self,
         allele_mutation_range: RangeInclusive<G::Allele>,
     ) -> Self {
-        self.mutation_type = Some(MutationType::Relative(allele_mutation_range));
+        self.mutation_type = Some(MutationType::RelativeRange(*allele_mutation_range.end()));
         self
     }
 
@@ -97,7 +97,7 @@ impl<G: Genotype> Builder<G> {
         self.mutation_types = Some(
             allele_mutation_ranges
                 .into_iter()
-                .map(MutationType::Relative)
+                .map(|r| MutationType::RelativeRange(*r.end()))
                 .collect(),
         );
         self

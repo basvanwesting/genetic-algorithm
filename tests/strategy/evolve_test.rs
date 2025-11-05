@@ -411,7 +411,7 @@ fn call_range_isize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::Relative(-1..=1))
+        .with_mutation_type(MutationType::RelativeRange(1))
         .build()
         .unwrap();
     let evolve = Evolve::builder()

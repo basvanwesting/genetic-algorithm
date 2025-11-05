@@ -41,9 +41,9 @@ pub type DefaultAllele = f32;
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
 ///     .with_mutation_type(MutationType::Random) // default
-///     .with_mutation_type(MutationType::Relative(-0.1..=0.1)) // optional, restricts mutations to a smaller relative range
-///     .with_mutation_type(MutationType::ScaledSteps(vec![0.1, 0.01, 0.001])) // optional, restricts mutations to relative start/end of each scale
-///     .with_mutation_type(MutationType::Transition(100, 500, -0.1..=0.1)) // optional, see [MutationType::Transition]
+///     .with_mutation_type(MutationType::RelativeRange(0.1)) // optional, restricts mutations to a smaller relative range bandwidth: [-0.1..=0.1] uniformly sampled
+///     .with_mutation_type(MutationType::ScaledSteps(vec![0.1, 0.01, 0.001])) // optional, restricts mutations to relative step up or down of each scale
+///     .with_mutation_type(MutationType::Transition(100, 500, 0.1)) // optional, see [MutationType::Transition]
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
@@ -58,9 +58,9 @@ pub type DefaultAllele = f32;
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=100) // also default mutation range
 ///     .with_mutation_type(MutationType::Random) // default
-///     .with_mutation_type(MutationType::Relative(-1..=1)) // optional, restricts mutations to a smaller relative range
-///     .with_mutation_type(MutationType::ScaledSteps(vec![10, 3, 1])) // optional, restricts mutations to relative start/end of each scale
-///     .with_mutation_type(MutationType::Transition(100, 500, -1..=1)) // optional, see [MutationType::Transition]
+///     .with_mutation_type(MutationType::RelativeRange(1)) // optional, restricts mutations to a smaller relative range bandwidth: [-1..=1] uniformly sampled
+///     .with_mutation_type(MutationType::ScaledSteps(vec![10, 3, 1])) // optional, restricts mutations to relative step up or down of each scale
+///     .with_mutation_type(MutationType::Transition(100, 500, 1)) // optional, see [MutationType::Transition]
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
@@ -101,11 +101,11 @@ where
             let allele_range = builder.allele_range.unwrap();
             let mutation_type = builder.mutation_type.unwrap_or(MutationType::Random);
             let allele_relative_sampler = match &mutation_type {
-                MutationType::Relative(relative_range) => {
-                    Some(Uniform::from(relative_range.clone()))
+                MutationType::RelativeRange(bandwidth) => {
+                    Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
                 }
-                MutationType::Transition(_, _, relative_range) => {
-                    Some(Uniform::from(relative_range.clone()))
+                MutationType::Transition(_, _, bandwidth) => {
+                    Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
                 }
                 _ => None,
             };
@@ -157,7 +157,7 @@ where
                 };
                 T::clamp(delta, max_delta_down, max_delta_up)
             }
-            MutationType::Relative(_) => {
+            MutationType::RelativeRange(_) => {
                 let delta = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
                 T::clamp(delta, max_delta_down, max_delta_up)
             }
@@ -168,13 +168,12 @@ where
                 let delta = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
                 T::clamp(delta, max_delta_down, max_delta_up)
             }
-            MutationType::Transition(_, _, relative_range) => {
+            MutationType::Transition(_, _, bandwidth) => {
                 let transition_progress = self
                     .mutation_type
                     .transition_progress(self.current_generation);
-                let min_delta_down =
-                    T::clamp(*relative_range.start(), max_delta_down, max_delta_up);
-                let min_delta_up = T::clamp(*relative_range.end(), max_delta_down, max_delta_up);
+                let min_delta_down = T::clamp(T::zero() - *bandwidth, max_delta_down, max_delta_up);
+                let min_delta_up = T::clamp(*bandwidth, max_delta_down, max_delta_up);
                 let working_delta_down = min_delta_down
                     + (max_delta_down - min_delta_down)
                         .scale_by_fraction(1.0 - transition_progress);
@@ -194,7 +193,7 @@ where
             MutationType::Random => {
                 chromosome.genes[index] = self.sample_gene_random(rng);
             }
-            MutationType::ScaledSteps(_) | MutationType::Relative(_) => {
+            MutationType::ScaledSteps(_) | MutationType::RelativeRange(_) => {
                 let delta = self.sample_gene_delta(chromosome, index, rng);
                 chromosome.genes[index] += delta;
             }
@@ -423,35 +422,27 @@ where
             MutationType::ScaledSteps(scaled_steps) => {
                 self.fill_neighbouring_population_scaled(chromosome, population, scaled_steps)
             }
-            MutationType::Relative(relative_range) => self.fill_neighbouring_population_relative(
-                chromosome,
-                population,
-                relative_range,
-                rng,
-            ),
+            MutationType::RelativeRange(bandwidth) => {
+                self.fill_neighbouring_population_relative(chromosome, population, bandwidth, rng)
+            }
             MutationType::Transition(random_until, _, _)
                 if self.current_generation <= *random_until =>
             {
                 self.fill_neighbouring_population_random(chromosome, population, rng)
             }
-            MutationType::Transition(_, relative_from, relative_range)
+            MutationType::Transition(_, relative_from, bandwidth)
                 if self.current_generation >= *relative_from =>
             {
-                self.fill_neighbouring_population_relative(
-                    chromosome,
-                    population,
-                    relative_range,
-                    rng,
-                )
+                self.fill_neighbouring_population_relative(chromosome, population, bandwidth, rng)
             }
-            MutationType::Transition(_, _, relative_range) => {
+            MutationType::Transition(_, _, bandwidth) => {
                 let transition_progress = self
                     .mutation_type
                     .transition_progress(self.current_generation);
                 self.fill_neighbouring_population_transition(
                     chromosome,
                     population,
-                    relative_range,
+                    bandwidth,
                     transition_progress,
                     rng,
                 )
@@ -512,23 +503,21 @@ where
         &self,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
-        relative_range: &RangeInclusive<T>,
+        bandwidth: &T,
         rng: &mut R,
     ) {
         let allele_range_start = *self.allele_range.start();
         let allele_range_end = *self.allele_range.end();
-        let working_range_start = *relative_range.start();
-        let working_range_end = *relative_range.end();
 
         (0..self.genes_size).for_each(|index| {
             let current_value = chromosome.genes[index];
             let range_start = T::clamp(
-                current_value + working_range_start,
+                current_value - *bandwidth,
                 allele_range_start,
                 allele_range_end,
             );
             let range_end = T::clamp(
-                current_value + working_range_end,
+                current_value + *bandwidth,
                 allele_range_start,
                 allele_range_end,
             );
@@ -553,7 +542,7 @@ where
         &self,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
-        relative_range: &RangeInclusive<T>,
+        bandwidth: &T,
         transition_progress: f64,
         rng: &mut R,
     ) {
@@ -561,8 +550,8 @@ where
             let current_value = chromosome.genes[index];
             let max_delta_down = *self.allele_range.start() - current_value;
             let max_delta_up = *self.allele_range.end() - current_value;
-            let min_delta_down = T::clamp(*relative_range.start(), max_delta_down, max_delta_up);
-            let min_delta_up = T::clamp(*relative_range.end(), max_delta_down, max_delta_up);
+            let min_delta_down = T::clamp(T::zero() - *bandwidth, max_delta_down, max_delta_up);
+            let min_delta_up = T::clamp(*bandwidth, max_delta_down, max_delta_up);
             let working_delta_down = min_delta_down
                 + (max_delta_down - min_delta_down).scale_by_fraction(1.0 - transition_progress);
             let working_delta_up = min_delta_up
@@ -632,8 +621,8 @@ where
                         .multi_cartesian_product()
                         .map(Chromosome::new),
                 ),
-                MutationType::Relative(_) => {
-                    panic!("RangeGenotype is not permutable for MutationType::Relative")
+                MutationType::RelativeRange(_) => {
+                    panic!("RangeGenotype is not permutable for MutationType::RelativeRange")
                 }
                 MutationType::Transition(_, _, _) => {
                     panic!("RangeGenotype is not permutable for MutationType::Transition")
@@ -663,8 +652,8 @@ where
                         self.chromosome_permutations_size_scaled(scale_index, scaled_steps)
                     })
                     .sum(),
-                MutationType::Relative(_) => {
-                    panic!("RangeGenotype is not permutable for MutationType::Relative")
+                MutationType::RelativeRange(_) => {
+                    panic!("RangeGenotype is not permutable for MutationType::RelativeRange")
                 }
                 MutationType::Transition(_, _, _) => {
                     panic!("RangeGenotype is not permutable for MutationType::Transition")
@@ -807,9 +796,11 @@ where
     fn clone(&self) -> Self {
         let allele_sampler = Uniform::from(self.allele_range.clone());
         let allele_relative_sampler = match &self.mutation_type {
-            MutationType::Relative(relative_range) => Some(Uniform::from(relative_range.clone())),
-            MutationType::Transition(_, _, relative_range) => {
-                Some(Uniform::from(relative_range.clone()))
+            MutationType::RelativeRange(bandwidth) => {
+                Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
+            }
+            MutationType::Transition(_, _, bandwidth) => {
+                Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
             }
             _ => None,
         };

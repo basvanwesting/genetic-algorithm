@@ -9,7 +9,7 @@ fn build_invalid_missing_ending_condition() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
 
@@ -33,7 +33,7 @@ fn call_range_max_stale_generations_maximize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
     let hill_climb = HillClimb::builder()
@@ -59,7 +59,7 @@ fn call_range_max_stale_generations_minimize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
     let hill_climb = HillClimb::builder()
@@ -86,7 +86,7 @@ fn call_range_max_generations_maximize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
     let hill_climb = HillClimb::builder()
@@ -112,7 +112,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
     let hill_climb = HillClimb::builder()
@@ -134,7 +134,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(100)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
     let hill_climb = HillClimb::builder()
@@ -157,7 +157,7 @@ fn call_range_target_fitness_score_maximize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
     let hill_climb = HillClimb::builder()
@@ -183,7 +183,7 @@ fn call_range_target_fitness_score_minimize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
     let hill_climb = HillClimb::builder()
@@ -210,7 +210,7 @@ fn call_range_par_fitness() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
     let hill_climb = HillClimb::builder()

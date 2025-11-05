@@ -52,7 +52,7 @@ fn float_mutate_chromosome_single_relative() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
 
@@ -84,7 +84,7 @@ fn float_mutate_chromosome_single_transition() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=10.0)
-        .with_mutation_type(MutationType::Transition(10, 100, -0.1..=0.1))
+        .with_mutation_type(MutationType::Transition(10, 100, 0.1))
         .build()
         .unwrap();
 
@@ -262,7 +262,7 @@ fn float_neighbouring_population_1() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(1)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
 
@@ -320,7 +320,7 @@ fn float_neighbouring_population_2_relative() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
 
@@ -352,7 +352,7 @@ fn float_neighbouring_population_2_transition() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=10.0)
-        .with_mutation_type(MutationType::Transition(10, 100, -0.1..=0.1))
+        .with_mutation_type(MutationType::Transition(10, 100, 0.1))
         .build()
         .unwrap();
 
@@ -477,7 +477,7 @@ fn float_neighbouring_population_3() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(-0.1..=0.1))
+        .with_mutation_type(MutationType::RelativeRange(0.1))
         .build()
         .unwrap();
 
@@ -500,38 +500,6 @@ fn float_neighbouring_population_3() {
             vec![0.447, 0.498, 0.980],
             vec![0.447, 0.439, 0.925],
             vec![0.447, 0.439, 0.987],
-        ],
-        0.001,
-    ));
-}
-
-#[test]
-fn float_neighbouring_population_3_one_sided() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = RangeGenotype::builder()
-        .with_genes_size(3)
-        .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::Relative(0.0..=0.1))
-        .build()
-        .unwrap();
-
-    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 0.980],
-        0.001,
-    ));
-
-    // size makes error as it counts 0.0 twice, this is fine
-    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
-    let mut population = Population::new(vec![], true);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
-    assert!(relative_population_eq(
-        inspect::population(&population),
-        vec![
-            vec![0.494, 0.439, 0.980],
-            vec![0.447, 0.529, 0.980],
-            vec![0.447, 0.439, 0.999],
         ],
         0.001,
     ));
@@ -773,7 +741,7 @@ fn integer_mutate_chromosome_single_relative() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::Relative(-1..=1))
+        .with_mutation_type(MutationType::RelativeRange(1))
         .build()
         .unwrap();
 
@@ -797,7 +765,7 @@ fn integer_neighbouring_population_1() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(1)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::Relative(-1..=1))
+        .with_mutation_type(MutationType::RelativeRange(1))
         .build()
         .unwrap();
 
@@ -837,7 +805,7 @@ fn integer_neighbouring_population_2_relative() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::Relative(-2..=2))
+        .with_mutation_type(MutationType::RelativeRange(2))
         .build()
         .unwrap();
 
@@ -859,7 +827,7 @@ fn integer_neighbouring_population_2_transition() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=100)
-        .with_mutation_type(MutationType::Transition(10, 100, -2..=2))
+        .with_mutation_type(MutationType::Transition(10, 100, 2))
         .build()
         .unwrap();
 
@@ -926,7 +894,7 @@ fn integer_neighbouring_population_3() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::Relative(-1..=1))
+        .with_mutation_type(MutationType::RelativeRange(1))
         .build()
         .unwrap();
 
@@ -945,30 +913,6 @@ fn integer_neighbouring_population_3() {
             vec![4, 5, 9],
             vec![4, 4, 8],
         ]
-    );
-}
-
-#[test]
-fn integer_neighbouring_population_3_one_sided() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let genotype = RangeGenotype::builder()
-        .with_genes_size(3)
-        .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::Relative(0..=1))
-        .build()
-        .unwrap();
-
-    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
-    assert_eq!(inspect::chromosome(&chromosome), vec![4, 4, 9]);
-
-    // size makes error as it counts 0.0 twice, this is fine
-    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
-
-    let mut population = Population::new(vec![], true);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
-    assert_eq!(
-        inspect::population(&population),
-        vec![vec![5, 4, 9], vec![4, 5, 9]]
     );
 }
 

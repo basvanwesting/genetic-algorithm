@@ -28,8 +28,8 @@ fn main() {
     let genotype = RangeGenotype::<f32>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0) // won't converge, with low max_stale_generations, converges just fine with higher max_stale_generations
-        // .with_mutation_type(MutationType::Relative(-0.1..=0.1)) // converges slowly
-        .with_mutation_type(MutationType::Transition(1000, 2000, -0.1..=0.1)) // converges slowly
+        // .with_mutation_type(MutationType::RelativeRange(0.1)) // converges slowly
+        .with_mutation_type(MutationType::Transition(1000, 2000, 0.1)) // converges slowly
         // .with_mutation_type(MutationType::ScaledSteps(vec![
         //     0.1,
         //     0.01,
