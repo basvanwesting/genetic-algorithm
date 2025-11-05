@@ -26,7 +26,8 @@ pub type DefaultAllele = f32;
 /// # Permutation
 ///
 /// Supports Permutation for scaled and discrete mutations only. This approach implements a
-/// increasingly localized grid search with increasing precision using the [MutationType::Scaled]
+/// increasingly localized grid search with increasing precision using the
+/// [MutationType::ScaledSteps]
 /// to define the search scope and grid steps
 /// * First scale (index = 0) traverses the whole `allele_ranges` with the
 ///   upper bound of the first scale as step size.
@@ -47,7 +48,7 @@ pub type DefaultAllele = f32;
 ///
 /// * `MutationType::Random` - Samples uniformly from the full allele range
 /// * `MutationType::Relative` - Mutates within a relative range around the current value
-/// * `MutationType::Scaled` - Progressive refinement through multiple scale levels around the current value
+/// * `MutationType::ScaledSteps` - Progressive refinement through multiple scale levels around the current value
 /// * `MutationType::Discrete` - Rounded-to-integer values with uniform selection (like `ListGenotype`).
 ///   * Mutations ignore current value - all rounded-to-integer in range equally likely
 ///   * Range `0.0..=4.0` yields values: 0.0, 1.0, 2.0, 3.0, 4.0 (with equal probability)
@@ -108,10 +109,10 @@ pub type DefaultAllele = f32;
 ///        10.0..=30.0
 ///     ])
 ///     .with_mutation_types(vec![
-///        MutationType::Scaled(vec![-1.0..=1.0,-0.1..=0.1]),
-///        MutationType::Scaled(vec![-2.0..=2.0,-0.2..=0.2]),
-///        MutationType::Scaled(vec![-0.5..=0.5,-0.05..=0.05]),
-///        MutationType::Scaled(vec![-3.0..=3.0,-0.3..=0.3]),
+///        MutationType::ScaledSteps(vec![1.0,0.1]),
+///        MutationType::ScaledSteps(vec![2.0,0.2]),
+///        MutationType::ScaledSteps(vec![0.5,0.05]),
+///        MutationType::ScaledSteps(vec![3.0,0.3]),
 ///     ]) // optional, restricts mutations to relative start/end of each scale
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
@@ -132,7 +133,7 @@ pub type DefaultAllele = f32;
 ///     .with_mutation_types(vec![
 ///         MutationType::Discrete,  // Boolean as 0 or 1
 ///         MutationType::Discrete,  // One of 5 algorithms
-///         MutationType::Scaled(vec![-10.0..=10.0, -1.0..=1.0, -0.1..=0.1]),    // Continuous refinement
+///         MutationType::ScaledSteps(vec![10.0, 1.0, 0.1]),    // Continuous refinement
 ///     ])
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
@@ -184,7 +185,9 @@ where
             let allele_relative_samplers = mutation_types
                 .iter()
                 .map(|mutation_type| match &mutation_type {
-                    MutationType::Random | MutationType::Discrete | MutationType::Scaled(_) => None,
+                    MutationType::Random
+                    | MutationType::Discrete
+                    | MutationType::ScaledSteps(_) => None,
                     MutationType::Relative(relative_range) => {
                         Some(Uniform::from(relative_range.clone()))
                     }
@@ -250,12 +253,12 @@ where
         let max_delta_up = *self.allele_ranges[index].end() - current_value;
 
         match &self.mutation_types[index] {
-            MutationType::Scaled(scaled_ranges) => {
-                let working_range = &scaled_ranges[self.current_scale_index];
+            MutationType::ScaledSteps(scaled_steps) => {
+                let working_step = scaled_steps[self.current_scale_index];
                 let delta = if rng.gen() {
-                    *working_range.start()
+                    T::zero() - working_step
                 } else {
-                    *working_range.end()
+                    working_step
                 };
                 T::clamp(delta, max_delta_down, max_delta_up)
             }
@@ -301,7 +304,7 @@ where
             MutationType::Random => {
                 chromosome.genes[index] = self.sample_gene_random(index, rng);
             }
-            MutationType::Scaled(_) | MutationType::Relative(_) => {
+            MutationType::ScaledSteps(_) | MutationType::Relative(_) => {
                 let delta = self.sample_gene_delta(chromosome, index, rng);
                 chromosome.genes[index] += delta;
             }
@@ -382,7 +385,7 @@ where
         self.mutation_types
             .iter()
             .find_map(|mutation_type| match mutation_type {
-                MutationType::Scaled(scaled_ranges) => Some(scaled_ranges.len() - 1),
+                MutationType::ScaledSteps(scaled_steps) => Some(scaled_steps.len() - 1),
                 _ => None,
             })
     }
@@ -390,7 +393,7 @@ where
         self.mutation_types
             .iter()
             .find_map(|mutation_type| match mutation_type {
-                MutationType::Scaled(_) => Some(self.current_scale_index),
+                MutationType::ScaledSteps(_) => Some(self.current_scale_index),
                 _ => None,
             })
     }
@@ -534,12 +537,13 @@ where
                 MutationType::Random => {
                     self.fill_neighbouring_population_random(index, chromosome, population, rng)
                 }
-                MutationType::Scaled(scaled_ranges) => self.fill_neighbouring_population_scaled(
-                    index,
-                    chromosome,
-                    population,
-                    scaled_ranges,
-                ),
+                MutationType::ScaledSteps(scaled_steps) => self
+                    .fill_neighbouring_population_scaled(
+                        index,
+                        chromosome,
+                        population,
+                        scaled_steps,
+                    ),
                 MutationType::Relative(relative_range) => self
                     .fill_neighbouring_population_relative(
                         index,
@@ -597,22 +601,20 @@ where
         index: usize,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
-        scaled_ranges: &[RangeInclusive<T>],
+        scaled_steps: &[T],
     ) {
         let allele_range_start = *self.allele_ranges[index].start();
         let allele_range_end = *self.allele_ranges[index].end();
-        let working_range = &scaled_ranges[self.current_scale_index];
-        let working_range_start = *working_range.start();
-        let working_range_end = *working_range.end();
+        let working_step = scaled_steps[self.current_scale_index];
 
         let current_value = chromosome.genes[index];
         let value_low = T::clamp(
-            current_value + working_range_start,
+            current_value - working_step,
             allele_range_start,
             allele_range_end,
         );
         let value_high = T::clamp(
-            current_value + working_range_end,
+            current_value + working_step,
             allele_range_start,
             allele_range_end,
         );
@@ -768,8 +770,8 @@ where
                     .iter()
                     .enumerate()
                     .map(|(index, mutation_type)| match mutation_type {
-                        MutationType::Scaled(scaled_ranges) => {
-                            self.permutable_gene_values_scaled(index, chromosome, scaled_ranges)
+                        MutationType::ScaledSteps(scaled_steps) => {
+                            self.permutable_gene_values_scaled(index, chromosome, scaled_steps)
                         }
                         MutationType::Discrete => {
                             self.permutable_gene_values_discrete(index, chromosome)
@@ -810,7 +812,7 @@ where
                     })
                     .sum()
             } else {
-                panic!("MultiRangeGenotype is only permutable for MutationType::Scaled")
+                panic!("MultiRangeGenotype is only permutable for MutationType::ScaledSteps")
             }
         } else {
             self.seed_genes_list.len().into()
@@ -835,7 +837,7 @@ where
         self.mutation_types.iter().all(|mutation_type| {
             matches!(
                 mutation_type,
-                MutationType::Scaled(_) | MutationType::Discrete
+                MutationType::ScaledSteps(_) | MutationType::Discrete
             )
         })
     }
@@ -850,25 +852,23 @@ where
         &self,
         index: usize,
         chromosome: Option<&Chromosome<T>>,
-        scaled_ranges: &[RangeInclusive<T>],
+        scaled_steps: &[T],
     ) -> Vec<T> {
         let allele_range_start = *self.allele_ranges[index].start();
         let allele_range_end = *self.allele_ranges[index].end();
 
         let (allele_value_start, allele_value_end) = if let Some(chromosome) = chromosome {
             if let Some(previous_scale_index) = self.current_scale_index.checked_sub(1) {
-                let working_range = &scaled_ranges[previous_scale_index];
-                let working_range_start = *working_range.start();
-                let working_range_end = *working_range.end();
+                let working_step = scaled_steps[previous_scale_index];
 
                 let current_value = chromosome.genes[index];
                 let value_start = T::clamp(
-                    current_value + working_range_start,
+                    current_value - working_step,
                     allele_range_start,
                     allele_range_end,
                 );
                 let value_end = T::clamp(
-                    current_value + working_range_end,
+                    current_value + working_step,
                     allele_range_start,
                     allele_range_end,
                 );
@@ -881,12 +881,10 @@ where
             (allele_range_start, allele_range_end)
         };
 
-        let working_range = &scaled_ranges[self.current_scale_index];
-        let working_range_step = *working_range.end();
-
+        let working_step = scaled_steps[self.current_scale_index];
         std::iter::successors(Some(allele_value_start), |value| {
             if *value < allele_value_end {
-                let next_value = *value + working_range_step;
+                let next_value = *value + working_step;
                 if next_value > allele_value_end {
                     Some(allele_value_end)
                 } else {
@@ -928,12 +926,12 @@ where
             .iter()
             .enumerate()
             .map(|(index, mutation_type)| match mutation_type {
-                MutationType::Scaled(scaled_ranges) => {
+                MutationType::ScaledSteps(scaled_steps) => {
                     let (allele_value_start, allele_value_end) = if let Some(previous_scale_index) =
                         scale_index.checked_sub(1)
                     {
-                        let working_range = &scaled_ranges[previous_scale_index];
-                        (*working_range.start(), *working_range.end())
+                        let working_step = scaled_steps[previous_scale_index];
+                        (T::zero() - working_step, working_step)
                     } else {
                         (
                             *self.allele_ranges[index].start(),
@@ -941,12 +939,10 @@ where
                         )
                     };
 
-                    let working_range = &scaled_ranges[scale_index];
-                    let working_range_step = *working_range.end();
-
+                    let working_step = scaled_steps[scale_index];
                     std::iter::successors(Some(allele_value_start), |value| {
                         if *value < allele_value_end {
-                            let next_value = *value + working_range_step;
+                            let next_value = *value + working_step;
                             if next_value > allele_value_end {
                                 Some(allele_value_end)
                             } else {
@@ -964,7 +960,7 @@ where
                   (end_f64.floor() - start_f64.floor()) as usize
                 }
                 _ => {
-                    panic!("MultiRangeGenotype is only permutable for MutationType::Scaled and MutationType::Discrete")
+                    panic!("MultiRangeGenotype is only permutable for MutationType::ScaledSteps and MutationType::Discrete")
                 }
             })
             .collect()
@@ -992,7 +988,9 @@ where
             .mutation_types
             .iter()
             .map(|mutation_type| match &mutation_type {
-                MutationType::Random | MutationType::Discrete | MutationType::Scaled(_) => None,
+                MutationType::Random | MutationType::Discrete | MutationType::ScaledSteps(_) => {
+                    None
+                }
                 MutationType::Relative(relative_range) => {
                     Some(Uniform::from(relative_range.clone()))
                 }

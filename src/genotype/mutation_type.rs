@@ -31,7 +31,7 @@ use std::ops::RangeInclusive;
 /// **Use case:** Local search, fine-tuning solutions, problems where nearby
 /// solutions have similar fitness (smooth fitness landscape).
 ///
-/// ## `Scaled(Vec<RangeInclusive<T>>)`
+/// ## `ScaledSteps(Vec<T>)`
 /// Multi-scale mutation for progressive refinement. The vector contains ranges for each scale
 /// level, from coarse to fine adjustments. During mutation, picks either the start or end value of
 /// the current scale's range as the delta. So no sampling inside the scaled range, only the full
@@ -40,7 +40,7 @@ use std::ops::RangeInclusive;
 /// The scale is transitioned to the next level, when the algorithm reaches its
 /// max_stale_generations, resetting the max_stale_generations to zero again.
 ///
-/// **Example:** Scales `vec![-1.0..=1.0, -0.1..=0.1, -0.01..=0.01]` provide
+/// **Example:** Scales `vec![1.0, 0.1, 0.01]` provide
 /// three levels of precision. At scale 0, mutations use ±1.0; at scale 2, ±0.01.
 ///
 /// **Use case:** Optimization requiring both exploration and exploitation,
@@ -81,7 +81,7 @@ use std::ops::RangeInclusive;
 /// Different mutation types handle allele range boundaries differently:
 ///
 /// - **Random**: Undersamples boundaries (infinitesimal probability of sampling exact boundary)
-/// - **Relative** & **Scaled**: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
+/// - **Relative** & **ScaledSteps**: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
 /// - **Transition**: Uses pre-clamped sampling ranges, undersampling boundaries during transition phase
 /// - **Discrete**: Uniform sampling, no over- or undersampling of boundaries
 ///
@@ -92,7 +92,7 @@ use std::ops::RangeInclusive;
 ///
 /// # Compatibility
 ///
-/// - **RangeGenotype**: Supports Random, Relative, Scaled, and Transition
+/// - **RangeGenotype**: Supports Random, Relative, ScaledSteps, and Transition
 /// - **MultiRangeGenotype**: Supports all variants including Discrete and Transition
 /// - Other genotypes (Binary, List, Unique) use fixed random mutation strategies
 ///
@@ -122,13 +122,13 @@ use std::ops::RangeInclusive;
 ///     .with_allele_mutation_range(-5.0..=5.0)  // legacy setting of the same, to be deprecated
 ///     .build();
 ///
-/// // Scaled mutation - progressive refinement
+/// // ScaledSteps mutation - progressive refinement
 /// let genotype = RangeGenotype::builder()
 ///     .with_allele_range(0.0..=100.0)
-///     .with_mutation_type(MutationType::Scaled(vec![
-///         -10.0..=10.0,  // Coarse scale
-///         -1.0..=1.0,    // Medium scale
-///         -0.1..=0.1,    // Fine scale
+///     .with_mutation_type(MutationType::ScaledSteps(vec![
+///         10.0,  // Coarse scale
+///         1.0,    // Medium scale
+///         0.1,    // Fine scale
 ///     ]))
 ///     .with_allele_mutation_scaled_range(vec![
 ///         -10.0..=10.0,  // Coarse scale
@@ -157,7 +157,7 @@ use std::ops::RangeInclusive;
 ///     .with_mutation_types(vec![
 ///         MutationType::Discrete,  // Boolean as 0 or 1
 ///         MutationType::Discrete,  // One of 5 algorithms
-///         MutationType::Scaled(vec![-10.0..=10.0, -1.0..=1.0, -0.1..=0.1]), // Continuous refinement
+///         MutationType::ScaledSteps(vec![10.0, 1.0, 0.1]), // Continuous refinement
 ///     ])
 ///     // no legacy alternative
 ///     .build();
@@ -167,7 +167,7 @@ pub enum MutationType<T: Allele> {
     #[default]
     Random,
     Relative(RangeInclusive<T>),
-    Scaled(Vec<RangeInclusive<T>>),
+    ScaledSteps(Vec<T>),
     Discrete,                                    // Range acting as List encoding
     Transition(usize, usize, RangeInclusive<T>), // (random_until_generation, relative_from_generation, relative_mutation_range)
 }
@@ -195,9 +195,9 @@ impl<T: Allele> MutationType<T> {
     //         _ => None,
     //     }
     // }
-    // pub fn scaled_ranges(&self) -> Option<&Vec<RangeInclusive<T>>> {
+    // pub fn scaled_ranges(&self) -> Option<&Vec<T>> {
     //     match self {
-    //         Self::Scaled(ranges) => Some(ranges),
+    //         Self::ScaledSteps(ranges) => Some(ranges),
     //         _ => None,
     //     }
     // }

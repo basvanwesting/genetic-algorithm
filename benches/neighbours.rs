@@ -39,11 +39,7 @@ pub fn criterion_benchmark(c: &mut Criterion) {
         let mut genotype = RangeGenotype::builder()
             .with_genes_size(10)
             .with_allele_range(-1.0..=1.0)
-            .with_mutation_type(MutationType::Scaled(vec![
-                -0.1..=0.1,
-                -0.01..=0.01,
-                -0.001..=0.001,
-            ]))
+            .with_mutation_type(MutationType::ScaledSteps(vec![0.1, 0.01, 0.001]))
             .build()
             .unwrap();
         genotype.increment_scale_index();

@@ -108,7 +108,12 @@ impl<G: Genotype> Builder<G> {
         mut self,
         allele_mutation_scaled_range: Vec<RangeInclusive<G::Allele>>,
     ) -> Self {
-        self.mutation_type = Some(MutationType::Scaled(allele_mutation_scaled_range));
+        self.mutation_type = Some(MutationType::ScaledSteps(
+            allele_mutation_scaled_range
+                .into_iter()
+                .map(|r| *r.end())
+                .collect(),
+        ));
         self
     }
 
@@ -121,11 +126,11 @@ impl<G: Genotype> Builder<G> {
             self.mutation_types = Some(
                 (0..*genes_size)
                     .map(|gene_index| {
-                        MutationType::Scaled(
+                        MutationType::ScaledSteps(
                             allele_mutation_scaled_ranges
                                 .iter()
                                 .map(|gene_ranges_per_scale| {
-                                    gene_ranges_per_scale[gene_index].clone()
+                                    *gene_ranges_per_scale[gene_index].end()
                                 })
                                 .collect(),
                         )

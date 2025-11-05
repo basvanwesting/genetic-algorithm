@@ -70,6 +70,9 @@ pub trait RangeAllele:
     /// used to build a start exclusive range, by adding the increment to the start
     fn smallest_increment() -> Self;
 
+    /// Returns value 0 for iteration/counting
+    fn zero() -> Self;
+
     /// Returns value 1 for iteration/counting
     fn one() -> Self;
 
@@ -95,6 +98,9 @@ impl RangeAllele for f32 {
     fn smallest_increment() -> Self {
         f32::EPSILON
     }
+    fn zero() -> Self {
+        0.0
+    }
     fn one() -> Self {
         1.0
     }
@@ -108,6 +114,9 @@ impl RangeAllele for f32 {
 impl RangeAllele for f64 {
     fn smallest_increment() -> Self {
         f64::EPSILON
+    }
+    fn zero() -> Self {
+        0.0
     }
     fn one() -> Self {
         1.0
@@ -123,6 +132,9 @@ impl RangeAllele for i8 {
     fn smallest_increment() -> Self {
         1
     }
+    fn zero() -> Self {
+        0
+    }
     fn one() -> Self {
         1
     }
@@ -136,6 +148,9 @@ impl RangeAllele for i8 {
 impl RangeAllele for i16 {
     fn smallest_increment() -> Self {
         1
+    }
+    fn zero() -> Self {
+        0
     }
     fn one() -> Self {
         1
@@ -151,6 +166,9 @@ impl RangeAllele for i32 {
     fn smallest_increment() -> Self {
         1
     }
+    fn zero() -> Self {
+        0
+    }
     fn one() -> Self {
         1
     }
@@ -164,6 +182,9 @@ impl RangeAllele for i32 {
 impl RangeAllele for u8 {
     fn smallest_increment() -> Self {
         1
+    }
+    fn zero() -> Self {
+        0
     }
     fn one() -> Self {
         1
@@ -179,6 +200,9 @@ impl RangeAllele for u16 {
     fn smallest_increment() -> Self {
         1
     }
+    fn zero() -> Self {
+        0
+    }
     fn one() -> Self {
         1
     }
@@ -192,6 +216,9 @@ impl RangeAllele for u16 {
 impl RangeAllele for u32 {
     fn smallest_increment() -> Self {
         1
+    }
+    fn zero() -> Self {
+        0
     }
     fn one() -> Self {
         1

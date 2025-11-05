@@ -23,7 +23,8 @@ pub type DefaultAllele = f32;
 /// # Permutation
 ///
 /// Supports Permutation for scaled mutations only. This approach implements a
-/// increasingly localized grid search with increasing precision using the [MutationType::Scaled]
+/// increasingly localized grid search with increasing precision using the
+/// [MutationType::ScaledSteps]
 /// to define the search scope and grid steps
 /// * First scale (index = 0) traverses the whole `allele_range` with the
 ///   upper bound of the first scale as step size.
@@ -41,7 +42,7 @@ pub type DefaultAllele = f32;
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
 ///     .with_mutation_type(MutationType::Random) // default
 ///     .with_mutation_type(MutationType::Relative(-0.1..=0.1)) // optional, restricts mutations to a smaller relative range
-///     .with_mutation_type(MutationType::Scaled(vec![-0.1..=0.1, -0.01..=0.01, -0.001..=0.001])) // optional, restricts mutations to relative start/end of each scale
+///     .with_mutation_type(MutationType::ScaledSteps(vec![0.1, 0.01, 0.001])) // optional, restricts mutations to relative start/end of each scale
 ///     .with_mutation_type(MutationType::Transition(100, 500, -0.1..=0.1)) // optional, see [MutationType::Transition]
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
@@ -58,7 +59,7 @@ pub type DefaultAllele = f32;
 ///     .with_allele_range(0..=100) // also default mutation range
 ///     .with_mutation_type(MutationType::Random) // default
 ///     .with_mutation_type(MutationType::Relative(-1..=1)) // optional, restricts mutations to a smaller relative range
-///     .with_mutation_type(MutationType::Scaled(vec![-10..=10, -3..=3, -1..=1])) // optional, restricts mutations to relative start/end of each scale
+///     .with_mutation_type(MutationType::ScaledSteps(vec![10, 3, 1])) // optional, restricts mutations to relative start/end of each scale
 ///     .with_mutation_type(MutationType::Transition(100, 500, -1..=1)) // optional, see [MutationType::Transition]
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
@@ -147,12 +148,12 @@ where
         let max_delta_up = *self.allele_range.end() - current_value;
 
         match &self.mutation_type {
-            MutationType::Scaled(scaled_ranges) => {
-                let working_range = &scaled_ranges[self.current_scale_index];
+            MutationType::ScaledSteps(scaled_steps) => {
+                let working_step = scaled_steps[self.current_scale_index];
                 let delta = if rng.gen() {
-                    *working_range.start()
+                    T::zero() - working_step
                 } else {
-                    *working_range.end()
+                    working_step
                 };
                 T::clamp(delta, max_delta_down, max_delta_up)
             }
@@ -193,7 +194,7 @@ where
             MutationType::Random => {
                 chromosome.genes[index] = self.sample_gene_random(rng);
             }
-            MutationType::Scaled(_) | MutationType::Relative(_) => {
+            MutationType::ScaledSteps(_) | MutationType::Relative(_) => {
                 let delta = self.sample_gene_delta(chromosome, index, rng);
                 chromosome.genes[index] += delta;
             }
@@ -271,13 +272,13 @@ where
     }
     fn max_scale_index(&self) -> Option<usize> {
         match &self.mutation_type {
-            MutationType::Scaled(scaled_ranges) => Some(scaled_ranges.len() - 1),
+            MutationType::ScaledSteps(scaled_steps) => Some(scaled_steps.len() - 1),
             _ => None,
         }
     }
     fn current_scale_index(&self) -> Option<usize> {
         match self.mutation_type {
-            MutationType::Scaled(_) => Some(self.current_scale_index),
+            MutationType::ScaledSteps(_) => Some(self.current_scale_index),
             _ => None,
         }
     }
@@ -419,8 +420,8 @@ where
             MutationType::Random => {
                 self.fill_neighbouring_population_random(chromosome, population, rng)
             }
-            MutationType::Scaled(scaled_ranges) => {
-                self.fill_neighbouring_population_scaled(chromosome, population, scaled_ranges)
+            MutationType::ScaledSteps(scaled_steps) => {
+                self.fill_neighbouring_population_scaled(chromosome, population, scaled_steps)
             }
             MutationType::Relative(relative_range) => self.fill_neighbouring_population_relative(
                 chromosome,
@@ -474,24 +475,21 @@ where
         &self,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
-        scaled_ranges: &[RangeInclusive<T>],
+        scaled_steps: &[T],
     ) {
         let allele_range_start = *self.allele_range.start();
         let allele_range_end = *self.allele_range.end();
-
-        let working_range = &scaled_ranges[self.current_scale_index];
-        let working_range_start = *working_range.start();
-        let working_range_end = *working_range.end();
+        let working_step = scaled_steps[self.current_scale_index];
 
         (0..self.genes_size).for_each(|index| {
             let current_value = chromosome.genes[index];
             let value_low = T::clamp(
-                current_value + working_range_start,
+                current_value - working_step,
                 allele_range_start,
                 allele_range_end,
             );
             let value_high = T::clamp(
-                current_value + working_range_end,
+                current_value + working_step,
                 allele_range_start,
                 allele_range_end,
             );
@@ -628,8 +626,8 @@ where
     ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
             match &self.mutation_type {
-                MutationType::Scaled(scaled_ranges) => Box::new(
-                    self.permutable_gene_values_scaled(chromosome, scaled_ranges)
+                MutationType::ScaledSteps(scaled_steps) => Box::new(
+                    self.permutable_gene_values_scaled(chromosome, scaled_steps)
                         .into_iter()
                         .multi_cartesian_product()
                         .map(Chromosome::new),
@@ -660,9 +658,9 @@ where
     fn chromosome_permutations_size(&self) -> BigUint {
         if self.seed_genes_list.is_empty() {
             match &self.mutation_type {
-                MutationType::Scaled(scaled_ranges) => (0..=self.max_scale_index().unwrap())
+                MutationType::ScaledSteps(scaled_steps) => (0..=self.max_scale_index().unwrap())
                     .map(|scale_index| {
-                        self.chromosome_permutations_size_scaled(scale_index, scaled_ranges)
+                        self.chromosome_permutations_size_scaled(scale_index, scaled_steps)
                     })
                     .sum(),
                 MutationType::Relative(_) => {
@@ -685,10 +683,10 @@ where
 
     fn chromosome_permutations_size_report(&self) -> String {
         match &self.mutation_type {
-            MutationType::Scaled(scaled_ranges) => {
+            MutationType::ScaledSteps(scaled_steps) => {
                 let size_per_scale: Vec<String> = (0..=self.max_scale_index().unwrap())
                     .map(|scale_index| {
-                        self.chromosome_permutations_size_scaled(scale_index, scaled_ranges)
+                        self.chromosome_permutations_size_scaled(scale_index, scaled_steps)
                     })
                     .map(|scale_size| self.format_biguint_scientific(&scale_size))
                     .collect();
@@ -704,7 +702,7 @@ where
 
     fn allows_permutation(&self) -> bool {
         match self.mutation_type {
-            MutationType::Scaled(_) => true,
+            MutationType::ScaledSteps(_) => true,
             MutationType::Discrete => false, // can implement, but acts as inefficient ListGenotype
             _ => false,
         }
@@ -719,7 +717,7 @@ where
     pub fn permutable_gene_values_scaled(
         &self,
         chromosome: Option<&Chromosome<T>>,
-        scaled_ranges: &[RangeInclusive<T>],
+        scaled_steps: &[T],
     ) -> Vec<Vec<T>> {
         (0..self.genes_size())
             .map(|index| {
@@ -727,19 +725,16 @@ where
                     if let Some(previous_scale_index) = self.current_scale_index.checked_sub(1) {
                         let allele_range_start = *self.allele_range.start();
                         let allele_range_end = *self.allele_range.end();
-
-                        let working_range = &scaled_ranges[previous_scale_index];
-                        let working_range_start = *working_range.start();
-                        let working_range_end = *working_range.end();
+                        let working_step = scaled_steps[previous_scale_index];
 
                         let current_value = chromosome.genes[index];
                         let value_start = T::clamp(
-                            current_value + working_range_start,
+                            current_value - working_step,
                             allele_range_start,
                             allele_range_end,
                         );
                         let value_end = T::clamp(
-                            current_value + working_range_end,
+                            current_value + working_step,
                             allele_range_start,
                             allele_range_end,
                         );
@@ -752,12 +747,10 @@ where
                     (*self.allele_range.start(), *self.allele_range.end())
                 };
 
-                let working_range = &scaled_ranges[self.current_scale_index];
-                let working_range_step = *working_range.end();
-
+                let working_step = scaled_steps[self.current_scale_index];
                 std::iter::successors(Some(allele_value_start), |value| {
                     if *value < allele_value_end {
-                        let next_value = *value + working_range_step;
+                        let next_value = *value + working_step;
                         if next_value > allele_value_end {
                             Some(allele_value_end)
                         } else {
@@ -772,25 +765,19 @@ where
             .collect()
     }
 
-    pub fn permutable_allele_size_scaled(
-        &self,
-        scale_index: usize,
-        scaled_ranges: &[RangeInclusive<T>],
-    ) -> usize {
+    pub fn permutable_allele_size_scaled(&self, scale_index: usize, scaled_steps: &[T]) -> usize {
         let (allele_value_start, allele_value_end) =
             if let Some(previous_scale_index) = scale_index.checked_sub(1) {
-                let working_range = &scaled_ranges[previous_scale_index];
-                (*working_range.start(), *working_range.end())
+                let working_step = scaled_steps[previous_scale_index];
+                (T::zero() - working_step, working_step)
             } else {
                 (*self.allele_range.start(), *self.allele_range.end())
             };
 
-        let working_range = &scaled_ranges[scale_index];
-        let working_range_step = *working_range.end();
-
+        let working_step = scaled_steps[scale_index];
         std::iter::successors(Some(allele_value_start), |value| {
             if *value < allele_value_end {
-                let next_value = *value + working_range_step;
+                let next_value = *value + working_step;
                 if next_value > allele_value_end {
                     Some(allele_value_end)
                 } else {
@@ -806,9 +793,9 @@ where
     pub fn chromosome_permutations_size_scaled(
         &self,
         scale_index: usize,
-        scaled_ranges: &[RangeInclusive<T>],
+        scaled_steps: &[T],
     ) -> BigUint {
-        BigUint::from(self.permutable_allele_size_scaled(scale_index, scaled_ranges))
+        BigUint::from(self.permutable_allele_size_scaled(scale_index, scaled_steps))
             .pow(self.genes_size() as u32)
     }
 }
