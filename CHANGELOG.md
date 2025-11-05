@@ -8,13 +8,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.24.0] - 2025-11-05
 
 ### Changed
-* Change `MutationType::Scaled(<Vec<RangeInclusive<T>>)` to `MutationType::ScaledSteps(Vec<T>)`
-  * removes the range as the steps are symmetrical by definition: -T, +T, also less error prone
+* Change `MutationType::Scaled(Vec<RangeInclusive<T>)` to `MutationType::ScaledSteps(Vec<T>)`
+  * removes the range as the steps are symmetrical by definition: -T, +T (also less error prone)
   * removes potential confusion about inner range samping v. step up/down behaviour by explicit naming
 * Change `MutationType::Relative(RangeInclusive<T>)` to `MutationType::RelativeRange(T)`
-  * removes the range as it is symmetrical by definition, only the bandwidth is needed to make a [-T,T] range, also less error prone
+  * removes the range as it is symmetrical by definition, only the bandwidth is needed to make a [-T,T] range (also less error prone)
   * removes potential confusion about inner range samping v. step up/down behaviour by explicit naming
-* Change `MutationType::Transition(usize, usize, RangeInclusive<T>)` to `MutationType::Transision(usize, usize, T)`
+* Change `MutationType::Transition(usize, usize, RangeInclusive<T>)` to `MutationType::Transition(usize, usize, T)`
   * follow the `MutationType::RelativeRange` parameters
 
 ## [0.23.0] - 2025-11-04
