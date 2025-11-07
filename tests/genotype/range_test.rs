@@ -147,7 +147,7 @@ fn float_mutate_chromosome_single_scaled() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::ScaledSteps(vec![1.0, 0.1, 0.01]))
+        .with_mutation_type(MutationType::StepScaled(vec![1.0, 0.1, 0.01]))
         .build()
         .unwrap();
 
@@ -417,7 +417,7 @@ fn float_neighbouring_population_2_scaled() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::ScaledSteps(vec![0.5, 0.1, 0.01]))
+        .with_mutation_type(MutationType::StepScaled(vec![0.5, 0.1, 0.01]))
         .build()
         .unwrap();
 
@@ -512,7 +512,7 @@ fn float_permutable_gene_values_scaled() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=10.0)
-        .with_mutation_type(MutationType::ScaledSteps(scaled_steps.clone()))
+        .with_mutation_type(MutationType::StepScaled(scaled_steps.clone()))
         .build()
         .unwrap();
 
@@ -574,7 +574,7 @@ fn float_chromosome_permutations_2_scaled() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=10.0)
-        .with_mutation_type(MutationType::ScaledSteps(scaled_steps.clone()))
+        .with_mutation_type(MutationType::StepScaled(scaled_steps.clone()))
         .build()
         .unwrap();
 
@@ -870,7 +870,7 @@ fn integer_neighbouring_population_2_scaled() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::ScaledSteps(vec![3, 2, 1]))
+        .with_mutation_type(MutationType::StepScaled(vec![3, 2, 1]))
         .build()
         .unwrap();
 
@@ -923,7 +923,7 @@ fn integer_permutable_gene_values_scaled() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=1000)
-        .with_mutation_type(MutationType::ScaledSteps(scaled_steps.clone()))
+        .with_mutation_type(MutationType::StepScaled(scaled_steps.clone()))
         .build()
         .unwrap();
 
@@ -977,7 +977,7 @@ fn integer_chromosome_permutations_2_scaled() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=10)
-        .with_mutation_type(MutationType::ScaledSteps(scaled_steps.clone()))
+        .with_mutation_type(MutationType::StepScaled(scaled_steps.clone()))
         .build()
         .unwrap();
 

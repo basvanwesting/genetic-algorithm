@@ -31,7 +31,7 @@ fn main() {
         // .with_mutation_type(MutationType::Random) // not needed, is default
         // .with_mutation_type(MutationType::RelativeRange(0.1)) // converges slowly
         // .with_mutation_type(MutationType::Transition(1000, 1000, 0.1)) // converges slowly
-        .with_mutation_type(MutationType::ScaledSteps(vec![
+        .with_mutation_type(MutationType::StepScaled(vec![
             0.1, 0.01, 0.001, 0.0001, 0.00001,
         ])) // converges fast, but needs low max_stale_generations to trigger next scale
         .build()

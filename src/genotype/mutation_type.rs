@@ -31,7 +31,7 @@ pub use crate::allele::Allele;
 /// **Use case:** Local search, fine-tuning solutions, problems where nearby
 /// solutions have similar fitness (smooth fitness landscape).
 ///
-/// ## `ScaledSteps(Vec<T>)`
+/// ## `StepScaled(Vec<T>)`
 /// Multi-scale mutation for progressive refinement. The vector contains steps for each scale
 /// level, from coarse to fine adjustments. During mutation, steps either up or down with the
 /// the current scale's step as the delta. So no sampling inside the down-to-up step range, just
@@ -83,7 +83,7 @@ pub use crate::allele::Allele;
 ///
 /// - [MutationType::Random]: Undersamples boundaries (infinitesimal probability of sampling exact boundary)
 /// - [MutationType::RelativeRange]: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
-/// - [MutationType::ScaledSteps]: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
+/// - [MutationType::StepScaled]: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
 /// - [MutationType::Transition]: Uses pre-clamped sampling ranges, undersampling boundaries during transition phase
 /// - [MutationType::Discrete]: Uniform sampling, no over- or undersampling of boundaries
 ///
@@ -125,10 +125,10 @@ pub use crate::allele::Allele;
 ///     .with_allele_mutation_range(-5.0..=5.0)  // legacy setting of the same, to be deprecated
 ///     .build();
 ///
-/// // ScaledSteps mutation - progressive refinement
+/// // StepScaled mutation - progressive refinement
 /// let genotype = RangeGenotype::builder()
 ///     .with_allele_range(0.0..=100.0)
-///     .with_mutation_type(MutationType::ScaledSteps(vec![
+///     .with_mutation_type(MutationType::StepScaled(vec![
 ///         10.0,  // Coarse scale
 ///         1.0,    // Medium scale
 ///         0.1,    // Fine scale
@@ -160,7 +160,7 @@ pub use crate::allele::Allele;
 ///     .with_mutation_types(vec![
 ///         MutationType::Discrete,  // Boolean as 0 or 1
 ///         MutationType::Discrete,  // One of 5 algorithms
-///         MutationType::ScaledSteps(vec![10.0, 1.0, 0.1]), // Continuous refinement
+///         MutationType::StepScaled(vec![10.0, 1.0, 0.1]), // Continuous refinement
 ///     ])
 ///     // no legacy alternative
 ///     .build();
@@ -172,10 +172,10 @@ pub enum MutationType<T: Allele> {
     /// Relative range bandwidth (leads to [-T,T], uniformly sampled)
     RelativeRange(T),
     /// Vec of decreasing step sizes (applied up or down)
-    ScaledSteps(Vec<T>),
-    Discrete,
+    StepScaled(Vec<T>),
     /// random_until_generation, relative_range_from_generation, relative_mutation_range_bandwidth
     Transition(usize, usize, T),
+    Discrete,
 }
 
 impl<T: Allele> MutationType<T> {
@@ -203,7 +203,7 @@ impl<T: Allele> MutationType<T> {
     // }
     // pub fn scaled_ranges(&self) -> Option<&Vec<T>> {
     //     match self {
-    //         Self::ScaledSteps(ranges) => Some(ranges),
+    //         Self::StepScaled(ranges) => Some(ranges),
     //         _ => None,
     //     }
     // }

@@ -163,9 +163,9 @@ fn float_mutate_chromosome_single_scaled() {
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
         .with_mutation_types(vec![
-            MutationType::ScaledSteps(vec![0.5, 0.1, 0.01]),
-            MutationType::ScaledSteps(vec![1.0, 0.5, 0.05]),
-            MutationType::ScaledSteps(vec![5.0, 1.0, 0.1]),
+            MutationType::StepScaled(vec![0.5, 0.1, 0.01]),
+            MutationType::StepScaled(vec![1.0, 0.5, 0.05]),
+            MutationType::StepScaled(vec![5.0, 1.0, 0.1]),
         ])
         .build()
         .unwrap();
@@ -202,7 +202,7 @@ fn float_mutate_chromosome_single_discrete() {
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
         .with_mutation_types(vec![
             MutationType::Discrete,
-            MutationType::ScaledSteps(vec![1.0, 0.5, 0.05]),
+            MutationType::StepScaled(vec![1.0, 0.5, 0.05]),
             MutationType::Discrete,
         ])
         .build()
@@ -471,9 +471,9 @@ fn float_neighbouring_population_3_scaled() {
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
         .with_mutation_types(vec![
-            MutationType::ScaledSteps(vec![0.5, 0.1, 0.01]),
-            MutationType::ScaledSteps(vec![1.0, 0.5, 0.05]),
-            MutationType::ScaledSteps(vec![5.0, 1.0, 0.1]),
+            MutationType::StepScaled(vec![0.5, 0.1, 0.01]),
+            MutationType::StepScaled(vec![1.0, 0.5, 0.05]),
+            MutationType::StepScaled(vec![5.0, 1.0, 0.1]),
         ])
         .build()
         .unwrap();
@@ -541,7 +541,7 @@ fn float_neighbouring_population_3_discrete() {
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=12.0])
         .with_mutation_types(vec![
             MutationType::Discrete,
-            MutationType::ScaledSteps(vec![1.0, 0.5, 0.05]),
+            MutationType::StepScaled(vec![1.0, 0.5, 0.05]),
             MutationType::Discrete,
         ])
         .build()
@@ -610,7 +610,7 @@ fn float_permutable_gene_values_scaled() {
             scaled_steps
                 .clone()
                 .into_iter()
-                .map(MutationType::ScaledSteps)
+                .map(MutationType::StepScaled)
                 .collect(),
         )
         .build()
@@ -701,8 +701,8 @@ fn float_chromosome_permutations_2_scaled() {
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=10.0, 0.0..=5.0])
         .with_mutation_types(vec![
-            MutationType::ScaledSteps(vec![5.0, 2.5, 1.0]),
-            MutationType::ScaledSteps(vec![3.0, 1.5, 1.0]),
+            MutationType::StepScaled(vec![5.0, 2.5, 1.0]),
+            MutationType::StepScaled(vec![3.0, 1.5, 1.0]),
         ])
         .build()
         .unwrap();
@@ -834,7 +834,7 @@ fn float_chromosome_permutations_2_discrete() {
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=10.0, 0.0..=3.0])
         .with_mutation_types(vec![
-            MutationType::ScaledSteps(vec![5.0, 2.5, 1.0]),
+            MutationType::StepScaled(vec![5.0, 2.5, 1.0]),
             MutationType::Discrete,
         ])
         .build()

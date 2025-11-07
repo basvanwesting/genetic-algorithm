@@ -190,6 +190,16 @@ Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flameg
 ## TODO
 
 ## MAYBE
+* Apply precision (to f32/f64) during hashing in order to converge and hit
+  staleness when nearing the required precision level (maybe per scale?)
+* Crossover calls reset_metadata, but sometimes the parens are equal and
+  sometimes when they are not the difference isn't crossed over. In both
+  conditions, you create a child equal to an existing parent. This leads to a
+  cache hit when calculating the fitness again. That is confusing. Extensions
+  can mutate chromosomes which calls reset_metadata (fitness is reset). Now
+  crossover follows and clones parents without a fitness, into new children
+  without fitness, this will lead to a cache miss and a cache hit when
+  calculating the fitness
 * Consider dropping .with_genes_hashing() and always set to true, because it is
   needed for proper GA functionality regardless the overhead
 * Consider dropping .with_chromosome_recycling() and always set to false

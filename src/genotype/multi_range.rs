@@ -27,7 +27,7 @@ pub type DefaultAllele = f32;
 ///
 /// Supports Permutation for scaled and discrete mutations only. This approach implements a
 /// increasingly localized grid search with increasing precision using the
-/// [MutationType::ScaledSteps]
+/// [MutationType::StepScaled]
 /// to define the search scope and grid steps
 /// * First scale (index = 0) traverses the whole `allele_ranges` with the
 ///   upper bound of the first scale as step size.
@@ -48,7 +48,7 @@ pub type DefaultAllele = f32;
 ///
 /// * `MutationType::Random` - Samples uniformly from the full allele range
 /// * `MutationType::RelativeRange` - Mutates within a relative range around the current value
-/// * `MutationType::ScaledSteps` - Progressive refinement through multiple scale levels around the current value
+/// * `MutationType::StepScaled` - Progressive refinement through multiple scale levels around the current value
 /// * `MutationType::Discrete` - Rounded-to-integer values with uniform selection (like `ListGenotype`).
 ///   * Mutations ignore current value - all rounded-to-integer in range equally likely
 ///   * Range `0.0..=4.0` yields values: 0.0, 1.0, 2.0, 3.0, 4.0 (with equal probability)
@@ -109,10 +109,10 @@ pub type DefaultAllele = f32;
 ///        10.0..=30.0
 ///     ])
 ///     .with_mutation_types(vec![
-///        MutationType::ScaledSteps(vec![1.0,0.1]),
-///        MutationType::ScaledSteps(vec![2.0,0.2]),
-///        MutationType::ScaledSteps(vec![0.5,0.05]),
-///        MutationType::ScaledSteps(vec![3.0,0.3]),
+///        MutationType::StepScaled(vec![1.0,0.1]),
+///        MutationType::StepScaled(vec![2.0,0.2]),
+///        MutationType::StepScaled(vec![0.5,0.05]),
+///        MutationType::StepScaled(vec![3.0,0.3]),
 ///     ]) // optional, restricts mutations to step up/down of each scale
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
@@ -133,7 +133,7 @@ pub type DefaultAllele = f32;
 ///     .with_mutation_types(vec![
 ///         MutationType::Discrete,  // Boolean as 0 or 1
 ///         MutationType::Discrete,  // One of 5 algorithms
-///         MutationType::ScaledSteps(vec![10.0, 1.0, 0.1]), // Continuous refinement
+///         MutationType::StepScaled(vec![10.0, 1.0, 0.1]), // Continuous refinement
 ///     ])
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
@@ -185,9 +185,9 @@ where
             let allele_relative_samplers = mutation_types
                 .iter()
                 .map(|mutation_type| match &mutation_type {
-                    MutationType::Random
-                    | MutationType::Discrete
-                    | MutationType::ScaledSteps(_) => None,
+                    MutationType::Random | MutationType::Discrete | MutationType::StepScaled(_) => {
+                        None
+                    }
                     MutationType::RelativeRange(bandwidth) => {
                         Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
                     }
@@ -253,7 +253,7 @@ where
         let max_delta_up = *self.allele_ranges[index].end() - current_value;
 
         match &self.mutation_types[index] {
-            MutationType::ScaledSteps(scaled_steps) => {
+            MutationType::StepScaled(scaled_steps) => {
                 let working_step = scaled_steps[self.current_scale_index];
                 let delta = if rng.gen() {
                     T::zero() - working_step
@@ -303,7 +303,7 @@ where
             MutationType::Random => {
                 chromosome.genes[index] = self.sample_gene_random(index, rng);
             }
-            MutationType::ScaledSteps(_) | MutationType::RelativeRange(_) => {
+            MutationType::StepScaled(_) | MutationType::RelativeRange(_) => {
                 let delta = self.sample_gene_delta(chromosome, index, rng);
                 chromosome.genes[index] += delta;
             }
@@ -384,7 +384,7 @@ where
         self.mutation_types
             .iter()
             .find_map(|mutation_type| match mutation_type {
-                MutationType::ScaledSteps(scaled_steps) => Some(scaled_steps.len() - 1),
+                MutationType::StepScaled(scaled_steps) => Some(scaled_steps.len() - 1),
                 _ => None,
             })
     }
@@ -392,7 +392,7 @@ where
         self.mutation_types
             .iter()
             .find_map(|mutation_type| match mutation_type {
-                MutationType::ScaledSteps(_) => Some(self.current_scale_index),
+                MutationType::StepScaled(_) => Some(self.current_scale_index),
                 _ => None,
             })
     }
@@ -536,13 +536,12 @@ where
                 MutationType::Random => {
                     self.fill_neighbouring_population_random(index, chromosome, population, rng)
                 }
-                MutationType::ScaledSteps(scaled_steps) => self
-                    .fill_neighbouring_population_scaled(
-                        index,
-                        chromosome,
-                        population,
-                        scaled_steps,
-                    ),
+                MutationType::StepScaled(scaled_steps) => self.fill_neighbouring_population_scaled(
+                    index,
+                    chromosome,
+                    population,
+                    scaled_steps,
+                ),
                 MutationType::RelativeRange(bandwidth) => self
                     .fill_neighbouring_population_relative(
                         index, chromosome, population, bandwidth, rng,
@@ -759,7 +758,7 @@ where
                     .iter()
                     .enumerate()
                     .map(|(index, mutation_type)| match mutation_type {
-                        MutationType::ScaledSteps(scaled_steps) => {
+                        MutationType::StepScaled(scaled_steps) => {
                             self.permutable_gene_values_scaled(index, chromosome, scaled_steps)
                         }
                         MutationType::Discrete => {
@@ -801,7 +800,7 @@ where
                     })
                     .sum()
             } else {
-                panic!("MultiRangeGenotype is only permutable for MutationType::ScaledSteps")
+                panic!("MultiRangeGenotype is only permutable for MutationType::StepScaled")
             }
         } else {
             self.seed_genes_list.len().into()
@@ -826,7 +825,7 @@ where
         self.mutation_types.iter().all(|mutation_type| {
             matches!(
                 mutation_type,
-                MutationType::ScaledSteps(_) | MutationType::Discrete
+                MutationType::StepScaled(_) | MutationType::Discrete
             )
         })
     }
@@ -915,7 +914,7 @@ where
             .iter()
             .enumerate()
             .map(|(index, mutation_type)| match mutation_type {
-                MutationType::ScaledSteps(scaled_steps) => {
+                MutationType::StepScaled(scaled_steps) => {
                     let (allele_value_start, allele_value_end) = if let Some(previous_scale_index) =
                         scale_index.checked_sub(1)
                     {
@@ -949,7 +948,7 @@ where
                   (end_f64.floor() - start_f64.floor()) as usize
                 }
                 _ => {
-                    panic!("MultiRangeGenotype is only permutable for MutationType::ScaledSteps and MutationType::Discrete")
+                    panic!("MultiRangeGenotype is only permutable for MutationType::StepScaled and MutationType::Discrete")
                 }
             })
             .collect()
@@ -977,9 +976,7 @@ where
             .mutation_types
             .iter()
             .map(|mutation_type| match &mutation_type {
-                MutationType::Random | MutationType::Discrete | MutationType::ScaledSteps(_) => {
-                    None
-                }
+                MutationType::Random | MutationType::Discrete | MutationType::StepScaled(_) => None,
                 MutationType::RelativeRange(bandwidth) => {
                     Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
                 }

@@ -105,8 +105,8 @@ fn main() {
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![(-10.0..=10.0), (0.0..=10.0)])
         .with_mutation_types(vec![
-            MutationType::ScaledSteps(vec![0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001]),
-            MutationType::ScaledSteps(vec![0.5, 0.1, 0.05, 0.01, 0.001, 0.0001]),
+            MutationType::StepScaled(vec![0.1, 0.01, 0.001, 0.0001, 0.00001, 0.000001]),
+            MutationType::StepScaled(vec![0.5, 0.1, 0.05, 0.01, 0.001, 0.0001]),
         ])
         .build()
         .unwrap();

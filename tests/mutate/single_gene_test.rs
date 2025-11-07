@@ -123,7 +123,7 @@ fn range_float_genotype_scaled() {
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::ScaledSteps(vec![0.1, 0.01, 0.001]))
+        .with_mutation_type(MutationType::StepScaled(vec![0.1, 0.01, 0.001]))
         .build()
         .unwrap();
 

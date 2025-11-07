@@ -100,7 +100,7 @@ fn call_range_f32_scaled() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(4)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::ScaledSteps(vec![0.1, 0.01, 0.001]))
+        .with_mutation_type(MutationType::StepScaled(vec![0.1, 0.01, 0.001]))
         .build()
         .unwrap();
 
@@ -125,7 +125,7 @@ fn call_range_usize_scaled() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(4)
         .with_allele_range(0..=100)
-        .with_mutation_type(MutationType::ScaledSteps(vec![10, 1]))
+        .with_mutation_type(MutationType::StepScaled(vec![10, 1]))
         .build()
         .unwrap();
 
