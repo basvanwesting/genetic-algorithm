@@ -308,11 +308,11 @@ impl<T: Allele> MutationType<T> {
     /// Returns the current range bandwidth for Range-based mutations.
     /// For scaled variants, returns the bandwidth at the given scale.
     /// Returns None for non-Range mutations.
-    pub fn current_range_bandwidth(&self, scale: usize) -> Option<&T> {
+    pub fn current_range_bandwidth(&self, current_scale_index: usize) -> Option<&T> {
         match self {
             Self::Range(bandwidth) => Some(bandwidth),
             Self::RangeScaled(bandwidths) => {
-                bandwidths.get(scale.min(bandwidths.len().saturating_sub(1)))
+                bandwidths.get(current_scale_index.min(bandwidths.len().saturating_sub(1)))
             }
             _ => None,
         }
@@ -321,10 +321,12 @@ impl<T: Allele> MutationType<T> {
     /// Returns the current step size for Step-based mutations.
     /// For scaled variants, returns the step at the given scale.
     /// Returns None for non-Step mutations.
-    pub fn current_step(&self, scale: usize) -> Option<&T> {
+    pub fn current_step(&self, current_scale_index: usize) -> Option<&T> {
         match self {
             Self::Step(step) => Some(step),
-            Self::StepScaled(steps) => steps.get(scale.min(steps.len().saturating_sub(1))),
+            Self::StepScaled(steps) => {
+                steps.get(current_scale_index.min(steps.len().saturating_sub(1)))
+            }
             _ => None,
         }
     }
@@ -348,11 +350,11 @@ impl<T: Allele> MutationType<T> {
     /// - RangeScaled: only post-clamp the final scale
     /// - Step mutations: always clamp
     /// - Others: not applicable
-    pub fn should_post_clamp(&self, scale: usize) -> bool {
+    pub fn should_post_clamp(&self, current_scale_index: usize) -> bool {
         match self {
             Self::Range(_) => true, // Always post-clamp for static Range
             Self::RangeScaled(bandwidths) => {
-                scale >= bandwidths.len().saturating_sub(1) // Final scale only
+                current_scale_index >= bandwidths.len().saturating_sub(1) // Final scale only
             }
             Self::Step(_) | Self::StepScaled(_) => true, // Always clamp steps
             _ => false,
@@ -360,24 +362,34 @@ impl<T: Allele> MutationType<T> {
     }
 
     /// Returns true if this is the final scale for scaled mutations
-    pub fn is_final_scale(&self, scale: usize) -> bool {
+    pub fn is_final_scale(&self, current_scale_index: usize) -> bool {
         match self {
-            Self::RangeScaled(v) => scale >= v.len().saturating_sub(1),
-            Self::StepScaled(v) => scale >= v.len().saturating_sub(1),
+            Self::RangeScaled(v) => current_scale_index >= v.len().saturating_sub(1),
+            Self::StepScaled(v) => current_scale_index >= v.len().saturating_sub(1),
             _ => true, // Static mutations are always "final"
         }
     }
 
     /// Checks if this mutation is equivalent to Random behavior for the given allele range.
     /// Useful for optimization - Random mutations can use more efficient sampling.
-    pub fn is_full_range(&self, allele_min: &T, allele_max: &T) -> bool
+    pub fn is_full_range(
+        &self,
+        allele_range: &RangeInclusive<T>,
+        current_scale_index: usize,
+    ) -> bool
     where
         T: PartialOrd + std::ops::Sub<Output = T> + Copy,
     {
         match self {
             Self::Random => true,
             Self::Range(bandwidth) => {
-                let range_width = *allele_max - *allele_min;
+                let range_width = *allele_range.end() - *allele_range.start();
+                *bandwidth >= range_width
+            }
+            Self::RangeScaled(bandwidths) => {
+                let bandwidht =
+                    bandwidths.get(current_scale_index.min(bandwidths.len().saturating_sub(1)));
+                let range_width = *allele_range.end() - *allele_range.start();
                 *bandwidth >= range_width
             }
             _ => false,
