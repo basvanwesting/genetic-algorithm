@@ -53,7 +53,7 @@ pub enum PermutateVariant {
 ///     * Scale down after grid is fully traversed
 /// * With MutationType::Discrete
 ///     * Always permutate all values, just like ListGenotype
-/// * With MutationType::RelativeRange: Permutation not supported
+/// * With MutationType::Range: Permutation not supported
 /// * With MutationType::Transition: Permutation not supported
 /// * With MutationType::Random:  Permutation not supported
 ///

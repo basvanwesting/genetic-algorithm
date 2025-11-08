@@ -19,7 +19,7 @@ pub use crate::allele::Allele;
 /// **Use case:** Initial exploration phase, problems with disconnected optima,
 /// or when no assumptions about solution locality can be made.
 ///
-/// ## `RelativeRange(T)`
+/// ## `Range(T)`
 /// Modifies the current gene value by adding a random delta sampled from the relative range
 /// bandwidth. The result after sampling is clamped to stay within the allele range. Preserves
 /// locality - small changes to genotype produce small changes to phenotype.
@@ -48,18 +48,18 @@ pub use crate::allele::Allele;
 /// Also provides permutability for RangeGenotype and MultiRangeGenotype.
 ///
 /// ## `Transition(usize, usize, T)`
-/// Smoothly transitions from Random to RelativeRange mutation over a specified number of generations.
+/// Smoothly transitions from Random to Range mutation over a specified number of generations.
 /// Provides a natural exploration-to-exploitation schedule without abrupt behavioral changes.
 ///
 /// **Parameters:**
 /// - `random_until_generation`: Use pure Random mutation until this generation
-/// - `relative_range_from_generation`: Use pure RelativeRange mutation from this generation on
+/// - `relative_range_from_generation`: Use pure Range mutation from this generation on
 /// - `relative_mutation_range_bandwidth`: The final relative range bandwidth to use after full transition
 ///
 /// **Example:** `Transition(100, 500, 5.0)` means:
 /// - Generations 0-99: Pure Random mutation (full exploration)
 /// - Generations 100-499: Gradual transition with decreasing mutation range
-/// - Generations 500+: Pure RelativeRange mutation with uniform sampled [-5.0,5.0] range (exploitation)
+/// - Generations 500+: Pure Range mutation with uniform sampled [-5.0,5.0] range (exploitation)
 ///
 /// **Use case:** Problems requiring initial exploration followed by convergence,
 /// evolutionary algorithms with scheduled exploration decay, parameter optimization
@@ -82,7 +82,7 @@ pub use crate::allele::Allele;
 /// Different mutation types handle allele range boundaries differently:
 ///
 /// - [MutationType::Random]: Undersamples boundaries (infinitesimal probability of sampling exact boundary)
-/// - [MutationType::RelativeRange]: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
+/// - [MutationType::Range]: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
 /// - [MutationType::StepScaled]: Slightly oversamples boundaries (up to 50% when near boundary due to clamping)
 /// - [MutationType::Transition]: Uses pre-clamped sampling ranges, undersampling boundaries during transition phase
 /// - [MutationType::Discrete]: Uniform sampling, no over- or undersampling of boundaries
@@ -118,10 +118,10 @@ pub use crate::allele::Allele;
 ///     .with_mutation_type(MutationType::Random) // optional, default
 ///     .build();
 ///
-/// // RelativeRange mutation - local search with fixed neighborhood
+/// // Range mutation - local search with fixed neighborhood
 /// let genotype = RangeGenotype::builder()
 ///     .with_allele_range(0.0..=100.0)
-///     .with_mutation_type(MutationType::RelativeRange(5.0))
+///     .with_mutation_type(MutationType::Range(5.0))
 ///     .with_allele_mutation_range(-5.0..=5.0)  // legacy setting of the same, to be deprecated
 ///     .build();
 ///
@@ -140,7 +140,7 @@ pub use crate::allele::Allele;
 ///     ]) // legacy setting of the same, to be deprecated
 ///     .build();
 ///
-/// // Transition mutation - exploration-to-exploitation (Random to RelativeRange)
+/// // Transition mutation - exploration-to-exploitation (Random to Range)
 /// let genotype = RangeGenotype::builder()
 ///     .with_allele_range(0.0..=100.0)
 ///     .with_mutation_type(MutationType::Transition(
@@ -170,7 +170,7 @@ pub enum MutationType<T: Allele> {
     #[default]
     Random,
     /// Relative range bandwidth (leads to [-T,T], uniformly sampled)
-    RelativeRange(T),
+    Range(T),
     /// Vec of decreasing step sizes (applied up or down)
     StepScaled(Vec<T>),
     /// random_until_generation, relative_range_from_generation, relative_mutation_range_bandwidth
@@ -196,7 +196,7 @@ impl<T: Allele> MutationType<T> {
     }
     // pub fn relative_range(&self) -> Option<&T> {
     //     match self {
-    //         Self::RelativeRange(range) => Some(range),
+    //         Self::Range(range) => Some(range),
     //         Self::Transition(_, _, range) => Some(range),
     //         _ => None,
     //     }

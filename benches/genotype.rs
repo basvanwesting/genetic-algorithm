@@ -81,7 +81,7 @@ pub fn mutation_benchmark(c: &mut Criterion) {
         let genotype = RangeGenotype::builder()
             .with_genes_size(*genes_size)
             .with_allele_range(0.0..=1.0)
-            .with_mutation_type(MutationType::RelativeRange(0.1))
+            .with_mutation_type(MutationType::Range(0.1))
             .build()
             .unwrap();
         let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));

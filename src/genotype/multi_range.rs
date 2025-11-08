@@ -47,7 +47,7 @@ pub type DefaultAllele = f32;
 /// Use `.with_mutation_types(vec![...])` to specify behavior for each gene individually:
 ///
 /// * `MutationType::Random` - Samples uniformly from the full allele range
-/// * `MutationType::RelativeRange` - Mutates within a relative range around the current value
+/// * `MutationType::Range` - Mutates within a relative range around the current value
 /// * `MutationType::StepScaled` - Progressive refinement through multiple scale levels around the current value
 /// * `MutationType::Discrete` - Rounded-to-integer values with uniform selection (like `ListGenotype`).
 ///   * Mutations ignore current value - all rounded-to-integer in range equally likely
@@ -86,10 +86,10 @@ pub type DefaultAllele = f32;
 ///        10..=30,
 ///     ])
 ///     .with_mutation_types(vec![
-///        MutationType::RelativeRange(1),
-///        MutationType::RelativeRange(2),
-///        MutationType::RelativeRange(1),
-///        MutationType::RelativeRange(3),
+///        MutationType::Range(1),
+///        MutationType::Range(2),
+///        MutationType::Range(1),
+///        MutationType::Range(3),
 ///     ]) // optional, restricts mutations to a smaller relative range
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
@@ -188,7 +188,7 @@ where
                     MutationType::Random | MutationType::Discrete | MutationType::StepScaled(_) => {
                         None
                     }
-                    MutationType::RelativeRange(bandwidth) => {
+                    MutationType::Range(bandwidth) => {
                         Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
                     }
                     MutationType::Transition(_, _, bandwidth) => {
@@ -262,7 +262,7 @@ where
                 };
                 T::clamp(delta, max_delta_down, max_delta_up)
             }
-            MutationType::RelativeRange(_) => {
+            MutationType::Range(_) => {
                 let delta = self.allele_relative_samplers[index]
                     .as_ref()
                     .unwrap()
@@ -303,7 +303,7 @@ where
             MutationType::Random => {
                 chromosome.genes[index] = self.sample_gene_random(index, rng);
             }
-            MutationType::StepScaled(_) | MutationType::RelativeRange(_) => {
+            MutationType::StepScaled(_) | MutationType::Range(_) => {
                 let delta = self.sample_gene_delta(chromosome, index, rng);
                 chromosome.genes[index] += delta;
             }
@@ -542,10 +542,9 @@ where
                     population,
                     scaled_steps,
                 ),
-                MutationType::RelativeRange(bandwidth) => self
-                    .fill_neighbouring_population_relative(
-                        index, chromosome, population, bandwidth, rng,
-                    ),
+                MutationType::Range(bandwidth) => self.fill_neighbouring_population_relative(
+                    index, chromosome, population, bandwidth, rng,
+                ),
                 MutationType::Transition(random_until, _, _)
                     if self.current_generation <= *random_until =>
                 {
@@ -767,10 +766,8 @@ where
                         MutationType::Random => {
                             panic!("MultiRangeGenotype is not permutable for MutationType::Random")
                         }
-                        MutationType::RelativeRange(_) => {
-                            panic!(
-                                "MultiRangeGenotype is not permutable for MutationType::RelativeRange"
-                            )
+                        MutationType::Range(_) => {
+                            panic!("MultiRangeGenotype is not permutable for MutationType::Range")
                         }
                         MutationType::Transition(_, _, _) => {
                             panic!(
@@ -977,7 +974,7 @@ where
             .iter()
             .map(|mutation_type| match &mutation_type {
                 MutationType::Random | MutationType::Discrete | MutationType::StepScaled(_) => None,
-                MutationType::RelativeRange(bandwidth) => {
+                MutationType::Range(bandwidth) => {
                     Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
                 }
                 MutationType::Transition(_, _, bandwidth) => {

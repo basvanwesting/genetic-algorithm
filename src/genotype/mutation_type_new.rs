@@ -226,7 +226,7 @@ pub use crate::allele::Allele;
 ///
 /// From old types to new:
 /// - `MutationType::Random` → `MutationType::Random` (unchanged)
-/// - `MutationType::RelativeRange(bandwidth)` → `MutationType::Range(bandwidth)`
+/// - `MutationType::Range(bandwidth)` → `MutationType::Range(bandwidth)`
 /// - `MutationType::ScaledSteps(vec![...])` → `MutationType::StepScaled(vec![...])`
 /// - `MutationType::Transition(until, from, bandwidth)` → See example below
 /// - `MutationType::Discrete` → `MutationType::Discrete` (unchanged)
@@ -472,4 +472,3 @@ impl<T: Allele> MutationType<T> {
         )
     }
 }
-

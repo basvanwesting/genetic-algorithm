@@ -117,7 +117,7 @@ pub enum HillClimbVariant {
 ///     .with_genes_hashing(false)              // store genes_hash on chromosome (required for fitness_cache and deduplication extension, both not useful here)
 ///     .with_chromosome_recycling(true)        // recycle genes memory allocations, maybe useful
 ///     .with_allele_range(0.0..=1.0)           // allow gene values between 0.0 and 1.0
-///     .with_mutation_type(MutationType::RelativeRange(0.1)) // optional, neighbouring step size randomly sampled from range
+///     .with_mutation_type(MutationType::Range(0.1)) // optional, neighbouring step size randomly sampled from range
 ///     .with_mutation_type(MutationType::StepScaled(vec![0.1, 0.01, 0.001])) // optional, neighbouring step size equal to start/end of each scaled range
 ///     .build()
 ///     .unwrap();

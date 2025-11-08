@@ -29,7 +29,7 @@ fn main() {
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0) // won't converge with low max_stale_generations, converges just fine with higher max_stale_generations, but very ineffecient
         // .with_mutation_type(MutationType::Random) // not needed, is default
-        // .with_mutation_type(MutationType::RelativeRange(0.1)) // converges slowly
+        // .with_mutation_type(MutationType::Range(0.1)) // converges slowly
         // .with_mutation_type(MutationType::Transition(1000, 1000, 0.1)) // converges slowly
         .with_mutation_type(MutationType::StepScaled(vec![
             0.1, 0.01, 0.001, 0.0001, 0.00001,

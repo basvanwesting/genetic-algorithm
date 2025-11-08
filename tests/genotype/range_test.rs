@@ -52,7 +52,7 @@ fn float_mutate_chromosome_single_relative() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::RelativeRange(0.1))
+        .with_mutation_type(MutationType::Range(0.1))
         .build()
         .unwrap();
 
@@ -262,7 +262,7 @@ fn float_neighbouring_population_1() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(1)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::RelativeRange(0.1))
+        .with_mutation_type(MutationType::Range(0.1))
         .build()
         .unwrap();
 
@@ -320,7 +320,7 @@ fn float_neighbouring_population_2_relative() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::RelativeRange(0.1))
+        .with_mutation_type(MutationType::Range(0.1))
         .build()
         .unwrap();
 
@@ -477,7 +477,7 @@ fn float_neighbouring_population_3() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
-        .with_mutation_type(MutationType::RelativeRange(0.1))
+        .with_mutation_type(MutationType::Range(0.1))
         .build()
         .unwrap();
 
@@ -741,7 +741,7 @@ fn integer_mutate_chromosome_single_relative() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::RelativeRange(1))
+        .with_mutation_type(MutationType::Range(1))
         .build()
         .unwrap();
 
@@ -765,7 +765,7 @@ fn integer_neighbouring_population_1() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(1)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::RelativeRange(1))
+        .with_mutation_type(MutationType::Range(1))
         .build()
         .unwrap();
 
@@ -805,7 +805,7 @@ fn integer_neighbouring_population_2_relative() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(2)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::RelativeRange(2))
+        .with_mutation_type(MutationType::Range(2))
         .build()
         .unwrap();
 
@@ -894,7 +894,7 @@ fn integer_neighbouring_population_3() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(3)
         .with_allele_range(0..=9)
-        .with_mutation_type(MutationType::RelativeRange(1))
+        .with_mutation_type(MutationType::Range(1))
         .build()
         .unwrap();
 
