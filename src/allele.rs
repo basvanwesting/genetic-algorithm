@@ -2,7 +2,7 @@
 use impl_trait_for_tuples::impl_for_tuples;
 use rand::distributions::uniform::SampleUniform;
 use std::hash::{Hash, Hasher};
-use std::ops::{Add, AddAssign, Sub};
+use std::ops::{Add, AddAssign, Sub, SubAssign};
 
 /// Standard Allele, suitable for [crate::genotype::Genotype]. Implemented for a set of primitives by default
 pub trait Allele: Clone + Copy + Send + Sync + std::fmt::Debug {
@@ -60,14 +60,15 @@ pub trait RangeAllele:
     + Add<Output = Self>
     + Sub<Output = Self>
     + AddAssign
+    + SubAssign
     // + Mul<Output = Self>
-    + Into<f64>
+    // + Into<f64>
     + std::cmp::PartialOrd
     + Default
     + bytemuck::NoUninit
     + SampleUniform
 {
-    /// used to build a start exclusive range, by adding the increment to the start
+    /// Used to build a start exclusive range, by adding the increment to the start
     fn smallest_increment() -> Self;
 
     /// Returns value 0 for iteration/counting
@@ -79,18 +80,11 @@ pub trait RangeAllele:
     /// Floors to nearest integer (identity for integer types)
     fn floor(&self) -> Self;
 
-    /// Scale by fraction (always between 0.0.and 1.0)
-    fn scale_by_fraction(&self, fraction: f64) -> Self;
-
-    /// useful as f32 and f64 can't implement Ord, which lead to repeated sections as below
-    fn clamp(test_value: Self, min_value: Self, max_value: Self) -> Self {
-        if test_value < min_value {
-            min_value
-        } else if test_value > max_value {
-            max_value
-        } else {
-            test_value
-        }
+    /// Needed as f32 and f64 don't implement saturating_sub and saturating_add
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self;
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self;
+    fn min(a: Self, b: Self) -> Self {
+        if a < b { a } else { b }
     }
 }
 
@@ -107,8 +101,23 @@ impl RangeAllele for f32 {
     fn floor(&self) -> Self {
         f32::floor(*self)
     }
-    fn scale_by_fraction(&self, fraction: f64) -> Self {
-        self * fraction as f32
+    // ignore f32::MAX, not realistic for use case
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value + delta;
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    // ignore f32::MIN, not realistic for use case
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value - delta;
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
     }
 }
 impl RangeAllele for f64 {
@@ -124,8 +133,23 @@ impl RangeAllele for f64 {
     fn floor(&self) -> Self {
         f64::floor(*self)
     }
-    fn scale_by_fraction(&self, fraction: f64) -> Self {
-        self * fraction
+    // ignore f64::MAX, not realistic for use case
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value + delta;
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    // ignore f64::MIN, not realistic for use case
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value - delta;
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
     }
 }
 impl RangeAllele for i8 {
@@ -141,8 +165,21 @@ impl RangeAllele for i8 {
     fn floor(&self) -> Self {
         *self
     }
-    fn scale_by_fraction(&self, fraction: f64) -> Self {
-        (*self as f64 * fraction).round() as i8
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
     }
 }
 impl RangeAllele for i16 {
@@ -158,8 +195,21 @@ impl RangeAllele for i16 {
     fn floor(&self) -> Self {
         *self
     }
-    fn scale_by_fraction(&self, fraction: f64) -> Self {
-        (*self as f64 * fraction).round() as i16
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
     }
 }
 impl RangeAllele for i32 {
@@ -175,8 +225,21 @@ impl RangeAllele for i32 {
     fn floor(&self) -> Self {
         *self
     }
-    fn scale_by_fraction(&self, fraction: f64) -> Self {
-        (*self as f64 * fraction).round() as i32
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
     }
 }
 impl RangeAllele for u8 {
@@ -192,8 +255,21 @@ impl RangeAllele for u8 {
     fn floor(&self) -> Self {
         *self
     }
-    fn scale_by_fraction(&self, fraction: f64) -> Self {
-        (*self as f64 * fraction).round() as u8
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
     }
 }
 impl RangeAllele for u16 {
@@ -209,8 +285,21 @@ impl RangeAllele for u16 {
     fn floor(&self) -> Self {
         *self
     }
-    fn scale_by_fraction(&self, fraction: f64) -> Self {
-        (*self as f64 * fraction).round() as u16
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
     }
 }
 impl RangeAllele for u32 {
@@ -226,7 +315,20 @@ impl RangeAllele for u32 {
     fn floor(&self) -> Self {
         *self
     }
-    fn scale_by_fraction(&self, fraction: f64) -> Self {
-        (*self as f64 * fraction).round() as u32
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
     }
 }

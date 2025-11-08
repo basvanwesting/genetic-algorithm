@@ -43,7 +43,7 @@ pub type DefaultAllele = f32;
 ///     .with_mutation_type(MutationType::Random) // default
 ///     .with_mutation_type(MutationType::Range(0.1)) // optional, restricts mutations to a smaller relative range bandwidth: [-0.1..=0.1] uniformly sampled
 ///     .with_mutation_type(MutationType::StepScaled(vec![0.1, 0.01, 0.001])) // optional, restricts mutations to relative step up or down of each scale
-///     .with_mutation_type(MutationType::RangeScaled(vec![1.0, 1.0, 0.1, 0.1, 0.01])) // optional, see [MutationType]
+///     .with_mutation_type(MutationType::RangeScaled(vec![1.0, 1.0, 0.1, 0.1, 0.01])) // optional, optional, restricts mutations to relative bandwidth up or down of each scale
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
@@ -60,7 +60,7 @@ pub type DefaultAllele = f32;
 ///     .with_mutation_type(MutationType::Random) // default
 ///     .with_mutation_type(MutationType::Range(1)) // optional, restricts mutations to a smaller relative range bandwidth: [-1..=1] uniformly sampled
 ///     .with_mutation_type(MutationType::StepScaled(vec![10, 3, 1])) // optional, restricts mutations to relative step up or down of each scale
-///     .with_mutation_type(MutationType::RangeScaled(vec![100, 100, 10, 1])) // optional, see [MutationType]
+///     .with_mutation_type(MutationType::RangeScaled(vec![100, 100, 10, 1])) // optional, optional, restricts mutations to relative bandwidth up or down of each scale
 ///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
@@ -75,8 +75,8 @@ where
     pub mutation_type: MutationType<T>,
     gene_index_sampler: Uniform<usize>,
     allele_sampler: Uniform<T>,
-    // post-clamped sampler
-    allele_relative_sampler: Option<Uniform<T>>,
+    // post-clamped sampler, always positive to support unsigned
+    allele_bandwidth_sampler: Option<Uniform<T>>,
     pub current_scale_index: usize,
     pub seed_genes_list: Vec<Vec<T>>,
     pub genes_hashing: bool,
@@ -101,13 +101,13 @@ where
             let genes_size = builder.genes_size.unwrap();
             let allele_range = builder.allele_range.unwrap();
             let mutation_type = builder.mutation_type.unwrap_or(MutationType::Random);
-            let allele_relative_sampler = match &mutation_type {
+            let allele_bandwidth_sampler = match &mutation_type {
                 MutationType::Range(bandwidth) => {
-                    Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
+                    Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
                 }
                 MutationType::RangeScaled(bandwidths) => {
                     let bandwidth = bandwidths.last().unwrap();
-                    Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
+                    Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
                 }
                 _ => None,
             };
@@ -118,7 +118,7 @@ where
                 mutation_type,
                 gene_index_sampler: Uniform::from(0..genes_size),
                 allele_sampler: Uniform::from(allele_range.clone()),
-                allele_relative_sampler,
+                allele_bandwidth_sampler,
                 current_scale_index: 0,
                 seed_genes_list: builder.seed_genes_list,
                 genes_hashing: builder.genes_hashing,
@@ -139,58 +139,76 @@ where
     pub fn sample_gene_random<R: Rng>(&self, rng: &mut R) -> T {
         self.allele_sampler.sample(rng)
     }
-    pub fn sample_gene_delta<R: Rng>(
-        &self,
-        chromosome: &Chromosome<T>,
-        index: usize,
-        rng: &mut R,
-    ) -> T {
-        let current_value = chromosome.genes[index];
-        let max_delta_down = *self.allele_range.start() - current_value;
-        let max_delta_up = *self.allele_range.end() - current_value;
 
-        match &self.mutation_type {
-            MutationType::StepScaled(scaled_steps) => {
-                let working_step = scaled_steps[self.current_scale_index];
-                let delta = if rng.gen() {
-                    T::zero() - working_step
-                } else {
-                    working_step
-                };
-                T::clamp(delta, max_delta_down, max_delta_up)
-            }
-            MutationType::Range(_) => {
-                let delta = self.allele_relative_sampler.as_ref().unwrap().sample(rng);
-                T::clamp(delta, max_delta_down, max_delta_up)
-            }
-            // FIXME: need to post-clamp for final scale
-            MutationType::RangeScaled(bandwidths) => {
-                let bandwidth = bandwidths[self.current_scale_index];
-                let working_delta_down =
-                    T::clamp(T::zero() - bandwidth, max_delta_down, max_delta_up);
-                let working_delta_up = T::clamp(bandwidth, max_delta_down, max_delta_up);
-                rng.gen_range(working_delta_down..=working_delta_up)
-            }
-            MutationType::Random => rng.gen_range(max_delta_down..=max_delta_up),
-            MutationType::Discrete => {
-                panic!("RangeGenotype has no implementation for MutationType::Discrete")
-            }
-            _ => todo!(),
-        }
-    }
+    // all delta's are positive, because we support unsigned integers as RangeAllele
+    // quite the overhead to make this work, but I think it is worth it
     pub fn mutate_gene<R: Rng>(&self, chromosome: &mut Chromosome<T>, index: usize, rng: &mut R) {
         match &self.mutation_type {
             MutationType::Random => {
                 chromosome.genes[index] = self.sample_gene_random(rng);
             }
-            MutationType::StepScaled(_) | MutationType::Range(_) | MutationType::RangeScaled(_) => {
-                let delta = self.sample_gene_delta(chromosome, index, rng);
-                chromosome.genes[index] += delta;
+            MutationType::Range(_) => {
+                // post-clamp
+                let current_value = chromosome.genes[index];
+                let delta = self.allele_bandwidth_sampler.as_ref().unwrap().sample(rng);
+                if rng.gen() {
+                    chromosome.genes[index] =
+                        T::clamped_add(current_value, delta, *self.allele_range.end());
+                } else {
+                    chromosome.genes[index] =
+                        T::clamped_sub(current_value, delta, *self.allele_range.start());
+                }
+            }
+            MutationType::RangeScaled(bandwidths) => {
+                if self.current_scale_index >= bandwidths.len().saturating_sub(1) {
+                    // post-clamp
+                    let current_value = chromosome.genes[index];
+                    let delta = self.allele_bandwidth_sampler.as_ref().unwrap().sample(rng);
+                    if rng.gen() {
+                        chromosome.genes[index] =
+                            T::clamped_add(current_value, delta, *self.allele_range.end());
+                    } else {
+                        chromosome.genes[index] =
+                            T::clamped_sub(current_value, delta, *self.allele_range.start());
+                    }
+                } else {
+                    // pre-clamp
+                    let current_value = chromosome.genes[index];
+                    let bandwidth = bandwidths[self.current_scale_index];
+                    if rng.gen() {
+                        let max_delta_up = *self.allele_range.end() - current_value;
+                        let working_delta_up = T::min(bandwidth, max_delta_up);
+                        let delta = rng.gen_range(T::smallest_increment()..=working_delta_up);
+                        chromosome.genes[index] += delta; // no need to check again
+                    } else {
+                        let max_delta_down = current_value - *self.allele_range.start();
+                        let working_delta_down = T::min(bandwidth, max_delta_down);
+                        let delta = rng.gen_range(T::smallest_increment()..=working_delta_down);
+                        chromosome.genes[index] -= delta; // no need to check again
+                    }
+                }
+            }
+            MutationType::StepScaled(scaled_steps) => {
+                // post-clamp
+                let current_value = chromosome.genes[index];
+                let delta = scaled_steps[self.current_scale_index];
+                if rng.gen() {
+                    chromosome.genes[index] =
+                        T::clamped_add(current_value, delta, *self.allele_range.end());
+                } else {
+                    chromosome.genes[index] =
+                        T::clamped_sub(current_value, delta, *self.allele_range.start());
+                }
             }
             MutationType::Discrete => {
                 panic!("RangeGenotype has no implementation for MutationType::Discrete")
             }
-            _ => todo!(),
+            _ => {
+                panic!(
+                    "RangeGenotype has no implementation for {:?}",
+                    self.mutation_type
+                )
+            }
         }
     }
 }
@@ -402,19 +420,34 @@ where
                 self.fill_neighbouring_population_random(chromosome, population, rng)
             }
             MutationType::StepScaled(scaled_steps) => {
-                self.fill_neighbouring_population_scaled(chromosome, population, scaled_steps)
+                let step = scaled_steps[self.current_scale_index];
+                self.fill_neighbouring_population_step(chromosome, population, step)
             }
-            MutationType::Range(bandwidth) => {
-                self.fill_neighbouring_population_relative(chromosome, population, bandwidth, rng)
+            MutationType::Range(_) => {
+                // post-clamp
+                self.fill_neighbouring_population_range_post_clamp(chromosome, population, rng)
             }
             MutationType::RangeScaled(bandwidths) => {
-                let bandwidth = &bandwidths[self.current_scale_index];
-                self.fill_neighbouring_population_relative(chromosome, population, bandwidth, rng)
+                if self.current_scale_index >= bandwidths.len().saturating_sub(1) {
+                    // final scale, post-clamp
+                    self.fill_neighbouring_population_range_post_clamp(chromosome, population, rng)
+                } else {
+                    // pre-clamp
+                    let bandwidth = bandwidths[self.current_scale_index];
+                    self.fill_neighbouring_population_range_pre_clamp(
+                        chromosome, population, bandwidth, rng,
+                    )
+                }
             }
             MutationType::Discrete => {
                 panic!("RangeGenotype has no implementation for MutationType::Discrete")
             }
-            _ => todo!(),
+            _ => {
+                panic!(
+                    "RangeGenotype has no implementation for {:?}",
+                    self.mutation_type
+                )
+            }
         }
     }
 
@@ -427,49 +460,37 @@ impl<T: RangeAllele> Range<T>
 where
     Uniform<T>: Send + Sync,
 {
-    fn fill_neighbouring_population_scaled(
+    fn fill_neighbouring_population_step(
         &self,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
-        scaled_steps: &[T],
+        step: T,
     ) {
         let allele_range_start = *self.allele_range.start();
         let allele_range_end = *self.allele_range.end();
-        let working_step = scaled_steps[self.current_scale_index];
 
         (0..self.genes_size).for_each(|index| {
             let current_value = chromosome.genes[index];
-            let value_low = T::clamp(
-                current_value - working_step,
-                allele_range_start,
-                allele_range_end,
-            );
-            let value_high = T::clamp(
-                current_value + working_step,
-                allele_range_start,
-                allele_range_end,
-            );
-            if value_low < current_value {
+            if allele_range_start < current_value {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                new_chromosome.genes[index] = value_low;
+                new_chromosome.genes[index] =
+                    T::clamped_sub(current_value, step, allele_range_start);
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             };
-            if value_high > current_value {
+            if current_value < allele_range_end {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                new_chromosome.genes[index] = value_high;
+                new_chromosome.genes[index] = T::clamped_add(current_value, step, allele_range_end);
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             };
         });
     }
 
-    // FIXME: need to handle pre and post-clamp behaviour
-    fn fill_neighbouring_population_relative<R: Rng>(
+    fn fill_neighbouring_population_range_post_clamp<R: Rng>(
         &self,
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
-        bandwidth: &T,
         rng: &mut R,
     ) {
         let allele_range_start = *self.allele_range.start();
@@ -477,27 +498,50 @@ where
 
         (0..self.genes_size).for_each(|index| {
             let current_value = chromosome.genes[index];
-            let range_start = T::clamp(
-                current_value - *bandwidth,
-                allele_range_start,
-                allele_range_end,
-            );
-            let range_end = T::clamp(
-                current_value + *bandwidth,
-                allele_range_start,
-                allele_range_end,
-            );
-            if range_start < current_value {
+            let delta = self.allele_bandwidth_sampler.as_ref().unwrap().sample(rng);
+            if allele_range_start < current_value {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                new_chromosome.genes[index] = rng.gen_range(range_start..current_value);
+                new_chromosome.genes[index] =
+                    T::clamped_sub(current_value, delta, allele_range_start);
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             };
-            if current_value < range_end {
+            if current_value < allele_range_end {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                let new_value =
-                    rng.gen_range((current_value + T::smallest_increment())..=range_end);
-                new_chromosome.genes[index] = new_value;
+                new_chromosome.genes[index] =
+                    T::clamped_add(current_value, delta, allele_range_end);
+                new_chromosome.reset_metadata(self.genes_hashing);
+                population.chromosomes.push(new_chromosome);
+            };
+        });
+    }
+    fn fill_neighbouring_population_range_pre_clamp<R: Rng>(
+        &self,
+        chromosome: &Chromosome<T>,
+        population: &mut Population<T>,
+        bandwidth: T,
+        rng: &mut R,
+    ) {
+        let allele_range_start = *self.allele_range.start();
+        let allele_range_end = *self.allele_range.end();
+
+        (0..self.genes_size).for_each(|index| {
+            let current_value = chromosome.genes[index];
+            if allele_range_start < current_value {
+                let mut new_chromosome = population.new_chromosome(chromosome);
+                let max_delta_down = current_value - allele_range_start;
+                let working_delta_down = T::min(bandwidth, max_delta_down);
+                let delta = rng.gen_range(T::smallest_increment()..=working_delta_down);
+                new_chromosome.genes[index] -= delta; // no need to check again
+                new_chromosome.reset_metadata(self.genes_hashing);
+                population.chromosomes.push(new_chromosome);
+            };
+            if current_value < allele_range_end {
+                let mut new_chromosome = population.new_chromosome(chromosome);
+                let max_delta_up = allele_range_end - current_value;
+                let working_delta_up = T::min(bandwidth, max_delta_up);
+                let delta = rng.gen_range(T::smallest_increment()..=working_delta_up);
+                new_chromosome.genes[index] += delta; // no need to check again
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
             };
@@ -630,32 +674,24 @@ where
         chromosome: Option<&Chromosome<T>>,
         scaled_steps: &[T],
     ) -> Vec<Vec<T>> {
+        let allele_range_start = *self.allele_range.start();
+        let allele_range_end = *self.allele_range.end();
         (0..self.genes_size())
             .map(|index| {
                 let (allele_value_start, allele_value_end) = if let Some(chromosome) = chromosome {
                     if let Some(previous_scale_index) = self.current_scale_index.checked_sub(1) {
-                        let allele_range_start = *self.allele_range.start();
-                        let allele_range_end = *self.allele_range.end();
                         let working_step = scaled_steps[previous_scale_index];
-
                         let current_value = chromosome.genes[index];
-                        let value_start = T::clamp(
-                            current_value - working_step,
-                            allele_range_start,
-                            allele_range_end,
-                        );
-                        let value_end = T::clamp(
-                            current_value + working_step,
-                            allele_range_start,
-                            allele_range_end,
-                        );
-
+                        let value_start =
+                            T::clamped_sub(current_value, working_step, allele_range_start);
+                        let value_end =
+                            T::clamped_add(current_value, working_step, allele_range_end);
                         (value_start, value_end)
                     } else {
-                        (*self.allele_range.start(), *self.allele_range.end())
+                        (allele_range_start, allele_range_end)
                     }
                 } else {
-                    (*self.allele_range.start(), *self.allele_range.end())
+                    (allele_range_start, allele_range_end)
                 };
 
                 let working_step = scaled_steps[self.current_scale_index];
@@ -680,7 +716,7 @@ where
         let (allele_value_start, allele_value_end) =
             if let Some(previous_scale_index) = scale_index.checked_sub(1) {
                 let working_step = scaled_steps[previous_scale_index];
-                (T::zero() - working_step, working_step)
+                (T::zero(), working_step + working_step)
             } else {
                 (*self.allele_range.start(), *self.allele_range.end())
             };
@@ -717,13 +753,13 @@ where
 {
     fn clone(&self) -> Self {
         let allele_sampler = Uniform::from(self.allele_range.clone());
-        let allele_relative_sampler = match &self.mutation_type {
+        let allele_bandwidth_sampler = match &self.mutation_type {
             MutationType::Range(bandwidth) => {
-                Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
+                Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
             }
             MutationType::RangeScaled(bandwidths) => {
                 let bandwidth = bandwidths.last().unwrap();
-                Some(Uniform::new_inclusive(T::zero() - *bandwidth, bandwidth))
+                Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
             }
             _ => None,
         };
@@ -734,7 +770,7 @@ where
             mutation_type: self.mutation_type.clone(),
             gene_index_sampler: self.gene_index_sampler,
             allele_sampler,
-            allele_relative_sampler,
+            allele_bandwidth_sampler,
             current_scale_index: self.current_scale_index,
             seed_genes_list: self.seed_genes_list.clone(),
             genes_hashing: self.genes_hashing,

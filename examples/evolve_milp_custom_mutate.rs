@@ -75,20 +75,16 @@ impl Mutate for ScaledOptionalDiagonalMutate {
                 match self.axis_probability_sampler.sample(rng) {
                     0 => {
                         //25%
-                        let delta = genotype.sample_gene_delta(chromosome, 0, rng);
-                        chromosome.genes[0] += delta;
+                        genotype.mutate_gene(chromosome, 0, rng);
                     }
                     1 => {
                         //25%
-                        let delta = genotype.sample_gene_delta(chromosome, 1, rng);
-                        chromosome.genes[1] += delta;
+                        genotype.mutate_gene(chromosome, 1, rng);
                     }
                     _ => {
                         //50%
-                        let delta = genotype.sample_gene_delta(chromosome, 0, rng);
-                        chromosome.genes[0] += delta;
-                        let delta = genotype.sample_gene_delta(chromosome, 1, rng);
-                        chromosome.genes[1] += delta;
+                        genotype.mutate_gene(chromosome, 0, rng);
+                        genotype.mutate_gene(chromosome, 1, rng);
                     }
                 }
                 // remember to reset the chromosome metadata after manipulation

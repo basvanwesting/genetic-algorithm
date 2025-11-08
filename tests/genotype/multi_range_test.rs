@@ -57,7 +57,7 @@ fn float_mutate_chromosome_single_random() {
 }
 
 #[test]
-fn float_mutate_chromosome_single_relative() {
+fn float_mutate_chromosome_single_range() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -92,73 +92,7 @@ fn float_mutate_chromosome_single_relative() {
     ));
 }
 #[test]
-fn float_mutate_chromosome_single_transition() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = MultiRangeGenotype::builder()
-        .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
-        .with_mutation_types(vec![
-            MutationType::Transition(10, 100, 0.1),
-            MutationType::Transition(10, 100, 0.5),
-            MutationType::Transition(10, 100, 1.0),
-        ])
-        .build()
-        .unwrap();
-
-    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.447, 2.196, 19.798],
-        0.001
-    ));
-
-    // full random
-    (0..5).for_each(|_| genotype.increment_generation());
-    genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.395, 1.204, 18.188],
-        0.001,
-    ));
-    genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.724, 1.4848, 17.878],
-        0.001,
-    ));
-
-    // 75% transition to relative
-    (0..70).for_each(|_| genotype.increment_generation());
-    genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.809, 1.630, 15.027],
-        0.001,
-    ));
-    genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.521, 2.475, 15.740],
-        0.001,
-    ));
-
-    // full relative
-    (0..30).for_each(|_| genotype.increment_generation());
-    genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.486, 2.332, 16.125],
-        0.001,
-    ));
-    genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.572, 2.022, 15.311],
-        0.001,
-    ));
-}
-
-#[test]
-fn float_mutate_chromosome_single_scaled() {
+fn float_mutate_chromosome_single_step_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -355,7 +289,7 @@ fn float_neighbouring_population_3_random() {
 }
 
 #[test]
-fn float_neighbouring_population_3_relative() {
+fn float_neighbouring_population_3_range() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -392,81 +326,7 @@ fn float_neighbouring_population_3_relative() {
 }
 
 #[test]
-fn float_neighbouring_population_3_transition() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = MultiRangeGenotype::builder()
-        .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
-        .with_mutation_types(vec![
-            MutationType::Transition(10, 100, 0.1),
-            MutationType::Transition(10, 100, 0.5),
-            MutationType::Transition(10, 100, 1.0),
-        ])
-        .build()
-        .unwrap();
-
-    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.447, 2.196, 19.798],
-        0.001
-    ));
-
-    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
-
-    // full random
-    (0..5).for_each(|_| genotype.increment_generation());
-    let mut population = Population::new(vec![], true);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
-    assert!(relative_population_eq(
-        inspect::population(&population),
-        vec![
-            vec![0.206, 2.195, 19.798],
-            vec![0.943, 2.195, 19.798],
-            vec![0.447, 2.070, 19.798],
-            vec![0.447, 3.845, 19.798],
-            vec![0.447, 2.195, 14.471],
-            vec![0.447, 2.195, 19.878],
-        ],
-        0.001,
-    ));
-
-    // 75% transition to relative
-    (0..70).for_each(|_| genotype.increment_generation());
-    let mut population = Population::new(vec![], true);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
-    assert!(relative_population_eq(
-        inspect::population(&population),
-        vec![
-            vec![0.411, 2.195, 19.798],
-            vec![0.501, 2.195, 19.798],
-            vec![0.447, 2.172, 19.798],
-            vec![0.447, 2.930, 19.798],
-            vec![0.447, 2.195, 16.542],
-            vec![0.447, 2.195, 20.0],
-        ],
-        0.001,
-    ));
-
-    // full relative
-    (0..30).for_each(|_| genotype.increment_generation());
-    let mut population = Population::new(vec![], true);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
-    assert!(relative_population_eq(
-        inspect::population(&population),
-        vec![
-            vec![0.369, 2.195, 19.798],
-            vec![0.470, 2.195, 19.798],
-            vec![0.447, 1.844, 19.798],
-            vec![0.447, 2.589, 19.798],
-            vec![0.447, 2.195, 19.523],
-            vec![0.447, 2.195, 19.915],
-        ],
-        0.001,
-    ));
-}
-
-#[test]
-fn float_neighbouring_population_3_scaled() {
+fn float_neighbouring_population_3_step_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=1.0, 0.0..=5.0, 10.0..=20.0])
@@ -601,7 +461,7 @@ fn float_neighbouring_population_3_discrete() {
 }
 
 #[test]
-fn float_permutable_gene_values_scaled() {
+fn float_permutable_gene_values_step_scaled() {
     let scaled_steps = &vec![vec![1.0, 0.1, 0.01], vec![1.0, 0.2, 0.05]];
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = MultiRangeGenotype::builder()
@@ -696,7 +556,7 @@ fn float_permutable_gene_values_discrete() {
 }
 
 #[test]
-fn float_chromosome_permutations_2_scaled() {
+fn float_chromosome_permutations_2_step_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0.0..=10.0, 0.0..=5.0])
@@ -975,7 +835,7 @@ fn integer_mutate_chromosome_single_random() {
 }
 
 #[test]
-fn integer_mutate_chromosome_single_relative() {
+fn integer_mutate_chromosome_single_range() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
@@ -1033,7 +893,7 @@ fn integer_neighbouring_population_1() {
 }
 
 #[test]
-fn integer_neighbouring_population_3_relative() {
+fn integer_neighbouring_population_3_range() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![0..=9, 0..=5, 10..=20])
@@ -1062,74 +922,6 @@ fn integer_neighbouring_population_3_relative() {
         ]
     );
 }
-
-#[test]
-fn integer_neighbouring_population_3_transition() {
-    let mut rng = SmallRng::seed_from_u64(0);
-    let mut genotype = MultiRangeGenotype::builder()
-        .with_allele_ranges(vec![0..=90, 0..=50, 100..=200])
-        .with_mutation_types(vec![
-            MutationType::Transition(10, 100, 1),
-            MutationType::Transition(10, 100, 1),
-            MutationType::Transition(10, 100, 2),
-        ])
-        .build()
-        .unwrap();
-
-    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
-    assert_eq!(inspect::chromosome(&chromosome), vec![40, 22, 198]);
-
-    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(6u32));
-
-    // full random
-    (0..5).for_each(|_| genotype.increment_generation());
-    let mut population = Population::new(vec![], true);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
-    assert_eq!(
-        inspect::population(&population),
-        vec![
-            vec![18, 22, 198],
-            vec![88, 22, 198],
-            vec![40, 10, 198],
-            vec![40, 34, 198],
-            vec![40, 22, 180],
-            vec![40, 22, 199],
-        ]
-    );
-
-    // 75% transition to relative
-    (0..70).for_each(|_| genotype.increment_generation());
-    let mut population = Population::new(vec![], true);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
-    assert_eq!(
-        inspect::population(&population),
-        vec![
-            vec![39, 22, 198],
-            vec![50, 22, 198],
-            vec![40, 15, 198],
-            vec![40, 31, 198],
-            vec![40, 22, 175],
-            vec![40, 22, 199],
-        ]
-    );
-
-    // full relative
-    (0..30).for_each(|_| genotype.increment_generation());
-    let mut population = Population::new(vec![], true);
-    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
-    assert_eq!(
-        inspect::population(&population),
-        vec![
-            vec![39, 22, 198],
-            vec![41, 22, 198],
-            vec![40, 21, 198],
-            vec![40, 23, 198],
-            vec![40, 22, 196],
-            vec![40, 22, 199],
-        ]
-    );
-}
-
 #[test]
 fn integer_neighbouring_population_3_discrete() {
     let mut rng = SmallRng::seed_from_u64(0);

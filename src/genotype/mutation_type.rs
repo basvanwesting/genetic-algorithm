@@ -309,7 +309,7 @@ impl<T: Allele> MutationType<T> {
     /// Returns the current range bandwidth for Range-based mutations.
     /// For scaled variants, returns the bandwidth at the given scale.
     /// Returns None for non-Range mutations.
-    pub fn current_range_bandwidth(&self, current_scale_index: usize) -> Option<&T> {
+    pub fn current_bandwidth(&self, current_scale_index: usize) -> Option<&T> {
         match self {
             Self::Range(bandwidth) => Some(bandwidth),
             Self::RangeScaled(bandwidths) => {
@@ -382,7 +382,7 @@ impl<T: Allele> MutationType<T> {
         T: PartialOrd + std::ops::Sub<Output = T> + Copy,
     {
         match self {
-            Self::Random => true,
+            Self::Random | Self::Discrete => true,
             Self::Range(bandwidth) => {
                 let range_width = *allele_range.end() - *allele_range.start();
                 *bandwidth >= range_width
