@@ -396,7 +396,7 @@ fn float_permutable_gene_values_step_scaled() {
     ));
 
     assert!(relative_population_eq(
-        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_steps),
+        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
         vec![
             vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
             vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
@@ -407,7 +407,7 @@ fn float_permutable_gene_values_step_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert!(relative_population_eq(
-        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_steps),
+        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
         vec![
             vec![
                 3.473, 3.573, 3.673, 3.773, 3.873, 3.973, 4.073, 4.173, 4.273, 4.373, 4.473, 4.573,
@@ -424,7 +424,7 @@ fn float_permutable_gene_values_step_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert!(relative_population_eq(
-        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_steps),
+        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
         vec![
             vec![
                 4.373, 4.383, 4.393, 4.403, 4.413, 4.423, 4.433, 4.443, 4.453, 4.463, 4.473, 4.483,
@@ -761,7 +761,7 @@ fn integer_permutable_gene_values_step_scaled() {
 
     assert_eq!(genotype.current_scale_index, 0);
     assert_eq!(
-        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_steps),
+        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
         vec![
             vec![0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
             vec![0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
@@ -770,7 +770,7 @@ fn integer_permutable_gene_values_step_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert_eq!(
-        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_steps),
+        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
         vec![
             vec![
                 347, 357, 367, 377, 387, 397, 407, 417, 427, 437, 447, 457, 467, 477, 487, 497,
@@ -785,7 +785,7 @@ fn integer_permutable_gene_values_step_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert_eq!(
-        genotype.permutable_gene_values_scaled(Some(&chromosome), scaled_steps),
+        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
         vec![
             vec![
                 437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452,

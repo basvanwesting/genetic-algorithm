@@ -41,6 +41,7 @@ pub type DefaultAllele = f32;
 ///     .with_genes_size(100)
 ///     .with_allele_range(0.0..=1.0) // also default mutation range
 ///     .with_mutation_type(MutationType::Random) // default
+///     .with_mutation_type(MutationType::Step(0.1)) // optional, restricts mutations to a relative step up or down
 ///     .with_mutation_type(MutationType::Range(0.1)) // optional, restricts mutations to a smaller relative range bandwidth: [-0.1..=0.1] uniformly sampled
 ///     .with_mutation_type(MutationType::StepScaled(vec![0.1, 0.01, 0.001])) // optional, restricts mutations to relative step up or down of each scale
 ///     .with_mutation_type(MutationType::RangeScaled(vec![1.0, 1.0, 0.1, 0.1, 0.01])) // optional, optional, restricts mutations to relative bandwidth up or down of each scale
@@ -58,7 +59,8 @@ pub type DefaultAllele = f32;
 ///     .with_genes_size(100)
 ///     .with_allele_range(0..=100) // also default mutation range
 ///     .with_mutation_type(MutationType::Random) // default
-///     .with_mutation_type(MutationType::Range(1)) // optional, restricts mutations to a smaller relative range bandwidth: [-1..=1] uniformly sampled
+///     .with_mutation_type(MutationType::Step(2)) // optional, restricts mutations to a relative step up or down
+///     .with_mutation_type(MutationType::Range(2)) // optional, restricts mutations to a smaller relative range bandwidth: [-2..=2] uniformly sampled
 ///     .with_mutation_type(MutationType::StepScaled(vec![10, 3, 1])) // optional, restricts mutations to relative step up or down of each scale
 ///     .with_mutation_type(MutationType::RangeScaled(vec![100, 100, 10, 1])) // optional, optional, restricts mutations to relative bandwidth up or down of each scale
 ///     .with_genes_hashing(true) // optional, defaults to true
@@ -159,6 +161,7 @@ where
                         T::clamped_sub(current_value, delta, *self.allele_range.start());
                 }
             }
+            // FIXME: detect full range and apply random
             MutationType::RangeScaled(bandwidths) => {
                 if self.current_scale_index >= bandwidths.len().saturating_sub(1) {
                     // post-clamp
@@ -188,10 +191,21 @@ where
                     }
                 }
             }
-            MutationType::StepScaled(scaled_steps) => {
+            MutationType::Step(step) => {
                 // post-clamp
                 let current_value = chromosome.genes[index];
-                let delta = scaled_steps[self.current_scale_index];
+                if rng.gen() {
+                    chromosome.genes[index] =
+                        T::clamped_add(current_value, *step, *self.allele_range.end());
+                } else {
+                    chromosome.genes[index] =
+                        T::clamped_sub(current_value, *step, *self.allele_range.start());
+                }
+            }
+            MutationType::StepScaled(steps) => {
+                // post-clamp
+                let current_value = chromosome.genes[index];
+                let delta = steps[self.current_scale_index];
                 if rng.gen() {
                     chromosome.genes[index] =
                         T::clamped_add(current_value, delta, *self.allele_range.end());
@@ -202,12 +216,6 @@ where
             }
             MutationType::Discrete => {
                 panic!("RangeGenotype has no implementation for MutationType::Discrete")
-            }
-            _ => {
-                panic!(
-                    "RangeGenotype has no implementation for {:?}",
-                    self.mutation_type
-                )
             }
         }
     }
@@ -271,13 +279,17 @@ where
     }
     fn max_scale_index(&self) -> Option<usize> {
         match &self.mutation_type {
-            MutationType::StepScaled(scaled_steps) => Some(scaled_steps.len() - 1),
+            MutationType::RangeScaled(scales) | MutationType::StepScaled(scales) => {
+                Some(scales.len().saturating_sub(1))
+            }
             _ => None,
         }
     }
     fn current_scale_index(&self) -> Option<usize> {
         match self.mutation_type {
-            MutationType::StepScaled(_) => Some(self.current_scale_index),
+            MutationType::RangeScaled(_) | MutationType::StepScaled(_) => {
+                Some(self.current_scale_index)
+            }
             _ => None,
         }
     }
@@ -419,8 +431,11 @@ where
             MutationType::Random => {
                 self.fill_neighbouring_population_random(chromosome, population, rng)
             }
-            MutationType::StepScaled(scaled_steps) => {
-                let step = scaled_steps[self.current_scale_index];
+            MutationType::Step(step) => {
+                self.fill_neighbouring_population_step(chromosome, population, *step)
+            }
+            MutationType::StepScaled(steps) => {
+                let step = steps[self.current_scale_index];
                 self.fill_neighbouring_population_step(chromosome, population, step)
             }
             MutationType::Range(_) => {
@@ -441,12 +456,6 @@ where
             }
             MutationType::Discrete => {
                 panic!("RangeGenotype has no implementation for MutationType::Discrete")
-            }
-            _ => {
-                panic!(
-                    "RangeGenotype has no implementation for {:?}",
-                    self.mutation_type
-                )
             }
         }
     }
@@ -586,23 +595,26 @@ where
         chromosome: Option<&Chromosome<Self::Allele>>,
     ) -> Box<dyn Iterator<Item = Chromosome<Self::Allele>> + Send + 'a> {
         if self.seed_genes_list.is_empty() {
-            match &self.mutation_type {
-                MutationType::StepScaled(scaled_steps) => Box::new(
-                    self.permutable_gene_values_scaled(chromosome, scaled_steps)
-                        .into_iter()
-                        .multi_cartesian_product()
-                        .map(Chromosome::new),
-                ),
-                MutationType::Discrete => {
-                    panic!("RangeGenotype has no implementation for MutationType::Discrete")
-                }
-                _ => {
-                    panic!(
-                        "RangeGenotype is not permutable for {:?}",
-                        self.mutation_type
-                    )
-                }
-            }
+            Box::new(
+                (0..self.genes_size())
+                    .map(|index| match &self.mutation_type {
+                        MutationType::Step(step) => {
+                            // ineffecient but symmetrical
+                            self.permutable_gene_values_step(*step)
+                        }
+                        MutationType::StepScaled(steps) => {
+                            self.permutable_gene_values_step_scaled(index, chromosome, steps)
+                        }
+                        _ => {
+                            panic!(
+                                "RangeGenotype is not permutable for {:?}",
+                                self.mutation_type
+                            )
+                        }
+                    })
+                    .multi_cartesian_product()
+                    .map(Chromosome::new),
+            )
         } else {
             Box::new(
                 self.seed_genes_list
@@ -614,53 +626,32 @@ where
     }
 
     fn chromosome_permutations_size(&self) -> BigUint {
-        if self.seed_genes_list.is_empty() {
-            match &self.mutation_type {
-                MutationType::StepScaled(scaled_steps) => (0..=self.max_scale_index().unwrap())
-                    .map(|scale_index| {
-                        self.chromosome_permutations_size_scaled(scale_index, scaled_steps)
-                    })
-                    .sum(),
-                MutationType::Discrete => {
-                    panic!("RangeGenotype has no implementation for MutationType::Discrete")
-                }
-                _ => {
-                    panic!(
-                        "RangeGenotype is not permutable for {:?}",
-                        self.mutation_type
-                    )
-                }
-            }
-        } else {
-            self.seed_genes_list.len().into()
-        }
+        self.chromosome_permutations_size_per_scale().iter().sum()
     }
 
     fn chromosome_permutations_size_report(&self) -> String {
-        match &self.mutation_type {
-            MutationType::StepScaled(scaled_steps) => {
-                let size_per_scale: Vec<String> = (0..=self.max_scale_index().unwrap())
-                    .map(|scale_index| {
-                        self.chromosome_permutations_size_scaled(scale_index, scaled_steps)
-                    })
-                    .map(|scale_size| self.format_biguint_scientific(&scale_size))
-                    .collect();
+        if self.allows_permutation() {
+            let sizes = self.chromosome_permutations_size_per_scale();
+            let total = sizes.iter().sum();
+            if sizes.len() > 1 {
                 format!(
                     "{}, per scale {:?}",
-                    self.format_biguint_scientific(&self.chromosome_permutations_size()),
-                    size_per_scale
+                    self.format_biguint_scientific(&total),
+                    sizes
                 )
+            } else {
+                self.format_biguint_scientific(&total).to_string()
             }
-            _ => "uncountable".to_string(),
+        } else {
+            "uncountable".to_string()
         }
     }
 
     fn allows_permutation(&self) -> bool {
-        match self.mutation_type {
-            MutationType::StepScaled(_) => true,
-            MutationType::Discrete => false, // can implement, but acts as inefficient ListGenotype
-            _ => false,
-        }
+        matches!(
+            self.mutation_type,
+            MutationType::Step(_) | MutationType::StepScaled(_)
+        )
     }
 }
 
@@ -668,60 +659,46 @@ impl<T: RangeAllele> Range<T>
 where
     Uniform<T>: Send + Sync,
 {
-    // scales should be symmetrical, so the step is simply the scale end
-    pub fn permutable_gene_values_scaled(
-        &self,
-        chromosome: Option<&Chromosome<T>>,
-        scaled_steps: &[T],
-    ) -> Vec<Vec<T>> {
+    pub fn permutable_gene_values_step(&self, step: T) -> Vec<T> {
         let allele_range_start = *self.allele_range.start();
         let allele_range_end = *self.allele_range.end();
-        (0..self.genes_size())
-            .map(|index| {
-                let (allele_value_start, allele_value_end) = if let Some(chromosome) = chromosome {
-                    if let Some(previous_scale_index) = self.current_scale_index.checked_sub(1) {
-                        let working_step = scaled_steps[previous_scale_index];
-                        let current_value = chromosome.genes[index];
-                        let value_start =
-                            T::clamped_sub(current_value, working_step, allele_range_start);
-                        let value_end =
-                            T::clamped_add(current_value, working_step, allele_range_end);
-                        (value_start, value_end)
-                    } else {
-                        (allele_range_start, allele_range_end)
-                    }
+        std::iter::successors(Some(allele_range_start), |value| {
+            if *value < allele_range_end {
+                let next_value = *value + step;
+                if next_value > allele_range_end {
+                    Some(allele_range_end)
                 } else {
-                    (allele_range_start, allele_range_end)
-                };
-
-                let working_step = scaled_steps[self.current_scale_index];
-                std::iter::successors(Some(allele_value_start), |value| {
-                    if *value < allele_value_end {
-                        let next_value = *value + working_step;
-                        if next_value > allele_value_end {
-                            Some(allele_value_end)
-                        } else {
-                            Some(next_value)
-                        }
-                    } else {
-                        None
-                    }
-                })
-                .collect()
-            })
-            .collect()
-    }
-
-    pub fn permutable_allele_size_scaled(&self, scale_index: usize, scaled_steps: &[T]) -> usize {
-        let (allele_value_start, allele_value_end) =
-            if let Some(previous_scale_index) = scale_index.checked_sub(1) {
-                let working_step = scaled_steps[previous_scale_index];
-                (T::zero(), working_step + working_step)
+                    Some(next_value)
+                }
             } else {
-                (*self.allele_range.start(), *self.allele_range.end())
-            };
+                None
+            }
+        })
+        .collect()
+    }
+    pub fn permutable_gene_values_step_scaled(
+        &self,
+        index: usize,
+        chromosome: Option<&Chromosome<T>>,
+        steps: &[T],
+    ) -> Vec<T> {
+        let allele_range_start = *self.allele_range.start();
+        let allele_range_end = *self.allele_range.end();
+        let (allele_value_start, allele_value_end) = if let Some(chromosome) = chromosome {
+            if let Some(previous_scale_index) = self.current_scale_index.checked_sub(1) {
+                let working_step = steps[previous_scale_index];
+                let current_value = chromosome.genes[index];
+                let value_start = T::clamped_sub(current_value, working_step, allele_range_start);
+                let value_end = T::clamped_add(current_value, working_step, allele_range_end);
+                (value_start, value_end)
+            } else {
+                (allele_range_start, allele_range_end)
+            }
+        } else {
+            (allele_range_start, allele_range_end)
+        };
 
-        let working_step = scaled_steps[scale_index];
+        let working_step = steps[self.current_scale_index];
         std::iter::successors(Some(allele_value_start), |value| {
             if *value < allele_value_end {
                 let next_value = *value + working_step;
@@ -734,16 +711,79 @@ where
                 None
             }
         })
-        .count()
+        .collect()
     }
 
-    pub fn chromosome_permutations_size_scaled(
-        &self,
-        scale_index: usize,
-        scaled_steps: &[T],
-    ) -> BigUint {
-        BigUint::from(self.permutable_allele_size_scaled(scale_index, scaled_steps))
-            .pow(self.genes_size() as u32)
+    fn chromosome_permutations_size_per_scale(&self) -> Vec<BigUint> {
+        // first scale is affected by seed_genes_list
+        let mut results = vec![];
+        if self.seed_genes_list.is_empty() {
+            results.push(self.chromosome_permutations_size_for_scale_index(0));
+        } else {
+            results.push(self.seed_genes_list.len().into());
+        };
+        // next scales are not
+        if let Some(max_scale_index) = self.max_scale_index() {
+            (1..=max_scale_index).for_each(|scale_index| {
+                results.push(self.chromosome_permutations_size_for_scale_index(scale_index));
+            })
+        }
+        results
+    }
+
+    fn chromosome_permutations_size_for_scale_index(&self, scale_index: usize) -> BigUint {
+        BigUint::from(
+            match &self.mutation_type {
+                MutationType::Step(step) => {
+                    let allele_range_start = *self.allele_range.start();
+                    let allele_range_end = *self.allele_range.end();
+                    std::iter::successors(Some(allele_range_start), |value| {
+                        if *value < allele_range_end {
+                            let next_value = *value + *step;
+                            if next_value > allele_range_end {
+                                Some(allele_range_end)
+                            } else {
+                                Some(next_value)
+                            }
+                        } else {
+                            None
+                        }
+                    })
+                    .count()
+                }
+                MutationType::StepScaled(steps) => {
+                    let (allele_value_start, allele_value_end) =
+                        if let Some(previous_scale_index) = scale_index.checked_sub(1) {
+                            let working_step = steps[previous_scale_index];
+                            (T::zero(), working_step + working_step)
+                        } else {
+                            (*self.allele_range.start(), *self.allele_range.end())
+                        };
+
+                    let working_step = steps[scale_index];
+                    std::iter::successors(Some(allele_value_start), |value| {
+                        if *value < allele_value_end {
+                            let next_value = *value + working_step;
+                            if next_value > allele_value_end {
+                                Some(allele_value_end)
+                            } else {
+                                Some(next_value)
+                            }
+                        } else {
+                            None
+                        }
+                    })
+                    .count()
+                }
+                _ => {
+                    panic!(
+                        "RangeGenotype is not permutable for {:?}",
+                        self.mutation_type
+                    )
+                }
+            }
+            .pow(self.genes_size() as u32),
+        )
     }
 }
 
