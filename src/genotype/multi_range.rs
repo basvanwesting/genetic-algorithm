@@ -876,7 +876,7 @@ where
         .collect()
     }
 
-    fn chromosome_permutations_size_per_scale(&self) -> Vec<BigUint> {
+    pub fn chromosome_permutations_size_per_scale(&self) -> Vec<BigUint> {
         // first scale is affected by seed_genes_list
         let mut results = vec![];
         if self.seed_genes_list.is_empty() {

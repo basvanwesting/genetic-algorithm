@@ -714,7 +714,7 @@ where
         .collect()
     }
 
-    fn chromosome_permutations_size_per_scale(&self) -> Vec<BigUint> {
+    pub fn chromosome_permutations_size_per_scale(&self) -> Vec<BigUint> {
         // first scale is affected by seed_genes_list
         let mut results = vec![];
         if self.seed_genes_list.is_empty() {
@@ -731,7 +731,7 @@ where
         results
     }
 
-    fn chromosome_permutations_size_for_scale_index(&self, scale_index: usize) -> BigUint {
+    pub fn chromosome_permutations_size_for_scale_index(&self, scale_index: usize) -> BigUint {
         BigUint::from(
             match &self.mutation_type {
                 MutationType::Step(step) => {

@@ -62,9 +62,8 @@ pub type MutateAllele<M> = <<M as Mutate>::Genotype as Genotype>::Allele;
 ///         {
 ///             // Custom logic, for instance mutate all genes with even index be a relative change
 ///             for even_index in (0..genotype.genes_size()).filter(|x| x % 2 == 0) {
-///                 // MultiRangeGenotype specific methods are available (this one does allele bounds checking as well)
-///                 let delta = genotype.sample_gene_delta(chromosome, even_index, rng);
-///                 chromosome.genes[even_index] += delta;
+///                 // standard mutation, respecting MutationType
+///                 genotype.mutate_gene(chromosome, even_index, rng);
 ///             }
 ///             for odd_index in (0..genotype.genes_size()).filter(|x| x % 2 == 1) {
 ///                 // MultiRangeGenotype specific methods are available (pure random sample)

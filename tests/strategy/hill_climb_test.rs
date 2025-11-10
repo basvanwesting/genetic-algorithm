@@ -126,7 +126,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(76681));
+    assert_eq!(hill_climb.best_fitness_score(), Some(81575));
 }
 
 #[test]
@@ -149,7 +149,7 @@ fn call_range_max_stale_generations_and_valid_fitness_score_minimize() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(24930));
+    assert_eq!(hill_climb.best_fitness_score(), Some(23706));
 }
 
 #[test]
@@ -170,10 +170,10 @@ fn call_range_target_fitness_score_maximize() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(8088));
+    assert_eq!(hill_climb.best_fitness_score(), Some(8008));
     assert!(relative_chromosome_eq(
         hill_climb.best_genes().unwrap(),
-        vec![0.673, 0.629, 1.0, 0.722, 1.0, 1.0, 0.737, 0.735, 0.590, 1.0,],
+        vec![0.567, 0.651, 1.0, 0.696, 1.0, 1.0, 0.785, 0.899, 0.490, 0.918],
         0.001
     ));
 }
@@ -197,10 +197,10 @@ fn call_range_target_fitness_score_minimize() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(964));
+    assert_eq!(hill_climb.best_fitness_score(), Some(972));
     assert!(relative_chromosome_eq(
         hill_climb.best_genes().unwrap(),
-        vec![0.0, 0.0, 0.173, 0.0, 0.626, 0.006, 0.0, 0.0, 0.0, 0.159,],
+        vec![0.0, 0.0, 0.395, 0.0, 0.364, 0.0, 0.0, 0.0, 0.0, 0.211],
         0.001
     ));
 }
@@ -225,10 +225,10 @@ fn call_range_par_fitness() {
         .unwrap();
 
     println!("{:#?}", hill_climb.best_genes());
-    assert_eq!(hill_climb.best_fitness_score(), Some(964));
+    assert_eq!(hill_climb.best_fitness_score(), Some(972));
     assert!(relative_chromosome_eq(
         hill_climb.best_genes().unwrap(),
-        vec![0.0, 0.0, 0.173, 0.0, 0.626, 0.006, 0.0, 0.0, 0.0, 0.159,],
+        vec![0.0, 0.0, 0.395, 0.0, 0.364, 0.0, 0.0, 0.0, 0.0, 0.211],
         0.001
     ));
 }

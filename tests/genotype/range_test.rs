@@ -50,7 +50,7 @@ fn float_mutate_chromosome_single_random() {
 fn float_mutate_chromosome_single_range() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()
-        .with_genes_size(10)
+        .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_mutation_type(MutationType::Range(0.1))
         .build()
@@ -59,21 +59,98 @@ fn float_mutate_chromosome_single_range() {
     let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
+        vec![0.447, 0.439, 0.979],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818,],
+        vec![0.447, 0.528, 0.979],
         0.001,
     ));
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 1.0, 0.462, 0.897, 0.942, 0.499, 0.456, 0.395, 0.818],
+        vec![0.447, 0.483, 0.979],
+        0.001,
+    ));
+}
+
+#[test]
+fn float_mutate_chromosome_single_range_scaled() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = RangeGenotype::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..=1.0)
+        .with_mutation_type(MutationType::RangeScaled(vec![1.0, 0.1, 0.01]))
+        .build()
+        .unwrap();
+
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 0.439, 0.979],
+        0.001,
+    ));
+
+    assert_eq!(genotype.current_scale_index, 0);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 0.968, 0.979],
+        0.001,
+    ));
+
+    assert!(genotype.increment_scale_index());
+    assert_eq!(genotype.current_scale_index, 1);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 0.928, 0.882],
+        0.001,
+    ));
+
+    assert!(genotype.increment_scale_index());
+    assert_eq!(genotype.current_scale_index, 2);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 0.929, 0.882],
+        0.001,
+    ));
+}
+
+#[test]
+fn float_mutate_chromosome_single_step() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..=1.0)
+        .with_mutation_type(MutationType::Step(0.1))
+        .build()
+        .unwrap();
+
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 0.439, 0.979],
+        0.001,
+    ));
+
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 0.539, 0.979],
+        0.001,
+    ));
+
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 0.539, 1.0],
         0.001,
     ));
 }
@@ -82,34 +159,43 @@ fn float_mutate_chromosome_single_range() {
 fn float_mutate_chromosome_single_step_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = RangeGenotype::builder()
-        .with_genes_size(10)
+        .with_genes_size(3)
         .with_allele_range(0.0..=1.0)
         .with_mutation_type(MutationType::StepScaled(vec![1.0, 0.1, 0.01]))
         .build()
         .unwrap();
 
     let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
-    assert_eq!(genotype.current_scale_index, 0);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 0.979, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
+        vec![0.447, 0.439, 0.979],
+        0.001,
+    ));
+
+    assert_eq!(genotype.current_scale_index, 0);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 1.0, 0.979],
         0.001,
     ));
 
     assert!(genotype.increment_scale_index());
+    assert_eq!(genotype.current_scale_index, 1);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.447, 0.9, 1.0],
+        0.001,
+    ));
+
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 0.969, 0.462, 0.897, 0.942, 0.588, 0.456, 0.395, 0.818],
-        0.001,
-    ));
-
-    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
-    assert!(relative_chromosome_eq(
-        inspect::chromosome(&chromosome),
-        vec![0.447, 0.439, 0.969, 0.462, 0.897, 0.942, 0.598, 0.456, 0.395, 0.818],
+        vec![0.447, 0.9, 0.99],
         0.001,
     ));
 }
@@ -215,7 +301,7 @@ fn float_neighbouring_population_1() {
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert!(relative_population_eq(
         inspect::population(&population),
-        vec![vec![0.391], vec![0.545]],
+        vec![vec![0.403], vec![0.491]],
         0.001,
     ));
 }
@@ -274,10 +360,10 @@ fn float_neighbouring_population_2_range() {
     assert!(relative_population_eq(
         inspect::population(&population),
         vec![
-            vec![0.445, 0.439],
-            vec![0.494, 0.439],
-            vec![0.447, 0.429],
-            vec![0.447, 0.533],
+            vec![0.349, 0.439],
+            vec![0.545, 0.439],
+            vec![0.447, 0.392],
+            vec![0.447, 0.485],
         ],
         0.001,
     ));
@@ -366,12 +452,12 @@ fn float_neighbouring_population_3() {
     assert!(relative_population_eq(
         inspect::population(&population),
         vec![
-            vec![0.394, 0.439, 0.980],
-            vec![0.537, 0.439, 0.980],
-            vec![0.447, 0.433, 0.980],
-            vec![0.447, 0.498, 0.980],
-            vec![0.447, 0.439, 0.925],
-            vec![0.447, 0.439, 0.987],
+            vec![0.401, 0.439, 0.979],
+            vec![0.493, 0.439, 0.979],
+            vec![0.447, 0.349, 0.979],
+            vec![0.447, 0.528, 0.979],
+            vec![0.447, 0.439, 0.885],
+            vec![0.447, 0.439, 1.0],
         ],
         0.001,
     ));
@@ -395,45 +481,30 @@ fn float_permutable_gene_values_step_scaled() {
         0.001,
     ));
 
-    assert!(relative_population_eq(
-        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
-        vec![
-            vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
-            vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0]
-        ],
+    assert!(relative_chromosome_eq(
+        genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), scaled_steps),
+        vec![0.0, 1.0, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 9.0, 10.0],
         0.001
     ));
 
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
-    assert!(relative_population_eq(
-        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
+    assert!(relative_chromosome_eq(
+        genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), scaled_steps),
         vec![
-            vec![
-                3.473, 3.573, 3.673, 3.773, 3.873, 3.973, 4.073, 4.173, 4.273, 4.373, 4.473, 4.573,
-                4.673, 4.773, 4.873, 4.973, 5.073, 5.173, 5.273, 5.373, 5.473, 5.473,
-            ],
-            vec![
-                3.391, 3.491, 3.591, 3.691, 3.791, 3.891, 3.991, 4.091, 4.191, 4.291, 4.391, 4.491,
-                4.591, 4.691, 4.791, 4.891, 4.991, 5.091, 5.191, 5.291, 5.391, 5.391,
-            ]
+            3.473, 3.573, 3.673, 3.773, 3.873, 3.973, 4.073, 4.173, 4.273, 4.373, 4.473, 4.573,
+            4.673, 4.773, 4.873, 4.973, 5.073, 5.173, 5.273, 5.373, 5.473, 5.473,
         ],
         0.001
     ));
 
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
-    assert!(relative_population_eq(
-        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
+    assert!(relative_chromosome_eq(
+        genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), scaled_steps),
         vec![
-            vec![
-                4.373, 4.383, 4.393, 4.403, 4.413, 4.423, 4.433, 4.443, 4.453, 4.463, 4.473, 4.483,
-                4.493, 4.503, 4.513, 4.523, 4.533, 4.543, 4.553, 4.563, 4.573, 4.573,
-            ],
-            vec![
-                4.291, 4.301, 4.311, 4.321, 4.331, 4.341, 4.351, 4.361, 4.371, 4.381, 4.391, 4.401,
-                4.411, 4.421, 4.431, 4.441, 4.451, 4.461, 4.471, 4.481, 4.491, 4.491,
-            ]
+            4.373, 4.383, 4.393, 4.403, 4.413, 4.423, 4.433, 4.443, 4.453, 4.463, 4.473, 4.483,
+            4.493, 4.503, 4.513, 4.523, 4.533, 4.543, 4.553, 4.563, 4.573, 4.573,
         ],
         0.001
     ));
@@ -464,7 +535,7 @@ fn float_chromosome_permutations_2_step_scaled() {
 
     assert_eq!(genotype.current_scale_index, 0);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(0, scaled_steps),
+        genotype.chromosome_permutations_size_for_scale_index(0),
         BigUint::from(9u32)
     );
 
@@ -491,7 +562,7 @@ fn float_chromosome_permutations_2_step_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(1, scaled_steps),
+        genotype.chromosome_permutations_size_for_scale_index(1),
         BigUint::from(36u32)
     );
     let chromosomes = genotype
@@ -544,7 +615,7 @@ fn float_chromosome_permutations_2_step_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(2, scaled_steps),
+        genotype.chromosome_permutations_size_for_scale_index(2),
         BigUint::from(25u32)
     );
     let chromosomes = genotype
@@ -623,11 +694,10 @@ fn integer_mutate_chromosome_single_range() {
         vec![4, 4, 9, 4, 8, 9, 5, 4, 3, 8],
     );
 
-    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
-    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    genotype.mutate_chromosome_genes(5, true, &mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
-        vec![4, 4, 9, 4, 8, 9, 4, 4, 3, 8],
+        vec![3, 4, 8, 4, 8, 9, 5, 3, 3, 8],
     );
 }
 
@@ -689,7 +759,7 @@ fn integer_neighbouring_population_2_range() {
     genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
     assert_eq!(
         inspect::population(&population),
-        vec![vec![3, 4], vec![5, 4], vec![4, 3], vec![4, 5]]
+        vec![vec![2, 4], vec![6, 4], vec![4, 3], vec![4, 5]]
     );
 }
 
@@ -761,41 +831,26 @@ fn integer_permutable_gene_values_step_scaled() {
 
     assert_eq!(genotype.current_scale_index, 0);
     assert_eq!(
-        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
-        vec![
-            vec![0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
-            vec![0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
-        ]
+        genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), scaled_steps),
+        vec![0, 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000],
     );
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert_eq!(
-        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
+        genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), scaled_steps),
         vec![
-            vec![
-                347, 357, 367, 377, 387, 397, 407, 417, 427, 437, 447, 457, 467, 477, 487, 497,
-                507, 517, 527, 537, 547
-            ],
-            vec![
-                339, 349, 359, 369, 379, 389, 399, 409, 419, 429, 439, 449, 459, 469, 479, 489,
-                499, 509, 519, 529, 539
-            ]
-        ]
+            347, 357, 367, 377, 387, 397, 407, 417, 427, 437, 447, 457, 467, 477, 487, 497, 507,
+            517, 527, 537, 547
+        ],
     );
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert_eq!(
-        genotype.permutable_gene_values_step_scaled(Some(&chromosome), scaled_steps),
+        genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), scaled_steps),
         vec![
-            vec![
-                437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452,
-                453, 454, 455, 456, 457
-            ],
-            vec![
-                429, 430, 431, 432, 433, 434, 435, 436, 437, 438, 439, 440, 441, 442, 443, 444,
-                445, 446, 447, 448, 449
-            ]
-        ]
+            437, 438, 439, 440, 441, 442, 443, 444, 445, 446, 447, 448, 449, 450, 451, 452, 453,
+            454, 455, 456, 457
+        ],
     );
 }
 
@@ -820,7 +875,7 @@ fn integer_chromosome_permutations_2_step_scaled() {
 
     assert_eq!(genotype.current_scale_index, 0);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(0, scaled_steps),
+        genotype.chromosome_permutations_size_for_scale_index(0),
         BigUint::from(9u32)
     );
     let chromosomes = genotype
@@ -844,7 +899,7 @@ fn integer_chromosome_permutations_2_step_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(1, scaled_steps),
+        genotype.chromosome_permutations_size_for_scale_index(1),
         BigUint::from(36u32)
     );
     let chromosomes = genotype
@@ -895,7 +950,7 @@ fn integer_chromosome_permutations_2_step_scaled() {
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
     assert_eq!(
-        genotype.chromosome_permutations_size_scaled(2, scaled_steps),
+        genotype.chromosome_permutations_size_for_scale_index(2),
         BigUint::from(25u32)
     );
     let chromosomes = genotype
