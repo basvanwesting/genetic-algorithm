@@ -83,7 +83,6 @@ where
     pub seed_genes_list: Vec<Vec<T>>,
     pub genes_hashing: bool,
     pub chromosome_recycling: bool,
-    pub current_generation: usize,
 }
 
 impl<T: RangeAllele> TryFrom<Builder<Self>> for Range<T>
@@ -125,7 +124,6 @@ where
                 seed_genes_list: builder.seed_genes_list,
                 genes_hashing: builder.genes_hashing,
                 chromosome_recycling: builder.chromosome_recycling,
-                current_generation: 0,
             })
         }
     }
@@ -307,12 +305,6 @@ where
         } else {
             false
         }
-    }
-    fn reset_generation(&mut self) {
-        self.current_generation = 0;
-    }
-    fn increment_generation(&mut self) {
-        self.current_generation += 1;
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {
@@ -815,7 +807,6 @@ where
             seed_genes_list: self.seed_genes_list.clone(),
             genes_hashing: self.genes_hashing,
             chromosome_recycling: self.chromosome_recycling,
-            current_generation: self.current_generation,
         }
     }
 }

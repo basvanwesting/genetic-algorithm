@@ -72,10 +72,7 @@ pub trait Genotype:
     fn increment_scale_index(&mut self) -> bool {
         false
     }
-    fn reset_generation(&mut self) {}
-    fn increment_generation(&mut self) {}
     fn reset(&mut self) {
-        self.reset_generation();
         self.reset_scale_index();
     }
 

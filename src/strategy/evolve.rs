@@ -244,7 +244,6 @@ impl<
         self.reporter
             .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
-            self.genotype.increment_generation();
             self.state.increment_generation();
             self.state
                 .population_filter_age(&self.genotype, &self.config);
