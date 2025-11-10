@@ -576,6 +576,12 @@ impl<G: EvolveGenotype> EvolveState<G> {
         self.add_duration(StrategyAction::UpdateBestChromosome, now.elapsed());
     }
     fn scale(&mut self, genotype: &mut G, config: &EvolveConfig) {
+        if let Some(max_generations) = config.max_generations {
+            if self.scale_generation >= max_generations && genotype.increment_scale_index() {
+                self.reset_scale_generation();
+                self.reset_stale_generations();
+            }
+        }
         if let Some(max_stale_generations) = config.max_stale_generations {
             if self.stale_generations >= max_stale_generations && genotype.increment_scale_index() {
                 self.reset_scale_generation();
