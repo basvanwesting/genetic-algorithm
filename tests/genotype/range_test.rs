@@ -124,6 +124,28 @@ fn float_mutate_chromosome_single_range_scaled() {
 }
 
 #[test]
+fn float_mutate_chromosome_single_range_scaled_on_edge() {
+    let mut rng = SmallRng::seed_from_u64(1);
+    let mut genotype = RangeGenotype::builder()
+        .with_genes_size(3)
+        .with_allele_range(0.0..=1.0)
+        .with_mutation_type(MutationType::RangeScaled(vec![1.0, 0.1, 0.01]))
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![1.0, 0.0, 1.0]);
+    assert!(genotype.increment_scale_index());
+    assert_eq!(genotype.current_scale_index, 1);
+
+    genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![0.970, 0.0, 0.904],
+        0.001,
+    ));
+}
+
+#[test]
 fn float_mutate_chromosome_single_step() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()

@@ -204,11 +204,19 @@ where
                 .iter()
                 .map(|mutation_type| match &mutation_type {
                     MutationType::Range(bandwidth) => {
-                        Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
+                        if *bandwidth >= T::smallest_increment() {
+                            Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
+                        } else {
+                            None
+                        }
                     }
                     MutationType::RangeScaled(bandwidths) => {
                         let bandwidth = bandwidths.last().unwrap();
-                        Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
+                        if *bandwidth >= T::smallest_increment() {
+                            Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
+                        } else {
+                            None
+                        }
                     }
                     _ => None,
                 })
@@ -300,13 +308,19 @@ where
                         if rng.gen() {
                             let max_delta_up = allele_range_end - current_value;
                             let working_delta_up = T::min(bandwidth, max_delta_up);
-                            let delta = rng.gen_range(T::smallest_increment()..=working_delta_up);
-                            chromosome.genes[index] += delta; // no need to check again
+                            if working_delta_up >= T::smallest_increment() {
+                                let delta =
+                                    rng.gen_range(T::smallest_increment()..=working_delta_up);
+                                chromosome.genes[index] += delta; // no need to check again
+                            }
                         } else {
                             let max_delta_down = current_value - allele_range_start;
                             let working_delta_down = T::min(bandwidth, max_delta_down);
-                            let delta = rng.gen_range(T::smallest_increment()..=working_delta_down);
-                            chromosome.genes[index] -= delta; // no need to check again
+                            if working_delta_down >= T::smallest_increment() {
+                                let delta =
+                                    rng.gen_range(T::smallest_increment()..=working_delta_down);
+                                chromosome.genes[index] -= delta; // no need to check again
+                            }
                         }
                     }
                 }
@@ -660,19 +674,23 @@ where
             let mut new_chromosome = population.new_chromosome(chromosome);
             let max_delta_down = current_value - allele_range_start;
             let working_delta_down = T::min(bandwidth, max_delta_down);
-            let delta = rng.gen_range(T::smallest_increment()..=working_delta_down);
-            new_chromosome.genes[index] -= delta; // no need to check again
-            new_chromosome.reset_metadata(self.genes_hashing);
-            population.chromosomes.push(new_chromosome);
+            if working_delta_down >= T::smallest_increment() {
+                let delta = rng.gen_range(T::smallest_increment()..=working_delta_down);
+                new_chromosome.genes[index] -= delta; // no need to check again
+                new_chromosome.reset_metadata(self.genes_hashing);
+                population.chromosomes.push(new_chromosome);
+            }
         };
         if current_value < allele_range_end {
             let mut new_chromosome = population.new_chromosome(chromosome);
             let max_delta_up = allele_range_end - current_value;
             let working_delta_up = T::min(bandwidth, max_delta_up);
-            let delta = rng.gen_range(T::smallest_increment()..=working_delta_up);
-            new_chromosome.genes[index] += delta; // no need to check again
-            new_chromosome.reset_metadata(self.genes_hashing);
-            population.chromosomes.push(new_chromosome);
+            if working_delta_up >= T::smallest_increment() {
+                let delta = rng.gen_range(T::smallest_increment()..=working_delta_up);
+                new_chromosome.genes[index] += delta; // no need to check again
+                new_chromosome.reset_metadata(self.genes_hashing);
+                population.chromosomes.push(new_chromosome);
+            }
         };
     }
     fn fill_neighbouring_population_random<R: Rng>(
@@ -1000,11 +1018,19 @@ where
             .iter()
             .map(|mutation_type| match &mutation_type {
                 MutationType::Range(bandwidth) => {
-                    Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
+                    if *bandwidth >= T::smallest_increment() {
+                        Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
+                    } else {
+                        None
+                    }
                 }
                 MutationType::RangeScaled(bandwidths) => {
                     let bandwidth = bandwidths.last().unwrap();
-                    Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
+                    if *bandwidth >= T::smallest_increment() {
+                        Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
+                    } else {
+                        None
+                    }
                 }
                 _ => None,
             })
