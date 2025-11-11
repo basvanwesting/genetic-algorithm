@@ -32,7 +32,6 @@ fn main() {
         .with_allele_range(ALLELE_RANGE)
         // .with_mutation_type(MutationType::Random) // not needed, is default
         // .with_mutation_type(MutationType::Range(0.1))
-        // .with_mutation_type(MutationType::Transition(100, 400, 0.1))
         .with_genes_hashing(true)
         .with_chromosome_recycling(true)
         .build()

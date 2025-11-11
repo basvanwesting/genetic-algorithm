@@ -27,23 +27,33 @@ fn main() {
 
     let genotype = RangeGenotype::<f32>::builder()
         .with_genes_size(GENES_SIZE)
-        .with_allele_range(0.0..=1.0) // won't converge with low max_stale_generations, converges just fine with higher max_stale_generations, but very ineffecient
+        .with_allele_range(0.0..=1.0)
+        // won't converge with low max_stale_generations, converges just fine with higher max_stale_generations, but very ineffecient
         // .with_mutation_type(MutationType::Random) // not needed, is default
-        // .with_mutation_type(MutationType::Range(0.1)) // converges slowly
-        // .with_mutation_type(MutationType::Transition(1000, 1000, 0.1)) // converges slowly
-        .with_mutation_type(MutationType::StepScaled(vec![
-            0.1, 0.01, 0.001, 0.0001, 0.00001,
-        ])) // converges fast, but needs low max_stale_generations to trigger next scale
+        //
+        // converges slowly, needs high max_stale_generations
+        // .with_mutation_type(MutationType::Range(0.1))
+        //
+        // converges slowly, needs high max_stale_generations, which is also the trigger to scale
+        // down, so problematic approach here.
+        // .with_mutation_type(MutationType::RangeScaled(vec![1.0, 1.0, 0.1, 0.01, 0.001]))
+        //
+        // converges slowly, needs high max_stale_generations
+        // .with_mutation_type(MutationType::Step(0.001))
+        //
+        // best approach for this problem
+        // converges fast, but needs low max_stale_generations to trigger next scale
+        .with_mutation_type(MutationType::StepScaled(vec![0.1, 0.01, 0.001, 0.0001]))
         .build()
         .unwrap();
 
     println!("{}", genotype);
 
-    let evolve = Evolve::builder()
+    let _evolve = Evolve::builder()
         .with_genotype(genotype)
         .with_target_population_size(POPULATION_SIZE)
-        .with_max_stale_generations(100)
-        // .with_max_stale_generations(100_000)
+        // .with_max_stale_generations(100)
+        .with_max_stale_generations(100_000)
         .with_target_fitness_score(POPULATION_SIZE as isize * 100)
         .with_fitness(DistanceTo(0.55555, 1e-5))
         .with_fitness_ordering(FitnessOrdering::Minimize)
@@ -54,5 +64,5 @@ fn main() {
         .call()
         .unwrap();
 
-    println!("{}", evolve);
+    // println!("{}", evolve);
 }
