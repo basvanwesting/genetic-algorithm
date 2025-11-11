@@ -159,7 +159,6 @@ where
                         T::clamped_sub(current_value, delta, *self.allele_range.start());
                 }
             }
-            // FIXME: detect full range and apply random
             MutationType::RangeScaled(bandwidths) => {
                 if self.current_scale_index >= bandwidths.len().saturating_sub(1) {
                     // post-clamp
@@ -174,18 +173,26 @@ where
                     }
                 } else {
                     // pre-clamp
-                    let current_value = chromosome.genes[index];
                     let bandwidth = bandwidths[self.current_scale_index];
-                    if rng.gen() {
-                        let max_delta_up = *self.allele_range.end() - current_value;
-                        let working_delta_up = T::min(bandwidth, max_delta_up);
-                        let delta = rng.gen_range(T::smallest_increment()..=working_delta_up);
-                        chromosome.genes[index] += delta; // no need to check again
+                    let allele_range_start = *self.allele_range.start();
+                    let allele_range_end = *self.allele_range.end();
+                    if allele_range_end - allele_range_start <= bandwidth {
+                        // Random, leverage existing sampler
+                        chromosome.genes[index] = self.sample_gene_random(rng);
                     } else {
-                        let max_delta_down = current_value - *self.allele_range.start();
-                        let working_delta_down = T::min(bandwidth, max_delta_down);
-                        let delta = rng.gen_range(T::smallest_increment()..=working_delta_down);
-                        chromosome.genes[index] -= delta; // no need to check again
+                        // Bandwidth
+                        let current_value = chromosome.genes[index];
+                        if rng.gen() {
+                            let max_delta_up = allele_range_end - current_value;
+                            let working_delta_up = T::min(bandwidth, max_delta_up);
+                            let delta = rng.gen_range(T::smallest_increment()..=working_delta_up);
+                            chromosome.genes[index] += delta; // no need to check again
+                        } else {
+                            let max_delta_down = current_value - allele_range_start;
+                            let working_delta_down = T::min(bandwidth, max_delta_down);
+                            let delta = rng.gen_range(T::smallest_increment()..=working_delta_down);
+                            chromosome.genes[index] -= delta; // no need to check again
+                        }
                     }
                 }
             }
@@ -439,7 +446,7 @@ where
                     // final scale, post-clamp
                     self.fill_neighbouring_population_range_post_clamp(chromosome, population, rng)
                 } else {
-                    // pre-clamp
+                    // pre-clamp, no need for leveraging random implementation as it is basically the same
                     let bandwidth = bandwidths[self.current_scale_index];
                     self.fill_neighbouring_population_range_pre_clamp(
                         chromosome, population, bandwidth, rng,
