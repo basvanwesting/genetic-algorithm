@@ -285,10 +285,3 @@ impl<T: Allele> Population<T> {
         }
     }
 }
-
-// FIXME: still used?
-impl<T: Allele> From<Vec<Chromosome<T>>> for Population<T> {
-    fn from(chromosomes: Vec<Chromosome<T>>) -> Self {
-        Self::new(chromosomes, false)
-    }
-}
