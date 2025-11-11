@@ -264,26 +264,8 @@ where
             MutationType::Range(_) => {
                 // post-clamp
                 let current_value = chromosome.genes[index];
-                let delta = self.allele_bandwidth_samplers[index]
-                    .as_ref()
-                    .unwrap()
-                    .sample(rng);
-                if rng.gen() {
-                    chromosome.genes[index] =
-                        T::clamped_add(current_value, delta, *self.allele_ranges[index].end());
-                } else {
-                    chromosome.genes[index] =
-                        T::clamped_sub(current_value, delta, *self.allele_ranges[index].start());
-                }
-            }
-            MutationType::RangeScaled(bandwidths) => {
-                if self.current_scale_index >= bandwidths.len().saturating_sub(1) {
-                    // post-clamp
-                    let current_value = chromosome.genes[index];
-                    let delta = self.allele_bandwidth_samplers[index]
-                        .as_ref()
-                        .unwrap()
-                        .sample(rng);
+                if let Some(sampler) = self.allele_bandwidth_samplers[index].as_ref() {
+                    let delta = sampler.sample(rng);
                     if rng.gen() {
                         chromosome.genes[index] =
                             T::clamped_add(current_value, delta, *self.allele_ranges[index].end());
@@ -293,6 +275,28 @@ where
                             delta,
                             *self.allele_ranges[index].start(),
                         );
+                    }
+                }
+            }
+            MutationType::RangeScaled(bandwidths) => {
+                if self.current_scale_index >= bandwidths.len().saturating_sub(1) {
+                    // post-clamp
+                    let current_value = chromosome.genes[index];
+                    if let Some(sampler) = self.allele_bandwidth_samplers[index].as_ref() {
+                        let delta = sampler.sample(rng);
+                        if rng.gen() {
+                            chromosome.genes[index] = T::clamped_add(
+                                current_value,
+                                delta,
+                                *self.allele_ranges[index].end(),
+                            );
+                        } else {
+                            chromosome.genes[index] = T::clamped_sub(
+                                current_value,
+                                delta,
+                                *self.allele_ranges[index].start(),
+                            );
+                        }
                     }
                 } else {
                     // pre-clamp
@@ -637,27 +641,28 @@ where
         population: &mut Population<T>,
         rng: &mut R,
     ) {
-        let allele_range_start = *self.allele_ranges[index].start();
-        let allele_range_end = *self.allele_ranges[index].end();
-
-        let current_value = chromosome.genes[index];
-        let delta = self.allele_bandwidth_samplers[index]
-            .as_ref()
-            .unwrap()
-            .sample(rng);
-        if allele_range_start < current_value {
-            let mut new_chromosome = population.new_chromosome(chromosome);
-            new_chromosome.genes[index] = T::clamped_sub(current_value, delta, allele_range_start);
-            new_chromosome.reset_metadata(self.genes_hashing);
-            population.chromosomes.push(new_chromosome);
-        };
-        if current_value < allele_range_end {
-            let mut new_chromosome = population.new_chromosome(chromosome);
-            new_chromosome.genes[index] = T::clamped_add(current_value, delta, allele_range_end);
-            new_chromosome.reset_metadata(self.genes_hashing);
-            population.chromosomes.push(new_chromosome);
-        };
+        if let Some(sampler) = self.allele_bandwidth_samplers[index].as_ref() {
+            let delta = sampler.sample(rng);
+            let allele_range_start = *self.allele_ranges[index].start();
+            let allele_range_end = *self.allele_ranges[index].end();
+            let current_value = chromosome.genes[index];
+            if allele_range_start < current_value {
+                let mut new_chromosome = population.new_chromosome(chromosome);
+                new_chromosome.genes[index] =
+                    T::clamped_sub(current_value, delta, allele_range_start);
+                new_chromosome.reset_metadata(self.genes_hashing);
+                population.chromosomes.push(new_chromosome);
+            };
+            if current_value < allele_range_end {
+                let mut new_chromosome = population.new_chromosome(chromosome);
+                new_chromosome.genes[index] =
+                    T::clamped_add(current_value, delta, allele_range_end);
+                new_chromosome.reset_metadata(self.genes_hashing);
+                population.chromosomes.push(new_chromosome);
+            };
+        }
     }
+
     fn fill_neighbouring_population_range_pre_clamp<R: Rng>(
         &self,
         index: usize,
