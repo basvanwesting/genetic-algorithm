@@ -427,7 +427,7 @@ impl<
 
     fn is_finished_by_max_generations(&self) -> bool {
         if let Some(max_generations) = self.config.max_generations {
-            self.state.current_generation >= max_generations
+            self.state.scale_generation >= max_generations
         } else {
             false
         }
