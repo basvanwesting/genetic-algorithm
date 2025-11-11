@@ -39,6 +39,10 @@ pub type DefaultAllele = f32;
 /// The discrete mutations traverse all allowed values for every scale (see
 /// [MutationType::Discrete])
 ///
+/// ** Note: ** When all parameters are discrete, prefer
+/// [MultiListGenotype](crate::genotype::MultiListGenotype) as this is more optimized and also
+/// balance the mutation probablity per allowed value, not per gene.
+///
 /// # Heterogeneous Genotype Support
 ///
 /// MultiRangeGenotype supports heterogeneous chromosomes that mix different gene semantics
@@ -54,8 +58,6 @@ pub type DefaultAllele = f32;
 ///   * Range `0.0..=4.0` yields values: 0.0, 1.0, 2.0, 3.0, 4.0 (with equal probability)
 ///   * Useful for encoding: enums (0.0..=4.0), booleans (0.0..=1.0), or discrete choices
 ///   * Neighbours and permutations include all integer values in the allele range
-///
-/// Explicit `.with_mutation_types()` overrides any auto-detected mutation range settings.
 ///
 /// # Example (f32, default, random mutation):
 /// ```

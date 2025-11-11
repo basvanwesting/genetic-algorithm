@@ -54,33 +54,43 @@ pub enum HillClimbVariant {
 ///   there is a replace_on_equal_fitness consideration or some remaining randomness in the neighbouring population (see RangeGenotype
 ///   below)
 /// * max_generations: when the ultimate goal in terms of fitness score is unknown and there is a effort constraint
+/// * With a scaled [crate::genotype::MutationType]:
+///   * Scale down after max_generations or max_stale_generations is reached and reset scale_generations and stale_generations to zero
+///   * Only trigger max_generations or max_stale_generations ending condition when already reached the smallest scale
 ///
 /// There are optional mutation distance limitations for
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
 /// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) neighbouring chromosomes, see [crate::genotype::MutationType].
-/// * With MutationType::Scaled
-///     * Mutation distance only on edges of current scale (e.g. -1 and +1 for -1..-1 scale)
+/// * With MutationType::StepScaled
+///     * Mutation distance one step up and down
 ///         * Pick random edge for [HillClimbVariant::Stochastic]
 ///         * Take both edges per gene for [HillClimbVariant::SteepestAscent]
-///     * Scale down after max_stale_generations is reached and reset stale_generations to zero
-///     * Only trigger max_stale_generations ending condition when already reached the smallest scale
 ///     * max_stale_generations could be set to 1, as there is no remaining randomness
-/// * With MutationType::Relative
-///     * Mutation distance taken uniformly from mutation range
+/// * With MutationType::StepScaled
+///     * Mutation distance one step up and down of current scale step
+///         * Pick random edge for [HillClimbVariant::Stochastic]
+///         * Take both edges per gene for [HillClimbVariant::SteepestAscent]
+///     * max_stale_generations could be set to 1, as there is no remaining randomness
+/// * With MutationType::Range
+///     * Mutation distance taken uniformly from bandwidth
 ///         * Sample single random value for [HillClimbVariant::Stochastic]
 ///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
-///     * Standard max_stale_generations ending condition
+///     * max_stale_generations should be set somewhat higher than 1 as there is some remaining randomness
+/// * With MutationType::RangeScaled
+///     * Mutation distance taken uniformly from current scale bandwidth
+///         * Pick random edge for [HillClimbVariant::Stochastic]
+///         * Take both edges per gene for [HillClimbVariant::SteepestAscent]
 ///     * max_stale_generations should be set somewhat higher than 1 as there is some remaining randomness
 /// * With MutationType::Random (not advised for hill climbing):
 ///     * Mutate uniformly over the complete allele range
 ///         * Sample single random value for [HillClimbVariant::Stochastic]
 ///         * Ensure to sample both a higer and lower value per gene for [HillClimbVariant::SteepestAscent]
-///     * Standard max_stale_generations ending condition
 ///     * max_stale_generations should be set substantially higher than 1 as there is a lot remaining randomness
 /// * With MutationType::Discrete
 ///     * All values are neighbours, just like ListGenotype
-/// * With MutationType::Transition
-///     * Behaves like Random and then slowly transitions to Relative
+///         * Sample single random value for [HillClimbVariant::Stochastic]
+///         * Traverse all values for [HillClimbVariant::SteepestAscent]
+///     * max_stale_generations could be set to 1, as there is no remaining randomness
 ///
 /// There are reporting hooks in the loop receiving the [HillClimbState], which can by handled by an
 /// [StrategyReporter] (e.g. [HillClimbReporterDuration], [HillClimbReporterSimple]). But you are encouraged to

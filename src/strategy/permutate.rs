@@ -44,18 +44,16 @@ pub enum PermutateVariant {
 /// There is a method to permutate
 /// [RangeGenotype](crate::genotype::RangeGenotype) and
 /// [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) chromosomes, see [crate::genotype::MutationType].
-/// * With MutationType::Scaled
-///     * First scale (index = 0) traverses the whole allele_range(s) with the upper bound of the
-///     first scale as step size.
+/// * With MutationType::Step
+///     * Traverses the whole allele_range(s) with the step size.
+/// * With MutationType::StepScaled
+///     * First scale (index = 0) traverses the whole allele_range(s) with the first scale as step size.
 ///     * Other scales (index > 0) center around the best chromomsome of the previous scale,
-///     traversing the previous scale bounds around the best chromosome with the upper bound of the
-///     current scale as step size.
+///     traversing the previous scale step as bounds around the best chromosome with the
+///     current scale as inner step size.
 ///     * Scale down after grid is fully traversed
 /// * With MutationType::Discrete
 ///     * Always permutate all values, just like ListGenotype
-/// * With MutationType::Range: Permutation not supported
-/// * With MutationType::Transition: Permutation not supported
-/// * With MutationType::Random:  Permutation not supported
 ///
 /// There are reporting hooks in the loop receiving the [PermutateState], which can by handled by an
 /// [StrategyReporter] (e.g. [PermutateReporterDuration], [PermutateReporterSimple]). But you are encouraged to

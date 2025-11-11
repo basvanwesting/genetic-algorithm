@@ -53,6 +53,9 @@ pub enum EvolveVariant {
 /// * max_stale_generations: when the ultimate goal in terms of fitness score is unknown and one depends on some convergion
 ///   threshold, or one wants a duration limitation next to the target_fitness_score
 /// * max_generations: when the ultimate goal in terms of fitness score is unknown and there is a effort constraint
+/// * With a scaled [crate::genotype::MutationType]:
+///   * Scale down after max_generations or max_stale_generations is reached and reset scale_generations and stale_generations to zero
+///   * Only trigger max_generations or max_stale_generations ending condition when already reached the smallest scale
 ///
 /// General Hyper-parameters:
 /// * `replacement_rate` (selection): the target fraction of the population which exists of

@@ -74,8 +74,9 @@ use crate::allele::Allele;
 /// **Example:** With `Step(5)` on range `0..=100`, a gene value of `50` becomes
 /// either `45` or `55` (50% probability each), never values in between.
 ///
-/// **Use case:** Grid-aligned search spaces, discrete optimization where specific
-/// increments are meaningful, systematic exploration patterns.
+/// **Use case:** Grid-aligned search spaces, discrete optimization where specific increments are
+/// meaningful, systematic exploration patterns. Allows [Permutation](crate::strategy::permutate)
+/// for (Multi)RangeGenotype
 ///
 /// ## `RangeScaled(Vec<T>)`
 /// Multi-phase range mutation with strategy-controlled progression. Each element
@@ -121,8 +122,7 @@ use crate::allele::Allele;
 /// - Phase 1: Mutations of exactly ±1
 ///
 /// **Use case:** Grid-like search spaces, systematic parameter sweeps, problems requiring exact
-/// step sizes. Allows for [Permutation](crate::strategy::permutate) and
-/// [HillClimb](crate::strategy::hill_climb)/steepest-ascent for (Multi)RangeGenotype
+/// step sizes. Allows [Permutation](crate::strategy::permutate) for (Multi)RangeGenotype
 ///
 /// Prolonged periods of the same step size can be achieved by setting multiple scales with the
 /// same bandwidth value. You could also alternate between exploration and exploitation several
@@ -137,6 +137,7 @@ use crate::allele::Allele;
 /// which could map to enum variants or categorical options.
 ///
 /// **Use case:** Heterogeneous chromosomes mixing categorical choices with continuous parameters.
+/// Allows [Permutation](crate::strategy::permutate) for (Multi)RangeGenotype
 ///
 /// ** Note: ** When all parameters are discrete, prefer
 /// [ListGenotype](crate::genotype::ListGenotype) or
@@ -298,8 +299,8 @@ pub enum MutationType<T: Allele> {
     /// Step mutation size (exactly +step or -step, clamped)
     Step(T),
     /// Range bandwidths for scaled mutations (strategy controls phase advancement)
+    Discrete,
     RangeScaled(Vec<T>),
     /// Step sizes for scaled mutations (strategy controls phase advancement)
     StepScaled(Vec<T>),
-    Discrete,
 }

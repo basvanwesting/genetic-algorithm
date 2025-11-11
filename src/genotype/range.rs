@@ -22,7 +22,7 @@ pub type DefaultAllele = f32;
 ///
 /// # Permutation
 ///
-/// Supports Permutation for scaled mutations only. This approach implements a
+/// Supports Permutation for scaled and discrete mutations only. This approach implements a
 /// increasingly localized grid search with increasing precision using the
 /// [MutationType::StepScaled]
 /// to define the search scope and grid steps
@@ -32,6 +32,12 @@ pub type DefaultAllele = f32;
 ///   scale, traversing the previous scale bounds around the best chromosome with
 ///   the upper bound of the current scale as step size.
 /// * Scale down and repeat after grid is fully traversed
+///
+/// The discrete mutations traverse all allowed values for every scale (see
+/// [MutationType::Discrete])
+///
+/// ** Note: ** When all parameters are discrete, prefer
+/// [ListGenotype](crate::genotype::ListGenotype) as this is more optimized.
 ///
 /// # Example (f32, default):
 /// ```
