@@ -102,6 +102,16 @@ where
             let genes_size = builder.genes_size.unwrap();
             let allele_range = builder.allele_range.unwrap();
             let mutation_type = builder.mutation_type.unwrap_or(MutationType::Random);
+            let allele_sampler = match mutation_type {
+                MutationType::Discrete => {
+                    // [start, end+1) for uniform floor() sampling
+                    Uniform::new(*allele_range.start(), *allele_range.end() + T::one())
+                }
+                _ => {
+                    // [start, end] for uniform sampling
+                    Uniform::from(allele_range.clone())
+                }
+            };
             let allele_bandwidth_sampler = match &mutation_type {
                 MutationType::Range(bandwidth) => {
                     Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))
@@ -118,7 +128,7 @@ where
                 allele_range: allele_range.clone(),
                 mutation_type,
                 gene_index_sampler: Uniform::from(0..genes_size),
-                allele_sampler: Uniform::from(allele_range.clone()),
+                allele_sampler,
                 allele_bandwidth_sampler,
                 current_scale_index: 0,
                 seed_genes_list: builder.seed_genes_list,
@@ -137,7 +147,10 @@ where
         &self.mutation_type
     }
     pub fn sample_gene_random<R: Rng>(&self, rng: &mut R) -> T {
-        self.allele_sampler.sample(rng)
+        match self.mutation_type {
+            MutationType::Discrete => self.allele_sampler.sample(rng).floor(),
+            _ => self.allele_sampler.sample(rng),
+        }
     }
 
     // all delta's are positive, because we support unsigned integers as RangeAllele
@@ -145,7 +158,10 @@ where
     pub fn mutate_gene<R: Rng>(&self, chromosome: &mut Chromosome<T>, index: usize, rng: &mut R) {
         match &self.mutation_type {
             MutationType::Random => {
-                chromosome.genes[index] = self.sample_gene_random(rng);
+                chromosome.genes[index] = self.allele_sampler.sample(rng);
+            }
+            MutationType::Discrete => {
+                chromosome.genes[index] = self.allele_sampler.sample(rng).floor();
             }
             MutationType::Range(_) => {
                 // post-clamp
@@ -178,7 +194,7 @@ where
                     let allele_range_end = *self.allele_range.end();
                     if allele_range_end - allele_range_start <= bandwidth {
                         // Random, leverage existing sampler
-                        chromosome.genes[index] = self.sample_gene_random(rng);
+                        chromosome.genes[index] = self.allele_sampler.sample(rng);
                     } else {
                         // Bandwidth
                         let current_value = chromosome.genes[index];
@@ -218,9 +234,6 @@ where
                     chromosome.genes[index] =
                         T::clamped_sub(current_value, delta, *self.allele_range.start());
                 }
-            }
-            MutationType::Discrete => {
-                panic!("RangeGenotype has no implementation for MutationType::Discrete")
             }
         }
     }
@@ -454,7 +467,7 @@ where
                 }
             }
             MutationType::Discrete => {
-                panic!("RangeGenotype has no implementation for MutationType::Discrete")
+                self.fill_neighbouring_population_discrete(chromosome, population)
             }
         }
     }
@@ -583,6 +596,28 @@ where
             };
         });
     }
+    fn fill_neighbouring_population_discrete(
+        &self,
+        chromosome: &Chromosome<T>,
+        population: &mut Population<T>,
+    ) {
+        let starting_value = self.allele_range.start().floor();
+        let ending_value = self.allele_range.end().floor();
+
+        (0..self.genes_size).for_each(|index| {
+            let mut working_value = starting_value;
+            let current_value = chromosome.genes[index].floor();
+            while working_value <= ending_value {
+                if working_value != current_value {
+                    let mut new_chromosome = population.new_chromosome(chromosome);
+                    new_chromosome.genes[index] = working_value;
+                    new_chromosome.reset_metadata(self.genes_hashing);
+                    population.chromosomes.push(new_chromosome);
+                }
+                working_value += T::one();
+            }
+        });
+    }
 }
 
 impl<T: RangeAllele> PermutateGenotype for Range<T>
@@ -604,6 +639,7 @@ where
                         MutationType::StepScaled(steps) => {
                             self.permutable_gene_values_step_scaled(index, chromosome, steps)
                         }
+                        MutationType::Discrete => self.permutable_gene_values_discrete(),
                         _ => {
                             panic!(
                                 "RangeGenotype is not permutable for {:?}",
@@ -649,7 +685,7 @@ where
     fn allows_permutation(&self) -> bool {
         matches!(
             self.mutation_type,
-            MutationType::Step(_) | MutationType::StepScaled(_)
+            MutationType::Step(_) | MutationType::StepScaled(_) | MutationType::Discrete
         )
     }
 }
@@ -701,6 +737,24 @@ where
         std::iter::successors(Some(allele_value_start), |value| {
             if *value < allele_value_end {
                 let next_value = *value + working_step;
+                if next_value > allele_value_end {
+                    Some(allele_value_end)
+                } else {
+                    Some(next_value)
+                }
+            } else {
+                None
+            }
+        })
+        .collect()
+    }
+
+    pub fn permutable_gene_values_discrete(&self) -> Vec<T> {
+        let allele_value_start = self.allele_range.start().floor();
+        let allele_value_end = self.allele_range.end().floor();
+        std::iter::successors(Some(allele_value_start), |value| {
+            if *value < allele_value_end {
+                let next_value = *value + T::one();
                 if next_value > allele_value_end {
                     Some(allele_value_end)
                 } else {
@@ -774,6 +828,24 @@ where
                     })
                     .count()
                 }
+                MutationType::Discrete => {
+                    let allele_value_start = self.allele_range.start().floor();
+                    let allele_value_end = self.allele_range.end().floor();
+
+                    std::iter::successors(Some(allele_value_start), |value| {
+                        if *value < allele_value_end {
+                            let next_value = *value + T::one();
+                            if next_value > allele_value_end {
+                                Some(allele_value_end)
+                            } else {
+                                Some(next_value)
+                            }
+                        } else {
+                            None
+                        }
+                    })
+                    .count()
+                }
                 _ => {
                     panic!(
                         "RangeGenotype is not permutable for {:?}",
@@ -791,7 +863,19 @@ where
     Uniform<T>: Send + Sync,
 {
     fn clone(&self) -> Self {
-        let allele_sampler = Uniform::from(self.allele_range.clone());
+        let allele_sampler = match self.mutation_type {
+            MutationType::Discrete => {
+                // [start, end+1) for uniform floor() sampling
+                Uniform::new(
+                    *self.allele_range.start(),
+                    *self.allele_range.end() + T::one(),
+                )
+            }
+            _ => {
+                // [start, end] for uniform sampling
+                Uniform::from(self.allele_range.clone())
+            }
+        };
         let allele_bandwidth_sampler = match &self.mutation_type {
             MutationType::Range(bandwidth) => {
                 Some(Uniform::new_inclusive(T::smallest_increment(), bandwidth))

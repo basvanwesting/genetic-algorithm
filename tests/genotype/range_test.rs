@@ -201,6 +201,31 @@ fn float_mutate_chromosome_single_step_scaled() {
 }
 
 #[test]
+fn float_mutate_chromosome_single_discrete() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.0..=10.0)
+        .with_mutation_type(MutationType::Discrete)
+        .build()
+        .unwrap();
+
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![4.0, 4.0, 10.0, 5.0, 9.0, 10.0, 6.0, 5.0, 4.0, 9.0],
+        0.001,
+    ));
+
+    genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![2.0, 4.0, 10.0, 5.0, 9.0, 2.0, 6.0, 5.0, 4.0, 3.0],
+        0.001,
+    ));
+}
+
+#[test]
 fn mutate_chromosome_genes_random_with_duplicates() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()
@@ -430,6 +455,40 @@ fn float_neighbouring_population_2_step_scaled() {
 }
 
 #[test]
+fn float_neighbouring_population_2_discrete() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=3.0)
+        .with_mutation_type(MutationType::Discrete)
+        .build()
+        .unwrap();
+
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![1.0, 1.0],
+        0.001
+    ));
+
+    assert_eq!(genotype.neighbouring_population_size(), BigUint::from(4u32));
+    let mut population = Population::new(vec![], true);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+    assert!(relative_population_eq(
+        inspect::population(&population),
+        vec![
+            vec![0.0, 1.0],
+            vec![2.0, 1.0],
+            vec![3.0, 1.0],
+            vec![1.0, 0.0],
+            vec![1.0, 2.0],
+            vec![1.0, 3.0]
+        ],
+        0.001,
+    ));
+}
+
+#[test]
 fn float_neighbouring_population_3() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()
@@ -650,6 +709,56 @@ fn float_chromosome_permutations_2_step_scaled() {
             vec![6.473, 4.391],
             vec![6.473, 5.391],
             vec![6.473, 6.391],
+        ],
+        0.001,
+    ));
+}
+
+#[test]
+fn float_chromosome_permutations_2_discrete() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=3.0)
+        .with_mutation_type(MutationType::Discrete)
+        .build()
+        .unwrap();
+
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::from(16u32)
+    );
+
+    let chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+    assert!(relative_chromosome_eq(
+        inspect::chromosome(&chromosome),
+        vec![1.0, 1.0],
+        0.001
+    ));
+
+    let chromosomes = genotype
+        .chromosome_permutations_into_iter(Some(&chromosome))
+        .collect::<Vec<_>>();
+
+    assert!(relative_population_eq(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![0.0, 0.0],
+            vec![0.0, 1.0],
+            vec![0.0, 2.0],
+            vec![0.0, 3.0],
+            vec![1.0, 0.0],
+            vec![1.0, 1.0],
+            vec![1.0, 2.0],
+            vec![1.0, 3.0],
+            vec![2.0, 0.0],
+            vec![2.0, 1.0],
+            vec![2.0, 2.0],
+            vec![2.0, 3.0],
+            vec![3.0, 0.0],
+            vec![3.0, 1.0],
+            vec![3.0, 2.0],
+            vec![3.0, 3.0],
         ],
         0.001,
     ));
