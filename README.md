@@ -188,6 +188,16 @@ Run with `cargo run --example profile_evolve_binary --release -- --bench --profi
 Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
 
 ## TODO
+* There is an issue with MutationType::RangeScaled. The pre-clamping solves the
+  issue of oversampling the borders when using a large intermediate bandwidth.
+  But it doesn't solve the 50/50 probability of sampling up or down. If the
+  gene is nearer to an edge, the effective bandwidth is smaller due to
+  pre-clamping, but that oversamples the bandwidth with regard to the other
+  direction's bandwidth size. This effect gets stronger nearer to the edge. 50%
+  of the samples fall between the current value and the edge, which feels very
+  unbalanced. Need to sample the whole pre-clamped bandwidth as a whole (how to
+  do that for unsigned int?) or need to balance the probability by bandwidth
+  size
 
 ## MAYBE
 * Apply precision (to f32/f64) during hashing in order to converge and hit
