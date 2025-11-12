@@ -97,6 +97,8 @@
 //!     * See [examples/hill_climb_table_seating](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/hill_climb_table_seating.rs)
 //! * Explore internal and external multithreading options
 //!     * See [examples/explore_multithreading](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_multithreading.rs)
+//! * Explore [MutationType](crate::genotype::MutationType) differences with visualization
+//!     * See [examples/visualize_mutation_types](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/visualize_mutation_types.rs)
 //! * Use superset StrategyBuilder for easier switching in implementation
 //!     * See [examples/explore_strategies](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_strategies.rs)
 //! * Use fitness LRU cache

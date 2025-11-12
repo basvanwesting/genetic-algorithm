@@ -116,6 +116,9 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * See [examples/hill_climb_table_seating](../main/examples/hill_climb_table_seating.rs)
 * Explore internal and external multithreading options
     * See [examples/explore_multithreading](../main/examples/explore_multithreading.rs)
+* Explore MutationType differences with visualization
+    * See [examples/visualize_mutation_types](../main/examples/visualize_mutation_types.rs)
+    * Generates visualization showing exploration patterns of different mutation strategies
 * Use superset StrategyBuilder for easier switching in implementation
     * See [examples/explore_strategies](../main/examples/explore_strategies.rs)
 * Use fitness LRU cache
@@ -125,6 +128,21 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * See [examples/permutate_scrabble](../main/examples/permutate_scrabble.rs)
 * Custom Mutate implementation
     * See [examples/evolve_milp_custom_mutate](../main/examples/evolve_milp_custom_mutate.rs)
+
+## Mutation Type Visualization
+
+The library supports various mutation strategies that affect how the genetic algorithm explores the search space. The visualization below shows how different mutation types explore a 2D search space when searching for a target point:
+
+![Mutation Types Exploration Patterns](examples/visualize_mutation_types.png)
+
+The visualization demonstrates:
+- **Random**: Chaotic exploration, can jump anywhere in search space
+- **Range**: Local search with fixed radius around current position
+- **RangeScaled**: Adaptive exploration that starts broad and narrows down (funnel-like convergence)
+- **Step**: Fixed-step local search in cardinal directions
+- **StepScaled**: Grid-like exploration with progressively finer resolution
+
+Run the example with `cargo run --example visualize_mutation_types --release` to generate this visualization.
 
 ## Heterogeneous Genotype Support
 
