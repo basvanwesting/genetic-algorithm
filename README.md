@@ -129,9 +129,22 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * Custom Mutate implementation
     * See [examples/evolve_milp_custom_mutate](../main/examples/evolve_milp_custom_mutate.rs)
 
+## Heterogeneous Genotype Support
+
+MultiRangeGenotype supports heterogeneous chromosomes that mix different gene
+semantics (continuous values, discrete choices, booleans) within a single
+numeric type `T`.
+
 ## Mutation Type Visualization
 
-The library supports various mutation strategies that affect how the genetic algorithm explores the search space. The visualization below shows how different mutation types explore a 2D search space when searching for a target point:
+The library supports various mutation strategies that affect how the genetic
+algorithm explores the search space. Random leads to the best results overall.
+Random is the default and is supported by all Genotypes. 
+
+But for continues genotypes (RangeGenotype and MultiRangeGenotype) there are
+several alternatives. These might converge faster, but are all more sensitive to
+local optima than Random. The visualization below shows how different mutation
+types explore a 2D search space when searching for a target point:
 
 ![Mutation Types Exploration Patterns](examples/visualize_mutation_types.png)
 
@@ -141,14 +154,9 @@ The visualization demonstrates:
 - **RangeScaled**: Adaptive exploration that starts broad and narrows down (funnel-like convergence)
 - **Step**: Fixed-step local search in cardinal directions
 - **StepScaled**: Grid-like exploration with progressively finer resolution
+- **Discrete**: ListGenotype behaviour, for categories in heterogeneous genotypes
 
 Run the example with `cargo run --example visualize_mutation_types --release` to generate this visualization.
-
-## Heterogeneous Genotype Support
-
-MultiRangeGenotype supports heterogeneous chromosomes that mix different gene
-semantics (continuous values, discrete choices, booleans) within a single
-numeric type `T`.
 
 ## Performance considerations
 

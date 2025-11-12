@@ -309,6 +309,14 @@ fn main() {
     );
     reporters.push(("StepScaled (halving)".to_string(), reporter));
 
+    // Discrete mutation - like ListGenotype for categories
+    println!("Running Discrete mutation...");
+    let reporter = run_evolution(MutationType::Discrete, "Discrete".to_string(), 50);
+    reporters.push((
+        "Discrete (floored integers, map to categories)".to_string(),
+        reporter,
+    ));
+
     // Generate visualization
     println!("\nGenerating visualization...");
     if let Err(e) = generate_plot(reporters, "examples/visualize_mutation_types.png") {
@@ -321,5 +329,6 @@ fn main() {
     println!("- RangeScaled: Funnel-like convergence, broad exploration then fine-tuning");
     println!("- Step: Local search with fixed step, smooth but may get stuck");
     println!("- StepScaled: Grid-like exploration with progressively finer resolution");
+    println!("- Discrete: ListGenotype behaviour, for categories in heterogeneous genotypes");
     println!("Color gradient: Blue (early) → Green (late) generations");
 }
