@@ -1,7 +1,5 @@
 use genetic_algorithm::strategy::permutate::prelude::*;
 use plotters::prelude::*;
-use plotters::style::RGBColor;
-use plotters::element::{Circle, Cross};
 use std::sync::{Arc, Mutex};
 
 const TARGET_POINT: [f32; 2] = [6.6666, 7.7777];
@@ -131,7 +129,7 @@ fn generate_plot(
 ) -> Result<(), Box<dyn std::error::Error>> {
     // Ensure the output path is created from the project root
     let output_path = std::path::Path::new(env!("CARGO_MANIFEST_DIR")).join(output_path);
-    let root = SVGBackend::new(&output_path, (1800, 600)).into_drawing_area();
+    let root = BitMapBackend::new(&output_path, (1800, 600)).into_drawing_area();
     root.fill(&WHITE)?;
 
     let mut chart_builders = root.split_evenly((1, 3));
@@ -151,11 +149,17 @@ fn generate_plot(
 
         // Draw target point
         chart
-            .draw_series(std::iter::once(
-                Cross::new((TARGET_POINT[0], TARGET_POINT[1]), 10, ShapeStyle::from(&RED).stroke_width(2))
+            .draw_series(PointSeries::of_element(
+                [(TARGET_POINT[0], TARGET_POINT[1])],
+                5,
+                &RED,
+                &|c, s, _st| {
+                    EmptyElement::at(c)
+                        + Cross::new((0, 0), s * 2, ShapeStyle::from(&RED).stroke_width(2))
+                },
             ))?
             .label("Target")
-            .legend(|(x, y)| Cross::new((x, y), 10, ShapeStyle::from(&RED).stroke_width(2)));
+            .legend(|(x, y)| Cross::new((x, y), 5 * 2, ShapeStyle::from(&RED).stroke_width(2)));
 
         // Draw exploration points with color gradient based on generation
         if !explored_points.is_empty() {
@@ -166,8 +170,11 @@ fn generate_plot(
                 let color_intensity = (*gen as f32 / max_gen * 200.0) as u8;
                 let color = RGBColor(50, 50 + color_intensity, 255 - color_intensity);
 
-                chart.draw_series(std::iter::once(
-                    Circle::new((*x, *y), 2, ShapeStyle::from(&color).filled())
+                chart.draw_series(PointSeries::of_element(
+                    [(*x, *y)],
+                    2,
+                    &color,
+                    &|c, s, st| Circle::new(c, s, st.filled()),
                 ))?;
             }
         }
@@ -191,8 +198,11 @@ fn generate_plot(
         // Draw ending point
         if let Some(ending_point) = best_points.last() {
             chart
-                .draw_series(std::iter::once(
-                    Circle::new((ending_point.0, ending_point.1), 4, ShapeStyle::from(&RED).filled())
+                .draw_series(PointSeries::of_element(
+                    [(ending_point.0, ending_point.1)],
+                    4,
+                    &RED,
+                    &|c, s, st| Circle::new(c, s, st.filled()),
                 ))?
                 .label("End")
                 .legend(|(x, y)| Circle::new((x, y), 3, RED.filled()));
@@ -241,7 +251,7 @@ fn main() {
 
     // Generate visualization
     println!("\nGenerating visualization...");
-    if let Err(e) = generate_plot(reporters, "examples/visualize_permutate_mutation_types.svg") {
+    if let Err(e) = generate_plot(reporters, "examples/visualize_permutate_mutation_types.png") {
         eprintln!("Failed to generate plot: {}", e);
     }
 

@@ -149,7 +149,7 @@ types explore a 2D search space when searching for a target point:
 
 ### Evolve Strategy (and HillClimb)
 
-![Evolve Mutation Types Patterns](examples/visualize_evolve_mutation_types.svg)
+![Evolve Mutation Types Patterns](examples/visualize_evolve_mutation_types.png)
 
 The visualization demonstrates:
 - **Random**: Chaotic exploration, can jump anywhere in search space
@@ -170,7 +170,7 @@ But for numeric/continues genotypes (RangeGenotype and MultiRangeGenotype)
 permutation is only possible using Step, StepScaled, and Discrete mutation
 types (as it needs additional restrictions be become countable):
 
-![Permutate Mutation Types Patterns](examples/visualize_permutate_mutation_types.svg)
+![Permutate Mutation Types Patterns](examples/visualize_permutate_mutation_types.png)
 
 - **Step**: Systematically explores grid points at fixed intervals
 - **StepScaled**: Hierarchical search that refines around promising regions
