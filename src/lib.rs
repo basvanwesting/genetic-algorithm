@@ -143,9 +143,12 @@
 //!
 //! ### Permutate Strategy (and HillClimb)
 //!
-//! For exhaustive search in smaller spaces, the Permutate strategy can
-//! systematically explore continues genotypes (RangeGenotype and
-//! MultiRangeGenotype) using Step, StepScaled, and Discrete mutation types:
+//! For exhaustive search in smaller spaces, all genotypes have their own
+//! permutation implementation, which systematically explore all value combinations.
+//!
+//! But for numeric/continues genotypes (RangeGenotype and MultiRangeGenotype)
+//! permutation is only possible using Step, StepScaled, and Discrete mutation
+//! types (as it needs additional restrictions be become countable):
 //!
 //! - **Step**: Systematically explores grid points at fixed intervals
 //! - **StepScaled**: Hierarchical search that refines around promising regions

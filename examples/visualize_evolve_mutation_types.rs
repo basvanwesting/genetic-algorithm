@@ -3,7 +3,7 @@ use plotters::prelude::*;
 use std::sync::{Arc, Mutex};
 
 const SEED_POINT: [f32; 2] = [0.0, 0.0];
-const TARGET_POINT: [f32; 2] = [66.666, 77.777];
+const TARGET_POINT: [f32; 2] = [6.6666, 7.7777];
 
 /// Fitness function targeting the point in 2D space
 #[derive(Clone, Debug)]
@@ -121,13 +121,13 @@ fn run_evolution(
     mutation_type_name: String,
     max_stale_generations: usize,
 ) -> ExplorationReporter {
-    let fitness = TargetPointFitness::new(TARGET_POINT, 0.001);
+    let fitness = TargetPointFitness::new(TARGET_POINT, 0.0001);
     let reporter = ExplorationReporter::new();
 
     // Create genotype with 2 genes for 2D visualization
     let genotype = RangeGenotype::<f32>::builder()
         .with_genes_size(2)
-        .with_allele_range(0.0..=100.0)
+        .with_allele_range(0.0..=10.0)
         .with_mutation_type(mutation_type)
         .with_seed_genes_list(vec![SEED_POINT.to_vec()]) // Start from origin
         .build()
@@ -182,7 +182,7 @@ fn generate_plot(
             .margin(10)
             .x_label_area_size(30)
             .y_label_area_size(30)
-            .build_cartesian_2d(0f32..100f32, 0f32..100f32)?;
+            .build_cartesian_2d(0f32..10f32, 0f32..10f32)?;
 
         chart.configure_mesh().draw()?;
 
@@ -271,7 +271,7 @@ fn main() {
     println!("=== Visualizing Evolve Mutation Types in 2D Search Space ===\n");
     println!("Starting point: {:?}", SEED_POINT);
     println!("Target point: {:?}", TARGET_POINT);
-    println!("Search space: [0.0, 100.0] x [0.0, 100.0]\n");
+    println!("Search space: [0.0, 10.0] x [0.0, 10.0]\n");
 
     let mut reporters = Vec::new();
 
@@ -281,13 +281,13 @@ fn main() {
     reporters.push(("Random".to_string(), reporter));
 
     // Range mutation - fixed bandwidth
-    println!("Running Range(10.0) mutation...");
-    let reporter = run_evolution(MutationType::Range(10.0), "Range(10.0)".to_string(), 20);
-    reporters.push(("Range(±10)".to_string(), reporter));
+    println!("Running Range(1.0) mutation...");
+    let reporter = run_evolution(MutationType::Range(1.0), "Range(1.0)".to_string(), 20);
+    reporters.push(("Range(±1.0)".to_string(), reporter));
 
     // RangeScaled mutation - dropping by 1/5th each scale
     println!("Running RangeScaled mutation...");
-    let ranges = vec![100.0, 100.0, 100.0, 90.0, 30.0, 1.0];
+    let ranges = vec![10.0, 10.0, 10.0, 9.0, 3.0, 0.1];
     let reporter = run_evolution(
         MutationType::RangeScaled(ranges.clone()),
         format!("RangeScaled({:?})", ranges),
@@ -296,13 +296,13 @@ fn main() {
     reporters.push(("RangeScaled (slow starting sigmoid)".to_string(), reporter));
 
     // Step mutation - fixed step
-    println!("Running Step(1.0) mutation...");
-    let reporter = run_evolution(MutationType::Step(1.0), "Step(1.0)".to_string(), 20);
-    reporters.push(("Step(±1)".to_string(), reporter));
+    println!("Running Step(0.3) mutation...");
+    let reporter = run_evolution(MutationType::Step(0.3), "Step(0.3)".to_string(), 20);
+    reporters.push(("Step(±0.3)".to_string(), reporter));
 
     // StepScaled mutation - halving each scale
     println!("Running StepScaled mutation...");
-    let steps = vec![50.0, 25.0, 12.5, 6.25, 3.125, 1.5625];
+    let steps = vec![5.00, 2.50, 1.25, 0.625, 0.3125, 0.15625];
     let reporter = run_evolution(
         MutationType::StepScaled(steps.clone()),
         format!("StepScaled({:?})", steps),
@@ -314,7 +314,7 @@ fn main() {
     println!("Running Discrete mutation...");
     let reporter = run_evolution(MutationType::Discrete, "Discrete".to_string(), 50);
     reporters.push((
-        "Discrete (floored integers, map to categories)".to_string(),
+        "Discrete (integers, map to categories)".to_string(),
         reporter,
     ));
 

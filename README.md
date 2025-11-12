@@ -140,7 +140,7 @@ within a single numeric type `T`.
 
 The library supports various mutation strategies that affect how the genetic
 algorithm explores the search space. Random leads to the best results overall.
-Random is the default and is supported by all Genotypes. 
+Random is the default and is supported by all Genotypes.
 
 But for numeric genotypes (RangeGenotype and MultiRangeGenotype) there are
 several alternatives. These might converge faster, but are all more sensitive to
@@ -163,9 +163,12 @@ Run the example with `cargo run --example visualize_evolve_mutation_types --rele
 
 ### Permutate Strategy
 
-For exhaustive search in smaller spaces, the Permutate strategy can
-systematically explore continues genotypes (RangeGenotype and
-MultiRangeGenotype) using Step, StepScaled, and Discrete mutation types:
+For exhaustive search in smaller spaces, all genotypes have their own
+permutation implementation, which systematically explore all value combinations.
+
+But for numeric/continues genotypes (RangeGenotype and MultiRangeGenotype)
+permutation is only possible using Step, StepScaled, and Discrete mutation
+types (as it needs additional restrictions be become countable):
 
 ![Permutate Mutation Types Patterns](examples/visualize_permutate_mutation_types.png)
 

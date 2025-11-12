@@ -2,7 +2,7 @@ use genetic_algorithm::strategy::permutate::prelude::*;
 use plotters::prelude::*;
 use std::sync::{Arc, Mutex};
 
-const TARGET_POINT: [f32; 2] = [66.666, 77.777];
+const TARGET_POINT: [f32; 2] = [6.6666, 7.7777];
 
 /// Fitness function targeting the point in 2D space
 #[derive(Clone, Debug)]
@@ -88,14 +88,14 @@ fn run_permutation(
     mutation_type: MutationType<f32>,
     mutation_type_name: String,
 ) -> PermutationReporter {
-    let fitness = TargetPointFitness::new(TARGET_POINT, 0.001);
+    let fitness = TargetPointFitness::new(TARGET_POINT, 0.0001);
     let reporter = PermutationReporter::new();
 
     // Create genotype with 2 genes for 2D visualization
     // Using integer type for discrete steps
     let genotype = RangeGenotype::<f32>::builder()
         .with_genes_size(2)
-        .with_allele_range(0.0..=100.0)
+        .with_allele_range(0.0..=10.0)
         .with_mutation_type(mutation_type)
         // No seed - let permutation explore the entire space
         .build()
@@ -143,7 +143,7 @@ fn generate_plot(
             .margin(10)
             .x_label_area_size(30)
             .y_label_area_size(30)
-            .build_cartesian_2d(0f32..100f32, 0f32..100f32)?;
+            .build_cartesian_2d(0f32..10f32, 0f32..10f32)?;
 
         chart.configure_mesh().draw()?;
 
@@ -220,32 +220,34 @@ fn generate_plot(
 fn main() {
     println!("=== Visualizing Permutation Mutation Types in 2D Search Space ===\n");
     println!("Target point: {:?}", TARGET_POINT);
-    println!("Search space: [0, 100] x [0, 100] (integer grid)\n");
-    println!("Note: Permutation systematically explores the entire space as defined by the mutation type.\n");
+    println!("Search space: [0.0, 10.0] x [0.0, 10.0]\n");
 
     let mut reporters = Vec::new();
 
     // Step mutation - fixed step
     // With step=5, this will explore a 20x20 grid (every 5th point)
-    println!("Running Step(5) mutation with permutation...");
-    let reporter = run_permutation(MutationType::Step(5.0), "Step(5.0)".to_string());
-    reporters.push(("Step(±5) Full Grid Exploration".to_string(), reporter));
+    println!("Running Step(0.3) mutation...");
+    let reporter = run_permutation(MutationType::Step(0.3), "Step(0.3)".to_string());
+    reporters.push(("Step(±0.3, full exploration)".to_string(), reporter));
 
     // StepScaled mutation - halving each scale
     // This will first explore with large steps, then refine around the best
-    println!("Running StepScaled mutation with permutation...");
-    let steps = vec![50.0, 25.0, 12.5, 6.25, 3.125, 1.5625];
+    println!("Running StepScaled mutation...");
+    let steps = vec![5.00, 2.50, 1.25, 0.625, 0.3125, 0.15625];
     let reporter = run_permutation(
         MutationType::StepScaled(steps.clone()),
         format!("StepScaled({:?})", steps),
     );
-    reporters.push(("StepScaled Nested Grids".to_string(), reporter));
+    reporters.push(("StepScaled (nested halving grids)".to_string(), reporter));
 
     // Discrete mutation - like ListGenotype for categories
     // This explores a sampled subset of the space
-    println!("Running Discrete mutation with permutation (limited range for feasibility)...");
+    println!("Running Discrete mutation...");
     let reporter = run_permutation(MutationType::Discrete, "Discrete".to_string());
-    reporters.push(("Discrete Full Exploration".to_string(), reporter));
+    reporters.push((
+        "Discrete (full exploration of integers)".to_string(),
+        reporter,
+    ));
 
     // Generate visualization
     println!("\nGenerating visualization...");
@@ -259,4 +261,3 @@ fn main() {
     println!("- Discrete: Jumps to any discrete value in the range");
     println!("Color gradient: Blue (early) → Green (late) generations");
 }
-
