@@ -12,9 +12,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * (naming only) Refactor `MutationType::RelativeRange(T)` to
   `MutationType::Range(T)` as `MutationType::Step(T)` is also relative.
 * Refactor `MutationType::Transition(usize, usize, T)` to `MutationType::RangeScaled(Vec<T>)`:
-  * Drop the generation based transition configuration params
+  * Drop the generation based transition configuration params (as it couldn't handle staleness)
   * Replace params with bandwidth per scale (just like step-size per scale StepScaled)
+  * Use bandwidths equal to the full `allele_range` to achieve effective `MutationType::Random` mutation
   * Now `max_generations` and `max_stale_generations` handle scale transitions in the same manner everywhere
+  * It is a good idea to use a prolonged period of full Random sampling (exploration phase, so
+    several 100% bandwidth scales), which then transitions quite fast to the smaller bandwidths
+    (exploitation phase, a few smaller bandwidth scales).
 * Add `MutationType::Step(T)` for completeness
 
 ### Add
