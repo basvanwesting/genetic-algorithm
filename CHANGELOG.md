@@ -10,29 +10,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * (naming only) Refactor `MutationType::ScaledSteps(Vec<T>)` to
   `MutationType::StepScaled(Vec<T>)` for naming consistency
 * (naming only) Refactor `MutationType::RelativeRange(T)` to
-  `MutationType::Range(T)` as `MutationType::Step(T)` is also relative.
+  `MutationType::Range(T)`, as `MutationType::Step(T)` is also relative.
 * Refactor `MutationType::Transition(usize, usize, T)` to `MutationType::RangeScaled(Vec<T>)`:
   * Drop the generation based transition configuration params (as it couldn't handle staleness)
-  * Replace params with bandwidth per scale (just like step-size per scale StepScaled)
+  * Replace params with bandwidth per scale (just like step-size per scale in `MutationType::StepScaled`)
   * Use bandwidths equal to the full `allele_range` to achieve effective `MutationType::Random` mutation
   * Now `max_generations` and `max_stale_generations` handle scale transitions in the same manner everywhere
   * It is a good idea to use a prolonged period of full Random sampling (exploration phase, so
     several 100% bandwidth scales), which then transitions quite fast to the smaller bandwidths
     (exploitation phase, a few smaller bandwidth scales).
-* Add `MutationType::Step(T)` for completeness
 
-### Add
+### Added
+* Add `MutationType::Step(T)` for completeness
 * Add `max_generations` as scale trigger as well in `Evolve` and `HillClimb`. Now
   `max_generations` and `max_stale_generations` behave the same: 
-  * Ending condition for current scale, go to next scale and restart counting generations
+  * Ending condition for current scale, go to next scale and restart counting
+    generations
   * Final ending condition if no scales left (or no scaling at all)
+  * Both `max_generations` and `max_stale_generations` can be set at the same
+    time, the first to reach the condition triggers and reset both
 * Support unsigned integers for `MutationType::Range` and `MutationType::Step` as well (and scaled versions)
 * Allow for zero bandwidth/step in `MutationType::Range` and
-  `MutationType::Step` (and scaled versions), which lets the mutation die out
+  `MutationType::Step` (and scaled versions), which lets the mutation die out (more for robustness than usefulness)
 * Add `examples/visualize_evolve_mutation_types` and `examples/visualize_permutate_mutation_types`, which
   generate visualizations showing exploration patterns of different mutation strategies
 
-### Remove
+### Removed
 * Remove `increment_generation()` and `reset_generation()` from `Genotype` and remove hook
   in Strategies, as all scaled MutationTypes now work in the same manner
 * Remove unused `Vec<Chromosome<T>>` into `Population<T>` implementation
