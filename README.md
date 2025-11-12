@@ -132,8 +132,8 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 ## Heterogeneous Genotype Support
 
 MultiRangeGenotype supports heterogeneous chromosomes that mix different gene
-semantics (continuous values, discrete choices, booleans) within a single
-numeric type `T`.
+semantics (continuous values, numeric values, discrete choices, booleans)
+within a single numeric type `T`.
 
 ## Mutation Type Visualization
 
@@ -141,7 +141,7 @@ The library supports various mutation strategies that affect how the genetic
 algorithm explores the search space. Random leads to the best results overall.
 Random is the default and is supported by all Genotypes. 
 
-But for continues genotypes (RangeGenotype and MultiRangeGenotype) there are
+But for numeric genotypes (RangeGenotype and MultiRangeGenotype) there are
 several alternatives. These might converge faster, but are all more sensitive to
 local optima than Random. The visualization below shows how different mutation
 types explore a 2D search space when searching for a target point:

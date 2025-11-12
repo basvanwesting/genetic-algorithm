@@ -112,7 +112,7 @@
 //! ## Heterogeneous Genotype Support
 //!
 //! [MultiRangeGenotype](crate::genotype::MultiRangeGenotype) supports heterogeneous chromosomes that mix
-//! different gene semantics (continuous values, discrete choices, booleans) within a single
+//! different gene semantics (continuous values, numeric values, discrete choices, booleans) within a single
 //! numeric type `T`.
 //!
 //! ## [MutationType](crate::genotype::MutationType) Visualization
@@ -121,7 +121,7 @@
 //! algorithm explores the search space. Random leads to the best results overall.
 //! Random is the default and is supported by all Genotypes.
 //!
-//! But for continues genotypes ([RangeGenotype](crate::genotype::RangeGenotype) and
+//! But for numeric genotypes ([RangeGenotype](crate::genotype::RangeGenotype) and
 //! [MultiRangeGenotype](crate::genotype::MultiRangeGenotype)) there are several alternatives.
 //! These might converge faster, but are all more sensitive to local optima than Random. The
 //! visualization example shows how different mutation types explore a 2D search space when searching

@@ -17,8 +17,8 @@ pub type DefaultAllele = f32;
 /// a value from its own allele_range with a uniform probability. Each gene has a equal probability
 /// of mutating, regardless of its allele_range size. If a gene mutates, a new values is taken from
 /// its own allele_range with a uniform probability. Duplicate allele values are allowed. Supports
-/// heterogeneous chromosomes that mix different gene semantics (continuous values, discrete
-/// choices, booleans) within a single numeric type `T`.
+/// heterogeneous chromosomes that mix different gene semantics (continuous values, numeric values,
+/// discrete choices, booleans) within a single numeric type `T`.
 ///
 /// # Mutation types
 /// See [MutationType]
@@ -46,7 +46,8 @@ pub type DefaultAllele = f32;
 /// # Heterogeneous Genotype Support
 ///
 /// MultiRangeGenotype supports heterogeneous chromosomes that mix different gene semantics
-/// (continuous values, discrete choices, booleans) within a single numeric type `T`.
+/// (continuous values, numeric values, discrete choices, booleans) within a single numeric type
+/// `T`.
 ///
 /// Use `.with_mutation_types(vec![...])` to specify behavior for each gene individually:
 ///
