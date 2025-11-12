@@ -71,8 +71,8 @@ impl StrategyReporter for ExplorationReporter {
             .chromosomes
             .iter()
             .for_each(|chromosome| {
-                let mut points = self.explored_points.lock().unwrap();
-                points.push((
+                let mut explored_points = self.explored_points.lock().unwrap();
+                explored_points.push((
                     chromosome.genes[0],
                     chromosome.genes[1],
                     state.current_generation(),
@@ -80,9 +80,10 @@ impl StrategyReporter for ExplorationReporter {
             });
 
         // Collect best point
-        if let Some(best_genes) = state.best_genes() {
-            let mut points = self.best_points.lock().unwrap();
-            points.push((best_genes[0], best_genes[1], state.best_generation()));
+        if state.best_generation() == state.current_generation() {
+            let best_genes = state.best_genes().unwrap();
+            let mut best_points = self.best_points.lock().unwrap();
+            best_points.push((best_genes[0], best_genes[1], state.current_generation()));
         }
     }
 
@@ -267,9 +268,9 @@ fn generate_plot(
 }
 
 fn main() {
-    println!("=== Visualizing Mutation Types in 2D Search Space ===\n");
-    println!("Target point: {:?}", TARGET_POINT);
+    println!("=== Visualizing Evolve Mutation Types in 2D Search Space ===\n");
     println!("Starting point: {:?}", SEED_POINT);
+    println!("Target point: {:?}", TARGET_POINT);
     println!("Search space: [0.0, 100.0] x [0.0, 100.0]\n");
 
     let mut reporters = Vec::new();
@@ -319,7 +320,7 @@ fn main() {
 
     // Generate visualization
     println!("\nGenerating visualization...");
-    if let Err(e) = generate_plot(reporters, "examples/visualize_mutation_types.png") {
+    if let Err(e) = generate_plot(reporters, "examples/visualize_evolve_mutation_types.png") {
         eprintln!("Failed to generate plot: {}", e);
     }
 

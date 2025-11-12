@@ -98,7 +98,9 @@
 //! * Explore internal and external multithreading options
 //!     * See [examples/explore_multithreading](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_multithreading.rs)
 //! * Explore [MutationType](crate::genotype::MutationType) differences with visualization
-//!     * See [examples/visualize_mutation_types](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/visualize_mutation_types.rs)
+//!     * See [examples/visualize_evolve_mutation_types](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/visualize_evolve_mutation_types.rs)
+//!     * See [examples/visualize_permutate_mutation_types](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/visualize_permutate_mutation_types.rs)
+//!     * Generates visualizations showing exploration patterns of different mutation strategies
 //! * Use superset StrategyBuilder for easier switching in implementation
 //!     * See [examples/explore_strategies](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_strategies.rs)
 //! * Use fitness LRU cache
@@ -127,6 +129,8 @@
 //! visualization example shows how different mutation types explore a 2D search space when searching
 //! for a target point:
 //!
+//! ### Evolve Strategy (and HillClimb)
+//!
 //! The visualization demonstrates:
 //! - **Random**: Chaotic exploration, can jump anywhere in search space
 //! - **Range**: Local search with fixed radius around current position
@@ -136,6 +140,18 @@
 //! - **Discrete**: ListGenotype behaviour, for categories in heterogeneous genotypes
 //!
 //! Run the example with `cargo run --example visualize_mutation_types --release` to generate the visualization.
+//!
+//! ### Permutate Strategy (and HillClimb)
+//!
+//! For exhaustive search in smaller spaces, the Permutate strategy can
+//! systematically explore continues genotypes (RangeGenotype and
+//! MultiRangeGenotype) using Step, StepScaled, and Discrete mutation types:
+//!
+//! - **Step**: Systematically explores grid points at fixed intervals
+//! - **StepScaled**: Hierarchical search that refines around promising regions
+//! - **Discrete**: Exhaustive exploration of all value combinations
+//!
+//! Run the example with `cargo run --example visualize_permutate_mutation_types --release` to generate this visualization.
 //!
 //! ## Performance considerations
 //!

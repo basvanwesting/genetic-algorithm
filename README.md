@@ -117,8 +117,9 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * Explore internal and external multithreading options
     * See [examples/explore_multithreading](../main/examples/explore_multithreading.rs)
 * Explore MutationType differences with visualization
-    * See [examples/visualize_mutation_types](../main/examples/visualize_mutation_types.rs)
-    * Generates visualization showing exploration patterns of different mutation strategies
+    * See [examples/visualize_evolve_mutation_types](../main/examples/visualize_evolve_mutation_types.rs) for Evolve strategy
+    * See [examples/visualize_permutate_mutation_types](../main/examples/visualize_permutate_mutation_types.rs) for Permutate strategy
+    * Generates visualizations showing exploration patterns of different mutation strategies
 * Use superset StrategyBuilder for easier switching in implementation
     * See [examples/explore_strategies](../main/examples/explore_strategies.rs)
 * Use fitness LRU cache
@@ -146,7 +147,9 @@ several alternatives. These might converge faster, but are all more sensitive to
 local optima than Random. The visualization below shows how different mutation
 types explore a 2D search space when searching for a target point:
 
-![Mutation Types Exploration Patterns](examples/visualize_mutation_types.png)
+### Evolve Strategy (and HillClimb)
+
+![Evolve Mutation Types Patterns](examples/visualize_evolve_mutation_types.png)
 
 The visualization demonstrates:
 - **Random**: Chaotic exploration, can jump anywhere in search space
@@ -156,7 +159,21 @@ The visualization demonstrates:
 - **StepScaled**: Grid-like exploration with progressively finer resolution
 - **Discrete**: ListGenotype behaviour, for categories in heterogeneous genotypes
 
-Run the example with `cargo run --example visualize_mutation_types --release` to generate this visualization.
+Run the example with `cargo run --example visualize_evolve_mutation_types --release` to generate this visualization.
+
+### Permutate Strategy
+
+For exhaustive search in smaller spaces, the Permutate strategy can
+systematically explore continues genotypes (RangeGenotype and
+MultiRangeGenotype) using Step, StepScaled, and Discrete mutation types:
+
+![Permutate Mutation Types Patterns](examples/visualize_permutate_mutation_types.png)
+
+- **Step**: Systematically explores grid points at fixed intervals
+- **StepScaled**: Hierarchical search that refines around promising regions
+- **Discrete**: Exhaustive exploration of all value combinations
+
+Run the example with `cargo run --example visualize_permutate_mutation_types --release` to generate this visualization.
 
 ## Performance considerations
 
