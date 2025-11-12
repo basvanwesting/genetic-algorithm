@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.25.0] - 2025-11-12
+
+### Changed
+* (naming only) Refactor `MutationType::ScaledSteps(Vec<T>)` to `MutationType::StepScaled(Vec<T>)` for naming consistency
+* (naming only) Refactor `MutationType::RelativeRange(T)` to `MutationType::Range(T)` as `MutationType::Step(T)` is also relative.
+* Refactor `MutationType::Transition(usize, usize, T)` to `MutationType::RangeScaled(Vec<T>)`:
+  * Drop the generation based transition configuration params
+  * Replace params with bandwidth per scale (just like step-size per scale StepScaled)
+  * Now `max_generations` and `max_stale_generations` handle scale transitions in the same manner everywhere
+* Add `MutationType::Step(T)` for completeness
+
+### Add
+* Add `max_generations` as scale trigger as well in `Evolve` and `HillClimb`. Now
+  `max_generations` and `max_stale_generations` behave the same: 
+  * Ending condition for current scale, go to next scale and restart counting generations
+  * Final ending condition if no scales left (or no scaling at all)
+* Support unsigned integers for `MutationType::Range` and `MutationType::Step` as well (and scaled versions)
+* Allow for zero bandwidth in `MutationType::Range` (and scaled), which lets the mutation die out
+* Add `examples/visualize_evolve_mutation_types` and `examples/visualize_permutate_mutation_types`, which
+  generate visualizations showing exploration patterns of different mutation strategies
+
+### Remove
+* Remove `increment_generation()` and `reset_generation()` from `Genotype` and remove hook
+  in Strategies, as all is not scale based.
+* Remove unused `Vec<Chromosome<T>>` into `Population<T>` implementation
 
 ## [0.24.0] - 2025-11-05
 
