@@ -139,7 +139,7 @@
 //! - **StepScaled**: Grid-like exploration with progressively finer resolution
 //! - **Discrete**: ListGenotype behaviour, for categories in heterogeneous genotypes
 //!
-//! Run the example with `cargo run --example visualize_mutation_types --release` to generate the visualization.
+//! Run the example with `cargo run --example visualize_evolve_mutation_types --release` to generate the visualization.
 //!
 //! ### Permutate Strategy (and HillClimb)
 //!

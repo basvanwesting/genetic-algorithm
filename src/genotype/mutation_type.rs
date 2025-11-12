@@ -109,6 +109,10 @@ use crate::allele::Allele;
 /// same bandwidth value. You could also alternate between exploration and exploitation several
 /// times (provide alternating high & low bandwidths in the scales)
 ///
+/// It is a good idea to use a prolonged period of full Random sampling (exploration phase, so
+/// several 100% bandwidth scales), which then transitions quite fast to the smaller bandwidths
+/// (exploitation phase, a few smaller bandwidth scales).
+///
 /// ## `StepScaled(Vec<T>)`
 /// Multi-phase step mutation with strategy-controlled progression. Like `RangeScaled`
 /// but uses fixed step sizes instead of uniform ranges. Mutations apply the step
@@ -216,12 +220,13 @@ use crate::allele::Allele;
 ///
 /// All bandwidth and step values use the same type `T` as the genotype's allele type.
 /// This ensures type safety and intuitive behavior:
+/// - For `RangeGenotype<u32>`: Use integer bandwidths like `Range(10)` or `Step(5)`
 /// - For `RangeGenotype<i32>`: Use integer bandwidths like `Range(10)` or `Step(5)`
 /// - For `RangeGenotype<f64>`: Use float bandwidths like `Range(10.0)` or `Step(0.5)`
 ///
 /// # Compatibility
 ///
-/// * [RangeGenotype](crate::genotype::RangeGenotype): All variants except Discrete
+/// * [RangeGenotype](crate::genotype::RangeGenotype): All variants
 /// * [MultiRangeGenotype](crate::genotype::MultiRangeGenotype): All variants
 /// * Other genotypes use fixed mutation strategies (always Random)
 ///

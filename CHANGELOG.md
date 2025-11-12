@@ -7,8 +7,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.25.0] - 2025-11-12
 
 ### Changed
-* (naming only) Refactor `MutationType::ScaledSteps(Vec<T>)` to `MutationType::StepScaled(Vec<T>)` for naming consistency
-* (naming only) Refactor `MutationType::RelativeRange(T)` to `MutationType::Range(T)` as `MutationType::Step(T)` is also relative.
+* (naming only) Refactor `MutationType::ScaledSteps(Vec<T>)` to
+  `MutationType::StepScaled(Vec<T>)` for naming consistency
+* (naming only) Refactor `MutationType::RelativeRange(T)` to
+  `MutationType::Range(T)` as `MutationType::Step(T)` is also relative.
 * Refactor `MutationType::Transition(usize, usize, T)` to `MutationType::RangeScaled(Vec<T>)`:
   * Drop the generation based transition configuration params
   * Replace params with bandwidth per scale (just like step-size per scale StepScaled)
@@ -21,13 +23,14 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   * Ending condition for current scale, go to next scale and restart counting generations
   * Final ending condition if no scales left (or no scaling at all)
 * Support unsigned integers for `MutationType::Range` and `MutationType::Step` as well (and scaled versions)
-* Allow for zero bandwidth in `MutationType::Range` (and scaled), which lets the mutation die out
+* Allow for zero bandwidth/step in `MutationType::Range` and
+  `MutationType::Step` (and scaled versions), which lets the mutation die out
 * Add `examples/visualize_evolve_mutation_types` and `examples/visualize_permutate_mutation_types`, which
   generate visualizations showing exploration patterns of different mutation strategies
 
 ### Remove
 * Remove `increment_generation()` and `reset_generation()` from `Genotype` and remove hook
-  in Strategies, as all is not scale based.
+  in Strategies, as all scaled MutationTypes now work in the same manner
 * Remove unused `Vec<Chromosome<T>>` into `Population<T>` implementation
 
 ## [0.24.0] - 2025-11-05
