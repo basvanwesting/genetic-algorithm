@@ -93,7 +93,7 @@ use crate::allele::Allele;
 ///
 /// **Behavior by phase:**
 /// - Phase 0: Mutations uniformly within full allele range (same as Random, pre-clamped)
-/// - Phase 1: Mutations uniformly within full allele range (extended round, more exploration)
+/// - Phase 1: Mutations uniformly within full allele range (another Random round)
 /// - Phase 2: Mutations uniformly within ±50 (pre-clamped)
 /// - Phase 3: Mutations uniformly within ±20 (pre-clamped)
 /// - Phase 4: Mutations uniformly within ±5 (pre-clamped)
@@ -187,14 +187,16 @@ use crate::allele::Allele;
 ///
 /// ## Boundary Sampling Summary
 ///
-/// - `Random`: Undersamples boundaries (infinitesimal probability)
-/// - `Range`: Post-clamped, slight boundary oversampling when near edges
-/// - `Step`: Always clamped, slight boundary oversampling when near edges
-/// - `RangeScaled`:
-///   - Non-final phases: Pre-clamped, boundaries undersampled
-///   - Final phase: Post-clamped, slight boundary oversampling
-/// - `StepScaled`: Always clamped, slight boundary oversampling
-/// - `Discrete`: Uniform sampling, no boundary bias
+/// * `Random`: Undersamples boundaries (infinitesimal probability)
+/// * `Range`: Post-clamped, slight boundary oversampling when near edges (assuming small bandwidth)
+/// * `Step`: Always clamped, slight boundary oversampling when near edges (assuming small step)
+/// * `RangeScaled`:
+///   * Non-final phases: Pre-clamped, boundaries undersampled
+///   * Final phase: Post-clamped, slight boundary oversampling (assuming small final bandwidth)
+/// * `StepScaled`: Always clamped
+///   * First phase: Given potentially large step in the first phase, the boundary can become quite oversampled
+///   * Non-first phases: slight boundary oversampling (assuming small steps)
+/// * `Discrete`: Uniform sampling, no boundary bias
 ///
 /// # Phase Management
 ///

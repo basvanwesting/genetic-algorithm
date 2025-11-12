@@ -309,23 +309,14 @@ where
                     } else {
                         // Bandwidth
                         let current_value = chromosome.genes[index];
-                        if rng.gen() {
-                            let max_delta_up = allele_range_end - current_value;
-                            let working_delta_up = T::min(bandwidth, max_delta_up);
-                            if working_delta_up >= T::smallest_increment() {
-                                let delta =
-                                    rng.gen_range(T::smallest_increment()..=working_delta_up);
-                                chromosome.genes[index] += delta; // no need to check again
-                            }
-                        } else {
-                            let max_delta_down = current_value - allele_range_start;
-                            let working_delta_down = T::min(bandwidth, max_delta_down);
-                            if working_delta_down >= T::smallest_increment() {
-                                let delta =
-                                    rng.gen_range(T::smallest_increment()..=working_delta_down);
-                                chromosome.genes[index] -= delta; // no need to check again
-                            }
-                        }
+                        let max_delta_up = allele_range_end - current_value;
+                        let max_delta_down = current_value - allele_range_start;
+                        let working_delta_up = T::min(bandwidth, max_delta_up);
+                        let working_delta_down = T::min(bandwidth, max_delta_down);
+                        let working_range_end = current_value + working_delta_up;
+                        let working_range_start = current_value - working_delta_down;
+                        chromosome.genes[index] =
+                            rng.gen_range(working_range_start..=working_range_end);
                     }
                 }
             }

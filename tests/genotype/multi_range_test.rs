@@ -114,7 +114,7 @@ fn float_mutate_chromosome_single_range_scaled() {
     genotype.mutate_chromosome_genes(2, false, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 1.219, 15.704],
+        vec![0.447, 2.833, 16.854],
         0.001
     ));
 
@@ -123,7 +123,7 @@ fn float_mutate_chromosome_single_range_scaled() {
     genotype.mutate_chromosome_genes(2, false, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.417, 1.331, 15.704],
+        vec![0.392, 2.833, 17.697],
         0.001
     ));
 
@@ -132,7 +132,7 @@ fn float_mutate_chromosome_single_range_scaled() {
     genotype.mutate_chromosome_genes(2, false, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.417, 1.288, 15.685],
+        vec![0.399, 2.833, 17.678],
         0.001
     ));
 }

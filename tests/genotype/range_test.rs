@@ -96,35 +96,34 @@ fn float_mutate_chromosome_single_range_scaled() {
     ));
 
     assert_eq!(genotype.current_scale_index, 0);
-    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    genotype.mutate_chromosome_genes(2, false, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.897, 0.979],
+        vec![0.447, 0.818, 0.395],
         0.001,
     ));
 
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 1);
-    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
-    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    genotype.mutate_chromosome_genes(2, false, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.921, 0.989],
+        vec![0.392, 0.818, 0.479],
         0.001,
     ));
 
     assert!(genotype.increment_scale_index());
     assert_eq!(genotype.current_scale_index, 2);
-    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    genotype.mutate_chromosome_genes(2, false, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.447, 0.921, 0.982],
+        vec![0.399, 0.818, 0.477],
         0.001,
     ));
 }
 
 #[test]
-fn float_mutate_chromosome_single_range_scaled_on_edge() {
+fn float_mutate_chromosome_single_range_scaled_on_edge_and_zero_bandwidth() {
     let mut rng = SmallRng::seed_from_u64(1);
     let mut genotype = RangeGenotype::builder()
         .with_genes_size(3)
@@ -140,7 +139,7 @@ fn float_mutate_chromosome_single_range_scaled_on_edge() {
     genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.970, 0.0, 0.904],
+        vec![0.911, 0.095, 0.947],
         0.001,
     ));
 
@@ -149,7 +148,7 @@ fn float_mutate_chromosome_single_range_scaled_on_edge() {
     genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.970, 0.0, 0.904],
+        vec![0.911, 0.095, 0.947],
         0.001,
     ));
 
@@ -158,7 +157,7 @@ fn float_mutate_chromosome_single_range_scaled_on_edge() {
     genotype.mutate_chromosome_genes(3, false, &mut chromosome, &mut rng);
     assert!(relative_chromosome_eq(
         inspect::chromosome(&chromosome),
-        vec![0.970, 0.0, 0.904],
+        vec![0.911, 0.095, 0.947],
         0.001,
     ));
 }
