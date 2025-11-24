@@ -4,6 +4,30 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.26.0] - 2025-11-24
+
+### Added
+* Add multiple extension points to the `Evolve` flow
+  * `after_selection_complete()` - called after selection completes
+  * `after_crossover_complete()` - called after crossover completes
+  * `after_mutation_complete()` - called after mutation completes
+  * `after_generation_complete()` - called at end of generation
+* Add reporter hooks `on_crossover_complete()` and `on_mutation_complete()`
+  * Provides observation points matching the new extension hooks
+* Add `before()` and `after()` hooks to `Select`, `Crossover`, and `Mutate` traits
+  * Allows customization of population lifecycle operations
+  * Default implementations handle age filtering and cardinality updates
+
+### Changed
+* Extension trait methods now receive `&mut Self::Genotype` instead of `&Self::Genotype`
+  * Allows extensions to modify genotype parameters during evolution
+* Extension trait `call()` method is now `after_selection_complete()`
+  * `call()` still exists and delegates to `after_selection_complete()` for backward compatibility
+* Move population lifecycle operations from inline `EvolveState` methods to trait hooks
+  * Age filtering moved to `Select::before()`
+  * Population cardinality update moved to `Select::after()`
+  * Age increment handled internally by crossover implementations
+
 ## [0.25.1] - 2025-11-12
 
 ### Changed
