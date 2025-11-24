@@ -22,9 +22,11 @@ pub enum Wrapper<G: EvolveGenotype> {
 impl<G: EvolveGenotype> Extension for Wrapper<G> {
     type Genotype = G;
 
+    /// Legacy method for backward compatibility. Delegates to `after_selection_complete`
+    #[allow(deprecated)]
     fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,
@@ -44,6 +46,139 @@ impl<G: EvolveGenotype> Extension for Wrapper<G> {
                 extension.call(genotype, state, config, reporter, rng)
             }
             Wrapper::Noop(extension) => extension.call(genotype, state, config, reporter, rng),
+        }
+    }
+
+    fn after_selection_complete<R: Rng, SR: StrategyReporter<Genotype = G>>(
+        &mut self,
+        genotype: &mut G,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
+        rng: &mut R,
+    ) {
+        match self {
+            Wrapper::MassDeduplication(extension) => {
+                extension.after_selection_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassDegeneration(extension) => {
+                extension.after_selection_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassExtinction(extension) => {
+                extension.after_selection_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassGenesis(extension) => {
+                extension.after_selection_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::Noop(extension) => {
+                extension.after_selection_complete(genotype, state, config, reporter, rng)
+            }
+        }
+    }
+
+    fn after_crossover_complete<R: Rng, SR: StrategyReporter<Genotype = G>>(
+        &mut self,
+        genotype: &mut G,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
+        rng: &mut R,
+    ) {
+        match self {
+            Wrapper::MassDeduplication(extension) => {
+                extension.after_crossover_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassDegeneration(extension) => {
+                extension.after_crossover_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassExtinction(extension) => {
+                extension.after_crossover_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassGenesis(extension) => {
+                extension.after_crossover_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::Noop(extension) => {
+                extension.after_crossover_complete(genotype, state, config, reporter, rng)
+            }
+        }
+    }
+
+    fn after_mutation_complete<R: Rng, SR: StrategyReporter<Genotype = G>>(
+        &mut self,
+        genotype: &mut G,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
+        rng: &mut R,
+    ) {
+        match self {
+            Wrapper::MassDeduplication(extension) => {
+                extension.after_mutation_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassDegeneration(extension) => {
+                extension.after_mutation_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassExtinction(extension) => {
+                extension.after_mutation_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassGenesis(extension) => {
+                extension.after_mutation_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::Noop(extension) => {
+                extension.after_mutation_complete(genotype, state, config, reporter, rng)
+            }
+        }
+    }
+    fn after_fitness_complete<R: Rng, SR: StrategyReporter<Genotype = G>>(
+        &mut self,
+        genotype: &mut G,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
+        rng: &mut R,
+    ) {
+        match self {
+            Wrapper::MassDeduplication(extension) => {
+                extension.after_fitness_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassDegeneration(extension) => {
+                extension.after_fitness_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassExtinction(extension) => {
+                extension.after_fitness_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassGenesis(extension) => {
+                extension.after_fitness_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::Noop(extension) => {
+                extension.after_fitness_complete(genotype, state, config, reporter, rng)
+            }
+        }
+    }
+    fn after_generation_complete<R: Rng, SR: StrategyReporter<Genotype = G>>(
+        &mut self,
+        genotype: &mut G,
+        state: &mut EvolveState<G>,
+        config: &EvolveConfig,
+        reporter: &mut SR,
+        rng: &mut R,
+    ) {
+        match self {
+            Wrapper::MassDeduplication(extension) => {
+                extension.after_generation_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassDegeneration(extension) => {
+                extension.after_generation_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassExtinction(extension) => {
+                extension.after_generation_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::MassGenesis(extension) => {
+                extension.after_generation_complete(genotype, state, config, reporter, rng)
+            }
+            Wrapper::Noop(extension) => {
+                extension.after_generation_complete(genotype, state, config, reporter, rng)
+            }
         }
     }
 }

@@ -42,8 +42,7 @@ pub enum EvolveVariant {
 ///
 /// Then the Evolve strategy runs through generations of chromosomes in a loop:
 /// * [select](crate::select) and pair up chromosomes for crossover
-/// * [extension](crate::extension) an optional step triggering on population cardinality after selection (e.g. [MassExtinction](crate::extension::ExtensionMassExtinction))
-/// * [crossover](crate::crossover) to produce new offspring with a mix of parents chromosome.
+/// * [crossover](crate::crossover) to produce new offspring with a mix of parents chromosome
 /// * [mutate](crate::mutate) the offspring chromosomes to add some additional diversity
 /// * calculate [fitness](crate::fitness) for all chromosomes
 /// * store best chromosome and check ending conditions
@@ -56,6 +55,35 @@ pub enum EvolveVariant {
 /// * With a scaled [crate::genotype::MutationType]:
 ///   * Scale down after max_generations or max_stale_generations is reached and reset scale_generations and stale_generations to zero
 ///   * Only trigger max_generations or max_stale_generations ending condition when already reached the smallest scale
+///
+/// Below is the exact order of actions and hooks
+/// * [reporter](crate::strategy::reporter) on_enter hook
+/// * setup
+/// * [reporter](crate::strategy::reporter) on_start hook
+/// * loop while not finished
+///   * increment age & filter by age
+///   * [select](crate::select)
+///   * update population cardinality
+///   * [reporter](crate::strategy::reporter) on_selection_complete hook
+///   * [extension](crate::extension) after_selection_complete hook
+///   * increment age
+///   * [crossover](crate::crossover)
+///   * [reporter](crate::strategy::reporter) on_crossover_complete hook
+///   * [extension](crate::extension) after_crossover_complete hook
+///   * [mutate](crate::mutate)
+///   * [reporter](crate::strategy::reporter) on_mutation_complete hook
+///   * [extension](crate::extension) after_mutation_complete hook
+///   * [fitness](crate::fitness) calculation
+///   * [reporter](crate::strategy::reporter) on_fitness_complete hook
+///   * [extension](crate::extension) after_fitness_complete hook
+///   * store best chromosome
+///   * [reporter](crate::strategy::reporter) on_generation_complete hook
+///   * [extension](crate::extension) after_generation_complete hook
+///   * scale and reset ending conditions for new scale
+///   * check ending conditions
+/// * [reporter](crate::strategy::reporter) on_finish hook
+/// * cleanup
+/// * [reporter](crate::strategy::reporter) on_exit hook
 ///
 /// General Hyper-parameters:
 /// * `replacement_rate` (selection): the target fraction of the population which exists of
@@ -262,9 +290,8 @@ impl<
                 .update_population_cardinality(&self.genotype, &self.config);
             self.reporter
                 .on_selection_complete(&self.genotype, &self.state, &self.config);
-
-            self.plugins.extension.call(
-                &self.genotype,
+            self.plugins.extension.after_selection_complete(
+                &mut self.genotype,
                 &mut self.state,
                 &self.config,
                 &mut self.reporter,
@@ -279,6 +306,14 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
+            self.plugins.extension.after_crossover_complete(
+                &mut self.genotype,
+                &mut self.state,
+                &self.config,
+                &mut self.reporter,
+                &mut self.rng,
+            );
+
             self.plugins.mutate.call(
                 &self.genotype,
                 &mut self.state,
@@ -286,12 +321,28 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
+            self.plugins.extension.after_mutation_complete(
+                &mut self.genotype,
+                &mut self.state,
+                &self.config,
+                &mut self.reporter,
+                &mut self.rng,
+            );
+
             self.fitness.call_for_state_population(
                 &self.genotype,
                 &mut self.state,
                 &self.config,
                 fitness_thread_local.as_ref(),
             );
+            self.plugins.extension.after_fitness_complete(
+                &mut self.genotype,
+                &mut self.state,
+                &self.config,
+                &mut self.reporter,
+                &mut self.rng,
+            );
+
             self.state.update_best_chromosome_and_report(
                 &self.genotype,
                 &self.config,
@@ -300,6 +351,13 @@ impl<
 
             self.reporter
                 .on_generation_complete(&self.genotype, &self.state, &self.config);
+            self.plugins.extension.after_generation_complete(
+                &mut self.genotype,
+                &mut self.state,
+                &self.config,
+                &mut self.reporter,
+                &mut self.rng,
+            );
             self.state.scale(&mut self.genotype, &self.config);
         }
         self.reporter

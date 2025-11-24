@@ -16,7 +16,7 @@ impl Fitness for DistanceTo {
             chromosome
                 .genes
                 .iter()
-                .map(|v| if *v > self.0 { v - self.0 } else { self.0 - v } as FitnessValue)
+                .map(|v| v.abs_diff(self.0) as FitnessValue)
                 .sum(),
         )
     }

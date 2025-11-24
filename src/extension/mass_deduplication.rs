@@ -21,9 +21,9 @@ pub struct MassDeduplication<G: EvolveGenotype> {
 impl<G: EvolveGenotype> Extension for MassDeduplication<G> {
     type Genotype = G;
 
-    fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
+    fn after_selection_complete<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
-        genotype: &G,
+        genotype: &mut G,
         state: &mut EvolveState<G>,
         config: &EvolveConfig,
         reporter: &mut SR,

@@ -8,7 +8,7 @@ use genetic_algorithm::strategy::StrategyReporterNoop;
 
 #[test]
 fn standard() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
@@ -33,8 +33,8 @@ fn standard() {
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassDeduplication::new(3).call(
-        &genotype,
+    ExtensionMassDeduplication::new(3).after_selection_complete(
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -55,7 +55,7 @@ fn standard() {
 
 #[test]
 fn never_leaves_less_than_two() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
@@ -80,8 +80,8 @@ fn never_leaves_less_than_two() {
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassDeduplication::new(1).call(
-        &genotype,
+    ExtensionMassDeduplication::new(1).after_selection_complete(
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -97,7 +97,7 @@ fn never_leaves_less_than_two() {
 
 #[test]
 fn skips_execution_if_no_genes_hash() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .with_genes_hashing(false)
         .build()
@@ -123,8 +123,8 @@ fn skips_execution_if_no_genes_hash() {
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassDeduplication::new(3).call(
-        &genotype,
+    ExtensionMassDeduplication::new(3).after_selection_complete(
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,

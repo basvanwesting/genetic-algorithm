@@ -36,7 +36,20 @@ pub type ExtensionAllele<E> = <<E as Extension>::Genotype as Genotype>::Allele;
 ///
 /// For the user API, the Extension Trait has an associated Genotype. This way the user can
 /// implement a specialized Extension alterative with access to the user's Genotype specific
-/// methods at hand.
+/// methods at hand. The extension gives full control to the user, so all inputs are mutable.
+///
+/// # Extension Points
+///
+/// Extensions can run at multiple points in the evolution flow, always AFTER the corresponding
+/// reporter hooks (if any):
+/// * `after_selection_complete`
+/// * `after_crossover_complete`
+/// * `after_mutation_complete`
+/// * `after_fitness_complete`
+/// * `after_generation_complete`
+///
+/// For backward compatibility, the `call` method delegates to `after_selection_complete` by default.
+/// Extensions can override specific methods for the points they need.
 ///
 /// # Example
 /// ```rust
@@ -53,9 +66,10 @@ pub type ExtensionAllele<E> = <<E as Extension>::Genotype as Genotype>::Allele;
 /// impl Extension for CustomExtension {
 ///     type Genotype = MultiRangeGenotype<f32>;
 ///
-///     fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+///     // Override specific extension points as needed
+///     fn after_selection_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
 ///         &mut self,
-///         genotype: &Self::Genotype,
+///         genotype: &mut Self::Genotype,
 ///         state: &mut EvolveState<Self::Genotype>,
 ///         config: &EvolveConfig,
 ///         reporter: &mut SR,
@@ -90,14 +104,73 @@ pub type ExtensionAllele<E> = <<E as Extension>::Genotype as Genotype>::Allele;
 pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: EvolveGenotype;
 
+    /// Legacy method for backward compatibility. Delegates to `after_selection_complete`
+    #[deprecated(since = "0.26.0", note = "use `after_selection_complete` instead")]
     fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
         &mut self,
-        genotype: &Self::Genotype,
+        genotype: &mut Self::Genotype,
         state: &mut EvolveState<Self::Genotype>,
         config: &EvolveConfig,
         reporter: &mut SR,
         rng: &mut R,
-    );
+    ) {
+        self.after_selection_complete(genotype, state, config, reporter, rng);
+    }
+
+    fn after_selection_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+        &mut self,
+        _genotype: &mut Self::Genotype,
+        _state: &mut EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+        _reporter: &mut SR,
+        _rng: &mut R,
+    ) {
+        // Default no-op implementation
+    }
+
+    fn after_crossover_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+        &mut self,
+        _genotype: &mut Self::Genotype,
+        _state: &mut EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+        _reporter: &mut SR,
+        _rng: &mut R,
+    ) {
+        // Default no-op implementation
+    }
+
+    fn after_mutation_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+        &mut self,
+        _genotype: &mut Self::Genotype,
+        _state: &mut EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+        _reporter: &mut SR,
+        _rng: &mut R,
+    ) {
+        // Default no-op implementation
+    }
+
+    fn after_fitness_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+        &mut self,
+        _genotype: &mut Self::Genotype,
+        _state: &mut EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+        _reporter: &mut SR,
+        _rng: &mut R,
+    ) {
+        // Default no-op implementation
+    }
+
+    fn after_generation_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+        &mut self,
+        _genotype: &mut Self::Genotype,
+        _state: &mut EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+        _reporter: &mut SR,
+        _rng: &mut R,
+    ) {
+        // Default no-op implementation
+    }
 
     fn extract_elite_chromosomes(
         &self,

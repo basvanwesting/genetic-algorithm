@@ -8,7 +8,7 @@ use genetic_algorithm::strategy::StrategyReporterNoop;
 
 #[test]
 fn removes_lesser() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
@@ -35,7 +35,13 @@ fn removes_lesser() {
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassGenesis::new(3).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    ExtensionMassGenesis::new(3).after_selection_complete(
+        &mut genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),
@@ -49,7 +55,7 @@ fn removes_lesser() {
 
 #[test]
 fn removes_lesser_no_fitness() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .with_genes_hashing(true)
         .build()
@@ -76,7 +82,13 @@ fn removes_lesser_no_fitness() {
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassGenesis::new(3).call(&genotype, &mut state, &config, &mut reporter, &mut rng);
+    ExtensionMassGenesis::new(3).after_selection_complete(
+        &mut genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
 
     assert_eq!(
         inspect::population_with_fitness_scores(&state.population),

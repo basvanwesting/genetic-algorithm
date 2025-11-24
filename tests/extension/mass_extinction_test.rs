@@ -8,7 +8,7 @@ use genetic_algorithm::strategy::StrategyReporterNoop;
 
 #[test]
 fn removes_randomly() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -34,8 +34,8 @@ fn removes_randomly() {
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassExtinction::new(3, 0.50, 0.20).call(
-        &genotype,
+    ExtensionMassExtinction::new(3, 0.50, 0.20).after_selection_complete(
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -58,7 +58,7 @@ fn removes_randomly() {
 
 #[test]
 fn never_leaves_less_than_two_no_elite() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -84,8 +84,8 @@ fn never_leaves_less_than_two_no_elite() {
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassExtinction::new(3, 0.01, 0.0).call(
-        &genotype,
+    ExtensionMassExtinction::new(3, 0.01, 0.0).after_selection_complete(
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,
@@ -103,7 +103,7 @@ fn never_leaves_less_than_two_no_elite() {
 
 #[test]
 fn never_leaves_less_than_two_one_elite() {
-    let genotype = BinaryGenotype::builder()
+    let mut genotype = BinaryGenotype::builder()
         .with_genes_size(3)
         .build()
         .unwrap();
@@ -129,8 +129,8 @@ fn never_leaves_less_than_two_one_elite() {
     let config = EvolveConfig::new();
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
-    ExtensionMassExtinction::new(3, 0.01, 0.01).call(
-        &genotype,
+    ExtensionMassExtinction::new(3, 0.01, 0.01).after_selection_complete(
+        &mut genotype,
         &mut state,
         &config,
         &mut reporter,
