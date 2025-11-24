@@ -22,6 +22,16 @@ pub enum Wrapper<G: EvolveGenotype> {
 impl<G: EvolveGenotype> Mutate for Wrapper<G> {
     type Genotype = G;
 
+    fn before(&mut self, genotype: &G, state: &mut EvolveState<G>, config: &EvolveConfig) {
+        match self {
+            Wrapper::MultiGene(mutate) => mutate.before(genotype, state, config),
+            Wrapper::MultiGeneDynamic(mutate) => mutate.before(genotype, state, config),
+            Wrapper::MultiGeneRange(mutate) => mutate.before(genotype, state, config),
+            Wrapper::SingleGene(mutate) => mutate.before(genotype, state, config),
+            Wrapper::SingleGeneDynamic(mutate) => mutate.before(genotype, state, config),
+        }
+    }
+
     fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
@@ -40,6 +50,16 @@ impl<G: EvolveGenotype> Mutate for Wrapper<G> {
             Wrapper::SingleGeneDynamic(mutate) => {
                 mutate.call(genotype, state, config, reporter, rng)
             }
+        }
+    }
+
+    fn after(&mut self, genotype: &G, state: &mut EvolveState<G>, config: &EvolveConfig) {
+        match self {
+            Wrapper::MultiGene(mutate) => mutate.after(genotype, state, config),
+            Wrapper::MultiGeneDynamic(mutate) => mutate.after(genotype, state, config),
+            Wrapper::MultiGeneRange(mutate) => mutate.after(genotype, state, config),
+            Wrapper::SingleGene(mutate) => mutate.after(genotype, state, config),
+            Wrapper::SingleGeneDynamic(mutate) => mutate.after(genotype, state, config),
         }
     }
 }

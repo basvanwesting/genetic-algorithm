@@ -18,6 +18,13 @@ pub enum Wrapper<G: EvolveGenotype> {
 impl<G: EvolveGenotype> Select for Wrapper<G> {
     type Genotype = G;
 
+    fn before(&mut self, genotype: &G, state: &mut EvolveState<G>, config: &EvolveConfig) {
+        match self {
+            Wrapper::Elite(select) => select.before(genotype, state, config),
+            Wrapper::Tournament(select) => select.before(genotype, state, config),
+        }
+    }
+
     fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
@@ -29,6 +36,13 @@ impl<G: EvolveGenotype> Select for Wrapper<G> {
         match self {
             Wrapper::Elite(select) => select.call(genotype, state, config, reporter, rng),
             Wrapper::Tournament(select) => select.call(genotype, state, config, reporter, rng),
+        }
+    }
+
+    fn after(&mut self, genotype: &G, state: &mut EvolveState<G>, config: &EvolveConfig) {
+        match self {
+            Wrapper::Elite(select) => select.after(genotype, state, config),
+            Wrapper::Tournament(select) => select.after(genotype, state, config),
         }
     }
 

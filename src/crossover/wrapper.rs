@@ -26,6 +26,18 @@ pub enum Wrapper<G: EvolveGenotype> {
 impl<G: EvolveGenotype> Crossover for Wrapper<G> {
     type Genotype = G;
 
+    fn before(&mut self, genotype: &G, state: &mut EvolveState<G>, config: &EvolveConfig) {
+        match self {
+            Wrapper::Clone(crossover) => crossover.before(genotype, state, config),
+            Wrapper::MultiGene(crossover) => crossover.before(genotype, state, config),
+            Wrapper::MultiPoint(crossover) => crossover.before(genotype, state, config),
+            Wrapper::Rejuvenate(crossover) => crossover.before(genotype, state, config),
+            Wrapper::SingleGene(crossover) => crossover.before(genotype, state, config),
+            Wrapper::SinglePoint(crossover) => crossover.before(genotype, state, config),
+            Wrapper::Uniform(crossover) => crossover.before(genotype, state, config),
+        }
+    }
+
     fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
@@ -50,6 +62,18 @@ impl<G: EvolveGenotype> Crossover for Wrapper<G> {
                 crossover.call(genotype, state, config, reporter, rng)
             }
             Wrapper::Uniform(crossover) => crossover.call(genotype, state, config, reporter, rng),
+        }
+    }
+
+    fn after(&mut self, genotype: &G, state: &mut EvolveState<G>, config: &EvolveConfig) {
+        match self {
+            Wrapper::Clone(crossover) => crossover.after(genotype, state, config),
+            Wrapper::MultiGene(crossover) => crossover.after(genotype, state, config),
+            Wrapper::MultiPoint(crossover) => crossover.after(genotype, state, config),
+            Wrapper::Rejuvenate(crossover) => crossover.after(genotype, state, config),
+            Wrapper::SingleGene(crossover) => crossover.after(genotype, state, config),
+            Wrapper::SinglePoint(crossover) => crossover.after(genotype, state, config),
+            Wrapper::Uniform(crossover) => crossover.after(genotype, state, config),
         }
     }
 

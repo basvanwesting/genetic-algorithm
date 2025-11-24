@@ -7,15 +7,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [0.26.0] - 2025-11-24
 
 ### Added
-* Add multiple extension points to the `Evolve` flow
-  * `after_selection_complete()` - called after selection completes
-  * `after_crossover_complete()` - called after crossover completes
-  * `after_mutation_complete()` - called after mutation completes
-  * `after_generation_complete()` - called at end of generation
-* Add reporter hooks `on_crossover_complete()` and `on_mutation_complete()`
-  * Provides observation points matching the new extension hooks
+* Add multiple extension points to the `Evolve` flow in the `Extension` type
+  * `after_selection_complete()`
+  * `after_crossover_complete()`
+  * `after_mutation_complete()`
+  * `after_generation_complete()`
+* Add symmetrical reporter hooks, called before the extension hooks
+  * `on_selection_complete()` (existing)
+  * `on_crossover_complete()`
+  * `on_mutation_complete()`
+  * `on_generation_complete()` (existing)
 * Add `before()` and `after()` hooks to `Select`, `Crossover`, and `Mutate` traits
-  * Allows customization of population lifecycle operations
+  * Allows full customization of population lifecycle operations in Evolve
   * Default implementations handle age filtering and cardinality updates
 
 ### Changed
