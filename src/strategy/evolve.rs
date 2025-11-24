@@ -124,11 +124,11 @@ pub enum EvolveVariant {
 /// [StrategyReporter] (e.g. [EvolveReporterDuration], [EvolveReporterSimple]). But you are encouraged to
 /// roll your own, see [StrategyReporter].
 ///
-/// For [Evolve] the reporting has an additional `on_selection_complete` hook, because
-/// that is a more interesting point in the loop, as the population and cardinality are refreshed
-/// after selection.
-/// The `on_generation_complete` contains all the new mutations, most of which will be immediately
-/// selected out. This gives the false impression of good cardinality while there is actually little.
+/// For [Evolve] the reporting has an additional `on_selection_complete` hook, because that is a
+/// more interesting point in the loop, as the population and cardinality are refreshed after
+/// selection. As the `on_generation_complete` contains all the new mutations, most of which will
+/// be immediately selected out. This gives the false impression of good cardinality while there is
+/// actually little.
 ///
 /// From the [EvolveBuilder] level, there are several calling mechanisms:
 /// * [call](EvolveBuilder::call): this runs a single evolve strategy
@@ -306,6 +306,8 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
+            self.reporter
+                .on_crossover_complete(&self.genotype, &self.state, &self.config);
             self.plugins.extension.after_crossover_complete(
                 &mut self.genotype,
                 &mut self.state,
@@ -321,6 +323,8 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
+            self.reporter
+                .on_mutation_complete(&self.genotype, &self.state, &self.config);
             self.plugins.extension.after_mutation_complete(
                 &mut self.genotype,
                 &mut self.state,
@@ -335,6 +339,8 @@ impl<
                 &self.config,
                 fitness_thread_local.as_ref(),
             );
+            self.reporter
+                .on_fitness_complete(&self.genotype, &self.state, &self.config);
             self.plugins.extension.after_fitness_complete(
                 &mut self.genotype,
                 &mut self.state,

@@ -269,8 +269,11 @@ pub trait StrategyState<G: Genotype>: Display {
 /// * `on_enter` (before setup)
 /// * `on_start` (of run loop)
 /// * *in run loop:*
-///     * `on_generation_complete`
 ///     * `on_selection_complete` (for Evolve only, as it is a more interesting point in the loop)
+///     * `on_crossover_complete` (for Evolve only, for completeness)
+///     * `on_mutation_complete` (for Evolve only, for completeness)
+///     * `on_fitness_complete` (for completeness)
+///     * `on_generation_complete`
 ///     * `on_new_best_chromosome`
 ///     * `on_new_best_chromosome_equal_fitness`
 ///     * `on_select_event`
@@ -381,14 +384,35 @@ pub trait StrategyReporter: Clone + Send + Sync {
         _config: &C,
     ) {
     }
-    fn on_generation_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_selection_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,
         _config: &C,
     ) {
     }
-    fn on_selection_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+    fn on_crossover_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_mutation_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_fitness_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &S,
+        _config: &C,
+    ) {
+    }
+    fn on_generation_complete<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         _genotype: &Self::Genotype,
         _state: &S,
