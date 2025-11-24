@@ -61,12 +61,12 @@ pub enum EvolveVariant {
 /// * setup
 /// * [reporter](crate::strategy::reporter) on_start hook
 /// * loop while not finished
-///   * increment age & filter by age
+///   * (before selection) increment generation & filter by age
 ///   * [select](crate::select)
-///   * update population cardinality
+///   * (after selection) update population cardinality
 ///   * [reporter](crate::strategy::reporter) on_selection_complete hook
 ///   * [extension](crate::extension) after_selection_complete hook
-///   * increment age
+///   * (before crossover) increment age
 ///   * [crossover](crate::crossover)
 ///   * [reporter](crate::strategy::reporter) on_crossover_complete hook
 ///   * [extension](crate::extension) after_crossover_complete hook
@@ -276,9 +276,8 @@ impl<
             .on_start(&self.genotype, &self.state, &self.config);
         while !self.is_finished() {
             self.state.increment_generation();
-            self.state
-                .population_filter_age(&self.genotype, &self.config);
 
+            self.state.before_selection(&self.genotype, &self.config);
             self.plugins.select.call(
                 &self.genotype,
                 &mut self.state,
@@ -286,8 +285,7 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
-            self.state
-                .update_population_cardinality(&self.genotype, &self.config);
+            self.state.after_selection(&self.genotype, &self.config);
             self.reporter
                 .on_selection_complete(&self.genotype, &self.state, &self.config);
             self.plugins.extension.after_selection_complete(
@@ -298,7 +296,7 @@ impl<
                 &mut self.rng,
             );
 
-            self.state.population.increment_age();
+            self.state.before_crossover(&self.genotype, &self.config);
             self.plugins.crossover.call(
                 &self.genotype,
                 &mut self.state,
@@ -608,6 +606,17 @@ impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
 }
 
 impl<G: EvolveGenotype> EvolveState<G> {
+    fn before_selection(&mut self, genotype: &G, config: &EvolveConfig) {
+        self.population_filter_age(genotype, config);
+    }
+
+    fn after_selection(&mut self, genotype: &G, config: &EvolveConfig) {
+        self.update_population_cardinality(genotype, config);
+    }
+
+    fn before_crossover(&mut self, _genotype: &G, _config: &EvolveConfig) {
+        self.population.increment_age();
+    }
     fn update_best_chromosome_and_report<SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
