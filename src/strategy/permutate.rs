@@ -59,6 +59,22 @@ pub enum PermutateVariant {
 /// [StrategyReporter] (e.g. [PermutateReporterDuration], [PermutateReporterSimple]). But you are encouraged to
 /// roll your own, see [StrategyReporter].
 ///
+/// Below is the exact order of actions and hooks
+/// * [reporter](crate::strategy::reporter) on_enter hook
+/// * setup
+/// * [reporter](crate::strategy::reporter) on_start hook
+/// * loop while not finished
+///   * (parallel) iterate over chromosomes
+///     * increment generation
+///     * [fitness](crate::fitness) calculation
+///     * update best chromosome
+///     * [reporter](crate::strategy::reporter) on_generation_complete hook
+///   * scale and reset ending conditions for new scale
+///   * check ending conditions
+/// * [reporter](crate::strategy::reporter) on_finish hook
+/// * cleanup
+/// * [reporter](crate::strategy::reporter) on_exit hook
+///
 /// See [PermutateBuilder] for initialization options.
 ///
 /// All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].

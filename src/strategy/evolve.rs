@@ -56,34 +56,6 @@ pub enum EvolveVariant {
 ///   * Scale down after max_generations or max_stale_generations is reached and reset scale_generations and stale_generations to zero
 ///   * Only trigger max_generations or max_stale_generations ending condition when already reached the smallest scale
 ///
-/// Below is the exact order of actions and hooks
-/// * [reporter](crate::strategy::reporter) on_enter hook
-/// * setup
-/// * [reporter](crate::strategy::reporter) on_start hook
-/// * loop while not finished
-///   * increment generation
-///   * (before selection) filter by age
-///   * [select](crate::select)
-///   * (after selection) update population cardinality
-///   * [reporter](crate::strategy::reporter) on_selection_complete hook
-///   * [extension](crate::extension) after_selection_complete hook
-///   * (before crossover) increment age
-///   * [crossover](crate::crossover)
-///   * [reporter](crate::strategy::reporter) on_crossover_complete hook
-///   * [extension](crate::extension) after_crossover_complete hook
-///   * [mutate](crate::mutate)
-///   * [reporter](crate::strategy::reporter) on_mutation_complete hook
-///   * [extension](crate::extension) after_mutation_complete hook
-///   * [fitness](crate::fitness) calculation
-///   * store best chromosome
-///   * [reporter](crate::strategy::reporter) on_generation_complete hook
-///   * [extension](crate::extension) after_generation_complete hook
-///   * scale and reset ending conditions for new scale
-///   * check ending conditions
-/// * [reporter](crate::strategy::reporter) on_finish hook
-/// * cleanup
-/// * [reporter](crate::strategy::reporter) on_exit hook
-///
 /// General Hyper-parameters:
 /// * `replacement_rate` (selection): the target fraction of the population which exists of
 ///   children. Generational Replacement and Steady-State Replacement can both be
@@ -128,6 +100,34 @@ pub enum EvolveVariant {
 /// selection. As the `on_generation_complete` contains all the new mutations, most of which will
 /// be immediately selected out. This gives the false impression of good cardinality while there is
 /// actually little.
+///
+/// Below is the exact order of actions and hooks
+/// * [reporter](crate::strategy::reporter) on_enter hook
+/// * setup
+/// * [reporter](crate::strategy::reporter) on_start hook
+/// * loop while not finished
+///   * increment generation
+///   * (before selection) filter by age
+///   * [select](crate::select)
+///   * (after selection) update population cardinality
+///   * [reporter](crate::strategy::reporter) on_selection_complete hook
+///   * [extension](crate::extension) after_selection_complete hook
+///   * (before crossover) increment age
+///   * [crossover](crate::crossover)
+///   * [reporter](crate::strategy::reporter) on_crossover_complete hook
+///   * [extension](crate::extension) after_crossover_complete hook
+///   * [mutate](crate::mutate)
+///   * [reporter](crate::strategy::reporter) on_mutation_complete hook
+///   * [extension](crate::extension) after_mutation_complete hook
+///   * [fitness](crate::fitness) calculation
+///   * update best chromosome
+///   * [reporter](crate::strategy::reporter) on_generation_complete hook
+///   * [extension](crate::extension) after_generation_complete hook
+///   * scale and reset ending conditions for new scale
+///   * check ending conditions
+/// * [reporter](crate::strategy::reporter) on_finish hook
+/// * cleanup
+/// * [reporter](crate::strategy::reporter) on_exit hook
 ///
 /// From the [EvolveBuilder] level, there are several calling mechanisms:
 /// * [call](EvolveBuilder::call): this runs a single evolve strategy

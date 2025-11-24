@@ -96,6 +96,22 @@ pub enum HillClimbVariant {
 /// [StrategyReporter] (e.g. [HillClimbReporterDuration], [HillClimbReporterSimple]). But you are encouraged to
 /// roll your own, see [StrategyReporter].
 ///
+/// Below is the exact order of actions and hooks
+/// * [reporter](crate::strategy::reporter) on_enter hook
+/// * setup
+/// * [reporter](crate::strategy::reporter) on_start hook
+/// * loop while not finished
+///   * increment generation
+///   * set new neighbouring working chromosome or population
+///   * [fitness](crate::fitness) calculation
+///   * update best chromosome
+///   * [reporter](crate::strategy::reporter) on_generation_complete hook
+///   * scale and reset ending conditions for new scale
+///   * check ending conditions
+/// * [reporter](crate::strategy::reporter) on_finish hook
+/// * cleanup
+/// * [reporter](crate::strategy::reporter) on_exit hook
+///
 /// From the [HillClimbBuilder] level, there are several calling mechanisms:
 /// * [call](HillClimbBuilder::call): this runs a single [HillClimb] strategy
 /// * [call_repeatedly](HillClimbBuilder::call_repeatedly): this runs multiple independent [HillClimb]
