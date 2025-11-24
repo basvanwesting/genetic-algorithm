@@ -129,32 +129,6 @@ impl<G: EvolveGenotype> Extension for Wrapper<G> {
             }
         }
     }
-    fn after_fitness_complete<R: Rng, SR: StrategyReporter<Genotype = G>>(
-        &mut self,
-        genotype: &mut G,
-        state: &mut EvolveState<G>,
-        config: &EvolveConfig,
-        reporter: &mut SR,
-        rng: &mut R,
-    ) {
-        match self {
-            Wrapper::MassDeduplication(extension) => {
-                extension.after_fitness_complete(genotype, state, config, reporter, rng)
-            }
-            Wrapper::MassDegeneration(extension) => {
-                extension.after_fitness_complete(genotype, state, config, reporter, rng)
-            }
-            Wrapper::MassExtinction(extension) => {
-                extension.after_fitness_complete(genotype, state, config, reporter, rng)
-            }
-            Wrapper::MassGenesis(extension) => {
-                extension.after_fitness_complete(genotype, state, config, reporter, rng)
-            }
-            Wrapper::Noop(extension) => {
-                extension.after_fitness_complete(genotype, state, config, reporter, rng)
-            }
-        }
-    }
     fn after_generation_complete<R: Rng, SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &mut G,

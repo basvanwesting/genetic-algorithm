@@ -228,8 +228,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                         &mut self.state,
                         &self.config,
                     );
-                    self.reporter
-                        .on_fitness_complete(&self.genotype, &self.state, &self.config);
                     self.state.update_best_chromosome_from_state_chromosome(
                         &self.genotype,
                         &self.config,
@@ -252,8 +250,6 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                         &self.config,
                         fitness_thread_local.as_ref(),
                     );
-                    self.reporter
-                        .on_fitness_complete(&self.genotype, &self.state, &self.config);
                     self.state.update_best_chromosome_from_state_population(
                         &self.genotype,
                         &self.config,

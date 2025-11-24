@@ -235,8 +235,6 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     &mut self.state,
                     &self.config,
                 );
-                self.reporter
-                    .on_fitness_complete(&self.genotype, &self.state, &self.config);
                 self.state.update_best_chromosome_and_report(
                     &self.genotype,
                     &self.config,
@@ -270,8 +268,6 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             });
 
             receiver.iter().for_each(|(chromosome, fitness_duration)| {
-                self.reporter
-                    .on_fitness_complete(&self.genotype, &self.state, &self.config);
                 self.state.increment_generation();
                 self.state.chromosome.replace(chromosome);
                 self.state.update_best_chromosome_and_report(

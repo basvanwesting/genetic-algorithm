@@ -61,7 +61,8 @@ pub enum EvolveVariant {
 /// * setup
 /// * [reporter](crate::strategy::reporter) on_start hook
 /// * loop while not finished
-///   * (before selection) increment generation & filter by age
+///   * increment generation
+///   * (before selection) filter by age
 ///   * [select](crate::select)
 ///   * (after selection) update population cardinality
 ///   * [reporter](crate::strategy::reporter) on_selection_complete hook
@@ -74,8 +75,6 @@ pub enum EvolveVariant {
 ///   * [reporter](crate::strategy::reporter) on_mutation_complete hook
 ///   * [extension](crate::extension) after_mutation_complete hook
 ///   * [fitness](crate::fitness) calculation
-///   * [reporter](crate::strategy::reporter) on_fitness_complete hook
-///   * [extension](crate::extension) after_fitness_complete hook
 ///   * store best chromosome
 ///   * [reporter](crate::strategy::reporter) on_generation_complete hook
 ///   * [extension](crate::extension) after_generation_complete hook
@@ -337,16 +336,6 @@ impl<
                 &self.config,
                 fitness_thread_local.as_ref(),
             );
-            self.reporter
-                .on_fitness_complete(&self.genotype, &self.state, &self.config);
-            self.plugins.extension.after_fitness_complete(
-                &mut self.genotype,
-                &mut self.state,
-                &self.config,
-                &mut self.reporter,
-                &mut self.rng,
-            );
-
             self.state.update_best_chromosome_and_report(
                 &self.genotype,
                 &self.config,

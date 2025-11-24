@@ -45,7 +45,6 @@ pub type ExtensionAllele<E> = <<E as Extension>::Genotype as Genotype>::Allele;
 /// * `after_selection_complete`
 /// * `after_crossover_complete`
 /// * `after_mutation_complete`
-/// * `after_fitness_complete`
 /// * `after_generation_complete`
 ///
 /// For backward compatibility, the `call` method delegates to `after_selection_complete` by default.
@@ -140,17 +139,6 @@ pub trait Extension: Clone + Send + Sync + std::fmt::Debug {
     }
 
     fn after_mutation_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
-        &mut self,
-        _genotype: &mut Self::Genotype,
-        _state: &mut EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-        _reporter: &mut SR,
-        _rng: &mut R,
-    ) {
-        // Default no-op implementation
-    }
-
-    fn after_fitness_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
         &mut self,
         _genotype: &mut Self::Genotype,
         _state: &mut EvolveState<Self::Genotype>,

@@ -69,8 +69,8 @@ impl Extension for MultiPointExtension {
 
     // After mutation: Default Noop
 
-    // After fitness: Remove duplicates if too many
-    fn after_fitness_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
+    // After generation: Remove duplicates if too many
+    fn after_generation_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
         &mut self,
         genotype: &mut Self::Genotype,
         state: &mut EvolveState<Self::Genotype>,
@@ -85,7 +85,7 @@ impl Extension for MultiPointExtension {
 
             if duplicate_ratio > 0.5 {
                 println!(
-                    "After fitness: High duplication ratio ({:.2}%), removing duplicates",
+                    "After generation: High duplication ratio ({:.2}%), removing duplicates",
                     duplicate_ratio * 100.0
                 );
 
@@ -101,25 +101,6 @@ impl Extension for MultiPointExtension {
                 state.population.truncate(remaining);
                 state.population.chromosomes.append(&mut unique);
             }
-        }
-    }
-
-    // After generation: Summary statistics
-    fn after_generation_complete<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
-        &mut self,
-        _genotype: &mut Self::Genotype,
-        state: &mut EvolveState<Self::Genotype>,
-        _config: &EvolveConfig,
-        _reporter: &mut SR,
-        _rng: &mut R,
-    ) {
-        if state.current_generation() % 100 == 0 {
-            println!(
-                "Generation {}: Best fitness: {:?}, Cardinality: {:?}",
-                state.current_generation(),
-                state.best_fitness_score(),
-                state.population_cardinality()
-            );
         }
     }
 }
