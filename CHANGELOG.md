@@ -6,6 +6,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [0.26.0] - 2025-11-24
 
+> [!CAUTION]
+> Custom `Crossover` implementations need to be updated to increment the age of
+> chromosomes in their implementations of `call()` (e.g.
+> `state.population.increment_age()`)
+
 ### Added
 * Add multiple extension points to the `Evolve` flow in the `Extension` type
   * `after_selection_complete()`
