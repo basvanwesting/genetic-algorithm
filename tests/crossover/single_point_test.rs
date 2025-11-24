@@ -14,10 +14,10 @@ fn standard() {
         .unwrap();
 
     let population: Population<bool> = build::population_with_age(vec![
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
+        (vec![true, true, true, true, true], 0),
+        (vec![false, false, false, false, false], 0),
+        (vec![true, true, true, true, true], 0),
+        (vec![false, false, false, false, false], 0),
     ]);
 
     let mut state = EvolveState::new(&genotype);

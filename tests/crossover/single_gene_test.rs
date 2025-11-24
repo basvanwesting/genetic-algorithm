@@ -14,10 +14,10 @@ fn standard_crossover() {
         .unwrap();
 
     let population: Population<bool> = build::population_with_age(vec![
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
+        (vec![true, true, true, true, true], 0),
+        (vec![false, false, false, false, false], 0),
+        (vec![true, true, true, true, true], 0),
+        (vec![false, false, false, false, false], 0),
     ]);
     assert_eq!(population.chromosomes.capacity(), 4);
 
@@ -59,10 +59,10 @@ fn zero_crossover_rate() {
         .unwrap();
 
     let population: Population<bool> = build::population_with_age(vec![
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
+        (vec![true, true, true, true, true], 0),
+        (vec![false, false, false, false, false], 0),
+        (vec![true, true, true, true, true], 0),
+        (vec![false, false, false, false, false], 0),
     ]);
     assert_eq!(population.chromosomes.capacity(), 4);
 
@@ -104,10 +104,10 @@ fn odd_selection_size() {
         .unwrap();
 
     let population: Population<bool> = build::population_with_age(vec![
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
-        (vec![true, true, true, true, true], 1),
-        (vec![false, false, false, false, false], 1),
+        (vec![true, true, true, true, true], 0),
+        (vec![false, false, false, false, false], 0),
+        (vec![true, true, true, true, true], 0),
+        (vec![false, false, false, false, false], 0),
     ]);
     assert_eq!(population.chromosomes.capacity(), 4);
 

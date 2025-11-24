@@ -14,8 +14,12 @@
 //! High values converge faster, but risk losing good solutions. Low values have poor exploration
 //! and risk of premature convergence
 //!
-//! Normally the crossover adds children to the popluation, thus increasing the population_size
-//! above the target_population_size. Selection will reduce this again in the next generation
+//! As crossover adds offspring (with age zero) it is also the responsibility of the crossover to
+//! increment the age of the parents. This is done because the definition of "offspring" is "age
+//! zero". So this should be done in-sync and is therefore not a generational loop concern of Evolve.
+//!
+//! Normally the crossover adds children to the population, thus increasing the population_size
+//! above the target_population_size. Selection will reduce this again in the next generation.
 mod clone;
 mod multi_gene;
 mod multi_point;
@@ -79,7 +83,9 @@ pub type CrossoverAllele<C> = <<C as Crossover>::Genotype as Genotype>::Allele;
 ///         let selected_population_size =
 ///             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
 ///
-///         // Important!!! Append offspring as recycled clones from parents (will crossover later)
+///         // Important!!! Increment age, as the old offspring now become parents
+///         state.population.increment_age();
+///         // Important!!! Append offspring as recycled clones from parents (will reset age and crossover later)
 ///         // Use population's methods for safe chromosome recycling
 ///         state.population.extend_from_within(selected_population_size);
 ///
@@ -97,7 +103,7 @@ pub type CrossoverAllele<C> = <<C as Crossover>::Genotype as Genotype>::Allele;
 ///                 std::mem::swap(&mut offspring1.genes[even_index], &mut offspring2.genes[even_index]);
 ///                 // MultiRangeGenotype specific methods are available if needed
 ///             }
-///             // Important!!! Remember to reset the chromosome metadata after manipulation
+///             // Important!!! Remember to reset the chromosome metadata after manipulation (also resets age)
 ///             offspring1.reset_metadata(genotype.genes_hashing);
 ///             offspring2.reset_metadata(genotype.genes_hashing);
 ///         }
@@ -118,6 +124,15 @@ pub type CrossoverAllele<C> = <<C as Crossover>::Genotype as Genotype>::Allele;
 pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: EvolveGenotype;
 
+    fn before(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &mut EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+        // Default no-op implementation
+    }
+
     fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
         &mut self,
         genotype: &Self::Genotype,
@@ -126,6 +141,16 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
         reporter: &mut SR,
         rng: &mut R,
     );
+
+    /// Optionally update population cardinality after crossover, disabled by default
+    fn after(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &mut EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+        // state.update_population_cardinality(genotype, config);
+    }
 
     /// to guard against invalid Crossover strategies which break the internal consistency
     /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues

@@ -89,6 +89,15 @@ pub type MutateAllele<M> = <<M as Mutate>::Genotype as Genotype>::Allele;
 pub trait Mutate: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: EvolveGenotype;
 
+    fn before(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &mut EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+        // Default no-op implementation
+    }
+
     fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
         &mut self,
         genotype: &Self::Genotype,
@@ -97,6 +106,16 @@ pub trait Mutate: Clone + Send + Sync + std::fmt::Debug {
         reporter: &mut SR,
         rng: &mut R,
     );
+
+    /// Optionally update population cardinality after crossover, disabled by default
+    fn after(
+        &mut self,
+        _genotype: &Self::Genotype,
+        _state: &mut EvolveState<Self::Genotype>,
+        _config: &EvolveConfig,
+    ) {
+        // state.update_population_cardinality(genotype, config);
+    }
 }
 
 #[derive(Clone, Debug)]

@@ -33,6 +33,7 @@ impl<G: EvolveGenotype> Crossover for Rejuvenate<G> {
         let dropped_population_size = (existing_population_size - selected_population_size).max(0);
 
         state.population.truncate(selected_population_size);
+        state.population.increment_age();
         state.population.extend_from_within(dropped_population_size);
 
         state

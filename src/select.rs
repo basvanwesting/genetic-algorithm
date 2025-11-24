@@ -98,6 +98,24 @@ pub type SelectAllele<S> = <<S as Select>::Genotype as Genotype>::Allele;
 pub trait Select: Clone + Send + Sync + std::fmt::Debug {
     type Genotype: EvolveGenotype;
 
+    /// filter by age, is basic first selection step, always applied as before hook
+    fn before(
+        &mut self,
+        _genotype: &Self::Genotype,
+        state: &mut EvolveState<Self::Genotype>,
+        config: &EvolveConfig,
+    ) {
+        if let Some(max_chromosome_age) = config.max_chromosome_age {
+            // TODO: use something like partition_in_place when stable
+            for i in (0..state.population.chromosomes.len()).rev() {
+                if state.population.chromosomes[i].age() >= max_chromosome_age {
+                    let chromosome = state.population.chromosomes.swap_remove(i);
+                    state.population.drop_chromosome(chromosome);
+                }
+            }
+        }
+    }
+
     fn call<R: Rng, SR: StrategyReporter<Genotype = Self::Genotype>>(
         &mut self,
         genotype: &Self::Genotype,
@@ -106,6 +124,17 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         reporter: &mut SR,
         rng: &mut R,
     );
+
+    /// Optionally update population cardinality after crossover, enabled by default as the main
+    /// interest in population cardinality is after the selection phase
+    fn after(
+        &mut self,
+        genotype: &Self::Genotype,
+        state: &mut EvolveState<Self::Genotype>,
+        config: &EvolveConfig,
+    ) {
+        state.update_population_cardinality(genotype, config);
+    }
 
     fn extract_elite_chromosomes(
         &self,

@@ -107,16 +107,22 @@ pub enum EvolveVariant {
 /// * [reporter](crate::strategy::reporter) on_start hook
 /// * loop while not finished
 ///   * increment generation
-///   * (before selection) filter by age
 ///   * [select](crate::select)
-///   * (after selection) update population cardinality
+///     * before hook: filter by age
+///     * call implementation
+///     * after hook: update population cardinality (enabled)
 ///   * [reporter](crate::strategy::reporter) on_selection_complete hook
 ///   * [extension](crate::extension) after_selection_complete hook
-///   * (before crossover) increment age
 ///   * [crossover](crate::crossover)
+///     * before hook: no-op
+///     * call implementation (includes age increment internally)
+///     * after hook: update population cardinality (disabled)
 ///   * [reporter](crate::strategy::reporter) on_crossover_complete hook
 ///   * [extension](crate::extension) after_crossover_complete hook
 ///   * [mutate](crate::mutate)
+///     * before hook: no-op
+///     * call implementation (only on offspring internally)
+///     * after hook: update population cardinality (disabled)
 ///   * [reporter](crate::strategy::reporter) on_mutation_complete hook
 ///   * [extension](crate::extension) after_mutation_complete hook
 ///   * [fitness](crate::fitness) calculation
@@ -276,7 +282,10 @@ impl<
         while !self.is_finished() {
             self.state.increment_generation();
 
-            self.state.before_selection(&self.genotype, &self.config);
+            // select
+            self.plugins
+                .select
+                .before(&self.genotype, &mut self.state, &self.config);
             self.plugins.select.call(
                 &self.genotype,
                 &mut self.state,
@@ -284,7 +293,9 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
-            self.state.after_selection(&self.genotype, &self.config);
+            self.plugins
+                .select
+                .after(&self.genotype, &mut self.state, &self.config);
             self.reporter
                 .on_selection_complete(&self.genotype, &self.state, &self.config);
             self.plugins.extension.after_selection_complete(
@@ -295,7 +306,10 @@ impl<
                 &mut self.rng,
             );
 
-            self.state.before_crossover(&self.genotype, &self.config);
+            // crossover
+            self.plugins
+                .crossover
+                .before(&self.genotype, &mut self.state, &self.config);
             self.plugins.crossover.call(
                 &self.genotype,
                 &mut self.state,
@@ -303,6 +317,9 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
+            self.plugins
+                .crossover
+                .after(&self.genotype, &mut self.state, &self.config);
             self.reporter
                 .on_crossover_complete(&self.genotype, &self.state, &self.config);
             self.plugins.extension.after_crossover_complete(
@@ -313,6 +330,10 @@ impl<
                 &mut self.rng,
             );
 
+            // mutate
+            self.plugins
+                .mutate
+                .before(&self.genotype, &mut self.state, &self.config);
             self.plugins.mutate.call(
                 &self.genotype,
                 &mut self.state,
@@ -320,6 +341,9 @@ impl<
                 &mut self.reporter,
                 &mut self.rng,
             );
+            self.plugins
+                .mutate
+                .after(&self.genotype, &mut self.state, &self.config);
             self.reporter
                 .on_mutation_complete(&self.genotype, &self.state, &self.config);
             self.plugins.extension.after_mutation_complete(
@@ -330,6 +354,7 @@ impl<
                 &mut self.rng,
             );
 
+            // fitness
             self.fitness.call_for_state_population(
                 &self.genotype,
                 &mut self.state,
@@ -342,6 +367,7 @@ impl<
                 &mut self.reporter,
             );
 
+            // end of generation
             self.reporter
                 .on_generation_complete(&self.genotype, &self.state, &self.config);
             self.plugins.extension.after_generation_complete(
@@ -595,17 +621,6 @@ impl<G: EvolveGenotype> StrategyState<G> for EvolveState<G> {
 }
 
 impl<G: EvolveGenotype> EvolveState<G> {
-    fn before_selection(&mut self, genotype: &G, config: &EvolveConfig) {
-        self.population_filter_age(genotype, config);
-    }
-
-    fn after_selection(&mut self, genotype: &G, config: &EvolveConfig) {
-        self.update_population_cardinality(genotype, config);
-    }
-
-    fn before_crossover(&mut self, _genotype: &G, _config: &EvolveConfig) {
-        self.population.increment_age();
-    }
     fn update_best_chromosome_and_report<SR: StrategyReporter<Genotype = G>>(
         &mut self,
         genotype: &G,
@@ -654,19 +669,7 @@ impl<G: EvolveGenotype> EvolveState<G> {
             }
         }
     }
-
-    fn population_filter_age(&mut self, _genotype: &G, config: &EvolveConfig) {
-        if let Some(max_chromosome_age) = config.max_chromosome_age {
-            // TODO: use something like partition_in_place when stable
-            for i in (0..self.population.chromosomes.len()).rev() {
-                if self.population.chromosomes[i].age() >= max_chromosome_age {
-                    let chromosome = self.population.chromosomes.swap_remove(i);
-                    self.population.drop_chromosome(chromosome);
-                }
-            }
-        }
-    }
-    fn update_population_cardinality(&mut self, genotype: &G, _config: &EvolveConfig) {
+    pub fn update_population_cardinality(&mut self, genotype: &G, _config: &EvolveConfig) {
         self.population_cardinality = if genotype.genes_hashing() {
             self.population.genes_cardinality()
         } else {
