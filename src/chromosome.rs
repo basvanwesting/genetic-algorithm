@@ -65,6 +65,7 @@ impl<T: Allele> Chromosome<T> {
         self.age = age
     }
 
+    /// Returns true if age is 0 (newly created by crossover or initialization).
     pub fn is_offspring(&self) -> bool {
         self.age == 0
     }
@@ -89,6 +90,8 @@ impl<T: Allele> Chromosome<T> {
         &self.genes
     }
 
+    /// Reset age to 0, clear fitness score, and recalculate genes hash.
+    /// Must be called after any direct gene manipulation (crossover, mutation).
     pub fn reset_metadata(&mut self, genes_hashing: bool) {
         self.age = 0;
         self.fitness_score = None;
@@ -97,12 +100,14 @@ impl<T: Allele> Chromosome<T> {
         }
     }
 
+    /// Copy age, fitness_score, and genes_hash from another chromosome.
     pub fn copy_metadata(&mut self, other: &Self) {
         self.age = other.age;
         self.fitness_score = other.fitness_score;
         self.genes_hash = other.genes_hash;
     }
 
+    /// Copy genes and metadata from source. Used for chromosome recycling.
     pub fn copy_from(&mut self, source: &Self) {
         // For recycled chromosomes, this is just memcpy with known size
         self.genes.clone_from(&source.genes);

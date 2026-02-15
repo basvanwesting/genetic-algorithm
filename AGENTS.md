@@ -46,12 +46,31 @@ Return `None` from `calculate_for_chromosome` to mark a chromosome as invalid
 | Multiple permutation groups | `MultiUniqueGenotype<T>` | Multi-group assignment |
 | Per-gene numeric ranges | `MultiRangeGenotype<T>` | Heterogeneous optimization |
 
+**When to use Multi\* variants:** Use `Multi*` when each gene needs different
+settings (different allele lists, different ranges, different mutation types).
+Use the regular variant when all genes share the same configuration.
+
+### Gene Types in Fitness Functions
+
+When implementing `calculate_for_chromosome`, access genes via `chromosome.genes`:
+
+| Genotype | `chromosome.genes` type | Notes |
+|---|---|---|
+| `BinaryGenotype` | `Vec<bool>` | |
+| `ListGenotype<T>` | `Vec<T>` | Default T = usize |
+| `UniqueGenotype<T>` | `Vec<T>` | Default T = usize, all values unique |
+| `RangeGenotype<T>` | `Vec<T>` | Default T = f32 |
+| `MultiListGenotype<T>` | `Vec<T>` | Default T = usize |
+| `MultiUniqueGenotype<T>` | `Vec<T>` | Default T = usize, unique within each group |
+| `MultiRangeGenotype<T>` | `Vec<T>` | Default T = f32, each gene has its own range |
+
 ### Which Strategy?
 
 | Situation | Strategy | Why |
 |---|---|---|
 | General optimization | `Evolve` | Full GA with crossover + mutation |
-| Permutation problems | `HillClimb` | Crossover is inefficient for permutations |
+| Single permutation (`UniqueGenotype`) | `HillClimb` | Standard crossovers swap genes between parents, breaking the uniqueness invariant. HillClimb uses neighbor generation instead. |
+| Multi-group permutation (`MultiUniqueGenotype`) | `Evolve` | Point-based crossovers work at group boundaries without breaking within-group uniqueness. |
 | Convex search space | `HillClimb` | Local search suffices |
 | Small search space (<1M) | `Permutate` | Exhaustive, 100% guarantee |
 
@@ -331,6 +350,11 @@ impl Fitness for MyFitness {
 
 The fitness struct must derive `Clone` and `Debug`.
 
+**Why `&mut self`?** The `calculate_for_chromosome` method takes `&mut self` so
+you can pre-allocate buffers and reuse them across evaluations for performance.
+For simple fitness functions, just ignore the mutability. When using
+`par_fitness(true)`, each thread gets its own clone via `ThreadLocal`.
+
 ## Copy-Paste Templates
 
 ### Binary Optimization (Knapsack-style)
@@ -501,6 +525,91 @@ fn main() {
     println!("best: {:?}, score: {}", best_genes, best_fitness_score);
 }
 ```
+
+### Heterogeneous Optimization (MultiRangeGenotype)
+
+```rust
+use genetic_algorithm::strategy::evolve::prelude::*;
+
+// Optimize 4 parameters with different ranges and mutation behaviors:
+//   Gene 0: boolean flag (0 or 1)
+//   Gene 1: algorithm choice (0, 1, 2, 3, or 4)
+//   Gene 2: learning rate (0.001 to 1.0, continuous)
+//   Gene 3: batch size (16 to 512, discrete integer steps)
+#[derive(Clone, Debug)]
+struct HyperparamFitness { precision: f32 }
+impl Fitness for HyperparamFitness {
+    type Genotype = MultiRangeGenotype<f32>;
+    fn calculate_for_chromosome(
+        &mut self,
+        chromosome: &FitnessChromosome<Self>,
+        _genotype: &FitnessGenotype<Self>,
+    ) -> Option<FitnessValue> {
+        let flag = chromosome.genes[0];         // 0.0 or 1.0 (Discrete)
+        let algorithm = chromosome.genes[1];    // 0.0..4.0 (Discrete)
+        let learning_rate = chromosome.genes[2]; // 0.001..1.0 (continuous)
+        let batch_size = chromosome.genes[3];   // 16.0..512.0 (Discrete)
+        // ... your evaluation logic ...
+        let score = learning_rate * flag + algorithm * 0.1 - batch_size * 0.001;
+        Some((score / self.precision) as FitnessValue)
+    }
+}
+
+fn main() {
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![
+            0.0..=1.0,     // Gene 0: boolean
+            0.0..=4.0,     // Gene 1: algorithm choice
+            0.001..=1.0,   // Gene 2: learning rate
+            16.0..=512.0,  // Gene 3: batch size
+        ])
+        .with_mutation_types(vec![
+            MutationType::Discrete,                             // boolean: 0 or 1
+            MutationType::Discrete,                             // enum: 0,1,2,3,4
+            MutationType::StepScaled(vec![0.1, 0.01, 0.001]),  // continuous refinement
+            MutationType::Discrete,                             // integer steps
+        ])
+        .build()
+        .unwrap();
+
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(100)
+        .with_max_stale_generations(1000)
+        .with_fitness(HyperparamFitness { precision: 1e-5 })
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_mutate(MutateSingleGene::new(0.2))
+        .call()
+        .unwrap();
+
+    let (best_genes, best_fitness_score) = evolve.best_genes_and_fitness_score().unwrap();
+    println!("genes: {:?}, score: {}", best_genes, best_fitness_score);
+}
+```
+
+## Troubleshooting
+
+**Fitness not improving?**
+- Increase `target_population_size` (more diversity)
+- Increase `mutation_probability` (more exploration)
+- Try `MutateSingleGeneDynamic` or `MutateMultiGeneDynamic` (auto-adjusts)
+- For `RangeGenotype`/`MultiRangeGenotype`: use `MutationType::StepScaled` for
+  progressive refinement instead of `MutationType::Random`
+- Add an extension like `ExtensionMassGenesis` or `ExtensionMassDegeneration` to
+  escape local optima when diversity drops
+
+**Runtime too slow?**
+- Use `.with_par_fitness(true)` for expensive fitness calculations
+- Use `.with_fitness_cache(size)` if many chromosomes share the same genes
+- Reduce `target_population_size` if fitness is cheap but framework overhead is high
+- For `HillClimb::SteepestAscent`: the neighbourhood can be very large, consider
+  `Stochastic` variant instead
+
+**Getting `None` as best fitness?**
+- All chromosomes returned `None` from `calculate_for_chromosome`
+- Check your fitness function's validity constraints — they may be too strict
+- Increase population size so some valid solutions appear in the initial population
 
 ## Gotchas
 

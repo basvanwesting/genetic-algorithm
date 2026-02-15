@@ -53,7 +53,7 @@ pub type DefaultAllele = usize;
 ///         Item(26, 352),
 ///         Item(20, 458),
 ///     ])
-///     .with_genes_hashing(true) // optional, defaults to false
+///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();
@@ -74,7 +74,7 @@ pub type DefaultAllele = usize;
 ///         Item(26, 352),
 ///         Item(20, 458),
 ///     ])
-///     .with_genes_hashing(true) // optional, defaults to false
+///     .with_genes_hashing(true) // optional, defaults to true
 ///     .with_chromosome_recycling(true) // optional, defaults to true
 ///     .build()
 ///     .unwrap();

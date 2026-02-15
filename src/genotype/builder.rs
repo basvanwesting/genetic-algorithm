@@ -43,38 +43,51 @@ impl<G: Genotype> Builder<G> {
         Self::default()
     }
 
+    /// Set the number of genes per chromosome. Required for Binary, List, Unique, Range.
+    /// Automatically derived from allele_lists/allele_ranges length for Multi* genotypes.
     pub fn with_genes_size(mut self, genes_size: usize) -> Self {
         self.genes_size = Some(genes_size);
         self
     }
 
+    /// Set a shared allele list for all genes. Used by List and Unique genotypes.
     pub fn with_allele_list(mut self, allele_list: Vec<G::Allele>) -> Self {
         self.allele_list = Some(allele_list);
         self
     }
 
+    /// Set per-gene allele lists. Used by MultiList and MultiUnique genotypes.
+    /// Automatically sets genes_size to the number of lists.
     pub fn with_allele_lists(mut self, allele_lists: Vec<Vec<G::Allele>>) -> Self {
         self.genes_size = Some(allele_lists.len());
         self.allele_lists = Some(allele_lists);
         self
     }
 
+    /// Set a shared allele range for all genes. Used by RangeGenotype.
+    /// Example: `0.0..=1.0` for f32 values between 0 and 1.
     pub fn with_allele_range(mut self, allele_range: RangeInclusive<G::Allele>) -> Self {
         self.allele_range = Some(allele_range);
         self
     }
 
+    /// Set per-gene allele ranges. Used by MultiRangeGenotype.
+    /// Automatically sets genes_size to the number of ranges.
     pub fn with_allele_ranges(mut self, allele_ranges: Vec<RangeInclusive<G::Allele>>) -> Self {
         self.genes_size = Some(allele_ranges.len());
         self.allele_ranges = Some(allele_ranges);
         self
     }
 
+    /// Set a shared mutation type for all genes. Used by RangeGenotype.
+    /// See [MutationType] for options (Random, Range, Step, StepScaled, etc.).
     pub fn with_mutation_type(mut self, mutation_type: MutationType<G::Allele>) -> Self {
         self.mutation_type = Some(mutation_type);
         self
     }
 
+    /// Set per-gene mutation types. Used by MultiRangeGenotype for heterogeneous behavior.
+    /// Length must match genes_size. See [MutationType] for options.
     pub fn with_mutation_types(mut self, mutation_types: Vec<MutationType<G::Allele>>) -> Self {
         self.mutation_types = Some(mutation_types);
         self
@@ -144,16 +157,22 @@ impl<G: Genotype> Builder<G> {
         self
     }
 
+    /// Set initial seed genes for the starting population. Chromosomes cycle through
+    /// this list instead of random initialization. Optional.
     pub fn with_seed_genes_list(mut self, seed_genes_list: Vec<Genes<G::Allele>>) -> Self {
         self.seed_genes_list = seed_genes_list;
         self
     }
 
+    /// Enable/disable gene hashing on chromosomes. Default: true.
+    /// Required for fitness cache and accurate population cardinality estimation.
     pub fn with_genes_hashing(mut self, genes_hashing: bool) -> Self {
         self.genes_hashing = genes_hashing;
         self
     }
 
+    /// Enable/disable chromosome memory recycling. Default: true.
+    /// Reuses allocated memory instead of reallocating. Beneficial for large genes_size.
     pub fn with_chromosome_recycling(mut self, chromosome_recycling: bool) -> Self {
         self.chromosome_recycling = chromosome_recycling;
         self

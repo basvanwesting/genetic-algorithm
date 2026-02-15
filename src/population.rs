@@ -158,6 +158,8 @@ impl<T: Allele> Population<T> {
     //
     // Returns one less than total size with known fitness due to implementation constraints.
     // Does not care about uniqueness of the genes_hash.
+    /// Return indices of the best chromosomes by fitness, up to `amount`.
+    /// Does not require genes_hashing. Used internally for elitism.
     pub fn best_chromosome_indices(
         &self,
         amount: usize,
@@ -188,8 +190,8 @@ impl<T: Allele> Population<T> {
         }
     }
 
-    // Only works when genes_hash is stored on chromosome, as this is the uniqueness key.
-    // Takes the first index occurence of a genes_hash. Returns indices in ascending order
+    /// Return indices of unique chromosomes (by genes_hash). Requires genes_hashing enabled.
+    /// Takes the first occurrence of each unique hash. Returns indices in ascending order.
     pub fn unique_chromosome_indices(&self) -> Vec<usize> {
         let mut data: HashMap<GenesHash, usize> = HashMap::new();
         self.chromosomes
@@ -256,6 +258,7 @@ impl<T: Allele> Population<T> {
     pub fn fitness_score_stddev(&self) -> f32 {
         stats::stddev(self.chromosomes.iter().filter_map(|c| c.fitness_score())) as f32
     }
+    /// Estimate the number of distinct fitness scores in the population using HyperLogLog.
     pub fn fitness_score_cardinality(&self) -> Option<usize> {
         let mut values = self
             .chromosomes
@@ -270,6 +273,8 @@ impl<T: Allele> Population<T> {
             None
         }
     }
+    /// Estimate the number of distinct chromosomes (by genes_hash) using HyperLogLog.
+    /// Requires genes_hashing enabled on the genotype.
     pub fn genes_cardinality(&self) -> Option<usize> {
         let mut values = self
             .chromosomes
