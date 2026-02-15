@@ -47,6 +47,9 @@ impl<G: EvolveGenotype> Crossover for Rejuvenate<G> {
 }
 
 impl<G: EvolveGenotype> Rejuvenate<G> {
+    /// Create a new Rejuvenate crossover strategy. No actual gene exchange occurs; offspring
+    /// are generated with fresh random genes. Useful for maintaining diversity.
+    /// * `selection_rate` - fraction of parents selected for reproduction (0.5-0.8 typical)
     pub fn new(selection_rate: f32) -> Self {
         Self {
             _phantom: PhantomData,

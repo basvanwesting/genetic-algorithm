@@ -1,3 +1,5 @@
+//! Table seating assignment using HillClimb strategy with UniqueGenotype.
+//! Optimizes guest seating based on preference scores between pairs.
 use genetic_algorithm::strategy::hill_climb::prelude::*;
 use std::collections::HashMap;
 use std::collections::HashSet;

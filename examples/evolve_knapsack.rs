@@ -1,3 +1,5 @@
+//! Knapsack problem using Evolve strategy with BinaryGenotype.
+//! Each gene is a boolean: include/exclude an item. Penalty-based fitness for weight constraint.
 use genetic_algorithm::strategy::evolve::prelude::*;
 
 // see https://en.wikipedia.org/wiki/Knapsack_problem

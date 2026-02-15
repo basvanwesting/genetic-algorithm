@@ -21,9 +21,11 @@ use std::cell::RefCell;
 use std::time::Instant;
 use thread_local::ThreadLocal;
 
-/// Use isize for easy handling of scores (ordering, comparing) as floats are tricky in that regard.
+/// The type used for fitness scores. isize (not f64) enables equality checks needed for staleness
+/// detection. For float-based fitness, scale manually: `(score / precision) as FitnessValue`.
 pub type FitnessValue = isize;
 
+/// Whether to maximize or minimize fitness scores. Default is Maximize.
 #[derive(Copy, Clone, Debug)]
 pub enum FitnessOrdering {
     Maximize,

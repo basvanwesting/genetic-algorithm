@@ -1,3 +1,5 @@
+//! Binary optimization with fitness LRU cache.
+//! Demonstrates with_fitness_cache() for expensive fitness calculations.
 use genetic_algorithm::strategy::evolve::prelude::*;
 use std::{thread, time};
 

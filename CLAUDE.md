@@ -47,16 +47,17 @@ This is a Rust genetic algorithm library with three core abstractions:
 ### 1. **Genotype** (Search Space)
 Located in `src/genotype/`, defines the representation of solutions:
 - `BinaryGenotype`: Boolean alleles (Vec<bool>)
-- `BitGenotype`: Bit-packed boolean alleles (more memory efficient)
 - `ListGenotype<T>`: List of values from a fixed set of alleles
 - `UniqueGenotype<T>`: Permutation of unique values
-- `RangeGenotype<T>`: Numeric values within ranges
-- `DynamicRangeGenotype<T>` / `StaticRangeGenotype<T>`: Matrix representations for GPU-friendly operations
+- `RangeGenotype<T>`: Numeric values within a range (default f32)
+- `MultiListGenotype<T>`: Per-gene allele lists
+- `MultiUniqueGenotype<T>`: Multiple unique sets
+- `MultiRangeGenotype<T>`: Per-gene ranges with heterogeneous MutationType support
 
 ### 2. **Fitness** (Search Goal)
 Located in `src/fitness/`, evaluates chromosome quality:
 - Trait `Fitness` with method `calculate_for_chromosome()`
-- Returns `FitnessValue` (f64) to be maximized or minimized
+- Returns `FitnessValue` (isize, not f64! — isize enables equality checks for staleness detection) to be maximized or minimized
 - Can be parallelized with `with_par_fitness()`
 - Cache wrapper available for expensive fitness calculations
 
@@ -92,21 +93,8 @@ Exhaustive search for small spaces with 100% guarantee
 - Benchmarks in `benches/` using criterion
 - Examples serve as both documentation and integration tests
 
-## Dual Module System
-
-The library has two parallel module hierarchies:
-
-### **Centralized** (`src/centralized/`)
-Standard single-machine implementation where chromosomes own their genes directly
-
-### **Distributed** (`src/distributed/`)
-For distributed/parallel computing where chromosomes reference genes stored separately (e.g., in matrices for GPU operations)
-
-Both systems share the same API surface but differ in internal implementation details.
-
 ## Performance Considerations
 
-- Prefer `BitGenotype` over `BinaryGenotype` for large boolean chromosomes
 - Use `with_par_fitness()` for expensive fitness calculations
-- Matrix genotypes enable GPU-friendly memory layout
 - Monitor with reporters to identify bottlenecks (fitness vs framework overhead)
+- Framework overhead is mostly Crossover; practical overhead is mostly Fitness

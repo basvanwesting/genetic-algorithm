@@ -57,6 +57,9 @@ impl<G: EvolveGenotype> Mutate for MultiGeneRange<G> {
 }
 
 impl<G: EvolveGenotype> MultiGeneRange<G> {
+    /// Create a new MultiGeneRange mutation strategy.
+    /// * `number_of_mutations_range` - range of genes mutated per chromosome (e.g. 1..=5)
+    /// * `mutation_probability` - probability of mutation per chromosome (0.05-0.3 typical)
     pub fn new(
         number_of_mutations_range: RangeInclusive<usize>,
         mutation_probability: f32,

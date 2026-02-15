@@ -39,6 +39,22 @@ All multithreading mechanisms are implemented using
 [rayon::iter](https://docs.rs/rayon/latest/rayon/iter/index.html) and
 [std::sync::mpsc](https://doc.rust-lang.org/1.78.0/std/sync/mpsc/index.html).
 
+**Important**: `FitnessValue` is `isize` (not `f64`). This enables equality
+checks for staleness detection. For float-based fitness, scale manually:
+`Some((score / precision) as FitnessValue)`.
+
+### When to use which strategy?
+
+| Situation | Strategy | Why |
+|---|---|---|
+| General optimization | Evolve | Full GA with crossover + mutation |
+| Permutation problems (ordering, assignment) | HillClimb | Crossover is inefficient for permutations |
+| Convex search space, few local optima | HillClimb | Local search suffices |
+| Small search space (<1M combinations) | Permutate | Exhaustive, 100% guarantee |
+
+**AI agents**: see [AGENTS.md](AGENTS.md) for decision matrices, constructor
+parameter reference, copy-paste templates, and gotchas.
+
 ## Documentation
 
 See [docs.rs](https://docs.rs/genetic_algorithm/latest/genetic_algorithm)
@@ -81,8 +97,8 @@ let evolve = Evolve::builder()
     .with_target_population_size(100)                 // evolve with 100 chromosomes
     .with_target_fitness_score(100)                   // goal is 100 times true in the best chromosome
     .with_reporter(EvolveReporterSimple::new(100))    // optional builder step, report every 100 generations
-    .call();
-    .unwrap()
+    .call()
+    .unwrap();
 
 println!("{}", evolve);
 
@@ -232,43 +248,6 @@ debug = 1
 Run with `cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
 
 Find the flamegraph in: `./target/criterion/profile_evolve_binary/profile/flamegraph.svg`
-
-## TODO
-
-## MAYBE
-* Apply precision (to f32/f64) during hashing in order to converge and hit
-  staleness when nearing the required precision level (maybe per scale?)
-* Crossover calls reset_metadata, but sometimes the parens are equal and
-  sometimes when they are not the difference isn't crossed over. In both
-  conditions, you create a child equal to an existing parent. This leads to a
-  cache hit when calculating the fitness again. That is confusing. Extensions
-  can mutate chromosomes which calls reset_metadata (fitness is reset). Now
-  crossover follows and clones parents without a fitness, into new children
-  without fitness, this will lead to a cache miss and a cache hit when
-  calculating the fitness
-* Consider dropping .with_genes_hashing() and always set to true, because it is
-  needed for proper GA functionality regardless the overhead
-* Consider dropping .with_chromosome_recycling() and always set to false
-  (stripping the recycling completely), because it is complicated and risky for
-  custom Crossover implementations and maybe framework overhead simply doesn't
-  matter as much with regards to Fitness overhead
-* Target cardinality range for Mutate Dynamic to avoid constant switching (noisy in reporting events)
-* Add scaling helper function
-* Add simulated annealing strategy
-* Add Roulette selection with and without duplicates (with fitness ordering)
-* Add OrderOne crossover for UniqueGenotype?
-  * Order Crossover (OX): Simple and works well for many permutation problems.
-  * Partially Mapped Crossover (PMX): Preserves more of the parent's structure but is slightly more complex.
-  * Cycle Crossover (CX): Ensures all genes come from one parent, useful for strict preservation of order.
-  * Edge Crossover (EX): Preserves adjacency relationships, suitable for Traveling Salesman Problem or similar.
-* Add WholeArithmetic crossover for RangeGenotype?
-* Add CountTrueWithWork instead of CountTrueWithSleep for better benchmarks?
-* StrategyBuilder, with_par_fitness_threshold, with_permutate_threshold?
-* Add target fitness score to Permutate? Seems illogical, but would be symmetrical. Don't know yet
-* Add negative selection-rate to encode in-place crossover? But do keep the old
-  extend with best-parents with the pre v0.20 selection-rate behaviour which was crucial for evolve_nqueens
-
-## ISSUES
 
 ## ARCHIVE
 * [archive/centralized-gpu-experiment branch](https://github.com/basvanwesting/genetic-algorithm/tree/archive/centralized-gpu-experiment) 

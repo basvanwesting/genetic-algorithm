@@ -1,3 +1,5 @@
+//! Integer range optimization using Evolve strategy with RangeGenotype<i32>.
+//! Demonstrates integer-valued genes with Step mutation type.
 use genetic_algorithm::strategy::evolve::prelude::*;
 
 const GENES_SIZE: usize = 100;

@@ -75,6 +75,11 @@ impl<G: EvolveGenotype> Crossover for MultiPoint<G> {
 }
 
 impl<G: EvolveGenotype> MultiPoint<G> {
+    /// Create a new MultiPoint crossover strategy.
+    /// * `selection_rate` - fraction of parents selected for reproduction (0.5-0.8 typical)
+    /// * `crossover_rate` - probability parent pair crosses over vs cloning (0.5-0.9 typical)
+    /// * `number_of_crossovers` - number of crossover points along the chromosome
+    /// * `allow_duplicates` - allow the same crossover point to be selected twice
     pub fn new(
         selection_rate: f32,
         crossover_rate: f32,

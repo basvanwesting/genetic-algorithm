@@ -1,3 +1,5 @@
+//! Compare Evolve, HillClimb, and Permutate strategies using StrategyBuilder.
+//! Demonstrates the superset builder that supports all three strategies.
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::strategy::prelude::*;
 

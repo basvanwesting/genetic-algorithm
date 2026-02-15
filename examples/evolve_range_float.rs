@@ -1,3 +1,5 @@
+//! Continuous optimization using Evolve strategy with RangeGenotype<f32>.
+//! Demonstrates float-to-isize fitness scaling and MutationType::StepScaled for convergence.
 use genetic_algorithm::strategy::evolve::prelude::*;
 
 const GENES_SIZE: usize = 100;

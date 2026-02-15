@@ -89,6 +89,10 @@ impl<G: EvolveGenotype> Select for Tournament<G> {
 }
 
 impl<G: EvolveGenotype> Tournament<G> {
+    /// Create a new Tournament selection strategy.
+    /// * `replacement_rate` - fraction of population replaced by offspring (0.3-0.7 typical)
+    /// * `elitism_rate` - fraction of best chromosomes preserved across generations (0.01-0.05 typical)
+    /// * `tournament_size` - number of chromosomes competing per tournament (2-8 typical)
     pub fn new(replacement_rate: f32, elitism_rate: f32, tournament_size: usize) -> Self {
         Self {
             _phantom: PhantomData,

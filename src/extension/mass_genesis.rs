@@ -59,6 +59,9 @@ impl<G: EvolveGenotype> Extension for MassGenesis<G> {
 }
 
 impl<G: EvolveGenotype> MassGenesis<G> {
+    /// Create a new MassGenesis extension. Triggers when population diversity drops below threshold.
+    /// Replaces all non-elite chromosomes with fresh random ones.
+    /// * `cardinality_threshold` - trigger when unique chromosomes drop below this count
     pub fn new(cardinality_threshold: usize) -> Self {
         Self {
             _phantom: PhantomData,

@@ -77,6 +77,11 @@ impl<G: EvolveGenotype> Extension for MassDegeneration<G> {
 }
 
 impl<G: EvolveGenotype> MassDegeneration<G> {
+    /// Create a new MassDegeneration extension. Triggers when population diversity drops below threshold.
+    /// Applies rounds of random mutation to non-elite chromosomes.
+    /// * `cardinality_threshold` - trigger when unique chromosomes drop below this count
+    /// * `number_of_rounds` - number of rounds of random mutation applied
+    /// * `elitism_rate` - fraction of elite chromosomes preserved during degeneration
     pub fn new(cardinality_threshold: usize, number_of_rounds: usize, elitism_rate: f32) -> Self {
         Self {
             _phantom: PhantomData,

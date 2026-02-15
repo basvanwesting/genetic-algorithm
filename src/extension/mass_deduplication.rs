@@ -55,6 +55,9 @@ impl<G: EvolveGenotype> Extension for MassDeduplication<G> {
 }
 
 impl<G: EvolveGenotype> MassDeduplication<G> {
+    /// Create a new MassDeduplication extension. Triggers when population diversity drops below threshold.
+    /// Replaces duplicate chromosomes with fresh random ones.
+    /// * `cardinality_threshold` - trigger when unique chromosomes drop below this count
     pub fn new(cardinality_threshold: usize) -> Self {
         Self {
             _phantom: PhantomData,

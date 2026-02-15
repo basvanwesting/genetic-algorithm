@@ -1,3 +1,5 @@
+//! Knapsack problem using Permutate strategy with BinaryGenotype.
+//! Exhaustive search for small problem sizes with 100% optimality guarantee.
 use genetic_algorithm::strategy::permutate::prelude::*;
 
 // see https://en.wikipedia.org/wiki/Knapsack_problem

@@ -78,6 +78,10 @@ impl<G: EvolveGenotype> Extension for MassExtinction<G> {
 }
 
 impl<G: EvolveGenotype> MassExtinction<G> {
+    /// Create a new MassExtinction extension. Triggers when population diversity drops below threshold.
+    /// * `cardinality_threshold` - trigger when unique chromosomes drop below this count
+    /// * `survival_rate` - fraction of population that survives the extinction event
+    /// * `elitism_rate` - fraction of elite chromosomes preserved during extinction
     pub fn new(cardinality_threshold: usize, survival_rate: f32, elitism_rate: f32) -> Self {
         Self {
             _phantom: PhantomData,

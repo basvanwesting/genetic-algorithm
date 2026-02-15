@@ -1,3 +1,5 @@
+//! Infinite Monkey theorem using Evolve strategy with ListGenotype<char>.
+//! Evolves random character strings towards a target using hamming distance fitness.
 use distance::hamming;
 use genetic_algorithm::strategy::evolve::prelude::*;
 

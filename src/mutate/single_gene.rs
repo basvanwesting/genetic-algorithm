@@ -45,6 +45,8 @@ impl<G: EvolveGenotype> Mutate for SingleGene<G> {
 }
 
 impl<G: EvolveGenotype> SingleGene<G> {
+    /// Create a new SingleGene mutation strategy.
+    /// * `mutation_probability` - probability of mutating one gene per chromosome (0.05-0.3 typical)
     pub fn new(mutation_probability: f32) -> Self {
         let mutation_probability_sampler = Bernoulli::new(mutation_probability as f64).unwrap();
         Self {

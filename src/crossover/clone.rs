@@ -44,6 +44,9 @@ impl<G: EvolveGenotype> Crossover for Clone<G> {
 }
 
 impl<G: EvolveGenotype> Clone<G> {
+    /// Create a new Clone crossover strategy. No actual gene exchange occurs; parents are
+    /// cloned as offspring. Use with UniqueGenotype where standard crossover is not possible.
+    /// * `selection_rate` - fraction of parents selected for reproduction (0.5-0.8 typical)
     pub fn new(selection_rate: f32) -> Self {
         Self {
             _phantom: PhantomData,

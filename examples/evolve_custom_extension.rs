@@ -1,3 +1,5 @@
+//! Custom Extension implementation for the Evolve strategy.
+//! Demonstrates how to implement the Extension trait for custom diversity management.
 use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::strategy::evolve::prelude::*;
 use rand::Rng;

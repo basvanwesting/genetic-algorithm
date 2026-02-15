@@ -75,6 +75,11 @@ impl<G: EvolveGenotype> Crossover for MultiGene<G> {
 }
 
 impl<G: EvolveGenotype> MultiGene<G> {
+    /// Create a new MultiGene crossover strategy.
+    /// * `selection_rate` - fraction of parents selected for reproduction (0.5-0.8 typical)
+    /// * `crossover_rate` - probability parent pair crosses over vs cloning (0.5-0.9 typical)
+    /// * `number_of_crossovers` - number of genes to exchange between parents
+    /// * `allow_duplicates` - allow the same gene index to be selected twice
     pub fn new(
         selection_rate: f32,
         crossover_rate: f32,

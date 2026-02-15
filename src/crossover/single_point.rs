@@ -66,6 +66,9 @@ impl<G: EvolveGenotype> Crossover for SinglePoint<G> {
 }
 
 impl<G: EvolveGenotype> SinglePoint<G> {
+    /// Create a new SinglePoint crossover strategy.
+    /// * `selection_rate` - fraction of parents selected for reproduction (0.5-0.8 typical)
+    /// * `crossover_rate` - probability parent pair crosses over vs cloning (0.5-0.9 typical)
     pub fn new(selection_rate: f32, crossover_rate: f32) -> Self {
         let crossover_sampler = Bernoulli::new(crossover_rate as f64).unwrap();
         Self {

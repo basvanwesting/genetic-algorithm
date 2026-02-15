@@ -79,6 +79,10 @@ impl<G: EvolveGenotype> Mutate for SingleGeneDynamic<G> {
 }
 
 impl<G: EvolveGenotype> SingleGeneDynamic<G> {
+    /// Create a new SingleGeneDynamic mutation strategy. Auto-adjusts mutation probability
+    /// to maintain target population diversity (cardinality).
+    /// * `mutation_probability_step` - step size for probability adjustment each generation
+    /// * `target_cardinality` - target number of unique chromosomes in the population
     pub fn new(mutation_probability_step: f32, target_cardinality: usize) -> Self {
         Self {
             _phantom: PhantomData,

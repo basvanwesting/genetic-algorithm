@@ -85,6 +85,9 @@ impl<G: EvolveGenotype> Select for Elite<G> {
 }
 
 impl<G: EvolveGenotype> Elite<G> {
+    /// Create a new Elite selection strategy.
+    /// * `replacement_rate` - fraction of population replaced by offspring (0.3-0.7 typical)
+    /// * `elitism_rate` - fraction of best chromosomes preserved across generations (0.01-0.05 typical)
     pub fn new(replacement_rate: f32, elitism_rate: f32) -> Self {
         Self {
             _phantom: PhantomData,

@@ -54,6 +54,9 @@ impl<G: EvolveGenotype> Mutate for MultiGene<G> {
 }
 
 impl<G: EvolveGenotype> MultiGene<G> {
+    /// Create a new MultiGene mutation strategy.
+    /// * `number_of_mutations` - max genes mutated per chromosome (sampled uniformly from 1..=n)
+    /// * `mutation_probability` - probability of mutation per chromosome (0.05-0.3 typical)
     pub fn new(number_of_mutations: usize, mutation_probability: f32) -> Self {
         let number_of_mutations_sampler = Uniform::from(1..=number_of_mutations);
         let mutation_probability_sampler = Bernoulli::new(mutation_probability as f64).unwrap();

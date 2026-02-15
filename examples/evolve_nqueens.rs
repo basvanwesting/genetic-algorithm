@@ -1,3 +1,6 @@
+//! N-Queens puzzle using Evolve strategy with UniqueGenotype.
+//! Uses CrossoverClone (standard crossover is not possible for permutations).
+//! HillClimb is more efficient for this problem type, see hill_climb_nqueens.
 use genetic_algorithm::strategy::evolve::prelude::*;
 
 // see https://en.wikipedia.org/wiki/Eight_queens_puzzle

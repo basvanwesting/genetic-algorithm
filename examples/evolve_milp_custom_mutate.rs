@@ -1,3 +1,5 @@
+//! Mixed-integer linear programming using Evolve with custom Mutate implementation.
+//! Demonstrates how to implement custom mutation logic by implementing the Mutate trait.
 use genetic_algorithm::crossover::Crossover;
 use genetic_algorithm::extension::Extension;
 use genetic_algorithm::mutate::Mutate;
