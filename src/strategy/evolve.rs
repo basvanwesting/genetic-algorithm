@@ -721,7 +721,7 @@ impl<
                 .unwrap()
         {
             Err(TryFromEvolveBuilderError(
-                "The provided Crossover strategy requires crossover_indexes, which the provided EvolveGenotype does not provide",
+                "The provided Crossover strategy requires crossover_indexes, which the provided EvolveGenotype does not provide. For UniqueGenotype use CrossoverClone or CrossoverRejuvenate instead",
             ))
         } else if builder
             .crossover
@@ -735,11 +735,11 @@ impl<
                 .unwrap()
         {
             Err(TryFromEvolveBuilderError(
-                "The provided Crossover strategy requires crossover_points, which the provided EvolveGenotype does not provide",
+                "The provided Crossover strategy requires crossover_points, which the provided EvolveGenotype does not provide. For UniqueGenotype use CrossoverClone or CrossoverRejuvenate instead",
             ))
         } else if builder.target_population_size == 0 {
             Err(TryFromEvolveBuilderError(
-                "Evolve requires a target_population_size > 0",
+                "Evolve requires a target_population_size > 0, e.g. .with_target_population_size(100)",
             ))
         } else if builder.max_stale_generations.is_none()
             && builder.max_generations.is_none()

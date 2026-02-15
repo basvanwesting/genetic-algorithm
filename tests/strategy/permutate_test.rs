@@ -159,7 +159,7 @@ fn call_range_f32_random_invalid() {
     assert_eq!(
         permutate.err(),
         Some(TryFromPermutateBuilderError(
-            "The Genotype's mutation_type does not allow permutation"
+            "The Genotype's mutation_type does not allow permutation. RangeGenotype/MultiRangeGenotype require MutationType::Step, StepScaled, or Discrete for permutation"
         ))
     );
 }

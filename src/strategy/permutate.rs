@@ -434,7 +434,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             .unwrap()
         {
             Err(TryFromPermutateBuilderError(
-                "The Genotype's mutation_type does not allow permutation",
+                "The Genotype's mutation_type does not allow permutation. RangeGenotype/MultiRangeGenotype require MutationType::Step, StepScaled, or Discrete for permutation",
             ))
         } else {
             let genotype = builder.genotype.unwrap();

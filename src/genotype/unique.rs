@@ -23,6 +23,8 @@ pub type DefaultAllele = usize;
 ///
 /// Does not support gene or point crossover. Will panic when tried, but
 /// [EvolveBuilder](crate::strategy::evolve::EvolveBuilder) shouldn't allow this.
+/// Use [CrossoverClone](crate::crossover::CrossoverClone) or
+/// [CrossoverRejuvenate](crate::crossover::CrossoverRejuvenate) instead.
 ///
 /// # Example (usize, default):
 /// ```
