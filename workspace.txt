@@ -8,3 +8,15 @@ why is dedup 30% faster, the iterator is unsorted, so dedup does almost nothing.
                 });
 
 I don't feel comfortable adding dedup because it works as the underlying reason is non-transparant and can change
+
+⏺ From the team discussion, two proposals involved API/breaking changes:
+
+  Gotcha #7: Make target_population_size require explicit setting
+  - Proposal: Change the field from usize (defaulting to 0) to Option<usize> (defaulting to None), forcing users to call .with_target_population_size().
+  - Rejected: Breaking API change for marginal benefit — the builder already catches 0 with a clear error message.
+
+  Gotcha #9: Automate increment_age() in the Evolve loop
+  - Proposal: Move state.population.increment_age() out of individual Crossover implementations and into the Evolve strategy loop (before crossover.call()), so custom crossover impls don't need to remember it.
+  - Rejected: Would double-increment age for existing custom crossover implementations that already call it — a silent behavioral break.
+
+  Both were ruled out as "not worth the breaking change" given the existing validation/documentation already handles them adequately.
