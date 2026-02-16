@@ -345,6 +345,8 @@ let (best, _all_runs) = Evolve::builder()
     .unwrap();
 ```
 
+HillClimb also supports `.call_repeatedly(n)` and `.call_par_repeatedly(n)`.
+
 Both `.call()` and `.build()` return `Result<_, TryFromEvolveBuilderError>`.
 Builder validation catches: missing required fields, incompatible genotype +
 crossover combinations, and missing ending conditions. The error message includes
@@ -368,8 +370,6 @@ an actionable fix suggestion.
 // WRONG: MutateSingleGene(0.2) with 1000+ float genes = DIVERSITY COLLAPSE
 // FIX:   Use MutateMultiGene with higher mutation count, see Troubleshooting
 ```
-
-HillClimb also supports `.call_repeatedly(n)` and `.call_par_repeatedly(n)`.
 
 ## Retrieving Results
 
