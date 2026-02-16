@@ -1,5 +1,8 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
+use super::{
+    EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype,
+    SupportsGeneCrossover, SupportsPointCrossover,
+};
 use crate::allele::RangeAllele;
 use crate::chromosome::{Chromosome, Genes};
 use crate::population::Population;
@@ -461,7 +464,8 @@ where
     }
 }
 
-impl<T: RangeAllele> EvolveGenotype for MultiRange<T>
+impl<T: RangeAllele> EvolveGenotype for MultiRange<T> where Uniform<T>: Send + Sync {}
+impl<T: RangeAllele> SupportsGeneCrossover for MultiRange<T>
 where
     Uniform<T>: Send + Sync,
 {
@@ -493,6 +497,11 @@ where
         mother.reset_metadata(self.genes_hashing);
         father.reset_metadata(self.genes_hashing);
     }
+}
+impl<T: RangeAllele> SupportsPointCrossover for MultiRange<T>
+where
+    Uniform<T>: Send + Sync,
+{
     fn crossover_chromosome_points<R: Rng>(
         &self,
         number_of_crossovers: usize,
@@ -535,13 +544,6 @@ where
         }
         mother.reset_metadata(self.genes_hashing);
         father.reset_metadata(self.genes_hashing);
-    }
-
-    fn has_crossover_indexes(&self) -> bool {
-        true
-    }
-    fn has_crossover_points(&self) -> bool {
-        true
     }
 }
 impl<T: RangeAllele> HillClimbGenotype for MultiRange<T>

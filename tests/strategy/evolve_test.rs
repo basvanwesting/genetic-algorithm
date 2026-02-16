@@ -30,59 +30,6 @@ fn build_invalid_missing_ending_condition() {
 }
 
 #[test]
-fn build_invalid_require_crossover_indexes() {
-    let genotype = UniqueGenotype::builder()
-        .with_allele_list((0..10).collect())
-        .build()
-        .unwrap();
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        // .with_extension(ExtensionNoop::new())
-        .with_reporter(StrategyReporterNoop::new())
-        .build();
-
-    assert!(evolve.is_err());
-    assert_eq!(
-        evolve.err(),
-        Some(TryFromEvolveBuilderError(
-            "The provided Crossover strategy requires crossover_indexes, which the provided EvolveGenotype does not provide. For UniqueGenotype use CrossoverClone or CrossoverRejuvenate instead"
-        ))
-    );
-}
-#[test]
-fn build_invalid_require_crossover_points() {
-    let genotype = UniqueGenotype::builder()
-        .with_allele_list((0..10).collect())
-        .build()
-        .unwrap();
-    let evolve = Evolve::builder()
-        .with_genotype(genotype)
-        .with_target_population_size(100)
-        .with_max_stale_generations(20)
-        .with_mutate(MutateSingleGene::new(0.1))
-        .with_fitness(SumGenes::new())
-        .with_crossover(CrossoverSinglePoint::new(0.7, 0.8))
-        .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_extension(ExtensionNoop::new())
-        // .with_reporter(StrategyReporterNoop::new())
-        .build();
-
-    assert!(evolve.is_err());
-    assert_eq!(
-        evolve.err(),
-        Some(TryFromEvolveBuilderError(
-            "The provided Crossover strategy requires crossover_points, which the provided EvolveGenotype does not provide. For UniqueGenotype use CrossoverClone or CrossoverRejuvenate instead"
-        ))
-    );
-}
-
-#[test]
 fn call_binary_max_stale_generations_maximize() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)

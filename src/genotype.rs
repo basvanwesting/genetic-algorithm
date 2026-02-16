@@ -155,10 +155,11 @@ pub trait Genotype:
 }
 
 /// Genotype suitable for [Evolve](crate::strategy::evolve::Evolve).
-pub trait EvolveGenotype: Genotype {
-    /// Crossover genes between a pair of chromosomes.
-    /// Choose between allowing duplicates or not (~2x slower).
-    /// panics if there are no valid crossover indexes
+pub trait EvolveGenotype: Genotype {}
+
+/// Genotype that supports gene-index-based crossover (swap individual genes).
+/// Not implemented by [UniqueGenotype] or [MultiUniqueGenotype] (would break uniqueness).
+pub trait SupportsGeneCrossover: Genotype {
     fn crossover_chromosome_genes<R: Rng>(
         &self,
         number_of_crossovers: usize,
@@ -167,9 +168,11 @@ pub trait EvolveGenotype: Genotype {
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     );
-    /// Crossover points between a pair of chromosomes.
-    /// Choose between allowing duplicates or not (not much slower)
-    /// panics if there are no valid crossover points
+}
+
+/// Genotype that supports point-based crossover (swap sections at crossover points).
+/// Not implemented by [UniqueGenotype]. Implemented by [MultiUniqueGenotype].
+pub trait SupportsPointCrossover: Genotype {
     fn crossover_chromosome_points<R: Rng>(
         &self,
         number_of_crossovers: usize,
@@ -178,16 +181,6 @@ pub trait EvolveGenotype: Genotype {
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     );
-    /// to guard against invalid crossover strategies which break the internal consistency
-    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn has_crossover_indexes(&self) -> bool {
-        false
-    }
-    /// to guard against invalid crossover strategies which break the internal consistency
-    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn has_crossover_points(&self) -> bool {
-        false
-    }
 }
 
 /// Genotype suitable for [HillClimb](crate::strategy::hill_climb::HillClimb).

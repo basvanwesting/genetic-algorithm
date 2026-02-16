@@ -310,6 +310,7 @@ impl<
             );
 
             // crossover
+            self.state.population.increment_age();
             self.plugins
                 .crossover
                 .before(&self.genotype, &mut self.state, &self.config);
@@ -712,38 +713,6 @@ impl<
             Err(TryFromEvolveBuilderError(
                 "Evolve requires a Select strategy",
             ))
-        } else if builder
-            .crossover
-            .as_ref()
-            .map(|o| o.require_crossover_indexes())
-            .unwrap()
-            && builder
-                .genotype
-                .as_ref()
-                .map(|o| !o.has_crossover_indexes())
-                .unwrap()
-        {
-            Err(TryFromEvolveBuilderError(
-                "The provided Crossover strategy requires crossover_indexes, which the provided EvolveGenotype does not provide. For UniqueGenotype use CrossoverClone or CrossoverRejuvenate instead",
-            ))
-        } else if builder
-            .crossover
-            .as_ref()
-            .map(|o| o.require_crossover_points())
-            .unwrap()
-            && builder
-                .genotype
-                .as_ref()
-                .map(|o| !o.has_crossover_points())
-                .unwrap()
-        {
-            Err(TryFromEvolveBuilderError(
-                "The provided Crossover strategy requires crossover_points, which the provided EvolveGenotype does not provide. For UniqueGenotype use CrossoverClone or CrossoverRejuvenate instead",
-            ))
-        } else if builder.target_population_size == 0 {
-            Err(TryFromEvolveBuilderError(
-                "Evolve requires a target_population_size > 0, e.g. .with_target_population_size(100)",
-            ))
         } else if builder.max_stale_generations.is_none()
             && builder.max_generations.is_none()
             && builder.target_fitness_score.is_none()
@@ -791,7 +760,7 @@ impl Default for EvolveConfig {
     fn default() -> Self {
         Self {
             variant: Default::default(),
-            target_population_size: 0,
+            target_population_size: 100,
             max_stale_generations: None,
             max_generations: None,
             max_chromosome_age: None,

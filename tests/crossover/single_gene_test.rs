@@ -29,6 +29,7 @@ fn standard_crossover() {
     };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
+    state.population.increment_age();
     CrossoverSingleGene::new(0.5, 1.0).call(
         &genotype,
         &mut state,
@@ -74,6 +75,7 @@ fn zero_crossover_rate() {
     };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
+    state.population.increment_age();
     CrossoverSingleGene::new(0.5, 0.0).call(
         &genotype,
         &mut state,
@@ -119,6 +121,7 @@ fn odd_selection_size() {
     };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
+    state.population.increment_age();
     CrossoverSingleGene::new(0.6, 0.8).call(
         &genotype,
         &mut state,

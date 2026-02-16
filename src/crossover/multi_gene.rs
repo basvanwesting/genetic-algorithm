@@ -1,5 +1,5 @@
 use super::Crossover;
-use crate::genotype::EvolveGenotype;
+use crate::genotype::{EvolveGenotype, SupportsGeneCrossover};
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use itertools::Itertools;
@@ -16,7 +16,7 @@ use std::time::Instant;
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
 /// uniqueness in the children.
 #[derive(Clone, Debug)]
-pub struct MultiGene<G: EvolveGenotype> {
+pub struct MultiGene<G: EvolveGenotype + SupportsGeneCrossover> {
     _phantom: PhantomData<G>,
     pub selection_rate: f32,
     pub crossover_rate: f32,
@@ -24,7 +24,7 @@ pub struct MultiGene<G: EvolveGenotype> {
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
 }
-impl<G: EvolveGenotype> Crossover for MultiGene<G> {
+impl<G: EvolveGenotype + SupportsGeneCrossover> Crossover for MultiGene<G> {
     type Genotype = G;
 
     fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
@@ -39,7 +39,6 @@ impl<G: EvolveGenotype> Crossover for MultiGene<G> {
         let existing_population_size = state.population.chromosomes.len();
         let selected_population_size =
             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
-        state.population.increment_age();
         state
             .population
             .extend_from_within(selected_population_size);
@@ -69,12 +68,9 @@ impl<G: EvolveGenotype> Crossover for MultiGene<G> {
         }
         state.add_duration(StrategyAction::Crossover, now.elapsed());
     }
-    fn require_crossover_indexes(&self) -> bool {
-        true
-    }
 }
 
-impl<G: EvolveGenotype> MultiGene<G> {
+impl<G: EvolveGenotype + SupportsGeneCrossover> MultiGene<G> {
     /// Create a new MultiGene crossover strategy.
     /// * `selection_rate` - fraction of parents selected for reproduction (0.5-0.8 typical)
     /// * `crossover_rate` - probability parent pair crosses over vs cloning (0.5-0.9 typical)

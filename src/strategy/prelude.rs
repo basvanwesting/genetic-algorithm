@@ -20,7 +20,8 @@ pub use crate::fitness::{
 pub use crate::genotype::{
     Allele, BinaryGenotype, EvolveGenotype, Genotype, GenotypeBuilder, ListGenotype,
     MultiListGenotype, MultiRangeGenotype, MultiUniqueGenotype, MutationType, RangeAllele,
-    RangeGenotype, TryFromGenotypeBuilderError, UniqueGenotype,
+    RangeGenotype, SupportsGeneCrossover, SupportsPointCrossover, TryFromGenotypeBuilderError,
+    UniqueGenotype,
 };
 #[doc(no_inline)]
 pub use crate::mutate::{

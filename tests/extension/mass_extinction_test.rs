@@ -31,7 +31,10 @@ fn removes_randomly() {
     state.population_cardinality = population.genes_cardinality();
     state.population = population;
 
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassExtinction::new(3, 0.50, 0.20).after_selection_complete(
@@ -81,7 +84,10 @@ fn never_leaves_less_than_two_no_elite() {
     state.population_cardinality = population.genes_cardinality();
     state.population = population;
 
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassExtinction::new(3, 0.01, 0.0).after_selection_complete(
@@ -126,7 +132,10 @@ fn never_leaves_less_than_two_one_elite() {
     state.population_cardinality = population.genes_cardinality();
     state.population = population;
 
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassExtinction::new(3, 0.01, 0.01).after_selection_complete(

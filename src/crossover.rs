@@ -14,9 +14,10 @@
 //! High values converge faster, but risk losing good solutions. Low values have poor exploration
 //! and risk of premature convergence
 //!
-//! As crossover adds offspring (with age zero) it is also the responsibility of the crossover to
-//! increment the age of the parents. This is done because the definition of "offspring" is "age
-//! zero". So this should be done in-sync and is therefore not a generational loop concern of Evolve.
+//! Age tracking: the evolve loop increments the age of all chromosomes immediately before calling
+//! crossover. Crossover then adds offspring (with age zero) to the population. These two steps are
+//! logically coupled — offspring are "age zero" relative to their parents' incremented age — but
+//! the framework owns the increment so custom crossover implementations cannot forget it.
 //!
 //! Normally the crossover adds children to the population, thus increasing the population_size
 //! above the target_population_size. Selection will reduce this again in the next generation.
@@ -83,8 +84,7 @@ pub type CrossoverAllele<C> = <<C as Crossover>::Genotype as Genotype>::Allele;
 ///         let selected_population_size =
 ///             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
 ///
-///         // Important!!! Increment age, as the old offspring now become parents
-///         state.population.increment_age();
+///         // Note: increment_age is handled by the evolve loop immediately before this call
 ///         // Important!!! Append offspring as recycled clones from parents (will reset age and crossover later)
 ///         // Use population's methods for safe chromosome recycling
 ///         state.population.extend_from_within(selected_population_size);
@@ -150,17 +150,6 @@ pub trait Crossover: Clone + Send + Sync + std::fmt::Debug {
         _config: &EvolveConfig,
     ) {
         // state.update_population_cardinality(genotype, config);
-    }
-
-    /// to guard against invalid Crossover strategies which break the internal consistency
-    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn require_crossover_indexes(&self) -> bool {
-        false
-    }
-    /// to guard against invalid Crossover strategies which break the internal consistency
-    /// of the genes, unique genotypes can't simply exchange genes without gene duplication issues
-    fn require_crossover_points(&self) -> bool {
-        false
     }
 }
 

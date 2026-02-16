@@ -3,7 +3,7 @@
 This file helps AI coding agents use this library correctly. It covers decision
 guidance, API reference, gotchas, and copy-paste templates.
 
-**Read the Gotchas section before writing code.** Gotchas 1, 2, 3, and 7 cause
+**Read the Gotchas section before writing code.** Gotchas 1, 2, and 5 cause
 compilation or runtime failures that are hard to debug after the fact.
 
 ## Quick Start
@@ -84,17 +84,18 @@ When implementing `calculate_for_chromosome`, access genes via `chromosome.genes
 | `BinaryGenotype` | All | `CrossoverUniform` or `CrossoverSinglePoint` |
 | `ListGenotype<T>` | All | `CrossoverUniform` |
 | `MultiListGenotype<T>` | All | `CrossoverUniform` |
-| `UniqueGenotype<T>` | `CrossoverClone`, `CrossoverRejuvenate` ONLY | `CrossoverClone` |
-| `MultiUniqueGenotype<T>` | Point-based + `CrossoverClone`, `CrossoverRejuvenate` (NO gene-based) | `CrossoverSinglePoint` |
+| `UniqueGenotype<T>` | `CrossoverClone`, `CrossoverRejuvenate` ONLY (others are compile errors) | `CrossoverClone` |
+| `MultiUniqueGenotype<T>` | Point-based + `CrossoverClone`, `CrossoverRejuvenate` (gene-based are compile errors) | `CrossoverSinglePoint` |
 | `RangeGenotype<T>` | All | `CrossoverMultiPoint` |
 | `MultiRangeGenotype<T>` | All | `CrossoverSingleGene` |
 
-**WARNING**: `UniqueGenotype` will cause a **runtime panic** with gene-based or
-point-based crossovers. Use `CrossoverClone` (clones parents, relies on mutation
-for diversity) or `CrossoverRejuvenate` (like Clone but optimized for less memory copying).
-`MultiUniqueGenotype` supports point-based crossovers (`CrossoverSinglePoint`,
-`CrossoverMultiPoint`) but panics on gene-based ones (`CrossoverUniform`,
-`CrossoverSingleGene`, `CrossoverMultiGene`).
+**Compile-time safety**: `UniqueGenotype` does not implement `SupportsGeneCrossover`
+or `SupportsPointCrossover`, so incompatible crossovers are **compile errors**.
+Use `CrossoverClone` (clones parents, relies on mutation for diversity) or
+`CrossoverRejuvenate` (like Clone but optimized for less memory copying).
+`MultiUniqueGenotype` implements `SupportsPointCrossover` only, so gene-based
+crossovers (`CrossoverUniform`, `CrossoverSingleGene`, `CrossoverMultiGene`) are
+compile errors.
 
 ### Which Select?
 
@@ -250,7 +251,7 @@ ExtensionMassDeduplication::new(
 Required:
 - `.with_genotype(genotype)` — the search space
 - `.with_fitness(fitness)` — the evaluation function
-- `.with_target_population_size(n)` — number of chromosomes (**defaults to 0, always set this**)
+- `.with_target_population_size(n)` — number of chromosomes (defaults to 100)
 - `.with_select(select)` — parent selection strategy
 - `.with_crossover(crossover)` — how parents combine
 - `.with_mutate(mutate)` — how offspring are varied
@@ -348,21 +349,19 @@ let (best, _all_runs) = Evolve::builder()
 HillClimb also supports `.call_repeatedly(n)` and `.call_par_repeatedly(n)`.
 
 Both `.call()` and `.build()` return `Result<_, TryFromEvolveBuilderError>`.
-Builder validation catches: missing required fields, incompatible genotype +
-crossover combinations, and missing ending conditions. The error message includes
-an actionable fix suggestion.
+Builder validation catches: missing required fields and missing ending conditions.
+Incompatible genotype + crossover combinations are caught at compile time via
+trait bounds (`SupportsGeneCrossover`, `SupportsPointCrossover`). The error
+message includes an actionable fix suggestion.
 
 ### Common mistakes
 
 ```rust
-// WRONG: UniqueGenotype + CrossoverUniform = RUNTIME PANIC
+// WRONG: UniqueGenotype + CrossoverUniform = COMPILE ERROR
 // FIX:   Use CrossoverClone or CrossoverRejuvenate
 
 // WRONG: No ending condition = COMPILE/BUILD ERROR
 // FIX:   Add .with_max_stale_generations(1000)
-
-// WRONG: target_population_size not set (defaults to 0) = SILENT FAILURE
-// FIX:   Add .with_target_population_size(100)
 
 // WRONG: Fitness returns f64 = TYPE ERROR
 // FIX:   Return Some((score / precision) as FitnessValue)
@@ -721,13 +720,10 @@ Combine with `max_stale_generations` to trigger phase transitions automatically
 
 ## Gotchas
 
-1. **UniqueGenotype + standard crossover = runtime panic.** Use `CrossoverClone`. MultiUniqueGenotype supports point-based but not gene-based crossovers.
-2. **FitnessValue is isize.** Scale floats manually: `(score / precision) as FitnessValue`.
-3. **Ending condition required.** Evolve/HillClimb need at least one of: `target_fitness_score`, `max_stale_generations`, `max_generations`.
-4. **Fitness struct must be `Clone + Debug`.**
-5. **RangeGenotype requires a type parameter.** Use turbofish: `RangeGenotype::<f64>::builder()`, `RangeGenotype::<i32>::builder()`.
-6. **Permutate + RangeGenotype** requires `MutationType::Step`, `StepScaled`, or `Discrete`.
-7. **`target_population_size` defaults to 0.** Always set it for Evolve.
-8. **Custom Crossover/Mutate/Extension must call `chromosome.reset_metadata(genotype.genes_hashing)`** after modifying genes directly.
-9. **Custom Crossover must call `state.population.increment_age()`** on existing chromosomes.
-10. **For deterministic tests:** use `.with_rng_seed_from_u64(0)`. Exact results may change between library versions, but deterministic within a version.
+1. **FitnessValue is isize.** Scale floats manually: `(score / precision) as FitnessValue`.
+2. **Ending condition required.** Evolve/HillClimb need at least one of: `target_fitness_score`, `max_stale_generations`, `max_generations`.
+3. **Fitness struct must be `Clone + Debug`.**
+4. **Permutate + RangeGenotype** requires `MutationType::Step`, `StepScaled`, or `Discrete`.
+5. **`target_population_size` defaults to 100.** Override with `.with_target_population_size(n)` if needed.
+6. **Custom Crossover/Mutate/Extension must call `chromosome.reset_metadata(genotype.genes_hashing)`** after modifying genes directly.
+7. **For deterministic tests:** use `.with_rng_seed_from_u64(0)`. Exact results may change between library versions, but deterministic within a version.

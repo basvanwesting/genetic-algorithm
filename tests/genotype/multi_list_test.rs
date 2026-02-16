@@ -1,7 +1,8 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{
-    EvolveGenotype, Genotype, HillClimbGenotype, MultiListGenotype, PermutateGenotype,
+    Genotype, HillClimbGenotype, MultiListGenotype, PermutateGenotype, SupportsGeneCrossover,
+    SupportsPointCrossover,
 };
 
 #[test]

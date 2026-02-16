@@ -28,6 +28,7 @@ fn standard() {
     };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(1);
+    state.population.increment_age();
     CrossoverMultiPoint::new(0.5, 1.0, 3, true).call(
         &genotype,
         &mut state,

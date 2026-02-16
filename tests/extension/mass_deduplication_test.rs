@@ -30,7 +30,10 @@ fn standard() {
     let mut state = EvolveState::new(&genotype);
     state.population_cardinality = population.genes_cardinality();
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDeduplication::new(3).after_selection_complete(
@@ -77,7 +80,10 @@ fn never_leaves_less_than_two() {
     let mut state = EvolveState::new(&genotype);
     state.population_cardinality = population.genes_cardinality();
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDeduplication::new(1).after_selection_complete(
@@ -120,7 +126,10 @@ fn skips_execution_if_no_genes_hash() {
     assert_eq!(population.genes_cardinality(), None);
     state.population_cardinality = Some(2); // hard trigger, because no cardinality if no genes hashes
     state.population = population;
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDeduplication::new(3).after_selection_complete(

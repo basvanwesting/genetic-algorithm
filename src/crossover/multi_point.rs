@@ -1,5 +1,5 @@
 use super::Crossover;
-use crate::genotype::EvolveGenotype;
+use crate::genotype::{EvolveGenotype, SupportsPointCrossover};
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
 use itertools::Itertools;
@@ -16,7 +16,7 @@ use std::time::Instant;
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) as it would not preserve the gene uniqueness in the children.
 /// Allowed for [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as there are valid crossover points between each new set
 #[derive(Clone, Debug)]
-pub struct MultiPoint<G: EvolveGenotype> {
+pub struct MultiPoint<G: EvolveGenotype + SupportsPointCrossover> {
     _phantom: PhantomData<G>,
     pub selection_rate: f32,
     pub crossover_rate: f32,
@@ -24,7 +24,7 @@ pub struct MultiPoint<G: EvolveGenotype> {
     pub number_of_crossovers: usize,
     pub allow_duplicates: bool,
 }
-impl<G: EvolveGenotype> Crossover for MultiPoint<G> {
+impl<G: EvolveGenotype + SupportsPointCrossover> Crossover for MultiPoint<G> {
     type Genotype = G;
 
     fn call<R: Rng, SR: StrategyReporter<Genotype = G>>(
@@ -39,7 +39,6 @@ impl<G: EvolveGenotype> Crossover for MultiPoint<G> {
         let existing_population_size = state.population.chromosomes.len();
         let selected_population_size =
             (existing_population_size as f32 * self.selection_rate).ceil() as usize;
-        state.population.increment_age();
         state
             .population
             .extend_from_within(selected_population_size);
@@ -69,12 +68,9 @@ impl<G: EvolveGenotype> Crossover for MultiPoint<G> {
         }
         state.add_duration(StrategyAction::Crossover, now.elapsed());
     }
-    fn require_crossover_points(&self) -> bool {
-        true
-    }
 }
 
-impl<G: EvolveGenotype> MultiPoint<G> {
+impl<G: EvolveGenotype + SupportsPointCrossover> MultiPoint<G> {
     /// Create a new MultiPoint crossover strategy.
     /// * `selection_rate` - fraction of parents selected for reproduction (0.5-0.8 typical)
     /// * `crossover_rate` - probability parent pair crosses over vs cloning (0.5-0.9 typical)

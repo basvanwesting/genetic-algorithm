@@ -172,28 +172,7 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
     }
 }
 
-impl<T: Allele + Hash> EvolveGenotype for Unique<T> {
-    fn crossover_chromosome_genes<R: Rng>(
-        &self,
-        _number_of_crossovers: usize,
-        _allow_duplicates: bool,
-        _father: &mut Chromosome<Self::Allele>,
-        _mother: &mut Chromosome<Self::Allele>,
-        _rng: &mut R,
-    ) {
-        panic!("UniqueGenotype does not support gene crossover")
-    }
-    fn crossover_chromosome_points<R: Rng>(
-        &self,
-        _number_of_crossovers: usize,
-        _allow_duplicates: bool,
-        _father: &mut Chromosome<Self::Allele>,
-        _mother: &mut Chromosome<Self::Allele>,
-        _rng: &mut R,
-    ) {
-        panic!("UniqueGenotype does not support point crossover")
-    }
-}
+impl<T: Allele + Hash> EvolveGenotype for Unique<T> {}
 impl<T: Allele + Hash> HillClimbGenotype for Unique<T> {
     fn fill_neighbouring_population<R: Rng>(
         &self,

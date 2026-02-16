@@ -32,7 +32,10 @@ fn removes_lesser() {
     state.population_cardinality = population.genes_cardinality();
     state.population = population;
 
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassGenesis::new(3).after_selection_complete(
@@ -79,7 +82,10 @@ fn removes_lesser_no_fitness() {
     state.population_cardinality = population.genes_cardinality();
     state.population = population;
 
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassGenesis::new(3).after_selection_complete(

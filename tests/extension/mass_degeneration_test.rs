@@ -31,7 +31,10 @@ fn degenerates_randomly() {
     state.population_cardinality = population.genes_cardinality();
     state.population = population;
 
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDegeneration::new(3, 2, 0.33).after_selection_complete(
@@ -83,7 +86,10 @@ fn degenerates_randomly_no_elite() {
     let mut state = EvolveState::new(&genotype);
     state.population = population;
     state.population_cardinality = Some(6);
-    let config = EvolveConfig::new();
+    let config = EvolveConfig {
+        target_population_size: 0,
+        ..Default::default()
+    };
     let mut reporter = StrategyReporterNoop::new();
     let mut rng = SmallRng::seed_from_u64(0);
     ExtensionMassDegeneration::new(7, 2, 0.0).after_selection_complete(

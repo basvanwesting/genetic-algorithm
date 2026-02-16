@@ -1,5 +1,8 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
+use super::{
+    EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype,
+    SupportsGeneCrossover, SupportsPointCrossover,
+};
 use crate::chromosome::{Chromosome, Genes};
 use crate::population::Population;
 use itertools::Itertools;
@@ -133,7 +136,8 @@ impl Genotype for Binary {
     }
 }
 
-impl EvolveGenotype for Binary {
+impl EvolveGenotype for Binary {}
+impl SupportsGeneCrossover for Binary {
     fn crossover_chromosome_genes<R: Rng>(
         &self,
         number_of_crossovers: usize,
@@ -162,6 +166,8 @@ impl EvolveGenotype for Binary {
         mother.reset_metadata(self.genes_hashing);
         father.reset_metadata(self.genes_hashing);
     }
+}
+impl SupportsPointCrossover for Binary {
     fn crossover_chromosome_points<R: Rng>(
         &self,
         number_of_crossovers: usize,
@@ -204,13 +210,6 @@ impl EvolveGenotype for Binary {
         }
         mother.reset_metadata(self.genes_hashing);
         father.reset_metadata(self.genes_hashing);
-    }
-
-    fn has_crossover_indexes(&self) -> bool {
-        true
-    }
-    fn has_crossover_points(&self) -> bool {
-        true
     }
 }
 impl HillClimbGenotype for Binary {

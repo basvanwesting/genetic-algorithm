@@ -1,5 +1,8 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
+use super::{
+    EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype,
+    SupportsPointCrossover,
+};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, Genes};
 use crate::population::Population;
@@ -270,17 +273,8 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     }
 }
 
-impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
-    fn crossover_chromosome_genes<R: Rng>(
-        &self,
-        _number_of_crossovers: usize,
-        _allow_duplicates: bool,
-        _father: &mut Chromosome<Self::Allele>,
-        _mother: &mut Chromosome<Self::Allele>,
-        _rng: &mut R,
-    ) {
-        panic!("MultiUniqueGenotype does not support gene crossover")
-    }
+impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {}
+impl<T: Allele + Hash> SupportsPointCrossover for MultiUnique<T> {
     fn crossover_chromosome_points<R: Rng>(
         &self,
         number_of_crossovers: usize,
@@ -327,9 +321,6 @@ impl<T: Allele + Hash> EvolveGenotype for MultiUnique<T> {
         }
         mother.reset_metadata(self.genes_hashing);
         father.reset_metadata(self.genes_hashing);
-    }
-    fn has_crossover_points(&self) -> bool {
-        true
     }
 }
 impl<T: Allele + Hash> HillClimbGenotype for MultiUnique<T> {

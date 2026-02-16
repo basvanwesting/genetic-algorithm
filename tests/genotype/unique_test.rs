@@ -1,8 +1,6 @@
 #[cfg(test)]
 use crate::support::*;
-use genetic_algorithm::genotype::{
-    EvolveGenotype, Genotype, HillClimbGenotype, PermutateGenotype, UniqueGenotype,
-};
+use genetic_algorithm::genotype::{Genotype, HillClimbGenotype, PermutateGenotype, UniqueGenotype};
 
 #[test]
 fn sample_gene_indices() {
@@ -67,34 +65,6 @@ fn mutate_chromosome_genes_without_duplicates() {
         inspect::chromosome(&chromosome),
         vec![3, 2, 1, 4, 7, 8, 5, 6, 9]
     );
-}
-
-#[test]
-#[should_panic]
-fn crossover_chromosome_pair_single_gene() {
-    let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = UniqueGenotype::builder()
-        .with_allele_list(vec![5, 2, 3, 4])
-        .build()
-        .unwrap();
-
-    let mut father = build::chromosome(vec![2, 3, 4, 5]);
-    let mut mother = build::chromosome(vec![5, 4, 3, 2]);
-    genotype.crossover_chromosome_genes(1, true, &mut father, &mut mother, rng);
-}
-
-#[test]
-#[should_panic]
-fn crossover_chromosome_pair_single_point() {
-    let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = UniqueGenotype::builder()
-        .with_allele_list(vec![5, 2, 3, 4])
-        .build()
-        .unwrap();
-
-    let mut father = build::chromosome(vec![2, 3, 4, 5]);
-    let mut mother = build::chromosome(vec![5, 4, 3, 2]);
-    genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
 }
 
 #[test]

@@ -1,7 +1,7 @@
 #[cfg(test)]
 use crate::support::*;
 use genetic_algorithm::genotype::{
-    EvolveGenotype, Genotype, HillClimbGenotype, MultiUniqueGenotype, PermutateGenotype,
+    Genotype, HillClimbGenotype, MultiUniqueGenotype, PermutateGenotype, SupportsPointCrossover,
 };
 
 #[test]
@@ -114,20 +114,6 @@ fn mutate_chromosome_genes_without_duplicates() {
     //     inspect::chromosome(&chromosome),
     //     vec![0, 1, 2, 3, 4, 5, 6, 8, 7, 9, 8, 7, 6, 5, 4, 3, 1, 2]
     // );
-}
-
-#[test]
-#[should_panic]
-fn crossover_chromosome_pair_single_gene() {
-    let rng = &mut SmallRng::seed_from_u64(0);
-    let genotype = MultiUniqueGenotype::builder()
-        .with_allele_lists(vec![vec![0, 1], vec![4, 5, 6, 7], vec![0, 1, 2]])
-        .build()
-        .unwrap();
-
-    let mut father = build::chromosome(vec![0, 1, 4, 5, 6, 7, 0, 1, 2]);
-    let mut mother = build::chromosome(vec![1, 0, 5, 6, 7, 4, 1, 2, 0]);
-    genotype.crossover_chromosome_genes(1, true, &mut father, &mut mother, rng);
 }
 
 #[test]

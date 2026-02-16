@@ -1,5 +1,8 @@
 use super::builder::{Builder, TryFromBuilderError};
-use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
+use super::{
+    EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype,
+    SupportsGeneCrossover, SupportsPointCrossover,
+};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, Genes};
 use crate::population::Population;
@@ -227,7 +230,8 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
     }
 }
 
-impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
+impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {}
+impl<T: Allele + PartialEq + Hash> SupportsGeneCrossover for MultiList<T> {
     fn crossover_chromosome_genes<R: Rng>(
         &self,
         number_of_crossovers: usize,
@@ -256,6 +260,8 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
         mother.reset_metadata(self.genes_hashing);
         father.reset_metadata(self.genes_hashing);
     }
+}
+impl<T: Allele + PartialEq + Hash> SupportsPointCrossover for MultiList<T> {
     fn crossover_chromosome_points<R: Rng>(
         &self,
         number_of_crossovers: usize,
@@ -298,13 +304,6 @@ impl<T: Allele + PartialEq + Hash> EvolveGenotype for MultiList<T> {
         }
         mother.reset_metadata(self.genes_hashing);
         father.reset_metadata(self.genes_hashing);
-    }
-
-    fn has_crossover_indexes(&self) -> bool {
-        true
-    }
-    fn has_crossover_points(&self) -> bool {
-        true
     }
 }
 impl<T: Allele + PartialEq + Hash> HillClimbGenotype for MultiList<T> {
