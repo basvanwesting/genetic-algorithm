@@ -72,6 +72,7 @@
 //! ## Tests
 //!
 //! Use `.with_rng_seed_from_u64(0)` builder step to create deterministic tests results.
+//! Exact results may change between library versions (even minor), but deterministic within a version.
 //!
 //! ## Examples
 //!
@@ -101,6 +102,8 @@
 //!     * See [examples/visualize_evolve_mutation_types](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/visualize_evolve_mutation_types.rs)
 //!     * See [examples/visualize_permutate_mutation_types](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/visualize_permutate_mutation_types.rs)
 //!     * Generates visualizations showing exploration patterns of different mutation strategies
+//! * Heterogeneous Genotype example (bool, options, continues and discrete in one genome)
+//!     * See [examples/evolve_heterogeneous](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_heterogeneous.rs)
 //! * Use superset StrategyBuilder for easier switching in implementation
 //!     * See [examples/explore_strategies](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/explore_strategies.rs)
 //! * Use fitness LRU cache

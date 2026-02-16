@@ -666,4 +666,4 @@ Combine with `max_stale_generations` to trigger phase transitions automatically
 7. **`target_population_size` defaults to 0.** Always set it for Evolve.
 8. **Custom Crossover/Mutate/Extension must call `chromosome.reset_metadata(genotype.genes_hashing)`** after modifying genes directly.
 9. **Custom Crossover must call `state.population.increment_age()`** on existing chromosomes.
-10. **For deterministic tests:** use `.with_rng_seed_from_u64(0)`.
+10. **For deterministic tests:** use `.with_rng_seed_from_u64(0)`. Exact results may change between library versions, but deterministic within a version.

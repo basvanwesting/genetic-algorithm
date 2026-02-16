@@ -4,6 +4,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.26.1] - 2026-02-16
+
+### Added
+* Documentation additions for AI agent (and human) consumption:
+  * Added AGENTS.md as a comprehensive agent guide (decision matrices, API reference, copy-paste templates, gotchas)
+  * Added docstrings to all previously undocumented public constructors and key methods
+  * Fixed several inaccurate docstrings (extensions, crossover, mutate, select)
+  * Improved error messages with actionable fix suggestions
+  * Add example headers
+  * Add a new Heterogeneous Genotype example (`examples/evolve_heterogeneous`)
+
 ## [0.26.0] - 2025-11-24
 
 > [!CAUTION]

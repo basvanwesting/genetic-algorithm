@@ -136,6 +136,8 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
     * See [examples/visualize_evolve_mutation_types](../main/examples/visualize_evolve_mutation_types.rs) for Evolve strategy
     * See [examples/visualize_permutate_mutation_types](../main/examples/visualize_permutate_mutation_types.rs) for Permutate strategy
     * Generates visualizations showing exploration patterns of different mutation strategies
+* Heterogeneous Genotype example (bool, options, continues and discrete in one genome)
+    * See [examples/evolve_heterogeneous](../main/examples/evolve_heterogeneous.rs)
 * Use superset StrategyBuilder for easier switching in implementation
     * See [examples/explore_strategies](../main/examples/explore_strategies.rs)
 * Use fitness LRU cache
@@ -232,6 +234,7 @@ Default configuration for correctness AND performance
 Run tests with `cargo test`
 
 Use `.with_rng_seed_from_u64(0)` builder step to create deterministic tests results.
+Exact results may change between library versions (even minor), but deterministic within a version.
 
 ## Benchmarks
 Implemented using criterion. Run benchmarks with `cargo bench`
