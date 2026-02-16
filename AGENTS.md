@@ -3,6 +3,9 @@
 This file helps AI coding agents use this library correctly. It covers decision
 guidance, API reference, gotchas, and copy-paste templates.
 
+**Read the Gotchas section before writing code.** Gotchas 1, 2, 3, and 7 cause
+compilation or runtime failures that are hard to debug after the fact.
+
 ## Quick Start
 
 ```rust
@@ -110,6 +113,22 @@ for diversity) or `CrossoverRejuvenate` (like Clone but optimized for less memor
 | `MutateSingleGeneDynamic` | Auto-adjusts probability based on population cardinality. |
 | `MutateMultiGeneDynamic` | Auto-adjusts probability based on cardinality. Multiple genes. |
 
+### If unsure, start here
+
+For binary/list genotypes:
+```rust
+.with_select(SelectTournament::new(0.5, 0.02, 4))
+.with_crossover(CrossoverUniform::new(0.7, 0.8))
+.with_mutate(MutateSingleGene::new(0.2))
+```
+
+For unique genotypes (permutation problems):
+```rust
+.with_select(SelectTournament::new(0.5, 0.02, 4))
+.with_crossover(CrossoverClone::new(0.7))
+.with_mutate(MutateMultiGene::new(2, 0.2))
+```
+
 ## Constructor Parameter Reference
 
 ### Select
@@ -195,6 +214,11 @@ MutateMultiGeneDynamic::new(
 
 ### Extension (Evolve only, all optional)
 
+Extensions should not be needed when hyperparameters are properly tuned. They are
+a fallback when the population keeps collapsing to clones despite reasonable
+mutation/selection settings. Escalation order: `MassDegeneration` (least
+disruptive) → `MassDeduplication`/`MassExtinction` → `MassGenesis` (last resort).
+
 ```rust
 ExtensionMassExtinction::new(
     cardinality_threshold: usize,  // Trigger when unique chromosomes drop below this.
@@ -226,6 +250,7 @@ ExtensionMassDeduplication::new(
 Required:
 - `.with_genotype(genotype)` — the search space
 - `.with_fitness(fitness)` — the evaluation function
+- `.with_target_population_size(n)` — number of chromosomes (**defaults to 0, always set this**)
 - `.with_select(select)` — parent selection strategy
 - `.with_crossover(crossover)` — how parents combine
 - `.with_mutate(mutate)` — how offspring are varied
@@ -237,7 +262,6 @@ Ending conditions (at least one required):
 - `.with_max_generations(n)` — stop after n total generations
 
 Optional:
-- `.with_target_population_size(n)` — number of chromosomes (default: 0, must set)
 - `.with_fitness_ordering(FitnessOrdering::Minimize)` — default is Maximize
 - `.with_par_fitness(true)` — parallelize fitness calculation
 - `.with_fitness_cache(size)` — LRU cache for expensive fitness
@@ -256,7 +280,9 @@ Required:
 - At least ONE ending condition
 
 Optional:
-- `.with_variant(HillClimbVariant::SteepestAscent)` — default is Stochastic
+- `.with_variant(HillClimbVariant::SteepestAscent)` — default is Stochastic.
+  Stochastic: fast, one random neighbor per generation, good for large genomes.
+  SteepestAscent: evaluates all neighbors, finds best improvement, slow for large genomes.
 - `.with_fitness_ordering(FitnessOrdering::Minimize)` — default is Maximize
 - `.with_par_fitness(true)` — parallelize fitness calculation
 - `.with_fitness_cache(size)` — LRU cache for expensive fitness
@@ -319,6 +345,30 @@ let (best, _all_runs) = Evolve::builder()
     .unwrap();
 ```
 
+Both `.call()` and `.build()` return `Result<_, TryFromEvolveBuilderError>`.
+Builder validation catches: missing required fields, incompatible genotype +
+crossover combinations, and missing ending conditions. The error message includes
+an actionable fix suggestion.
+
+### Common mistakes
+
+```rust
+// WRONG: UniqueGenotype + CrossoverUniform = RUNTIME PANIC
+// FIX:   Use CrossoverClone or CrossoverRejuvenate
+
+// WRONG: No ending condition = COMPILE/BUILD ERROR
+// FIX:   Add .with_max_stale_generations(1000)
+
+// WRONG: target_population_size not set (defaults to 0) = SILENT FAILURE
+// FIX:   Add .with_target_population_size(100)
+
+// WRONG: Fitness returns f64 = TYPE ERROR
+// FIX:   Return Some((score / precision) as FitnessValue)
+
+// WRONG: MutateSingleGene(0.2) with 1000+ float genes = DIVERSITY COLLAPSE
+// FIX:   Use MutateMultiGene with higher mutation count, see Troubleshooting
+```
+
 HillClimb also supports `.call_repeatedly(n)` and `.call_par_repeatedly(n)`.
 
 ## Retrieving Results
@@ -364,27 +414,41 @@ For simple fitness functions, just ignore the mutability. When using
 
 ## Copy-Paste Templates
 
-### Binary Optimization (Knapsack-style)
+### Binary Optimization (Knapsack)
 
 ```rust
 use genetic_algorithm::strategy::evolve::prelude::*;
 
+const ITEMS: [(isize, isize); 10] = [
+    // (value, weight)
+    (60, 10), (100, 20), (120, 30), (80, 15), (50, 10),
+    (90, 25), (70, 18), (40, 8), (110, 22), (65, 12),
+];
+const MAX_WEIGHT: isize = 80;
+
 #[derive(Clone, Debug)]
-struct MyFitness;
-impl Fitness for MyFitness {
+struct KnapsackFitness;
+impl Fitness for KnapsackFitness {
     type Genotype = BinaryGenotype;
     fn calculate_for_chromosome(
         &mut self,
         chromosome: &FitnessChromosome<Self>,
         _genotype: &FitnessGenotype<Self>,
     ) -> Option<FitnessValue> {
-        Some(chromosome.genes.iter().filter(|&&v| v).count() as FitnessValue)
+        let (total_value, total_weight) = chromosome.genes.iter().enumerate()
+            .filter(|(_, &included)| included)
+            .fold((0, 0), |(v, w), (i, _)| (v + ITEMS[i].0, w + ITEMS[i].1));
+        if total_weight > MAX_WEIGHT {
+            Some(total_value - (total_weight - MAX_WEIGHT) * 10) // penalty
+        } else {
+            Some(total_value)
+        }
     }
 }
 
 fn main() {
     let genotype = BinaryGenotype::builder()
-        .with_genes_size(100)
+        .with_genes_size(ITEMS.len())
         .build()
         .unwrap();
 
@@ -392,7 +456,7 @@ fn main() {
         .with_genotype(genotype)
         .with_target_population_size(100)
         .with_max_stale_generations(100)
-        .with_fitness(MyFitness)
+        .with_fitness(KnapsackFitness)
         .with_select(SelectTournament::new(0.5, 0.02, 4))
         .with_crossover(CrossoverUniform::new(0.7, 0.8))
         .with_mutate(MutateSingleGene::new(0.2))
