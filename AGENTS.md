@@ -88,7 +88,7 @@ When implementing `calculate_for_chromosome`, access genes via `chromosome.genes
 
 **WARNING**: `UniqueGenotype` will cause a **runtime panic** with gene-based or
 point-based crossovers. Use `CrossoverClone` (clones parents, relies on mutation
-for diversity) or `CrossoverRejuvenate` (generates fresh random chromosomes).
+for diversity) or `CrossoverRejuvenate` (like Clone but optimized for less memory copying).
 `MultiUniqueGenotype` supports point-based crossovers (`CrossoverSinglePoint`,
 `CrossoverMultiPoint`) but panics on gene-based ones (`CrossoverUniform`,
 `CrossoverSingleGene`, `CrossoverMultiGene`).
@@ -157,15 +157,18 @@ CrossoverClone::new(
 )
 
 CrossoverRejuvenate::new(
-    selection_rate: f32,    // No actual crossover, generates fresh random chromosomes.
+    selection_rate: f32,    // Like Clone but drops non-selected first, then refills. Less memory copying.
 )
 ```
 
 ### Mutate
 
+**Rate guidance depends on genotype size and type — see "Mutation tuning for
+large float genomes" in Troubleshooting.**
+
 ```rust
 MutateSingleGene::new(
-    mutation_probability: f32,  // 0.05-0.3 typical. Probability per chromosome.
+    mutation_probability: f32,  // 0.05-0.3 typical for binary. See note above for floats.
 )
 
 MutateMultiGene::new(
@@ -195,23 +198,27 @@ MutateMultiGeneDynamic::new(
 ```rust
 ExtensionMassExtinction::new(
     cardinality_threshold: usize,  // Trigger when unique chromosomes drop below this.
-    survival_rate: f32,            // Fraction that survives extinction.
-    elitism_rate: f32,             // Fraction of elite preserved.
+    survival_rate: f32,            // Fraction that survives (random selection + elite).
+    elitism_rate: f32,             // Fraction of elite preserved before random reduction.
 )
+// Randomly trims population. Recovery happens naturally through offspring in following generations.
 
 ExtensionMassGenesis::new(
-    cardinality_threshold: usize,  // Replace all non-elite with fresh random chromosomes.
+    cardinality_threshold: usize,  // Trims to only 2 best (Adam & Eve). Most aggressive reset.
 )
+// Extreme version of MassExtinction. Population recovers through offspring in following generations.
 
 ExtensionMassDegeneration::new(
     cardinality_threshold: usize,
-    number_of_rounds: usize,       // Rounds of random mutation applied.
-    elitism_rate: f32,
+    number_of_mutations: usize,    // Number of gene mutations applied per chromosome.
+    elitism_rate: f32,             // Fraction of elite preserved before mutation.
 )
+// Only extension that actually mutates genes. No population trim, same size throughout.
 
 ExtensionMassDeduplication::new(
-    cardinality_threshold: usize,  // Replace duplicate chromosomes with fresh ones.
+    cardinality_threshold: usize,  // Trims to only unique chromosomes (by genes hash).
 )
+// Removes duplicates. Population recovers through offspring in following generations.
 ```
 
 ## Builder Methods (Evolve)
@@ -599,6 +606,40 @@ fn main() {
 - Add an extension like `ExtensionMassGenesis` or `ExtensionMassDegeneration` to
   escape local optima when diversity drops
 
+**Mutation tuning for large float genomes (RangeGenotype/MultiRangeGenotype)?**
+
+The "typical" mutation rates assume small binary genomes. For large float genomes
+(hundreds to thousands of genes), the effective per-gene mutation rate matters
+more than the per-chromosome probability. Think in terms of what fraction of all
+genes in the population actually change per generation.
+
+- **Binary genes:** mutation flips 0↔1, which is a large relative change. Low
+  rates (1-5% per chromosome) suffice.
+- **Float genes:** mutation nudges a continuous value. Each mutation has less
+  relative impact, so you need far more mutations to maintain diversity.
+
+Concrete example for a 2000-gene float genome, population 100:
+- `MutateSingleGene(0.2)` → 1 gene × 20% of offspring = effective 0.01% of all
+  genes change per generation. **Population will collapse to near-clones.**
+- `MutateMultiGene(10, 1.0)` → ~5.5 genes × 100% of offspring = effective 0.28%
+  of all genes change per generation. **Maintains diversity.**
+
+Rule of thumb for float genomes: target 0.1%-1.0% effective per-gene mutation
+rate across the population. Use `MutateMultiGene` with high `mutation_probability`
+and scale `number_of_mutations` with genome size.
+
+**But high mutation prevents convergence.** Use scaled mutation types to get both
+exploration early and convergence late:
+- `MutationType::RangeScaled(vec![100.0, 100.0, 50.0, 10.0, 1.0])` — starts
+  with full-range Random mutations (100% of allele range = effectively Random),
+  then progressively narrows the mutation bandwidth. Best for float genomes:
+  wide exploration phases first, then tight range-bound convergence.
+- `MutationType::StepScaled(vec![10.0, 1.0, 0.1])` — fixed step sizes that
+  decrease through phases. Better for grid-like or discrete problems.
+
+Combine with `max_stale_generations` to trigger phase transitions automatically
+(advances to next phase when fitness plateaus).
+
 **Runtime too slow?**
 - Use `.with_par_fitness(true)` for expensive fitness calculations
 - Use `.with_fitness_cache(size)` if many chromosomes share the same genes
@@ -610,6 +651,9 @@ fn main() {
 - All chromosomes returned `None` from `calculate_for_chromosome`
 - Check your fitness function's validity constraints — they may be too strict
 - Increase population size so some valid solutions appear in the initial population
+- Prefer large penalties over `None`: returning `Some(very_bad_score)` lets the
+  algorithm converge incrementally out of invalid space, while `None` provides
+  no gradient signal and ranks last unconditionally
 
 ## Gotchas
 
