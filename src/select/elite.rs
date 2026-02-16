@@ -10,9 +10,10 @@ use std::cmp::Reverse;
 use std::marker::PhantomData;
 use std::time::Instant;
 
-/// Simply sort the chromosomes with fittest first. Then take the target_population_size (or full
-/// population when in shortage) of the populations best and drop excess chromosomes. This approach
-/// has the risk of locking in to a local optimum.
+/// Sort chromosomes by fitness in a multi-pass process: extract elite, partition into parents and
+/// offspring, select from each group separately based on replacement_rate, then do a final
+/// selection pass on the combined pool to reach target_population_size. Deterministic, but has the
+/// risk of locking in to a local optimum.
 #[derive(Clone, Debug)]
 pub struct Elite<G: EvolveGenotype> {
     _phantom: PhantomData<G>,

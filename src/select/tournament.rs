@@ -9,10 +9,11 @@ use rand::prelude::*;
 use std::marker::PhantomData;
 use std::time::Instant;
 
-/// Run tournaments with randomly chosen chromosomes and pick a single winner. Do this untill the
-/// target_population_size (or full population when in shortage) of the population is reached and
-/// drop excess chromosomes. This approach kind of sorts the fitness first, but not very strictly.
-/// This preserves a level of diversity, which avoids local optimum lock-in.
+/// Run tournaments with randomly chosen chromosomes and pick a single winner. Uses the same
+/// multi-pass process as Elite (extract elite, partition parents/offspring, select separately,
+/// final pass), but uses tournament selection instead of sorting. This approach kind of sorts the
+/// fitness first, but not very strictly. This preserves a level of diversity, which avoids local
+/// optimum lock-in.
 #[derive(Clone, Debug)]
 pub struct Tournament<G: EvolveGenotype> {
     _phantom: PhantomData<G>,

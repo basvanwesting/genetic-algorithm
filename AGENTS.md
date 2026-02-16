@@ -108,7 +108,7 @@ for diversity) or `CrossoverRejuvenate` (like Clone but optimized for less memor
 | `MutateMultiGene` | When faster exploration is needed. Multiple genes. |
 | `MutateMultiGeneRange` | When you want random variation in mutation count. |
 | `MutateSingleGeneDynamic` | Auto-adjusts probability based on population cardinality. |
-| `MutateMultiGeneDynamic` | Auto-adjusts count+probability based on cardinality. |
+| `MutateMultiGeneDynamic` | Auto-adjusts probability based on cardinality. Multiple genes. |
 
 ## Constructor Parameter Reference
 

@@ -88,8 +88,8 @@ impl<G: EvolveGenotype> Mutate for MultiGeneDynamic<G> {
 }
 
 impl<G: EvolveGenotype> MultiGeneDynamic<G> {
-    /// Create a new MultiGeneDynamic mutation strategy. Auto-adjusts mutation count and
-    /// probability to maintain target population diversity (cardinality).
+    /// Create a new MultiGeneDynamic mutation strategy. Auto-adjusts mutation probability
+    /// to maintain target population diversity (cardinality).
     /// * `number_of_mutations` - max genes mutated per chromosome (sampled uniformly from 1..=n)
     /// * `mutation_probability_step` - step size for probability adjustment each generation
     /// * `target_cardinality` - target number of unique chromosomes in the population
