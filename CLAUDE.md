@@ -44,6 +44,9 @@ cargo clippy
 
 This is a Rust genetic algorithm library with three core abstractions:
 
+**AI agent guide**: See [AGENTS.md](AGENTS.md) for decision matrices, constructor
+parameter reference, copy-paste templates, and troubleshooting.
+
 ### 1. **Genotype** (Search Space)
 Located in `src/genotype/`, defines the representation of solutions:
 - `BinaryGenotype`: Boolean alleles (Vec<bool>)
