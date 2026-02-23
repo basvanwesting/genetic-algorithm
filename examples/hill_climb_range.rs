@@ -30,7 +30,6 @@ fn main() {
         .with_mutation_type(MutationType::StepScaled(vec![
             0.1, 0.01, 0.001, 0.0001, 0.00001,
         ]))
-        .with_genes_hashing(false) // not useful for HillClimb
         .build()
         .unwrap();
 

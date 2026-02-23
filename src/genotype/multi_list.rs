@@ -108,9 +108,15 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.allele_lists.is_none() {
-            Err(TryFromBuilderError(
-                "MultiListGenotype requires a allele_lists",
-            ))
+            if builder.allele_list.is_some() {
+                Err(TryFromBuilderError(
+                    "MultiListGenotype requires with_allele_lists (plural), not with_allele_list",
+                ))
+            } else {
+                Err(TryFromBuilderError(
+                    "MultiListGenotype requires allele_lists",
+                ))
+            }
         } else if builder.allele_lists.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
                 "MultiListGenotype requires non-empty allele_lists",
@@ -118,6 +124,11 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
         } else {
             let allele_lists = builder.allele_lists.unwrap();
             let genes_size = allele_lists.len();
+            if builder.genes_size.is_some_and(|s| s != genes_size) {
+                return Err(TryFromBuilderError(
+                    "MultiListGenotype genes_size is derived from allele_lists, don't set it explicitly",
+                ));
+            }
             let allele_list_sizes: Vec<usize> = allele_lists.iter().map(|v| v.len()).collect();
             Ok(Self {
                 genes_size,
@@ -209,6 +220,9 @@ impl<T: Allele + PartialEq + Hash> Genotype for MultiList<T> {
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
+    }
+    fn set_genes_hashing(&mut self, genes_hashing: bool) {
+        self.genes_hashing = genes_hashing;
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {

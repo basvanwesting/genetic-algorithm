@@ -313,6 +313,9 @@ where
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
     }
+    fn set_genes_hashing(&mut self, genes_hashing: bool) {
+        self.genes_hashing = genes_hashing;
+    }
     fn max_scale_index(&self) -> Option<usize> {
         match &self.mutation_type {
             MutationType::RangeScaled(scales) | MutationType::StepScaled(scales) => {

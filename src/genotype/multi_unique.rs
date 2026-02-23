@@ -91,9 +91,15 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.allele_lists.is_none() {
-            Err(TryFromBuilderError(
-                "MultiUniqueGenotype requires a allele_lists",
-            ))
+            if builder.allele_list.is_some() {
+                Err(TryFromBuilderError(
+                    "MultiUniqueGenotype requires with_allele_lists (plural), not with_allele_list",
+                ))
+            } else {
+                Err(TryFromBuilderError(
+                    "MultiUniqueGenotype requires allele_lists",
+                ))
+            }
         } else if builder.allele_lists.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
                 "MultiUniqueGenotype requires non-empty allele_lists",
@@ -117,6 +123,17 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
                 Some(Uniform::from(0..crossover_points.len()))
             };
             let genes_size = allele_list_sizes.iter().sum();
+            // with_allele_lists() auto-sets genes_size to allele_lists.len(), which differs
+            // from the derived sum. Only error if user explicitly set a different value.
+            let auto_set_genes_size = allele_lists.len();
+            if builder
+                .genes_size
+                .is_some_and(|s| s != genes_size && s != auto_set_genes_size)
+            {
+                return Err(TryFromBuilderError(
+                    "MultiUniqueGenotype genes_size is derived from allele_lists, don't set it explicitly",
+                ));
+            }
 
             Ok(Self {
                 genes_size,
@@ -247,6 +264,9 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
+    }
+    fn set_genes_hashing(&mut self, genes_hashing: bool) {
+        self.genes_hashing = genes_hashing;
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {

@@ -63,7 +63,7 @@ impl<
             fitness_ordering: FitnessOrdering::Maximize,
             fitness_cache: None,
             par_fitness: false,
-            replace_on_equal_fitness: false,
+            replace_on_equal_fitness: true,
             mutate: None,
             fitness: None,
             crossover: None,

@@ -266,7 +266,6 @@ fn main() {
 
     let genotype = MultiListGenotype::builder()
         .with_allele_lists(allele_lists)
-        .with_genes_hashing(false) // not useful for HillClimb
         .build()
         .unwrap();
 

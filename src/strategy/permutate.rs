@@ -463,7 +463,7 @@ impl Default for PermutateConfig {
             variant: Default::default(),
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
-            replace_on_equal_fitness: false,
+            replace_on_equal_fitness: true,
         }
     }
 }

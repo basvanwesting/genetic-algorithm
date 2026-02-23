@@ -193,7 +193,7 @@ pub enum EvolveVariant {
 ///     .with_max_generations(1_000_000)                        // optional, stop searching after 1M generations
 ///     .with_max_chromosome_age(10)                            // kill chromosomes after 10 generations
 ///     .with_reporter(EvolveReporterSimple::new(100))          // optional builder step, report every 100 generations
-///     .with_replace_on_equal_fitness(true)                    // optional, defaults to false, maybe useful to avoid repeatedly seeding with the same best chromosomes after mass extinction events
+///     .with_replace_on_equal_fitness(true)                    // optional, defaults to true
 ///     .with_rng_seed_from_u64(0)                              // for testing with deterministic results
 ///     .call()
 ///     .unwrap();
@@ -769,7 +769,7 @@ impl Default for EvolveConfig {
             fitness_ordering: FitnessOrdering::Maximize,
             fitness_cache: None,
             par_fitness: false,
-            replace_on_equal_fitness: false,
+            replace_on_equal_fitness: true,
         }
     }
 }

@@ -27,7 +27,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>> Default
             genotype: None,
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
-            replace_on_equal_fitness: false,
+            replace_on_equal_fitness: true,
             fitness: None,
             reporter: StrategyReporterNoop::new(),
         }

@@ -72,7 +72,13 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
 
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.allele_list.is_none() {
-            Err(TryFromBuilderError("UniqueGenotype requires allele_list"))
+            if builder.allele_lists.is_some() {
+                Err(TryFromBuilderError(
+                    "UniqueGenotype requires with_allele_list (singular), not with_allele_lists",
+                ))
+            } else {
+                Err(TryFromBuilderError("UniqueGenotype requires allele_list"))
+            }
         } else if builder.allele_list.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
                 "UniqueGenotype requires non-empty allele_list",
@@ -80,6 +86,11 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
         } else {
             let allele_list = builder.allele_list.unwrap();
             let genes_size = allele_list.len();
+            if builder.genes_size.is_some_and(|s| s != genes_size) {
+                return Err(TryFromBuilderError(
+                    "UniqueGenotype genes_size is derived from allele_list length, don't set it explicitly",
+                ));
+            }
             Ok(Self {
                 genes_size,
                 allele_list: allele_list.clone(),
@@ -151,6 +162,9 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
+    }
+    fn set_genes_hashing(&mut self, genes_hashing: bool) {
+        self.genes_hashing = genes_hashing;
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {

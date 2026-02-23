@@ -171,7 +171,7 @@ where
     fn try_from(builder: Builder<Self>) -> Result<Self, Self::Error> {
         if builder.allele_ranges.is_none() {
             Err(TryFromBuilderError(
-                "MultiRangeGenotype requires a allele_ranges",
+                "MultiRangeGenotype requires allele_ranges",
             ))
         } else if builder
             .allele_ranges
@@ -185,6 +185,11 @@ where
         } else {
             let allele_ranges = builder.allele_ranges.unwrap();
             let genes_size = allele_ranges.len();
+            if builder.genes_size.is_some_and(|s| s != genes_size) {
+                return Err(TryFromBuilderError(
+                    "MultiRangeGenotype genes_size is derived from allele_ranges, don't set it explicitly",
+                ));
+            }
             let mutation_types = builder
                 .mutation_types
                 .unwrap_or(vec![MutationType::Random; genes_size]);
@@ -407,6 +412,9 @@ where
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
+    }
+    fn set_genes_hashing(&mut self, genes_hashing: bool) {
+        self.genes_hashing = genes_hashing;
     }
     fn max_scale_index(&self) -> Option<usize> {
         self.mutation_types

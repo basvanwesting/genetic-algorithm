@@ -25,6 +25,21 @@ use thread_local::ThreadLocal;
 /// detection. For float-based fitness, scale manually: `(score / precision) as FitnessValue`.
 pub type FitnessValue = isize;
 
+/// Convert a float score to [`FitnessValue`] with the given precision.
+///
+/// Shorthand for `(score / precision) as FitnessValue`.
+/// Accepts both f32 and f64 (and any type implementing `Into<f64>`).
+///
+/// # Example
+/// ```
+/// use genetic_algorithm::fitness::fitness_value;
+/// assert_eq!(fitness_value(3.14159_f32, 0.001_f32), 3141);
+/// assert_eq!(fitness_value(3.14159_f64, 0.001_f64), 3141);
+/// ```
+pub fn fitness_value(score: impl Into<f64>, precision: impl Into<f64>) -> FitnessValue {
+    (score.into() / precision.into()) as FitnessValue
+}
+
 /// Whether to maximize or minimize fitness scores. Default is Maximize.
 #[derive(Copy, Clone, Debug)]
 pub enum FitnessOrdering {

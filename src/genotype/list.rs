@@ -102,7 +102,13 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for List<T> {
                 "ListGenotype requires a genes_size > 0",
             ))
         } else if builder.allele_list.is_none() {
-            Err(TryFromBuilderError("ListGenotype requires allele_list"))
+            if builder.allele_lists.is_some() {
+                Err(TryFromBuilderError(
+                    "ListGenotype requires with_allele_list (singular), not with_allele_lists",
+                ))
+            } else {
+                Err(TryFromBuilderError("ListGenotype requires allele_list"))
+            }
         } else if builder.allele_list.as_ref().map(|o| o.is_empty()).unwrap() {
             Err(TryFromBuilderError(
                 "ListGenotype requires non-empty allele_list",
@@ -185,6 +191,9 @@ impl<T: Allele + PartialEq + Hash> Genotype for List<T> {
     }
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
+    }
+    fn set_genes_hashing(&mut self, genes_hashing: bool) {
+        self.genes_hashing = genes_hashing;
     }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<T> {
         if self.seed_genes_list.is_empty() {

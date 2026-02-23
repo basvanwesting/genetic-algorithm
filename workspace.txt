@@ -1,3 +1,13 @@
+
+
+Create an agent team to discuss the @AGENTS.md from different angles: one
+teammate for architectural understanding, one teammate for docs, one teammate
+representing the AI clients user. Discuss the good and the bad, and what seems
+inconsistent, missing or could be improved. Also explicitly discuss where the
+application architecture can be improved as seen from a AI client user
+perspective.
+
+
 why is dedup 30% faster, the iterator is unsorted, so dedup does almost nothing.
 
             rng.sample_iter(self.gene_index_sampler)

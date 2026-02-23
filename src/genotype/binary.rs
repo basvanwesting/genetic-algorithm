@@ -118,6 +118,9 @@ impl Genotype for Binary {
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>> {
         &self.seed_genes_list
     }
+    fn set_genes_hashing(&mut self, genes_hashing: bool) {
+        self.genes_hashing = genes_hashing;
+    }
     fn random_genes_factory<R: Rng>(&self, rng: &mut R) -> Vec<bool> {
         if self.seed_genes_list.is_empty() {
             rng.sample_iter(Standard).take(self.genes_size).collect()

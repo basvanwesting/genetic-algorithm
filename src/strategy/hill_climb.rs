@@ -140,7 +140,7 @@ pub enum HillClimbVariant {
 /// // the search space
 /// let genotype = RangeGenotype::builder()     // f32 alleles
 ///     .with_genes_size(16)                    // 16 genes
-///     .with_genes_hashing(false)              // store genes_hash on chromosome (required for fitness_cache and deduplication extension, both not useful here)
+///     // genes_hashing is auto-disabled for HillClimb (unless fitness_cache is set)
 ///     .with_chromosome_recycling(true)        // recycle genes memory allocations, maybe useful
 ///     .with_allele_range(0.0..=1.0)           // allow gene values between 0.0 and 1.0
 ///     .with_mutation_type(MutationType::Range(0.1)) // optional, neighbouring step size randomly sampled from range
@@ -160,7 +160,7 @@ pub enum HillClimbVariant {
 ///     .with_valid_fitness_score(100)                    // block ending conditions until at least the sum of genes <= 0.00100 is reached in the best chromosome
 ///     .with_max_stale_generations(1000)                 // stop searching if there is no improvement in fitness score for 1000 generations (per scaled_range)
 ///     .with_max_generations(1_000_000)                  // optional, stop searching after 1M generations
-///     .with_replace_on_equal_fitness(true)              // optional, defaults to true, crucial for some type of problems with discrete fitness steps like nqueens
+///     .with_replace_on_equal_fitness(true)              // optional, defaults to true
 ///     .with_reporter(HillClimbReporterSimple::new(100)) // optional, report every 100 generations
 ///     .with_rng_seed_from_u64(0)                        // for testing with deterministic results
 ///     .call()
@@ -626,7 +626,10 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             ))
         } else {
             let rng = builder.rng();
-            let genotype = builder.genotype.unwrap();
+            let mut genotype = builder.genotype.unwrap();
+            if builder.fitness_cache.is_none() {
+                genotype.set_genes_hashing(false);
+            }
             let state = HillClimbState::new(&genotype);
 
             Ok(Self {
@@ -662,7 +665,7 @@ impl Default for HillClimbConfig {
             max_generations: None,
             target_fitness_score: None,
             valid_fitness_score: None,
-            replace_on_equal_fitness: false,
+            replace_on_equal_fitness: true,
         }
     }
 }

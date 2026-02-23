@@ -12,8 +12,9 @@ use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop, Strategy
 
 /// The superset builder for all strategies.
 ///
-/// *Note: Only Genotypes which implement all strategies are eligable for the superset builder.*
-/// *RangeGenotype and other floating point range based genotypes currently do not support Permutation unless scaled*
+/// *Note: Only Genotypes which implement all strategies are eligible for the superset builder.*
+/// *All standard genotypes qualify. RangeGenotype/MultiRangeGenotype support Permutation only*
+/// *with MutationType::Step, StepScaled, or Discrete (runtime check via allows_permutation()).*
 #[derive(Clone, Debug)]
 pub struct Builder<
     G: EvolveGenotype + HillClimbGenotype + PermutateGenotype,
@@ -66,7 +67,7 @@ impl<
             fitness_ordering: FitnessOrdering::Maximize,
             fitness_cache: None,
             par_fitness: false,
-            replace_on_equal_fitness: false,
+            replace_on_equal_fitness: true,
             mutate: None,
             fitness: None,
             crossover: None,

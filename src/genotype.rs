@@ -62,6 +62,7 @@ pub trait Genotype:
 
     fn set_seed_genes_list(&mut self, seed_genes_list: Vec<Genes<Self::Allele>>);
     fn seed_genes_list(&self) -> &Vec<Genes<Self::Allele>>;
+    fn set_genes_hashing(&mut self, genes_hashing: bool);
     fn max_scale_index(&self) -> Option<usize> {
         None
     }
