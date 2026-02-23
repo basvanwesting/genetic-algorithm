@@ -5,6 +5,22 @@ The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
 
+## [0.27.0] - 2026-02-23
+
+### Changed
+* Compile-time crossover safety. Split `EvolveGenotype` into an empty marker
+  trait + separate `SupportsGeneCrossover` and `SupportsPointCrossover` traits.
+  Removed runtime `has_crossover_indexes`/`has_crossover_points` methods
+* Framework-owned age lifecycle. Moved `state.population.increment_age()` from
+  crossover into the evolve loop (just before crossover call).
+* Sensible defaults: `target_population_size` from 0 to 100 for `Evolve`,
+  `replace_on_equal_fitness` to true for all
+* Auto-disable `genes_hashing` in `HillClimb` as it is never sensible
+
+### Added
+* Added `fitness_value(float, precision)` helper method to convert float to isize (`FitnessValue`)
+* Better validations and error messages
+
 ## [0.26.1] - 2026-02-16
 
 ### Added
