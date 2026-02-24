@@ -176,12 +176,12 @@ with `call_repeatedly` for genomes >20 genes.
 | Genotype | Compatible Crossovers | Recommended |
 |---|---|---|
 | `BinaryGenotype` | All | `CrossoverUniform` or `CrossoverSinglePoint` |
-| `ListGenotype<T>` | All | `CrossoverUniform` |
-| `MultiListGenotype<T>` | All | `CrossoverUniform` |
+| `ListGenotype<T>` | All | Any (e.g. `CrossoverUniform`, `CrossoverSinglePoint`) |
+| `MultiListGenotype<T>` | All | Any (e.g. `CrossoverUniform`, `CrossoverSinglePoint`) |
 | `UniqueGenotype<T>` | `CrossoverClone`, `CrossoverRejuvenate` ONLY (others are compile errors) | `CrossoverClone` |
 | `MultiUniqueGenotype<T>` | Point-based + `CrossoverClone`, `CrossoverRejuvenate` (gene-based are compile errors) | `CrossoverSinglePoint` |
-| `RangeGenotype<T>` | All | `CrossoverMultiPoint` |
-| `MultiRangeGenotype<T>` | All | `CrossoverSingleGene` |
+| `RangeGenotype<T>` | All | Any (e.g. `CrossoverUniform`, `CrossoverSinglePoint`) |
+| `MultiRangeGenotype<T>` | All | Any (e.g. `CrossoverUniform`, `CrossoverSingleGene`) |
 
 **Compile-time safety**: `UniqueGenotype` does not implement `SupportsGeneCrossover`
 or `SupportsPointCrossover`, so incompatible crossovers are **compile errors**.
@@ -249,7 +249,7 @@ For range/float genotypes (>50 genes, see Troubleshooting for tuning):
 ```rust
 // also requires: genotype, fitness, target_population_size, ending condition
 .with_select(SelectTournament::new(0.5, 0.02, 4))
-.with_crossover(CrossoverMultiPoint::new(0.7, 0.8, 3, false))
+.with_crossover(CrossoverUniform::new(0.7, 0.8))
 .with_mutate(MutateMultiGene::new(10, 1.0))
 ```
 

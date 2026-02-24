@@ -150,7 +150,7 @@ fn main() {
         .with_fitness(MinimizeDistance { target: 0.5, precision: 1e-5 })
         .with_fitness_ordering(FitnessOrdering::Minimize)
         .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_crossover(CrossoverMultiPoint::new(0.7, 0.8, 3, false))
+        .with_crossover(CrossoverUniform::new(0.7, 0.8))
         .with_mutate(MutateMultiGene::new(10, 1.0))
         .call()
         .unwrap();
@@ -349,7 +349,7 @@ fn main() {
         .with_max_stale_generations(1000)
         .with_fitness(HyperparamFitness { precision: 1e-5 })
         .with_select(SelectTournament::new(0.5, 0.02, 4))
-        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_crossover(CrossoverUniform::new(0.7, 0.8))
         .with_mutate(MutateSingleGene::new(0.2))
         .call()
         .unwrap();

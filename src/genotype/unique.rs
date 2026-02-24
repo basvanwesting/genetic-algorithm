@@ -13,11 +13,11 @@ use std::hash::Hash;
 
 pub type DefaultAllele = usize;
 
-/// Genes are a vector of unique values, taken from the allele_list using clone(), each value occurs
-/// exactly once. The genes_size is derived to be the same as allele_list length. On random
-/// initialization, the allele_list are shuffled to form the genes. Each pair of genes has an equal
-/// probability of mutating. If a pair of genes mutates, the values are switched, ensuring the list
-/// of alleles remains unique. Defaults to usize as item.
+/// Genes are a vector of values taken from the allele_list using clone(). The values don't need to
+/// be unique, they are only treated as positionally unique (never changed, only swapped). The
+/// genes_size is derived to be the same as allele_list length. On random initialization, the
+/// allele_list is shuffled to form the genes. Each pair of genes has an equal probability of
+/// mutating. If a pair of genes mutates, the values are swapped. Defaults to usize as item.
 ///
 /// # Panics
 ///

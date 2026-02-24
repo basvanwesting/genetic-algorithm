@@ -18,6 +18,15 @@
 //! * [Genotype](crate::genotype): Knows how to generate, mutate and crossover chromosomes efficiently
 //! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
 //!
+//! **Important**: [FitnessValue](crate::fitness::FitnessValue) is `isize` (not `f64`). This
+//! enables equality checks for staleness detection. For float-based fitness, scale manually:
+//! `Some((score / precision) as FitnessValue)`, or use the
+//! [fitness_value](crate::fitness::fitness_value) helper.
+//!
+//! AI agents: see
+//! [AGENTS.md](https://github.com/basvanwesting/genetic-algorithm/blob/main/AGENTS.md) for
+//! decision matrices, constructor parameter reference, copy-paste templates, and gotchas.
+//!
 //! All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 //!
 //! ## Quick Usage

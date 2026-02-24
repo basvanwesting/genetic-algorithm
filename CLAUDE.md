@@ -51,7 +51,7 @@ parameter reference, copy-paste templates, and troubleshooting.
 Located in `src/genotype/`, defines the representation of solutions:
 - `BinaryGenotype`: Boolean alleles (Vec<bool>)
 - `ListGenotype<T>`: List of values from a fixed set of alleles
-- `UniqueGenotype<T>`: Permutation of unique values
+- `UniqueGenotype<T>`: Positional permutation (swap-only mutation, default T = usize)
 - `RangeGenotype<T>`: Numeric values within a range (default f32)
 - `MultiListGenotype<T>`: Per-gene allele lists
 - `MultiUniqueGenotype<T>`: Multiple unique sets
