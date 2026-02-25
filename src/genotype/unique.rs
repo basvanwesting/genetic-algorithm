@@ -205,6 +205,9 @@ impl<T: Allele + Hash> HillClimbGenotype for Unique<T> {
     }
 
     fn neighbouring_population_size(&self) -> BigUint {
+        if self.genes_size < 2 {
+            return BigUint::ZERO;
+        }
         let n = BigUint::from(self.genes_size);
         let k = BigUint::from(2usize);
 
