@@ -1,6 +1,6 @@
 # AGENTS_TEMPLATES.md — Copy-Paste Templates
 
-See [AGENTS.md](AGENTS.md) for decision matrices, constructor parameter reference,
+See [AGENTS.md](https://github.com/basvanwesting/genetic-algorithm/blob/main/AGENTS.md) for decision matrices, constructor parameter reference,
 and troubleshooting.
 
 ## Binary Optimization (Knapsack)

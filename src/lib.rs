@@ -23,10 +23,6 @@
 //! `Some((score / precision) as FitnessValue)`, or use the
 //! [fitness_value](crate::fitness::fitness_value) helper.
 //!
-//! AI agents: see
-//! [AGENTS.md](https://github.com/basvanwesting/genetic-algorithm/blob/main/AGENTS.md) for
-//! decision matrices, constructor parameter reference, copy-paste templates, and gotchas.
-//!
 //! All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 //!
 //! ## Quick Usage
@@ -201,6 +197,7 @@
 //! * .with_genes_hashing(true)        // Required for proper GA dynamics
 //! * .with_chromosome_recycling(true) // Still worth it for large chromosomes, maybe disable for easier custom implementations
 //!
+#![doc = include_str!("../AGENTS.md")]
 pub mod allele;
 pub mod chromosome;
 pub mod crossover;

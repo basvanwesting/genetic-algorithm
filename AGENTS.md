@@ -7,7 +7,7 @@ guidance, API reference, gotchas, and copy-paste templates.
 
 - [Quick Start](#quick-start)
 - [Critical: FitnessValue is isize](#critical-fitnessvalue-is-isize)
-- [Copy-Paste Templates](#copy-paste-templates) (more in [AGENTS_TEMPLATES.md](AGENTS_TEMPLATES.md))
+- [Copy-Paste Templates](#copy-paste-templates) (more in [AGENTS_TEMPLATES.md](https://github.com/basvanwesting/genetic-algorithm/blob/main/AGENTS_TEMPLATES.md))
 - [Decision Matrix: Problem Type → Configuration](#decision-matrix-problem-type--configuration)
 - [Constructor Parameter Reference](#constructor-parameter-reference)
 - [Builder Methods (Evolve)](#builder-methods-evolve)
@@ -29,7 +29,7 @@ Add to your `Cargo.toml`:
 genetic_algorithm = "0.27.0"
 ```
 
-```rust
+```rust,ignore
 use genetic_algorithm::strategy::evolve::prelude::*;
 ```
 
@@ -59,7 +59,7 @@ process dominates any floating-point rounding.
 
 For float-based fitness, scale to isize manually:
 
-```rust
+```rust,ignore
 // divide by desired precision, then cast
 let precision = 1e-5;
 Some((score / precision) as FitnessValue)
@@ -75,7 +75,7 @@ Return `None` from `calculate_for_chromosome` to mark a chromosome as invalid
 
 Minimal end-to-end example showing the general flow (genotype → fitness → strategy → result):
 
-```rust
+```rust,ignore
 use genetic_algorithm::strategy::evolve::prelude::*;
 
 #[derive(Clone, Debug)]
@@ -113,7 +113,7 @@ fn main() {
 }
 ```
 
-See [AGENTS_TEMPLATES.md](AGENTS_TEMPLATES.md) for more examples covering all
+See [AGENTS_TEMPLATES.md](https://github.com/basvanwesting/genetic-algorithm/blob/main/AGENTS_TEMPLATES.md) for more examples covering all
 genotype types, strategies, and patterns (call_repeatedly, HillClimb, Permutate, etc.).
 
 ## Decision Matrix: Problem Type → Configuration
@@ -142,10 +142,10 @@ When implementing `calculate_for_chromosome`, access genes via `chromosome.genes
 |---|---|---|
 | `BinaryGenotype` | `Vec<bool>` | |
 | `ListGenotype<T>` | `Vec<T>` | Default T = usize |
-| `UniqueGenotype<T>` | `Vec<T>` | Default T = usize, all values unique |
+| `UniqueGenotype<T>` | `Vec<T>` | Default T = usize, positional permutation (swap-only mutation), values do not have to be unique, they are only treated as such |
 | `RangeGenotype<T>` | `Vec<T>` | Default T = f32 |
-| `MultiListGenotype<T>` | `Vec<T>` | Default T = usize |
-| `MultiUniqueGenotype<T>` | `Vec<T>` | Default T = usize, unique within each group |
+| `MultiListGenotype<T>` | `Vec<T>` | Default T = usize, each gene has its own set of possible values |
+| `MultiUniqueGenotype<T>` | `Vec<T>` | Default T = usize, positional permutation (swap-only mutation) within each group, values do not have to be unique, they are only treated as such |
 | `MultiRangeGenotype<T>` | `Vec<T>` | Default T = f32, each gene has its own range |
 
 ### Which Strategy?
@@ -153,17 +153,17 @@ When implementing `calculate_for_chromosome`, access genes via `chromosome.genes
 | Situation | Strategy | Why |
 |---|---|---|
 | General optimization | `Evolve` | Full GA with crossover + mutation |
-| Single permutation (`UniqueGenotype`) | `HillClimb` | Standard crossovers swap genes between parents, breaking the uniqueness invariant. HillClimb uses neighbor generation instead. |
-| Multi-group permutation (`MultiUniqueGenotype`) | `Evolve` | Point-based crossovers work at group boundaries without breaking within-group uniqueness. |
 | Convex search space | `HillClimb` | Local search suffices |
-| Small search space (<1M) | `Permutate` | Exhaustive, 100% guarantee |
+| Small search space | `Permutate` | Exhaustive, 100% guarantee |
+
+**Scaling warning:** Permutate evaluates all possible gene combinations in a stream, so no memory issues, but serious duration issues
 
 ### Which HillClimb Variant?
 
 | Situation | Variant | Why |
 |---|---|---|
-| Small genome (<20 genes) | `SteepestAscent` | Evaluates all neighbors, guarantees best local move |
-| Large genome (>20 genes) | `Stochastic` (default) | One random neighbor per step, fast iterations |
+| Large genome | `Stochastic` (default) | One random neighbor per step, fast iterations |
+| Small genome | `SteepestAscent` | Evaluates all neighbors, guarantees best local move |
 | Plateau traversal needed | `Stochastic` + high `max_stale_generations` | Stochastic can escape via `replace_on_equal_fitness` |
 | Exact local optimum needed | `SteepestAscent` + `call_repeatedly(n)` | Deterministic per start, multiple random restarts |
 
@@ -176,12 +176,12 @@ with `call_repeatedly` for genomes >20 genes.
 | Genotype | Compatible Crossovers | Recommended |
 |---|---|---|
 | `BinaryGenotype` | All | `CrossoverUniform` or `CrossoverSinglePoint` |
-| `ListGenotype<T>` | All | Any (e.g. `CrossoverUniform`, `CrossoverSinglePoint`) |
-| `MultiListGenotype<T>` | All | Any (e.g. `CrossoverUniform`, `CrossoverSinglePoint`) |
+| `ListGenotype<T>` | All | `CrossoverUniform` or `CrossoverSinglePoint` |
+| `MultiListGenotype<T>` | All | `CrossoverUniform` or `CrossoverSinglePoint` |
 | `UniqueGenotype<T>` | `CrossoverClone`, `CrossoverRejuvenate` ONLY (others are compile errors) | `CrossoverClone` |
 | `MultiUniqueGenotype<T>` | Point-based + `CrossoverClone`, `CrossoverRejuvenate` (gene-based are compile errors) | `CrossoverSinglePoint` |
-| `RangeGenotype<T>` | All | Any (e.g. `CrossoverUniform`, `CrossoverSinglePoint`) |
-| `MultiRangeGenotype<T>` | All | Any (e.g. `CrossoverUniform`, `CrossoverSingleGene`) |
+| `RangeGenotype<T>` | All | `CrossoverUniform` or `CrossoverSinglePoint` |
+| `MultiRangeGenotype<T>` | All | `CrossoverUniform` or `CrossoverSinglePoint` |
 
 **Compile-time safety**: `UniqueGenotype` does not implement `SupportsGeneCrossover`
 or `SupportsPointCrossover`, so incompatible crossovers are **compile errors**.
@@ -192,16 +192,16 @@ crossovers (`CrossoverUniform`, `CrossoverSingleGene`, `CrossoverMultiGene`) are
 compile errors.
 
 **Note on UniqueGenotype + Evolve:** `CrossoverClone` with `UniqueGenotype`
-produces valid code but is almost always less efficient than `HillClimb`. Only
-use `Evolve` + `CrossoverClone` for `UniqueGenotype` when you need Extensions,
-speciation, or `call_repeatedly`.
+produces valid code but is almost always less efficient than `HillClimb` +
+`call_repeatedly(n)`. Only use `Evolve` + `CrossoverClone` for `UniqueGenotype`
+when you need Extensions or speciation.
 
 ### Which Select?
 
 | Type | When to use |
 |---|---|
-| `SelectElite` | Default choice. Deterministic, sorts by fitness. |
-| `SelectTournament` | When you want stochastic pressure. Better diversity. |
+| `SelectElite` | Deterministic, sorts by fitness. Less diversity. |
+| `SelectTournament` | Default choice. When you want stochastic pressure. Better diversity. |
 
 ### Which Mutate?
 
@@ -238,7 +238,7 @@ stale generations before terminating.
 ### If unsure, start here
 
 For binary/list genotypes:
-```rust
+```rust,ignore
 // also requires: genotype, fitness, target_population_size, ending condition
 .with_select(SelectTournament::new(0.5, 0.02, 4))
 .with_crossover(CrossoverUniform::new(0.7, 0.8))
@@ -246,26 +246,26 @@ For binary/list genotypes:
 ```
 
 For range/float genotypes (>50 genes, see Troubleshooting for tuning):
-```rust
+```rust,ignore
 // also requires: genotype, fitness, target_population_size, ending condition
 .with_select(SelectTournament::new(0.5, 0.02, 4))
 .with_crossover(CrossoverUniform::new(0.7, 0.8))
-.with_mutate(MutateMultiGene::new(10, 1.0))
+.with_mutate(MutateMultiGene::new(10, 0.8))
 ```
 
-For unique genotypes (permutation problems):
-```rust
+For unique genotypes (swap-only problems):
+```rust,ignore
 // also requires: genotype, fitness, target_population_size, ending condition
 .with_select(SelectTournament::new(0.5, 0.02, 4))
 .with_crossover(CrossoverClone::new(0.7))
-.with_mutate(MutateMultiGene::new(2, 0.2))
+.with_mutate(MutateSingleGene::new(0.8))
 ```
 
 ## Constructor Parameter Reference
 
 ### Select
 
-```rust
+```rust,ignore
 SelectElite::new(
     replacement_rate: f32,  // 0.3-0.7 typical. Fraction of population replaced by offspring.
     elitism_rate: f32,      // 0.01-0.05 typical. Fraction preserved as elite (bypass selection gate).
@@ -280,7 +280,7 @@ SelectTournament::new(
 
 ### Crossover
 
-```rust
+```rust,ignore
 CrossoverUniform::new(
     selection_rate: f32,    // 0.5-0.8 typical. Fraction of parents selected for reproduction.
     crossover_rate: f32,    // 0.5-0.9 typical. Probability parent pair actually crosses over (vs clone).
@@ -314,12 +314,15 @@ CrossoverRejuvenate::new(
 
 ### Mutate
 
-**Rate guidance depends on genotype size and type — see "Mutation tuning for
-large float genomes" in Troubleshooting.** For float genomes >50 genes: use
-`MutateMultiGene` with `mutation_probability` near 1.0 and scale
-`number_of_mutations` with genome size.
+**Rate guidance depends on genotype size and type — see "Mutation tuning" in
+Troubleshooting.** For float genomes >50 genes: use `MutateMultiGene` with
+`mutation_probability` near 1.0 and scale `number_of_mutations` with genome
+size. The "typical" mutation rates assume small genomes. For large genomes
+(hundreds to thousands of genes), the effective per-gene mutation rate matters
+more than the per-chromosome probability. Think in terms of what fraction of
+all genes in the population actually change per generation.
 
-```rust
+```rust,ignore
 MutateSingleGene::new(
     mutation_probability: f32,  // 0.05-0.3 typical for binary. See note above for floats.
 )
@@ -350,10 +353,10 @@ MutateMultiGeneDynamic::new(
 
 Extensions should not be needed when hyperparameters are properly tuned. They are
 a fallback when the population keeps collapsing to clones despite reasonable
-mutation/selection settings. Escalation order: `MassDegeneration` (least
-disruptive) → `MassDeduplication`/`MassExtinction` → `MassGenesis` (last resort).
+mutation/selection settings. Escalation order: `MassDegeneration` (most bang for buck)
+→ `MassDeduplication`/`MassExtinction`/`MassGenesis` (mostly for completeness and the cambrian explosion metaphor).
 
-```rust
+```rust,ignore
 ExtensionMassExtinction::new(
     cardinality_threshold: usize,  // Trigger when unique chromosomes drop below this.
     survival_rate: f32,            // Fraction that survives (random selection + elite).
@@ -362,7 +365,7 @@ ExtensionMassExtinction::new(
 // Randomly trims population. Recovery happens naturally through offspring in following generations.
 
 ExtensionMassGenesis::new(
-    cardinality_threshold: usize,  // Trims to only 2 best (Adam & Eve). Most aggressive reset.
+    cardinality_threshold: usize,  // Trims to only 2 unique best (Adam & Eve).
 )
 // Extreme version of MassExtinction. Population recovers through offspring in following generations.
 
@@ -414,7 +417,7 @@ Optional:
 - `.with_par_fitness(true)` — parallelize fitness calculation
 - `.with_fitness_cache(size)` — LRU cache for expensive fitness
 - `.with_replace_on_equal_fitness(bool)` — replace best even on equal score (default: true)
-- `.with_extension(extension)` — diversity management
+- `.with_extension(extension)` — diversity management (fallback, hyperparameters smell)
 - `.with_reporter(reporter)` — progress monitoring. Use `EvolveReporterSimple::new(100)`
   for progress every 100 generations, `EvolveReporterDuration::new()` for performance
   profiling. Each strategy has its own reporter types: `EvolveReporterSimple`/`Duration`,
@@ -498,7 +501,7 @@ implements all three strategy traits. All genotypes are compatible:
 
 Switch strategy with `.with_variant(variant)`:
 
-```rust
+```rust,ignore
 use genetic_algorithm::strategy::prelude::*;
 
 let builder = StrategyBuilder::new()
@@ -531,7 +534,7 @@ for non-Evolve strategies.
 
 Two patterns:
 
-```rust
+```rust,ignore
 // Pattern 1: One-shot (build + run in one call)
 let evolve = Evolve::builder()
     .with_genotype(genotype)
@@ -550,11 +553,11 @@ evolve.call();   // runs separately
 
 Additional Evolve builder call variants (return `(best_run, all_runs)` tuple):
 - `.call_repeatedly(n)` — n independent runs, return best + all
-- `.call_par_repeatedly(n)` — parallel version
+- `.call_par_repeatedly(n)` — parallel version, combine with with_par_fitness(false) to avoid double parallelization
 - `.call_speciated(n)` — n species runs, then final run seeded with best genes
-- `.call_par_speciated(n)` — parallel version
+- `.call_par_speciated(n)` — parallel version, combine with with_par_fitness(false) to avoid double parallelization, but will hurt final run
 
-```rust
+```rust,ignore
 let (best, _all_runs) = Evolve::builder()
     // ... builder steps ...
     .call_repeatedly(5)
@@ -569,10 +572,10 @@ N-1 results.
 | Variant | When to use |
 |---|---|
 | `call()` | Default. Sufficient for most problems. |
-| `call_repeatedly(n)` | Results vary across runs (local optima). Typical n: 3-10. |
-| `call_par_repeatedly(n)` | Parallel version of above. |
-| `call_speciated(n)` | Multiple runs seed a final refinement pass. Best for complex combinatorial problems. |
-| `call_par_speciated(n)` | Parallel version of above. |
+| `call_repeatedly(n)` | Results vary across runs (local optima). Typical n: 10. |
+| `call_par_repeatedly(n)` | Parallel version of above. Beware of double parallelization with_par_fitness |
+| `call_speciated(n)` | Multiple runs seed a final refinement pass. Best for complex combinatorial problems, where characteristics of alternative refined solutions need combining |
+| `call_par_speciated(n)` | Parallel version of above. Beware of double parallelization with_par_fitness |
 
 **Call variant availability by builder:**
 
@@ -585,7 +588,9 @@ N-1 results.
 | `call_par_speciated(n)` | yes | no | no | yes (falls back to `call_par_repeatedly`) |
 
 Only Evolve performs true speciation (seeding a final run with best genes from
-prior runs). Each run starts from a random population.
+prior runs). Each run before the final run starts from a random population.
+
+Permutate always falls back to `call()` for all variants.
 
 Both `.call()` and `.build()` return `Result<_, TryFromEvolveBuilderError>`.
 Builder validation catches: missing required fields and missing ending conditions.
@@ -594,18 +599,18 @@ trait bounds (`SupportsGeneCrossover`, `SupportsPointCrossover`).
 
 ## Common Mistakes
 
-```rust
-// WRONG: UniqueGenotype + CrossoverUniform = COMPILE ERROR
-// FIX:   Use CrossoverClone or CrossoverRejuvenate
+```text
+WRONG: UniqueGenotype + CrossoverUniform = COMPILE ERROR
+FIX:   Use CrossoverClone or CrossoverRejuvenate
 
-// WRONG: No ending condition = COMPILE/BUILD ERROR
-// FIX:   Add .with_max_stale_generations(1000)
+WRONG: No ending condition = COMPILE/BUILD ERROR
+FIX:   Add .with_max_stale_generations(1000)
 
-// WRONG: Fitness returns f64 = TYPE ERROR
-// FIX:   Return Some((score / precision) as FitnessValue)
+WRONG: Fitness returns f64 = TYPE ERROR
+FIX:   Return Some((score / precision) as FitnessValue)
 
-// WRONG: MutateSingleGene(0.2) with 1000+ float genes = DIVERSITY COLLAPSE
-// FIX:   Use MutateMultiGene with higher mutation count, see Troubleshooting
+WRONG: MutateSingleGene(0.2) with 1000+ float genes = DIVERSITY COLLAPSE
+FIX:   Use MutateMultiGene with higher mutation count, see Troubleshooting
 ```
 
 ## Retrieving Results
@@ -613,7 +618,7 @@ trait bounds (`SupportsGeneCrossover`, `SupportsPointCrossover`).
 These methods are available on all strategy types (`Evolve`, `HillClimb`,
 `Permutate`):
 
-```rust
+```rust,ignore
 // Best genes and fitness score (returns None if no valid fitness was found)
 let (best_genes, best_fitness_score) = evolve.best_genes_and_fitness_score().unwrap();
 
@@ -627,7 +632,7 @@ let best_generation = evolve.best_generation();
 
 ## Implementing Custom Fitness
 
-```rust
+```rust,ignore
 #[derive(Clone, Debug)]
 struct MyFitness;
 
@@ -671,7 +676,7 @@ For simple fitness functions, just ignore the mutability. When using
 trait bounds: `Clone + Copy + Send + Sync + Debug`. Additionally, types must
 implement `Hash` (for genes hashing) via the `impl_allele!` macro.
 
-```rust
+```rust,ignore
 use genetic_algorithm::strategy::evolve::prelude::*;
 
 #[derive(Clone, Copy, PartialEq, Hash, Debug)]
@@ -705,7 +710,7 @@ the wrong variant gives a helpful build error.
 All genotype builders support these optional settings:
 
 - `.with_genes_hashing(true)` (default) — required for `fitness_cache` and
-  `ExtensionMassDeduplication`. Auto-disabled by HillClimb (unless `fitness_cache` is set).
+  `Extension` & `Mutation` cardinality_thresholds. Auto-disabled by HillClimb (unless `fitness_cache` is set).
 - `.with_chromosome_recycling(true)` (default) — reuses chromosome memory
   allocations. Generally leave at default.
 
@@ -715,12 +720,12 @@ All genotype builders support these optional settings:
 - Increase `target_population_size` (more diversity)
 - Increase `mutation_probability` (more exploration)
 - Try `MutateSingleGeneDynamic` or `MutateMultiGeneDynamic` (auto-adjusts)
-- For `RangeGenotype`/`MultiRangeGenotype`: use `MutationType::StepScaled` for
+- For `RangeGenotype`/`MultiRangeGenotype`: use `MutationType::RangeScaled` for
   progressive refinement instead of `MutationType::Random`
-- Add an extension like `ExtensionMassGenesis` or `ExtensionMassDegeneration` to
+- Add an extension like `ExtensionMassDegeneration` to
   escape local optima when diversity drops
 
-**Mutation tuning for large float genomes (RangeGenotype/MultiRangeGenotype)?**
+**Mutation tuning**
 
 The "typical" mutation rates assume small binary genomes. For large float genomes
 (hundreds to thousands of genes), the effective per-gene mutation rate matters
@@ -756,12 +761,12 @@ Combine with `max_stale_generations` to trigger phase transitions automatically
 
 **Runtime too slow?**
 - Use `.with_par_fitness(true)` for expensive fitness calculations
-- Use `.with_fitness_cache(size)` if many chromosomes share the same genes
+- Use `.with_fitness_cache(size)` if many chromosomes share the same genes (is hyperparameter smell though)
 - Reduce `target_population_size` if fitness is cheap but framework overhead is high
 - For `HillClimb::SteepestAscent`: the neighbourhood can be very large, consider
   `Stochastic` variant instead
 - `par_fitness` has no effect with `HillClimbVariant::Stochastic` (sequential by
-  nature). Use `call_par_repeatedly` to parallelize independent Stochastic runs.
+  nature). Use `call_par_repeatedly` to parallelize independent Stochastic runs. Disable `par_fitness` to avoid double parallelization.
 
 **Getting `None` as best fitness?**
 - All chromosomes returned `None` from `calculate_for_chromosome`
