@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.1] - 2026-02-26
+
+### Changed
+* Update lru dependency from v0.12.4 to v0.16.3
+* Fix bug in UniqueGenotype: `neighbouring_population_size` panics when `genes_size < 2`
+* Manually review `AGENTS.md` as AI generation of the document made too many assumptions
 
 ## [0.27.0] - 2026-02-23
 

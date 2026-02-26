@@ -18,7 +18,7 @@
 A genetic algorithm implementation for Rust.
 Inspired by the book [Genetic Algorithms in Elixir](https://pragprog.com/titles/smgaelixir/genetic-algorithms-in-elixir/)
 
-See **[AGENTS.md](AGENTS.md)** for decision matrices, constructor parameter
+See [AGENTS.md](AGENTS.md) for decision matrices, constructor parameter
 reference, copy-paste templates, and troubleshooting.
 
 There are three main elements to this approach:
