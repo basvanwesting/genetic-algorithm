@@ -2,7 +2,8 @@
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, GenesHash};
 use crate::fitness::{FitnessOrdering, FitnessValue};
-use cardinality_estimator::CardinalityEstimator;
+use foldhash::fast::RandomState;
+use hyperloglockless::HyperLogLog;
 use itertools::Itertools;
 use rand::prelude::*;
 use std::cmp::Reverse;
@@ -266,9 +267,9 @@ impl<T: Allele> Population<T> {
             .filter_map(|c| c.fitness_score())
             .peekable();
         if values.peek().is_some() {
-            let mut estimator = CardinalityEstimator::<FitnessValue>::new();
+            let mut estimator = HyperLogLog::with_hasher(12, RandomState::default());
             values.for_each(|fitness_score| estimator.insert(&fitness_score));
-            Some(estimator.estimate())
+            Some(estimator.raw_count().round() as usize)
         } else {
             None
         }
@@ -282,9 +283,9 @@ impl<T: Allele> Population<T> {
             .filter_map(|c| c.genes_hash())
             .peekable();
         if values.peek().is_some() {
-            let mut estimator = CardinalityEstimator::<u64>::new();
+            let mut estimator = HyperLogLog::new(12);
             values.for_each(|genes_hash| estimator.insert_hash(genes_hash));
-            Some(estimator.estimate())
+            Some(estimator.raw_count().round() as usize)
         } else {
             None
         }
