@@ -7,7 +7,9 @@ pub use crate::strategy::{StrategyReporter, StrategyReporterNoop, StrategyState}
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::*;
+use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::channel;
+use std::sync::Arc;
 
 /// The builder for an HillClimb struct.
 #[derive(Clone, Debug)]
@@ -27,6 +29,7 @@ pub struct Builder<
     pub target_fitness_score: Option<FitnessValue>,
     pub valid_fitness_score: Option<FitnessValue>,
     pub replace_on_equal_fitness: bool,
+    pub abort_flag: Option<Arc<AtomicBool>>,
     pub reporter: SR,
     pub rng_seed: Option<u64>,
 }
@@ -47,6 +50,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>> Default
             target_fitness_score: None,
             valid_fitness_score: None,
             replace_on_equal_fitness: true,
+            abort_flag: None,
             reporter: StrategyReporterNoop::new(),
             rng_seed: None,
         }
@@ -139,6 +143,17 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.replace_on_equal_fitness = replace_on_equal_fitness;
         self
     }
+    /// Provide a cooperative abort signal, checked once per generation. Set the flag to `true`
+    /// (e.g. from another thread) to stop the run early, returning the best chromosome found so
+    /// far. Honoured across `call_repeatedly`/`call_par_repeatedly` as well.
+    pub fn with_abort_flag(mut self, abort_flag: Arc<AtomicBool>) -> Self {
+        self.abort_flag = Some(abort_flag);
+        self
+    }
+    pub fn with_abort_flag_option(mut self, abort_flag_option: Option<Arc<AtomicBool>>) -> Self {
+        self.abort_flag = abort_flag_option;
+        self
+    }
     pub fn with_reporter<SR2: StrategyReporter<Genotype = G>>(
         self,
         reporter: SR2,
@@ -155,6 +170,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             target_fitness_score: self.target_fitness_score,
             valid_fitness_score: self.valid_fitness_score,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
+            abort_flag: self.abort_flag,
             reporter,
             rng_seed: self.rng_seed,
         }
@@ -200,7 +216,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             })
             .map(|mut contending_run| {
                 contending_run.call();
-                let stop = contending_run.is_finished_by_target_fitness_score();
+                let stop = contending_run.is_conclusive();
                 runs.push(contending_run);
                 stop
             })
@@ -231,7 +247,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     .par_bridge()
                     .map_with(sender, |sender, mut contending_run| {
                         contending_run.call();
-                        let stop = contending_run.is_finished_by_target_fitness_score();
+                        let stop = contending_run.is_conclusive();
                         sender.send(contending_run).unwrap();
                         stop
                     })

@@ -18,7 +18,9 @@ use crate::population::Population;
 use rayon::prelude::*;
 use std::collections::HashMap;
 use std::fmt;
+use std::sync::atomic::{AtomicBool, Ordering};
 use std::sync::mpsc::sync_channel;
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 
 pub use self::reporter::Simple as PermutateReporterSimple;
@@ -122,11 +124,23 @@ pub struct PermutateConfig {
     pub fitness_ordering: FitnessOrdering,
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
+    // optional ending condition: stop permutating as soon as the best chromosome reaches this
+    // fitness score (instead of exhausting the whole permutation space). Checked once per
+    // chromosome.
+    pub target_fitness_score: Option<FitnessValue>,
+    // cooperative abort signal, checked once per chromosome. When set the run stops early,
+    // returning the best chromosome found so far.
+    pub abort_flag: Option<Arc<AtomicBool>>,
 }
 
 /// Stores the state of the Permutate strategy
 pub struct PermutateState<G: PermutateGenotype> {
     pub current_iteration: usize,
+    // generation counters are usize, not BigUint: they count permutations actually evaluated, which
+    // is bounded by wall-clock time and stays well within usize (overflowing u64 needs ~1.8e19
+    // evaluations — centuries even at 1e9/s), so a terminating run never overflows them. Only the
+    // permutation space *size* (chromosome_permutations_size) is BigUint, as it is computed
+    // analytically and need not be enumerated.
     pub current_generation: usize,
     pub stale_generations: usize,
     pub scale_generation: usize,
@@ -232,33 +246,74 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.state
             .add_duration(StrategyAction::SetupAndCleanup, now.elapsed());
     }
+    // Only evaluated between sweeps, by the call() loop condition: a full call_sequential /
+    // call_parallel sweep runs first, then scale(), then this check. The inner per-chromosome loops
+    // use is_conclusive() directly, never is_finished(). is_exhausted() relies on this timing.
     fn is_finished(&self) -> bool {
-        self.is_finished_by_max_scale_generation()
+        self.is_conclusive() || self.is_exhausted()
     }
-    fn is_finished_by_max_scale_generation(&self) -> bool {
+    // conclusive end of the run: the target fitness score was reached, or the run was aborted.
+    // Honoured per chromosome inside the inner permutation loops (before scale exhaustion is
+    // meaningful), as opposed to is_finished which also ends on scale exhaustion.
+    fn is_conclusive(&self) -> bool {
+        // cooperative abort
+        if self
+            .config
+            .abort_flag
+            .as_ref()
+            .is_some_and(|flag| flag.load(Ordering::Relaxed))
+        {
+            return true;
+        }
+        // target_fitness_score
+        if let Some(target_fitness_score) = self.config.target_fitness_score {
+            if let Some(fitness_score) = self.best_fitness_score() {
+                return match self.config.fitness_ordering {
+                    FitnessOrdering::Maximize => fitness_score >= target_fitness_score,
+                    FitnessOrdering::Minimize => fitness_score <= target_fitness_score,
+                };
+            }
+        }
+        false
+    }
+    // exhausted end of the run: the permutation space has been fully enumerated at the finest
+    // scale, with no finer scale left to advance to.
+    //
+    // Unlike HillClimb/Evolve there is no max_generations budget to compare against — a scale ends
+    // only when its sweep completes (the permutation iterator runs dry), and the space size is a
+    // BigUint, not a usize generation count. So the signal is indirect: `scale_generation > 0`.
+    //
+    // This works *only because is_exhausted is evaluated between sweeps* (see is_finished). Within
+    // a sweep scale_generation is incremented per chromosome and is almost always > 0 — it does
+    // NOT mean "exhausted" there. At the outer-loop boundary, however, scale() has just run and
+    // resets scale_generation to 0 whenever it advanced to a finer scale; so a non-zero value can
+    // only mean the just-completed sweep was at the finest scale (scale() could not advance).
+    // Before the first sweep it is also 0, so the run is not reported exhausted prematurely.
+    fn is_exhausted(&self) -> bool {
         self.state.scale_generation > 0
     }
 
     fn call_sequential(&mut self) {
-        self.genotype
+        for chromosome in self
+            .genotype
             .clone()
             .chromosome_permutations_into_iter(self.state.best_chromosome.as_ref())
-            .for_each(|chromosome| {
-                self.state.increment_generation();
-                self.state.chromosome.replace(chromosome);
-                self.fitness.call_for_state_chromosome(
-                    &self.genotype,
-                    &mut self.state,
-                    &self.config,
-                );
-                self.state.update_best_chromosome_and_report(
-                    &self.genotype,
-                    &self.config,
-                    &mut self.reporter,
-                );
-                self.reporter
-                    .on_generation_complete(&self.genotype, &self.state, &self.config);
-            });
+        {
+            self.state.increment_generation();
+            self.state.chromosome.replace(chromosome);
+            self.fitness
+                .call_for_state_chromosome(&self.genotype, &mut self.state, &self.config);
+            self.state.update_best_chromosome_and_report(
+                &self.genotype,
+                &self.config,
+                &mut self.reporter,
+            );
+            self.reporter
+                .on_generation_complete(&self.genotype, &self.state, &self.config);
+            if self.is_conclusive() {
+                break;
+            }
+        }
     }
     fn call_parallel(&mut self) {
         rayon::scope(|s| {
@@ -268,9 +323,22 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             let fitness_cache = self.config.fitness_cache();
             let (sender, receiver) = sync_channel(1000);
 
+            // Internal stop signal, set by the consumer below once the target fitness score is
+            // reached. Combined with the external abort_flag, it lets the producer stop feeding
+            // permutations early instead of exhausting the whole space.
+            let stop = Arc::new(AtomicBool::new(false));
+            let producer_stop = Arc::clone(&stop);
+            let abort_flag = self.config.abort_flag.clone();
+
             s.spawn(move |_| {
                 thread_genotype
                     .chromosome_permutations_into_iter(thread_best_chromosome.as_ref())
+                    .take_while(|_| {
+                        !producer_stop.load(Ordering::Relaxed)
+                            && !abort_flag
+                                .as_ref()
+                                .is_some_and(|flag| flag.load(Ordering::Relaxed))
+                    })
                     .par_bridge()
                     .for_each_with((sender, fitness), |(sender, fitness), mut chromosome| {
                         let now = Instant::now();
@@ -279,11 +347,15 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                             &thread_genotype,
                             fitness_cache,
                         );
-                        sender.send((chromosome, now.elapsed())).unwrap();
+                        // ignore send errors: the consumer drains until producers drop
+                        let _ = sender.send((chromosome, now.elapsed()));
                     });
             });
 
-            receiver.iter().for_each(|(chromosome, fitness_duration)| {
+            // a plain for loop (not `.for_each(closure)`) so the per-chromosome stop check can call
+            // the whole-&self is_finished_* methods; a closure would force a whole-self capture that
+            // conflicts with the `fitness_cache` borrow held by the producer above
+            for (chromosome, fitness_duration) in receiver.iter() {
                 self.state.increment_generation();
                 self.state.chromosome.replace(chromosome);
                 self.state.update_best_chromosome_and_report(
@@ -295,7 +367,10 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     .add_duration(StrategyAction::Fitness, fitness_duration);
                 self.reporter
                     .on_generation_complete(&self.genotype, &self.state, &self.config);
-            });
+                if self.is_conclusive() {
+                    stop.store(true, Ordering::Relaxed);
+                }
+            }
         });
     }
 }
@@ -448,6 +523,8 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                     fitness_ordering: builder.fitness_ordering,
                     par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
+                    target_fitness_score: builder.target_fitness_score,
+                    abort_flag: builder.abort_flag,
                     ..Default::default()
                 },
                 state,
@@ -464,6 +541,8 @@ impl Default for PermutateConfig {
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
             replace_on_equal_fitness: true,
+            target_fitness_score: None,
+            abort_flag: None,
         }
     }
 }
@@ -508,6 +587,7 @@ impl fmt::Display for PermutateConfig {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         writeln!(f, "permutate_config:")?;
         writeln!(f, "  fitness_ordering: {:?}", self.fitness_ordering)?;
+        writeln!(f, "  target_fitness_score: {:?}", self.target_fitness_score)?;
         writeln!(f, "  par_fitness: {:?}", self.par_fitness)
     }
 }

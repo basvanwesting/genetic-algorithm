@@ -41,16 +41,16 @@ fn main() {
 
     let genotype = MultiRangeGenotype::<f32>::builder()
         .with_allele_ranges(vec![
-            0.0..=1.0,     // Gene 0: boolean flag
-            0.0..=4.0,     // Gene 1: algorithm choice (5 options)
-            0.001..=1.0,   // Gene 2: learning rate (continuous)
-            16.0..=512.0,  // Gene 3: batch size (discrete)
+            0.0..=1.0,    // Gene 0: boolean flag
+            0.0..=4.0,    // Gene 1: algorithm choice (5 options)
+            0.001..=1.0,  // Gene 2: learning rate (continuous)
+            16.0..=512.0, // Gene 3: batch size (discrete)
         ])
         .with_mutation_types(vec![
-            MutationType::Discrete,                             // boolean: 0 or 1
-            MutationType::Discrete,                             // enum: 0,1,2,3,4
-            MutationType::StepScaled(vec![0.1, 0.01, 0.001]),  // continuous refinement
-            MutationType::Discrete,                             // integer steps
+            MutationType::Discrete,                           // boolean: 0 or 1
+            MutationType::Discrete,                           // enum: 0,1,2,3,4
+            MutationType::StepScaled(vec![0.1, 0.01, 0.001]), // continuous refinement
+            MutationType::Discrete,                           // integer steps
         ])
         .build()
         .unwrap();

@@ -23,6 +23,8 @@ use rand::rngs::SmallRng;
 use std::cell::RefCell;
 use std::collections::HashMap;
 use std::fmt;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::Arc;
 use std::time::{Duration, Instant};
 use thread_local::ThreadLocal;
 
@@ -242,12 +244,19 @@ pub struct EvolveConfig {
 
     pub target_population_size: usize,
     pub max_chromosome_age: Option<usize>,
+    // cooperative abort signal, checked once per generation. When set the run stops early,
+    // returning the best chromosome found so far. Independent of the other ending conditions and
+    // not blocked by valid_fitness_score.
+    pub abort_flag: Option<Arc<AtomicBool>>,
 }
 
 /// Stores the state of the Evolve strategy.
 #[derive(Clone)]
 pub struct EvolveState<G: EvolveGenotype> {
     pub current_iteration: usize,
+    // generation counters are usize, not a bigint: they count generations actually evaluated, which
+    // is bounded by wall-clock time and stays well within usize (overflowing u64 needs ~1.8e19
+    // evaluations — centuries even at 1e9/s), so a terminating run never overflows them.
     pub current_generation: usize,
     pub stale_generations: usize,
     pub scale_generation: usize,
@@ -492,56 +501,58 @@ impl<
     }
 
     fn is_finished(&self) -> bool {
-        self.allow_finished_by_valid_fitness_score()
-            && (self.is_finished_by_max_stale_generations()
-                || self.is_finished_by_max_generations()
-                || self.is_finished_by_target_fitness_score())
+        self.is_conclusive() || self.is_exhausted()
     }
-
-    fn is_finished_by_max_stale_generations(&self) -> bool {
-        if let Some(max_stale_generations) = self.config.max_stale_generations {
-            self.state.stale_generations >= max_stale_generations
-        } else {
-            false
+    // conclusive end of the run: the target fitness score was reached, or the run was aborted.
+    // The repeat/speciated builders short-circuit on this per run (no point launching more once a
+    // run is conclusive), as opposed to is_finished which also ends on the give-up conditions.
+    fn is_conclusive(&self) -> bool {
+        // cooperative abort
+        if self
+            .config
+            .abort_flag
+            .as_ref()
+            .is_some_and(|flag| flag.load(Ordering::Relaxed))
+        {
+            return true;
         }
-    }
-
-    fn is_finished_by_max_generations(&self) -> bool {
-        if let Some(max_generations) = self.config.max_generations {
-            self.state.scale_generation >= max_generations
-        } else {
-            false
-        }
-    }
-
-    fn is_finished_by_target_fitness_score(&self) -> bool {
+        // target_fitness_score
         if let Some(target_fitness_score) = self.config.target_fitness_score {
             if let Some(fitness_score) = self.best_fitness_score() {
-                match self.config.fitness_ordering {
+                return match self.config.fitness_ordering {
                     FitnessOrdering::Maximize => fitness_score >= target_fitness_score,
                     FitnessOrdering::Minimize => fitness_score <= target_fitness_score,
-                }
-            } else {
-                false
+                };
             }
-        } else {
-            false
         }
+        false
     }
-
-    fn allow_finished_by_valid_fitness_score(&self) -> bool {
+    // exhausted end of the run: a give-up condition (max_stale_generations / max_generations) has
+    // triggered. These are blocked by valid_fitness_score until the best chromosome is at least
+    // valid, so the run does not give up on an unacceptable solution.
+    fn is_exhausted(&self) -> bool {
         if let Some(valid_fitness_score) = self.config.valid_fitness_score {
             if let Some(fitness_score) = self.best_fitness_score() {
-                match self.config.fitness_ordering {
+                let valid = match self.config.fitness_ordering {
                     FitnessOrdering::Maximize => fitness_score >= valid_fitness_score,
                     FitnessOrdering::Minimize => fitness_score <= valid_fitness_score,
+                };
+                if !valid {
+                    return false;
                 }
-            } else {
-                true
             }
-        } else {
-            true
         }
+        if let Some(max_stale_generations) = self.config.max_stale_generations {
+            if self.state.stale_generations >= max_stale_generations {
+                return true;
+            }
+        }
+        if let Some(max_generations) = self.config.max_generations {
+            if self.state.scale_generation >= max_generations {
+                return true;
+            }
+        }
+        false
     }
 }
 
@@ -746,6 +757,7 @@ impl<
                     fitness_cache: builder.fitness_cache,
                     par_fitness: builder.par_fitness,
                     replace_on_equal_fitness: builder.replace_on_equal_fitness,
+                    abort_flag: builder.abort_flag,
                     ..Default::default()
                 },
                 state,
@@ -770,6 +782,7 @@ impl Default for EvolveConfig {
             fitness_cache: None,
             par_fitness: false,
             replace_on_equal_fitness: true,
+            abort_flag: None,
         }
     }
 }
@@ -778,7 +791,6 @@ impl EvolveConfig {
         Self::default()
     }
 }
-
 impl<G: EvolveGenotype> EvolveState<G> {
     pub fn new(genotype: &G) -> Self {
         Self {

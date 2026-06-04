@@ -509,3 +509,32 @@ fn population_factory_binary() {
         ]
     )
 }
+
+#[test]
+fn call_abort_flag_preset_returns_immediately() {
+    use std::sync::atomic::AtomicBool;
+    use std::sync::Arc;
+
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
+    let abort_flag = Arc::new(AtomicBool::new(true));
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(100)
+        .with_max_stale_generations(1000)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_fitness(CountTrue)
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_abort_flag(abort_flag.clone())
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    // is_aborted() short-circuits the loop before any generation runs; best comes from setup
+    assert_eq!(evolve.state.current_generation, 0);
+    assert!(evolve.best_fitness_score().is_some());
+}

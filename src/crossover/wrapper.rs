@@ -85,8 +85,8 @@ impl<G: EvolveGenotype + SupportsGeneCrossover + SupportsPointCrossover> From<Cr
         Wrapper::Clone(crossover)
     }
 }
-impl<G: EvolveGenotype + SupportsGeneCrossover + SupportsPointCrossover>
-    From<CrossoverMultiGene<G>> for Wrapper<G>
+impl<G: EvolveGenotype + SupportsGeneCrossover + SupportsPointCrossover> From<CrossoverMultiGene<G>>
+    for Wrapper<G>
 {
     fn from(crossover: CrossoverMultiGene<G>) -> Self {
         Wrapper::MultiGene(crossover)
@@ -120,8 +120,8 @@ impl<G: EvolveGenotype + SupportsGeneCrossover + SupportsPointCrossover>
         Wrapper::SinglePoint(crossover)
     }
 }
-impl<G: EvolveGenotype + SupportsGeneCrossover + SupportsPointCrossover>
-    From<CrossoverUniform<G>> for Wrapper<G>
+impl<G: EvolveGenotype + SupportsGeneCrossover + SupportsPointCrossover> From<CrossoverUniform<G>>
+    for Wrapper<G>
 {
     fn from(crossover: CrossoverUniform<G>) -> Self {
         Wrapper::Uniform(crossover)

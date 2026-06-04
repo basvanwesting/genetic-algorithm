@@ -10,7 +10,9 @@ use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop};
 use rand::rngs::SmallRng;
 use rand::SeedableRng;
 use rayon::prelude::*;
+use std::sync::atomic::AtomicBool;
 use std::sync::mpsc::channel;
+use std::sync::Arc;
 
 /// The builder for an Evolve struct.
 #[derive(Clone, Debug)]
@@ -34,6 +36,7 @@ pub struct Builder<
     pub fitness_cache: Option<FitnessCache>,
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
+    pub abort_flag: Option<Arc<AtomicBool>>,
     pub mutate: Option<M>,
     pub fitness: Option<F>,
     pub crossover: Option<S>,
@@ -64,6 +67,7 @@ impl<
             fitness_cache: None,
             par_fitness: false,
             replace_on_equal_fitness: true,
+            abort_flag: None,
             mutate: None,
             fitness: None,
             crossover: None,
@@ -184,6 +188,17 @@ impl<
         self.replace_on_equal_fitness = replace_on_equal_fitness;
         self
     }
+    /// Provide a cooperative abort signal, checked once per generation. Set the flag to `true`
+    /// (e.g. from another thread) to stop the run early, returning the best chromosome found so
+    /// far. Honoured across `call_repeatedly`/`call_par_repeatedly`/`call_speciated` as well.
+    pub fn with_abort_flag(mut self, abort_flag: Arc<AtomicBool>) -> Self {
+        self.abort_flag = Some(abort_flag);
+        self
+    }
+    pub fn with_abort_flag_option(mut self, abort_flag_option: Option<Arc<AtomicBool>>) -> Self {
+        self.abort_flag = abort_flag_option;
+        self
+    }
     pub fn with_mutate(mut self, mutate: M) -> Self {
         self.mutate = Some(mutate);
         self
@@ -216,6 +231,7 @@ impl<
             fitness_cache: self.fitness_cache,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
+            abort_flag: self.abort_flag,
             mutate: self.mutate,
             fitness: self.fitness,
             crossover: self.crossover,
@@ -241,6 +257,7 @@ impl<
             fitness_cache: self.fitness_cache,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
+            abort_flag: self.abort_flag,
             mutate: self.mutate,
             fitness: self.fitness,
             crossover: self.crossover,
@@ -304,7 +321,7 @@ impl<
             })
             .map(|mut contending_run| {
                 contending_run.call();
-                let stop = contending_run.is_finished_by_target_fitness_score();
+                let stop = contending_run.is_conclusive();
                 runs.push(contending_run);
                 stop
             })
@@ -341,7 +358,7 @@ impl<
                     .par_bridge()
                     .map_with(sender, |sender, mut contending_run| {
                         contending_run.call();
-                        let stop = contending_run.is_finished_by_target_fitness_score();
+                        let stop = contending_run.is_conclusive();
                         sender.send(contending_run).unwrap();
                         stop
                     })
@@ -375,17 +392,17 @@ impl<
             })
             .map(|mut species_run| {
                 species_run.call();
-                let stop = species_run.is_finished_by_target_fitness_score();
+                let stop = species_run.is_conclusive();
                 species_runs.push(species_run);
                 stop
             })
             .any(|x| x);
 
-        let final_run = if let Some(index_finished_by_target_fitness_score) = species_runs
+        let final_run = if let Some(index_conclusive) = species_runs
             .iter()
-            .position(|species_run| species_run.is_finished_by_target_fitness_score())
+            .position(|species_run| species_run.is_conclusive())
         {
-            species_runs.remove(index_finished_by_target_fitness_score)
+            species_runs.remove(index_conclusive)
         } else {
             let seed_genes_list = species_runs
                 .iter()
@@ -430,7 +447,7 @@ impl<
                     .par_bridge()
                     .map_with(sender, |sender, mut species_run| {
                         species_run.call();
-                        let stop = species_run.is_finished_by_target_fitness_score();
+                        let stop = species_run.is_conclusive();
                         sender.send(species_run).unwrap();
                         stop
                     })
@@ -442,11 +459,11 @@ impl<
             });
         });
 
-        let final_run = if let Some(index_finished_by_target_fitness_score) = species_runs
+        let final_run = if let Some(index_conclusive) = species_runs
             .iter()
-            .position(|species_run| species_run.is_finished_by_target_fitness_score())
+            .position(|species_run| species_run.is_conclusive())
         {
-            species_runs.remove(index_finished_by_target_fitness_score)
+            species_runs.remove(index_conclusive)
         } else {
             let seed_genes_list = species_runs
                 .iter()

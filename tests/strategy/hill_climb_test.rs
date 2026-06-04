@@ -278,3 +278,52 @@ fn call_binary_steepest_ascent() {
     println!("{:#?}", hill_climb.best_genes());
     assert_eq!(hill_climb.best_fitness_score(), Some(0));
 }
+
+#[test]
+fn call_abort_flag_preset_returns_immediately() {
+    use std::sync::atomic::AtomicBool;
+    use std::sync::Arc;
+
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
+    let abort_flag = Arc::new(AtomicBool::new(true));
+    let hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_max_stale_generations(1000)
+        .with_fitness(CountTrue)
+        .with_abort_flag(abort_flag.clone())
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    // is_aborted() short-circuits the loop before any generation runs; best comes from setup
+    assert_eq!(hill_climb.state.current_generation, 0);
+    assert!(hill_climb.best_fitness_score().is_some());
+}
+
+#[test]
+fn call_repeatedly_abort_flag_preset_stops_after_first_run() {
+    use std::sync::atomic::AtomicBool;
+    use std::sync::Arc;
+
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+
+    let abort_flag = Arc::new(AtomicBool::new(true));
+    let (_best_run, other_runs) = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_max_stale_generations(1000)
+        .with_fitness(CountTrue)
+        .with_abort_flag(abort_flag.clone())
+        .with_rng_seed_from_u64(0)
+        .call_repeatedly(5)
+        .unwrap();
+
+    // the abort flag short-circuits the repeat loop after the first run, so no contenders remain
+    assert_eq!(other_runs.len(), 0);
+}

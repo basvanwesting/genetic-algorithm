@@ -9,6 +9,8 @@ use crate::strategy::evolve::EvolveBuilder;
 use crate::strategy::hill_climb::HillClimbBuilder;
 use crate::strategy::permutate::PermutateBuilder;
 use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop, StrategyVariant};
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
 
 /// The superset builder for all strategies.
 ///
@@ -44,6 +46,7 @@ pub struct Builder<
     pub target_fitness_score: Option<FitnessValue>,
     pub target_population_size: usize,
     pub valid_fitness_score: Option<FitnessValue>,
+    pub abort_flag: Option<Arc<AtomicBool>>,
 }
 
 impl<
@@ -75,6 +78,7 @@ impl<
             extension: ExtensionNoop::new(),
             reporter: StrategyReporterNoop::new(),
             rng_seed: None,
+            abort_flag: None,
         }
     }
 }
@@ -228,6 +232,7 @@ impl<
             extension,
             reporter: self.reporter,
             rng_seed: self.rng_seed,
+            abort_flag: self.abort_flag,
         }
     }
     pub fn with_reporter<SR2: StrategyReporter<Genotype = G>>(
@@ -254,6 +259,7 @@ impl<
             extension: self.extension,
             reporter,
             rng_seed: self.rng_seed,
+            abort_flag: self.abort_flag,
         }
     }
     pub fn with_rng_seed_from_u64(mut self, rng_seed: u64) -> Self {
@@ -262,6 +268,17 @@ impl<
     }
     pub fn with_rng_seed_from_u64_option(mut self, rng_seed_option: Option<u64>) -> Self {
         self.rng_seed = rng_seed_option;
+        self
+    }
+    /// Provide a cooperative abort signal, checked once per generation. Set the flag to `true`
+    /// (e.g. from another thread) to stop the run early, returning the best chromosome found so
+    /// far. Threaded through to whichever concrete strategy is built.
+    pub fn with_abort_flag(mut self, abort_flag: Arc<AtomicBool>) -> Self {
+        self.abort_flag = Some(abort_flag);
+        self
+    }
+    pub fn with_abort_flag_option(mut self, abort_flag_option: Option<Arc<AtomicBool>>) -> Self {
+        self.abort_flag = abort_flag_option;
         self
     }
 }
@@ -298,6 +315,8 @@ impl<
             fitness_ordering: self.fitness_ordering,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
+            target_fitness_score: self.target_fitness_score,
+            abort_flag: self.abort_flag,
             fitness: self.fitness,
             reporter: self.reporter,
         }
@@ -322,6 +341,7 @@ impl<
             extension: self.extension,
             reporter: self.reporter,
             rng_seed: self.rng_seed,
+            abort_flag: self.abort_flag,
         }
     }
     pub fn to_hill_climb_builder(self) -> HillClimbBuilder<G, F, SR> {
@@ -336,6 +356,7 @@ impl<
             fitness_cache: self.fitness_cache,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
+            abort_flag: self.abort_flag,
             fitness: self.fitness,
             reporter: self.reporter,
             rng_seed: self.rng_seed,

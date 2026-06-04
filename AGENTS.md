@@ -26,7 +26,7 @@ guidance, API reference, gotchas, and copy-paste templates.
 Add to your `Cargo.toml`:
 ```toml
 [dependencies]
-genetic_algorithm = "0.27.1"
+genetic_algorithm = "0.27.2"
 ```
 
 ```rust,ignore
@@ -424,8 +424,12 @@ Optional:
   `HillClimbReporterSimple`/`Duration`, `PermutateReporterSimple`/`Duration`. Use
   `*ReporterNoop` for no reporting.
 - `.with_rng_seed_from_u64(seed)` — deterministic results (use 0 for tests)
-- `.with_valid_fitness_score(score)` — gates all ending conditions: no ending condition
-  fires until best fitness reaches this threshold
+- `.with_abort_flag(flag)` — `Arc<AtomicBool>` for cooperative cancellation; set it to `true`
+  from another thread to stop the run early and return the best chromosome so far. See
+  [Cancelling a run (abort flag)](#cancelling-a-run-abort-flag).
+- `.with_valid_fitness_score(score)` — gates the give-up ending conditions: `max_stale_generations`
+  and `max_generations` do not fire until best fitness reaches this threshold
+  (`target_fitness_score` and the abort flag are always honoured)
 - `.with_max_chromosome_age(n)` — removes chromosomes with age >= n from selection pool.
   Age resets to 0 for offspring, increments each generation.
 - `.with_seed_genes_list(genes_list)` — seed initial population with known solutions
@@ -461,6 +465,9 @@ Optional:
 - `.with_valid_fitness_score(score)` — only solutions with this score or better are valid
 - `.with_reporter(reporter)` — progress monitoring
 - `.with_rng_seed_from_u64(seed)` — deterministic results
+- `.with_abort_flag(flag)` — `Arc<AtomicBool>` for cooperative cancellation; set it to `true`
+  from another thread to stop the run early and return the best chromosome so far. See
+  [Cancelling a run (abort flag)](#cancelling-a-run-abort-flag).
 
 HillClimb auto-disables `genes_hashing` (unless `fitness_cache` is set), so you
 don't need to set it manually.
@@ -478,8 +485,12 @@ Optional:
 - `.with_par_fitness(true)` — parallelize fitness calculation
 - `.with_replace_on_equal_fitness(bool)` — replace best even on equal score (default: true)
 - `.with_reporter(reporter)` — progress monitoring
+- `.with_abort_flag(flag)` — `Arc<AtomicBool>` for cooperative cancellation; set it to `true`
+  from another thread to stop a long run early and return the best chromosome so far. See
+  [Cancelling a run (abort flag)](#cancelling-a-run-abort-flag).
 
-Permutate has no ending conditions — it exhaustively evaluates all possibilities.
+Permutate has no convergence-based ending conditions — it evaluates all possibilities
+exhaustively, though `.with_abort_flag(...)` can interrupt a long run.
 
 **Note**: `RangeGenotype`/`MultiRangeGenotype` only support Permutate with
 `MutationType::Step`, `MutationType::StepScaled`, or `MutationType::Discrete`
@@ -596,6 +607,42 @@ Both `.call()` and `.build()` return `Result<_, TryFromEvolveBuilderError>`.
 Builder validation catches: missing required fields and missing ending conditions.
 Incompatible genotype + crossover combinations are caught at compile time via
 trait bounds (`SupportsGeneCrossover`, `SupportsPointCrossover`).
+
+### Cancelling a run (abort flag)
+
+`.with_abort_flag(flag)` takes an `Arc<AtomicBool>` that the strategy checks cooperatively and
+stops early when it is `true`, returning the best chromosome found so far. Available on all
+builders (`Evolve`, `HillClimb`, `Permutate`, `StrategyBuilder`). It is opt-in: with no flag set,
+behaviour is unchanged.
+
+- Checked once per generation (`Evolve`/`HillClimb`) or per chromosome (`Permutate`), so it is
+  cooperative — an in-flight fitness evaluation is not interrupted mid-call.
+- Independent of the ending conditions: honoured even before `valid_fitness_score` is reached.
+- Also short-circuits the multi-run calls (`call_repeatedly`, `call_par_repeatedly`,
+  `call_speciated`, `call_par_speciated`): once a run observes the flag, no further runs start.
+
+```rust,ignore
+use std::sync::Arc;
+use std::sync::atomic::{AtomicBool, Ordering};
+
+let abort_flag = Arc::new(AtomicBool::new(false));
+
+// hand a clone to a Ctrl-C handler, timeout thread, UI cancel button, etc.
+let signal = abort_flag.clone();
+// signal.store(true, Ordering::Relaxed);  // call this to stop the run
+
+let evolve = Evolve::builder()
+    .with_genotype(genotype)
+    .with_target_population_size(100)
+    .with_max_stale_generations(1000)
+    .with_fitness(MyFitness)
+    .with_select(SelectTournament::new(0.5, 0.02, 4))
+    .with_crossover(CrossoverUniform::new(0.7, 0.8))
+    .with_mutate(MutateSingleGene::new(0.2))
+    .with_abort_flag(abort_flag.clone())
+    .call()
+    .unwrap();
+```
 
 ## Common Mistakes
 
@@ -788,3 +835,4 @@ Adjust weights to control tradeoffs.
 5. **`target_population_size` defaults to 100.** Override with `.with_target_population_size(n)` if needed.
 6. **Custom Crossover/Mutate/Extension must call `chromosome.reset_metadata(genotype.genes_hashing)`** after modifying genes directly.
 7. **For deterministic tests:** use `.with_rng_seed_from_u64(0)`. Exact results may change between library versions, but deterministic within a version.
+8. **Abort flag is cooperative.** `.with_abort_flag(Arc<AtomicBool>)` is checked once per generation (per chromosome for Permutate), not mid fitness evaluation. It returns best-so-far and is honoured regardless of `valid_fitness_score`.

@@ -1,8 +1,10 @@
 use super::Permutate;
 pub use crate::errors::TryFromStrategyBuilderError as TryFromBuilderError;
-use crate::fitness::{Fitness, FitnessOrdering};
+use crate::fitness::{Fitness, FitnessOrdering, FitnessValue};
 use crate::genotype::PermutateGenotype;
 use crate::strategy::{Strategy, StrategyReporter, StrategyReporterNoop};
+use std::sync::atomic::AtomicBool;
+use std::sync::Arc;
 
 /// The builder for an Permutate struct.
 #[derive(Clone, Debug)]
@@ -16,6 +18,8 @@ pub struct Builder<
     pub fitness_ordering: FitnessOrdering,
     pub par_fitness: bool,
     pub replace_on_equal_fitness: bool,
+    pub target_fitness_score: Option<FitnessValue>,
+    pub abort_flag: Option<Arc<AtomicBool>>,
     pub reporter: SR,
 }
 
@@ -28,6 +32,8 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>> Default
             fitness_ordering: FitnessOrdering::Maximize,
             par_fitness: false,
             replace_on_equal_fitness: true,
+            target_fitness_score: None,
+            abort_flag: None,
             fitness: None,
             reporter: StrategyReporterNoop::new(),
         }
@@ -61,6 +67,30 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self.replace_on_equal_fitness = replace_on_equal_fitness;
         self
     }
+    /// Optional ending condition: stop permutating as soon as the best chromosome reaches this
+    /// fitness score, instead of exhausting the whole permutation space.
+    pub fn with_target_fitness_score(mut self, target_fitness_score: FitnessValue) -> Self {
+        self.target_fitness_score = Some(target_fitness_score);
+        self
+    }
+    pub fn with_target_fitness_score_option(
+        mut self,
+        target_fitness_score_option: Option<FitnessValue>,
+    ) -> Self {
+        self.target_fitness_score = target_fitness_score_option;
+        self
+    }
+    /// Provide a cooperative abort signal, checked once per chromosome. Set the flag to `true`
+    /// (e.g. from another thread) to stop the run early, returning the best chromosome found so
+    /// far.
+    pub fn with_abort_flag(mut self, abort_flag: Arc<AtomicBool>) -> Self {
+        self.abort_flag = Some(abort_flag);
+        self
+    }
+    pub fn with_abort_flag_option(mut self, abort_flag_option: Option<Arc<AtomicBool>>) -> Self {
+        self.abort_flag = abort_flag_option;
+        self
+    }
     pub fn with_fitness(mut self, fitness: F) -> Self {
         self.fitness = Some(fitness);
         self
@@ -74,6 +104,8 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             fitness_ordering: self.fitness_ordering,
             par_fitness: self.par_fitness,
             replace_on_equal_fitness: self.replace_on_equal_fitness,
+            target_fitness_score: self.target_fitness_score,
+            abort_flag: self.abort_flag,
             fitness: self.fitness,
             reporter,
         }

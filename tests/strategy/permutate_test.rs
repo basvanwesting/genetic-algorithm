@@ -184,3 +184,68 @@ fn call_par_fitness() {
     assert_eq!(permutate.best_fitness_score(), Some(45));
     assert_eq!(permutate.best_genes().unwrap(), vec![9, 9, 9, 9, 9]);
 }
+
+#[test]
+fn call_binary_target_fitness_score_stops_early() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
+
+    let permutate = Permutate::builder()
+        .with_genotype(genotype)
+        .with_fitness(CountTrue)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_target_fitness_score(4)
+        .call()
+        .unwrap();
+
+    // setup evaluates the first permutation (all true => 5); the second (4 true => 4) reaches the
+    // target and breaks the inner loop, far short of exhausting all 32 permutations.
+    assert_eq!(permutate.best_fitness_score(), Some(4));
+    assert_eq!(permutate.state.current_generation, 2);
+}
+
+#[test]
+fn call_binary_target_fitness_score_stops_early_par() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(12)
+        .build()
+        .unwrap();
+
+    let permutate = Permutate::builder()
+        .with_genotype(genotype)
+        .with_fitness(CountTrue)
+        .with_fitness_ordering(FitnessOrdering::Minimize)
+        .with_par_fitness(true)
+        .with_target_fitness_score(10)
+        .call()
+        .unwrap();
+
+    // target reached, and we stopped well before exhausting all 4096 permutations
+    assert!(permutate.best_fitness_score().unwrap() <= 10);
+    assert!(permutate.state.current_generation < 4096);
+}
+
+#[test]
+fn call_binary_abort_flag_preset_returns_immediately() {
+    use std::sync::atomic::AtomicBool;
+    use std::sync::Arc;
+
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
+
+    let abort_flag = Arc::new(AtomicBool::new(true));
+    let permutate = Permutate::builder()
+        .with_genotype(genotype)
+        .with_fitness(CountTrue)
+        .with_abort_flag(abort_flag.clone())
+        .call()
+        .unwrap();
+
+    // the outer loop never runs: only setup evaluated the first permutation (all true => 5)
+    assert_eq!(permutate.state.current_generation, 0);
+    assert_eq!(permutate.best_fitness_score(), Some(5));
+}

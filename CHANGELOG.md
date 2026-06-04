@@ -4,6 +4,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.2] - 2026-06-04
+
+### Added
+* Cooperative abort flag to cancel a running strategy early. `with_abort_flag(Arc<AtomicBool>)`
+  on `Evolve`, `HillClimb`, `Permutate` and the superset `StrategyBuilder`; the run checks it
+  cooperatively and returns the best chromosome so far, also short-circuiting the
+  `call_repeatedly`/`call_speciated` multi-run calls
+* Add `with_target_fitness_score` ending condition to `Permutate`, stopping before the full
+  permutation space is exhausted. Added mainly for internal "finished =
+  conclusive or exhausted" structure
+
 ## [0.27.1] - 2026-02-26
 
 ### Changed
