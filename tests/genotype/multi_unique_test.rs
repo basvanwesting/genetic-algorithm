@@ -205,6 +205,23 @@ fn crossover_chromosome_points_without_duplicates() {
 }
 
 #[test]
+fn crossover_chromosome_points_single_allele_list() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_lists(vec![vec![0, 1, 2, 3]])
+        .build()
+        .unwrap();
+
+    assert_eq!(genotype.crossover_points, vec![] as Vec<usize>);
+    let mut father = build::chromosome(vec![0, 1, 2, 3]);
+    let mut mother = build::chromosome(vec![3, 2, 1, 0]);
+    genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
+    genotype.crossover_chromosome_points(1, false, &mut father, &mut mother, rng);
+    assert_eq!(inspect::chromosome(&father), vec![0, 1, 2, 3]);
+    assert_eq!(inspect::chromosome(&mother), vec![3, 2, 1, 0]);
+}
+
+#[test]
 fn chromosome_permutations_genes_size_1() {
     let genotype = MultiUniqueGenotype::builder()
         .with_allele_lists(vec![vec![0]])

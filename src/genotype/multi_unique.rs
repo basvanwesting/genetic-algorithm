@@ -306,14 +306,17 @@ impl<T: Allele + Hash> SupportsPointCrossover for MultiUnique<T> {
         rng: &mut R,
     ) {
         if allow_duplicates {
-            rng.sample_iter(self.crossover_point_index_sampler.unwrap())
-                .take(number_of_crossovers)
-                .for_each(|point_index| {
-                    let gene_index = self.crossover_points[point_index];
-                    let mother_back = &mut mother.genes[gene_index..];
-                    let father_back = &mut father.genes[gene_index..];
-                    father_back.swap_with_slice(mother_back);
-                });
+            // no crossover points (single allele_list), so nothing to cross over
+            if let Some(crossover_point_index_sampler) = self.crossover_point_index_sampler {
+                rng.sample_iter(crossover_point_index_sampler)
+                    .take(number_of_crossovers)
+                    .for_each(|point_index| {
+                        let gene_index = self.crossover_points[point_index];
+                        let mother_back = &mut mother.genes[gene_index..];
+                        let father_back = &mut father.genes[gene_index..];
+                        father_back.swap_with_slice(mother_back);
+                    });
+            }
         } else {
             rand::seq::index::sample(
                 rng,
