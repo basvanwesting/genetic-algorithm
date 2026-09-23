@@ -12,14 +12,13 @@ fn sample_gene_indices() {
         .build()
         .unwrap();
 
-    // disble test because HashMap does not preserve order, non repeatable test
-    // assert_eq!(
-    //     genotype.sample_gene_indices(10, false, &mut rng),
-    //     vec![4, 2, 5, 3, 7, 6, 8, 9]
-    // );
     assert_eq!(
         genotype.sample_gene_indices(10, true, &mut rng),
         vec![3, 5, 5, 5, 3, 3, 6, 9, 6, 9]
+    );
+    assert_eq!(
+        genotype.sample_gene_indices(10, false, &mut rng),
+        vec![3, 2, 4, 5, 9, 6, 8, 7]
     );
 }
 #[test]
@@ -109,11 +108,10 @@ fn mutate_chromosome_genes_without_duplicates() {
 
     assert_eq!(inspect::chromosome(&chromosome).len(), 18);
 
-    // this test step is flaky, the result is not deterministic. Probably due to WeightedIndex f64 conversion
-    // assert_eq!(
-    //     inspect::chromosome(&chromosome),
-    //     vec![0, 1, 2, 3, 4, 5, 6, 8, 7, 9, 8, 7, 6, 5, 4, 3, 1, 2]
-    // );
+    assert_eq!(
+        inspect::chromosome(&chromosome),
+        vec![0, 1, 2, 3, 4, 5, 8, 7, 6, 9, 8, 7, 6, 5, 4, 1, 2, 3]
+    );
 }
 
 #[test]
