@@ -142,8 +142,11 @@ pub trait Select: Clone + Send + Sync + std::fmt::Debug {
         config: &EvolveConfig,
         elitism_rate: f32,
     ) -> Vec<Chromosome<SelectAllele<Self>>> {
+        // the population can be larger than the target_population_size after crossover, but the
+        // elite should not exceed the target_population_size
         let elitism_size = ((state.population.size() as f32 * elitism_rate).ceil() as usize)
-            .min(state.population.size());
+            .min(state.population.size())
+            .min(config.target_population_size);
 
         let mut elite_chromosomes: Vec<Chromosome<SelectAllele<Self>>> =
             Vec::with_capacity(elitism_size);
