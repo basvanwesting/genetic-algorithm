@@ -28,3 +28,18 @@ fn zero_cache_size() {
     assert!(cache.is_err());
     assert_eq!(cache.err(), Some("cache_size must be greater than 0"));
 }
+
+#[test]
+fn least_recently_used_is_evicted() {
+    let cache = Cache::try_new(2).unwrap();
+
+    cache.write(1, 10);
+    cache.write(2, 20);
+    // reading 1 makes 2 the least recently used
+    assert_eq!(cache.read(1), Some(10));
+    cache.write(3, 30);
+
+    assert_eq!(cache.read(1), Some(10));
+    assert_eq!(cache.read(2), None);
+    assert_eq!(cache.read(3), Some(30));
+}

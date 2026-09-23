@@ -35,10 +35,11 @@ impl Cache {
     }
 
     pub fn read(&self, genes_hash: GenesHash) -> Option<FitnessValue> {
+        // get (not peek) marks the entry as recently used, which requires the write lock
         let value = self
             .cache_state
-            .read()
-            .map(|c| c.peek(&genes_hash).cloned())
+            .write()
+            .map(|mut c| c.get(&genes_hash).cloned())
             .unwrap();
 
         if value.is_some() {
