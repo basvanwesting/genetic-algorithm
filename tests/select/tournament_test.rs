@@ -254,3 +254,48 @@ fn extreme_elitism_rates() {
         ]
     );
 }
+
+#[test]
+fn elitism_exceeding_target_population_size() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
+    // after crossover the population can be larger than the target_population_size
+    let population: Population<bool> = build::population_with_fitness_scores(vec![
+        (vec![false, false, false], Some(0)),
+        (vec![false, false, true], Some(1)),
+        (vec![false, true, false], Some(2)),
+        (vec![false, true, true], Some(3)),
+        (vec![true, false, false], Some(4)),
+        (vec![true, false, true], Some(5)),
+        (vec![true, true, false], Some(6)),
+        (vec![true, true, true], Some(7)),
+    ]);
+
+    let mut state = EvolveState::new(&genotype);
+    state.population = population;
+    let mut reporter = StrategyReporterNoop::<BinaryGenotype>::new();
+    let mut rng = SmallRng::seed_from_u64(0);
+    let config = EvolveConfig {
+        fitness_ordering: FitnessOrdering::Maximize,
+        target_population_size: 4,
+        ..Default::default()
+    };
+    // 90% of 8 is more elite chromosomes than the target_population_size
+    SelectTournament::new(0.5, 0.9, 4).call(
+        &genotype,
+        &mut state,
+        &config,
+        &mut reporter,
+        &mut rng,
+    );
+    let mut fitness_scores: Vec<_> = state
+        .population
+        .chromosomes
+        .iter()
+        .map(|c| c.fitness_score())
+        .collect();
+    fitness_scores.sort();
+    assert_eq!(fitness_scores, vec![Some(4), Some(5), Some(6), Some(7)]);
+}
