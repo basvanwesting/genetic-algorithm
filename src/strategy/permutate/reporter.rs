@@ -7,7 +7,7 @@ use std::io::Write;
 use std::marker::PhantomData;
 
 /// A Simple Permutate reporter generic over Genotype.
-/// A report is triggered every period generations
+/// A report is triggered every period generations (a period of 0 disables the periodic reports)
 #[derive(Clone)]
 pub struct Simple<G: PermutateGenotype> {
     pub buffer: Option<Vec<u8>>,
@@ -125,7 +125,8 @@ impl<G: PermutateGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        if state.current_generation() % self.period == 0 {
+        // period 0 disables the periodic reports
+        if self.period > 0 && state.current_generation() % self.period == 0 {
             let progress = (BigUint::from(state.current_generation() * 100)
                 / &genotype.chromosome_permutations_size())
                 .to_u8();

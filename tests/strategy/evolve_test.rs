@@ -115,6 +115,32 @@ fn call_binary_max_generations_maximize() {
 }
 
 #[test]
+fn call_with_reporter_period_zero() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let mut strategy = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(20)
+        .with_max_stale_generations(10)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_fitness(CountTrue)
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_reporter(EvolveReporterSimple::new_with_buffer(0))
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    let mut buffer: Vec<u8> = vec![];
+    strategy.flush_reporter(&mut buffer);
+    let output = String::from_utf8(buffer).unwrap();
+    assert!(output.contains("enter - "));
+    assert!(!output.contains("periodic - "));
+}
+
+#[test]
 fn call_binary_max_stale_generations_and_valid_fitness_score_maximize() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)

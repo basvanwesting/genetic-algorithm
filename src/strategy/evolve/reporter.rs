@@ -9,7 +9,7 @@ use std::io::Write;
 use std::marker::PhantomData;
 
 /// A Simple Evolve Reporter generic over Genotype.
-/// A report is triggered every period generations
+/// A report is triggered every period generations (a period of 0 disables the periodic reports)
 ///
 /// Example output:
 ///
@@ -204,7 +204,8 @@ impl<G: EvolveGenotype> StrategyReporter for Simple<G> {
         state: &S,
         config: &C,
     ) {
-        if state.current_generation() % self.period == 0 {
+        // period 0 disables the periodic reports
+        if self.period > 0 && state.current_generation() % self.period == 0 {
             let number_of_select_events = self.number_of_select_events;
             let number_of_extension_events = self.number_of_extension_events;
             let number_of_crossover_events = self.number_of_crossover_events;
