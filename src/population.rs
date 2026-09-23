@@ -235,13 +235,14 @@ impl<T: Allele> Population<T> {
         if data.is_empty() {
             Vec::new()
         } else {
+            // tie-break on index, as the HashMap iteration order is random
             let iterator = match fitness_ordering {
                 FitnessOrdering::Maximize => data
                     .into_values()
-                    .sorted_unstable_by_key(|(_, score)| Reverse(*score)),
+                    .sorted_unstable_by_key(|(idx, score)| (Reverse(*score), *idx)),
                 FitnessOrdering::Minimize => data
                     .into_values()
-                    .sorted_unstable_by_key(|(_, score)| *score),
+                    .sorted_unstable_by_key(|(idx, score)| (*score, *idx)),
             };
             iterator.take(amount).map(|(idx, _)| idx).sorted().collect()
         }

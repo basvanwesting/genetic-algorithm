@@ -320,6 +320,21 @@ fn chromosome_indices_all_variants_with_fitness_with_genes_hash() {
 }
 
 #[test]
+fn best_unique_chromosome_indices_deterministic_on_equal_fitness() {
+    // unique genes, all with the same fitness score
+    let population: Population<u8> =
+        build::population_with_fitness_scores((0..20).map(|i| (vec![i, i + 1], Some(1))).collect());
+    for fitness_ordering in [FitnessOrdering::Maximize, FitnessOrdering::Minimize] {
+        for _ in 0..50 {
+            assert_eq!(
+                population.best_unique_chromosome_indices(3, fitness_ordering),
+                vec![0, 1, 2]
+            );
+        }
+    }
+}
+
+#[test]
 fn chromosome_indices_all_variants_without_fitness_with_genes_hash() {
     let population: Population<bool> = build::population_with_fitness_scores(vec![
         (vec![false, true, true], None),
