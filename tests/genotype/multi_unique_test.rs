@@ -362,3 +362,19 @@ fn neighbouring_population_4() {
         ]
     );
 }
+
+#[test]
+fn build_invalid_empty_allele_list() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    for allele_lists in [vec![vec![0, 1], vec![]], vec![vec![]]] {
+        let genotype = MultiUniqueGenotype::<usize>::builder()
+            .with_allele_lists(allele_lists)
+            .build();
+        assert_eq!(
+            genotype.err(),
+            Some(TryFromGenotypeBuilderError(
+                "MultiUniqueGenotype requires each allele_list in allele_lists to be non-empty"
+            ))
+        );
+    }
+}

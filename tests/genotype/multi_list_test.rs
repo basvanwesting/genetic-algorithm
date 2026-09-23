@@ -261,3 +261,19 @@ fn chromosome_permutations_genes_size_huge() {
         vec![vec![0; 10]]
     )
 }
+
+#[test]
+fn build_invalid_empty_allele_list() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    for allele_lists in [vec![vec![0, 1], vec![]], vec![vec![]]] {
+        let genotype = MultiListGenotype::<usize>::builder()
+            .with_allele_lists(allele_lists)
+            .build();
+        assert_eq!(
+            genotype.err(),
+            Some(TryFromGenotypeBuilderError(
+                "MultiListGenotype requires each allele_list in allele_lists to be non-empty"
+            ))
+        );
+    }
+}
