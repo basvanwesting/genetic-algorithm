@@ -332,3 +332,123 @@ impl RangeAllele for u32 {
         }
     }
 }
+impl RangeAllele for i64 {
+    fn smallest_increment() -> Self {
+        1
+    }
+    fn zero() -> Self {
+        0
+    }
+    fn one() -> Self {
+        1
+    }
+    fn floor(&self) -> Self {
+        *self
+    }
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
+    }
+}
+impl RangeAllele for isize {
+    fn smallest_increment() -> Self {
+        1
+    }
+    fn zero() -> Self {
+        0
+    }
+    fn one() -> Self {
+        1
+    }
+    fn floor(&self) -> Self {
+        *self
+    }
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
+    }
+}
+impl RangeAllele for u64 {
+    fn smallest_increment() -> Self {
+        1
+    }
+    fn zero() -> Self {
+        0
+    }
+    fn one() -> Self {
+        1
+    }
+    fn floor(&self) -> Self {
+        *self
+    }
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
+    }
+}
+impl RangeAllele for usize {
+    fn smallest_increment() -> Self {
+        1
+    }
+    fn zero() -> Self {
+        0
+    }
+    fn one() -> Self {
+        1
+    }
+    fn floor(&self) -> Self {
+        *self
+    }
+    fn clamped_add(current_value: Self, delta: Self, max_value: Self) -> Self {
+        let new_value = current_value.saturating_add(delta);
+        if new_value > max_value {
+            max_value
+        } else {
+            new_value
+        }
+    }
+    fn clamped_sub(current_value: Self, delta: Self, min_value: Self) -> Self {
+        let new_value = current_value.saturating_sub(delta);
+        if new_value < min_value {
+            min_value
+        } else {
+            new_value
+        }
+    }
+}

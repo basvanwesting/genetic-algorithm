@@ -85,7 +85,7 @@ pub type DefaultAllele = f32;
 /// ```
 /// use genetic_algorithm::genotype::{Genotype, MultiRangeGenotype, MutationType};
 ///
-/// let genotype = MultiRangeGenotype::builder()
+/// let genotype = MultiRangeGenotype::<isize>::builder()
 ///     .with_allele_ranges(vec![
 ///        0..=10,
 ///        5..=20,

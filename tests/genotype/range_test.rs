@@ -1121,6 +1121,37 @@ fn integer_permutable_gene_values_step_scaled() {
     );
 }
 
+macro_rules! assert_integer_type_supported {
+    ($t:ty) => {{
+        let mut rng = SmallRng::seed_from_u64(0);
+        let genotype = RangeGenotype::<$t>::builder()
+            .with_genes_size(3)
+            .with_allele_range(0..=10)
+            .with_mutation_type(MutationType::Step(2))
+            .build()
+            .unwrap();
+        let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+        genotype.mutate_chromosome_genes(3, true, &mut chromosome, &mut rng);
+        assert!(chromosome.genes.iter().all(|v| (0..=10).contains(v)));
+
+        let mut population = Population::new(vec![], true);
+        genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+        assert!(population.size() > 0);
+        assert_eq!(
+            genotype.chromosome_permutations_size(),
+            BigUint::from(6u32 * 6 * 6)
+        );
+    }};
+}
+
+#[test]
+fn integer_types_64_bit_and_size() {
+    assert_integer_type_supported!(i64);
+    assert_integer_type_supported!(isize);
+    assert_integer_type_supported!(u64);
+    assert_integer_type_supported!(usize);
+}
+
 #[test]
 fn integer_chromosome_permutations_2_step_scaled() {
     let scaled_steps = &vec![5, 2, 1];
