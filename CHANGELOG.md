@@ -4,6 +4,23 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+
+## [0.27.3] - 2026-09-23
+
+### Fixed
+* `best_chromosome_index`/`best_chromosome_indices` returned wrong indices when
+  `None` fitness chromosomes preceded the best one, affecting elitism and best tracking (#11)
+* Deadlock of `call_par_repeatedly`/`call_par_speciated` and `Permutate` with
+  `par_fitness` on a single rayon thread (#13)
+* `MultiUniqueGenotype` multi-gene mutation now deterministic for a given rng seed (#15)
+* `pprof` is now a unix-only dev-dependency, so tests/examples/benches build on Windows (#17)
+* Float neighbour generation panicked when a gene was within epsilon of the upper bound (#19)
+* `MultiRangeGenotype` with scaled step vectors of unequal length panicked or skipped scales (#21)
+* `Permutate` hung when a step did not advance the value (zero or sub-ulp step) (#23)
+* `MultiUniqueGenotype` with a single allele list panicked in point crossover (#25)
+* `call_speciated` returned the first species run instead of the best after an abort (#27)
+* `par_fitness` panicked with "already borrowed" when the fitness itself used rayon (#29)
+
 ## [0.27.2] - 2026-06-04
 
 ### Added
