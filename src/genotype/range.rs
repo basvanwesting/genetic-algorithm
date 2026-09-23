@@ -728,19 +728,7 @@ where
     pub fn permutable_gene_values_step(&self, step: T) -> Vec<T> {
         let allele_range_start = *self.allele_range.start();
         let allele_range_end = *self.allele_range.end();
-        std::iter::successors(Some(allele_range_start), |value| {
-            if *value < allele_range_end {
-                let next_value = *value + step;
-                if next_value > allele_range_end {
-                    Some(allele_range_end)
-                } else {
-                    Some(next_value)
-                }
-            } else {
-                None
-            }
-        })
-        .collect()
+        step_values(allele_range_start, allele_range_end, step).collect()
     }
     pub fn permutable_gene_values_step_scaled(
         &self,
@@ -765,37 +753,13 @@ where
         };
 
         let working_step = steps[self.current_scale_index];
-        std::iter::successors(Some(allele_value_start), |value| {
-            if *value < allele_value_end {
-                let next_value = *value + working_step;
-                if next_value > allele_value_end {
-                    Some(allele_value_end)
-                } else {
-                    Some(next_value)
-                }
-            } else {
-                None
-            }
-        })
-        .collect()
+        step_values(allele_value_start, allele_value_end, working_step).collect()
     }
 
     pub fn permutable_gene_values_discrete(&self) -> Vec<T> {
         let allele_value_start = self.allele_range.start().floor();
         let allele_value_end = self.allele_range.end().floor();
-        std::iter::successors(Some(allele_value_start), |value| {
-            if *value < allele_value_end {
-                let next_value = *value + T::one();
-                if next_value > allele_value_end {
-                    Some(allele_value_end)
-                } else {
-                    Some(next_value)
-                }
-            } else {
-                None
-            }
-        })
-        .collect()
+        step_values(allele_value_start, allele_value_end, T::one()).collect()
     }
 
     pub fn chromosome_permutations_size_per_scale(&self) -> Vec<BigUint> {
@@ -821,19 +785,7 @@ where
                 MutationType::Step(step) => {
                     let allele_range_start = *self.allele_range.start();
                     let allele_range_end = *self.allele_range.end();
-                    std::iter::successors(Some(allele_range_start), |value| {
-                        if *value < allele_range_end {
-                            let next_value = *value + *step;
-                            if next_value > allele_range_end {
-                                Some(allele_range_end)
-                            } else {
-                                Some(next_value)
-                            }
-                        } else {
-                            None
-                        }
-                    })
-                    .count()
+                    step_values(allele_range_start, allele_range_end, *step).count()
                 }
                 MutationType::StepScaled(steps) => {
                     let (allele_value_start, allele_value_end) =
@@ -845,37 +797,13 @@ where
                         };
 
                     let working_step = steps[scale_index];
-                    std::iter::successors(Some(allele_value_start), |value| {
-                        if *value < allele_value_end {
-                            let next_value = *value + working_step;
-                            if next_value > allele_value_end {
-                                Some(allele_value_end)
-                            } else {
-                                Some(next_value)
-                            }
-                        } else {
-                            None
-                        }
-                    })
-                    .count()
+                    step_values(allele_value_start, allele_value_end, working_step).count()
                 }
                 MutationType::Discrete => {
                     let allele_value_start = self.allele_range.start().floor();
                     let allele_value_end = self.allele_range.end().floor();
 
-                    std::iter::successors(Some(allele_value_start), |value| {
-                        if *value < allele_value_end {
-                            let next_value = *value + T::one();
-                            if next_value > allele_value_end {
-                                Some(allele_value_end)
-                            } else {
-                                Some(next_value)
-                            }
-                        } else {
-                            None
-                        }
-                    })
-                    .count()
+                    step_values(allele_value_start, allele_value_end, T::one()).count()
                 }
                 _ => {
                     panic!(
@@ -982,4 +910,22 @@ where
         writeln!(f, "  current scale index: {:?}", self.current_scale_index)?;
         writeln!(f, "  seed_genes: {:?}", self.seed_genes_list.len())
     }
+}
+
+/// Values from start to end (inclusive) by step, the last value is clamped to end.
+/// Jumps to end when the step does not advance the value (zero or negative step, or a float step
+/// below the precision of the value), otherwise the iteration would never end.
+pub(crate) fn step_values<T: RangeAllele>(start: T, end: T, step: T) -> impl Iterator<Item = T> {
+    std::iter::successors(Some(start), move |value| {
+        if *value < end {
+            let next_value = *value + step;
+            if next_value > end || next_value <= *value {
+                Some(end)
+            } else {
+                Some(next_value)
+            }
+        } else {
+            None
+        }
+    })
 }
