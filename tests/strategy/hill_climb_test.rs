@@ -179,6 +179,34 @@ fn call_range_target_fitness_score_maximize() {
 }
 
 #[test]
+fn call_with_buffered_reporter() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let mut hill_climb = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_max_stale_generations(10)
+        .with_fitness(CountTrue)
+        .with_reporter(HillClimbReporterSimple::new_with_buffer(100))
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    let mut buffer: Vec<u8> = vec![];
+    hill_climb.flush_reporter(&mut buffer);
+    assert_eq!(
+        Some("enter - hill_climb/stochastic, iteration: 0"),
+        String::from_utf8(buffer).unwrap().lines().next()
+    );
+
+    // actually flushes
+    let mut buffer: Vec<u8> = vec![];
+    hill_climb.flush_reporter(&mut buffer);
+    assert_eq!("", String::from_utf8(buffer).unwrap());
+}
+
+#[test]
 fn call_range_target_fitness_score_minimize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)

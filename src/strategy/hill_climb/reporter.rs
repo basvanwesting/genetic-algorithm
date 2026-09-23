@@ -69,6 +69,11 @@ impl<G: HillClimbGenotype> Simple<G> {
 impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
     type Genotype = G;
 
+    fn flush(&mut self, output: &mut Vec<u8>) {
+        if let Some(buffer) = self.buffer.as_mut() {
+            output.append(buffer);
+        }
+    }
     fn on_enter<S: StrategyState<Self::Genotype>, C: StrategyConfig>(
         &mut self,
         genotype: &Self::Genotype,
