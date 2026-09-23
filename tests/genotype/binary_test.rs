@@ -560,3 +560,26 @@ fn calculate_genes_hash() {
     // Different genes should have different hash
     assert_ne!(hash_1, hash_3);
 }
+
+#[test]
+fn build_invalid_seed_genes() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .with_seed_genes_list(vec![vec![true, false, true]])
+        .build();
+    assert!(genotype.is_ok());
+
+    for seed_genes in [vec![true, false], vec![true, false, true, true]] {
+        let genotype = BinaryGenotype::builder()
+            .with_genes_size(3)
+            .with_seed_genes_list(vec![vec![true, false, true], seed_genes])
+            .build();
+        assert_eq!(
+            genotype.err(),
+            Some(TryFromGenotypeBuilderError(
+                "BinaryGenotype requires seed genes with a length of genes_size"
+            ))
+        );
+    }
+}

@@ -165,6 +165,13 @@ where
                 _ => None,
             };
 
+            if builder.seed_genes_list.iter().any(|genes| {
+                genes.len() != genes_size || !genes.iter().all(|gene| allele_range.contains(gene))
+            }) {
+                return Err(TryFromBuilderError(
+                    "RangeGenotype requires seed genes with a length of genes_size within the allele_range",
+                ));
+            }
             Ok(Self {
                 genes_size,
                 allele_range: allele_range.clone(),
