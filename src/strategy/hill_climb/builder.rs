@@ -207,6 +207,10 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         self,
         max_repeats: usize,
     ) -> Result<(HillClimb<G, F, SR>, Vec<HillClimb<G, F, SR>>), TryFromBuilderError> {
+        let _valid_builder: HillClimb<G, F, SR> = self.clone().try_into()?;
+        if max_repeats == 0 {
+            return Err(TryFromBuilderError("max_repeats must be at least 1"));
+        }
         let mut runs: Vec<HillClimb<G, F, SR>> = vec![];
         (0..max_repeats)
             .filter_map(|iteration| {
@@ -231,6 +235,9 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         max_repeats: usize,
     ) -> Result<(HillClimb<G, F, SR>, Vec<HillClimb<G, F, SR>>), TryFromBuilderError> {
         let _valid_builder: HillClimb<G, F, SR> = self.clone().try_into()?;
+        if max_repeats == 0 {
+            return Err(TryFromBuilderError("max_repeats must be at least 1"));
+        }
         let mut runs: Vec<HillClimb<G, F, SR>> = vec![];
         // A plain thread scope, not rayon::scope: rayon::scope runs this body on a rayon worker,
         // which the receiver below then blocks while the producer needs a rayon worker to run

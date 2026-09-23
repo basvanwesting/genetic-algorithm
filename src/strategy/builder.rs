@@ -61,7 +61,7 @@ impl<
         Self {
             genotype: None,
             variant: None,
-            target_population_size: 0,
+            target_population_size: 100,
             max_stale_generations: None,
             max_generations: None,
             max_chromosome_age: None,

@@ -30,6 +30,62 @@ fn build_invalid_missing_ending_condition() {
 }
 
 #[test]
+fn build_invalid_zero_target_population_size() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let evolve = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(0)
+        .with_max_stale_generations(20)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_fitness(CountTrue)
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .build();
+
+    assert_eq!(
+        evolve.err(),
+        Some(TryFromEvolveBuilderError(
+            "Evolve requires a target_population_size > 0"
+        ))
+    );
+}
+
+#[test]
+fn call_repeatedly_invalid_builder_or_zero_repeats() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let builder = Evolve::builder()
+        .with_genotype(genotype)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_fitness(CountTrue)
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4));
+
+    // missing ending condition
+    let missing_ending_condition = Some(TryFromEvolveBuilderError(
+        "Evolve requires at least a max_stale_generations, max_generations or target_fitness_score ending condition",
+    ));
+    assert_eq!(
+        builder.clone().call_repeatedly(3).err(),
+        missing_ending_condition
+    );
+    assert_eq!(
+        builder.clone().call_par_repeatedly(3).err(),
+        missing_ending_condition
+    );
+
+    let builder = builder.with_max_stale_generations(20);
+    let zero_repeats = Some(TryFromEvolveBuilderError("max_repeats must be at least 1"));
+    assert_eq!(builder.clone().call_repeatedly(0).err(), zero_repeats);
+    assert_eq!(builder.clone().call_par_repeatedly(0).err(), zero_repeats);
+}
+
+#[test]
 fn call_binary_max_stale_generations_maximize() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(10)

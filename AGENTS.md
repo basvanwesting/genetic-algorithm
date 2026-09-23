@@ -411,8 +411,7 @@ Ending conditions (at least one required):
 Optional:
 - `.with_target_population_size(n)` — number of chromosomes (defaults to 100).
   Heuristic: small genomes (<50 genes): 100, medium (50-500): 200-500,
-  large/complex: 1000+. Must be explicitly set for `StrategyBuilder` (defaults
-  to 0). HillClimb does not use population size.
+  large/complex: 1000+. HillClimb does not use population size.
 - `.with_fitness_ordering(FitnessOrdering::Minimize)` — default is Maximize
 - `.with_par_fitness(true)` — parallelize fitness calculation
 - `.with_fitness_cache(size)` — LRU cache for expensive fitness

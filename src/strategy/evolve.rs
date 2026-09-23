@@ -732,6 +732,10 @@ impl<
             Err(TryFromEvolveBuilderError(
                 "Evolve requires at least a max_stale_generations, max_generations or target_fitness_score ending condition",
             ))
+        } else if builder.target_population_size == 0 {
+            Err(TryFromEvolveBuilderError(
+                "Evolve requires a target_population_size > 0",
+            ))
         } else {
             let rng = builder.rng();
             let genotype = builder.genotype.unwrap();

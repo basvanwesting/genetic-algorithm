@@ -192,3 +192,26 @@ fn call_repeatedly_hill_climb_steepest_ascent() {
         other_first_lines
     );
 }
+
+#[test]
+fn call_evolve_default_target_population_size() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
+
+    // target_population_size is not set, defaults to 100 like Evolve::builder()
+    let strategy = StrategyBuilder::new()
+        .with_genotype(genotype)
+        .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
+        .with_max_stale_generations(10)
+        .with_fitness(CountTrue)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    assert!(strategy.best_fitness_score().is_some());
+}
