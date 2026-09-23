@@ -184,3 +184,26 @@ fn neighbouring_population_4() {
         ]
     );
 }
+
+#[test]
+fn build_invalid_seed_genes() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    let genotype = UniqueGenotype::<u8>::builder()
+        .with_allele_list(vec![1, 2, 3])
+        .with_seed_genes_list(vec![vec![3, 1, 2]])
+        .build();
+    assert!(genotype.is_ok());
+
+    for seed_genes in [vec![3, 1], vec![3, 3, 2], vec![3, 1, 9]] {
+        let genotype = UniqueGenotype::<u8>::builder()
+            .with_allele_list(vec![1, 2, 3])
+            .with_seed_genes_list(vec![vec![3, 1, 2], seed_genes])
+            .build();
+        assert_eq!(
+            genotype.err(),
+            Some(TryFromGenotypeBuilderError(
+                "UniqueGenotype requires seed genes which are a permutation of the allele_list"
+            ))
+        );
+    }
+}

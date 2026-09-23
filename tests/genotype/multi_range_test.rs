@@ -33,6 +33,29 @@ fn sample_gene_indices() {
         vec![5, 1, 2, 8, 3, 9, 9, 0, 8, 4]
     );
 }
+
+#[test]
+fn build_invalid_seed_genes() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 10.0..=20.0])
+        .with_seed_genes_list(vec![vec![0.5, 15.0]])
+        .build();
+    assert!(genotype.is_ok());
+
+    for seed_genes in [vec![0.5], vec![15.0, 0.5]] {
+        let genotype = MultiRangeGenotype::<f32>::builder()
+            .with_allele_ranges(vec![0.0..=1.0, 10.0..=20.0])
+            .with_seed_genes_list(vec![vec![0.5, 15.0], seed_genes])
+            .build();
+        assert_eq!(
+            genotype.err(),
+            Some(TryFromGenotypeBuilderError(
+                "MultiRangeGenotype requires seed genes with a value within each allele_range"
+            ))
+        );
+    }
+}
 #[test]
 fn float_mutate_chromosome_single_random() {
     let mut rng = SmallRng::seed_from_u64(0);

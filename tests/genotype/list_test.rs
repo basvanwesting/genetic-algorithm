@@ -245,3 +245,28 @@ fn integer_calculate_genes_hash() {
     // the sign on does not matter (-0 == 0)
     assert_eq!(hash_1, hash_3);
 }
+
+#[test]
+fn build_invalid_seed_genes() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    let genotype = ListGenotype::<u8>::builder()
+        .with_genes_size(3)
+        .with_allele_list(vec![1, 2, 3])
+        .with_seed_genes_list(vec![vec![1, 2, 2]])
+        .build();
+    assert!(genotype.is_ok());
+
+    for seed_genes in [vec![1, 2], vec![1, 2, 9]] {
+        let genotype = ListGenotype::<u8>::builder()
+            .with_genes_size(3)
+            .with_allele_list(vec![1, 2, 3])
+            .with_seed_genes_list(vec![vec![1, 2, 2], seed_genes])
+            .build();
+        assert_eq!(
+            genotype.err(),
+            Some(TryFromGenotypeBuilderError(
+                "ListGenotype requires seed genes with a length of genes_size and alleles from the allele_list"
+            ))
+        );
+    }
+}

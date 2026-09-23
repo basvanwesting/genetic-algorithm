@@ -232,6 +232,17 @@ where
                 })
                 .collect();
 
+            if builder.seed_genes_list.iter().any(|genes| {
+                genes.len() != genes_size
+                    || !genes
+                        .iter()
+                        .zip(allele_ranges.iter())
+                        .all(|(gene, allele_range)| allele_range.contains(gene))
+            }) {
+                return Err(TryFromBuilderError(
+                    "MultiRangeGenotype requires seed genes with a value within each allele_range",
+                ));
+            }
             Ok(Self {
                 genes_size,
                 allele_ranges: allele_ranges.clone(),

@@ -21,6 +21,29 @@ fn sample_gene_indices() {
         vec![3, 2, 4, 5, 9, 6, 8, 7]
     );
 }
+
+#[test]
+fn build_invalid_seed_genes() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    let genotype = MultiUniqueGenotype::<u8>::builder()
+        .with_allele_lists(vec![vec![1, 2], vec![3, 4, 5]])
+        .with_seed_genes_list(vec![vec![2, 1, 5, 3, 4]])
+        .build();
+    assert!(genotype.is_ok());
+
+    for seed_genes in [vec![2, 1, 5, 3], vec![2, 2, 5, 3, 4], vec![1, 5, 2, 3, 4]] {
+        let genotype = MultiUniqueGenotype::<u8>::builder()
+            .with_allele_lists(vec![vec![1, 2], vec![3, 4, 5]])
+            .with_seed_genes_list(vec![vec![2, 1, 5, 3, 4], seed_genes])
+            .build();
+        assert_eq!(
+            genotype.err(),
+            Some(TryFromGenotypeBuilderError(
+                "MultiUniqueGenotype requires seed genes which are a permutation of each allele_list"
+            ))
+        );
+    }
+}
 #[test]
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);

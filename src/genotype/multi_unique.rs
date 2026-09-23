@@ -1,4 +1,4 @@
-use super::builder::{Builder, TryFromBuilderError};
+use super::builder::{genes_permutation_of_alleles, Builder, TryFromBuilderError};
 use super::{
     EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype,
     SupportsPointCrossover,
@@ -122,6 +122,20 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
                 Some(Uniform::from(0..crossover_points.len()))
             };
             let genes_size = allele_list_sizes.iter().sum();
+            if builder.seed_genes_list.iter().any(|genes: &Vec<T>| {
+                genes.len() != genes_size
+                    || !allele_lists.iter().enumerate().all(|(index, allele_list)| {
+                        genes_permutation_of_alleles(
+                            &genes[allele_list_index_offsets[index]
+                                ..allele_list_index_offsets[index + 1]],
+                            allele_list,
+                        )
+                    })
+            }) {
+                return Err(TryFromBuilderError(
+                    "MultiUniqueGenotype requires seed genes which are a permutation of each allele_list",
+                ));
+            }
             // with_allele_lists() auto-sets genes_size to allele_lists.len(), which differs
             // from the derived sum. Only error if user explicitly set a different value.
             let auto_set_genes_size = allele_lists.len();

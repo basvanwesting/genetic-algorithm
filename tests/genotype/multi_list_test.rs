@@ -33,6 +33,29 @@ fn sample_gene_indices() {
         vec![2, 9, 6, 0, 8, 2, 2, 3, 7, 7]
     );
 }
+
+#[test]
+fn build_invalid_seed_genes() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    let genotype = MultiListGenotype::<u8>::builder()
+        .with_allele_lists(vec![vec![1, 2], vec![3, 4]])
+        .with_seed_genes_list(vec![vec![2, 3]])
+        .build();
+    assert!(genotype.is_ok());
+
+    for seed_genes in [vec![2], vec![3, 2], vec![2, 3, 4]] {
+        let genotype = MultiListGenotype::<u8>::builder()
+            .with_allele_lists(vec![vec![1, 2], vec![3, 4]])
+            .with_seed_genes_list(vec![vec![2, 3], seed_genes])
+            .build();
+        assert_eq!(
+            genotype.err(),
+            Some(TryFromGenotypeBuilderError(
+                "MultiListGenotype requires seed genes with an allele from each allele_list"
+            ))
+        );
+    }
+}
 #[test]
 fn mutate_chromosome_single() {
     let mut rng = SmallRng::seed_from_u64(0);

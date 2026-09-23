@@ -129,6 +129,17 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
                     "MultiListGenotype genes_size is derived from allele_lists, don't set it explicitly",
                 ));
             }
+            if builder.seed_genes_list.iter().any(|genes| {
+                genes.len() != genes_size
+                    || !genes
+                        .iter()
+                        .zip(allele_lists.iter())
+                        .all(|(gene, allele_list)| allele_list.contains(gene))
+            }) {
+                return Err(TryFromBuilderError(
+                    "MultiListGenotype requires seed genes with an allele from each allele_list",
+                ));
+            }
             let allele_list_sizes: Vec<usize> = allele_lists.iter().map(|v| v.len()).collect();
             Ok(Self {
                 genes_size,

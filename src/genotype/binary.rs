@@ -45,6 +45,15 @@ impl TryFrom<Builder<Self>> for Binary {
             ))
         } else {
             let genes_size = builder.genes_size.unwrap();
+            if builder
+                .seed_genes_list
+                .iter()
+                .any(|genes| genes.len() != genes_size)
+            {
+                return Err(TryFromBuilderError(
+                    "BinaryGenotype requires seed genes with a length of genes_size",
+                ));
+            }
             Ok(Self {
                 genes_size,
                 gene_index_sampler: Uniform::from(0..genes_size),

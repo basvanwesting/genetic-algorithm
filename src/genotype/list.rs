@@ -1,4 +1,4 @@
-use super::builder::{Builder, TryFromBuilderError};
+use super::builder::{genes_in_alleles, Builder, TryFromBuilderError};
 use super::{
     EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype,
     SupportsGeneCrossover, SupportsPointCrossover,
@@ -115,6 +115,16 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for List<T> {
             ))
         } else {
             let allele_list = builder.allele_list.unwrap();
+            let genes_size = builder.genes_size.unwrap();
+            if builder
+                .seed_genes_list
+                .iter()
+                .any(|genes| genes.len() != genes_size || !genes_in_alleles(genes, &allele_list))
+            {
+                return Err(TryFromBuilderError(
+                    "ListGenotype requires seed genes with a length of genes_size and alleles from the allele_list",
+                ));
+            }
             Ok(Self {
                 genes_size: builder.genes_size.unwrap(),
                 allele_list: allele_list.clone(),

@@ -1,4 +1,4 @@
-use super::builder::{Builder, TryFromBuilderError};
+use super::builder::{genes_permutation_of_alleles, Builder, TryFromBuilderError};
 use super::{EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype};
 use crate::allele::Allele;
 use crate::chromosome::{Chromosome, Genes};
@@ -86,6 +86,15 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
         } else {
             let allele_list = builder.allele_list.unwrap();
             let genes_size = allele_list.len();
+            if builder
+                .seed_genes_list
+                .iter()
+                .any(|genes| !genes_permutation_of_alleles(genes, &allele_list))
+            {
+                return Err(TryFromBuilderError(
+                    "UniqueGenotype requires seed genes which are a permutation of the allele_list",
+                ));
+            }
             if builder.genes_size.is_some_and(|s| s != genes_size) {
                 return Err(TryFromBuilderError(
                     "UniqueGenotype genes_size is derived from allele_list length, don't set it explicitly",
