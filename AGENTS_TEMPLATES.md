@@ -364,11 +364,13 @@ fn main() {
 ```rust
 use genetic_algorithm::strategy::evolve::prelude::*;
 
-// Assign 6 workers to 2 shifts, 3 per shift. Minimize total cost.
-const COSTS: [[isize; 3]; 2] = [
-    // Worker costs per position within each shift
-    [10, 20, 15],  // Shift 0
-    [25, 10, 30],  // Shift 1
+// In each of 2 shifts, assign 3 workers to 3 tasks, each worker doing exactly one task per
+// shift. Minimize total cost.
+const COSTS: [[[isize; 3]; 3]; 2] = [
+    // Shift 0: cost per task (row) per worker (column)
+    [[10, 20, 15], [25, 10, 30], [20, 15, 10]],
+    // Shift 1
+    [[15, 25, 10], [10, 30, 20], [30, 10, 25]],
 ];
 
 #[derive(Clone, Debug)]
@@ -380,19 +382,20 @@ impl Fitness for ShiftFitness {
         chromosome: &FitnessChromosome<Self>,
         _genotype: &FitnessGenotype<Self>,
     ) -> Option<FitnessValue> {
-        // genes is a flat Vec with group boundaries: [shift0_w0, shift0_w1, shift0_w2, shift1_w0, ...]
+        // genes is a flat Vec with group boundaries: [shift0_task0, shift0_task1, shift0_task2, shift1_task0, ...]
+        // each value is the worker assigned to that task
         let mut cost = 0;
         for (i, &worker) in chromosome.genes.iter().enumerate() {
             let shift = i / 3;
-            let position = i % 3;
-            cost += COSTS[shift][position] * worker as isize;
+            let task = i % 3;
+            cost += COSTS[shift][task][worker];
         }
         Some(cost)
     }
 }
 
 fn main() {
-    let workers: Vec<usize> = (0..6).collect();
+    let workers: Vec<usize> = (0..3).collect();
     // Each shift draws from the same pool; workers are unique within each group
     let allele_lists = vec![workers.clone(), workers];
 
