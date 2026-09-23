@@ -245,12 +245,12 @@ fn extreme_elitism_rates() {
         vec![
             (vec![true, true, true], Some(3)),
             (vec![false, true, true], Some(2)),
-            (vec![true, true, false], Some(2)),
             (vec![true, false, true], Some(2)),
             (vec![true, false, false], Some(1)),
             (vec![false, true, false], Some(1)),
+            (vec![true, true, false], Some(2)),
             (vec![false, false, false], Some(0)),
-            (vec![false, false, true], None),
+            (vec![false, false, true], None)
         ]
     );
 }
