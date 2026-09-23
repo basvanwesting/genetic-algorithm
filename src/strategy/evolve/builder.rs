@@ -343,11 +343,14 @@ impl<
     > {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
-        rayon::scope(|s| {
+        // A plain thread scope, not rayon::scope: rayon::scope runs this body on a rayon worker,
+        // which the receiver below then blocks while the producer needs a rayon worker to run
+        // (deadlock with a single rayon thread)
+        std::thread::scope(|s| {
             let builder = &self;
             let (sender, receiver) = channel();
 
-            s.spawn(move |_| {
+            s.spawn(move || {
                 (0..max_repeats)
                     .filter_map(|iteration| {
                         let mut contending_run: Evolve<G, M, F, S, C, E, SR> =
@@ -432,11 +435,14 @@ impl<
     > {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
         let mut species_runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
-        rayon::scope(|s| {
+        // A plain thread scope, not rayon::scope: rayon::scope runs this body on a rayon worker,
+        // which the receiver below then blocks while the producer needs a rayon worker to run
+        // (deadlock with a single rayon thread)
+        std::thread::scope(|s| {
             let builder = &self;
             let (sender, receiver) = channel();
 
-            s.spawn(move |_| {
+            s.spawn(move || {
                 (0..number_of_species)
                     .filter_map(|iteration| {
                         let mut species_run: Evolve<G, M, F, S, C, E, SR> =

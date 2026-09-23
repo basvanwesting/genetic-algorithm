@@ -232,11 +232,14 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
     ) -> Result<(HillClimb<G, F, SR>, Vec<HillClimb<G, F, SR>>), TryFromBuilderError> {
         let _valid_builder: HillClimb<G, F, SR> = self.clone().try_into()?;
         let mut runs: Vec<HillClimb<G, F, SR>> = vec![];
-        rayon::scope(|s| {
+        // A plain thread scope, not rayon::scope: rayon::scope runs this body on a rayon worker,
+        // which the receiver below then blocks while the producer needs a rayon worker to run
+        // (deadlock with a single rayon thread)
+        std::thread::scope(|s| {
             let builder = &self;
             let (sender, receiver) = channel();
 
-            s.spawn(move |_| {
+            s.spawn(move || {
                 (0..max_repeats)
                     .filter_map(|iteration| {
                         let mut contending_run: HillClimb<G, F, SR> =

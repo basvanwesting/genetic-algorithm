@@ -316,7 +316,10 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
         }
     }
     fn call_parallel(&mut self) {
-        rayon::scope(|s| {
+        // A plain thread scope, not rayon::scope: rayon::scope runs this body on a rayon worker,
+        // which the receiver below then blocks while the producer needs a rayon worker to run
+        // (deadlock with a single rayon thread)
+        std::thread::scope(|s| {
             let thread_genotype = self.genotype.clone();
             let thread_best_chromosome = self.state.best_chromosome.clone();
             let fitness = self.fitness.clone();
@@ -330,7 +333,7 @@ impl<G: PermutateGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             let producer_stop = Arc::clone(&stop);
             let abort_flag = self.config.abort_flag.clone();
 
-            s.spawn(move |_| {
+            s.spawn(move || {
                 thread_genotype
                     .chromosome_permutations_into_iter(thread_best_chromosome.as_ref())
                     .take_while(|_| {
