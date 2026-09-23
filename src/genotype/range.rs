@@ -614,8 +614,13 @@ where
             };
             if current_value < allele_range_end {
                 let mut new_chromosome = population.new_chromosome(chromosome);
-                let new_value =
-                    rng.gen_range((current_value + T::smallest_increment())..=allele_range_end);
+                // current_value can be closer than smallest_increment to the end (for floats)
+                let new_value_start = current_value + T::smallest_increment();
+                let new_value = if new_value_start <= allele_range_end {
+                    rng.gen_range(new_value_start..=allele_range_end)
+                } else {
+                    allele_range_end
+                };
                 new_chromosome.genes[index] = new_value;
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);

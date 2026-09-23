@@ -443,6 +443,43 @@ fn float_neighbouring_population_2_random() {
 }
 
 #[test]
+fn float_neighbouring_population_random_near_upper_bound() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=0.5)
+        .build()
+        .unwrap();
+
+    // closer to the upper bound than f32::EPSILON
+    let near_end: f32 = 0.5 - f32::EPSILON / 4.0;
+    let chromosome = build::chromosome(vec![near_end, 0.5]);
+    let mut population = Population::new(vec![], true);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+    assert_eq!(population.size(), 3);
+    assert_eq!(population.chromosomes[1].genes, vec![0.5, 0.5]);
+    for chromosome in &population.chromosomes {
+        assert!(chromosome.genes.iter().all(|v| (0.0..=0.5).contains(v)));
+    }
+}
+
+#[test]
+fn float_neighbouring_population_random_range_narrower_than_epsilon() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(1)
+        .with_allele_range(0.0..=1e-8)
+        .build()
+        .unwrap();
+
+    let chromosome = build::chromosome(vec![0.5e-8]);
+    let mut population = Population::new(vec![], true);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+    assert_eq!(population.size(), 2);
+    assert_eq!(population.chromosomes[1].genes, vec![1e-8f32]);
+}
+
+#[test]
 fn float_neighbouring_population_2_range() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = RangeGenotype::builder()
