@@ -134,13 +134,17 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
                 .par_iter_mut()
                 .filter(|c| c.fitness_score().is_none())
                 .for_each_init(
-                    || {
-                        thread_local
-                            .get_or(|| std::cell::RefCell::new(self.clone()))
-                            .borrow_mut()
-                    },
-                    |fitness, chromosome| {
-                        fitness.call_for_chromosome(chromosome, genotype, cache);
+                    || thread_local.get_or(|| std::cell::RefCell::new(self.clone())),
+                    |fitness_cell, chromosome| {
+                        // The thread's fitness is already borrowed when the fitness calculation
+                        // uses rayon itself: while it waits, this thread can steal other chromosomes
+                        // of this par_iter. Use a temporary clone in that case.
+                        if let Ok(mut fitness) = fitness_cell.try_borrow_mut() {
+                            fitness.call_for_chromosome(chromosome, genotype, cache);
+                        } else {
+                            self.clone()
+                                .call_for_chromosome(chromosome, genotype, cache);
+                        }
                     },
                 );
         } else {
