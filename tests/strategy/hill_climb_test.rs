@@ -327,3 +327,36 @@ fn call_repeatedly_abort_flag_preset_stops_after_first_run() {
     // the abort flag short-circuits the repeat loop after the first run, so no contenders remain
     assert_eq!(other_runs.len(), 0);
 }
+
+#[test]
+fn call_repeatedly_with_rng_seed_gives_distinct_deterministic_runs() {
+    let run = || {
+        let genotype = RangeGenotype::builder()
+            .with_genes_size(5)
+            .with_allele_range(0.0..=1.0)
+            .build()
+            .unwrap();
+        let (best_run, other_runs) = HillClimb::builder()
+            .with_genotype(genotype)
+            .with_max_stale_generations(20)
+            .with_fitness(SumGenes::new_with_precision(1e-3))
+            .with_rng_seed_from_u64(0)
+            .call_repeatedly(4)
+            .unwrap();
+        let mut runs: Vec<(usize, Vec<f32>)> = std::iter::once(best_run)
+            .chain(other_runs)
+            .map(|run| (run.state.current_iteration, run.best_genes().unwrap()))
+            .collect();
+        runs.sort_by_key(|(iteration, _)| *iteration);
+        runs
+    };
+
+    let runs = run();
+    assert_eq!(runs.len(), 4);
+    // each iteration has its own rng, so the runs differ
+    for i in 1..runs.len() {
+        assert_ne!(runs[0].1, runs[i].1);
+    }
+    // but they are still deterministic
+    assert_eq!(runs, run());
+}

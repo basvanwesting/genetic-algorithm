@@ -197,6 +197,16 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             SmallRng::from_rng(rand::thread_rng()).unwrap()
         }
     }
+    /// The rng for a run of call_repeatedly/call_speciated (and par variants). With a rng_seed,
+    /// each iteration gets its own seed (rng_seed + iteration), so the runs are deterministic but
+    /// not identical. Iteration 0 uses the rng_seed itself, like a single call.
+    pub fn rng_for_iteration(&self, iteration: usize) -> SmallRng {
+        if let Some(seed) = self.rng_seed {
+            SmallRng::seed_from_u64(seed.wrapping_add(iteration as u64))
+        } else {
+            self.rng()
+        }
+    }
     pub fn call(self) -> Result<HillClimb<G, F, SR>, TryFromBuilderError> {
         let mut hill_climb: HillClimb<G, F, SR> = self.try_into()?;
         hill_climb.call();
@@ -212,6 +222,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             .filter_map(|iteration| {
                 let mut contending_run: HillClimb<G, F, SR> = self.clone().try_into().ok()?;
                 contending_run.state.current_iteration = iteration;
+                contending_run.rng = self.rng_for_iteration(iteration);
                 Some(contending_run)
             })
             .map(|mut contending_run| {
@@ -245,6 +256,7 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
                         let mut contending_run: HillClimb<G, F, SR> =
                             builder.clone().try_into().ok()?;
                         contending_run.state.current_iteration = iteration;
+                        contending_run.rng = builder.rng_for_iteration(iteration);
                         Some(contending_run)
                     })
                     .par_bridge()

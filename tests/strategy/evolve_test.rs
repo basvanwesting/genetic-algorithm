@@ -634,3 +634,44 @@ fn call_par_speciated_abort_flag_returns_best_species_run() {
         .iter()
         .all(|run| best_run.best_fitness_score() >= run.best_fitness_score()));
 }
+
+#[test]
+fn call_repeatedly_with_rng_seed_gives_distinct_deterministic_runs() {
+    let run = |par: bool| {
+        let genotype = RangeGenotype::builder()
+            .with_genes_size(5)
+            .with_allele_range(0.0..=1.0)
+            .build()
+            .unwrap();
+        let builder = Evolve::builder()
+            .with_genotype(genotype)
+            .with_target_population_size(20)
+            .with_max_stale_generations(20)
+            .with_mutate(MutateSingleGene::new(0.2))
+            .with_fitness(SumGenes::new_with_precision(1e-3))
+            .with_crossover(CrossoverUniform::new(0.7, 0.8))
+            .with_select(SelectTournament::new(0.5, 0.02, 4))
+            .with_rng_seed_from_u64(0);
+        let (best_run, other_runs) = if par {
+            builder.call_par_repeatedly(4).unwrap()
+        } else {
+            builder.call_repeatedly(4).unwrap()
+        };
+        let mut runs: Vec<(usize, Vec<f32>)> = std::iter::once(best_run)
+            .chain(other_runs)
+            .map(|run| (run.state.current_iteration, run.best_genes().unwrap()))
+            .collect();
+        runs.sort_by_key(|(iteration, _)| *iteration);
+        runs
+    };
+
+    let runs = run(false);
+    assert_eq!(runs.len(), 4);
+    // each iteration has its own rng, so the runs differ
+    for i in 1..runs.len() {
+        assert_ne!(runs[0].1, runs[i].1);
+    }
+    // but they are still deterministic, also when run in parallel
+    assert_eq!(runs, run(false));
+    assert_eq!(runs, run(true));
+}
