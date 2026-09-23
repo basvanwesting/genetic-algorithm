@@ -1172,3 +1172,62 @@ fn integer_neighbouring_population_3_discrete() {
         ]
     );
 }
+
+#[test]
+fn build_invalid() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    let error = |message| Some(TryFromGenotypeBuilderError(message));
+
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 1.0..=0.0])
+        .build();
+    assert_eq!(
+        genotype.err(),
+        error("MultiRangeGenotype requires allele_ranges with a finite start <= end")
+    );
+
+    for mutation_types in [
+        vec![MutationType::Random],
+        vec![
+            MutationType::Random,
+            MutationType::Random,
+            MutationType::Random,
+        ],
+    ] {
+        let genotype = MultiRangeGenotype::<f32>::builder()
+            .with_allele_ranges(vec![0.0..=1.0, 0.0..=1.0])
+            .with_mutation_types(mutation_types)
+            .build();
+        assert_eq!(
+            genotype.err(),
+            error("MultiRangeGenotype requires a mutation_type for each allele_range")
+        );
+    }
+
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 0.0..=1.0])
+        .with_mutation_types(vec![MutationType::Random, MutationType::StepScaled(vec![])])
+        .build();
+    assert_eq!(
+        genotype.err(),
+        error("MultiRangeGenotype requires non-empty RangeScaled/StepScaled values")
+    );
+
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 0.0..=1.0])
+        .with_mutation_types(vec![MutationType::Random, MutationType::Range(-0.1)])
+        .build();
+    assert_eq!(
+        genotype.err(),
+        error("MultiRangeGenotype requires finite, non-negative mutation_type values")
+    );
+
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 0.0..=1.0])
+        .with_mutation_type(MutationType::Range(0.1))
+        .build();
+    assert_eq!(
+        genotype.err(),
+        error("MultiRangeGenotype uses with_mutation_types (plural), with_mutation_type is not supported")
+    );
+}

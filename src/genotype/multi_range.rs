@@ -191,9 +191,37 @@ where
                     "MultiRangeGenotype genes_size is derived from allele_ranges, don't set it explicitly",
                 ));
             }
+            if !allele_ranges
+                .iter()
+                .all(super::mutation_type::is_valid_allele_range)
+            {
+                return Err(TryFromBuilderError(
+                    "MultiRangeGenotype requires allele_ranges with a finite start <= end",
+                ));
+            }
+            if builder.mutation_type.is_some() {
+                return Err(TryFromBuilderError(
+                    "MultiRangeGenotype uses with_mutation_types (plural), with_mutation_type is not supported",
+                ));
+            }
             let mutation_types = builder
                 .mutation_types
                 .unwrap_or(vec![MutationType::Random; genes_size]);
+            if mutation_types.len() != genes_size {
+                return Err(TryFromBuilderError(
+                    "MultiRangeGenotype requires a mutation_type for each allele_range",
+                ));
+            }
+            if mutation_types.iter().any(|m| m.has_empty_scales()) {
+                return Err(TryFromBuilderError(
+                    "MultiRangeGenotype requires non-empty RangeScaled/StepScaled values",
+                ));
+            }
+            if mutation_types.iter().any(|m| m.has_invalid_values()) {
+                return Err(TryFromBuilderError(
+                    "MultiRangeGenotype requires finite, non-negative mutation_type values",
+                ));
+            }
             let allele_samplers = allele_ranges
                 .iter()
                 .zip(&mutation_types)

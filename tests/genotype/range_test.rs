@@ -1310,3 +1310,71 @@ fn integer_calculate_genes_hash() {
     // the sign on does not matter
     assert_eq!(hash_1, hash_3);
 }
+
+#[test]
+#[allow(clippy::reversed_empty_ranges)] // invalid allele ranges are the point of this test
+fn build_invalid() {
+    use genetic_algorithm::genotype::TryFromGenotypeBuilderError;
+    let error = |message| Some(TryFromGenotypeBuilderError(message));
+
+    let invalid_range = error("RangeGenotype requires an allele_range with a finite start <= end");
+    for allele_range in [1.0..=0.0, f32::NAN..=1.0, 0.0..=f32::INFINITY] {
+        let genotype = RangeGenotype::<f32>::builder()
+            .with_genes_size(2)
+            .with_allele_range(allele_range)
+            .build();
+        assert_eq!(genotype.err(), invalid_range);
+    }
+    let genotype = RangeGenotype::<i32>::builder()
+        .with_genes_size(2)
+        .with_allele_range(10..=0)
+        .build();
+    assert_eq!(genotype.err(), invalid_range);
+
+    let empty_scales = error("RangeGenotype requires non-empty RangeScaled/StepScaled values");
+    for mutation_type in [
+        MutationType::RangeScaled(vec![]),
+        MutationType::StepScaled(vec![]),
+    ] {
+        let genotype = RangeGenotype::<f32>::builder()
+            .with_genes_size(2)
+            .with_allele_range(0.0..=1.0)
+            .with_mutation_type(mutation_type)
+            .build();
+        assert_eq!(genotype.err(), empty_scales);
+    }
+
+    let invalid_values = error("RangeGenotype requires finite, non-negative mutation_type values");
+    for mutation_type in [
+        MutationType::Range(-0.1),
+        MutationType::Step(-0.1),
+        MutationType::Step(f32::NAN),
+        MutationType::RangeScaled(vec![0.1, -0.1]),
+        MutationType::StepScaled(vec![0.1, f32::INFINITY]),
+    ] {
+        let genotype = RangeGenotype::<f32>::builder()
+            .with_genes_size(2)
+            .with_allele_range(0.0..=1.0)
+            .with_mutation_type(mutation_type)
+            .build();
+        assert_eq!(genotype.err(), invalid_values);
+    }
+
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=1.0)
+        .with_mutation_types(vec![MutationType::Random, MutationType::Random])
+        .build();
+    assert_eq!(
+        genotype.err(),
+        error("RangeGenotype uses with_mutation_type (singular), with_mutation_types is not supported")
+    );
+
+    // zero values are allowed (no-op mutation)
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=1.0)
+        .with_mutation_type(MutationType::Step(0.0))
+        .build();
+    assert!(genotype.is_ok());
+}
