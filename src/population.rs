@@ -107,8 +107,12 @@ impl<T: Allele> Population<T> {
         }
     }
 
-    /// Extend population by amount, reusing recycled chromosomes if available
+    /// Extend population by amount, reusing recycled chromosomes if available. The amount can
+    /// exceed the current size, in which case the existing chromosomes are copied repeatedly
     pub fn extend_from_within(&mut self, amount: usize) {
+        if self.chromosomes.is_empty() {
+            return;
+        }
         if self.recycling {
             for i in 0..amount {
                 let source = &self.chromosomes[i];
@@ -121,7 +125,12 @@ impl<T: Allele> Population<T> {
                 self.chromosomes.push(chromosome);
             }
         } else {
-            self.chromosomes.extend_from_within(0..amount);
+            let mut remaining = amount;
+            while remaining > 0 {
+                let chunk_size = remaining.min(self.chromosomes.len());
+                self.chromosomes.extend_from_within(0..chunk_size);
+                remaining -= chunk_size;
+            }
         }
     }
 
