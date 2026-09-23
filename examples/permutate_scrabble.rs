@@ -326,19 +326,25 @@ fn main() {
         .build()
         .unwrap();
 
-    if false {
-        let guard = pprof::ProfilerGuardBuilder::default()
-            .frequency(1000)
-            .blocklist(&["libc", "libgcc", "pthread", "vdso"])
-            .build()
-            .unwrap();
+    // set to true to write a flamegraph (pprof is unix only)
+    let profile = false;
 
-        permutate.call();
+    if profile && cfg!(unix) {
+        #[cfg(unix)]
+        {
+            let guard = pprof::ProfilerGuardBuilder::default()
+                .frequency(1000)
+                .blocklist(&["libc", "libgcc", "pthread", "vdso"])
+                .build()
+                .unwrap();
 
-        if let Ok(report) = guard.report().build() {
-            let file = std::fs::File::create("flamegraph_scrabble.svg").unwrap();
-            report.flamegraph(file).unwrap();
-        };
+            permutate.call();
+
+            if let Ok(report) = guard.report().build() {
+                let file = std::fs::File::create("flamegraph_scrabble.svg").unwrap();
+                report.flamegraph(file).unwrap();
+            };
+        }
     } else {
         permutate.call();
     }
