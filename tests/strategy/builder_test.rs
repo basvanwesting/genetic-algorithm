@@ -30,6 +30,33 @@ fn build_invalid_missing_variant() {
 }
 
 #[test]
+fn call_with_reporter_period_zero() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
+    let mut strategy = StrategyBuilder::new()
+        .with_genotype(genotype)
+        .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
+        .with_target_population_size(20)
+        .with_max_stale_generations(10)
+        .with_fitness(CountTrue)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_reporter(StrategyReporterSimple::new_with_buffer(0))
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    let mut buffer: Vec<u8> = vec![];
+    strategy.flush_reporter(&mut buffer);
+    let output = String::from_utf8(buffer).unwrap();
+    assert!(output.contains("enter - "));
+    assert!(!output.contains("periodic - "));
+}
+
+#[test]
 fn call_permutate() {
     let genotype = BinaryGenotype::builder()
         .with_genes_size(5)

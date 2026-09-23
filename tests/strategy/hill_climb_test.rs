@@ -130,6 +130,24 @@ fn call_range_max_generations_maximize() {
 }
 
 #[test]
+fn call_with_reporter_period_zero() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let strategy = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_max_stale_generations(10)
+        .with_fitness(CountTrue)
+        .with_reporter(HillClimbReporterSimple::new_with_buffer(0))
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    assert!(strategy.best_fitness_score().is_some());
+}
+
+#[test]
 fn call_range_max_stale_generations_and_valid_fitness_score_maximize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(100)

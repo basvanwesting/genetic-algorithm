@@ -249,3 +249,23 @@ fn call_binary_abort_flag_preset_returns_immediately() {
     assert_eq!(permutate.state.current_generation, 0);
     assert_eq!(permutate.best_fitness_score(), Some(5));
 }
+
+#[test]
+fn call_with_reporter_period_zero() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(5)
+        .build()
+        .unwrap();
+    let mut strategy = Permutate::builder()
+        .with_genotype(genotype)
+        .with_fitness(CountTrue)
+        .with_reporter(PermutateReporterSimple::new_with_buffer(0))
+        .call()
+        .unwrap();
+
+    let mut buffer: Vec<u8> = vec![];
+    strategy.flush_reporter(&mut buffer);
+    let output = String::from_utf8(buffer).unwrap();
+    assert!(output.contains("enter - "));
+    assert!(!output.contains("periodic - "));
+}

@@ -8,7 +8,7 @@ use std::io::Write;
 use std::marker::PhantomData;
 
 /// A Simple HillClimb reporter generic over Genotype.
-/// A report is triggered every period generations
+/// A report is triggered every period generations (a period of 0 disables the periodic reports)
 #[derive(Clone)]
 pub struct Simple<G: HillClimbGenotype> {
     pub buffer: Option<Vec<u8>>,
@@ -139,7 +139,8 @@ impl<G: HillClimbGenotype> StrategyReporter for Simple<G> {
         state: &S,
         _config: &C,
     ) {
-        if state.current_generation() % self.period == 0 {
+        // period 0 disables the periodic reports
+        if self.period > 0 && state.current_generation() % self.period == 0 {
             self.writeln(format_args!(
                 "periodic - current_generation: {}, stale_generations: {}, best_generation: {}, scale_index: {:?}, current_population_size: {} ({}r)",
                 state.current_generation(),
