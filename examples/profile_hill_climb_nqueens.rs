@@ -1,4 +1,5 @@
 use criterion::*;
+#[cfg(unix)]
 use pprof::criterion::*;
 
 use genetic_algorithm::strategy::hill_climb::prelude::*;
@@ -55,9 +56,20 @@ pub fn criterion_benchmark(c: &mut Criterion) {
     });
 }
 
+#[cfg(unix)]
+fn config() -> Criterion {
+    Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)))
+}
+
+// pprof is unix-only, fall back to plain criterion elsewhere
+#[cfg(not(unix))]
+fn config() -> Criterion {
+    Criterion::default()
+}
+
 criterion_group! {
     name = benches;
-    config = Criterion::default().with_profiler(PProfProfiler::new(100, Output::Flamegraph(None)));
+    config = config();
     targets = criterion_benchmark
 }
 
