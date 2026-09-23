@@ -29,6 +29,28 @@ fn build_invalid_missing_ending_condition() {
 }
 
 #[test]
+fn call_repeatedly_invalid_builder_or_zero_repeats() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let builder = HillClimb::builder()
+        .with_genotype(genotype)
+        .with_fitness(CountTrue);
+
+    // missing ending condition
+    assert!(builder.clone().call_repeatedly(3).is_err());
+    assert!(builder.clone().call_par_repeatedly(3).is_err());
+
+    let builder = builder.with_max_stale_generations(20);
+    let zero_repeats = Some(TryFromHillClimbBuilderError(
+        "max_repeats must be at least 1",
+    ));
+    assert_eq!(builder.clone().call_repeatedly(0).err(), zero_repeats);
+    assert_eq!(builder.clone().call_par_repeatedly(0).err(), zero_repeats);
+}
+
+#[test]
 fn call_range_max_stale_generations_maximize() {
     let genotype = RangeGenotype::builder()
         .with_genes_size(10)

@@ -311,6 +311,10 @@ impl<
         ),
         TryFromBuilderError,
     > {
+        let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
+        if max_repeats == 0 {
+            return Err(TryFromBuilderError("max_repeats must be at least 1"));
+        }
         let mut runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
         (0..max_repeats)
             .filter_map(|iteration| {
@@ -342,6 +346,9 @@ impl<
         TryFromBuilderError,
     > {
         let _valid_builder: Evolve<G, M, F, S, C, E, SR> = self.clone().try_into()?;
+        if max_repeats == 0 {
+            return Err(TryFromBuilderError("max_repeats must be at least 1"));
+        }
         let mut runs: Vec<Evolve<G, M, F, S, C, E, SR>> = vec![];
         // A plain thread scope, not rayon::scope: rayon::scope runs this body on a rayon worker,
         // which the receiver below then blocks while the producer needs a rayon worker to run
