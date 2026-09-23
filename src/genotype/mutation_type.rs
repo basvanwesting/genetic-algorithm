@@ -135,7 +135,7 @@ use crate::allele::Allele;
 /// ## `Discrete`
 /// Treats the numeric range as discrete integer values, useful for encoding
 /// categorical data or enum variants as numbers. Values are floored to integers
-/// during mutation. Only supported by MultiRangeGenotype.
+/// during mutation.
 ///
 /// **Example:** Range `0.0..=4.0` represents 5 discrete choices: `{0, 1, 2, 3, 4}`,
 /// which could map to enum variants or categorical options.
@@ -305,8 +305,9 @@ pub enum MutationType<T: Allele> {
     Range(T),
     /// Step mutation size (exactly +step or -step, clamped)
     Step(T),
-    /// Range bandwidths for scaled mutations (strategy controls phase advancement)
+    /// Discrete integer values within the range (floored)
     Discrete,
+    /// Range bandwidths for scaled mutations (strategy controls phase advancement)
     RangeScaled(Vec<T>),
     /// Step sizes for scaled mutations (strategy controls phase advancement)
     StepScaled(Vec<T>),

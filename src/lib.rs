@@ -89,7 +89,7 @@
 //! * Knapsack problem: <https://en.wikipedia.org/wiki/Knapsack_problem>
 //!     * See [examples/evolve_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_knapsack.rs)
 //!     * See [examples/permutate_knapsack](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/permutate_knapsack.rs)
-//!     * `BinaryGenotype<Item(weight, value)>` each gene encodes presence in the knapsack
+//!     * `BinaryGenotype`, each gene encodes presence of an `Item(weight, value)` in the knapsack
 //!     * custom `KnapsackFitness(&items, weight_limit)` fitness
 //! * Infinite Monkey theorem: <https://en.wikipedia.org/wiki/Infinite_monkey_theorem>
 //!     * See [examples/evolve_monkeys](https://github.com/basvanwesting/genetic-algorithm/blob/main/examples/evolve_monkeys.rs)
