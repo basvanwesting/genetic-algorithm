@@ -113,6 +113,31 @@ fn float_mutate_chromosome_single_range() {
         0.001
     ));
 }
+
+#[test]
+fn integer_type_limits() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiRangeGenotype::<i8>::builder()
+        .with_allele_ranges(vec![-100..=100, -128..=127])
+        .with_mutation_types(vec![
+            MutationType::RangeScaled(vec![100, 10]),
+            MutationType::Discrete,
+        ])
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![-100, 127]);
+    for _ in 0..100 {
+        genotype.mutate_chromosome_genes(2, true, &mut chromosome, &mut rng);
+        assert!((-100..=100).contains(&chromosome.genes[0]));
+    }
+    let mut population = Population::new(vec![], true);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+    assert!(population
+        .chromosomes
+        .iter()
+        .all(|c| (-100..=100).contains(&c.genes[0])));
+}
 #[test]
 fn float_mutate_chromosome_single_range_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);

@@ -105,6 +105,67 @@ fn float_mutate_chromosome_single_range() {
 }
 
 #[test]
+fn integer_type_limits_discrete() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::<u8>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0..=255)
+        .with_mutation_type(MutationType::Discrete)
+        .build()
+        .unwrap();
+
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+    genotype.mutate_chromosome_genes(5, true, &mut chromosome, &mut rng);
+    assert_eq!(genotype.permutable_gene_values_discrete().len(), 256);
+
+    let chromosome = build::chromosome(vec![255; 10]);
+    let mut population = Population::new(vec![], true);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+    assert_eq!(population.size(), 10 * 255);
+}
+
+#[test]
+fn integer_type_limits_range_scaled() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    // the allele range (200) is larger than i8::MAX, so end - start overflowed
+    let mut genotype = RangeGenotype::<i8>::builder()
+        .with_genes_size(10)
+        .with_allele_range(-100..=100)
+        .with_mutation_type(MutationType::RangeScaled(vec![127, 100, 10]))
+        .build()
+        .unwrap();
+
+    let mut chromosome = build::chromosome(vec![-100, -99, -50, 0, 50, 99, 100, -100, 0, 100]);
+    for _ in 0..3 {
+        for _ in 0..100 {
+            genotype.mutate_chromosome_genes(5, true, &mut chromosome, &mut rng);
+            assert!(chromosome.genes.iter().all(|v| (-100..=100).contains(v)));
+        }
+        let mut population = Population::new(vec![], true);
+        genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+        assert!(population
+            .chromosomes
+            .iter()
+            .all(|c| c.genes.iter().all(|v| (-100..=100).contains(v))));
+        genotype.increment_scale_index();
+    }
+
+    // full type range
+    let genotype = RangeGenotype::<i32>::builder()
+        .with_genes_size(3)
+        .with_allele_range(i32::MIN..=i32::MAX)
+        .with_mutation_type(MutationType::RangeScaled(vec![1_000, 10]))
+        .build()
+        .unwrap();
+    let mut chromosome = build::chromosome(vec![i32::MIN, 0, i32::MAX]);
+    for _ in 0..100 {
+        genotype.mutate_chromosome_genes(3, true, &mut chromosome, &mut rng);
+    }
+    let mut population = Population::new(vec![], true);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+}
+
+#[test]
 fn float_mutate_chromosome_single_range_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = RangeGenotype::builder()
