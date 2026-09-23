@@ -653,6 +653,30 @@ fn float_neighbouring_population_3_discrete() {
 }
 
 #[test]
+fn float_chromosome_permutations_step_not_advancing() {
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=1.0, 16_777_215.0..=16_777_220.0])
+        .with_mutation_types(vec![MutationType::Step(0.0), MutationType::Discrete])
+        .build()
+        .unwrap();
+    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(6u32));
+    let chromosomes = genotype
+        .chromosome_permutations_into_iter(None)
+        .collect::<Vec<_>>();
+    assert_eq!(
+        inspect::chromosomes(&chromosomes),
+        vec![
+            vec![0.0, 16_777_215.0],
+            vec![0.0, 16_777_216.0],
+            vec![0.0, 16_777_220.0],
+            vec![1.0, 16_777_215.0],
+            vec![1.0, 16_777_216.0],
+            vec![1.0, 16_777_220.0],
+        ]
+    );
+}
+
+#[test]
 fn float_permutable_gene_values_step_scaled() {
     let scaled_steps = &vec![vec![1.0, 0.1, 0.01], vec![1.0, 0.2, 0.05]];
     let mut rng = SmallRng::seed_from_u64(0);

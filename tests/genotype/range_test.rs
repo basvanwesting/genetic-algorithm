@@ -687,6 +687,47 @@ fn float_permutable_gene_values_step_scaled() {
 }
 
 #[test]
+fn float_permutable_gene_values_step_not_advancing() {
+    // zero step
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=1.0)
+        .with_mutation_type(MutationType::Step(0.0))
+        .build()
+        .unwrap();
+    assert_eq!(genotype.permutable_gene_values_step(0.0), vec![0.0, 1.0]);
+    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(4u32));
+
+    // step below the float precision of the values
+    let scaled_steps = &vec![100.0, 1e-5];
+    let mut genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(1)
+        .with_allele_range(1000.0..=2000.0)
+        .with_mutation_type(MutationType::StepScaled(scaled_steps.clone()))
+        .build()
+        .unwrap();
+    let chromosome = build::chromosome(vec![1500.0]);
+    assert!(genotype.increment_scale_index());
+    assert_eq!(
+        genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), scaled_steps),
+        vec![1400.0, 1600.0]
+    );
+
+    // discrete beyond the integer precision of f32 (2^24)
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(1)
+        .with_allele_range(16_777_215.0..=16_777_220.0)
+        .with_mutation_type(MutationType::Discrete)
+        .build()
+        .unwrap();
+    assert_eq!(
+        genotype.permutable_gene_values_discrete(),
+        vec![16_777_215.0, 16_777_216.0, 16_777_220.0]
+    );
+    assert_eq!(genotype.chromosome_permutations_size(), BigUint::from(3u32));
+}
+
+#[test]
 fn float_chromosome_permutations_2_step_scaled() {
     let scaled_steps = &vec![5.0, 2.0, 1.0];
     let mut rng = SmallRng::seed_from_u64(0);
