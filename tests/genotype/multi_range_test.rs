@@ -328,6 +328,24 @@ fn float_crossover_chromosome_pair_single_point() {
 }
 
 #[test]
+fn float_neighbouring_population_random_near_upper_bound() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=0.5, 0.0..=1e-8])
+        .build()
+        .unwrap();
+
+    // closer to the upper bound than f32::EPSILON
+    let near_end: f32 = 0.5 - f32::EPSILON / 4.0;
+    let chromosome = build::chromosome(vec![near_end, 0.5e-8]);
+    let mut population = Population::new(vec![], true);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+    assert_eq!(population.size(), 4);
+    assert_eq!(population.chromosomes[1].genes, vec![0.5, 0.5e-8]);
+    assert_eq!(population.chromosomes[3].genes, vec![near_end, 1e-8]);
+}
+
+#[test]
 fn float_neighbouring_population_1() {
     let mut rng = SmallRng::seed_from_u64(0);
     let genotype = MultiRangeGenotype::builder()
