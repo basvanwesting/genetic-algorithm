@@ -209,3 +209,9 @@ pub mod mutate;
 pub mod population;
 pub mod select;
 pub mod strategy;
+
+// Compile and run the code templates of AGENTS_TEMPLATES.md as doctests, so they stay in sync
+// with the API
+#[cfg(doctest)]
+#[doc = include_str!("../AGENTS_TEMPLATES.md")]
+pub struct AgentsTemplatesDoctests;
