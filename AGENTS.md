@@ -328,7 +328,7 @@ MutateSingleGene::new(
 )
 
 MutateMultiGene::new(
-    number_of_mutations: usize,   // Max genes mutated (sampled uniformly from 1..=n).
+    number_of_mutations: usize,   // Genes mutated per chromosome (exactly n, see MultiGeneRange for a range).
     mutation_probability: f32,    // Probability per chromosome.
 )
 
@@ -343,7 +343,7 @@ MutateSingleGeneDynamic::new(
 )
 
 MutateMultiGeneDynamic::new(
-    number_of_mutations: usize,      // Max genes mutated.
+    number_of_mutations: usize,      // Genes mutated per chromosome (exactly n).
     mutation_probability_step: f32,  // Step size for adjustment.
     target_cardinality: usize,       // Target unique chromosomes.
 )
@@ -787,7 +787,7 @@ genes in the population actually change per generation.
 Concrete example for a 2000-gene float genome, population 100:
 - `MutateSingleGene(0.2)` → 1 gene × 20% of offspring = effective 0.01% of all
   genes change per generation. **Population will collapse to near-clones.**
-- `MutateMultiGene(10, 1.0)` → ~5.5 genes × 100% of offspring = effective 0.28%
+- `MutateMultiGene(10, 1.0)` → 10 genes × 100% of offspring = effective 0.5%
   of all genes change per generation. **Maintains diversity.**
 
 Rule of thumb for float genomes: target 0.1%-1.0% effective per-gene mutation
