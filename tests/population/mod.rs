@@ -86,6 +86,62 @@ fn best_chromosome_index() {
 }
 
 #[test]
+fn best_chromosome_index_with_leading_none_fitness() {
+    let population: Population<bool> = build::population_with_fitness_scores(vec![
+        (vec![true, true, false], None),
+        (vec![false, true, true], Some(2)),
+        (vec![true, false, false], None),
+        (vec![false, false, false], Some(0)),
+        (vec![true, true, true], Some(3)),
+        (vec![false, false, true], Some(1)),
+    ]);
+
+    assert_eq!(
+        population.best_chromosome_index(FitnessOrdering::Maximize),
+        Some(4)
+    );
+    assert_eq!(
+        population.best_chromosome_index(FitnessOrdering::Minimize),
+        Some(3)
+    );
+    assert_eq!(
+        population
+            .best_chromosome(FitnessOrdering::Minimize)
+            .map(|c| c.fitness_score),
+        Some(Some(0))
+    );
+}
+
+#[test]
+fn best_chromosome_indices_with_leading_none_fitness() {
+    let population: Population<bool> = build::population_with_fitness_scores(vec![
+        (vec![true, true, false], None),
+        (vec![false, true, true], Some(2)),
+        (vec![true, false, false], None),
+        (vec![false, false, false], Some(0)),
+        (vec![true, true, true], Some(3)),
+        (vec![false, false, true], Some(1)),
+    ]);
+
+    assert_eq!(
+        population.best_chromosome_indices(1, FitnessOrdering::Maximize),
+        vec![4]
+    );
+    assert_eq!(
+        population.best_chromosome_indices(2, FitnessOrdering::Maximize),
+        vec![1, 4]
+    );
+    assert_eq!(
+        population.best_chromosome_indices(1, FitnessOrdering::Minimize),
+        vec![3]
+    );
+    assert_eq!(
+        population.best_chromosome_indices(2, FitnessOrdering::Minimize),
+        vec![3, 5]
+    );
+}
+
+#[test]
 fn best_chromosome_indices_no_fitness() {
     let population: Population<bool> = build::population_with_fitness_scores(vec![
         (vec![false, true, true], None),

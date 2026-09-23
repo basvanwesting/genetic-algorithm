@@ -146,8 +146,8 @@ impl<T: Allele> Population<T> {
             FitnessOrdering::Minimize => self
                 .chromosomes
                 .iter()
-                .filter(|c| c.fitness_score().is_some())
                 .enumerate()
+                .filter(|(_idx, c)| c.fitness_score().is_some())
                 .min_by_key(|(_idx, c)| c.fitness_score())
                 .map(|(idx, _)| idx),
         }
@@ -168,8 +168,8 @@ impl<T: Allele> Population<T> {
         let mut data: Vec<(usize, isize)> = self
             .chromosomes
             .iter()
-            .filter_map(|c| c.fitness_score())
             .enumerate()
+            .filter_map(|(idx, c)| c.fitness_score().map(|score| (idx, score)))
             .collect();
 
         if data.is_empty() {
