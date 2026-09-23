@@ -121,6 +121,14 @@ impl<T: Allele + PartialEq + Hash> TryFrom<Builder<Self>> for MultiList<T> {
             Err(TryFromBuilderError(
                 "MultiListGenotype requires non-empty allele_lists",
             ))
+        } else if builder
+            .allele_lists
+            .as_ref()
+            .is_some_and(|o| o.iter().any(|allele_list| allele_list.is_empty()))
+        {
+            Err(TryFromBuilderError(
+                "MultiListGenotype requires each allele_list in allele_lists to be non-empty",
+            ))
         } else {
             let allele_lists = builder.allele_lists.unwrap();
             let genes_size = allele_lists.len();
