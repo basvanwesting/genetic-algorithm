@@ -343,7 +343,7 @@ where
             MutationType::StepScaled(steps) => {
                 // post-clamp
                 let current_value = chromosome.genes[index];
-                let delta = steps[self.current_scale_index];
+                let delta = steps[scale_index_for(self.current_scale_index, steps)];
                 if rng.gen() {
                     chromosome.genes[index] =
                         T::clamped_add(current_value, delta, *self.allele_ranges[index].end());
@@ -419,12 +419,13 @@ where
     fn max_scale_index(&self) -> Option<usize> {
         self.mutation_types
             .iter()
-            .find_map(|mutation_type| match mutation_type {
+            .filter_map(|mutation_type| match mutation_type {
                 MutationType::RangeScaled(scales) | MutationType::StepScaled(scales) => {
                     Some(scales.len().saturating_sub(1))
                 }
                 _ => None,
             })
+            .max()
     }
     fn current_scale_index(&self) -> Option<usize> {
         self.mutation_types
@@ -573,7 +574,7 @@ where
                     self.fill_neighbouring_population_step(index, chromosome, population, *step)
                 }
                 MutationType::StepScaled(steps) => {
-                    let step = steps[self.current_scale_index];
+                    let step = steps[scale_index_for(self.current_scale_index, steps)];
                     self.fill_neighbouring_population_step(index, chromosome, population, step)
                 }
                 MutationType::Range(_) => {
@@ -857,7 +858,7 @@ where
         let allele_range_end = *self.allele_ranges[index].end();
         let (allele_value_start, allele_value_end) = if let Some(chromosome) = chromosome {
             if let Some(previous_scale_index) = self.current_scale_index.checked_sub(1) {
-                let working_step = steps[previous_scale_index];
+                let working_step = steps[scale_index_for(previous_scale_index, steps)];
                 let current_value = chromosome.genes[index];
                 let value_start = T::clamped_sub(current_value, working_step, allele_range_start);
                 let value_end = T::clamped_add(current_value, working_step, allele_range_end);
@@ -869,7 +870,7 @@ where
             (allele_range_start, allele_range_end)
         };
 
-        let working_step = steps[self.current_scale_index];
+        let working_step = steps[scale_index_for(self.current_scale_index, steps)];
         std::iter::successors(Some(allele_value_start), |value| {
             if *value < allele_value_end {
                 let next_value = *value + working_step;
@@ -949,7 +950,7 @@ where
                 MutationType::StepScaled(steps) => {
                     let (allele_value_start, allele_value_end) =
                         if let Some(previous_scale_index) = scale_index.checked_sub(1) {
-                            let working_step = steps[previous_scale_index];
+                            let working_step = steps[scale_index_for(previous_scale_index, steps)];
                             (T::zero(), working_step + working_step)
                         } else {
                             (
@@ -958,7 +959,7 @@ where
                             )
                         };
 
-                    let working_step = steps[scale_index];
+                    let working_step = steps[scale_index_for(scale_index, steps)];
                     std::iter::successors(Some(allele_value_start), |value| {
                         if *value < allele_value_end {
                             let next_value = *value + working_step;
@@ -1001,6 +1002,12 @@ where
             .map(BigUint::from)
             .product()
     }
+}
+
+/// Genes can have scales of different lengths, the max_scale_index is the max over all genes.
+/// A gene stays at its final scale when the scale_index exceeds its own scales.
+fn scale_index_for<T>(scale_index: usize, scales: &[T]) -> usize {
+    scale_index.min(scales.len().saturating_sub(1))
 }
 
 impl<T: RangeAllele> Clone for MultiRange<T>

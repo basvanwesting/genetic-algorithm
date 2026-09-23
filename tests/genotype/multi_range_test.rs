@@ -218,6 +218,83 @@ fn float_mutate_chromosome_single_step_scaled() {
 }
 
 #[test]
+fn float_mutate_chromosome_step_scaled_unequal_scale_lengths() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let mut genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=100.0, 0.0..=100.0])
+        .with_mutation_types(vec![
+            MutationType::StepScaled(vec![10.0, 1.0, 0.1]),
+            MutationType::StepScaled(vec![10.0, 1.0]),
+        ])
+        .build()
+        .unwrap();
+
+    assert_eq!(genotype.max_scale_index(), Some(2));
+    assert!(genotype.increment_scale_index());
+    assert!(genotype.increment_scale_index());
+    assert!(!genotype.increment_scale_index());
+    assert_eq!(genotype.current_scale_index, 2);
+
+    // the second gene stays at its final scale
+    let mut chromosome = build::chromosome(vec![50.0, 50.0]);
+    genotype.mutate_chromosome_genes(2, false, &mut chromosome, &mut rng);
+    assert!(relative_eq!(
+        (chromosome.genes[0] - 50.0).abs(),
+        0.1,
+        epsilon = 0.0001
+    ));
+    assert!(relative_eq!(
+        (chromosome.genes[1] - 50.0).abs(),
+        1.0,
+        epsilon = 0.0001
+    ));
+
+    let chromosome = build::chromosome(vec![50.0, 50.0]);
+    let mut population = Population::new(vec![], true);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+    assert!(relative_population_eq(
+        inspect::population(&population),
+        vec![
+            vec![49.9, 50.0],
+            vec![50.1, 50.0],
+            vec![50.0, 49.0],
+            vec![50.0, 51.0],
+        ],
+        0.0001,
+    ));
+
+    assert_eq!(
+        genotype.chromosome_permutations_size_per_scale(),
+        vec![
+            BigUint::from(121u32),
+            BigUint::from(441u32),
+            BigUint::from(63u32)
+        ]
+    );
+}
+
+#[test]
+fn max_scale_index_unequal_scale_lengths() {
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=100.0, 0.0..=100.0, 0.0..=100.0])
+        .with_mutation_types(vec![
+            MutationType::Random,
+            MutationType::RangeScaled(vec![10.0]),
+            MutationType::StepScaled(vec![10.0, 1.0, 0.1]),
+        ])
+        .build()
+        .unwrap();
+    assert_eq!(genotype.max_scale_index(), Some(2));
+
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.0..=100.0, 0.0..=100.0])
+        .with_mutation_types(vec![MutationType::Random, MutationType::Random])
+        .build()
+        .unwrap();
+    assert_eq!(genotype.max_scale_index(), None);
+}
+
+#[test]
 fn float_mutate_chromosome_single_discrete() {
     let mut rng = SmallRng::seed_from_u64(0);
     let mut genotype = MultiRangeGenotype::builder()
