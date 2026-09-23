@@ -90,7 +90,9 @@ impl<G: EvolveGenotype> Mutate for MultiGeneDynamic<G> {
 impl<G: EvolveGenotype> MultiGeneDynamic<G> {
     /// Create a new MultiGeneDynamic mutation strategy. Auto-adjusts mutation probability
     /// to maintain target population diversity (cardinality).
-    /// * `number_of_mutations` - max genes mutated per chromosome (sampled uniformly from 1..=n)
+    /// * `number_of_mutations` - number of genes mutated per chromosome (always exactly this
+    ///   number, use [MutateMultiGeneRange](crate::mutate::MutateMultiGeneRange) to sample it
+    ///   from a range)
     /// * `mutation_probability_step` - step size for probability adjustment each generation
     /// * `target_cardinality` - target number of unique chromosomes in the population
     pub fn new(
