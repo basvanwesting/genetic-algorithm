@@ -507,16 +507,17 @@ impl<
     // The repeat/speciated builders short-circuit on this per run (no point launching more once a
     // run is conclusive), as opposed to is_finished which also ends on the give-up conditions.
     fn is_conclusive(&self) -> bool {
-        // cooperative abort
-        if self
-            .config
+        self.is_aborted() || self.is_target_reached()
+    }
+    // cooperative abort. Note: this reads the shared flag live, so after an abort all runs sharing
+    // the flag report aborted, also the ones which finished before the abort.
+    fn is_aborted(&self) -> bool {
+        self.config
             .abort_flag
             .as_ref()
             .is_some_and(|flag| flag.load(Ordering::Relaxed))
-        {
-            return true;
-        }
-        // target_fitness_score
+    }
+    fn is_target_reached(&self) -> bool {
         if let Some(target_fitness_score) = self.config.target_fitness_score {
             if let Some(fitness_score) = self.best_fitness_score() {
                 return match self.config.fitness_ordering {

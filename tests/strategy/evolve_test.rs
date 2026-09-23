@@ -538,3 +538,99 @@ fn call_abort_flag_preset_returns_immediately() {
     assert_eq!(evolve.state.current_generation, 0);
     assert!(evolve.best_fitness_score().is_some());
 }
+
+// Fitness increases with every evaluation, so later species runs score higher. Sets the abort
+// flag once `abort_after` evaluations have been done.
+#[derive(Clone, Debug)]
+struct IncreasingWithAbort {
+    counter: std::sync::Arc<std::sync::atomic::AtomicUsize>,
+    abort_after: usize,
+    abort_flag: std::sync::Arc<std::sync::atomic::AtomicBool>,
+}
+impl Fitness for IncreasingWithAbort {
+    type Genotype = BinaryGenotype;
+    fn calculate_for_chromosome(
+        &mut self,
+        _chromosome: &FitnessChromosome<Self>,
+        _genotype: &FitnessGenotype<Self>,
+    ) -> Option<FitnessValue> {
+        use std::sync::atomic::Ordering;
+        let count = self.counter.fetch_add(1, Ordering::Relaxed);
+        if count >= self.abort_after {
+            self.abort_flag.store(true, Ordering::Relaxed);
+        }
+        Some(count as FitnessValue)
+    }
+}
+
+#[test]
+fn call_speciated_abort_flag_returns_best_species_run() {
+    use std::sync::atomic::{AtomicBool, AtomicUsize, Ordering};
+    use std::sync::Arc;
+
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let counter = Arc::new(AtomicUsize::new(0));
+    let abort_flag = Arc::new(AtomicBool::new(false));
+    let builder = |abort_after: usize| {
+        Evolve::builder()
+            .with_genotype(genotype.clone())
+            .with_target_population_size(20)
+            .with_max_generations(5)
+            .with_mutate(MutateSingleGene::new(0.1))
+            .with_fitness(IncreasingWithAbort {
+                counter: counter.clone(),
+                abort_after,
+                abort_flag: abort_flag.clone(),
+            })
+            .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+            .with_select(SelectTournament::new(0.5, 0.02, 4))
+            .with_abort_flag(abort_flag.clone())
+            .with_rng_seed_from_u64(0)
+    };
+
+    // the number of evaluations of a single run, which equals the first species run
+    builder(usize::MAX).call().unwrap();
+    let evaluations_per_run = counter.swap(0, Ordering::Relaxed);
+
+    // abort during the second species run, which scores higher than the first
+    let (best_run, other_runs) = builder(evaluations_per_run).call_speciated(3).unwrap();
+    assert!(abort_flag.load(Ordering::Relaxed));
+    assert_eq!(other_runs.len(), 1);
+    assert_eq!(best_run.state.current_iteration, 1);
+    assert!(best_run.best_fitness_score() > other_runs[0].best_fitness_score());
+}
+
+#[test]
+fn call_par_speciated_abort_flag_returns_best_species_run() {
+    use std::sync::atomic::{AtomicBool, AtomicUsize};
+    use std::sync::Arc;
+
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let abort_flag = Arc::new(AtomicBool::new(false));
+    let (best_run, other_runs) = Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(20)
+        .with_max_generations(5)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_fitness(IncreasingWithAbort {
+            counter: Arc::new(AtomicUsize::new(0)),
+            abort_after: 100,
+            abort_flag: abort_flag.clone(),
+        })
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_abort_flag(abort_flag.clone())
+        .with_rng_seed_from_u64(0)
+        .call_par_speciated(4)
+        .unwrap();
+
+    assert!(other_runs
+        .iter()
+        .all(|run| best_run.best_fitness_score() >= run.best_fitness_score()));
+}

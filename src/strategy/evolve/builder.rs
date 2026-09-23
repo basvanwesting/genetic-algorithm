@@ -398,11 +398,17 @@ impl<
             })
             .any(|x| x);
 
-        let final_run = if let Some(index_conclusive) = species_runs
+        let final_run = if let Some(index_target_reached) = species_runs
             .iter()
-            .position(|species_run| species_run.is_conclusive())
+            .position(|species_run| species_run.is_target_reached())
         {
-            species_runs.remove(index_conclusive)
+            species_runs.remove(index_target_reached)
+        } else if species_runs
+            .iter()
+            .any(|species_run| species_run.is_aborted())
+        {
+            // skip the final run, return the best species run so far
+            self.extract_best_run(&mut species_runs)
         } else {
             let seed_genes_list = species_runs
                 .iter()
@@ -459,11 +465,17 @@ impl<
             });
         });
 
-        let final_run = if let Some(index_conclusive) = species_runs
+        let final_run = if let Some(index_target_reached) = species_runs
             .iter()
-            .position(|species_run| species_run.is_conclusive())
+            .position(|species_run| species_run.is_target_reached())
         {
-            species_runs.remove(index_conclusive)
+            species_runs.remove(index_target_reached)
+        } else if species_runs
+            .iter()
+            .any(|species_run| species_run.is_aborted())
+        {
+            // skip the final run, return the best species run so far
+            self.extract_best_run(&mut species_runs)
         } else {
             let seed_genes_list = species_runs
                 .iter()
