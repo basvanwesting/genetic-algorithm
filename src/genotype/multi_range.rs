@@ -933,8 +933,8 @@ where
     }
 }
 
-/// Genes can have scales of different lengths, the max_scale_index is the max over all genes.
-/// A gene stays at its final scale when the scale_index exceeds its own scales.
+// Genes can have scales of different lengths, the max_scale_index is the max over all genes.
+// A gene stays at its final scale when the scale_index exceeds its own scales.
 fn scale_index_for<T>(scale_index: usize, scales: &[T]) -> usize {
     scale_index.min(scales.len().saturating_sub(1))
 }

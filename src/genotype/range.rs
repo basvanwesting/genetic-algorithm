@@ -912,9 +912,9 @@ where
     }
 }
 
-/// Values from start to end (inclusive) by step, the last value is clamped to end.
-/// Jumps to end when the step does not advance the value (zero or negative step, or a float step
-/// below the precision of the value), otherwise the iteration would never end.
+// Values from start to end (inclusive) by step, the last value is clamped to end.
+// Jumps to end when the step does not advance the value (zero or negative step, or a float step
+// below the precision of the value), otherwise the iteration would never end.
 pub(crate) fn step_values<T: RangeAllele>(start: T, end: T, step: T) -> impl Iterator<Item = T> {
     std::iter::successors(Some(start), move |value| {
         if *value < end {

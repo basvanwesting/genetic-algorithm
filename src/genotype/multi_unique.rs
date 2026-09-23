@@ -158,8 +158,8 @@ impl<T: Allele + Hash> MultiUnique<T> {
     fn mutation_type(&self) -> &MutationType<T> {
         &MutationType::Random
     }
-    /// Sample `amount` allele_list indices and count them per allele_list (indexed by
-    /// allele_list_index). A Vec keeps the iteration order, and thus the rng usage, deterministic
+    // Sample `amount` allele_list indices and count them per allele_list (indexed by
+    // allele_list_index). A Vec keeps the iteration order, and thus the rng usage, deterministic
     fn sample_allele_list_counts<R: Rng>(&self, amount: usize, rng: &mut R) -> Vec<usize> {
         let mut counts = vec![0; self.allele_list_sizes.len()];
         rng.sample_iter(&self.allele_list_index_sampler)
