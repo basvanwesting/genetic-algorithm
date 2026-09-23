@@ -376,11 +376,11 @@ fn crossover_chromosome_pair_single_point() {
     genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
     assert_eq!(
         inspect::chromosome(&father),
-        vec![0.0, 0.1, 0.2, 0.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9]
+        vec![0.0, 0.1, 0.2, 0.3, 0.4, 1.5, 1.6, 1.7, 1.8, 1.9]
     );
     assert_eq!(
         inspect::chromosome(&mother),
-        vec![1.0, 1.1, 1.2, 1.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9]
+        vec![1.0, 1.1, 1.2, 1.3, 1.4, 0.5, 0.6, 0.7, 0.8, 0.9]
     );
 }
 
