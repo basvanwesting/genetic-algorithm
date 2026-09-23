@@ -39,3 +39,37 @@ fn standard() {
         ]
     )
 }
+
+#[test]
+fn low_and_high_selection_rate_without_chromosome_recycling() {
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .with_chromosome_recycling(false)
+        .build()
+        .unwrap();
+    let config = EvolveConfig {
+        target_population_size: 4,
+        ..Default::default()
+    };
+    let mut reporter = StrategyReporterNoop::new();
+    let mut rng = SmallRng::seed_from_u64(0);
+
+    for selection_rate in [0.25, 1.5] {
+        let chromosomes = vec![
+            build::chromosome(vec![true, true, true]),
+            build::chromosome(vec![false, false, false]),
+            build::chromosome(vec![true, false, false]),
+            build::chromosome(vec![false, true, false]),
+        ];
+        let mut state = EvolveState::new(&genotype);
+        state.population = Population::new(chromosomes, false);
+        CrossoverRejuvenate::new(selection_rate).call(
+            &genotype,
+            &mut state,
+            &config,
+            &mut reporter,
+            &mut rng,
+        );
+        assert_eq!(state.population.size(), 4);
+    }
+}

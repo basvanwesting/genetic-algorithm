@@ -489,3 +489,39 @@ fn parents_and_offspring_size() {
 
     assert_eq!(population.parents_and_offspring_size(), (5, 3));
 }
+
+#[test]
+fn extend_from_within_beyond_size() {
+    for recycling in [true, false] {
+        let mut population = Population::new(
+            vec![
+                build::chromosome(vec![true, true]),
+                build::chromosome(vec![false, false]),
+            ],
+            recycling,
+        );
+        population.extend_from_within(5);
+        assert_eq!(
+            population
+                .chromosomes
+                .iter()
+                .map(|c| c.genes.clone())
+                .collect::<Vec<_>>(),
+            vec![
+                vec![true, true],
+                vec![false, false],
+                vec![true, true],
+                vec![false, false],
+                vec![true, true],
+                vec![false, false],
+                vec![true, true],
+            ],
+            "recycling: {}",
+            recycling
+        );
+    }
+
+    let mut population: Population<bool> = Population::new(vec![], false);
+    population.extend_from_within(5);
+    assert_eq!(population.size(), 0);
+}
