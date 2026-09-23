@@ -303,8 +303,12 @@ impl<T: Allele + PartialEq + Hash> SupportsPointCrossover for MultiList<T> {
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
-        if allow_duplicates {
-            rng.sample_iter(self.gene_index_sampler)
+        // crossover points are between genes (1..genes_size), point 0 would swap the whole
+        // chromosomes, which is not a crossover
+        if self.genes_size() < 2 {
+            // no crossover points
+        } else if allow_duplicates {
+            rng.sample_iter(Uniform::from(1..self.genes_size()))
                 .take(number_of_crossovers)
                 .for_each(|index| {
                     let mother_back = &mut mother.genes[index..];
@@ -314,10 +318,11 @@ impl<T: Allele + PartialEq + Hash> SupportsPointCrossover for MultiList<T> {
         } else {
             rand::seq::index::sample(
                 rng,
-                self.genes_size(),
-                number_of_crossovers.min(self.genes_size()),
+                self.genes_size() - 1,
+                number_of_crossovers.min(self.genes_size() - 1),
             )
             .iter()
+            .map(|index| index + 1)
             .sorted_unstable()
             .chunks(2)
             .into_iter()

@@ -153,8 +153,8 @@ fn crossover_chromosome_pair_single_point() {
     let mut father = build::chromosome(vec![0, 1, 2, 4]);
     let mut mother = build::chromosome(vec![3, 0, 1, 6]);
     genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
-    assert_eq!(inspect::chromosome(&father), vec![0, 0, 1, 6]);
-    assert_eq!(inspect::chromosome(&mother), vec![3, 1, 2, 4]);
+    assert_eq!(inspect::chromosome(&father), vec![0, 1, 1, 6]);
+    assert_eq!(inspect::chromosome(&mother), vec![3, 0, 2, 4]);
 }
 
 #[test]
