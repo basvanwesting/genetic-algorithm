@@ -67,6 +67,16 @@ pub struct Unique<T: Allele + Hash = DefaultAllele> {
     pub chromosome_recycling: bool,
 }
 
+// A random index in 0..size, other than the given index (size must be at least 2)
+pub(crate) fn different_index<R: Rng>(index: usize, size: usize, rng: &mut R) -> usize {
+    let other_index = rng.gen_range(0..size - 1);
+    if other_index >= index {
+        other_index + 1
+    } else {
+        other_index
+    }
+}
+
 impl<T: Allele + Hash> TryFrom<Builder<Self>> for Unique<T> {
     type Error = TryFromBuilderError;
 
@@ -140,10 +150,13 @@ impl<T: Allele + Hash> Genotype for Unique<T> {
         rng: &mut R,
     ) {
         if allow_duplicates {
-            for _ in 0..number_of_mutations {
-                let index1 = self.gene_index_sampler.sample(rng);
-                let index2 = self.gene_index_sampler.sample(rng);
-                chromosome.genes.swap(index1, index2);
+            // a swap needs two different genes
+            if self.genes_size > 1 {
+                for _ in 0..number_of_mutations {
+                    let index1 = self.gene_index_sampler.sample(rng);
+                    let index2 = different_index(index1, self.genes_size, rng);
+                    chromosome.genes.swap(index1, index2);
+                }
             }
         } else {
             rand::seq::index::sample(
