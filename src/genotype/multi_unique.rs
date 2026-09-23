@@ -11,7 +11,6 @@ use itertools::Itertools;
 use num::BigUint;
 use rand::distributions::{Distribution, Uniform, WeightedIndex};
 use rand::prelude::*;
-use std::collections::HashMap;
 use std::fmt;
 use std::hash::Hash;
 
@@ -159,6 +158,15 @@ impl<T: Allele + Hash> MultiUnique<T> {
     fn mutation_type(&self) -> &MutationType<T> {
         &MutationType::Random
     }
+    /// Sample `amount` allele_list indices and count them per allele_list (indexed by
+    /// allele_list_index). A Vec keeps the iteration order, and thus the rng usage, deterministic
+    fn sample_allele_list_counts<R: Rng>(&self, amount: usize, rng: &mut R) -> Vec<usize> {
+        let mut counts = vec![0; self.allele_list_sizes.len()];
+        rng.sample_iter(&self.allele_list_index_sampler)
+            .take(amount)
+            .for_each(|allele_list_index| counts[allele_list_index] += 1);
+        counts
+    }
 }
 
 impl<T: Allele + Hash> Genotype for MultiUnique<T> {
@@ -197,13 +205,10 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
                 .take(count)
                 .collect()
         } else {
-            rng.sample_iter(&self.allele_list_index_sampler)
-                .take(pairs)
-                .fold(HashMap::<usize, usize>::new(), |mut m, x| {
-                    *m.entry(x).or_default() += 1;
-                    m
-                })
+            self.sample_allele_list_counts(pairs, rng)
                 .into_iter()
+                .enumerate()
+                .filter(|(_, pairs)| *pairs > 0)
                 .flat_map(|(allele_list_index, pairs)| {
                     let allele_list_size = self.allele_list_sizes[allele_list_index];
                     let allele_list_index_offset =
@@ -235,13 +240,10 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
                 chromosome.genes.swap(index1, index2);
             }
         } else {
-            rng.sample_iter(&self.allele_list_index_sampler)
-                .take(number_of_mutations)
-                .fold(HashMap::<usize, usize>::new(), |mut m, x| {
-                    *m.entry(x).or_default() += 1;
-                    m
-                })
+            self.sample_allele_list_counts(number_of_mutations, rng)
                 .into_iter()
+                .enumerate()
+                .filter(|(_, count)| *count > 0)
                 .for_each(|(allele_list_index, count)| {
                     let allele_list_size = self.allele_list_sizes[allele_list_index];
                     let allele_list_index_offset =
