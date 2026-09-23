@@ -187,6 +187,32 @@ fn best_chromosome_indices_no_fitness() {
 }
 
 #[test]
+fn best_chromosome_indices_amount_covers_all_with_fitness() {
+    let population: Population<bool> = build::population_with_fitness_scores(vec![
+        (vec![false, true, true], Some(2)),
+        (vec![true, true, false], None),
+        (vec![true, true, true], Some(3)),
+    ]);
+    for fitness_ordering in [FitnessOrdering::Maximize, FitnessOrdering::Minimize] {
+        assert_eq!(
+            population.best_chromosome_indices(2, fitness_ordering),
+            vec![0, 2]
+        );
+        assert_eq!(
+            population.best_chromosome_indices(3, fitness_ordering),
+            vec![0, 2]
+        );
+    }
+
+    let population: Population<bool> =
+        build::population_with_fitness_scores(vec![(vec![false, true, true], Some(2))]);
+    assert_eq!(
+        population.best_chromosome_indices(1, FitnessOrdering::Maximize),
+        vec![0]
+    );
+}
+
+#[test]
 fn chromosome_indices_all_variants_with_fitness_with_genes_hash() {
     let population: Population<bool> = build::population_with_fitness_scores(vec![
         (vec![false, true, true], Some(2)),
@@ -245,7 +271,7 @@ fn chromosome_indices_all_variants_with_fitness_with_genes_hash() {
     );
     assert_eq!(
         population.best_chromosome_indices(10, FitnessOrdering::Maximize),
-        vec![0, 1, 3, 4, 5, 6, 7] // one less
+        vec![0, 1, 2, 3, 4, 5, 6, 7]
     );
 
     // top N
@@ -289,7 +315,7 @@ fn chromosome_indices_all_variants_with_fitness_with_genes_hash() {
     );
     assert_eq!(
         population.best_chromosome_indices(10, FitnessOrdering::Minimize),
-        vec![0, 1, 2, 4, 5, 6, 7] // one less
+        vec![0, 1, 2, 3, 4, 5, 6, 7]
     );
 }
 
@@ -382,7 +408,7 @@ fn chromosome_indices_all_variants_with_fitness_without_genes_hash() {
     );
     assert_eq!(
         population.best_chromosome_indices(10, FitnessOrdering::Maximize),
-        vec![0, 1, 3, 4, 5, 6, 7] // one less
+        vec![0, 1, 2, 3, 4, 5, 6, 7]
     );
 
     // top N
@@ -426,7 +452,7 @@ fn chromosome_indices_all_variants_with_fitness_without_genes_hash() {
     );
     assert_eq!(
         population.best_chromosome_indices(10, FitnessOrdering::Minimize),
-        vec![0, 1, 2, 4, 5, 6, 7] // one less
+        vec![0, 1, 2, 3, 4, 5, 6, 7]
     );
 }
 

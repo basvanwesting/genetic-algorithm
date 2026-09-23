@@ -162,10 +162,7 @@ impl<T: Allele> Population<T> {
         }
     }
 
-    // In summary a bit quirky, but fast and doesn't require genes_hashing,
-    // which doesn't matter as the amount should be much less than the population size (usage in elitism_rate)
-    //
-    // Returns one less than total size with known fitness due to implementation constraints.
+    // Fast and doesn't require genes_hashing.
     // Does not care about uniqueness of the genes_hash.
     /// Return indices of the best chromosomes by fitness, up to `amount`.
     /// Does not require genes_hashing. Used internally for elitism.
@@ -181,10 +178,11 @@ impl<T: Allele> Population<T> {
             .filter_map(|(idx, c)| c.fitness_score().map(|score| (idx, score)))
             .collect();
 
-        if data.is_empty() {
-            Vec::new()
+        if amount >= data.len() {
+            // all chromosomes with a fitness score, already in ascending index order
+            data.into_iter().map(|(idx, _)| idx).collect()
         } else {
-            let index = amount.min(data.len().saturating_sub(1));
+            let index = amount;
             let (lesser, _median, _greater) = match fitness_ordering {
                 FitnessOrdering::Maximize => {
                     data.select_nth_unstable_by_key(index, |(_, score)| Reverse(*score))
