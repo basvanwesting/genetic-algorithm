@@ -1004,7 +1004,7 @@ where
     Uniform<T>: Send + Sync,
 {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
-        f.debug_struct("Point")
+        f.debug_struct("MultiRange")
             .field("genes_size", &self.genes_size)
             .field("allele_ranges", &self.allele_ranges)
             .field("mutation_types", &self.mutation_types)

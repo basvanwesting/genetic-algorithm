@@ -119,7 +119,7 @@ Run with `cargo run --example [EXAMPLE_BASENAME] --release`
 * Knapsack problem: https://en.wikipedia.org/wiki/Knapsack_problem
     * See [examples/evolve_knapsack](../main/examples/evolve_knapsack.rs)
     * See [examples/permutate_knapsack](../main/examples/permutate_knapsack.rs)
-    * `BinaryGenotype<Item(weight, value)>` each gene encodes presence in the knapsack
+    * `BinaryGenotype`, each gene encodes presence of an `Item(weight, value)` in the knapsack
     * custom `KnapsackFitness(&items, weight_limit)` fitness
 * Infinite Monkey theorem: https://en.wikipedia.org/wiki/Infinite_monkey_theorem
     * See [examples/evolve_monkeys](../main/examples/evolve_monkeys.rs)
@@ -240,13 +240,13 @@ Exact results may change between library versions (even minor), but deterministi
 Implemented using criterion. Run benchmarks with `cargo bench`
 
 ## Profiling
-Implemented using criterion and pprof.
+Implemented using criterion and pprof (the flamegraph is only available on unix).
 
 Uncomment in Cargo.toml
 ```
 [profile.release]
 debug = 1
-``````
+```
 
 Run with `cargo run --example profile_evolve_binary --release -- --bench --profile-time 5`
 

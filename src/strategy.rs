@@ -62,9 +62,9 @@
 //! // the search strategy (specified)
 //! let (strategy, _) = builder
 //!     .with_variant(StrategyVariant::Permutate(PermutateVariant::Standard))
-//!     // .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))build str
+//!     // .with_variant(StrategyVariant::Evolve(EvolveVariant::Standard))
 //!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::Stochastic))
-//!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::SteepAscent))
+//!     // .with_variant(StrategyVariant::HillClimb(HillClimbVariant::SteepestAscent))
 //!     .call_speciated(3)
 //!     .unwrap();
 //!
