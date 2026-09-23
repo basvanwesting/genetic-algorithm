@@ -31,10 +31,10 @@ fn mutate_chromosome_single() {
     assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 2, 3]);
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
-    assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 3, 2]);
+    assert_eq!(inspect::chromosome(&chromosome), vec![3, 5, 2, 4]);
 
     genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
-    assert_eq!(inspect::chromosome(&chromosome), vec![2, 5, 3, 4]);
+    assert_eq!(inspect::chromosome(&chromosome), vec![4, 5, 2, 3]);
 }
 #[test]
 fn mutate_chromosome_genes_with_duplicates() {
@@ -48,8 +48,32 @@ fn mutate_chromosome_genes_with_duplicates() {
     genotype.mutate_chromosome_genes(3, true, &mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
-        vec![1, 2, 3, 5, 9, 6, 7, 8, 4]
+        vec![1, 2, 3, 5, 9, 8, 7, 6, 4]
     );
+}
+
+#[test]
+fn mutate_chromosome_genes_never_swaps_gene_with_itself() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = UniqueGenotype::builder()
+        .with_allele_list(vec![0, 1])
+        .build()
+        .unwrap();
+    let mut chromosome = build::chromosome(vec![0, 1]);
+    for _ in 0..100 {
+        let before = chromosome.genes.clone();
+        genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+        assert_ne!(chromosome.genes, before);
+    }
+
+    // a single gene can't be swapped, no panic
+    let genotype = UniqueGenotype::builder()
+        .with_allele_list(vec![0])
+        .build()
+        .unwrap();
+    let mut chromosome = build::chromosome(vec![0]);
+    genotype.mutate_chromosome_genes(1, true, &mut chromosome, &mut rng);
+    assert_eq!(inspect::chromosome(&chromosome), vec![0]);
 }
 #[test]
 fn mutate_chromosome_genes_without_duplicates() {

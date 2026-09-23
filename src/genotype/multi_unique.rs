@@ -76,7 +76,8 @@ pub struct MultiUnique<T: Allele + Hash = DefaultAllele> {
     pub allele_list_sizes: Vec<usize>,
     pub allele_list_index_offsets: Vec<usize>,
     pub allele_lists: Vec<Vec<T>>,
-    allele_list_index_sampler: WeightedIndex<usize>,
+    // only allele_lists with at least 2 alleles can be mutated (swapped), None if there are none
+    allele_list_index_sampler: Option<WeightedIndex<usize>>,
     allele_list_index_samplers: Vec<Uniform<usize>>,
     pub crossover_points: Vec<usize>,
     crossover_point_index_sampler: Option<Uniform<usize>>,
@@ -139,7 +140,12 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
                 allele_list_sizes: allele_list_sizes.clone(),
                 allele_list_index_offsets: allele_list_index_offsets.clone(),
                 allele_lists: allele_lists.clone(),
-                allele_list_index_sampler: WeightedIndex::new(allele_list_sizes.clone()).unwrap(),
+                allele_list_index_sampler: WeightedIndex::new(
+                    allele_list_sizes
+                        .iter()
+                        .map(|size| if *size > 1 { *size } else { 0 }),
+                )
+                .ok(),
                 allele_list_index_samplers: allele_list_sizes
                     .iter()
                     .map(|allele_value_size| Uniform::from(0..*allele_value_size))
@@ -162,9 +168,11 @@ impl<T: Allele + Hash> MultiUnique<T> {
     // allele_list_index). A Vec keeps the iteration order, and thus the rng usage, deterministic
     fn sample_allele_list_counts<R: Rng>(&self, amount: usize, rng: &mut R) -> Vec<usize> {
         let mut counts = vec![0; self.allele_list_sizes.len()];
-        rng.sample_iter(&self.allele_list_index_sampler)
-            .take(amount)
-            .for_each(|allele_list_index| counts[allele_list_index] += 1);
+        if let Some(allele_list_index_sampler) = self.allele_list_index_sampler.as_ref() {
+            rng.sample_iter(allele_list_index_sampler)
+                .take(amount)
+                .for_each(|allele_list_index| counts[allele_list_index] += 1);
+        }
         counts
     }
 }
@@ -176,9 +184,15 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
         self.genes_size
     }
     fn sample_gene_index<R: Rng>(&self, rng: &mut R) -> usize {
-        let allele_list_index = self.allele_list_index_sampler.sample(rng);
-        let allele_list_index_offset = self.allele_list_index_offsets[allele_list_index];
-        allele_list_index_offset + self.allele_list_index_samplers[allele_list_index].sample(rng)
+        if let Some(allele_list_index_sampler) = self.allele_list_index_sampler.as_ref() {
+            let allele_list_index = allele_list_index_sampler.sample(rng);
+            let allele_list_index_offset = self.allele_list_index_offsets[allele_list_index];
+            allele_list_index_offset
+                + self.allele_list_index_samplers[allele_list_index].sample(rng)
+        } else {
+            // no allele_list can be mutated, any gene is as good as another
+            rng.gen_range(0..self.genes_size)
+        }
     }
     /// Returns indices but ensures pairing within each unique subset. This also means when
     /// allow_duplicates == false, it can return less than the requested count (subset can be
@@ -191,16 +205,24 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
     ) -> Vec<usize> {
         let pairs = (count + 1) / 2;
         if allow_duplicates {
+            let Some(allele_list_index_sampler) = self.allele_list_index_sampler.as_ref() else {
+                return vec![];
+            };
             (0..pairs)
                 .flat_map(|_| {
-                    let allele_list_index = self.allele_list_index_sampler.sample(rng);
+                    let allele_list_index = allele_list_index_sampler.sample(rng);
                     let allele_list_index_offset =
                         self.allele_list_index_offsets[allele_list_index];
-                    let index1 = allele_list_index_offset
-                        + self.allele_list_index_samplers[allele_list_index].sample(rng);
-                    let index2 = allele_list_index_offset
-                        + self.allele_list_index_samplers[allele_list_index].sample(rng);
-                    [index1, index2]
+                    let index1 = self.allele_list_index_samplers[allele_list_index].sample(rng);
+                    let index2 = super::unique::different_index(
+                        index1,
+                        self.allele_list_sizes[allele_list_index],
+                        rng,
+                    );
+                    [
+                        allele_list_index_offset + index1,
+                        allele_list_index_offset + index2,
+                    ]
                 })
                 .take(count)
                 .collect()
@@ -230,14 +252,22 @@ impl<T: Allele + Hash> Genotype for MultiUnique<T> {
         rng: &mut R,
     ) {
         if allow_duplicates {
-            for _ in 0..number_of_mutations {
-                let allele_list_index = self.allele_list_index_sampler.sample(rng);
-                let allele_list_index_offset = self.allele_list_index_offsets[allele_list_index];
-                let index1 = allele_list_index_offset
-                    + self.allele_list_index_samplers[allele_list_index].sample(rng);
-                let index2 = allele_list_index_offset
-                    + self.allele_list_index_samplers[allele_list_index].sample(rng);
-                chromosome.genes.swap(index1, index2);
+            if let Some(allele_list_index_sampler) = self.allele_list_index_sampler.as_ref() {
+                for _ in 0..number_of_mutations {
+                    let allele_list_index = allele_list_index_sampler.sample(rng);
+                    let allele_list_index_offset =
+                        self.allele_list_index_offsets[allele_list_index];
+                    let index1 = self.allele_list_index_samplers[allele_list_index].sample(rng);
+                    let index2 = super::unique::different_index(
+                        index1,
+                        self.allele_list_sizes[allele_list_index],
+                        rng,
+                    );
+                    chromosome.genes.swap(
+                        allele_list_index_offset + index1,
+                        allele_list_index_offset + index2,
+                    );
+                }
             }
         } else {
             self.sample_allele_list_counts(number_of_mutations, rng)

@@ -14,11 +14,11 @@ fn sample_gene_indices() {
 
     assert_eq!(
         genotype.sample_gene_indices(10, true, &mut rng),
-        vec![3, 5, 5, 5, 3, 3, 6, 9, 6, 9]
+        vec![3, 4, 9, 7, 5, 2, 8, 6, 6, 7]
     );
     assert_eq!(
         genotype.sample_gene_indices(10, false, &mut rng),
-        vec![3, 2, 4, 5, 9, 6, 8, 7]
+        vec![1, 0, 4, 5, 3, 2, 9, 6, 8, 7]
     );
 }
 #[test]
@@ -77,8 +77,37 @@ fn mutate_chromosome_genes_with_duplicates() {
     genotype.mutate_chromosome_genes(3, true, &mut chromosome, &mut rng);
     assert_eq!(
         inspect::chromosome(&chromosome),
-        vec![1, 2, 3, 4, 5, 6, 7, 9, 8, 8, 7, 6, 5, 4, 3, 2, 1]
+        vec![1, 2, 3, 4, 5, 6, 9, 7, 8, 8, 7, 6, 5, 4, 3, 1, 2]
     );
+}
+
+#[test]
+fn mutate_chromosome_genes_never_no_op() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    // allele lists of size 1 can't be mutated
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_lists(vec![vec![0], vec![1], vec![2], vec![3, 4]])
+        .build()
+        .unwrap();
+    let mut chromosome = build::chromosome(vec![0, 1, 2, 3, 4]);
+    for allow_duplicates in [true, false] {
+        for _ in 0..100 {
+            let before = chromosome.genes.clone();
+            genotype.mutate_chromosome_genes(1, allow_duplicates, &mut chromosome, &mut rng);
+            assert_ne!(chromosome.genes, before);
+        }
+    }
+
+    // nothing can be mutated, no panic
+    let genotype = MultiUniqueGenotype::builder()
+        .with_allele_lists(vec![vec![0], vec![1]])
+        .build()
+        .unwrap();
+    let mut chromosome = build::chromosome(vec![0, 1]);
+    for allow_duplicates in [true, false] {
+        genotype.mutate_chromosome_genes(1, allow_duplicates, &mut chromosome, &mut rng);
+    }
+    assert_eq!(inspect::chromosome(&chromosome), vec![0, 1]);
 }
 #[test]
 fn mutate_chromosome_genes_without_duplicates() {
