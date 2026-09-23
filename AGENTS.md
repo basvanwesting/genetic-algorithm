@@ -39,9 +39,9 @@ preludes exist for other strategies:
 - `genetic_algorithm::strategy::permutate::prelude::*`
 - `genetic_algorithm::strategy::prelude::*` (superset, all strategies)
 
-**Logging:** Examples use `env_logger::init()` for log output. Add `env_logger`
-to your `[dependencies]` and call `env_logger::init()` in `main()` to see
-reporter output. Set `RUST_LOG=info` (or `debug`) when running.
+**Output:** Reporters print directly to stdout, no logging setup is needed (the
+library does not use the `log` crate). Some examples call `env_logger::init()`,
+this is not needed to see reporter output.
 
 **Critical gotchas** (see [Gotchas](#gotchas) for full list):
 1. `FitnessValue` is `isize`, not `f64`. Scale floats: `Some((score / precision) as FitnessValue)`.
@@ -427,8 +427,9 @@ Optional:
   from another thread to stop the run early and return the best chromosome so far. See
   [Cancelling a run (abort flag)](#cancelling-a-run-abort-flag).
 - `.with_valid_fitness_score(score)` — gates the give-up ending conditions: `max_stale_generations`
-  and `max_generations` do not fire until best fitness reaches this threshold
-  (`target_fitness_score` and the abort flag are always honoured)
+  and `max_generations` do not fire while the best fitness has not reached this threshold
+  (`target_fitness_score` and the abort flag are always honoured). They do fire when there is no
+  best fitness at all (all fitness scores `None`), to avoid running forever
 - `.with_max_chromosome_age(n)` — removes chromosomes with age >= n from selection pool.
   Age resets to 0 for offspring, increments each generation.
 - `.with_seed_genes_list(genes_list)` — seed initial population with known solutions
@@ -484,12 +485,15 @@ Optional:
 - `.with_par_fitness(true)` — parallelize fitness calculation
 - `.with_replace_on_equal_fitness(bool)` — replace best even on equal score (default: true)
 - `.with_reporter(reporter)` — progress monitoring
+- `.with_target_fitness_score(score)` — stop as soon as a chromosome reaches this value,
+  instead of evaluating all possibilities
 - `.with_abort_flag(flag)` — `Arc<AtomicBool>` for cooperative cancellation; set it to `true`
   from another thread to stop a long run early and return the best chromosome so far. See
   [Cancelling a run (abort flag)](#cancelling-a-run-abort-flag).
 
-Permutate has no convergence-based ending conditions — it evaluates all possibilities
-exhaustively, though `.with_abort_flag(...)` can interrupt a long run.
+Permutate has no convergence-based ending conditions (no stale or max generations). It evaluates
+all possibilities exhaustively, unless `.with_target_fitness_score(...)` is reached or
+`.with_abort_flag(...)` interrupts the run.
 
 **Note**: `RangeGenotype`/`MultiRangeGenotype` only support Permutate with
 `MutationType::Step`, `MutationType::StepScaled`, or `MutationType::Discrete`
