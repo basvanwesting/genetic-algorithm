@@ -3,3 +3,4 @@
 .DS_Store
 
 /design.md
+.claude/settings.local.json
