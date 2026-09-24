@@ -29,15 +29,15 @@ echo "# PR $N mechanical report ($(date +%F))"
 echo "base $(git rev-parse --short $BASE), head $(git rev-parse --short $BR), commits $(git rev-list --count $BASE..$BR), merge-base $(git merge-base $BASE $BR | cut -c1-8)"
 echo
 echo "## files"
-git diff --stat $BASE $BR | tail -n +1
-OUTSIDE=$(git diff --name-only $BASE $BR | grep -vE '^(src|tests|benches|examples)/' || true)
+git diff --stat $BASE...$BR | tail -n +1
+OUTSIDE=$(git diff --name-only $BASE...$BR | grep -vE '^(src|tests|benches|examples)/' || true)
 [[ -n $OUTSIDE ]] && { echo; echo "outside src/tests/benches/examples:"; echo "$OUTSIDE" | sed 's/^/  /'; }
 echo
 echo "## conflict with $BASE"
 if git merge-tree --write-tree $BASE $BR >/dev/null 2>&1; then echo "clean"; else echo "CONFLICT"; fi
 
-SRC=$(git diff --name-only $BASE $BR -- src Cargo.toml)
-NEWTESTS=$(git diff   -- tests | grep -E '^\+[[:space:]]*fn [[:alnum:]_]+\(' | sed -E 's/^\+[[:space:]]*fn ([[:alnum:]_]+)\(.*/\1/' | sort -u)
+SRC=$(git diff --name-only $BASE...$BR -- src Cargo.toml)
+NEWTESTS=$(git diff $BASE...$BR -- tests | grep -E '^\+[[:space:]]*fn [[:alnum:]_]+\(' | sed -E 's/^\+[[:space:]]*fn ([[:alnum:]_]+)\(.*/\1/' | sort -u)
 echo
 echo "## bug proof: PR tests against $BASE source"
 if [[ -z $SRC ]]; then echo "no src changes, skipped"
@@ -69,11 +69,11 @@ cd "$REPO"
 
 echo
 echo "## conventions"
-DOC=$(git diff $BASE $BR | awk '/^\+\s*\/\/\//{buf=buf"\n"$0; next} /^\+/{ if(buf!="" && $0 !~ /^\+\s*(pub|#\[|impl|\/\/)/) print buf"\n"$0" <== /// on non-pub?"; buf=""; next} {buf=""}')
+DOC=$(git diff $BASE...$BR | awk '/^\+\s*\/\/\//{buf=buf"\n"$0; next} /^\+/{ if(buf!="" && $0 !~ /^\+\s*(pub|#\[|impl|\/\/)/) print buf"\n"$0" <== /// on non-pub?"; buf=""; next} {buf=""}')
 [[ -n $DOC ]] && echo "$DOC" || echo "no /// on non-pub items detected"
-PUB=$(git diff $BASE $BR -- src | grep -E '^\+\s*pub (fn|struct|enum|trait|type|const|mod)' || true)
+PUB=$(git diff $BASE...$BR -- src | grep -E '^\+\s*pub (fn|struct|enum|trait|type|const|mod)' || true)
 [[ -n $PUB ]] && { echo; echo "new pub items:"; echo "$PUB" | sed 's/^/  /'; }
-EXP=$(git diff $BASE $BR -- tests | grep -E '^-' | grep -vE '^---|^-\s*$' | wc -l | tr -d ' ')
+EXP=$(git diff $BASE...$BR -- tests | grep -E '^-' | grep -vE '^---|^-\s*$' | wc -l | tr -d ' ')
 echo; echo "removed lines in tests: $EXP (nonzero usually means expected values were edited; PR body must justify)"
 echo
 echo "worktree left at $WT for reading; run review-pr.sh --clean when the batch is done"

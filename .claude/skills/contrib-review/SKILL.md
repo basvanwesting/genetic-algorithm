@@ -76,7 +76,10 @@ End every item with, in this order:
 1. Verdict: MERGE, CHANGES (name them), REJECT, or DISCUSS, with the one reason
    that decides it.
 2. Findings worth the maintainer's attention, few and concrete, with file:line.
-3. The prepared action, verbatim: the merge command, or the comment text to post
+3. The GitHub link, so the maintainer can eyeball the code: for a PR
+   `https://github.com/basvanwesting/genetic-algorithm/pull/N/files`, for an
+   issue `.../issues/N`. On its own line, directly above the prepared action.
+4. The prepared action, verbatim: the merge command, or the comment text to post
    on the PR or issue (change request, rejection with reasons, answer to a
    question). Comments are written in the maintainer's voice, short, factual,
    no fluff, since the maintainer reads and approves them before they go out.
