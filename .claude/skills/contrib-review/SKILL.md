@@ -1,120 +1,111 @@
 ---
 name: contrib-review
-description: Review the queue of external pull requests and issues on this repo (tachsin's batches and anyone else's) one PR at a time with low machine load. Use whenever the user asks to review, triage, check, or merge incoming PRs or issues, mentions "the queue", "new PRs", "tachsin", or asks what to do with contributions. Do not review PRs ad hoc with parallel agents; use this workflow.
+description: Interactive, one-item-at-a-time handling of external pull requests and issues on this repo (tachsin's batches and anyone else's). The maintainer says "next item" (or "next", "review the queue", names a PR or issue number, or says "go"); Claude analyzes, advises, prepares the action, and executes only after the maintainer's go. Use for anything about incoming PRs, issues, the queue, tachsin, merging or answering contributions. Never fan out parallel reviewer agents.
 ---
 
-# Contribution review, marathon mode
+# Contribution review, one item at a time
 
-External contributors file PRs faster than they can be merged. Reviewing them in
-parallel once cost 47 GB of cargo target dirs and 13 concurrent rustc jobs. This
-workflow is serial on purpose: one worktree, one shared target dir, one PR at a
-time. It runs in the background while the maintainer does other things and is
-revisited several times a day.
+The loop the maintainer wants:
 
-State lives in `~/.local/state/ga-review/` (override with `GA_REVIEW_DIR`):
-`ledger.tsv` (verdict per PR, survives sessions), `reports/pr-N.md`, the reused
-worktree `wt/` and cargo `target/`. Contributor plumbing to rely on: tachsin
-bases every PR on current main, links each to an issue with "Fixes #N", and
-rebases his own open PRs after merges. So merge conflicts are his problem, not
-ours: skip a conflicting PR and pick it up next pass.
+1. Maintainer: **"next item"** (or a number).
+2. Claude: analyze, advise, prepare. Ends with a clear recommendation and the
+   exact action ready to run.
+3. Maintainer reviews, possibly pushes back.
+4. Maintainer: **"go"** (or an adjusted instruction). Claude executes, records,
+   and says what happened.
+5. Repeat.
 
-## 1. Queue
+Claude's eyes are the point. Scripts do the mechanical work so Claude's context
+holds the judgment, not the build logs. Everything runs serially: one worktree,
+one shared cargo target dir in `~/.local/state/ga-review/`. A parallel pass once
+cost 47 GB and 13 concurrent rustc jobs. Never spawn reviewer agents in parallel;
+a single subagent per item is fine when the diff is big.
 
-```
-.claude/skills/contrib-review/scripts/queue.sh
-```
+Contributor plumbing to rely on: tachsin bases every PR on current main, links it
+with "Fixes #N", and rebases his open PRs himself after merges. A conflicting PR
+is skipped, not resolved here; it comes back mergeable on a later item.
 
-Lists open PRs with size, mergeable state, linked issue and ledger verdict
-(`NEW` = never looked at), then issues with no PR. Nothing here builds.
+## Scripts (Claude runs these, the maintainer never has to)
 
-## 2. Triage, no builds
+| script | does |
+|---|---|
+| `scripts/queue.sh` | open PRs with size, mergeable state, linked issue, ledger verdict; issues without a PR |
+| `scripts/review-pr.sh N` | fetch PR, prove the bug by running its new tests against main's source, then suite, clippy, fmt, examples on the PR branch, conflict check, convention flags; report in `reports/pr-N.md`, worktree left at `wt/` |
+| `scripts/ledger.sh N VERDICT "note"` | append to `ledger.tsv`, the memory across sessions |
+| `scripts/merge.sh [--dry-run]` | rebase-merge every open PR whose ledger verdict is MERGE, in number order, skipping conflicts; marks MERGED |
+| `scripts/review-pr.sh --clean` | drop worktree, pr-* branches, 2 GB target dir; ledger and reports stay |
 
-For each `NEW` PR read only the issue and PR body (`gh issue view`, `gh pr view`)
-and bucket:
+## "next item"
 
-- **fix**: a crash, hang, wrong result or contract violation, with a regression
-  test. Goes to step 3.
-- **design**: changes results of seeded runs, adds API or config surface, adds
-  platforms or CI, changes semantics (e.g. "avoid no-op swaps", "point 0 in
-  crossover", "support i64"). The maintainer decides whether it is wanted before
-  anyone spends a build on it. Present these as a list with the one-line
-  tradeoff and stop.
-- **docs/ci**: read the diff, verify claims against the code, no build.
-- **issue only**: needs an answer from the maintainer, not a review. Summarize
-  the question and a recommended answer.
+Run `queue.sh`. The next item is the lowest-numbered open PR or issue with no
+final ledger state, taking a PR together with its linked issue. If the maintainer
+names a number, take that. Then, by kind:
 
-Report the buckets to the user first. Only the fix and docs buckets proceed
-without a decision.
+**PR that fixes something.** Run `review-pr.sh N`. Read the report and the diff
+(`git diff origin/main pr-N`). Judge what the script cannot:
 
-## 3. Mechanical review, one PR at a time
+- Is the bug confirmed (FAIL or HANG on main source)? If the tests pass on main
+  or don't compile there, say so and judge from the code instead.
+- Is the fix minimal and in the crate's idiom? Compare with siblings (other
+  genotypes, strategies, reporters). Builders report errors through the existing
+  `TryFromBuilderError`; new error types or `try_new` constructors for programmer
+  misconfiguration are not wanted.
+- Does it change results for configs that worked before? Edited seeded
+  expectations need a justification in the PR body; unaffected paths must keep
+  the same rng stream.
+- Supporting machinery: new pub items, new fields, widened signatures. Private
+  helpers stay private. `//` on private items, `///` only on public API.
+- Anything outside scope: Cargo.lock regeneration, CI, CHANGELOG (the maintainer
+  writes it at release), dependency changes.
+- Does the issue text match the code it cites?
 
-```
-.claude/skills/contrib-review/scripts/review-pr.sh <N>
-```
+**PR that changes behaviour or adds surface** (seeded results change, new API,
+new platform, CI policy). Run the script anyway, then present the tradeoff
+plainly and let the maintainer decide before recommending.
 
-Never run two at once. The script fetches the PR, proves the bug by running the
-PR's new test functions against main's source (FAIL or HANG on main means
-confirmed), then runs the full suite, clippy, fmt and examples on the PR branch,
-checks for conflicts with main, and flags conventions: `///` on non-pub items,
-new pub items, edited test expectations, files outside src/tests. Report goes to
-stdout and `reports/pr-N.md`; the worktree stays at `wt/` for reading.
+**Docs or CI PR.** Verify every claim against the code. No build needed unless
+it touches Cargo.toml or CI.
 
-Then judge, either inline or with ONE subagent (sequentially, never a fan-out).
-The judgment is what the script cannot do:
+**Issue with no PR.** Summarize the question, the options the contributor
+offered, and recommend one with the reason. Prepare the reply comment text.
 
-- Is the fix minimal and in the crate's idiom? Compare with how siblings do it
-  (the other genotypes, the other strategies, the other reporters). Builders
-  report errors via the existing `TryFromBuilderError`; new error types or
-  `try_new` constructors for programmer misconfiguration are not wanted.
-- Does it change results for configs that worked before? Seeded expectations
-  may only change with a justification in the PR body. The rng stream must stay
-  identical for unaffected paths.
-- Supporting machinery: new pub fns, new fields, widened signatures. Private
-  helpers used in one file stay private. Count them as cost.
-- Anything outside the stated scope: Cargo.lock regeneration, CI, CHANGELOG
-  (the maintainer writes CHANGELOG at release time), dependency changes.
-- Does the issue text match the code paths it cites?
+## Advise and prepare
 
-Subagent prompt, when used: give it the report path, the diff (`git diff
-origin/main pr-N`), the worktree path, the judgment list above, and a 150-word
-cap. It must not run cargo again; the script already did.
+End every item with, in this order:
 
-## 4. Verdict and ledger
+1. Verdict: MERGE, CHANGES (name them), REJECT, or DISCUSS, with the one reason
+   that decides it.
+2. Findings worth the maintainer's attention, few and concrete, with file:line.
+3. The prepared action, verbatim: the merge command, or the comment text to post
+   on the PR or issue (change request, rejection with reasons, answer to a
+   question). Comments are written in the maintainer's voice, short, factual,
+   no fluff, since the maintainer reads and approves them before they go out.
 
-```
-.claude/skills/contrib-review/scripts/ledger.sh <N> MERGE|CHANGES|REJECT|DISCUSS "note"
-```
+Then stop and wait. Do not merge, comment, or close anything before the go.
 
-`CHANGES` means small requests before merge (name them in the note). `DISCUSS`
-means the design bucket awaiting the maintainer. When the maintainer merges or
-closes, append `MERGED` or `CLOSED` so the queue shows it.
+## "go"
 
-## 5. Report to the user
+Execute exactly what was prepared, adjusted by anything the maintainer said:
+`gh pr merge N --rebase`, or `gh pr comment` / `gh issue comment` / `gh issue
+close`. Record with `ledger.sh` (MERGED, CHANGES, REJECT, CLOSED, ANSWERED).
+Report the outcome in two lines and offer nothing; the maintainer says "next"
+when ready. After a run of merges, remind about `git pull`, `cargo test` and the
+CHANGELOG once, not per item.
 
-One table: PR, issue, bucket, verdict, one-line reason. Then the design
-questions needing a decision, then follow-ups reviewers found that no PR covers.
-Merge steps at the end: `gh pr merge N --rebase` in number order for every MERGE;
-CHANGES PRs after the contributor updates them; skip anything the queue shows as
-CONFLICTING, the contributor rebases it. After a merge batch the maintainer runs
-the suite on main and writes the CHANGELOG entries.
+A CHANGES PR comes back as an item when the contributor pushes: the queue shows
+a new head, `review-pr.sh` runs on it, verdict flips.
 
-## Learned conventions (batch 1 and 2, Sept 2026)
+## Learned conventions (Sept 2026, batches 1 to 3)
 
-- History is linear; always `--rebase` merge. Commits keep the contributor's
-  authorship.
-- `//` for private items, `///` only for public API docs.
-- Real bugs so far: panics in builders and hot paths at edge configs, HashMap
-  iteration breaking seeded determinism, missing trait impls that siblings have
-  (flush), stale docs after deliberate behaviour changes. All were confirmed by
-  the test failing against main's source.
-- Rejected so far: PR #10, a dependency swap that broke seeded determinism and
-  lost exact counts, with a regenerated lockfile. Motivation was the
-  contributor's own crate, not a measured bottleneck here.
-- Contributor asks good questions in issue bodies (e.g. "should operator
-  constructors return errors?"). Answer them in the verdict note; default is to
-  keep panics for programmer misconfiguration.
-
-## Cleanup
-
-`review-pr.sh --clean` removes the worktree, `pr-*` branches and the target dir
-(about 2 GB). Ledger and reports stay. Run it when a batch is done.
+- Linear history, always rebase merge, contributor keeps authorship.
+- Real bugs so far: builder and hot-path panics at edge configs, HashMap
+  iteration breaking seeded determinism, a trait method siblings had and one
+  lacked, stale docs after deliberate behaviour changes. Every one was confirmed
+  by its test failing against main's source.
+- Rejected: PR #10, a dependency swap that broke seeded determinism, lost exact
+  counts, and regenerated the lockfile; motivated by the contributor's own crate.
+- Deferred by policy: anything breaking (`RangeAllele` bounds, `Cache` fields)
+  waits for a minor bump. Operator constructors keep panicking on programmer
+  misconfiguration.
+- The contributor asks good questions in issue bodies. Answer them; he acts on
+  the answer.
