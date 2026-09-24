@@ -84,6 +84,11 @@ End every item with, in this order:
    question). Comments are written in the maintainer's voice, short, factual,
    no fluff, since the maintainer reads and approves them before they go out.
 
+When there is anything to change, however small, the prepared action is the
+change request, not a merge. Merging and then patching over the contributor's
+work hides the review from him and from the history; he turns changes around
+in hours. Offer merge-then-fix only when the author has gone quiet for weeks.
+
 Then stop and wait. Do not merge, comment, or close anything before the go.
 
 ## "go"
