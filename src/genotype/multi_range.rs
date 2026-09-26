@@ -201,7 +201,7 @@ where
                     match mutation_type {
                         MutationType::Discrete => {
                             // [start, end+1) for uniform floor() sampling
-                            Uniform::new(*allele_range.start(), *allele_range.end() + T::one())
+                            super::range::discrete_allele_sampler(allele_range)
                         }
                         _ => {
                             // [start, end] for uniform sampling
@@ -313,18 +313,19 @@ where
                     let bandwidth = bandwidths[self.current_scale_index];
                     let allele_range_start = *self.allele_ranges[index].start();
                     let allele_range_end = *self.allele_ranges[index].end();
-                    if allele_range_end - allele_range_start <= bandwidth {
+                    // allele range not larger than the bandwidth (without overflow of end - start)
+                    if T::clamped_sub(allele_range_end, bandwidth, allele_range_start)
+                        == allele_range_start
+                    {
                         // Random, leverage existing sampler
                         chromosome.genes[index] = self.allele_samplers[index].sample(rng);
                     } else {
                         // Bandwidth
                         let current_value = chromosome.genes[index];
-                        let max_delta_up = allele_range_end - current_value;
-                        let max_delta_down = current_value - allele_range_start;
-                        let working_delta_up = T::min(bandwidth, max_delta_up);
-                        let working_delta_down = T::min(bandwidth, max_delta_down);
-                        let working_range_end = current_value + working_delta_up;
-                        let working_range_start = current_value - working_delta_down;
+                        let working_range_end =
+                            T::clamped_add(current_value, bandwidth, allele_range_end);
+                        let working_range_start =
+                            T::clamped_sub(current_value, bandwidth, allele_range_start);
                         chromosome.genes[index] =
                             rng.gen_range(working_range_start..=working_range_end);
                     }
@@ -681,8 +682,8 @@ where
         let current_value = chromosome.genes[index];
         if allele_range_start < current_value {
             let mut new_chromosome = population.new_chromosome(chromosome);
-            let max_delta_down = current_value - allele_range_start;
-            let working_delta_down = T::min(bandwidth, max_delta_down);
+            let working_delta_down =
+                current_value - T::clamped_sub(current_value, bandwidth, allele_range_start);
             if working_delta_down >= T::smallest_increment() {
                 let delta = rng.gen_range(T::smallest_increment()..=working_delta_down);
                 new_chromosome.genes[index] -= delta; // no need to check again
@@ -692,8 +693,8 @@ where
         };
         if current_value < allele_range_end {
             let mut new_chromosome = population.new_chromosome(chromosome);
-            let max_delta_up = allele_range_end - current_value;
-            let working_delta_up = T::min(bandwidth, max_delta_up);
+            let working_delta_up =
+                T::clamped_add(current_value, bandwidth, allele_range_end) - current_value;
             if working_delta_up >= T::smallest_increment() {
                 let delta = rng.gen_range(T::smallest_increment()..=working_delta_up);
                 new_chromosome.genes[index] += delta; // no need to check again
@@ -750,6 +751,10 @@ where
                 new_chromosome.genes[index] = working_value;
                 new_chromosome.reset_metadata(self.genes_hashing);
                 population.chromosomes.push(new_chromosome);
+            }
+            // stop at the end, as end + 1 overflows for an end of T::MAX
+            if working_value == ending_value {
+                break;
             }
             working_value += T::one();
         }
@@ -952,7 +957,7 @@ where
                 match mutation_type {
                     MutationType::Discrete => {
                         // [start, end+1) for uniform floor() sampling
-                        Uniform::new(*allele_range.start(), *allele_range.end() + T::one())
+                        super::range::discrete_allele_sampler(allele_range)
                     }
                     _ => {
                         // [start, end] for uniform sampling
