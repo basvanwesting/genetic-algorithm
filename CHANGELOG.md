@@ -4,6 +4,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.27.4] - 2026-09-26
+
+### Fixed
+* Strategy builders return `TryFromBuilderError` instead of panicking on invalid configs (#31)
+* Number of elite chromosomes capped at `target_population_size` (#33)
+* `Population::extend_from_within` beyond the current size without chromosome recycling (#35)
+* `MultiListGenotype`/`MultiUniqueGenotype` builders reject empty inner allele lists (#39)
+* Reporter period 0 means no periodic reports instead of a division by zero (#47)
+* `HillClimbReporterSimple` implements `flush` like the other simple reporters (#49)
+* `Unique`/`MultiUnique` swap mutation always picks two distinct positions, no more no-op
+  mutations. Seeded results for these genotypes change (#57)
+* `best_chromosome_indices` returns all indices when `amount` covers them, instead of one
+  less. `elitism_rate` 1.0 now keeps every elite. Seeded elite order changes (#62)
+* `best_unique_chromosome_indices` deterministic on equal fitness, tie-break on index (#64)
+* Fitness cache is least recently used as intended, not first in first out (#66)
+* Doc fixes: `MutateMultiGene(Dynamic)` mutates exactly `number_of_mutations` genes (#51),
+  `MultiUniqueGenotype` template panicked, templates now run as doctests (#53),
+  AGENTS.md updated for 0.27.2 (#55), extension trigger thresholds, `Discrete` docs,
+  `Range`/`MultiRange` Debug names, `MassDegeneration::new` parameter name (#72)
+
+### Changed
+* MSRV is 1.78.0, the pinned toolchain. 1.71.1 was declared but did not build (#78)
+* Dropped unused `log` and `env_logger` dependencies; examples no longer call
+  `env_logger::init()` (#78)
+* CI also runs on Windows and checks formatting, clippy and rustdoc warnings (#70)
 
 ## [0.27.3] - 2026-09-23
 
