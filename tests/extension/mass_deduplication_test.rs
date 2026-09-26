@@ -44,13 +44,16 @@ fn standard() {
         &mut rng,
     );
 
-    state.population.chromosomes.sort_by_key(|c| c.genes_hash());
+    state
+        .population
+        .chromosomes
+        .sort_by_key(|c| c.genes.clone());
     assert_eq!(
         inspect::population(&state.population),
         vec![
-            vec![true, true, true],
-            vec![true, false, true],
             vec![false, true, true],
+            vec![true, false, true],
+            vec![true, true, true],
         ]
     );
     assert_eq!(state.population.chromosomes.capacity(), 10);
@@ -140,7 +143,10 @@ fn skips_execution_if_no_genes_hash() {
         &mut rng,
     );
 
-    state.population.chromosomes.sort_by_key(|c| c.genes_hash());
+    state
+        .population
+        .chromosomes
+        .sort_by_key(|c| c.genes.clone());
     assert_eq!(
         inspect::population(&state.population),
         vec![
