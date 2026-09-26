@@ -27,8 +27,6 @@ impl Fitness for ExpensiveCount {
 }
 
 fn main() {
-    env_logger::init();
-
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()

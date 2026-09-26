@@ -2,8 +2,6 @@ use genetic_algorithm::fitness::placeholders::CountTrue;
 use genetic_algorithm::strategy::permutate::prelude::*;
 
 fn main() {
-    env_logger::init();
-
     let genotype = BinaryGenotype::builder()
         .with_genes_size(6)
         .with_seed_genes_list(vec![

@@ -22,8 +22,6 @@ impl Fitness for TupleFitness {
 }
 
 fn main() {
-    env_logger::init();
-
     let genotype = ListGenotype::builder()
         .with_genes_size(7)
         .with_allele_list(vec![

@@ -40,8 +40,6 @@ impl Fitness for MILPFitness {
 }
 
 fn main() {
-    env_logger::init();
-
     let genotype = MultiRangeGenotype::builder()
         .with_allele_ranges(vec![(-10.0..=10.0), (0.0..=10.0)])
         // .with_mutation_types(vec![

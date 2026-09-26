@@ -107,8 +107,6 @@ impl<'a> Fitness for RecessFitness<'a> {
 }
 
 fn main() {
-    env_logger::init();
-
     // INPUT
     let default_start_date = NaiveDate::from_ymd_opt(2022, 1, 1).unwrap();
     let default_end_date = NaiveDate::from_ymd_opt(2022, 12, 31).unwrap();

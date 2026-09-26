@@ -25,8 +25,6 @@ impl Fitness for DistanceTo {
 }
 
 fn main() {
-    env_logger::init();
-
     let genotype = RangeGenotype::<f32>::builder()
         .with_genes_size(GENES_SIZE)
         .with_allele_range(0.0..=1.0)

@@ -40,8 +40,7 @@ preludes exist for other strategies:
 - `genetic_algorithm::strategy::prelude::*` (superset, all strategies)
 
 **Output:** Reporters print directly to stdout, no logging setup is needed (the
-library does not use the `log` crate). Some examples call `env_logger::init()`,
-this is not needed to see reporter output.
+library does not use the `log` crate).
 
 **Critical gotchas** (see [Gotchas](#gotchas) for full list):
 1. `FitnessValue` is `isize`, not `f64`. Scale floats: `Some((score / precision) as FitnessValue)`.
