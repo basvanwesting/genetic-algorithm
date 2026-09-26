@@ -1,4 +1,5 @@
-use crate::allele::Allele;
+use crate::allele::{Allele, RangeAllele};
+use std::ops::RangeInclusive;
 
 /// Controls mutation behavior for numeric genotypes (Range and MultiRange).
 ///
@@ -310,4 +311,40 @@ pub enum MutationType<T: Allele> {
     RangeScaled(Vec<T>),
     /// Step sizes for scaled mutations (strategy controls phase advancement)
     StepScaled(Vec<T>),
+}
+
+impl<T: RangeAllele> MutationType<T> {
+    // The bandwidth, step or scales of the mutation type (empty for Random and Discrete)
+    fn values(&self) -> &[T] {
+        match self {
+            MutationType::Range(value) | MutationType::Step(value) => std::slice::from_ref(value),
+            MutationType::RangeScaled(values) | MutationType::StepScaled(values) => values,
+            MutationType::Random | MutationType::Discrete => &[],
+        }
+    }
+    pub(crate) fn has_empty_scales(&self) -> bool {
+        match self {
+            MutationType::RangeScaled(values) | MutationType::StepScaled(values) => {
+                values.is_empty()
+            }
+            _ => false,
+        }
+    }
+    pub(crate) fn has_invalid_values(&self) -> bool {
+        self.values()
+            .iter()
+            .any(|value| !is_finite(*value) || *value < T::zero())
+    }
+}
+
+// Finite start <= end (a NaN start or end fails the comparison)
+pub(crate) fn is_valid_allele_range<T: RangeAllele>(allele_range: &RangeInclusive<T>) -> bool {
+    let (start, end) = (*allele_range.start(), *allele_range.end());
+    is_finite(start) && is_finite(end) && start <= end
+}
+
+// x - x is zero for finite values, and NaN for infinite and NaN values (always zero for integers)
+#[allow(clippy::eq_op)]
+fn is_finite<T: RangeAllele>(value: T) -> bool {
+    value - value == T::zero()
 }
