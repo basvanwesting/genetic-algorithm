@@ -31,8 +31,6 @@ impl Fitness for NQueensFitness {
 }
 
 fn main() {
-    env_logger::init();
-
     const BOARD_SIZE: u8 = 64;
 
     let genotype = UniqueGenotype::builder()

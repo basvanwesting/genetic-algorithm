@@ -37,8 +37,6 @@ impl Fitness for HeterogeneousFitness {
 }
 
 fn main() {
-    env_logger::init();
-
     let genotype = MultiRangeGenotype::<f32>::builder()
         .with_allele_ranges(vec![
             0.0..=1.0,    // Gene 0: boolean flag

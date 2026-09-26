@@ -39,8 +39,6 @@ impl Fitness for MonkeyFitness {
 }
 
 fn main() {
-    env_logger::init();
-
     let genotype = ListGenotype::builder()
         .with_genes_size(TARGET_TEXT.len())
         .with_allele_list((MIN_CHAR..MAX_CHAR).collect())

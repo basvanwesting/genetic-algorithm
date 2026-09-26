@@ -9,8 +9,6 @@ const INTERNAL_MULTITHREAD: bool = true;
 const EXTERNAL_MULTITHREAD: bool = true;
 
 fn main() {
-    env_logger::init();
-
     call_evolve();
     call_hill_climb();
     call_permutate();

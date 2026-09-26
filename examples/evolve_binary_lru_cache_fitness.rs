@@ -73,8 +73,6 @@ impl Clone for CachedExpensiveCount {
 }
 
 fn main() {
-    env_logger::init();
-
     let genotype = BinaryGenotype::builder()
         .with_genes_size(100)
         .build()
