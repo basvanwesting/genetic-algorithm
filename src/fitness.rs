@@ -132,7 +132,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             population
                 .chromosomes
                 .par_iter_mut()
-                .filter(|c| c.fitness_score().is_none())
+                .filter(|c| c.fitness_score().is_none() && c.is_offspring())
                 .for_each_init(
                     || thread_local.get_or(|| std::cell::RefCell::new(self.clone())),
                     |fitness_cell, chromosome| {
@@ -151,7 +151,7 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
             population
                 .chromosomes
                 .iter_mut()
-                .filter(|c| c.fitness_score().is_none())
+                .filter(|c| c.fitness_score().is_none() && c.is_offspring())
                 .for_each(|c| self.call_for_chromosome(c, genotype, cache));
         }
     }
