@@ -716,3 +716,53 @@ fn call_par_speciated_abort_flag_returns_best_species_run() {
         .iter()
         .all(|run| best_run.best_fitness_score() >= run.best_fitness_score()));
 }
+
+#[derive(Clone, Debug)]
+struct CountEvaluationsInvalid {
+    counter: std::sync::Arc<std::sync::atomic::AtomicUsize>,
+}
+impl Fitness for CountEvaluationsInvalid {
+    type Genotype = BinaryGenotype;
+    fn calculate_for_chromosome(
+        &mut self,
+        _chromosome: &FitnessChromosome<Self>,
+        _genotype: &FitnessGenotype<Self>,
+    ) -> Option<FitnessValue> {
+        self.counter
+            .fetch_add(1, std::sync::atomic::Ordering::Relaxed);
+        None
+    }
+}
+
+#[test]
+fn call_does_not_recompute_invalid_fitness_for_survivors() {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Arc;
+
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(10)
+        .build()
+        .unwrap();
+    let counter = Arc::new(AtomicUsize::new(0));
+
+    // When fitness is always None (invalid), survivors from selection
+    // should not be recomputed in subsequent generations.
+    Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(20)
+        .with_max_generations(3)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_fitness(CountEvaluationsInvalid {
+            counter: counter.clone(),
+        })
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    // 20 initial chromosomes in generation 0, plus newly generated offspring
+    // across generations 1..=3 (62 total evaluations). Survivors with invalid
+    // (None) fitness have age >= 1 and are not recomputed.
+    assert_eq!(counter.load(Ordering::Relaxed), 62);
+}
