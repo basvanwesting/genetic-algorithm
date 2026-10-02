@@ -1,6 +1,8 @@
 use super::{Genotype, MutationType};
 use crate::chromosome::Genes;
 pub use crate::errors::TryFromGenotypeBuilderError as TryFromBuilderError;
+use rustc_hash::{FxHashSet, FxHasher};
+use std::hash::{Hash, Hasher};
 use std::ops::RangeInclusive;
 
 /// The builder for a Genotype struct.
@@ -198,4 +200,34 @@ impl<G: Genotype> Default for Builder<G> {
             chromosome_recycling: true,
         }
     }
+}
+
+// Seed genes validation helpers. Alleles are compared by hash, as the Unique genotypes only
+// require Hash (not Eq) for their alleles
+fn allele_hashes<T: Hash>(values: &[T]) -> Vec<u64> {
+    values
+        .iter()
+        .map(|value| {
+            let mut hasher = FxHasher::default();
+            value.hash(&mut hasher);
+            hasher.finish()
+        })
+        .collect()
+}
+
+// Whether each gene is one of the alleles
+pub(crate) fn genes_in_alleles<T: Hash>(genes: &[T], alleles: &[T]) -> bool {
+    let alleles: FxHashSet<u64> = allele_hashes(alleles).into_iter().collect();
+    allele_hashes(genes)
+        .iter()
+        .all(|gene| alleles.contains(gene))
+}
+
+// Whether the genes are a permutation of the alleles
+pub(crate) fn genes_permutation_of_alleles<T: Hash>(genes: &[T], alleles: &[T]) -> bool {
+    let mut genes = allele_hashes(genes);
+    let mut alleles = allele_hashes(alleles);
+    genes.sort_unstable();
+    alleles.sort_unstable();
+    genes == alleles
 }
