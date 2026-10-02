@@ -44,8 +44,8 @@ fn standard() {
             (vec![false, false, false, false, false], 1),
             (vec![true, true, true, true, true], 1),
             (vec![false, false, false, false, false], 1),
-            (vec![true, true, false, false, false], 0),
-            (vec![false, false, true, true, true], 0),
+            (vec![true, true, true, false, false], 0),
+            (vec![false, false, false, true, true], 0),
         ]
     )
 }

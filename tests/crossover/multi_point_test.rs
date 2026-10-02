@@ -40,18 +40,30 @@ fn standard() {
     assert_eq!(
         inspect::population_with_age(&state.population),
         vec![
-            (vec![true; 10], 1),
-            (vec![false; 10], 1),
-            (vec![true; 10], 1),
-            (vec![false; 10], 1),
             (
-                vec![false, true, true, true, true, true, true, false, false, false],
+                vec![true, true, true, true, true, true, true, true, true, true],
+                1
+            ),
+            (
+                vec![false, false, false, false, false, false, false, false, false, false],
+                1
+            ),
+            (
+                vec![true, true, true, true, true, true, true, true, true, true],
+                1
+            ),
+            (
+                vec![false, false, false, false, false, false, false, false, false, false],
+                1
+            ),
+            (
+                vec![true, false, true, true, true, true, true, false, false, false],
                 0
             ),
             (
-                vec![true, false, false, false, false, false, false, true, true, true],
+                vec![false, true, false, false, false, false, false, true, true, true],
                 0
-            ),
+            )
         ]
     )
 }

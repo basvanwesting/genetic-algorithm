@@ -114,12 +114,48 @@ fn crossover_chromosome_pair_single_point() {
     genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
     assert_eq!(
         inspect::chromosome(&father),
-        vec![true, true, true, true, false, false, false, false, false, false]
+        vec![true, true, true, true, true, false, false, false, false, false]
     );
     assert_eq!(
         inspect::chromosome(&mother),
-        vec![false, false, false, false, true, true, true, true, true, true]
+        vec![false, false, false, false, false, true, true, true, true, true]
     );
+}
+
+#[test]
+fn crossover_chromosome_points_never_swap_whole_chromosomes() {
+    let rng = &mut SmallRng::seed_from_u64(0);
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(2)
+        .build()
+        .unwrap();
+    // the only crossover point is 1
+    for allow_duplicates in [true, false] {
+        for _ in 0..100 {
+            let mut father = build::chromosome(vec![true, true]);
+            let mut mother = build::chromosome(vec![false, false]);
+            genotype.crossover_chromosome_points(
+                1,
+                allow_duplicates,
+                &mut father,
+                &mut mother,
+                rng,
+            );
+            assert_eq!(inspect::chromosome(&father), vec![true, false]);
+            assert_eq!(inspect::chromosome(&mother), vec![false, true]);
+        }
+    }
+
+    // a single gene has no crossover points, no panic
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(1)
+        .build()
+        .unwrap();
+    let mut father = build::chromosome(vec![true]);
+    let mut mother = build::chromosome(vec![false]);
+    genotype.crossover_chromosome_points(1, true, &mut father, &mut mother, rng);
+    genotype.crossover_chromosome_points(1, false, &mut father, &mut mother, rng);
+    assert_eq!(inspect::chromosome(&father), vec![true]);
 }
 
 #[test]
@@ -177,11 +213,11 @@ fn crossover_chromosome_points_with_duplicates() {
     genotype.crossover_chromosome_points(3, true, &mut father, &mut mother, rng);
     assert_eq!(
         inspect::chromosome(&father),
-        vec![true, true, true, true, true, true, true, true, true, false]
+        vec![true, true, true, true, false, true, true, true, true, false]
     );
     assert_eq!(
         inspect::chromosome(&mother),
-        vec![false, false, false, false, false, false, false, false, false, true]
+        vec![false, false, false, false, true, false, false, false, false, true]
     );
 }
 
@@ -198,11 +234,11 @@ fn crossover_chromosome_points_without_duplicates() {
     genotype.crossover_chromosome_points(3, false, &mut father, &mut mother, rng);
     assert_eq!(
         inspect::chromosome(&father),
-        vec![true, true, true, true, false, false, false, true, false, false]
+        vec![true, true, true, true, false, false, false, false, true, false]
     );
     assert_eq!(
         inspect::chromosome(&mother),
-        vec![false, false, false, false, true, true, true, false, true, true]
+        vec![false, false, false, false, true, true, true, true, false, true]
     );
 }
 
