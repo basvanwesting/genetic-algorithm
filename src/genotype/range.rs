@@ -1,4 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
+use super::mutation_type::is_valid_allele_range;
 use super::{
     EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype,
     SupportsGeneCrossover, SupportsPointCrossover,
@@ -107,6 +108,30 @@ where
             ))
         } else if builder.allele_range.is_none() {
             Err(TryFromBuilderError("RangeGenotype requires a allele_range"))
+        } else if !is_valid_allele_range(builder.allele_range.as_ref().unwrap()) {
+            Err(TryFromBuilderError(
+                "RangeGenotype requires an allele_range with a finite start <= end",
+            ))
+        } else if builder.mutation_types.is_some() {
+            Err(TryFromBuilderError(
+                "RangeGenotype uses with_mutation_type (singular), with_mutation_types is not supported",
+            ))
+        } else if builder
+            .mutation_type
+            .as_ref()
+            .is_some_and(|m| m.has_empty_scales())
+        {
+            Err(TryFromBuilderError(
+                "RangeGenotype requires non-empty RangeScaled/StepScaled values",
+            ))
+        } else if builder
+            .mutation_type
+            .as_ref()
+            .is_some_and(|m| m.has_invalid_values())
+        {
+            Err(TryFromBuilderError(
+                "RangeGenotype requires finite, non-negative mutation_type values",
+            ))
         } else {
             let genes_size = builder.genes_size.unwrap();
             let allele_range = builder.allele_range.unwrap();
