@@ -4,6 +4,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+* Breaking: `fitness_value` returns `Option<FitnessValue>`, with a NaN score as `None`
+  (invalid fitness, ranks last) instead of 0, which looked optimal when minimizing.
+  Return it directly from `calculate_for_chromosome`: `Some(fitness_value(..))` becomes
+  `fitness_value(..)`. Infinities still saturate (#76)
+
 ## [0.27.5] - 2026-10-08
 
 ### Fixed

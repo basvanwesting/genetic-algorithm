@@ -27,17 +27,27 @@ pub type FitnessValue = isize;
 
 /// Convert a float score to [`FitnessValue`] with the given precision.
 ///
-/// Shorthand for `(score / precision) as FitnessValue`.
+/// Shorthand for `Some((score / precision) as FitnessValue)`, to return directly from
+/// [Fitness::calculate_for_chromosome]. A NaN score is `None` (an invalid fitness, which ranks
+/// last), where the plain cast would turn it into 0. Infinities saturate to the
+/// [`FitnessValue`] limits.
 /// Accepts both f32 and f64 (and any type implementing `Into<f64>`).
 ///
 /// # Example
 /// ```
 /// use genetic_algorithm::fitness::fitness_value;
-/// assert_eq!(fitness_value(3.14159_f32, 0.001_f32), 3141);
-/// assert_eq!(fitness_value(3.14159_f64, 0.001_f64), 3141);
+/// assert_eq!(fitness_value(3.14159_f32, 0.001_f32), Some(3141));
+/// assert_eq!(fitness_value(3.14159_f64, 0.001_f64), Some(3141));
+/// assert_eq!(fitness_value(f32::NAN, 0.001_f32), None);
+/// assert_eq!(fitness_value(f32::INFINITY, 0.001_f32), Some(isize::MAX));
 /// ```
-pub fn fitness_value(score: impl Into<f64>, precision: impl Into<f64>) -> FitnessValue {
-    (score.into() / precision.into()) as FitnessValue
+pub fn fitness_value(score: impl Into<f64>, precision: impl Into<f64>) -> Option<FitnessValue> {
+    let value = score.into() / precision.into();
+    if value.is_nan() {
+        None
+    } else {
+        Some(value as FitnessValue)
+    }
 }
 
 /// Whether to maximize or minimize fitness scores. Default is Maximize.

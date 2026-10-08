@@ -63,8 +63,9 @@ For float-based fitness, scale to isize manually:
 let precision = 1e-5;
 Some((score / precision) as FitnessValue)
 
-// or use the helper function (accepts f32 and f64)
-Some(fitness_value(score, precision))
+// or use the helper function (accepts f32 and f64), which already returns the
+// Option: a NaN score is None (invalid), where the plain cast turns it into 0
+fitness_value(score, precision)
 ```
 
 Return `None` from `calculate_for_chromosome` to mark a chromosome as invalid
