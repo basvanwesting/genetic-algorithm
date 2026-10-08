@@ -2,7 +2,7 @@
 pub use crate::chromosome::{Chromosome, GenesHash};
 #[doc(no_inline)]
 pub use crate::fitness::{
-    fitness_value, Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering,
+    fitness_score, Fitness, FitnessChromosome, FitnessGenes, FitnessGenotype, FitnessOrdering,
     FitnessPopulation, FitnessValue,
 };
 #[doc(no_inline)]

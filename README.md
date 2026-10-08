@@ -44,7 +44,7 @@ All multithreading mechanisms are implemented using
 
 **Important**: `FitnessValue` is `isize` (not `f64`). This enables equality
 checks for staleness detection. For float-based fitness, scale with the helper:
-`fitness_value(score, precision)`, which returns `None` (invalid) for a NaN score.
+`fitness_score(score, precision)`, which returns `None` (invalid) for a NaN score.
 
 ### When to use which strategy?
 

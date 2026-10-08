@@ -22,11 +22,12 @@ use std::time::Instant;
 use thread_local::ThreadLocal;
 
 /// The type used for fitness scores. isize (not f64) enables equality checks needed for staleness
-/// detection. For float-based fitness, scale with [fitness_value]:
-/// `fitness_value(score, precision)`.
+/// detection. For float-based fitness, scale with [fitness_score]:
+/// `fitness_score(score, precision)`.
 pub type FitnessValue = isize;
 
-/// Convert a float score to [`FitnessValue`] with the given precision.
+/// Convert a float score to a fitness score (`Option<`[`FitnessValue`]`>`) with the given
+/// precision.
 ///
 /// Shorthand for `Some((score / precision) as FitnessValue)`, to return directly from
 /// [Fitness::calculate_for_chromosome]. A NaN score is `None` (an invalid fitness, which ranks
@@ -36,13 +37,13 @@ pub type FitnessValue = isize;
 ///
 /// # Example
 /// ```
-/// use genetic_algorithm::fitness::fitness_value;
-/// assert_eq!(fitness_value(3.14159_f32, 0.001_f32), Some(3141));
-/// assert_eq!(fitness_value(3.14159_f64, 0.001_f64), Some(3141));
-/// assert_eq!(fitness_value(f32::NAN, 0.001_f32), None);
-/// assert_eq!(fitness_value(f32::INFINITY, 0.001_f32), Some(isize::MAX));
+/// use genetic_algorithm::fitness::fitness_score;
+/// assert_eq!(fitness_score(3.14159_f32, 0.001_f32), Some(3141));
+/// assert_eq!(fitness_score(3.14159_f64, 0.001_f64), Some(3141));
+/// assert_eq!(fitness_score(f32::NAN, 0.001_f32), None);
+/// assert_eq!(fitness_score(f32::INFINITY, 0.001_f32), Some(isize::MAX));
 /// ```
-pub fn fitness_value(score: impl Into<f64>, precision: impl Into<f64>) -> Option<FitnessValue> {
+pub fn fitness_score(score: impl Into<f64>, precision: impl Into<f64>) -> Option<FitnessValue> {
     let value = score.into() / precision.into();
     if value.is_nan() {
         None

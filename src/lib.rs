@@ -20,7 +20,7 @@
 //!
 //! **Important**: [FitnessValue](crate::fitness::FitnessValue) is `isize` (not `f64`). This
 //! enables equality checks for staleness detection. For float-based fitness, scale with the
-//! [fitness_value](crate::fitness::fitness_value) helper: `fitness_value(score, precision)`,
+//! [fitness_score](crate::fitness::fitness_score) helper: `fitness_score(score, precision)`,
 //! which returns `None` (invalid) for a NaN score.
 //!
 //! All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].

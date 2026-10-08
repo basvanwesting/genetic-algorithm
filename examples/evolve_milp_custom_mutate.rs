@@ -27,7 +27,7 @@ impl Fitness for MILPFitness {
 
         if x1 + 2.0 * x2 >= -14.0 && -4.0 * x1 - x2 <= -33.0 && 2.0 * x1 + x2 <= 20.0 {
             let score = 8.0 * x1 + x2;
-            fitness_value(score, PRECISION)
+            fitness_score(score, PRECISION)
         } else {
             None
         }

@@ -14,7 +14,7 @@ impl Fitness for DistanceTo {
             .iter()
             .map(|v| (v - self.0).abs())
             .sum::<f32>();
-        fitness_value(distance, self.1)
+        fitness_score(distance, self.1)
     }
 }
 

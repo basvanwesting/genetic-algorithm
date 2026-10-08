@@ -7,10 +7,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 ## [Unreleased]
 
 ### Changed
-* Breaking: `fitness_value` returns `Option<FitnessValue>`, with a NaN score as `None`
-  (invalid fitness, ranks last) instead of 0, which looked optimal when minimizing.
-  Return it directly from `calculate_for_chromosome`: `Some(fitness_value(..))` becomes
-  `fitness_value(..)`. Infinities still saturate (#76)
+* Breaking: the `fitness_value` helper is now `fitness_score` and returns
+  `Option<FitnessValue>`, with a NaN score as `None` (invalid fitness, ranks last) instead
+  of 0, which looked optimal when minimizing. Return it directly from
+  `calculate_for_chromosome`: `Some(fitness_value(..))` becomes `fitness_score(..)`.
+  Infinities still saturate. Renamed as a fitness value is the `isize` and a fitness score
+  the `Option` of it, as in `Chromosome::fitness_score` (#76)
 * Breaking: the fitness cache also stores an invalid (`None`) fitness, so it is calculated
   once per distinct chromosome instead of for every offspring. `FitnessCache::write` takes
   and the public `cache_state` holds `Option<FitnessValue>`; `FitnessCache::read` returns

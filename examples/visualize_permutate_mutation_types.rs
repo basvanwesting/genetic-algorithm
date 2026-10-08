@@ -28,7 +28,7 @@ impl Fitness for TargetPointFitness {
         let dx = chromosome.genes[0] - self.target[0];
         let dy = chromosome.genes[1] - self.target[1];
         let score = (dx * dx + dy * dy).sqrt();
-        fitness_value(score, self.precision)
+        fitness_score(score, self.precision)
     }
 }
 

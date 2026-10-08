@@ -43,7 +43,7 @@ preludes exist for other strategies:
 library does not use the `log` crate).
 
 **Critical gotchas** (see [Gotchas](#gotchas) for full list):
-1. `FitnessValue` is `isize`, not `f64`. Scale floats: `fitness_value(score, precision)`.
+1. `FitnessValue` is `isize`, not `f64`. Scale floats: `fitness_score(score, precision)`.
 2. Evolve/HillClimb require at least one ending condition (`target_fitness_score`, `max_stale_generations`, or `max_generations`).
 
 ## Critical: FitnessValue is isize
@@ -62,7 +62,7 @@ For float-based fitness, scale to isize with the helper function:
 // divides by the desired precision and casts (accepts f32 and f64). Returns the
 // Option directly: a NaN score is None (invalid)
 let precision = 1e-5;
-fitness_value(score, precision)
+fitness_score(score, precision)
 
 // the manual cast does the same, but silently turns a NaN score into 0, which
 // looks optimal when minimizing. Only when the score cannot be NaN
@@ -658,7 +658,7 @@ WRONG: No ending condition = COMPILE/BUILD ERROR
 FIX:   Add .with_max_stale_generations(1000)
 
 WRONG: Fitness returns f64 = TYPE ERROR
-FIX:   Return fitness_value(score, precision)
+FIX:   Return fitness_score(score, precision)
 
 WRONG: MutateSingleGene(0.2) with 1000+ float genes = DIVERSITY COLLAPSE
 FIX:   Use MutateMultiGene with higher mutation count, see Troubleshooting
@@ -827,12 +827,12 @@ Combine with `max_stale_generations` to trigger phase transitions automatically
 
 **Multi-objective optimization?**
 This library optimizes a single `FitnessValue`. For multiple objectives, combine
-them into a weighted sum: `fitness_value(w1 * obj1 + w2 * obj2, precision)`.
+them into a weighted sum: `fitness_score(w1 * obj1 + w2 * obj2, precision)`.
 Adjust weights to control tradeoffs.
 
 ## Gotchas
 
-1. **FitnessValue is isize.** Scale floats: `fitness_value(score, precision)` (NaN becomes `None`).
+1. **FitnessValue is isize.** Scale floats: `fitness_score(score, precision)` (NaN becomes `None`).
 2. **Ending condition required.** Evolve/HillClimb need at least one of: `target_fitness_score`, `max_stale_generations`, `max_generations`.
 3. **Fitness struct must be `Clone + Send + Sync + Debug`.** Most structs auto-derive `Send + Sync`; use `Arc` instead of `Rc` if needed.
 4. **Permutate + RangeGenotype** requires `MutationType::Step`, `StepScaled`, or `Discrete`.
