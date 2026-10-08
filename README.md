@@ -43,8 +43,8 @@ All multithreading mechanisms are implemented using
 [std::sync::mpsc](https://doc.rust-lang.org/1.78.0/std/sync/mpsc/index.html).
 
 **Important**: `FitnessValue` is `isize` (not `f64`). This enables equality
-checks for staleness detection. For float-based fitness, scale manually:
-`Some((score / precision) as FitnessValue)`.
+checks for staleness detection. For float-based fitness, scale with the helper:
+`fitness_value(score, precision)`, which returns `None` (invalid) for a NaN score.
 
 ### When to use which strategy?
 

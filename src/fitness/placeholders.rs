@@ -1,5 +1,5 @@
 //! placeholders for testing and bootstrapping, not really used in practice
-use crate::fitness::{Fitness, FitnessChromosome, FitnessValue};
+use crate::fitness::{fitness_value, Fitness, FitnessChromosome, FitnessValue};
 use crate::genotype::{BinaryGenotype, Genotype};
 use rand::distributions::{Distribution, Uniform};
 use rand::rngs::SmallRng;
@@ -89,7 +89,7 @@ where
             .genes
             .iter()
             .fold(0.0_f64, |acc, &e| acc + e.into());
-        Some((sum / self.precision) as FitnessValue)
+        fitness_value(sum, self.precision)
     }
 }
 

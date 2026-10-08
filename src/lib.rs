@@ -19,9 +19,9 @@
 //! * [Fitness](crate::fitness): knows how to determine the fitness of a chromosome
 //!
 //! **Important**: [FitnessValue](crate::fitness::FitnessValue) is `isize` (not `f64`). This
-//! enables equality checks for staleness detection. For float-based fitness, scale manually:
-//! `Some((score / precision) as FitnessValue)`, or use the
-//! [fitness_value](crate::fitness::fitness_value) helper.
+//! enables equality checks for staleness detection. For float-based fitness, scale with the
+//! [fitness_value](crate::fitness::fitness_value) helper: `fitness_value(score, precision)`,
+//! which returns `None` (invalid) for a NaN score.
 //!
 //! All multithreading mechanisms are implemented using [rayon::iter] and [std::sync::mpsc].
 //!

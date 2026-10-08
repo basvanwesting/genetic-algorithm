@@ -32,7 +32,7 @@ impl Fitness for HeterogeneousFitness {
             + (learning_rate - 0.01).abs() * 100.0
             + (batch_size - 64.0).abs() / 100.0;
 
-        Some((score / self.precision) as FitnessValue)
+        fitness_value(score, self.precision)
     }
 }
 

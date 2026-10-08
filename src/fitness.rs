@@ -22,7 +22,8 @@ use std::time::Instant;
 use thread_local::ThreadLocal;
 
 /// The type used for fitness scores. isize (not f64) enables equality checks needed for staleness
-/// detection. For float-based fitness, scale manually: `(score / precision) as FitnessValue`.
+/// detection. For float-based fitness, scale with [fitness_value]:
+/// `fitness_value(score, precision)`.
 pub type FitnessValue = isize;
 
 /// Convert a float score to [`FitnessValue`] with the given precision.

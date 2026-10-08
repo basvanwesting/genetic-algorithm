@@ -9,13 +9,12 @@ impl Fitness for DistanceTo {
         chromosome: &FitnessChromosome<Self>,
         _genotype: &FitnessGenotype<Self>,
     ) -> Option<FitnessValue> {
-        Some(
-            chromosome
-                .genes
-                .iter()
-                .map(|v| (v - self.0).abs() / self.1)
-                .sum::<f32>() as FitnessValue,
-        )
+        let distance = chromosome
+            .genes
+            .iter()
+            .map(|v| (v - self.0).abs())
+            .sum::<f32>();
+        fitness_value(distance, self.1)
     }
 }
 
