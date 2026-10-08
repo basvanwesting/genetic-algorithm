@@ -39,11 +39,11 @@ fn standard() {
             (vec![true; 10], 1),
             (vec![false; 10], 1),
             (
-                vec![true, true, true, true, false, true, true, true, false, false],
+                vec![true, true, false, false, false, true, true, false, false, true],
                 0
             ),
             (
-                vec![false, false, false, false, true, false, false, false, true, true],
+                vec![false, false, true, true, true, false, false, true, true, false],
                 0
             ),
         ]

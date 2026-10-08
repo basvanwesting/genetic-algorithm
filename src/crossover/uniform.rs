@@ -9,7 +9,7 @@ use std::marker::PhantomData;
 use std::time::Instant;
 
 /// Crossover with 50% probability for each gene to come from one of the two parents.
-/// Actually implemented as `CrossoverMultiGene::new(.., <genes_size> / 2, allow_duplicates=true)`
+/// Actually implemented as `CrossoverMultiGene::new(.., <genes_size> / 2, allow_duplicates=false)`
 ///
 /// Not allowed for [UniqueGenotype](crate::genotype::UniqueGenotype) and
 /// [MultiUniqueGenotype](crate::genotype::MultiUniqueGenotype) as it would not preserve the gene
@@ -50,7 +50,7 @@ impl<G: EvolveGenotype + SupportsGeneCrossover> Crossover for Uniform<G> {
             if self.crossover_sampler.sample(rng) {
                 genotype.crossover_chromosome_genes(
                     number_of_crossovers,
-                    true,
+                    false,
                     father,
                     mother,
                     rng,
