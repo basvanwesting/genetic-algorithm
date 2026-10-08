@@ -197,10 +197,10 @@ impl<G: HillClimbGenotype, F: Fitness<Genotype = G>, SR: StrategyReporter<Genoty
             SmallRng::from_rng(rand::thread_rng()).unwrap()
         }
     }
-    /// The rng for a run of call_repeatedly/call_speciated (and par variants). With a rng_seed,
-    /// each iteration gets its own seed (rng_seed + iteration), so the runs are deterministic but
-    /// not identical. Iteration 0 uses the rng_seed itself, like a single call.
-    pub fn rng_for_iteration(&self, iteration: usize) -> SmallRng {
+    // The rng for a run of call_repeatedly (and par variant). With a rng_seed,
+    // each iteration gets its own seed (rng_seed + iteration), so the runs are deterministic but
+    // not identical. Iteration 0 uses the rng_seed itself, like a single call.
+    fn rng_for_iteration(&self, iteration: usize) -> SmallRng {
         if let Some(seed) = self.rng_seed {
             SmallRng::seed_from_u64(seed.wrapping_add(iteration as u64))
         } else {
