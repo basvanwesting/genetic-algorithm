@@ -155,6 +155,10 @@ where
     pub allele_ranges: Vec<RangeInclusive<T>>,
     pub mutation_types: Vec<MutationType<T>>,
     gene_index_sampler: Uniform<usize>,
+    // crossover points are between genes (1..genes_size), point 0 would swap the whole
+    // chromosomes, which is not a crossover
+    pub crossover_points: Vec<usize>,
+    crossover_point_index_sampler: Option<Uniform<usize>>,
     allele_samplers: Vec<Uniform<T>>,
     // post-clamped sampler, always positive to support unsigned
     allele_bandwidth_samplers: Vec<Option<Uniform<T>>>,
@@ -269,11 +273,19 @@ where
                     "MultiRangeGenotype requires seed genes with a value within each allele_range",
                 ));
             }
+            let crossover_points: Vec<usize> = (1..genes_size).collect();
+            let crossover_point_index_sampler = if crossover_points.is_empty() {
+                None
+            } else {
+                Some(Uniform::from(0..crossover_points.len()))
+            };
             Ok(Self {
                 genes_size,
                 allele_ranges: allele_ranges.clone(),
                 mutation_types: mutation_types.clone(),
                 gene_index_sampler: Uniform::from(0..genes_size),
+                crossover_points,
+                crossover_point_index_sampler,
                 allele_samplers,
                 allele_bandwidth_samplers,
                 current_scale_index: 0,
@@ -558,38 +570,40 @@ where
         mother: &mut Chromosome<Self::Allele>,
         rng: &mut R,
     ) {
-        // crossover points are between genes (1..genes_size), point 0 would swap the whole
-        // chromosomes, which is not a crossover
-        if self.genes_size() < 2 {
-            // no crossover points
-        } else if allow_duplicates {
-            rng.sample_iter(Uniform::from(1..self.genes_size()))
-                .take(number_of_crossovers)
-                .for_each(|index| {
-                    let mother_back = &mut mother.genes[index..];
-                    let father_back = &mut father.genes[index..];
-                    father_back.swap_with_slice(mother_back);
-                });
+        if allow_duplicates {
+            // no crossover points (single gene), so nothing to cross over
+            if let Some(crossover_point_index_sampler) = self.crossover_point_index_sampler {
+                rng.sample_iter(crossover_point_index_sampler)
+                    .take(number_of_crossovers)
+                    .for_each(|point_index| {
+                        let gene_index = self.crossover_points[point_index];
+                        let mother_back = &mut mother.genes[gene_index..];
+                        let father_back = &mut father.genes[gene_index..];
+                        father_back.swap_with_slice(mother_back);
+                    });
+            }
         } else {
             rand::seq::index::sample(
                 rng,
-                self.genes_size() - 1,
-                number_of_crossovers.min(self.genes_size() - 1),
+                self.crossover_points.len(),
+                number_of_crossovers.min(self.crossover_points.len()),
             )
             .iter()
-            .map(|index| index + 1)
             .sorted_unstable()
             .chunks(2)
             .into_iter()
             .for_each(|mut chunk| match (chunk.next(), chunk.next()) {
-                (Some(start_index), Some(end_index)) => {
-                    let mother_back = &mut mother.genes[start_index..end_index];
-                    let father_back = &mut father.genes[start_index..end_index];
+                (Some(start_point_index), Some(end_point_index)) => {
+                    let start_gene_index = self.crossover_points[start_point_index];
+                    let end_gene_index = self.crossover_points[end_point_index];
+                    let mother_back = &mut mother.genes[start_gene_index..end_gene_index];
+                    let father_back = &mut father.genes[start_gene_index..end_gene_index];
                     father_back.swap_with_slice(mother_back);
                 }
-                (Some(start_index), _) => {
-                    let mother_back = &mut mother.genes[start_index..];
-                    let father_back = &mut father.genes[start_index..];
+                (Some(start_point_index), _) => {
+                    let start_gene_index = self.crossover_points[start_point_index];
+                    let mother_back = &mut mother.genes[start_gene_index..];
+                    let father_back = &mut father.genes[start_gene_index..];
                     father_back.swap_with_slice(mother_back);
                 }
                 _ => (),
@@ -1036,6 +1050,8 @@ where
             allele_ranges: self.allele_ranges.clone(),
             mutation_types: self.mutation_types.clone(),
             gene_index_sampler: self.gene_index_sampler,
+            crossover_points: self.crossover_points.clone(),
+            crossover_point_index_sampler: self.crossover_point_index_sampler,
             allele_samplers,
             allele_bandwidth_samplers,
             current_scale_index: self.current_scale_index,
