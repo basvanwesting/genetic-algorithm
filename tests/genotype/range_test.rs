@@ -125,6 +125,21 @@ fn integer_type_limits_discrete() {
 }
 
 #[test]
+fn integer_type_limits_step() {
+    let genotype = RangeGenotype::<i32>::builder()
+        .with_genes_size(1)
+        .with_allele_range(i32::MAX - 1500..=i32::MAX)
+        .with_mutation_type(MutationType::Step(1000))
+        .build()
+        .unwrap();
+
+    assert_eq!(
+        genotype.permutable_gene_values_step(1000),
+        vec![i32::MAX - 1500, i32::MAX - 500, i32::MAX]
+    );
+}
+
+#[test]
 fn integer_type_limits_range_scaled() {
     let mut rng = SmallRng::seed_from_u64(0);
     // the allele range (200) is larger than i8::MAX, so end - start overflowed

@@ -968,8 +968,9 @@ where
 pub(crate) fn step_values<T: RangeAllele>(start: T, end: T, step: T) -> impl Iterator<Item = T> {
     std::iter::successors(Some(start), move |value| {
         if *value < end {
-            let next_value = *value + step;
-            if next_value > end || next_value <= *value {
+            // clamped, as value + step overflows near T::MAX
+            let next_value = T::clamped_add(*value, step, end);
+            if next_value <= *value {
                 Some(end)
             } else {
                 Some(next_value)
