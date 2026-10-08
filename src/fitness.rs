@@ -174,12 +174,11 @@ pub trait Fitness: Clone + Send + Sync + std::fmt::Debug {
         let value = match (cache, chromosome.genes_hash()) {
             (Some(cache), Some(genes_hash)) => {
                 if let Some(value) = cache.read(genes_hash) {
-                    Some(value)
-                } else if let Some(value) = self.calculate_for_chromosome(chromosome, genotype) {
-                    cache.write(genes_hash, value);
-                    Some(value)
+                    value
                 } else {
-                    None
+                    let value = self.calculate_for_chromosome(chromosome, genotype);
+                    cache.write(genes_hash, value);
+                    value
                 }
             }
             _ => self.calculate_for_chromosome(chromosome, genotype),

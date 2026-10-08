@@ -11,6 +11,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   (invalid fitness, ranks last) instead of 0, which looked optimal when minimizing.
   Return it directly from `calculate_for_chromosome`: `Some(fitness_value(..))` becomes
   `fitness_value(..)`. Infinities still saturate (#76)
+* Breaking: the fitness cache also stores an invalid (`None`) fitness, so it is calculated
+  once per distinct chromosome instead of for every offspring. `FitnessCache::write` takes
+  and the public `cache_state` holds `Option<FitnessValue>`; `FitnessCache::read` returns
+  `Option<Option<FitnessValue>>`, where the outer `None` is a miss (#77)
 
 ## [0.27.5] - 2026-10-08
 

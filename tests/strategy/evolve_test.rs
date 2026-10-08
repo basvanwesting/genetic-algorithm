@@ -768,6 +768,37 @@ fn call_does_not_recompute_invalid_fitness_for_survivors() {
 }
 
 #[test]
+fn call_caches_invalid_fitness() {
+    use std::sync::atomic::{AtomicUsize, Ordering};
+    use std::sync::Arc;
+
+    let genotype = BinaryGenotype::builder()
+        .with_genes_size(3)
+        .build()
+        .unwrap();
+    let counter = Arc::new(AtomicUsize::new(0));
+
+    // Only 8 different chromosomes exist, so with a fitness cache an always invalid (None)
+    // fitness is calculated once per chromosome (this seed visits all 8), not for each offspring.
+    Evolve::builder()
+        .with_genotype(genotype)
+        .with_target_population_size(20)
+        .with_max_generations(3)
+        .with_mutate(MutateSingleGene::new(0.1))
+        .with_crossover(CrossoverSingleGene::new(0.7, 0.8))
+        .with_select(SelectTournament::new(0.5, 0.02, 4))
+        .with_fitness(CountEvaluationsInvalid {
+            counter: counter.clone(),
+        })
+        .with_fitness_cache(100)
+        .with_rng_seed_from_u64(0)
+        .call()
+        .unwrap();
+
+    assert_eq!(counter.load(Ordering::Relaxed), 8);
+}
+
+#[test]
 fn call_repeatedly_with_rng_seed_gives_distinct_deterministic_runs() {
     let run = |par: bool| {
         let genotype = RangeGenotype::builder()

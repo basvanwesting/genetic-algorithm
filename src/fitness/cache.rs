@@ -11,7 +11,7 @@ type LruCacheBuildHasher = BuildHasherDefault<NoHashHasher<u64>>;
 #[derive(Debug, Clone)]
 pub struct Cache {
     pub cache_size: usize,
-    pub cache_state: Arc<RwLock<LruCache<GenesHash, FitnessValue, LruCacheBuildHasher>>>,
+    pub cache_state: Arc<RwLock<LruCache<GenesHash, Option<FitnessValue>, LruCacheBuildHasher>>>,
     pub cache_hit_counter: Arc<RwLock<usize>>,
     pub cache_miss_counter: Arc<RwLock<usize>>,
 }
@@ -34,7 +34,8 @@ impl Cache {
         }
     }
 
-    pub fn read(&self, genes_hash: GenesHash) -> Option<FitnessValue> {
+    /// None is a miss, Some(None) is a cached invalid fitness
+    pub fn read(&self, genes_hash: GenesHash) -> Option<Option<FitnessValue>> {
         // get (not peek) marks the entry as recently used, which requires the write lock
         let value = self
             .cache_state
@@ -51,7 +52,7 @@ impl Cache {
         value
     }
 
-    pub fn write(&self, genes_hash: GenesHash, value: FitnessValue) {
+    pub fn write(&self, genes_hash: GenesHash, value: Option<FitnessValue>) {
         self.cache_state.write().unwrap().put(genes_hash, value);
     }
 

@@ -6,13 +6,13 @@ use genetic_algorithm::fitness::cache::Cache;
 fn standard() {
     let cache = Cache::try_new(3).unwrap();
 
-    cache.write(1, 10);
-    cache.write(2, 20);
+    cache.write(1, Some(10));
+    cache.write(2, Some(20));
 
     // hits
-    assert_eq!(cache.read(1), Some(10));
-    assert_eq!(cache.read(1), Some(10));
-    assert_eq!(cache.read(2), Some(20));
+    assert_eq!(cache.read(1), Some(Some(10)));
+    assert_eq!(cache.read(1), Some(Some(10)));
+    assert_eq!(cache.read(2), Some(Some(20)));
     assert_eq!(cache.hit_miss_stats(), (3, 0, 0.0));
 
     // misses
@@ -33,13 +33,25 @@ fn zero_cache_size() {
 fn least_recently_used_is_evicted() {
     let cache = Cache::try_new(2).unwrap();
 
-    cache.write(1, 10);
-    cache.write(2, 20);
+    cache.write(1, Some(10));
+    cache.write(2, Some(20));
     // reading 1 makes 2 the least recently used
-    assert_eq!(cache.read(1), Some(10));
-    cache.write(3, 30);
+    assert_eq!(cache.read(1), Some(Some(10)));
+    cache.write(3, Some(30));
 
-    assert_eq!(cache.read(1), Some(10));
+    assert_eq!(cache.read(1), Some(Some(10)));
     assert_eq!(cache.read(2), None);
-    assert_eq!(cache.read(3), Some(30));
+    assert_eq!(cache.read(3), Some(Some(30)));
+}
+
+#[test]
+fn invalid_fitness_is_cached() {
+    let cache = Cache::try_new(3).unwrap();
+
+    cache.write(1, None);
+
+    // a hit with an invalid fitness, not a miss
+    assert_eq!(cache.read(1), Some(None));
+    assert_eq!(cache.read(2), None);
+    assert_eq!(cache.hit_miss_stats(), (1, 1, 1.0));
 }
