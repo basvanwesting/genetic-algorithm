@@ -16,6 +16,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   and the public `cache_state` holds `Option<FitnessValue>`; `FitnessCache::read` returns
   `Option<Option<FitnessValue>>`, where the outer `None` is a miss (#77)
 
+### Removed
+* Breaking: the unused public `number_of_mutations_sampler` field of `MutateMultiGene` and
+  `MutateMultiGeneDynamic`. Both always mutate exactly `number_of_mutations` genes;
+  `MutateMultiGeneRange` keeps its sampler
+
 ## [0.27.5] - 2026-10-08
 
 ### Fixed

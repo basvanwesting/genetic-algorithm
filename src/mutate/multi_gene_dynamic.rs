@@ -2,7 +2,7 @@ use super::{Mutate, MutateEvent};
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
-use rand::distributions::{Bernoulli, Distribution, Uniform};
+use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 use std::cmp::Ordering;
 use std::marker::PhantomData;
@@ -28,7 +28,6 @@ pub struct MultiGeneDynamic<G: EvolveGenotype> {
     pub mutation_probability: f32,
     pub mutation_probability_step: f32,
     pub target_cardinality: usize,
-    pub number_of_mutations_sampler: Uniform<usize>,
 }
 
 impl<G: EvolveGenotype> Mutate for MultiGeneDynamic<G> {
@@ -100,14 +99,12 @@ impl<G: EvolveGenotype> MultiGeneDynamic<G> {
         mutation_probability_step: f32,
         target_cardinality: usize,
     ) -> Self {
-        let number_of_mutations_sampler = Uniform::from(1..=number_of_mutations);
         Self {
             _phantom: PhantomData,
             number_of_mutations,
             mutation_probability: 0.0,
             mutation_probability_step,
             target_cardinality,
-            number_of_mutations_sampler,
         }
     }
 }

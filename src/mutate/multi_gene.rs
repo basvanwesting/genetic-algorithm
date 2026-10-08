@@ -2,7 +2,7 @@ use super::Mutate;
 use crate::genotype::EvolveGenotype;
 use crate::strategy::evolve::{EvolveConfig, EvolveState};
 use crate::strategy::{StrategyAction, StrategyReporter, StrategyState};
-use rand::distributions::{Bernoulli, Distribution, Uniform};
+use rand::distributions::{Bernoulli, Distribution};
 use rand::Rng;
 use std::marker::PhantomData;
 use std::time::Instant;
@@ -23,7 +23,6 @@ pub struct MultiGene<G: EvolveGenotype> {
     _phantom: PhantomData<G>,
     pub number_of_mutations: usize,
     pub mutation_probability: f32,
-    pub number_of_mutations_sampler: Uniform<usize>,
     pub mutation_probability_sampler: Bernoulli,
 }
 
@@ -60,13 +59,11 @@ impl<G: EvolveGenotype> MultiGene<G> {
     ///   from a range)
     /// * `mutation_probability` - probability of mutation per chromosome (0.05-0.3 typical)
     pub fn new(number_of_mutations: usize, mutation_probability: f32) -> Self {
-        let number_of_mutations_sampler = Uniform::from(1..=number_of_mutations);
         let mutation_probability_sampler = Bernoulli::new(mutation_probability as f64).unwrap();
         Self {
             _phantom: PhantomData,
             number_of_mutations,
             mutation_probability,
-            number_of_mutations_sampler,
             mutation_probability_sampler,
         }
     }
