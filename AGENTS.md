@@ -26,7 +26,7 @@ guidance, API reference, gotchas, and copy-paste templates.
 Add to your `Cargo.toml`:
 ```toml
 [dependencies]
-genetic_algorithm = "0.27.5"
+genetic_algorithm = "0.28.0"
 ```
 
 ```rust,ignore

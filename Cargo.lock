@@ -661,7 +661,7 @@ dependencies = [
 
 [[package]]
 name = "genetic_algorithm"
-version = "0.27.5"
+version = "0.28.0"
 dependencies = [
  "approx",
  "bytemuck",
