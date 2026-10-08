@@ -334,18 +334,12 @@ impl<T: RangeAllele> MutationType<T> {
     pub(crate) fn has_invalid_values(&self) -> bool {
         self.values()
             .iter()
-            .any(|value| !is_finite(*value) || *value < T::zero())
+            .any(|value| !value.is_finite() || *value < T::zero())
     }
 }
 
 // Finite start <= end (a NaN start or end fails the comparison)
 pub(crate) fn is_valid_allele_range<T: RangeAllele>(allele_range: &RangeInclusive<T>) -> bool {
     let (start, end) = (*allele_range.start(), *allele_range.end());
-    is_finite(start) && is_finite(end) && start <= end
-}
-
-// x - x is zero for finite values, and NaN for infinite and NaN values (always zero for integers)
-#[allow(clippy::eq_op)]
-fn is_finite<T: RangeAllele>(value: T) -> bool {
-    value - value == T::zero()
+    start.is_finite() && end.is_finite() && start <= end
 }

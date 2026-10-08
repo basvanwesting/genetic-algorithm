@@ -1367,7 +1367,7 @@ fn build_invalid() {
         .build();
     assert_eq!(
         genotype.err(),
-        error("RangeGenotype uses with_mutation_type (singular), with_mutation_types is not supported")
+        error("RangeGenotype requires with_mutation_type (singular), not with_mutation_types")
     );
 
     // zero values are allowed (no-op mutation)

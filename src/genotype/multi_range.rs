@@ -1,4 +1,5 @@
 use super::builder::{Builder, TryFromBuilderError};
+use super::mutation_type::is_valid_allele_range;
 use super::range::step_values;
 use super::{
     EvolveGenotype, Genotype, HillClimbGenotype, MutationType, PermutateGenotype,
@@ -191,17 +192,14 @@ where
                     "MultiRangeGenotype genes_size is derived from allele_ranges, don't set it explicitly",
                 ));
             }
-            if !allele_ranges
-                .iter()
-                .all(super::mutation_type::is_valid_allele_range)
-            {
+            if !allele_ranges.iter().all(is_valid_allele_range) {
                 return Err(TryFromBuilderError(
                     "MultiRangeGenotype requires allele_ranges with a finite start <= end",
                 ));
             }
             if builder.mutation_type.is_some() {
                 return Err(TryFromBuilderError(
-                    "MultiRangeGenotype uses with_mutation_types (plural), with_mutation_type is not supported",
+                    "MultiRangeGenotype requires with_mutation_types (plural), not with_mutation_type",
                 ));
             }
             let mutation_types = builder

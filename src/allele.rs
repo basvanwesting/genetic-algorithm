@@ -86,11 +86,19 @@ pub trait RangeAllele:
     fn min(a: Self, b: Self) -> Self {
         if a < b { a } else { b }
     }
+
+    /// False for NaN and infinite values (always true for integer types)
+    fn is_finite(&self) -> bool {
+        true
+    }
 }
 
 impl RangeAllele for f32 {
     fn smallest_increment() -> Self {
         f32::EPSILON
+    }
+    fn is_finite(&self) -> bool {
+        f32::is_finite(*self)
     }
     fn zero() -> Self {
         0.0
@@ -123,6 +131,9 @@ impl RangeAllele for f32 {
 impl RangeAllele for f64 {
     fn smallest_increment() -> Self {
         f64::EPSILON
+    }
+    fn is_finite(&self) -> bool {
+        f64::is_finite(*self)
     }
     fn zero() -> Self {
         0.0

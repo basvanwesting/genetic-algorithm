@@ -114,7 +114,7 @@ where
             ))
         } else if builder.mutation_types.is_some() {
             Err(TryFromBuilderError(
-                "RangeGenotype uses with_mutation_type (singular), with_mutation_types is not supported",
+                "RangeGenotype requires with_mutation_type (singular), not with_mutation_types",
             ))
         } else if builder
             .mutation_type

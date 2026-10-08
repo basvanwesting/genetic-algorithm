@@ -1228,6 +1228,6 @@ fn build_invalid() {
         .build();
     assert_eq!(
         genotype.err(),
-        error("MultiRangeGenotype uses with_mutation_types (plural), with_mutation_type is not supported")
+        error("MultiRangeGenotype requires with_mutation_types (plural), not with_mutation_type")
     );
 }
