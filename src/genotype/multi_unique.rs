@@ -131,6 +131,17 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
                 Some(Uniform::from(0..crossover_points.len()))
             };
             let genes_size = allele_list_sizes.iter().sum();
+            // with_allele_lists() auto-sets genes_size to allele_lists.len(), which differs
+            // from the derived sum. Only error if user explicitly set a different value.
+            let auto_set_genes_size = allele_lists.len();
+            if builder
+                .genes_size
+                .is_some_and(|s| s != genes_size && s != auto_set_genes_size)
+            {
+                return Err(TryFromBuilderError(
+                    "MultiUniqueGenotype genes_size is derived from allele_lists, don't set it explicitly",
+                ));
+            }
             if builder.seed_genes_list.iter().any(|genes: &Vec<T>| {
                 genes.len() != genes_size
                     || !allele_lists.iter().enumerate().all(|(index, allele_list)| {
@@ -143,17 +154,6 @@ impl<T: Allele + Hash> TryFrom<Builder<Self>> for MultiUnique<T> {
             }) {
                 return Err(TryFromBuilderError(
                     "MultiUniqueGenotype requires seed genes which are a permutation of each allele_list",
-                ));
-            }
-            // with_allele_lists() auto-sets genes_size to allele_lists.len(), which differs
-            // from the derived sum. Only error if user explicitly set a different value.
-            let auto_set_genes_size = allele_lists.len();
-            if builder
-                .genes_size
-                .is_some_and(|s| s != genes_size && s != auto_set_genes_size)
-            {
-                return Err(TryFromBuilderError(
-                    "MultiUniqueGenotype genes_size is derived from allele_lists, don't set it explicitly",
                 ));
             }
 

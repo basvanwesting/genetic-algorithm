@@ -1,7 +1,7 @@
 use super::{Genotype, MutationType};
 use crate::chromosome::Genes;
 pub use crate::errors::TryFromGenotypeBuilderError as TryFromBuilderError;
-use rustc_hash::{FxHashSet, FxHasher};
+use rustc_hash::FxHasher;
 use std::hash::{Hash, Hasher};
 use std::ops::RangeInclusive;
 
@@ -213,14 +213,6 @@ fn allele_hashes<T: Hash>(values: &[T]) -> Vec<u64> {
             hasher.finish()
         })
         .collect()
-}
-
-// Whether each gene is one of the alleles
-pub(crate) fn genes_in_alleles<T: Hash>(genes: &[T], alleles: &[T]) -> bool {
-    let alleles: FxHashSet<u64> = allele_hashes(alleles).into_iter().collect();
-    allele_hashes(genes)
-        .iter()
-        .all(|gene| alleles.contains(gene))
 }
 
 // Whether the genes are a permutation of the alleles
