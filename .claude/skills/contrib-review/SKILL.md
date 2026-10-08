@@ -21,9 +21,12 @@ one shared cargo target dir in `~/.local/state/ga-review/`. A parallel pass once
 cost 47 GB and 13 concurrent rustc jobs. Never spawn reviewer agents in parallel;
 a single subagent per item is fine when the diff is big.
 
-Contributor plumbing to rely on: tachsin bases every PR on current main, links it
-with "Fixes #N", and rebases his open PRs himself after merges. A conflicting PR
-is skipped, not resolved here; it comes back mergeable on a later item.
+Contributor plumbing: tachsin bases every PR on current main and links it with
+"Fixes #N" in the PR body (not in the commit message). He has been quiet since
+late Sept 2026, so nothing comes back from him: changes, conflicts and the PRs
+he was expected to open for answered issues are finished here, see "Finishing
+it ourselves". An active contributor still rebases their own PR; then a
+conflicting PR is skipped and comes back mergeable on a later item.
 
 ## Scripts (Claude runs these, the maintainer never has to)
 
@@ -68,6 +71,9 @@ it touches Cargo.toml or CI.
 
 **Issue with no PR.** Summarize the question, the options the contributor
 offered, and recommend one with the reason. Prepare the reply comment text.
+When the ledger already holds the answer (ANSWERED) and the author is quiet, the
+item is the implementation: restate the decided option and what it will touch,
+and implement it on the go.
 
 ## Advise and prepare
 
@@ -84,12 +90,37 @@ End every item with, in this order:
    question). Comments are written in the maintainer's voice, short, factual,
    no fluff, since the maintainer reads and approves them before they go out.
 
-When there is anything to change, however small, the prepared action is the
-change request, not a merge. Merging and then patching over the contributor's
-work hides the review from him and from the history; he turns changes around
-in hours. Offer merge-then-fix only when the author has gone quiet for weeks.
+When there is anything to change, however small, and the author is active, the
+prepared action is the change request, not a merge: merging and then patching
+over a contributor's work hides the review from them and from the history. When
+the author has gone quiet for weeks (tachsin today), the prepared action is to
+finish it ourselves: name the changes we will make on top of their commit.
 
 Then stop and wait. Do not merge, comment, or close anything before the go.
+
+## Finishing it ourselves
+
+For a quiet author, after the go (a change the maintainer already requested on
+the PR needs no second go):
+
+1. `git fetch origin pull/N/head:pr-N`, then `git cherry-pick` the contributor's
+   commits onto local `main`, so they keep authorship. Resolve conflicts here.
+2. Apply the changes as a separate follow-up commit. Its body starts with
+   "Follow-up to #N, applied by maintainer as the contributor went quiet." and
+   carries what the review found but the commit does not fix.
+3. Focused tests, clippy, fmt, and one fresh-eyes review subagent on
+   `git diff HEAD~1` (their commit and the follow-up together) before committing.
+   Its findings on the contributor's own commit count too: fix them in the
+   follow-up, or bring a behaviour change to the maintainer.
+4. One item at a time on the single worktree. Run the full `cargo test` once
+   after the batch. Never push; the maintainer pushes.
+5. After the push, on a go: a cherry-pick does not mark the PR merged and the
+   commit messages carry no "Fixes #N", so close both by hand.
+   `gh pr close N --comment` naming the contributor's commit and the follow-up,
+   `gh issue close M --comment` naming the same, then `ledger.sh N MERGED`.
+
+An answered issue without a PR is implemented the same way from step 2, as a
+normal commit whose message ends with "Fixes #M".
 
 ## "go"
 
@@ -101,7 +132,8 @@ when ready. After a run of merges, remind about `git pull`, `cargo test` and the
 CHANGELOG once, not per item.
 
 A CHANGES PR comes back as an item when the contributor pushes: the queue shows
-a new head, `review-pr.sh` runs on it, verdict flips.
+a new head, `review-pr.sh` runs on it, verdict flips. One that stays untouched
+for weeks is finished here instead.
 
 ## Learned conventions (Sept 2026, batches 1 to 3)
 
@@ -115,5 +147,9 @@ a new head, `review-pr.sh` runs on it, verdict flips.
 - Deferred by policy: anything breaking (`RangeAllele` bounds, `Cache` fields)
   waits for a minor bump. Operator constructors keep panicking on programmer
   misconfiguration.
-- The contributor asks good questions in issue bodies. Answer them; he acts on
-  the answer.
+- The contributor asks good questions in issue bodies. Answer them; an active
+  contributor acts on the answer.
+- Oct 2026: tachsin went quiet with five PRs on CHANGES; all five landed by
+  cherry-pick plus follow-up. The fresh-eyes review of an already approved PR
+  still found a behaviour change (#44 moved seeded float RangeScaled results by
+  1 ulp), so review the contributor's commit again, not just the follow-up.
