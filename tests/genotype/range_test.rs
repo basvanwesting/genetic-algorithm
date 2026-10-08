@@ -770,7 +770,7 @@ fn float_permutable_gene_values_step_scaled() {
         genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), scaled_steps),
         vec![
             3.473, 3.573, 3.673, 3.773, 3.873, 3.973, 4.073, 4.173, 4.273, 4.373, 4.473, 4.573,
-            4.673, 4.773, 4.873, 4.973, 5.073, 5.173, 5.273, 5.373, 5.473, 5.473,
+            4.673, 4.773, 4.873, 4.973, 5.073, 5.173, 5.273, 5.373, 5.473,
         ],
         0.001
     ));
@@ -781,7 +781,7 @@ fn float_permutable_gene_values_step_scaled() {
         genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), scaled_steps),
         vec![
             4.373, 4.383, 4.393, 4.403, 4.413, 4.423, 4.433, 4.443, 4.453, 4.463, 4.473, 4.483,
-            4.493, 4.503, 4.513, 4.523, 4.533, 4.543, 4.553, 4.563, 4.573, 4.573,
+            4.493, 4.503, 4.513, 4.523, 4.533, 4.543, 4.553, 4.563, 4.573,
         ],
         0.001
     ));
@@ -1534,4 +1534,47 @@ fn discrete_non_integer_allele_range() {
         .build()
         .unwrap();
     assert_eq!(genotype.allele_range, 0.5..=4.5);
+}
+
+#[test]
+fn float_permutable_gene_values_step_snaps_to_end() {
+    // repeated addition falls just short of the end, which is not an extra grid point
+    let genotype = RangeGenotype::<f64>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=1.0)
+        .with_mutation_type(MutationType::Step(0.1))
+        .build()
+        .unwrap();
+    let values = genotype.permutable_gene_values_step(0.1);
+    assert_eq!(values.len(), 11);
+    assert_eq!(values.last(), Some(&1.0));
+    assert_eq!(
+        genotype.chromosome_permutations_size(),
+        BigUint::from(121u32)
+    );
+
+    let genotype = RangeGenotype::<f64>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=0.9)
+        .with_mutation_type(MutationType::Step(0.3))
+        .build()
+        .unwrap();
+    assert_eq!(genotype.permutable_gene_values_step(0.3).len(), 4);
+
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=1.0)
+        .with_mutation_type(MutationType::Step(0.01))
+        .build()
+        .unwrap();
+    assert_eq!(genotype.permutable_gene_values_step(0.01).len(), 101);
+
+    // a shorter last interval is kept
+    let genotype = RangeGenotype::<f64>::builder()
+        .with_genes_size(2)
+        .with_allele_range(0.0..=1.0)
+        .with_mutation_type(MutationType::Step(0.3))
+        .build()
+        .unwrap();
+    assert_eq!(genotype.permutable_gene_values_step(0.3).len(), 5);
 }

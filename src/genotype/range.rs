@@ -1017,7 +1017,7 @@ pub(crate) fn step_values<T: RangeAllele>(start: T, end: T, step: T) -> impl Ite
     std::iter::successors(Some(start), move |value| {
         if *value < end {
             // clamped, as value + step overflows near T::MAX
-            let next_value = T::clamped_add(*value, step, end);
+            let next_value = T::snap_to_end(T::clamped_add(*value, step, end), end, step);
             if next_value <= *value {
                 Some(end)
             } else {

@@ -764,7 +764,7 @@ fn float_permutable_gene_values_step_scaled() {
         genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), &scaled_steps[0]),
         vec![
             3.473, 3.573, 3.673, 3.773, 3.873, 3.973, 4.073, 4.173, 4.273, 4.373, 4.473, 4.573,
-            4.673, 4.773, 4.873, 4.973, 5.073, 5.173, 5.273, 5.373, 5.473, 5.473,
+            4.673, 4.773, 4.873, 4.973, 5.073, 5.173, 5.273, 5.373, 5.473,
         ],
         0.001
     ));
@@ -780,13 +780,13 @@ fn float_permutable_gene_values_step_scaled() {
         genotype.permutable_gene_values_step_scaled(0, Some(&chromosome), &scaled_steps[0]),
         vec![
             4.373, 4.383, 4.393, 4.403, 4.413, 4.423, 4.433, 4.443, 4.453, 4.463, 4.473, 4.483,
-            4.493, 4.503, 4.513, 4.523, 4.533, 4.543, 4.553, 4.563, 4.573, 4.573,
+            4.493, 4.503, 4.513, 4.523, 4.533, 4.543, 4.553, 4.563, 4.573,
         ],
         0.001
     ));
     assert!(relative_chromosome_eq(
         genotype.permutable_gene_values_step_scaled(1, Some(&chromosome), &scaled_steps[1]),
-        vec![1.995, 2.045, 2.095, 2.145, 2.195, 2.245, 2.295, 2.345, 2.395, 2.395,],
+        vec![1.995, 2.045, 2.095, 2.145, 2.195, 2.245, 2.295, 2.345, 2.395],
         0.001
     ));
 }

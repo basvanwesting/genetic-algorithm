@@ -91,6 +91,13 @@ pub trait RangeAllele:
     fn is_finite(&self) -> bool {
         true
     }
+
+    /// Snaps a value to the end of a step grid when it is within 1% of the step from it.
+    /// Repeated float addition falls just short of the end (0.1 added ten times is
+    /// 0.9999999999999999), which would add a near-duplicate point (identity for integer types)
+    fn snap_to_end(value: Self, _end: Self, _step: Self) -> Self {
+        value
+    }
 }
 
 impl RangeAllele for f32 {
@@ -99,6 +106,14 @@ impl RangeAllele for f32 {
     }
     fn is_finite(&self) -> bool {
         f32::is_finite(*self)
+    }
+    // 1% of the step: f32 drifts by about that much over 1000 steps, longer grids keep the point
+    fn snap_to_end(value: Self, end: Self, step: Self) -> Self {
+        if (end - value).abs() <= step * 1e-2 {
+            end
+        } else {
+            value
+        }
     }
     fn zero() -> Self {
         0.0
@@ -134,6 +149,14 @@ impl RangeAllele for f64 {
     }
     fn is_finite(&self) -> bool {
         f64::is_finite(*self)
+    }
+    // same fraction as f32, so a step grid does not depend on the float type
+    fn snap_to_end(value: Self, end: Self, step: Self) -> Self {
+        if (end - value).abs() <= step * 1e-2 {
+            end
+        } else {
+            value
+        }
     }
     fn zero() -> Self {
         0.0
