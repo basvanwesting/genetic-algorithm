@@ -1279,3 +1279,39 @@ fn build_invalid() {
         error("MultiRangeGenotype requires with_mutation_types (plural), not with_mutation_type")
     );
 }
+
+#[test]
+fn discrete_non_integer_allele_ranges() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.5..=4.5, 0.5..=4.5, -1.5..=1.5])
+        .with_mutation_types(vec![
+            MutationType::Discrete,
+            MutationType::Random,
+            MutationType::Discrete,
+        ])
+        .build()
+        .unwrap();
+
+    // the integers within each Discrete range, a gene never leaves the configured range
+    assert_eq!(
+        genotype.allele_ranges,
+        vec![1.0..=4.0, 0.5..=4.5, -1.0..=1.0]
+    );
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+    for _ in 0..100 {
+        genotype.mutate_chromosome_genes(3, true, &mut chromosome, &mut rng);
+        assert!([1.0, 2.0, 3.0, 4.0].contains(&chromosome.genes[0]));
+        assert!((0.5..=4.5).contains(&chromosome.genes[1]));
+        assert!([-1.0, 0.0, 1.0].contains(&chromosome.genes[2]));
+    }
+
+    let genotype = MultiRangeGenotype::<f32>::builder()
+        .with_allele_ranges(vec![0.5..=4.5, 0.2..=0.8])
+        .with_mutation_types(vec![MutationType::Discrete, MutationType::Discrete])
+        .build();
+    assert_eq!(
+        genotype.err(),
+        Some(genetic_algorithm::errors::TryFromGenotypeBuilderError("MultiRangeGenotype requires an allele_range containing an integer for each MutationType::Discrete"))
+    );
+}

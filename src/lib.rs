@@ -160,7 +160,7 @@
 //!
 //! - **Step**: Systematically explores grid points at fixed intervals
 //! - **StepScaled**: Hierarchical search that refines around promising regions
-//! - **Discrete**: Exhaustive exploration of all round-to-integer value combinations
+//! - **Discrete**: Exhaustive exploration of all integer value combinations within the range
 //!
 //! Run the example with `cargo run --example visualize_permutate_mutation_types --release` to generate this visualization.
 //!

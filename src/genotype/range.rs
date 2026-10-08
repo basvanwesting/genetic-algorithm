@@ -99,6 +99,23 @@ where
     pub chromosome_recycling: bool,
 }
 
+// The allele range for MutationType::Discrete: the integers within the given range,
+// ceil(start)..=floor(end), so a gene never leaves the range the user configured. None when the
+// range holds no integer
+pub(crate) fn discrete_allele_range<T: RangeAllele>(
+    allele_range: &RangeInclusive<T>,
+) -> Option<RangeInclusive<T>> {
+    let start = *allele_range.start();
+    // a bound is its own ceil when it equals its floor, else floor + 1
+    let start = if start.floor() == start {
+        start
+    } else {
+        start.floor() + T::one()
+    };
+    let end = allele_range.end().floor();
+    (start <= end).then_some(start..=end)
+}
+
 // Sampler for MutationType::Discrete, the samples are floored. For floats [start, end + 1), so each
 // integer in the range has the same probability. For integers [start, end], which is the same, but
 // doesn't overflow for an end of T::MAX
@@ -156,6 +173,16 @@ where
             let genes_size = builder.genes_size.unwrap();
             let allele_range = builder.allele_range.unwrap();
             let mutation_type = builder.mutation_type.unwrap_or(MutationType::Random);
+            let allele_range = if matches!(mutation_type, MutationType::Discrete) {
+                let Some(allele_range) = discrete_allele_range(&allele_range) else {
+                    return Err(TryFromBuilderError(
+                        "RangeGenotype requires an allele_range containing an integer for MutationType::Discrete",
+                    ));
+                };
+                allele_range
+            } else {
+                allele_range
+            };
             let allele_sampler = match mutation_type {
                 MutationType::Discrete => {
                     // [start, end+1) for uniform floor() sampling
@@ -700,8 +727,8 @@ where
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
     ) {
-        let starting_value = self.allele_range.start().floor();
-        let ending_value = self.allele_range.end().floor();
+        let starting_value = *self.allele_range.start();
+        let ending_value = *self.allele_range.end();
 
         (0..self.genes_size).for_each(|index| {
             let mut working_value = starting_value;
@@ -829,8 +856,8 @@ where
     }
 
     pub fn permutable_gene_values_discrete(&self) -> Vec<T> {
-        let allele_value_start = self.allele_range.start().floor();
-        let allele_value_end = self.allele_range.end().floor();
+        let allele_value_start = *self.allele_range.start();
+        let allele_value_end = *self.allele_range.end();
         step_values(allele_value_start, allele_value_end, T::one()).collect()
     }
 
@@ -872,8 +899,8 @@ where
                     step_values(allele_value_start, allele_value_end, working_step).count()
                 }
                 MutationType::Discrete => {
-                    let allele_value_start = self.allele_range.start().floor();
-                    let allele_value_end = self.allele_range.end().floor();
+                    let allele_value_start = *self.allele_range.start();
+                    let allele_value_end = *self.allele_range.end();
 
                     step_values(allele_value_start, allele_value_end, T::one()).count()
                 }

@@ -59,8 +59,8 @@ pub type DefaultAllele = f32;
 /// * `MutationType::Random` - Samples uniformly from the full allele range
 /// * `MutationType::Range` - Mutates within a relative range around the current value
 /// * `MutationType::StepScaled` - Progressive refinement through multiple scale levels around the current value
-/// * `MutationType::Discrete` - Rounded-to-integer values with uniform selection (like `ListGenotype`).
-///   * Mutations ignore current value - all rounded-to-integer in range equally likely
+/// * `MutationType::Discrete` - Integer values with uniform selection (like `ListGenotype`).
+///   * Mutations ignore current value - all integers in range equally likely
 ///   * Range `0.0..=4.0` yields values: 0.0, 1.0, 2.0, 3.0, 4.0 (with equal probability)
 ///   * Useful for encoding: enums (0.0..=4.0), booleans (0.0..=1.0), or discrete choices
 ///   * Neighbours and permutations include all integer values in the allele range
@@ -224,6 +224,19 @@ where
                     "MultiRangeGenotype requires finite, non-negative mutation_type values",
                 ));
             }
+            let Some(allele_ranges) = allele_ranges
+                .iter()
+                .zip(&mutation_types)
+                .map(|(allele_range, mutation_type)| match mutation_type {
+                    MutationType::Discrete => super::range::discrete_allele_range(allele_range),
+                    _ => Some(allele_range.clone()),
+                })
+                .collect::<Option<Vec<_>>>()
+            else {
+                return Err(TryFromBuilderError(
+                    "MultiRangeGenotype requires an allele_range containing an integer for each MutationType::Discrete",
+                ));
+            };
             let allele_samplers = allele_ranges
                 .iter()
                 .zip(&mutation_types)
@@ -797,8 +810,8 @@ where
         chromosome: &Chromosome<T>,
         population: &mut Population<T>,
     ) {
-        let mut working_value = self.allele_ranges[index].start().floor();
-        let ending_value = self.allele_ranges[index].end().floor();
+        let mut working_value = *self.allele_ranges[index].start();
+        let ending_value = *self.allele_ranges[index].end();
         let current_value = chromosome.genes[index].floor();
 
         while working_value <= ending_value {
@@ -929,8 +942,8 @@ where
         index: usize,
         _chromosome: Option<&Chromosome<T>>,
     ) -> Vec<T> {
-        let allele_value_start = self.allele_ranges[index].start().floor();
-        let allele_value_end = self.allele_ranges[index].end().floor();
+        let allele_value_start = *self.allele_ranges[index].start();
+        let allele_value_end = *self.allele_ranges[index].end();
         step_values(allele_value_start, allele_value_end, T::one()).collect()
     }
 
@@ -977,8 +990,8 @@ where
                     step_values(allele_value_start, allele_value_end, working_step).count()
                 }
                 MutationType::Discrete => {
-                    let allele_value_start = self.allele_ranges[index].start().floor();
-                    let allele_value_end = self.allele_ranges[index].end().floor();
+                    let allele_value_start = *self.allele_ranges[index].start();
+                    let allele_value_end = *self.allele_ranges[index].end();
 
                     step_values(allele_value_start, allele_value_end, T::one()).count()
                 }

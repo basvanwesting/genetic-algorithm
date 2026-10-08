@@ -139,7 +139,9 @@ use std::ops::RangeInclusive;
 /// during mutation.
 ///
 /// **Example:** Range `0.0..=4.0` represents 5 discrete choices: `{0, 1, 2, 3, 4}`,
-/// which could map to enum variants or categorical options.
+/// which could map to enum variants or categorical options. Non-integer bounds are narrowed to
+/// the integers within the range: `0.5..=4.5` becomes `1.0..=4.0` (also in the genotype's stored
+/// allele range). A range without an integer (`0.2..=0.8`) is a builder error.
 ///
 /// **Use case:** Heterogeneous chromosomes mixing categorical choices with continuous parameters.
 /// Allows [Permutation](crate::strategy::permutate) for (Multi)RangeGenotype

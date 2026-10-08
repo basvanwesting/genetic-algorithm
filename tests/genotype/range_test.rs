@@ -1479,3 +1479,59 @@ fn build_invalid() {
         .build();
     assert!(genotype.is_ok());
 }
+
+#[test]
+fn discrete_non_integer_allele_range() {
+    let mut rng = SmallRng::seed_from_u64(0);
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.5..=4.5)
+        .with_mutation_type(MutationType::Discrete)
+        .build()
+        .unwrap();
+
+    // the integers within the range, a gene never leaves the configured range
+    assert_eq!(genotype.allele_range, 1.0..=4.0);
+    assert_eq!(
+        genotype.permutable_gene_values_discrete(),
+        vec![1.0, 2.0, 3.0, 4.0]
+    );
+    let mut chromosome = Chromosome::new(genotype.random_genes_factory(&mut rng));
+    for _ in 0..100 {
+        genotype.mutate_chromosome_genes(5, true, &mut chromosome, &mut rng);
+        assert!(chromosome
+            .genes
+            .iter()
+            .all(|v| [1.0, 2.0, 3.0, 4.0].contains(v)));
+    }
+    let chromosome = build::chromosome(vec![1.0; 10]);
+    let mut population = Population::new(vec![], true);
+    genotype.fill_neighbouring_population(&chromosome, &mut population, &mut rng);
+    assert_eq!(population.size(), 10 * 3);
+
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(10)
+        .with_allele_range(-1.5..=1.5)
+        .with_mutation_type(MutationType::Discrete)
+        .build()
+        .unwrap();
+    assert_eq!(genotype.allele_range, -1.0..=1.0);
+
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.2..=0.8)
+        .with_mutation_type(MutationType::Discrete)
+        .build();
+    assert_eq!(
+        genotype.err(),
+        Some(genetic_algorithm::errors::TryFromGenotypeBuilderError("RangeGenotype requires an allele_range containing an integer for MutationType::Discrete"))
+    );
+
+    // other mutation types keep the range as given
+    let genotype = RangeGenotype::<f32>::builder()
+        .with_genes_size(10)
+        .with_allele_range(0.5..=4.5)
+        .build()
+        .unwrap();
+    assert_eq!(genotype.allele_range, 0.5..=4.5);
+}
