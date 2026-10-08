@@ -4,6 +4,51 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](http://keepachangelog.com/en/1.0.0/)
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Fixed
+* `RangeGenotype`/`MultiRangeGenotype` builders return `TryFromBuilderError` for an
+  allele range that is not a finite `start <= end`, for empty `RangeScaled`/`StepScaled`
+  values, for a wrong number of mutation types and for the wrong
+  `with_mutation_type(s)` setter. Mutation type values must be finite and non-negative:
+  an infinite `Step` (used to jump to the bound) and a negative `Range` bandwidth (was a
+  no-op) are now errors (#37)
+* All genotype builders validate seed genes: length, and alleles from the allele list,
+  within the allele range, or a permutation of the allele list (#41)
+* Integer overflow in `RangeGenotype`/`MultiRangeGenotype` at the type limits: `Discrete`
+  with an end of `T::MAX`, `RangeScaled` on a range wider than `T::MAX`, and `Step`
+  permutation near `T::MAX`. Seeded float `RangeScaled` results move by 1 ulp, as the
+  mutation window now ends exactly on the range end (#43)
+* With a `rng_seed`, `call_repeatedly`/`call_speciated` (and par variants) ran identical
+  copies. Each run now gets its own seed (`rng_seed + iteration`), deterministic but not
+  identical; the first run equals a single `call`. Seeded results of the other runs
+  change (#45)
+* Point crossover never picks point 0, which swapped the whole chromosomes instead of
+  crossing over. A single gene chromosome is left unchanged. Seeded results for
+  `CrossoverSinglePoint`/`CrossoverMultiPoint` change (#59)
+* `CrossoverUniform` swaps half of the genes as documented, not about 32%: it draws
+  distinct genes, at about twice the crossover cost. The former behaviour remains
+  available as `CrossoverMultiGene::new(.., genes_size / 2, true)`. Seeded results for
+  `CrossoverUniform` change (#61)
+* `MutationType::Discrete` with non-integer bounds produced values outside the range
+  (`0.5..=4.5` gave 0 and 5), and sampling disagreed with permutation and neighbours.
+  The allele range is narrowed to the integers within it (`1.0..=4.0`), also in the
+  stored `allele_range(s)`; a range without an integer is a builder error. Integer
+  valued bounds are unaffected (#74)
+* Float `Step`/`StepScaled` permutation grids had a near-duplicate point just short of
+  the end (f64 `0.0..=1.0` with `Step(0.1)` gave 12 values instead of 11). A value
+  within 1% of the step from the end now snaps to it, for a finer grid add a finer step
+  level. Permutation sizes of such grids drop accordingly (#75)
+* `Evolve` no longer recalculates the fitness of surviving chromosomes with an invalid
+  (`None`) fitness each generation, only of offspring (#77)
+
+### Added
+* Provided methods `is_finite` and `snap_to_end` on `RangeAllele`, overridden for `f32`
+  and `f64`. Existing implementations keep working
+* Public `crossover_points` field on `BinaryGenotype`, `ListGenotype`,
+  `MultiListGenotype`, `RangeGenotype` and `MultiRangeGenotype`, as `MultiUniqueGenotype`
+  already had
+
 ## [0.27.4] - 2026-09-26
 
 ### Fixed
